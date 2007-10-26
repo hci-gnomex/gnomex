@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ORION_LIB"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ORION_HOME"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hciEnv"/>
+	<classpathentry kind="lib" path="lib/msjdbcproxy-1.1-h3.jar"/>
+	<classpathentry kind="lib" path="lib/simplecaptcha-20050925.jar"/>
+	<classpathentry kind="output" path="build-eclipse"/>
+</classpath>
