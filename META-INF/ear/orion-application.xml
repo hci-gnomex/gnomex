@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE orion-application PUBLIC "-//Evermind//DTD J2EE Application runtime 1.2//EN" "http://www.orionserver.com/dtds/orion-application.dtd">
+
+<orion-application deployment-version="1.6.0">
+        <ejb-module remote="false" path="gnomex" />
+        <web-module id="gnomex" path="gnomex" />
+        <persistence path="persistence" />
+      <library path="lib/" />
+        <principals path="principals.xml" />
+
+
+       <user-manager class="hci.gnomex.security.SecurityManager">
+          <property name="application" value="GNomEx" />
+	     </user-manager>
+     
+         
+        <log>
+                <file path="application.log" />
+        </log>
+</orion-application>
+

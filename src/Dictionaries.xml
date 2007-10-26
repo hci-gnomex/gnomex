@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dictionaries>
+
+
+	<Dictionary displayName="Array Coordinate of Slide (not editable)" className="hci.gnomex.model.ArrayCoordinate"  editable="N"  >
+  	  <Filter className="hci.gnomex.model.SlideDesign" filterField="idSlideDesign"/>
+	</Dictionary>
+    <Dictionary displayName="Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
+  	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
+    </Dictionary>
+    <Dictionary displayName="Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
+	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" />
+	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" />
+	<Dictionary displayName="Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
+  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+	</Dictionary>
+	<Dictionary displayName="Hyb Protocol" className="hci.gnomex.model.HybProtocol" editable="N" >
+  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+	</Dictionary>
+	<Dictionary displayName="Label" className="hci.gnomex.model.Label" />
+	<Dictionary displayName="Labeling Protocol" className="hci.gnomex.model.LabelingProtocol" editable="N" >
+  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+	</Dictionary>
+	<Dictionary displayName="Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
+	<Dictionary displayName="Microarray Category" className="hci.gnomex.model.MicroarrayCategory" />
+	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism" />
+	<Dictionary displayName="Protocol Type (IRB or IACUC)" className="hci.gnomex.model.ProtocolType" />	
+	<Dictionary displayName="Quality Control Step" className="hci.gnomex.model.QualityControlStep" />	
+	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
+         <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
+	</Dictionary>
+	<Dictionary displayName="Microarray Categories associated with a Request Category" className="hci.gnomex.model.RequestCategoryMicroarrayCategory" >
+  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+  	  <Filter className="hci.gnomex.model.MicroarrayCategory" filterField="codeMicroarrayCategory"/>
+	</Dictionary>
+	<Dictionary displayName="Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" />
+	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
+	</Dictionary>
+	<Dictionary displayName="Sample Prep Methods associated with Sample Types" className="hci.gnomex.model.SamplePrepMethodSampleType" >
+  	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
+  	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
+      <Filter className="YN" filterField="isDefaultForSampleType"/>
+	</Dictionary>
+	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
+	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType">
+  	</Dictionary>
+	<Dictionary displayName="Sample Types associated with a Microarray Category" className="hci.gnomex.model.SampleTypeMicroarrayCategory" >
+  	  <Filter className="hci.gnomex.model.MicroarrayCategory"        filterField="codeMicroarrayCategory"/>
+  	  <Filter className="hci.gnomex.model.SampleType"                filterField="idSampleType"/>
+  	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
+  	  <Filter className="hci.gnomex.model.HybProtocol"               filterField="idHybProtocolDefault"/>
+  	  <Filter className="hci.gnomex.model.ScanProtocol"              filterField="idScanProtocolDefault"/>
+  	  <Filter className="hci.gnomex.model.FeatureExtractionProtocol" filterField="idFeatureExtractionProtocolDefault"/>
+	</Dictionary>
+	<Dictionary displayName="Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
+  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+	</Dictionary>
+	<Dictionary displayName="State" className="hci.gnomex.model.State" />
+	<Dictionary displayName="Slide Source" className="hci.gnomex.model.SlideSource" />
+	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" />
+	<Dictionary displayName="User Permission Kind" className="hci.gnomex.model.UserPermissionKind" />
+	<Dictionary displayName="Vendor" className="hci.gnomex.model.Vendor" />
+	<Dictionary displayName="Slide Design (not editable)" className="hci.gnomex.model.SlideDesign" editable="N" />
+	</Dictionaries>

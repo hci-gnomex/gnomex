@@ -1,0 +1,213 @@
+<project name="gnomex" default="all" basedir="./">
+
+    <!-- ============================================== -->
+	<!--                                                -->
+	<!-- Initialization                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="init">
+
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />
+        <property file="${basedir}/build.properties" />
+
+        <!-- Directories -->
+       	<mkdir dir="${build.dir}" />
+       	<mkdir dir="${build.class.dir}" />
+       	<mkdir dir="${dist.dir}" />
+
+		<!-- Paths -->
+        <path id="project.class.path">
+          <fileset dir="${lib.hcienv.dir}"          includes="*.jar" />
+          <fileset dir="${lib.dir}" 				includes="*.jar" />
+          <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
+          <fileset dir="${orion.dir}" 			    includes="*.jar" />
+        </path>
+	</target>
+
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all">
+		<antcall target="clean" />
+		<antcall target="compile" />
+		<antcall target="jar" />
+		<antcall target="war" />
+		<antcall target="ear" />
+		<antcall target="deploy" />
+	</target>
+
+
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Clean                                          -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="clean" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Cleaning                                             +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+
+		<delete>
+			<fileset dir="${build.dir}" />
+		</delete>
+	</target>
+
+
+
+
+
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Compile                                        -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling                                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.class.path">
+
+            <src path="${src.dir}" />
+        </javac>
+	</target>
+
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Jar                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="jar" depends="init, compile">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${jar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${jar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="**/*.class" />
+            	<include name="**/*.properties" />
+            </fileset>
+
+			<manifest>
+			  <attribute name="class-path" value="log4j.jar"/>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" includes="*.xml" />
+        </jar>
+	</target>
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- War                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="war" depends="init, compile">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building war files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${war.name}" />
+		</delete>
+
+		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/web.xml">
+			<fileset dir="${webroot.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</war>
+	</target>
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- ear                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="ear" depends="init, jar, war">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building ear files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+		<delete>
+			<fileset dir="${dist.dir}" includes="${ear.name}" />
+		</delete>
+
+		<ear destfile="${dist.dir}/${ear.name}"
+			 appxml="${metainf.dir}/ear/application.xml">
+
+      <fileset dir="${basedir}"		 	includes="lib/*.*" />
+      <fileset dir="${dist.dir}"			includes="${jar.name}" />
+      <fileset dir="${dist.dir}"			includes="${war.name}" />
+      <fileset dir="${src.dir}"          includes="*.hbm.xml" />
+      <fileset dir="${src.dir}"			includes="Dictionaries.xml" />
+
+      <metainf dir="${metainf.dir}/ear" includes="*.xml" />
+    </ear>
+	</target>
+
+
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- deploy                                         -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="deploy" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Deploying                                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<copy file="${dist.dir}/${ear.name}" todir="${orion.dir}/applications"/>
+	</target>
+
+
+</project>
