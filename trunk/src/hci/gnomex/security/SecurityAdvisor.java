@@ -344,7 +344,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           if (isGroupIManage(proj.getIdLab())) {
             canUpdate = true;
           }
-          // Owner of request
+          // Owner of project
           else if (isGroupIAmMemberOf(proj.getIdLab())
               && isOwner(proj.getIdAppUser())) {
             canUpdate = true;

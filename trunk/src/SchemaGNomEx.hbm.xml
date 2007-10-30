@@ -680,7 +680,7 @@
 	</class>
 	
 	<!-- hci.gnomex.model.Visibility -->
-	<class name="hci.gnomex.model.Visibility" table="Vendor">
+	<class name="hci.gnomex.model.Visibility" table="Visibility">
 		<id name="codeVisibility" column="codeVisibility" type="string">
 			<generator class="assigned"/>
 		</id>
