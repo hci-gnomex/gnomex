@@ -24,6 +24,7 @@ public class Lab extends HibernateDetailObject {
   
   // Permission flag
   private boolean canSubmitRequests = false;
+  private boolean canManage = false;
   
   public String getContactAddress() {
     return contactAddress;
@@ -171,6 +172,17 @@ public class Lab extends HibernateDetailObject {
   }
   public void canSubmitRequests(boolean canDo) {
     canSubmitRequests = canDo;
+  }
+  
+  public String getCanManage() {
+    if (this.canManage) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+  public void canManage(boolean canDo) {
+    canManage = canDo;
   }
   
 }

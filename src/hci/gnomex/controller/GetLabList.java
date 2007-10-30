@@ -98,6 +98,13 @@ public class GetLabList extends GNomExCommand implements Serializable {
           lab.canSubmitRequests(false);
         }
         
+
+        if (this.getSecAdvisor().isGroupIManage(lab.getIdLab())) {
+          lab.canManage(true);
+        } else {
+          lab.canManage(false);
+        }
+        
         doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
         
       }
