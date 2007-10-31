@@ -65,7 +65,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     try {
       
    
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       List slideDesigns = sess.createQuery("SELECT sd from SlideDesign sd ").list();
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
@@ -229,7 +229,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       log.error("An exception has occurred in GetRequestDownloadList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
-        
     }catch (SQLException e) {
       log.error("An exception has occurred in GetRequestDownloadList ", e);
       e.printStackTrace(System.out);
@@ -240,7 +239,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

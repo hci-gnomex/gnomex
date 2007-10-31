@@ -52,7 +52,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     try {
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
-        Session sess = HibernateSession.currentSession(this.getUsername());
+        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
         Comparator comparator = null;
         if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)) {
@@ -242,7 +242,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

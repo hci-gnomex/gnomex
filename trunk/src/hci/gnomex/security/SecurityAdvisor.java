@@ -1,20 +1,26 @@
 package hci.gnomex.security;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.admin.model.Associate;
+import hci.framework.model.DetailObject;
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabComparator;
-import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
 
-import java.util.*;
 import java.io.Serializable;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -884,6 +890,37 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return addWhere;
   }
+  
+  public Session getReadOnlyHibernateSession(String userName) throws Exception{
+    Session sess = null;
+    sess = HibernateGuestSession.currentGuestSession(userName);    
+    return sess;
+  }
+  
+  public void closeReadOnlyHibernateSession() throws Exception{
+    HibernateGuestSession.closeGuestSession();
+  }
+  
+
+  public Session getHibernateSession(String userName) throws Exception{
+    Session sess = null;
+    
+    if (this.isGuest()) {
+      sess = HibernateGuestSession.currentGuestSession(userName);
+    } else {
+      sess = HibernateSession.currentSession(userName);
+    }
+    return sess;
+  }
+  
+  public void closeHibernateSession() throws Exception{
+    if (this.isGuest()) {
+      HibernateGuestSession.closeGuestSession();
+    } else {
+      HibernateSession.closeSession();
+    }
+  }
+
   
   
 }

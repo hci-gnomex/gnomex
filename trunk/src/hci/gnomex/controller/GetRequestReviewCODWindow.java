@@ -106,7 +106,7 @@ public class GetRequestReviewCODWindow extends GNomExCommand implements Serializ
   public Command execute() throws RollBackCommandException {
     
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       dictionaryHelper = new DictionaryHelper();
       dictionaryHelper.getDictionaries(sess);
@@ -205,7 +205,7 @@ public class GetRequestReviewCODWindow extends GNomExCommand implements Serializ
     } 
     finally {
       try {
-        HibernateSession.closeSession();
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       }
       catch (Exception ex) {
         log.error("Exception trying to close the Hibernate session: "+ ex);

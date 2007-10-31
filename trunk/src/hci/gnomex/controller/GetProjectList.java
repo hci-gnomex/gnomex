@@ -45,7 +45,7 @@ public class GetProjectList extends GNomExCommand implements Serializable {
     try {
       
    
-    Session sess = HibernateSession.currentSession(this.getUsername());
+    Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
     StringBuffer buf = projectFilter.getQuery(this.getSecAdvisor());
     log.info("Query for GetProjectList: " + buf.toString());
@@ -78,14 +78,19 @@ public class GetProjectList extends GNomExCommand implements Serializable {
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetProjectList ", e);
-      throw new RollBackCommandException(e.getMessage());
-        
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());        
     }catch (SQLException e) {
       log.error("An exception has occurred in GetProjectList ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+    } catch (Exception e) {
+      log.error("An exception has occurred in GetProjectList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

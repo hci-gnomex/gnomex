@@ -42,7 +42,7 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
     try {
       
    
-    Session sess = HibernateSession.currentSession(this.getUsername());
+    Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
     
 
@@ -102,17 +102,24 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetExperimentDesignList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
       log.error("An exception has occurred in GetExperimentDesignList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
       log.error("An exception has occurred in GetExperimentDesignList ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+    } catch (Exception e){
+      log.error("An exception has occurred in GetExperimentDesignList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

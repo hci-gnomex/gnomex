@@ -93,12 +93,6 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
-    }finally {
-      try {
-        HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
-      }
     }
     
     return this;

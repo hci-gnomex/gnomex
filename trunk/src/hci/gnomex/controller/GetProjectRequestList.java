@@ -80,8 +80,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     
     try {
       
-   
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
       log.info("Query for GetProjectRequestList: " + buf.toString());
@@ -175,7 +174,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

@@ -65,7 +65,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
     if (this.getSecAdvisor().isGuest() && !labFilter.isUnbounded()) {
       
     } else {
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       StringBuffer queryBuf = labFilter.getQuery(this.getSecAdvisor());
       List labs = (List)sess.createQuery(queryBuf.toString()).list();
@@ -118,17 +118,24 @@ public class GetLabList extends GNomExCommand implements Serializable {
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetLabList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
       log.error("An exception has occurred in GetLabList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
       log.error("An exception has occurred in GetLabList ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+    } catch (Exception e){
+      log.error("An exception has occurred in GetLabList ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }
