@@ -62,7 +62,7 @@ public class GetAppUser extends GNomExCommand implements Serializable {
     try {
       
    
-    Session sess = HibernateSession.currentSession(this.getUsername());
+    Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
     AppUser theAppUser = (AppUser)sess.get(AppUser.class, appUser.getIdAppUser());
     
@@ -84,17 +84,24 @@ public class GetAppUser extends GNomExCommand implements Serializable {
     }
     }catch (NamingException e){
       log.error("An exception has occurred in GetAppUser ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
       log.error("An exception has occurred in GetAppUser ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
       log.error("An exception has occurred in GetAppUser ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+    } catch (Exception e) {
+      log.error("An exception has occurred in GetAppUser ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

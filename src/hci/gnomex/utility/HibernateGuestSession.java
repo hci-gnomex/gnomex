@@ -21,19 +21,20 @@ import javax.naming.*;
 
 import java.sql.*;
 
-public class HibernateSession {
+public class HibernateGuestSession {
 
-  public static final ThreadLocal session      = new ThreadLocal();
-  
-  public static final String SESSION_FACTORY_JNDI_NAME       = "sessions/GNOMEX_FACTORY";
-  
+  public static final ThreadLocal guestSession = new ThreadLocal();
 
-  public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
-    Session s = (Session) session.get();
+  public static final String GUEST_SESSION_FACTORY_JNDI_NAME = "sessions/GNOMEX_GUEST_FACTORY";
+
+
+    
+  public static Session currentGuestSession(String username) throws NamingException, HibernateException, SQLException {
+    Session s = (Session) guestSession.get();
     if (s == null) {
-      SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);
+      SessionFactory sf = CachedGuestSessionFactory.getCachedGuestSessionFactory().getFactory(GUEST_SESSION_FACTORY_JNDI_NAME);
       s = sf.openSession();
-      session.set(s);
+      guestSession.set(s);
     }
 
     CallableStatement stmt;
@@ -48,8 +49,8 @@ public class HibernateSession {
     return s;
   }
 
-  public static Session currentSession() throws NamingException, HibernateException, SQLException {
-    Session s = (Session) session.get();
+  public static Session currentGuestSession() throws NamingException, HibernateException, SQLException {
+    Session s = (Session) guestSession.get();
     if (s == null) {
       throw new HibernateException("This method can only be invoked if a session already exists in the thread of execution");
     }
@@ -57,8 +58,8 @@ public class HibernateSession {
   }
 
 
-  public static void closeSession() throws HibernateException, SQLException {
-    Session s = (Session) session.get();
+  public static void closeGuestSession() throws HibernateException, SQLException {
+    Session s = (Session) guestSession.get();
 
     CallableStatement stmt;
     try {
@@ -71,14 +72,12 @@ public class HibernateSession {
       stmt.executeUpdate();
     }
     finally {
-      session.set(null);
+      guestSession.set(null);
       if (s!=null) s.close();
     }
   }
   
-  public static boolean hasCurrentSession () {
-    return (session.get() != null);
+  public static boolean hasCurrentGuestSession () {
+    return (guestSession.get() != null);
   }
-  
-  
 }

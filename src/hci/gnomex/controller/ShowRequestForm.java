@@ -62,7 +62,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     try {
       
    
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
      
       dictionaryHelper = new DictionaryHelper();
@@ -185,9 +185,14 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       log.error("An exception has occurred in ShowRequestForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
+      
+    } catch (Exception e) {
+      log.error("An exception has occurred in ShowRequestForm ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();    
       } catch(Exception e) {
         
       }

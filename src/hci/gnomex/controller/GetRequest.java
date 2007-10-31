@@ -58,7 +58,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
     try {
       
    
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
  
       // Find request
       Request request = null;
@@ -101,21 +101,26 @@ public class GetRequest extends GNomExCommand implements Serializable {
     
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in GetRequest ", e);
-      throw new RollBackCommandException(e.getMessage());
-        
+      throw new RollBackCommandException(e.getMessage());        
     }catch (NamingException e){
       log.error("An exception has occurred in GetRequest ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
     }catch (SQLException e) {
       log.error("An exception has occurred in GetRequest ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
       log.error("An exception has occurred in GetRequest ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+    } catch (Exception e){
+      log.error("An exception has occurred in GetRequest ", e);
+      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }

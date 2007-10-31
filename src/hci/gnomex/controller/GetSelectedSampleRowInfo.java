@@ -94,12 +94,6 @@ public class GetSelectedSampleRowInfo extends GNomExCommand implements Serializa
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
-    }finally {
-      try {
-        HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
-      }
     }
     
     return this;

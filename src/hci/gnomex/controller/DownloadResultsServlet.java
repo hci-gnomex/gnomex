@@ -63,8 +63,7 @@ public class DownloadResultsServlet extends HttpServlet {
     try {
 
       // Get security advisor
-      SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession()
-          .getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
         response.setContentType("application/x-download");
@@ -73,7 +72,7 @@ public class DownloadResultsServlet extends HttpServlet {
         long time1 = System.currentTimeMillis();
         
         
-        Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
         
        
         getFileNamesToDownload(req);
@@ -130,7 +129,9 @@ public class DownloadResultsServlet extends HttpServlet {
             totalZipSize += size;
 
             zout.closeEntry();
-          }          
+          }     
+          
+          
         }
         
         
@@ -139,7 +140,7 @@ public class DownloadResultsServlet extends HttpServlet {
         
         long time3 = System.currentTimeMillis();
 
-
+        secAdvisor.closeReadOnlyHibernateSession();
 
 
       } else {

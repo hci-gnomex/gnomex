@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN" "http://hibernate.sourceforge.net/hibernate-configuration.dtd">
+<hibernate-configuration>
+    <session-factory name="sessions/GNOMEX_GUEST_FACTORY">
+    	<property name="show_sql">false</property>
+        <property name="use_outer_join">true</property>
+        <property name="query.imports">hci.gnomex.model</property>
+        <property name="jdbc.use_streams_for_binary">true</property>
+        <property name="connection.datasource">jdbc/GNOMEX_GUEST</property>
+        <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <!-- ENTER ALL MAPPING FILES HERE, USE THE FOLLOWING AS AN EXAMPLE -->
+        <mapping file="applications/gnomex/SchemaGNomEx.hbm.xml"/>
+        <mapping file="applications/hciEnv/SchemaAssoc.hbm.xml"/>
+    </session-factory>
+</hibernate-configuration>
+

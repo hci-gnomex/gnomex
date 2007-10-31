@@ -49,7 +49,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
     try {
       
    
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
       StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor());
       log.info(buf.toString());
@@ -135,14 +135,17 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       log.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
-        
     }catch (SQLException e) {
+      log.error("An exception has occurred in GetRequestProgressList ", e);
+      e.printStackTrace(System.out);
+      throw new RollBackCommandException(e.getMessage());
+    } catch (Exception e) {
       log.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        HibernateSession.closeSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
       }
