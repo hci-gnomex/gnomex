@@ -13,6 +13,8 @@ public class Constants {
   
   public static final String              PRODUCTION_SERVER               = "hci-as1.hci.utah.edu";
   
+  public static final String              DEVELOPER_EMAIL                 = "tony.disera@hci.utah.edu";
+  
 
   public static final String              EMAIL_BIOINFORMATICS_MICROARRAY = "bioinformaticscore@utah.edu";
   public static final String              EMAIL_MICROARRAY_CORE_FACILITY  = "brian.dalley@hci.utah.edu";

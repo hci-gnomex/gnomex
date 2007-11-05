@@ -110,8 +110,8 @@ public class RequestHTMLFormatter {
       rowh = new Element("TR");
       table.addContent(rowh);    
       this.addHeaderCell(rowh, "Conc.");
-      this.addHeaderCell(rowh, "260/280");
       this.addHeaderCell(rowh, "260/230");
+      this.addHeaderCell(rowh, "260/280");
       this.addHeaderCell(rowh, "28S/18S");
       this.addHeaderCell(rowh, "RIN#");
     }
@@ -174,8 +174,8 @@ public class RequestHTMLFormatter {
     rowh = new Element("TR");
     table.addContent(rowh);    
     this.addHeaderCell(rowh, "Conc.");
-    this.addHeaderCell(rowh, "260/280");
     this.addHeaderCell(rowh, "260/230");
+    this.addHeaderCell(rowh, "260/280");
     this.addHeaderCell(rowh, "28S/18S");
     this.addHeaderCell(rowh, "RIN#");
     
@@ -198,8 +198,8 @@ public class RequestHTMLFormatter {
                            dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));
       }
       this.addCell(row, sample.getQualCalcConcentration() == null ? "&nbsp;"      : sample.getQualCalcConcentration().toString());
-      this.addCell(row, sample.getQual260nmTo280nmRatio() == null ? "&nbsp;"      : sample.getQual260nmTo280nmRatio().toString());
       this.addCell(row, sample.getQual260nmTo230nmRatio() == null ? "&nbsp;"      : sample.getQual260nmTo230nmRatio().toString());
+      this.addCell(row, sample.getQual260nmTo280nmRatio() == null ? "&nbsp;"      : sample.getQual260nmTo280nmRatio().toString());
       this.addCell(row, sample.getQual28sTo18sRibosomalRatio() == null ? "&nbsp;" : sample.getQual28sTo18sRibosomalRatio().toString());
       this.addCell(row, sample.getQualRINNumber() == null ? "&nbsp;"              : sample.getQualRINNumber().toString());
     }
