@@ -1,11 +1,12 @@
 package hci.gnomex.controller;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -52,6 +53,13 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
       Request req = (Request)sess.load(Request.class, idRequest);
     
       if (this.getSecAdvisor().canDelete(req)) {
+        
+        // Remove the work items
+        for(Iterator i = req.getWorkItems().iterator(); i.hasNext();) {
+          WorkItem wi = (WorkItem)i.next();
+          sess.delete(wi);
+        }
+        sess.flush();
         
         // Remove references to labeled samples on hyb
         for(Iterator i = req.getHybridizations().iterator(); i.hasNext();) {

@@ -244,7 +244,7 @@
 			<key column="idRequest"/>
 			<many-to-many column="idHybridization" class="hci.gnomex.model.Hybridization"/>
 		</set>
-		<set name="workItems" table="WorkItem" lazy="true" cascade="delete">
+		<set name="workItems" table="WorkItem" lazy="true" cascade="none">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.WorkItem" />
 		</set>

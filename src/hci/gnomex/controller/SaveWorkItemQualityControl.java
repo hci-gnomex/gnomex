@@ -50,6 +50,8 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
   
   private String                       appURL;
   
+  private String                       serverName;
+  
   private Map                          confirmedRequestMap = new HashMap();
   
   private DictionaryHelper             dictionaryHelper = null;
@@ -79,6 +81,9 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
     }
+    
+    serverName = request.getServerName();
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -211,15 +216,28 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     } 
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), introNote.toString());
     
+    boolean send = false;
+    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
+      send = true;
+    } else {
+      if (request.getAppUser().getEmail().equals(Constants.DEVELOPER_EMAIL)) {
+        send = true;
+        emailSubject = "TEST - " + emailSubject;
+      }
+    }
     
-    MailUtil.send(request.getAppUser().getEmail(), 
-        null,
-        Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
-        emailSubject, 
-        emailFormatter.formatQualityControl(),
-        true);
+    if (send) {
+      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), introNote.toString());
+      
+      
+      MailUtil.send(request.getAppUser().getEmail(), 
+          null,
+          Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
+          emailSubject, 
+          emailFormatter.formatQualityControl(),
+          true);      
+    }
     
   }
   

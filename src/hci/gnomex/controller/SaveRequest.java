@@ -687,13 +687,26 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     introNote.append("<br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, requestParser.getRequest(), samples, hybs, introNote.toString());
+    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
-    MailUtil.send(request.getAppUser().getEmail(), 
-        null,
-        Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
-        dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted", 
-        emailFormatter.format(),
-        true);
+    boolean send = false;
+    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
+      send = true;
+    } else {
+      if (request.getAppUser().getEmail().equals(Constants.DEVELOPER_EMAIL)) {
+        send = true;
+        subject = "TEST - " + subject;
+      }
+    }
+    
+    if (send) {
+      MailUtil.send(request.getAppUser().getEmail(), 
+          null,
+          Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
+          subject, 
+          emailFormatter.format(),
+          true);      
+    }
     
   }
   

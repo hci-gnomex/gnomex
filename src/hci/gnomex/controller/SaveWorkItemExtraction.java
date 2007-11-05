@@ -48,6 +48,8 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
   
   private String                       appURL;
   
+  private String                       serverName;
+  
   private Map                          confirmedRequestMap = new HashMap();
   
   
@@ -77,6 +79,8 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
     }
+    
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -178,13 +182,28 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
+        
+    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
-    MailUtil.send(request.getAppUser().getEmail(), 
-        null,
-        Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
-        dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed", 
-        emailFormatter.format(),
-        true);
+    boolean send = false;
+    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
+      send = true;
+    } else {
+      if (request.getAppUser().getEmail().equals(Constants.DEVELOPER_EMAIL)) {
+        send = true;
+        subject = "TEST - " + subject;
+      }
+    }
+    
+    if (send) {
+      MailUtil.send(request.getAppUser().getEmail(), 
+          null,
+          Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
+          subject, 
+          emailFormatter.format(),
+          true);
+      
+    }
     
   }
 
