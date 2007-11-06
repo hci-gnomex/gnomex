@@ -53,6 +53,7 @@ public class FileDescriptorParser extends DetailObject implements Serializable {
     
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setZipEntryName(n.getAttributeValue("zipEntryName"));
+
    
     return fd;
 

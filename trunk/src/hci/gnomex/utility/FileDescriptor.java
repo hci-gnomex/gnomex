@@ -30,9 +30,14 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.displayName = displayName;
     
     this.fileSize = file.length();
-    this.lastModifyDate  = new Date(file.lastModified());    
-    this.fileName = file.getAbsolutePath();
-    this.zipEntryName = fileName.substring(Constants.MICROARRAY_DIRECTORY.length() + 5);     
+    this.lastModifyDate  = new Date(file.lastModified());
+    try {
+      this.fileName = file.getCanonicalPath();      
+    } catch (Exception e) {
+      System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
+      this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
+    }
+    this.zipEntryName = fileName.substring(Constants.MICROARRAY_DIRECTORY.length() + 5).replaceAll("\\\\", "/");  
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");
@@ -126,6 +131,22 @@ public class FileDescriptor extends DetailObject implements Serializable {
   
   public void setZipEntryName(String zipEntryName) {
     this.zipEntryName = zipEntryName;
+  }
+  
+  public String getDirectoryRequestNumber() {
+    String requestNumber = "";
+    if (fileName != null && !fileName.equals("")) {
+      // Get the directory name starting after the year
+      String relativePath = fileName.substring(Constants.MICROARRAY_DIRECTORY.length() + 5);
+      String tokens[] = relativePath.split("/", 2);
+      if (tokens == null || tokens.length == 1) {
+        tokens = relativePath.split("\\\\", 2);
+      }
+      if (tokens.length == 2) {
+        requestNumber = tokens[0];
+      }
+    }
+    return requestNumber;
   }
  
 }
