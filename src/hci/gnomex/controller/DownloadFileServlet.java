@@ -97,6 +97,14 @@ public class DownloadFileServlet extends HttpServlet {
           for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
 
             FileDescriptor fd = (FileDescriptor) i1.next();
+            
+            // Since we use the request number to determine if user has permission to read the data, match sure
+            // it matches the request number of the directory.  If it doesn't bypass the download
+            // for this file.
+            if (!requestNumber.equalsIgnoreCase(fd.getDirectoryRequestNumber())) {
+              log.error("Request number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
+              continue;
+            }
 
             
             FileInputStream in = new FileInputStream(fd.getFileName());
