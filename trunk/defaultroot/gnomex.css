@@ -2,55 +2,55 @@
 
 /*PAGE LAYOUT*/
 body {
-	background-image: url(images/bg_body.jpg);
-	background-repeat: repeat-x;
+  background-image:url(images/bg_body.jpg);
+	background-repeat:repeat-x;
+
 	margin-left: 0px;
 	margin-top: 0px;
 	margin-right: 0px;
 	margin-bottom: 0px;
 }
 #toppage{
-	width:800px;
+	width:700px;
 }
 #date{
-	float:left; width:190px; height:39px; border-bottom:solid 1px #999999; border-right:solid 1px #999999;
+	float:left; width:190px; height:29px; border-bottom:solid 1px #999999; border-right:solid 1px #999999;
 }
 #topbar{
 	float:left; 
-	width:608px; 
-	height:40px; 
-	background-image:url(bg_topbar.gif);
-	background-color:#CBC55C;
+	width:508px; 
+	height:30px; 
+	background-image:url(images/bg_topbar.gif);
 	background-repeat:repeat-x;
 	border-right:solid 1px #999999;
 }
 #header{
-	width:800px;
+	width:700px;
 }
 #content{
-	width:800px;
+	width:700px;
 }
 #contenttext{
-	float:left; width:608px; 
+	float:left; width:508px; 
 	background-color:#F7F7F7; 
 	border-left:solid 1px #999999; border-right:solid 1px #999999; 
 	border-bottom:solid 1px #999999; border-top:dotted 1px #CCCCCC; 
 	min-height:360px;
 }
 #logo{
-	float:left; width:190px; height:110px; background-color:#F7F7F7; border-left:solid 1px #999999;
+	float:left; width:190px; height:90px; background-color:#F7F7F7; border-left:solid 1px #999999;
 }
 #pagetitle{
-	position:relative; float:left; width:608px; height:110px; background-color:#F7F7F7; border-right:solid 1px #999999;
+	position:relative; float:left; width:508px; height:90px; background-color:#F7F7F7; border-right:solid 1px #999999;
 }
 #title{
-	position:absolute; right:10px; bottom:0px; width:600px;
+	position:absolute; right:10px; bottom:0px; width:500px;
 }
 #menu{
 	float:left; width:190px; margin:0px;
 }
 #footer{
-	width:590px; padding-right:10px; padding-left:200px;
+	width:490px; padding-right:10px; padding-left:200px;
 }
 
 /*GRAY PANEL*/
@@ -60,20 +60,34 @@ body {
 	background-color:#EEEEEE;
 	margin:10px;
 	padding:10px;
-	width:550px;
+	width:450px;
 	height:70px;
 }
 
-/*IMAGE PANEL*/
-.image{
-	padding:12px;
+/*IMAGE PANELS*/
+.image_container{
 	border:solid 1px #E4E4E4;
 	background-color:white;
 	margin:10px;
 	padding:10px;
-	width:100px;
-	height:80px;
+	width:450px;
+	height:150px;
+	float:center;
+}
+.image{
+	border:solid 1px white;
+	background-color:white;
+	margin:1px;
+	padding:1px;
 	float:left;
+}
+.image_buffer{
+	background-color:white;
+	margin:1px;
+	padding:1px;
+	float:left;
+	width: 30px;
+	height: 100px;
 }
 
 /*TEXT STYLES*/
