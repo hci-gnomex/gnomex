@@ -31,9 +31,10 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
 
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
+  private String              errorAction;
 
   
-  private static final String ERROR_CAPTCHA_JSP = "/guest_go.jsp";
+  private static final String ERROR_CAPTCHA_JSP = "/captcha.jsp";
   
   
 
@@ -61,6 +62,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     String userPhrase    = (String)session.getAttribute(nl.captcha.servlet.Constants.SIMPLE_CAPCHA_SESSION_KEY) ;
     String captchaPhrase = (String) request.getParameter("captchafield");
     launchAction  = (String) request.getParameter("launchAction");
+    errorAction   = (String) request.getParameter("errorAction");
 
 
 
@@ -76,7 +78,11 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
-      setResponsePage(this.ERROR_CAPTCHA_JSP);
+      if (errorAction != null && !errorAction.equals("")) {
+        setResponsePage(this.errorAction);                
+      } else {
+        setResponsePage(this.ERROR_CAPTCHA_JSP);        
+      }
     }
   }
 
@@ -135,7 +141,11 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
         setResponsePage(this.SUCCESS_JSP);
       }
     } else {
-      setResponsePage(this.ERROR_CAPTCHA_JSP);
+      if (errorAction != null && !errorAction.equals("")) {
+        setResponsePage(this.errorAction);                
+      } else {
+        setResponsePage(this.ERROR_CAPTCHA_JSP);        
+      }
     }
     return this;
   }
