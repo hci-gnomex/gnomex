@@ -79,7 +79,7 @@
 	
     <welcome-file-list>
        <welcome-file>
-           welcome.html
+           gnomex.html
        </welcome-file>
     </welcome-file-list>
  
