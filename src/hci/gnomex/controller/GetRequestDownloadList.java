@@ -56,7 +56,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
     
     if  (!filter.hasCriteria()) {
-      this.addInvalidField("filterRequired", "Please enter at least one search critierion.");
+      this.addInvalidField("filterRequired", "Please enter at least one search criterion.");
     }
   }
 

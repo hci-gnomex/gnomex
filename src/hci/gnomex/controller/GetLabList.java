@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
+import hci.gnomex.model.Visibility;
 
 
 public class GetLabList extends GNomExCommand implements Serializable {
@@ -67,48 +69,80 @@ public class GetLabList extends GNomExCommand implements Serializable {
     } else {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
+      // If this is an unbounded list, run a query to find all
+      // labs that have public experiments.
+      Map publicLabMap = new HashMap();
+      if (labFilter.isUnbounded()) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("SELECT distinct p.idLab  ");
+        buf.append(" FROM      Project p ");
+        buf.append(" LEFT JOIN p.requests as r ");
+        buf.append(" WHERE p.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+        buf.append(" OR    r.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+        List publicLabs = (List)sess.createQuery(buf.toString()).list();
+        for (Iterator i = publicLabs.iterator(); i.hasNext();) {
+          Integer idLabPublic = (Integer)i.next();
+          publicLabMap.put(idLabPublic, idLabPublic);        
+        }        
+      }
+      
       StringBuffer queryBuf = labFilter.getQuery(this.getSecAdvisor());
       List labs = (List)sess.createQuery(queryBuf.toString()).list();
       
       for(Iterator i = labs.iterator(); i.hasNext();) {
         Lab lab = (Lab)i.next();
-
-        lab.excludeMethodFromXML("getDepartment");
-        lab.excludeMethodFromXML("getNotes");
-        lab.excludeMethodFromXML("getContactName");
-        lab.excludeMethodFromXML("getContactAddress");
-        lab.excludeMethodFromXML("getContactCity");
-        lab.excludeMethodFromXML("getContactCodeState");
-        lab.excludeMethodFromXML("getContactZip");
-        lab.excludeMethodFromXML("getContactEmail");
-        lab.excludeMethodFromXML("getContactPhone");
-
-        lab.excludeMethodFromXML("getMembers");
-        lab.excludeMethodFromXML("getCollaborators");
-        lab.excludeMethodFromXML("getManagers");
-
-        // Don't show billing accounts if the list is unbounded or the user can't submit requests
-        if (labFilter.isUnbounded() || !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
-          lab.excludeMethodFromXML("getBillingAccounts");
-        }
-
+        
         if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
           lab.canSubmitRequests(true);
         } else {
           lab.canSubmitRequests(false);
         }
         
-
         if (this.getSecAdvisor().isGroupIManage(lab.getIdLab())) {
           lab.canManage(true);
         } else {
           lab.canManage(false);
         }
         
-        doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+        if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) ||
+            this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab()) ||
+            this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+          lab.isMyLab(true);
+        } else {
+          lab.isMyLab(false);
+        }
         
+        if (labFilter.isUnbounded()) {
+          if (publicLabMap.containsKey(lab.getIdLab())) {
+            lab.setHasPublicData(true);
+          } else {
+            lab.setHasPublicData(false);
+          }
+        }
+        
+        if (lab.getIsMyLab().equals("Y") || lab.getHasPublicData().equals("Y")) {
+
+          lab.excludeMethodFromXML("getDepartment");
+          lab.excludeMethodFromXML("getNotes");
+          lab.excludeMethodFromXML("getContactName");
+          lab.excludeMethodFromXML("getContactAddress");
+          lab.excludeMethodFromXML("getContactCity");
+          lab.excludeMethodFromXML("getContactCodeState");
+          lab.excludeMethodFromXML("getContactZip");
+          lab.excludeMethodFromXML("getContactEmail");
+          lab.excludeMethodFromXML("getContactPhone");
+
+          lab.excludeMethodFromXML("getMembers");
+          lab.excludeMethodFromXML("getCollaborators");
+          lab.excludeMethodFromXML("getManagers");
+
+          // Don't show billing accounts if the user can't submit requests
+          if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
+            lab.excludeMethodFromXML("getBillingAccounts");
+          }
+          doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+        }
       }
-      
     }
    
     

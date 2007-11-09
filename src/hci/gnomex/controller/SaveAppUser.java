@@ -64,8 +64,10 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           if (this.isValid()) {
             appUser = appUserScreen;
             
-            String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
-            appUser.setPasswordExternal(encryptedPassword);
+            if (appUser.getPasswordExternal() != "" && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+              String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
+              appUser.setPasswordExternal(encryptedPassword);      
+            }
             
             sess.save(appUser);
             
@@ -125,10 +127,12 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     appUser.setCodeUserPermissionKind(appUserScreen.getCodeUserPermissionKind());
     appUser.setuNID(appUserScreen.getuNID());
     appUser.setUserNameExternal(appUserScreen.getUserNameExternal());
-    appUser.setPasswordExternal(appUserScreen.getPasswordExternal());
     
-    String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
-    appUser.setPasswordExternal(encryptedPassword);
+    // Only encrypt and set the password if something has been entered in the text field.
+    if (appUserScreen.getPasswordExternal() != "" && !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+      String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
+      appUser.setPasswordExternal(encryptedPassword);      
+    }
     
     
   }

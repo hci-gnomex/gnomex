@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
@@ -70,6 +71,8 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       Hibernate.initialize(theAppUser.getLabs());
       Hibernate.initialize(theAppUser.getCollaboratingLabs());
       Hibernate.initialize(theAppUser.getManagingLabs());
+      
+      theAppUser.excludeMethodFromXML("getPasswordExternal");
       
       Document doc = new Document(new Element("OpenAppUserList"));
       doc.getRootElement().addContent(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());

@@ -8,6 +8,8 @@ import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class AppUser extends HibernateDetailObject implements Serializable {
+  public static final String    MASKED_PASSWORD = "XXXX";
+  
   private Integer idAppUser;
   private String  firstName;
   private String  lastName;
@@ -174,6 +176,14 @@ public class AppUser extends HibernateDetailObject implements Serializable {
   
   public Set getManagingLabs() {
     return managingLabs;
+  }
+  
+  public String getPasswordExternalEntered() {
+    if (this.passwordExternal != null && !this.passwordExternal.equals("")) {
+      return MASKED_PASSWORD;      
+    } else {
+      return "";
+    }
   }
 
   

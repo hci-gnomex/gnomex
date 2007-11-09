@@ -25,6 +25,8 @@ public class Lab extends HibernateDetailObject {
   // Permission flag
   private boolean canSubmitRequests = false;
   private boolean canManage = false;
+  private boolean isMyLab = false;
+  private boolean hasPublicData = false;
   
   public String getContactAddress() {
     return contactAddress;
@@ -184,5 +186,34 @@ public class Lab extends HibernateDetailObject {
   public void canManage(boolean canDo) {
     canManage = canDo;
   }
+
+  
+  public String getIsMyLab() {
+    if (isMyLab) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+
+  
+  public void isMyLab(boolean isMyLab) {
+    this.isMyLab = isMyLab;
+  }
+
+  
+  public String getHasPublicData() {
+    if (hasPublicData) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+
+  
+  public void setHasPublicData(boolean hasPublicData) {
+    this.hasPublicData = hasPublicData;
+  }
+
   
 }

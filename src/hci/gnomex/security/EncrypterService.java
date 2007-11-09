@@ -41,6 +41,7 @@ public final class EncrypterService
     String hash = (new BASE64Encoder()).encode(raw); //step 5
     return hash; //step 6
   }
+
   
   public static synchronized EncrypterService getInstance() //step 1
   {

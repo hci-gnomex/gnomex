@@ -120,18 +120,22 @@ public class AppUserFilter extends DetailObject {
       // user list in order to assign new members to groups
       
     } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
-      // Limit to users who are members of the authorized labs
-      this.addWhereOrAnd();
-      queryBuf.append(" lab.idLab in ( ");
-      Set labs = this.secAdvisor.getAllMyGroups();
-      for(Iterator i = labs.iterator(); i.hasNext();) {
-        Lab theLab = (Lab)i.next();
-        queryBuf.append(theLab.getIdLab());
-        if (i.hasNext()) {
-          queryBuf.append(", ");
-        }
-      }      
-      queryBuf.append(" )");
+      
+      if (this.secAdvisor.getAllMyGroups().size() > 0) {
+        // Limit to users who are members of the authorized labs
+        this.addWhereOrAnd();
+        queryBuf.append(" lab.idLab in ( ");
+        Set labs = this.secAdvisor.getAllMyGroups();
+        for(Iterator i = labs.iterator(); i.hasNext();) {
+          Lab theLab = (Lab)i.next();
+          queryBuf.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
+          }
+        }      
+        queryBuf.append(" )");
+        
+      }
       
     } else {
       // Limit to this user only
