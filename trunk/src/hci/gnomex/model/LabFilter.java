@@ -103,17 +103,20 @@ public class LabFilter extends DetailObject {
       // No criteria needed if user can view all requests
       
     } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
-      // Limit to requests for labs that the user is a member of
-      this.addWhereOrAnd();
-      queryBuf.append(" lab.idLab in ( ");
-      for(Iterator i = secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
-        Lab theLab = (Lab)i.next();
-        queryBuf.append(theLab.getIdLab());
-        if (i.hasNext()) {
-          queryBuf.append(", ");
-        }
-      }      
-      queryBuf.append(" )");
+      
+      if (this.secAdvisor.getAllMyGroups().size() > 0) {
+        // Limit to requests for labs that the user is a member of
+        this.addWhereOrAnd();
+        queryBuf.append(" lab.idLab in ( ");
+        for(Iterator i = secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
+          Lab theLab = (Lab)i.next();
+          queryBuf.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
+          }
+        }      
+        queryBuf.append(" )");        
+      }
       
     } 
     
