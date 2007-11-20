@@ -98,6 +98,13 @@ public class DownloadFileServlet extends HttpServlet {
 
             FileDescriptor fd = (FileDescriptor) i1.next();
             
+            // Ignore file descriptors that represent directories.  We just
+            // will zip up actual files.
+            if (fd.getType().equals("dir")) {
+              continue;
+            }
+            
+            
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
@@ -106,6 +113,7 @@ public class DownloadFileServlet extends HttpServlet {
               continue;
             }
 
+            
             
             FileInputStream in = new FileInputStream(fd.getFileName());
 

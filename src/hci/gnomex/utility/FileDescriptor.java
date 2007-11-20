@@ -5,7 +5,10 @@ import hci.gnomex.constants.Constants;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class FileDescriptor extends DetailObject implements Serializable {
@@ -21,6 +24,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private Date      lastModifyDate;
   private String    type;
   private String    zipEntryName;
+  private List      children = new ArrayList();
   
   public FileDescriptor() {    
   }
@@ -60,26 +64,52 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
   public String getFileSizeText() {
     
+    long theFileSize = getFileSize();
+
+    
     long size = 0;
     String sizeTxt = "";
-    if (fileSize > GB ) {
-      size = Math.round(fileSize / GB);
+    if (theFileSize > GB ) {
+      size = Math.round(theFileSize / GB);
       sizeTxt = size + " " + " gb";
-    }  else if (fileSize > MB ) {
-      size = Math.round(fileSize / MB);
+    }  else if (theFileSize > MB ) {
+      size = Math.round(theFileSize / MB);
       sizeTxt = size + " " + " mb";
-    } else if (fileSize > KB ) {
-      size = Math.round(fileSize / KB);
+    } else if (theFileSize > KB ) {
+      size = Math.round(theFileSize / KB);
       sizeTxt = size + " " + " kb";
     } else {
-      sizeTxt = fileSize + " b";
+      sizeTxt = theFileSize + " b";
     }
     return sizeTxt;
 
   }
   
+  public long getChildFileSize() {
+    
+    if (this.type != null && this.type.equals("dir")) {
+      long total = 0;
+      for(Iterator i = children.iterator(); i.hasNext();) {
+        FileDescriptor fd = (FileDescriptor)i.next();
+        total += fd.getChildFileSize();            
+      }      
+      return total;
+      
+    } else {
+      return fileSize;
+    }
+    
+  }
+  
   public long getFileSize() {
-    return fileSize;
+    
+    if (type != null && type.equals("dir")) {
+      long theFileSize = 0;
+      theFileSize = this.getChildFileSize();
+      return theFileSize;
+    } else {      
+      return fileSize;
+    }
   }
 
   public String getType() {
@@ -147,6 +177,16 @@ public class FileDescriptor extends DetailObject implements Serializable {
       }
     }
     return requestNumber;
+  }
+
+  
+  public List getChildren() {
+    return children;
+  }
+
+  
+  public void setChildren(List children) {
+    this.children = children;
   }
  
 }
