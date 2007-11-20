@@ -199,7 +199,10 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         }
         
         if (f1.isDirectory()) {
-          getFileNames(requestNumber, fileName, theFiles, subDirName != null ? subDirName + "/" + f1.getName() : f1.getName());
+          FileDescriptor dirFileDescriptor = new FileDescriptor(requestNumber, f1.getName() + "/", f1);
+          dirFileDescriptor.setType("dir");
+          theFiles.add(dirFileDescriptor);
+          getFileNames(requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName());
         } else {
           boolean include = true;
           if (fileName.toLowerCase().endsWith("thumbs.db")) {

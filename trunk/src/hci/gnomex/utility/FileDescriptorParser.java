@@ -42,10 +42,32 @@ public class FileDescriptorParser extends DetailObject implements Serializable {
       }
       
       fileDescriptors.add(fd);
+      getChildrenFileDescriptors(node, fd);
       
     }
     
    
+  }
+  
+  private void getChildrenFileDescriptors(Element parentNode, FileDescriptor parentFileDescriptor) {
+    
+    for(Iterator i = parentNode.getChild("children").getChildren("FileDescriptor").iterator(); i.hasNext();) {
+      Element node = (Element)i.next();      
+      String requestNumber = node.getAttributeValue("requestNumber");
+      FileDescriptor fd = initializeFileDescriptor(node);
+      
+      List fileDescriptors = (List)fileDescriptorMap.get(requestNumber);
+      if (fileDescriptors == null) {
+        fileDescriptors = new ArrayList();
+        fileDescriptorMap.put(requestNumber, fileDescriptors);
+      }
+      
+      fileDescriptors.add(fd);
+      
+      getChildrenFileDescriptors(node, fd);
+      
+    }
+    
   }
   
   protected FileDescriptor initializeFileDescriptor(Element n){
@@ -53,6 +75,7 @@ public class FileDescriptorParser extends DetailObject implements Serializable {
     
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setZipEntryName(n.getAttributeValue("zipEntryName"));
+    fd.setType(n.getAttributeValue("type"));
 
    
     return fd;
