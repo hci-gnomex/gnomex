@@ -24,6 +24,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
 
 
@@ -73,8 +74,37 @@ public class GetLab extends GNomExCommand implements Serializable {
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
       
+    } else if (this.getSecAdvisor().isGroupIAmMemberOf(lab.getIdLab()) || 
+                this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab())) {
+      
+      Hibernate.initialize(theLab.getMembers());
+      for(Iterator i1 = theLab.getMembers().iterator(); i1.hasNext();) {
+        AppUser user = (AppUser)i1.next();
+        user.excludeMethodFromXML("getCodeUserPermissionKind");
+        user.excludeMethodFromXML("getuNID");
+        user.excludeMethodFromXML("getEmail");
+        user.excludeMethodFromXML("getDepartment");
+        user.excludeMethodFromXML("getInstitute");
+        user.excludeMethodFromXML("getJobTitle");
+        user.excludeMethodFromXML("getCodeUserPermissionKind");
+        user.excludeMethodFromXML("getUserNameExternal");
+        user.excludeMethodFromXML("getPasswordExternal");
+        user.excludeMethodFromXML("getPhone");
+        user.excludeMethodFromXML("getIsAdminPermissionLevel");
+        user.excludeMethodFromXML("getIsLabPermissionLevel");
+        user.excludeMethodFromXML("getLabs");
+        user.excludeMethodFromXML("getCollaboratingLabs");
+        user.excludeMethodFromXML("getManagingLabs");     
+      }
+      
+      Document doc = new Document(new Element("OpenLabList"));
+      doc.getRootElement().addContent(theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+      
+      XMLOutputter out = new org.jdom.output.XMLOutputter();
+      this.xmlResult = out.outputString(doc);
+      
     } else {
-      this.addInvalidField("insufficient permission", "Insufficient permission to access lab details");
+      this.xmlResult = "<OpenLabList/>";
     }
       
     }catch (UnknownPermissionException e){

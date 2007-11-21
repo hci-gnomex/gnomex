@@ -201,5 +201,13 @@ public class AppUser extends HibernateDetailObject implements Serializable {
     return isExternal;
   }
   
+  public String getDisplayName() {
+    if (getIsExternalUser().equals("Y")) {
+      return lastName + ", " + firstName + " (external user)";
+    } else {
+      return lastName + ", " + firstName;
+    }
+  }
+  
   
 }
