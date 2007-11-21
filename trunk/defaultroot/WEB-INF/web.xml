@@ -64,7 +64,6 @@
 			<url-pattern>Delete*.gx</url-pattern>
 			<url-pattern>Save*.gx</url-pattern>
 			<url-pattern>GetAppUser.gx</url-pattern>
-			<url-pattern>GetLab.gx</url-pattern>
 			<url-pattern>GetRequestReviewCODWindow.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
 

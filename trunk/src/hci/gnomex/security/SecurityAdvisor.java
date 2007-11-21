@@ -503,15 +503,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     globalPermissionMap.put(new Permission(CAN_PARTICIPATE_IN_GROUPS), null);
     
     // Can submit requests
-    if (this.isUniversityUser) {
-      globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);      
-    }
-
+    globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);      
+    
     
     // Can be lab member
-    if (this.isUniversityUser) {
-      globalPermissionMap.put(new Permission(CAN_BE_LAB_MEMBER), null);      
-    }
+    globalPermissionMap.put(new Permission(CAN_BE_LAB_MEMBER), null);      
 
     
     // Can be lab collaborator
@@ -683,8 +679,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
       return true;
     } else if (isGuest) {
-      return false;
-    } else if (!isUniversityUser) {
       return false;
     } else if (this.getIdAppUser().equals(idAppUserOfObject)) {
       return true;
