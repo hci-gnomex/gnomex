@@ -17,7 +17,7 @@ if (screen.width > 1280 || screen.height > 1024) {
   appletWidth = screen.width - 20;
   appletHeight = screen.height - 80;
 }
-var link='<%= host + "/altio44/init.jsp?name=" + ((request.getUserPrincipal() != null) ? request.getUserPrincipal().getName() : "") + "&app=gnomexaltio&webtitle=GNomEx&conf=views/view.xml&container=AppletHolder4.jsp" %>&appWidth=' + appletWidth + '&appHeight=' + appletHeight;
+var link='<%= host + "/altio51/init.jsp?name=" + ((request.getUserPrincipal() != null) ? request.getUserPrincipal().getName() : "") + "&app=gnomexaltio&webtitle=GNomEx&conf=views/view.xml&container=AppletHolder4.jsp" %>&appWidth=' + appletWidth + '&appHeight=' + appletHeight;
 link = link + '<%= (launchParm1 != null && ! launchParm1.equals(""))?("&hci.logon.gnomexLaunchParm1=" + launchParm1):"" %>';
 link = link + '<%= (launchParm2 != null && ! launchParm2.equals(""))?("&hci.logon.gnomexLaunchParm2=" + launchParm2):"" %>';
 link = link + '<%= (launchParm3 != null && ! launchParm3.equals(""))?("&hci.logon.gnomexLaunchParm3=" + launchParm3):"" %>';

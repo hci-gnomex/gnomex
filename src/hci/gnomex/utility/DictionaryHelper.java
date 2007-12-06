@@ -121,10 +121,24 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  public String getOrganism(Integer idOrganism) {
+    String name = "";
+    if (idOrganism != null) {
+      name = (String)organismMap.get(idOrganism);
+    }
+    return name;
+  }
   public String getSampleSource(Sample sample) {
     String name = "";
     if (sample.getIdSampleSource() != null) {
       name = (String)sampleSourceMap.get(sample.getIdSampleSource());
+    }
+    return name;
+  }
+  public String getSampleSource(Integer idSampleSource) {
+    String name = "";
+    if (idSampleSource != null) {
+      name = (String)sampleSourceMap.get(idSampleSource);
     }
     return name;
   }
@@ -153,7 +167,7 @@ public class DictionaryHelper implements Serializable {
   }
   public String getSlideProductName(Integer idSlideProduct) {
     String name = "";
-    if (idSlideProduct != null) {
+    if (idSlideProduct != null && slideProductMap.containsKey(idSlideProduct)) {
       name = ((SlideProduct)slideProductMap.get(idSlideProduct)).getName();
     }
     return name;

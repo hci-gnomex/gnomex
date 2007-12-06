@@ -872,8 +872,129 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     queryBuf.append(" ) ");
   }
+  
+
+  
+  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroup) {
+    boolean addedFilter = false;
+    
+    // Admins
+    if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
+    }
+    // GNomEx users
+    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      
+      boolean added1 = buildLuceneMembershipFilter(searchText, labField, visibilityField);
+
+      // Add critiera for objects with collaborator visiblity
+      if (added1) {
+        searchText.append(" OR ");        
+      }
+      boolean added2 = addedFilter = buildLuceneCollaborationFilter(searchText, labField, visibilityField);
+            
+      // Add criteria for public objects
+      if (added1 || added2) {
+        searchText.append(" OR ");        
+      }
+      boolean added3 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup);
+      addedFilter = added1 || added2 || added3;
+    }
+    // Guest
+    else {
+      addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false);        
+    }
+    
+    return addedFilter;
+  }
 
 
+  public boolean buildLuceneMembershipFilter(StringBuffer searchText, String labField, String visibilityField ) {
+    Set labs = getGroupsIAmMemberOf();
+    Set mgrLabs = getGroupsIManage();
+    labs.addAll(mgrLabs);
+    if (labs.isEmpty()) {
+      return false;
+    }
+    
+    searchText.append(" ( ");
+
+    // req.idLab in (....)
+    searchText.append(labField);
+    searchText.append(":(");
+    for(Iterator i = labs.iterator(); i.hasNext();) {
+      Lab theLab = (Lab)i.next();
+      searchText.append(theLab.getIdLab());
+      if (i.hasNext()) {
+        searchText.append(" ");
+      }
+    }      
+    searchText.append(")");
+    
+    // req.codeVisibility = 'visible to members'
+    searchText.append(" AND ");
+    searchText.append(visibilityField + ":");
+    searchText.append(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+    searchText.append("'");
+    
+    searchText.append(" ) ");
+    return true;
+  }
+  
+  public boolean buildLuceneCollaborationFilter(StringBuffer searchText, String labField, String visibilityField ) {
+    Set labs = getAllMyGroups();
+    if (labs.isEmpty()) {
+      return false;
+    }
+    
+    searchText.append(" ( ");
+    searchText.append(labField);
+    searchText.append(":(");
+    for (Iterator i = labs.iterator(); i.hasNext();) {
+      Lab theLab = (Lab) i.next();
+      searchText.append(theLab.getIdLab());
+      if (i.hasNext()) {
+        searchText.append(" ");
+      }
+    }
+    searchText.append(" )");
+    searchText.append(" AND ");
+    
+    // req.codeVisibility is 'visible to collaborators and members'
+    searchText.append(visibilityField + ":");
+    searchText.append(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS);
+    
+    searchText.append(" ) ");
+    
+    return true;
+  }
+
+  public boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups) {
+    searchText.append(" ( ");
+
+    if (scopeToGroups) {
+      Set labs = getAllMyGroups();
+      if (!labs.isEmpty()) {
+        searchText.append(labField);
+        searchText.append(":(");
+        for (Iterator i = labs.iterator(); i.hasNext();) {
+          Lab theLab = (Lab) i.next();
+          searchText.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            searchText.append(" ");
+          }
+        }
+        searchText.append(")");
+        searchText.append(" AND ");
+      }
+    }
+
+    searchText.append(visibilityField);
+    searchText.append(":");
+    searchText.append(Visibility.VISIBLE_TO_PUBLIC);
+    
+    searchText.append(" ) ");
+    return true;
+  }
   
   private boolean addWhereOrAnd(StringBuffer queryBuf, boolean addWhere) {
     if (addWhere) {
