@@ -4,26 +4,25 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.ProjectRequestFilter;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ProjectRequestLuceneFilter;
-import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.model.ProtocolLuceneFilter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Hits;
@@ -41,9 +40,10 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndex.class);
 
-  private ProjectRequestLuceneFilter gnomexFilter = null;
+  private ProjectRequestLuceneFilter projectRequestFilter = null;
+  private ProtocolLuceneFilter       protocolFilter = null;
   
-  private String listKind = "ProjectRequestSearchList";
+  private String listKind = "SearchList";
   
   private Map labMap        = null;
   private Map projectMap    = null;
@@ -52,7 +52,10 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private Map labToProjectMap = null;
   private Map projectToRequestCategoryMap = null;
   private Map categoryToRequestMap = null;
+  
+  private ArrayList rankedRequestNodes = null;
 
+  private ArrayList rankedProtocolNodes = null;
   
   public void validate() {
   }
@@ -64,8 +67,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
     
     
-    gnomexFilter = new ProjectRequestLuceneFilter();
-    HashMap errors = this.loadDetailObject(request, gnomexFilter);
+    projectRequestFilter = new ProjectRequestLuceneFilter();
+    HashMap errors = this.loadDetailObject(request, projectRequestFilter);
+    this.addInvalidFields(errors);
+    
+    protocolFilter = new ProtocolLuceneFilter();
+    errors = this.loadDetailObject(request, protocolFilter);
     this.addInvalidFields(errors);
     
     
@@ -76,7 +83,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String code = codes[i];
         experimentDesignCodes.add(code);
       }
-      gnomexFilter.setExperimentDesignCodes(experimentDesignCodes);
+      projectRequestFilter.setExperimentDesignCodes(experimentDesignCodes);
     }
     
     List experimentFactorCodes = new ArrayList();
@@ -86,7 +93,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String code = codes[i];
         experimentFactorCodes.add(code);
       }
-      gnomexFilter.setExperimentFactorCodes(experimentFactorCodes);
+      projectRequestFilter.setExperimentFactorCodes(experimentFactorCodes);
     }
     
   }
@@ -96,14 +103,11 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     try {
       
    
-      IndexReader indexReader = IndexReader.open("c:/orion/luceneIndexGnomEx/");      
+      IndexReader indexReader = IndexReader.open(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY);      
       Searcher searcher = new IndexSearcher(indexReader);
       
-      
-      
-      
       //  Build a Query object
-      String searchText = gnomexFilter.getSearchText().toString();
+      String searchText = projectRequestFilter.getSearchText().toString();
       
       // Build a Query to represent the security filter
       String securitySearchText = this.buildSecuritySearch();
@@ -135,6 +139,25 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         }
       }
       
+      
+      IndexReader protocolIndexReader = IndexReader.open(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY);      
+      Searcher protocolSearcher = new IndexSearcher(protocolIndexReader);
+      
+      //  Build a Query object
+      String protocolSearchText = projectRequestFilter.getSearchText().toString();
+      
+      if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
+        log.debug("Lucene protocol search: " + protocolSearchText);
+        Query query = new QueryParser("text", new StandardAnalyzer()).parse(protocolSearchText);
+        
+        // Search for the query
+        Hits protocolHits = protocolSearcher.search(query);
+        processProtocolHits(protocolHits, protocolSearchText);
+        
+      } else {
+        buildProtocolMap(protocolIndexReader);
+        
+      }
      
 
       
@@ -185,10 +208,17 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private void processHits(Hits hits, String searchText) throws Exception {
     
     // Show hits
-    showHits(hits, searchText);
+    showExperimentHits(hits, searchText);
     
     // Map search results
     this.buildProjectRequestMap(hits);
+    
+  }
+  
+  private void processProtocolHits(Hits hits, String searchText) throws Exception {
+
+    // Map search results
+    this.buildProtocolMap(hits);
     
   }
   
@@ -201,6 +231,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     labToProjectMap = new HashMap();
     projectToRequestCategoryMap = new HashMap();
     categoryToRequestMap = new HashMap();
+    rankedRequestNodes = new ArrayList();
     
     for (int i = 0; i < hits.length(); i++) {
       org.apache.lucene.document.Document doc = hits.doc(i);
@@ -217,6 +248,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     categoryMap   = new HashMap();
     requestMap    = new HashMap();
     labToProjectMap = new HashMap();
+    rankedRequestNodes = new ArrayList();
     projectToRequestCategoryMap = new HashMap();
     categoryToRequestMap = new HashMap();
     
@@ -224,6 +256,54 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       org.apache.lucene.document.Document doc = indexReader.document(i);
       mapDocument(doc, -1, -1);      
     }
+  }
+  
+  private void buildProtocolMap(Hits hits) throws Exception{
+    
+
+    rankedProtocolNodes = new ArrayList();
+    
+    for (int i = 0; i < hits.length(); i++) {
+      org.apache.lucene.document.Document doc = hits.doc(i);
+      float score = hits.score(i);
+      mapProtocolDocument(doc, i, score);
+      
+    }
+  }
+  
+  private void buildProtocolMap(IndexReader indexReader) throws Exception{
+    
+    rankedProtocolNodes = new ArrayList();
+        
+    for (int i = 0; i < indexReader.numDocs(); i++) {
+      org.apache.lucene.document.Document doc = indexReader.document(i);
+      mapProtocolDocument(doc, -1, -1);      
+    }
+  }
+  
+  private void mapProtocolDocument(org.apache.lucene.document.Document doc, int rank, float score) {
+    
+    Integer idProtocol         = new Integer(doc.get("idProtocol"));
+    String protocolType        = doc.get("protocolType");
+    String protocolName        = doc.get("name") != null ? doc.get("name") : "";
+    String protocolDescription = doc.get("description") != null ? doc.get("description") : "";
+    String protocolClassName   = doc.get("className") != null ? doc.get("className") : "";
+    
+    Element node = new Element("Protocol");
+    node.setAttribute("idProtocol",    idProtocol.toString());
+    node.setAttribute("protocolType", protocolType);
+    node.setAttribute("name",         protocolName);
+    node.setAttribute("description",  protocolDescription);
+    node.setAttribute("className",    protocolClassName);
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    }
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score) * 100).toString() + "%");                    
+    }
+    
+    rankedProtocolNodes.add(node);
   }
   
   private void mapDocument(org.apache.lucene.document.Document doc, int rank, float score) {
@@ -255,7 +335,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       if (idRequest == null || idRequest.intValue() == 0) {
         if (rank >= 0) {
           node.setAttribute("searchRank", new Integer(rank + 1).toString());
-          node.setAttribute("searchInfo", " (Search rank #" + rank + 1 + ")");
+          node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
         }
         if (score >= 0) {
           node.setAttribute("searchScore", new Integer(Math.round(score) * 100).toString() + "%");                    
@@ -279,29 +359,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       Element requestNode = (Element)requestMap.get(idRequest);
       if (requestNode == null) {
         Element node = new Element("Request");
-        node.setAttribute("idRequest", idRequest.toString());
-        node.setAttribute("requestNumber", doc.get("requestNumber"));
-        node.setAttribute("requestCreateDate", doc.get("requestCreateDate"));
-        node.setAttribute("codeVisibility",  doc.get("requestCodeVisibility") != null ? doc.get("requestCodeVisibility") : "");
-        node.setAttribute("requestPublicNote", doc.get("requestPublicNote") != null ? doc.get("requestPublicNote") : "");
-        node.setAttribute("displayName", doc.get("requestDisplayName"));
-        node.setAttribute("ownerFirstName", doc.get("requestOwnerFirstName"));
-        node.setAttribute("ownerLastName", doc.get("requestOwnerLastName"));
-        node.setAttribute("slideProductName", doc.get("slideProduct") != null ? doc.get("slideProduct") : "");
-        node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
-        node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
-        node.setAttribute("requestLabName", doc.get("requestLab"));
-        node.setAttribute("projectName", doc.get("projectName"));
-        node.setAttribute("idSlideProduct", doc.get("idSlideProduct") != null ? doc.get("idSlideProduct") : "");
-        if (rank >= 0) {
-          node.setAttribute("searchRank", new Integer(rank + 1).toString());          
-          node.setAttribute("searchInfo", " (Search rank #" + rank + 1 + ")");
-        } 
-        if (score >= 0) {
-          node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
-        }
+        Element node1 = new Element("Request");
+        buildRequestNode(node, idRequest, codeRequestCategory, codeMicroarrayCategory, doc, score, rank);
+        buildRequestNode(node1, idRequest, codeRequestCategory, codeMicroarrayCategory, doc, score, rank);
         
         requestMap.put(idRequest, node);
+        rankedRequestNodes.add(node1);
       }        
     }    
     
@@ -336,8 +399,45 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   }
   
+  private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeMicroarrayCategory, Document doc, float score, int rank) {
+    node.setAttribute("idRequest", idRequest.toString());
+    node.setAttribute("requestNumber", doc.get("requestNumber"));
+    node.setAttribute("requestCreateDate", doc.get("requestCreateDate"));
+    node.setAttribute("codeVisibility",  doc.get("requestCodeVisibility") != null ? doc.get("requestCodeVisibility") : "");
+    node.setAttribute("requestPublicNote", doc.get("requestPublicNote") != null ? doc.get("requestPublicNote") : "");
+    node.setAttribute("displayName", doc.get("requestDisplayName"));
+    node.setAttribute("ownerFirstName", doc.get("requestOwnerFirstName"));
+    node.setAttribute("ownerLastName", doc.get("requestOwnerLastName"));
+    node.setAttribute("slideProductName", doc.get("slideProduct") != null ? doc.get("slideProduct") : "");
+    node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
+    node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
+    node.setAttribute("requestLabName", doc.get("requestLab"));
+    node.setAttribute("projectName", doc.get("projectName"));
+    node.setAttribute("idSlideProduct", doc.get("idSlideProduct") != null ? doc.get("idSlideProduct") : "");
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
+
+  }
+  
   private org.jdom.Document buildXMLDocument() {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
+    
+    buildProjectRequestList(doc.getRootElement());
+    buildRequestList(doc.getRootElement());
+    buildProtocolList(doc.getRootElement());
+    
+    return doc;
+    
+  }
+  
+  private void buildProjectRequestList(Element root) {
+    Element parent = new Element("ProjectRequestList");
+    root.addContent(parent);
     
     // For each lab
     for(Iterator i = labToProjectMap.keySet().iterator(); i.hasNext();) {
@@ -346,7 +446,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       List ids = (List)labToProjectMap.get(idLab);
       
       
-      doc.getRootElement().addContent(labNode);
+      parent.addContent(labNode);
       
       // For each project in lab
       for(Iterator i1 = ids.iterator(); i1.hasNext();) {
@@ -384,14 +484,38 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         }
       
     }
-    return doc;
+
     
+  }
+  
+  private void buildRequestList(Element root) {
+    Element parent = new Element("RequestList");
+    root.addContent(parent);
+    
+    // For each request node
+    for(Iterator i = rankedRequestNodes.iterator(); i.hasNext();) {
+      Element requestNode = (Element)i.next();
+      parent.addContent(requestNode);
+    }
+    
+  }
+  
+  
+  private void buildProtocolList(Element root) {
+    Element parent = new Element("ProtocolList");
+    root.addContent(parent);
+    
+    // For each request node
+    for(Iterator i = rankedProtocolNodes.iterator(); i.hasNext();) {
+      Element protocolNode = (Element)i.next();
+      parent.addContent(protocolNode);
+    }
   }
   
   
   private String buildSecuritySearch() throws Exception {
     boolean scopeToGroup = true;
-    if (gnomexFilter.getSearchPublicProjects() != null && gnomexFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
+    if (projectRequestFilter.getSearchPublicProjects() != null && projectRequestFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
       scopeToGroup = false;
     }
     
@@ -446,30 +570,32 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
   
-  private void showHits(Hits hits, String searchText) throws Exception {
+  private void showExperimentHits(Hits hits, String searchText) throws Exception {
 
-    // Examine the Hits object to see if there were any matches
-    int hitCount = hits.length();
-    if (hitCount == 0) {
-        System.out.println(
-            "No matches were found for \"" + searchText + "\"");
+    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+      // Examine the Hits object to see if there were any matches
+      int hitCount = hits.length();
+      if (hitCount == 0) {
+          System.out.println(
+              "No matches were found for \"" + searchText + "\"");
+      }
+      else {
+          System.out.println("Hits for \"" + searchText + "\""  + ":");
+
+          // Iterate over the Documents in the Hits object
+          for (int i = 0; i < hitCount; i++) {
+              org.apache.lucene.document.Document doc = hits.doc(i);
+              float score = hits.score(i);
+
+              // Print the value that we stored in the "title" field. Note
+              // that this Field was not indexed, but (unlike the
+              // "contents" field) was stored verbatim and can be
+              // retrieved.
+              System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get("projectName") + " " + doc.get("requestNumber"));
+          }
+      }
+      System.out.println();      
     }
-    else {
-        System.out.println("Hits for \"" + searchText + "\""  + ":");
-
-        // Iterate over the Documents in the Hits object
-        for (int i = 0; i < hitCount; i++) {
-            org.apache.lucene.document.Document doc = hits.doc(i);
-            float score = hits.score(i);
-
-            // Print the value that we stored in the "title" field. Note
-            // that this Field was not indexed, but (unlike the
-            // "contents" field) was stored verbatim and can be
-            // retrieved.
-            System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get("projectName") + " " + doc.get("requestNumber"));
-        }
-    }
-    System.out.println();
 
   }
 

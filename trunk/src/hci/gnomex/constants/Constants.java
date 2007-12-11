@@ -28,4 +28,7 @@ public class Constants {
   public static final  String             STATUS_COMPLETED                = "Completed";
   public static final  String             STATUS_TERMINATED               = "Terminated";
   public static final  String             STATUS_BYPASSED                 = "Bypassed";
+  
+  public static final String              LUCENE_EXPERIMENT_INDEX_DIRECTORY = "c:/orion/luceneIndexGnomEx/Experiment";
+  public static final String              LUCENE_PROTOCOL_INDEX_DIRECTORY   = "c:/orion/luceneIndexGnomEx/Protocol";
 }

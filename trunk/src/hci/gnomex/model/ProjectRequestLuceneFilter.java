@@ -19,6 +19,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
   private Integer               idSlideProduct;
   private Integer               idSampleSource;
   private Integer               idOrganism;
+  private String                text;
   private String                text1;
   private String                text2;
   private String                text3;
@@ -71,6 +72,16 @@ public class ProjectRequestLuceneFilter extends DetailObject {
       this.addLogicalOperator();
       searchText.append(" projectIdLab:");
       searchText.append(idLab);
+    } 
+    
+    // Search by text (quick search 
+    if (text != null && !text.trim().equals("")){
+      text = text.replaceAll(" and ", " AND ");
+      text = text.replaceAll(" or ", " OR ");
+      this.addLogicalOperator();
+      searchText.append(" text:(");
+      searchText.append(text);
+      searchText.append(") ");
     } 
     
     if ((text1 != null && !text1.equals("")) ||
@@ -418,6 +429,18 @@ public class ProjectRequestLuceneFilter extends DetailObject {
   
   public void setText4(String text4) {
     this.text4 = text4;
+  }
+
+
+  
+  public String getText() {
+    return text;
+  }
+
+
+  
+  public void setText(String text) {
+    this.text = text;
   }
 
 
