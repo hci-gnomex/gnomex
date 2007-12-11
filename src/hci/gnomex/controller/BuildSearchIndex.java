@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
@@ -39,6 +40,9 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
   private Map sampleAnnotationMap;
   private Map codeExperimentFactorMap;
   private Map codeExperimentDesignMap;
+  private Map protocolMap;
+  
+  private DictionaryHelper dh = null;
   
 
   
@@ -57,11 +61,16 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
-      IndexWriter writer = new IndexWriter("c:/orion/luceneIndexGnomEx/", new StandardAnalyzer(), true);
+      IndexWriter experimentIndexWriter = new IndexWriter(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY, new StandardAnalyzer(), true);
+      IndexWriter protocolIndexWriter   = new IndexWriter(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY,   new StandardAnalyzer(), true);
       
       // Get dictionaries
-      DictionaryHelper dh = new DictionaryHelper();
+      dh = new DictionaryHelper();
       dh.getDictionaries(sess);
+      
+      
+      // Get basic protocol data
+      getProtocolData(sess);
       
       // Get basic project/request data
       getProjectRequestData(sess);
@@ -71,9 +80,28 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
       
       // Get sample annotations (sample characteristics)
       getSampleAnnotations(sess);
+      
+      
+      //
+      // Write Protocol Lucene Index.
+      // (A document for each protocol)
+      //
+      for( Iterator i = protocolMap.keySet().iterator(); i.hasNext();) {
+        String key = (String)i.next();
+        Object[] keyTokens = key.split("-");
+        String  protocolType = (String)keyTokens[0];
+        Integer idProtocol  = new Integer((String)keyTokens[1]);
+        Object[] row = (Object[])protocolMap.get(key);
+        
+        Document doc = buildProtocolDocument(protocolType, idProtocol, row);
+        protocolIndexWriter.addDocument(doc);
+      }
+      protocolIndexWriter.optimize();
+      protocolIndexWriter.close();
 
       //
-      // For each project / request
+      // Write Experiment Lucene Index.
+      // (A document for each request)
       //
       for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
@@ -81,279 +109,14 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         Object[] keyTokens = key.split("-");
         Integer idProject = new Integer((String)keyTokens[0]);
         Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
-        
-        
-        Document doc = new Document();
-
-        //
-        // Obtain basic project and request text fields
-        //
         List rows = (List)projectRequestMap.get(key);
-
-        String  requestNumber = null;
-        String  projectName = null;
-        String  projectDescription = null;
-
-        
-        StringBuffer hybNotes = new StringBuffer();
-        StringBuffer sampleNames = new StringBuffer();
-        StringBuffer sampleDescriptions = new StringBuffer();
-        StringBuffer sampleOrganisms = new StringBuffer();
-        HashMap      idOrganismSampleMap = new HashMap();
-        StringBuffer sampleSources = new StringBuffer();
-        Integer      idSlideProduct = null;
-        String       slideProduct = null;
-        Integer      idOrganismSlideProduct = null;
-        String       slideProductOrganism = null;
-        String       codeRequestCategory = null;
-        String       requestCategory = null;
-        Integer      idLabProject = null;
-        String       labProject = null;
-        Integer      idLabRequest = null;
-        String       labRequest = null;
-        String       codeMicroarrayCategory = null;
-        String       microarrayCategory = null;
-        String       requestOwnerFirstName = null;
-        String       requestOwnerLastName = null;
-        String       projectCodeVisibility = null;
-        String       projectPublicNote = null;
-        String       requestCodeVisibility = null;
-        String       requestPublicNote = null;
-        Date         requestCreateDate = null;
-        StringBuffer requestDisplayName = null;
         
         
-        for(Iterator i1 = rows.iterator(); i1.hasNext();) {
-          Object[] row = (Object[])i1.next();
-          
-          idProject           = (Integer)row[0];
-          idRequest           = (Integer)row[1];
-          requestNumber       = (String) row[2];
-          projectName         = (String) row[3];
-          projectDescription  = (String) row[4];
-          
-          String hybNote = (String) row[5];
-          hybNotes.append(hybNote          != null ? hybNote + " " : "");
-
-          // sample 1
-          String  sampleName      = (String) row[6];
-          String  sampleDesc      = (String) row[7];
-          Integer idOrganism      = (Integer)row[8];
-          if (idOrganism != null) {
-            idOrganismSampleMap.put(idOrganism, null);            
-          }
-          Integer idSlideSource   = (Integer)row[9];
-          
-          sampleNames.append       (sampleName    != null ? sampleName + " " : "");
-          sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
-          sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-          sampleSources.append(     idSlideSource != null ? dh.getSampleSource(idSlideSource) + " " : "");
-
-          // sample 2
-          sampleName      = (String) row[10];
-          sampleDesc      = (String) row[11];
-          idOrganism      = (Integer)row[12];
-          if (idOrganism != null) {
-            idOrganismSampleMap.put(idOrganism, null);            
-          }
-          idSlideSource   = (Integer)row[13];
-          
-          sampleNames.append       (sampleName    != null ? sampleName + " " : "");
-          sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
-          sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-          sampleSources.append(     idSlideSource != null ? dh.getSampleSource(idSlideSource) + " " : "");
-          
-          // more request data
-          idSlideProduct           = (Integer)row[14];
-          idOrganismSlideProduct   = (Integer)row[15];
-          codeRequestCategory      = (String) row[16];
-          idLabProject             = (Integer)row[17];
-          labProject               = (String) row[18];
-          idLabRequest             = (Integer)row[19];
-          labRequest               = (String) row[20];
-          codeMicroarrayCategory   = (String) row[21];
-          requestOwnerFirstName    = (String) row[22];
-          requestOwnerLastName     = (String) row[23];
-          projectCodeVisibility    = (String) row[24];
-          requestCodeVisibility    = (String) row[25];
-          requestCreateDate        = (java.sql.Date) row[26];
-          
-          slideProduct             = idSlideProduct != null ? dh.getSlideProductName(idSlideProduct) : null;
-          slideProductOrganism     = idOrganismSlideProduct != null ? dh.getOrganism(idOrganismSlideProduct) : null;
-          requestCategory          = dh.getRequestCategory(codeRequestCategory);
-          microarrayCategory       = dh.getMicroarrayCategory(codeMicroarrayCategory);
-          if (projectCodeVisibility != null && projectCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
-            projectPublicNote = "(Public) ";
-          } 
-          if (requestCodeVisibility != null && requestCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
-            requestPublicNote = "(Public) ";
-          }
-          
-          requestDisplayName = new StringBuffer();
-          if (codeRequestCategory != null && codeRequestCategory.equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-            requestDisplayName.append(requestNumber);
-            requestDisplayName.append(" - ");
-            requestDisplayName.append(requestOwnerFirstName);
-            requestDisplayName.append(" ");
-            requestDisplayName.append(requestOwnerLastName);
-            requestDisplayName.append(" ");
-            requestDisplayName.append(this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));      
-          } else {
-            requestDisplayName.append(requestNumber);
-            requestDisplayName.append(" - ");
-            requestDisplayName.append(slideProduct);      
-            requestDisplayName.append(" - ");
-            requestDisplayName.append(requestOwnerFirstName);
-            requestDisplayName.append(" ");
-            requestDisplayName.append(requestOwnerLastName);
-            requestDisplayName.append(" ");
-            requestDisplayName.append(this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));      
-          }
-          
-        }
-        
-        // Concatenate string of distinct idOrganism for samples
-        StringBuffer idOrganismSamples = new StringBuffer();
-        for(Iterator i2 = idOrganismSampleMap.keySet().iterator(); i2.hasNext();) {
-          Integer idOrganismSample = (Integer)i2.next();
-          idOrganismSamples.append(idOrganismSample.toString());
-          if (i2.hasNext()) {
-            idOrganismSamples.append(" ");
-          }
-        }
-        
-        //
-        // Obtain experiment design entries and experiment factor entries
-        // on project
-        //
-        StringBuffer projectAnnotations = new StringBuffer();
-        List projectAnnotationRows = (List)projectAnnotationMap.get(idProject);
-        if (projectAnnotationRows != null) {
-          for(Iterator i1 = projectAnnotationRows.iterator(); i1.hasNext();) {
-            Object[] row = (Object[])i1.next();
-            projectAnnotations.append((String)row[1] != null && !((String)row[1]).trim().equals("") ? (String)row[1] + " " : "");
-            projectAnnotations.append((String)row[2] != null && !((String)row[2]).trim().equals("") ? (String)row[2] + " " : "");
-          }          
-        }
-        StringBuffer codeExperimentDesigns = new StringBuffer();
-        List codes = (List)codeExperimentDesignMap.get(idProject);
-        if (codes != null) {
-          for(Iterator i1 = codes.iterator(); i1.hasNext();) {
-            String code = (String)i1.next();
-            codeExperimentDesigns.append(code + " ");
-          }          
-        }
-        StringBuffer codeExperimentFactors = new StringBuffer();
-        codes = (List)codeExperimentFactorMap.get(idProject);
-        if (codes != null) {
-          for(Iterator i1 = codes.iterator(); i1.hasNext();) {
-            String code = (String)i1.next();
-            codeExperimentFactors.append(code + " ");
-          }          
-        }
-
-        //
-        // Obtain sample annoations on samples of request
-        //
-        StringBuffer sampleAnnotations = new StringBuffer();
-        if (idRequest != null) {
-          List sampleAnnotationRows = (List)sampleAnnotationMap.get(idRequest);
-          if (sampleAnnotationRows != null) {
-            for(Iterator i1 = sampleAnnotationRows.iterator(); i1.hasNext();) {
-              Object[] row = (Object[])i1.next();
-              sampleAnnotations.append((String)row[1] != null && !((String)row[1]).trim().equals("") ? (String)row[1] + " " : "");
-              sampleAnnotations.append((String)row[2] != null && !((String)row[2]).trim().equals("") ? (String)row[2] + " " : "");
-              sampleAnnotations.append((String)row[3] != null && !((String)row[3]).trim().equals("") ? (String)row[3] + " " : "");
-            }          
-          }
-          
-        }
-        
-        //
-        // Add non-indexed fields
-        //
-        addNonIndexedField(doc, "idProject",          idProject.toString());  
-        if (idRequest != null) {
-          addNonIndexedField(doc, "idRequest",        idRequest.toString());               
-        }
-        addNonIndexedField(doc, "requestNumber",          requestNumber);  
-        addNonIndexedField(doc, "requestDisplayName",     requestDisplayName.toString());  
-        addNonIndexedField(doc, "requestOwnerFirstName",  requestOwnerFirstName);  
-        addNonIndexedField(doc, "requestOwnerLastName",   requestOwnerLastName);  
-        addNonIndexedField(doc, "requestCreateDate",      this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));  
-        addNonIndexedField(doc, "microarrayCategory",     microarrayCategory);  
-        addNonIndexedField(doc, "projectPublicNote",      projectPublicNote);  
-        addNonIndexedField(doc, "requestPublicNote",      requestPublicNote);  
-        
-        
-        //
-        // Add indexed fields
-        //
-        addIndexedField(doc, "projectName",               projectName);     
-        addIndexedField(doc, "projectDescription",        projectDescription);     
-        addIndexedField(doc, "hybNotes",                  hybNotes.toString());     
-        addIndexedField(doc, "sampleNames",               sampleNames.toString());             
-        addIndexedField(doc, "sampleDescriptions",        sampleDescriptions.toString());    
-        addIndexedField(doc, "sampleOrganisms",           sampleOrganisms.toString());    
-        addIndexedField(doc, "idOrganismSamples",         idOrganismSamples.toString());    
-        addIndexedField(doc, "sampleSources",             sampleSources.toString());    
-        addIndexedField(doc, "requestCategory",           requestCategory);    
-        addIndexedField(doc, "codeRequestCategory",       codeRequestCategory);    
-        addIndexedField(doc, "codeMicroarrayCategory",    codeMicroarrayCategory);    
-        addIndexedField(doc, "idSlideProduct",            idSlideProduct);    
-        addIndexedField(doc, "slideProduct",              slideProduct);    
-        addIndexedField(doc, "slideProductOrganism",      slideProductOrganism);    
-        addIndexedField(doc, "idOrganismSlideProduct",    idOrganismSlideProduct);    
-        addIndexedField(doc, "requestCategory",           requestCategory);    
-        addIndexedField(doc, "projectIdLab",              idLabProject);    
-        addIndexedField(doc, "projectLab",                labProject);    
-        addIndexedField(doc, "requestIdLab",              idLabRequest);    
-        addIndexedField(doc, "requestLab",                labRequest);    
-        addIndexedField(doc, "projectCodeVisibility",     projectCodeVisibility);  
-        addIndexedField(doc, "requestCodeVisibility",     requestCodeVisibility);  
-        addIndexedField(doc, "projectAnnotations",        projectAnnotations.toString());               
-        addIndexedField(doc, "codeExperimentDesigns",     codeExperimentDesigns.toString());               
-        addIndexedField(doc, "codeExperimentFactors",     codeExperimentFactors.toString());               
-        addIndexedField(doc, "sampleAnnotations",         sampleAnnotations.toString());               
-
-        // Combine all text into one search field
-        StringBuffer text = new StringBuffer();
-        text.append(projectName);
-        text.append(" ");
-        text.append(projectDescription);
-        text.append(" ");
-        text.append(hybNotes.toString());
-        text.append(" ");
-        text.append(sampleNames.toString());
-        text.append(" ");
-        text.append(sampleDescriptions.toString());
-        text.append(" ");
-        text.append(projectAnnotations.toString());
-        text.append(" ");
-        text.append(sampleAnnotations.toString());
-        text.append(" ");        
-        text.append(sampleOrganisms.toString());
-        text.append(" ");        
-        text.append(sampleSources.toString());
-        text.append(" ");        
-        text.append(slideProduct);
-        text.append(" ");        
-        text.append(slideProductOrganism);
-        text.append(" ");        
-        text.append(labProject);
-        text.append(" ");        
-        text.append(labRequest);
-        text.append(" ");        
-        addIndexedField(doc, "text",                      text.toString());     
-
-        
-        
-        writer.addDocument(doc);
+        Document doc = buildExperimentDocument(idProject, idRequest, rows);
+        experimentIndexWriter.addDocument(doc);
       }
-      
-
-      writer.optimize();
-      writer.close();
+      experimentIndexWriter.optimize();
+      experimentIndexWriter.close();
 
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in GetLab ", e);
@@ -553,6 +316,69 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     }   
   }
   
+  private void getProtocolData(Session sess) throws Exception {
+    protocolMap = new HashMap();
+
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT prot.idLabelingProtocol, ");
+    buf.append("       prot.labelingProtocol, ");
+    buf.append("       prot.description, ");
+    buf.append("       'hci.gnomex.model.LabelingProtocol' ");
+    buf.append("FROM   LabelingProtocol as prot");
+
+    List results = sess.createQuery(buf.toString()).list();    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();      
+      String key = "Labeling Protocol-" + row[0];      
+      protocolMap.put(key, row);      
+    }
+    
+    buf = new StringBuffer();
+    buf.append("SELECT prot.idHybProtocol, ");
+    buf.append("       prot.hybProtocol, ");
+    buf.append("       prot.description, ");
+    buf.append("       'hci.gnomex.model.HybProtocol' ");
+    buf.append("FROM   HybProtocol as prot");
+
+    results = sess.createQuery(buf.toString()).list();    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();      
+      String key = "Hyb Protocol-" + row[0];      
+      protocolMap.put(key, row);      
+    }
+    
+    buf = new StringBuffer();
+    buf.append("SELECT prot.idScanProtocol, ");
+    buf.append("       prot.scanProtocol, ");
+    buf.append("       prot.description, ");
+    buf.append("       'hci.gnomex.model.ScanProtocol' ");
+    buf.append("FROM   ScanProtocol as prot");
+
+    results = sess.createQuery(buf.toString()).list();    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();      
+      String key = "Scan Protocol-" + row[0];      
+      protocolMap.put(key, row);      
+    }
+    
+    buf = new StringBuffer();
+    buf.append("SELECT prot.idFeatureExtractionProtocol, ");
+    buf.append("       prot.featureExtractionProtocol, ");
+    buf.append("       prot.description, ");
+    buf.append("       'hci.gnomex.model.FeatureExtractionProtocol' ");
+    buf.append("FROM   FeatureExtractionProtocol as prot");
+
+    results = sess.createQuery(buf.toString()).list();    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();      
+      String key = "Feature Extraction Protocol-" + row[0];      
+      protocolMap.put(key, row);      
+    }
+
+
+
+  }
+  
   private void addIndexedField(Document doc, String name, String value) {
     if (value != null && !value.trim().equals("")) {
       doc.add( new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));          
@@ -570,5 +396,291 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
       doc.add( new Field(name, value, Field.Store.YES, Field.Index.NO));          
     }
   }
+  
+  private Document buildExperimentDocument(Integer idProject, Integer idRequest, List rows) {
+    
+    Document doc = new Document();
+    //
+    // Obtain basic project and request text fields
+    //
+    String  requestNumber = null;
+    String  projectName = null;
+    String  projectDescription = null;
+
+    
+    StringBuffer hybNotes = new StringBuffer();
+    StringBuffer sampleNames = new StringBuffer();
+    StringBuffer sampleDescriptions = new StringBuffer();
+    StringBuffer sampleOrganisms = new StringBuffer();
+    HashMap      idOrganismSampleMap = new HashMap();
+    StringBuffer sampleSources = new StringBuffer();
+    Integer      idSlideProduct = null;
+    String       slideProduct = null;
+    Integer      idOrganismSlideProduct = null;
+    String       slideProductOrganism = null;
+    String       codeRequestCategory = null;
+    String       requestCategory = null;
+    Integer      idLabProject = null;
+    String       labProject = null;
+    Integer      idLabRequest = null;
+    String       labRequest = null;
+    String       codeMicroarrayCategory = null;
+    String       microarrayCategory = null;
+    String       requestOwnerFirstName = null;
+    String       requestOwnerLastName = null;
+    String       projectCodeVisibility = null;
+    String       projectPublicNote = null;
+    String       requestCodeVisibility = null;
+    String       requestPublicNote = null;
+    Date         requestCreateDate = null;
+    StringBuffer requestDisplayName = null;
+    
+    
+    for(Iterator i1 = rows.iterator(); i1.hasNext();) {
+      Object[] row = (Object[])i1.next();
+      
+      idProject           = (Integer)row[0];
+      idRequest           = (Integer)row[1];
+      requestNumber       = (String) row[2];
+      projectName         = (String) row[3];
+      projectDescription  = (String) row[4];
+      
+      String hybNote = (String) row[5];
+      hybNotes.append(hybNote          != null ? hybNote + " " : "");
+
+      // sample 1
+      String  sampleName      = (String) row[6];
+      String  sampleDesc      = (String) row[7];
+      Integer idOrganism      = (Integer)row[8];
+      if (idOrganism != null) {
+        idOrganismSampleMap.put(idOrganism, null);            
+      }
+      Integer idSlideSource   = (Integer)row[9];
+      
+      sampleNames.append       (sampleName    != null ? sampleName + " " : "");
+      sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
+      sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
+      sampleSources.append(     idSlideSource != null ? dh.getSampleSource(idSlideSource) + " " : "");
+
+      // sample 2
+      sampleName      = (String) row[10];
+      sampleDesc      = (String) row[11];
+      idOrganism      = (Integer)row[12];
+      if (idOrganism != null) {
+        idOrganismSampleMap.put(idOrganism, null);            
+      }
+      idSlideSource   = (Integer)row[13];
+      
+      sampleNames.append       (sampleName    != null ? sampleName + " " : "");
+      sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
+      sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
+      sampleSources.append(     idSlideSource != null ? dh.getSampleSource(idSlideSource) + " " : "");
+      
+      // more request data
+      idSlideProduct           = (Integer)row[14];
+      idOrganismSlideProduct   = (Integer)row[15];
+      codeRequestCategory      = (String) row[16];
+      idLabProject             = (Integer)row[17];
+      labProject               = (String) row[18];
+      idLabRequest             = (Integer)row[19];
+      labRequest               = (String) row[20];
+      codeMicroarrayCategory   = (String) row[21];
+      requestOwnerFirstName    = (String) row[22];
+      requestOwnerLastName     = (String) row[23];
+      projectCodeVisibility    = (String) row[24];
+      requestCodeVisibility    = (String) row[25];
+      requestCreateDate        = (java.sql.Date) row[26];
+      
+      slideProduct             = idSlideProduct != null ? dh.getSlideProductName(idSlideProduct) : null;
+      slideProductOrganism     = idOrganismSlideProduct != null ? dh.getOrganism(idOrganismSlideProduct) : null;
+      requestCategory          = dh.getRequestCategory(codeRequestCategory);
+      microarrayCategory       = dh.getMicroarrayCategory(codeMicroarrayCategory);
+      if (projectCodeVisibility != null && projectCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
+        projectPublicNote = "(Public) ";
+      } 
+      if (requestCodeVisibility != null && requestCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
+        requestPublicNote = "(Public) ";
+      }
+      
+      requestDisplayName = new StringBuffer();
+      if (codeRequestCategory != null && codeRequestCategory.equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+        requestDisplayName.append(requestNumber);
+        requestDisplayName.append(" - ");
+        requestDisplayName.append(requestOwnerFirstName);
+        requestDisplayName.append(" ");
+        requestDisplayName.append(requestOwnerLastName);
+        requestDisplayName.append(" ");
+        requestDisplayName.append(this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));      
+      } else {
+        requestDisplayName.append(requestNumber);
+        requestDisplayName.append(" - ");
+        requestDisplayName.append(slideProduct);      
+        requestDisplayName.append(" - ");
+        requestDisplayName.append(requestOwnerFirstName);
+        requestDisplayName.append(" ");
+        requestDisplayName.append(requestOwnerLastName);
+        requestDisplayName.append(" ");
+        requestDisplayName.append(this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));      
+      }
+      
+    }
+    
+    // Concatenate string of distinct idOrganism for samples
+    StringBuffer idOrganismSamples = new StringBuffer();
+    for(Iterator i2 = idOrganismSampleMap.keySet().iterator(); i2.hasNext();) {
+      Integer idOrganismSample = (Integer)i2.next();
+      idOrganismSamples.append(idOrganismSample.toString());
+      if (i2.hasNext()) {
+        idOrganismSamples.append(" ");
+      }
+    }
+    
+    //
+    // Obtain experiment design entries and experiment factor entries
+    // on project
+    //
+    StringBuffer projectAnnotations = new StringBuffer();
+    List projectAnnotationRows = (List)projectAnnotationMap.get(idProject);
+    if (projectAnnotationRows != null) {
+      for(Iterator i1 = projectAnnotationRows.iterator(); i1.hasNext();) {
+        Object[] row = (Object[])i1.next();
+        projectAnnotations.append((String)row[1] != null && !((String)row[1]).trim().equals("") ? (String)row[1] + " " : "");
+        projectAnnotations.append((String)row[2] != null && !((String)row[2]).trim().equals("") ? (String)row[2] + " " : "");
+      }          
+    }
+    StringBuffer codeExperimentDesigns = new StringBuffer();
+    List codes = (List)codeExperimentDesignMap.get(idProject);
+    if (codes != null) {
+      for(Iterator i1 = codes.iterator(); i1.hasNext();) {
+        String code = (String)i1.next();
+        codeExperimentDesigns.append(code + " ");
+      }          
+    }
+    StringBuffer codeExperimentFactors = new StringBuffer();
+    codes = (List)codeExperimentFactorMap.get(idProject);
+    if (codes != null) {
+      for(Iterator i1 = codes.iterator(); i1.hasNext();) {
+        String code = (String)i1.next();
+        codeExperimentFactors.append(code + " ");
+      }          
+    }
+
+    //
+    // Obtain sample annoations on samples of request
+    //
+    StringBuffer sampleAnnotations = new StringBuffer();
+    if (idRequest != null) {
+      List sampleAnnotationRows = (List)sampleAnnotationMap.get(idRequest);
+      if (sampleAnnotationRows != null) {
+        for(Iterator i1 = sampleAnnotationRows.iterator(); i1.hasNext();) {
+          Object[] row = (Object[])i1.next();
+          sampleAnnotations.append((String)row[1] != null && !((String)row[1]).trim().equals("") ? (String)row[1] + " " : "");
+          sampleAnnotations.append((String)row[2] != null && !((String)row[2]).trim().equals("") ? (String)row[2] + " " : "");
+          sampleAnnotations.append((String)row[3] != null && !((String)row[3]).trim().equals("") ? (String)row[3] + " " : "");
+        }          
+      }
+      
+    }
+    
+    //
+    // Add non-indexed fields
+    //
+    addNonIndexedField(doc, "idProject",          idProject.toString());  
+    if (idRequest != null) {
+      addNonIndexedField(doc, "idRequest",        idRequest.toString());               
+    }
+    addNonIndexedField(doc, "requestNumber",          requestNumber);  
+    addNonIndexedField(doc, "requestDisplayName",     requestDisplayName.toString());  
+    addNonIndexedField(doc, "requestOwnerFirstName",  requestOwnerFirstName);  
+    addNonIndexedField(doc, "requestOwnerLastName",   requestOwnerLastName);  
+    addNonIndexedField(doc, "requestCreateDate",      this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));  
+    addNonIndexedField(doc, "microarrayCategory",     microarrayCategory);  
+    addNonIndexedField(doc, "projectPublicNote",      projectPublicNote);  
+    addNonIndexedField(doc, "requestPublicNote",      requestPublicNote);  
+    
+    
+    //
+    // Add indexed fields
+    //
+    addIndexedField(doc, "projectName",               projectName);     
+    addIndexedField(doc, "projectDescription",        projectDescription);     
+    addIndexedField(doc, "hybNotes",                  hybNotes.toString());     
+    addIndexedField(doc, "sampleNames",               sampleNames.toString());             
+    addIndexedField(doc, "sampleDescriptions",        sampleDescriptions.toString());    
+    addIndexedField(doc, "sampleOrganisms",           sampleOrganisms.toString());    
+    addIndexedField(doc, "idOrganismSamples",         idOrganismSamples.toString());    
+    addIndexedField(doc, "sampleSources",             sampleSources.toString());    
+    addIndexedField(doc, "requestCategory",           requestCategory);    
+    addIndexedField(doc, "codeRequestCategory",       codeRequestCategory);    
+    addIndexedField(doc, "codeMicroarrayCategory",    codeMicroarrayCategory);    
+    addIndexedField(doc, "idSlideProduct",            idSlideProduct);    
+    addIndexedField(doc, "slideProduct",              slideProduct);    
+    addIndexedField(doc, "slideProductOrganism",      slideProductOrganism);    
+    addIndexedField(doc, "idOrganismSlideProduct",    idOrganismSlideProduct);    
+    addIndexedField(doc, "requestCategory",           requestCategory);    
+    addIndexedField(doc, "projectIdLab",              idLabProject);    
+    addIndexedField(doc, "projectLab",                labProject);    
+    addIndexedField(doc, "requestIdLab",              idLabRequest);    
+    addIndexedField(doc, "requestLab",                labRequest);    
+    addIndexedField(doc, "projectCodeVisibility",     projectCodeVisibility);  
+    addIndexedField(doc, "requestCodeVisibility",     requestCodeVisibility);  
+    addIndexedField(doc, "projectAnnotations",        projectAnnotations.toString());               
+    addIndexedField(doc, "codeExperimentDesigns",     codeExperimentDesigns.toString());               
+    addIndexedField(doc, "codeExperimentFactors",     codeExperimentFactors.toString());               
+    addIndexedField(doc, "sampleAnnotations",         sampleAnnotations.toString());               
+
+    // Combine all text into one search field
+    StringBuffer text = new StringBuffer();
+    text.append(projectName);
+    text.append(" ");
+    text.append(projectDescription);
+    text.append(" ");
+    text.append(hybNotes.toString());
+    text.append(" ");
+    text.append(sampleNames.toString());
+    text.append(" ");
+    text.append(sampleDescriptions.toString());
+    text.append(" ");
+    text.append(projectAnnotations.toString());
+    text.append(" ");
+    text.append(sampleAnnotations.toString());
+    text.append(" ");        
+    text.append(sampleOrganisms.toString());
+    text.append(" ");        
+    text.append(sampleSources.toString());
+    text.append(" ");        
+    text.append(slideProduct);
+    text.append(" ");        
+    text.append(slideProductOrganism);
+    text.append(" ");        
+    text.append(labProject);
+    text.append(" ");        
+    text.append(labRequest);
+    text.append(" ");        
+    addIndexedField(doc, "text",                      text.toString());
+    
+    return doc;
+    
+  }
+  
+  private Document buildProtocolDocument(String protocolType, Integer idProtocol, Object[] row) {
+    
+    Document doc = new Document();
+    
+    String name        = (String)row[1];
+    String description = (String)row[2];
+    String className   = (String)row[3];
+    
+    addIndexedField(doc, "name", name);
+    addIndexedField(doc, "description", description);
+    addIndexedField(doc, "text", name + " " + description);
+    
+    addNonIndexedField(doc, "idProtocol",   idProtocol.toString());
+    addNonIndexedField(doc, "protocolType", protocolType);
+    addNonIndexedField(doc, "className",    className);
+    
+    return doc;
+  }
+    
 
 }
