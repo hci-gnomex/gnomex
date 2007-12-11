@@ -13,10 +13,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
   
   
   // Criteria
-  private Integer               idAppUser;
   private Integer               idLab;
-  private Integer               idRequest;
-  private Integer               idProject;
   private String                codeRequestCategory;
   private String                codeMicroarrayCategory;
   private Integer               idSlideProduct;
@@ -26,8 +23,8 @@ public class ProjectRequestLuceneFilter extends DetailObject {
   private String                text2;
   private String                text3;
   private String                text4;
-  private String                matchAnyTerm;
-  private String                matchAllTerms;
+  private String                matchAnyTerm = "N";
+  private String                matchAllTerms = "Y";
   private List                  experimentDesignCodes;
   private List                  experimentFactorCodes;
   private String                searchOrganismOnSlideProduct;
@@ -140,13 +137,13 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     // Search by project experiment design codes
     if (experimentDesignCodes != null && experimentDesignCodes.size() > 0) {
       this.addLogicalOperator();
-      searchText.append(" projectAnnotations:(");
+      searchText.append(" codeExperimentDesigns:(");
      
       for(Iterator i = experimentDesignCodes.iterator(); i.hasNext();) {
         String code = (String)i.next();
-        searchText.append(" '" + code + "'");
+        searchText.append(code);
         if (i.hasNext()) {
-          searchText.append("  ");
+          searchText.append(" ");
         }        
       }
       searchText.append(")");
@@ -154,13 +151,13 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     // Search by project experiment factor codes
     if (experimentFactorCodes != null && experimentFactorCodes.size() > 0) {
       this.addLogicalOperator();
-      searchText.append(" projectAnnotations:(");
+      searchText.append(" codeExperimentFactors:(");
      
       for(Iterator i = experimentFactorCodes.iterator(); i.hasNext();) {
         String code = (String)i.next();
-        searchText.append(" '" + code + "'");
+        searchText.append(code);
         if (i.hasNext()) {
-          searchText.append(", ");
+          searchText.append(" ");
         }        
       }
       searchText.append(")");
@@ -169,25 +166,6 @@ public class ProjectRequestLuceneFilter extends DetailObject {
 
   private void addRequestCriteria() {
     
-
-    // Search by user 
-    if (idAppUser != null){
-      this.addLogicalOperator();
-      searchText.append(" requestIdAppUser:");
-      searchText.append(idAppUser);
-    } 
-    //  Search by idRequest 
-    if (idRequest != null){
-      this.addLogicalOperator();
-      searchText.append(" idRequest:");
-      searchText.append(idRequest);
-    } 
-    //  Search by Project 
-    if (idProject != null){
-      this.addLogicalOperator();
-      searchText.append(" idProject:");
-      searchText.append(idProject);
-    } 
     //  Search by RequestCategory 
     if (codeRequestCategory != null && !codeRequestCategory.equals("")){
       this.addLogicalOperator();
@@ -232,7 +210,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //  Search by organism (of sample)
     if (idOrganism != null && searchOrganismOnSample != null && searchOrganismOnSample.equalsIgnoreCase("Y")){
       this.addLogicalOperator();
-      searchText.append(" idOrganismSample:");
+      searchText.append(" idOrganismSamples:");
       searchText.append(idOrganism);
     } 
   }
@@ -257,9 +235,6 @@ public class ProjectRequestLuceneFilter extends DetailObject {
   }
 
   
-  public Integer getIdUser() {
-    return idAppUser;
-  }
 
   
 
@@ -268,41 +243,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     this.idLab = idLab;
   }
 
-  
-  public void setIdUser(Integer idAppUser) {
-    this.idAppUser = idAppUser;
-  }
 
- 
-  
-  public Integer getIdAppUser() {
-    return idAppUser;
-  }
-
-  
-  public void setIdAppUser(Integer idAppUser) {
-    this.idAppUser = idAppUser;
-  }
-
-  
-  public Integer getIdRequest() {
-    return idRequest;
-  }
-
-  
-  public void setIdRequest(Integer idRequest) {
-    this.idRequest = idRequest;
-  }
-
-  
-  public Integer getIdProject() {
-    return idProject;
-  }
-
-  
-  public void setIdProject(Integer idProject) {
-    this.idProject = idProject;
-  }
 
   
   public String getCodeMicroarrayCategory() {

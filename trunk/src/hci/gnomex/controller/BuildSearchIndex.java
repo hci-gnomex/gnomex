@@ -37,6 +37,8 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
   private Map projectRequestMap;
   private Map projectAnnotationMap;
   private Map sampleAnnotationMap;
+  private Map codeExperimentFactorMap;
+  private Map codeExperimentDesignMap;
   
 
   
@@ -97,6 +99,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         StringBuffer sampleNames = new StringBuffer();
         StringBuffer sampleDescriptions = new StringBuffer();
         StringBuffer sampleOrganisms = new StringBuffer();
+        HashMap      idOrganismSampleMap = new HashMap();
         StringBuffer sampleSources = new StringBuffer();
         Integer      idSlideProduct = null;
         String       slideProduct = null;
@@ -136,6 +139,9 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
           String  sampleName      = (String) row[6];
           String  sampleDesc      = (String) row[7];
           Integer idOrganism      = (Integer)row[8];
+          if (idOrganism != null) {
+            idOrganismSampleMap.put(idOrganism, null);            
+          }
           Integer idSlideSource   = (Integer)row[9];
           
           sampleNames.append       (sampleName    != null ? sampleName + " " : "");
@@ -147,6 +153,9 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
           sampleName      = (String) row[10];
           sampleDesc      = (String) row[11];
           idOrganism      = (Integer)row[12];
+          if (idOrganism != null) {
+            idOrganismSampleMap.put(idOrganism, null);            
+          }
           idSlideSource   = (Integer)row[13];
           
           sampleNames.append       (sampleName    != null ? sampleName + " " : "");
@@ -203,6 +212,15 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
           
         }
         
+        // Concatenate string of distinct idOrganism for samples
+        StringBuffer idOrganismSamples = new StringBuffer();
+        for(Iterator i2 = idOrganismSampleMap.keySet().iterator(); i2.hasNext();) {
+          Integer idOrganismSample = (Integer)i2.next();
+          idOrganismSamples.append(idOrganismSample.toString());
+          if (i2.hasNext()) {
+            idOrganismSamples.append(" ");
+          }
+        }
         
         //
         // Obtain experiment design entries and experiment factor entries
@@ -217,7 +235,22 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
             projectAnnotations.append((String)row[2] != null && !((String)row[2]).trim().equals("") ? (String)row[2] + " " : "");
           }          
         }
-        
+        StringBuffer codeExperimentDesigns = new StringBuffer();
+        List codes = (List)codeExperimentDesignMap.get(idProject);
+        if (codes != null) {
+          for(Iterator i1 = codes.iterator(); i1.hasNext();) {
+            String code = (String)i1.next();
+            codeExperimentDesigns.append(code + " ");
+          }          
+        }
+        StringBuffer codeExperimentFactors = new StringBuffer();
+        codes = (List)codeExperimentFactorMap.get(idProject);
+        if (codes != null) {
+          for(Iterator i1 = codes.iterator(); i1.hasNext();) {
+            String code = (String)i1.next();
+            codeExperimentFactors.append(code + " ");
+          }          
+        }
 
         //
         // Obtain sample annoations on samples of request
@@ -262,6 +295,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         addIndexedField(doc, "sampleNames",               sampleNames.toString());             
         addIndexedField(doc, "sampleDescriptions",        sampleDescriptions.toString());    
         addIndexedField(doc, "sampleOrganisms",           sampleOrganisms.toString());    
+        addIndexedField(doc, "idOrganismSamples",         idOrganismSamples.toString());    
         addIndexedField(doc, "sampleSources",             sampleSources.toString());    
         addIndexedField(doc, "requestCategory",           requestCategory);    
         addIndexedField(doc, "codeRequestCategory",       codeRequestCategory);    
@@ -269,6 +303,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         addIndexedField(doc, "idSlideProduct",            idSlideProduct);    
         addIndexedField(doc, "slideProduct",              slideProduct);    
         addIndexedField(doc, "slideProductOrganism",      slideProductOrganism);    
+        addIndexedField(doc, "idOrganismSlideProduct",    idOrganismSlideProduct);    
         addIndexedField(doc, "requestCategory",           requestCategory);    
         addIndexedField(doc, "projectIdLab",              idLabProject);    
         addIndexedField(doc, "projectLab",                labProject);    
@@ -277,6 +312,8 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         addIndexedField(doc, "projectCodeVisibility",     projectCodeVisibility);  
         addIndexedField(doc, "requestCodeVisibility",     requestCodeVisibility);  
         addIndexedField(doc, "projectAnnotations",        projectAnnotations.toString());               
+        addIndexedField(doc, "codeExperimentDesigns",     codeExperimentDesigns.toString());               
+        addIndexedField(doc, "codeExperimentFactors",     codeExperimentFactors.toString());               
         addIndexedField(doc, "sampleAnnotations",         sampleAnnotations.toString());               
 
         // Combine all text into one search field
@@ -387,8 +424,8 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate ");
     buf.append("FROM        Project as proj ");
+    buf.append("JOIN        proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
-    buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   req.lab as labReq ");
     buf.append("LEFT JOIN   req.slideProduct as slideProd ");
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
@@ -421,7 +458,8 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT ede.idProject, ");
     buf.append("       ed.experimentDesign, ");
-    buf.append("       ede.otherLabel  ");
+    buf.append("       ede.otherLabel,  ");
+    buf.append("       ede.codeExperimentDesign ");
     buf.append("FROM   ExperimentDesignEntry as ede, ExperimentDesign ed ");
     buf.append("WHERE  ede.value = 'Y' ");
     buf.append("AND    ede.codeExperimentDesign = ed.codeExperimentDesign ");
@@ -429,10 +467,13 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     
     List results = sess.createQuery(buf.toString()).list();
     projectAnnotationMap = new HashMap();
+    codeExperimentDesignMap = new HashMap();
+    codeExperimentFactorMap = new HashMap();
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
       Integer idProject = (Integer)row[0];
+      String code = (String)row[3];
       
       List rows = (List)projectAnnotationMap.get(idProject);
       if (rows == null) {
@@ -440,12 +481,20 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         projectAnnotationMap.put(idProject, rows);
       }
       rows.add(row);
+      
+      List codes = (List)codeExperimentDesignMap.get(idProject);
+      if (codes == null) {
+        codes = new ArrayList();
+        codeExperimentDesignMap.put(idProject, codes);
+      }
+      codes.add(code);
     }   
     
     buf = new StringBuffer();
     buf.append("SELECT efe.idProject, ");
     buf.append("       ef.experimentFactor, ");
-    buf.append("       efe.otherLabel  ");
+    buf.append("       efe.otherLabel,  ");
+    buf.append("       efe.codeExperimentFactor ");
     buf.append("FROM   ExperimentFactorEntry as efe, ExperimentFactor ef ");
     buf.append("WHERE  efe.value = 'Y' ");
     buf.append("AND    efe.codeExperimentFactor = ef.codeExperimentFactor ");
@@ -456,6 +505,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
       Object[] row = (Object[])i.next();
       
       Integer idProject = (Integer)row[0];
+      String code = (String)row[3];
       
       List rows = (List)projectAnnotationMap.get(idProject);
       if (rows == null) {
@@ -463,6 +513,14 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         projectAnnotationMap.put(idProject, rows);
       }
       rows.add(row);
+      
+      List codes = (List)codeExperimentFactorMap.get(idProject);
+      if (codes == null) {
+        codes = new ArrayList();
+        codeExperimentFactorMap.put(idProject, codes);
+      }
+      codes.add(code);
+
     }    
   }
   
