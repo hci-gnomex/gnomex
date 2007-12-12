@@ -413,6 +413,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     StringBuffer sampleDescriptions = new StringBuffer();
     StringBuffer sampleOrganisms = new StringBuffer();
     HashMap      idOrganismSampleMap = new HashMap();
+    HashMap      idSampleSourceMap = new HashMap();
     StringBuffer sampleSources = new StringBuffer();
     Integer      idSlideProduct = null;
     String       slideProduct = null;
@@ -452,29 +453,35 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
       String  sampleName      = (String) row[6];
       String  sampleDesc      = (String) row[7];
       Integer idOrganism      = (Integer)row[8];
+      Integer idSampleSource   = (Integer)row[9];
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
-      Integer idSlideSource   = (Integer)row[9];
+      if (idSampleSource != null) {
+        idSampleSourceMap.put(idSampleSource, null);
+      }
       
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-      sampleSources.append(     idSlideSource != null ? dh.getSampleSource(idSlideSource) + " " : "");
+      sampleSources.append(     idSampleSource != null ? dh.getSampleSource(idSampleSource) + " " : "");
 
       // sample 2
       sampleName      = (String) row[10];
       sampleDesc      = (String) row[11];
       idOrganism      = (Integer)row[12];
+      idSampleSource   = (Integer)row[13];
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
-      idSlideSource   = (Integer)row[13];
+      if (idSampleSource != null) {
+        idSampleSourceMap.put(idSampleSource, null);
+      }
       
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-      sampleSources.append(     idSlideSource != null ? dh.getSampleSource(idSlideSource) + " " : "");
+      sampleSources.append(     idSampleSource != null ? dh.getSampleSource(idSampleSource) + " " : "");
       
       // more request data
       idSlideProduct           = (Integer)row[14];
@@ -534,6 +541,17 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
         idOrganismSamples.append(" ");
       }
     }
+    
+    //  Concatenate string of distinct idSampleSource for samples
+    StringBuffer idSampleSources = new StringBuffer();
+    for(Iterator i2 = idSampleSourceMap.keySet().iterator(); i2.hasNext();) {
+      Integer idSampleSource = (Integer)i2.next();
+      idSampleSources.append(idSampleSource.toString());
+      if (i2.hasNext()) {
+        idSampleSources.append(" ");
+      }
+    }
+    
     
     //
     // Obtain experiment design entries and experiment factor entries
@@ -610,6 +628,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     addIndexedField(doc, "sampleOrganisms",           sampleOrganisms.toString());    
     addIndexedField(doc, "idOrganismSamples",         idOrganismSamples.toString());    
     addIndexedField(doc, "sampleSources",             sampleSources.toString());    
+    addIndexedField(doc, "idSampleSources",           idSampleSources.toString());    
     addIndexedField(doc, "requestCategory",           requestCategory);    
     addIndexedField(doc, "codeRequestCategory",       codeRequestCategory);    
     addIndexedField(doc, "codeMicroarrayCategory",    codeMicroarrayCategory);    
