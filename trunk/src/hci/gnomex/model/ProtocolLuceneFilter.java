@@ -20,17 +20,23 @@ public class ProtocolLuceneFilter extends DetailObject {
   
   
   private StringBuffer          searchText;
+  private StringBuffer          displayText;
   private boolean              firstTime = true;
   
   
   public StringBuffer getSearchText() {
-    firstTime = true;
-    searchText = new StringBuffer();
+    firstTime   = true;
+    searchText  = new StringBuffer();
+    displayText = new StringBuffer();
     
     addCriteria();
     
     return searchText;
     
+  }
+  
+  public String toString() {
+    return displayText.toString();
   }
   
   
@@ -44,6 +50,8 @@ public class ProtocolLuceneFilter extends DetailObject {
       searchText.append(" text:(");
       searchText.append(text);
       searchText.append(") ");
+      
+      displayText.append(" Any text = " + text);
     } 
     
     if ((text1 != null && !text1.equals("")) ||
@@ -60,6 +68,8 @@ public class ProtocolLuceneFilter extends DetailObject {
         searchText.append(" text:");
         searchText.append(text1);
         textCriteriaAdded = true;
+        
+        displayText.append(" Any text = " + text1);
       }
       
       // Search by text2
@@ -74,6 +84,8 @@ public class ProtocolLuceneFilter extends DetailObject {
         searchText.append(" text:");
         searchText.append(text2);
         textCriteriaAdded = true;
+        
+        displayText.append(" Any text = " + text2);
       } 
       
       //    Search by text3
@@ -88,6 +100,8 @@ public class ProtocolLuceneFilter extends DetailObject {
         searchText.append(" text:");
         searchText.append(text3);
         textCriteriaAdded = true;
+        
+        displayText.append(" Any text = " + text3);
       } 
       
       //    Search by text4
@@ -102,6 +116,8 @@ public class ProtocolLuceneFilter extends DetailObject {
         searchText.append(" text:");
         searchText.append(text4);
         textCriteriaAdded = true;
+        
+        displayText.append(" Any text = " + text4);
       } 
 
       searchText.append(")");
@@ -115,8 +131,10 @@ public class ProtocolLuceneFilter extends DetailObject {
     if (!firstTime) {
       if (matchAnyTerm != null && matchAnyTerm.equals("Y")) {
         searchText.append(" OR ");
+        displayText.append("   OR   ");
       } else {
         searchText.append(" AND ");
+        displayText.append("   AND   ");
       }
       
     }

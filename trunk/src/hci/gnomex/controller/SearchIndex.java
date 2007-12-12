@@ -7,6 +7,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ProjectRequestLuceneFilter;
 import hci.gnomex.model.ProtocolLuceneFilter;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,12 +26,14 @@ import org.apache.log4j.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Searcher;
+import org.hibernate.Session;
 import org.jdom.Element;
 
 
@@ -44,6 +48,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private ProtocolLuceneFilter       protocolFilter = null;
   
   private String listKind = "SearchList";
+  
+  private String searchDisplayText = "";
   
   private Map labMap        = null;
   private Map projectMap    = null;
@@ -61,6 +67,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
+
     
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
       listKind = request.getParameter("listKind");
@@ -102,12 +109,14 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     try {
       
+      
    
       IndexReader indexReader = IndexReader.open(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY);      
       Searcher searcher = new IndexSearcher(indexReader);
       
       //  Build a Query object
       String searchText = projectRequestFilter.getSearchText().toString();
+      searchDisplayText = projectRequestFilter.toString();
       
       // Build a Query to represent the security filter
       String securitySearchText = this.buildSecuritySearch();
@@ -228,9 +237,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     projectMap    = new HashMap();
     categoryMap   = new HashMap();
     requestMap    = new HashMap();
-    labToProjectMap = new HashMap();
-    projectToRequestCategoryMap = new HashMap();
-    categoryToRequestMap = new HashMap();
+    labToProjectMap = new TreeMap();
+    projectToRequestCategoryMap = new TreeMap();
+    categoryToRequestMap = new TreeMap();
     rankedRequestNodes = new ArrayList();
     
     for (int i = 0; i < hits.length(); i++) {
@@ -247,10 +256,10 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     projectMap    = new HashMap();
     categoryMap   = new HashMap();
     requestMap    = new HashMap();
-    labToProjectMap = new HashMap();
+    labToProjectMap = new TreeMap();
+    projectToRequestCategoryMap = new TreeMap();
+    categoryToRequestMap = new TreeMap();
     rankedRequestNodes = new ArrayList();
-    projectToRequestCategoryMap = new HashMap();
-    categoryToRequestMap = new HashMap();
     
     for (int i = 0; i < indexReader.numDocs(); i++) {
       org.apache.lucene.document.Document doc = indexReader.document(i);
@@ -368,33 +377,33 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }        
     }    
     
-    List ids = (List)labToProjectMap.get(idLab);
-    if (ids == null) {
-      ids = new ArrayList();
-      labToProjectMap.put(idLab, ids);
-    }
-    if (!ids.contains(idProject)) {
-      ids.add(idProject);        
-    }
     
-
+    String labName     = doc.get("projectLab");
+    String projectName = doc.get("projectName");
+    String requestCreateDate = doc.get("requestCreateDate");
+    String labKey = labName + "---" + idLab;
+    Map projectIdMap = (Map)labToProjectMap.get(labKey);
+    if (projectIdMap == null) {
+      projectIdMap = new TreeMap();
+      labToProjectMap.put(labKey, projectIdMap);
+    }
+    String projectKey = projectName + "---" + idProject;
+    projectIdMap.put(projectKey, idProject);        
     
     if (idRequest != null) {
-      List codes = (List)projectToRequestCategoryMap.get(idProject);
-      if (codes == null) {
-        codes = new ArrayList();
-        projectToRequestCategoryMap.put(idProject, codes);
+      Map codeMap = (Map)projectToRequestCategoryMap.get(idProject);
+      if (codeMap == null) {
+        codeMap = new TreeMap();
+        projectToRequestCategoryMap.put(idProject, codeMap);
       }        
-      if (!codes.contains(catKey)) {        
-        codes.add(catKey);        
-      }
+      codeMap.put(catKey, null);
 
-      List idRequests = (List)categoryToRequestMap.get(catKey);
-      if (idRequests == null) {
-        idRequests = new ArrayList();
-        categoryToRequestMap.put(catKey, idRequests);
+      Map idRequestMap = (Map)categoryToRequestMap.get(catKey);
+      if (idRequestMap == null) {
+        idRequestMap = new TreeMap();
+        categoryToRequestMap.put(catKey, idRequestMap);
       }
-      idRequests.add(idRequest);        
+      idRequestMap.put(requestCreateDate, idRequest);        
     }
 
   }
@@ -426,6 +435,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private org.jdom.Document buildXMLDocument() {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
+    doc.getRootElement().setAttribute("search", searchDisplayText);
     
     buildProjectRequestList(doc.getRootElement());
     buildRequestList(doc.getRootElement());
@@ -441,36 +451,44 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     // For each lab
     for(Iterator i = labToProjectMap.keySet().iterator(); i.hasNext();) {
-      Integer idLab = (Integer)i.next();
+      String key = (String)i.next();
+      
+      String []tokens = key.split("---");
+      Integer idLab = new Integer(tokens[1]);
+      
       Element labNode = (Element)labMap.get(idLab);
-      List ids = (List)labToProjectMap.get(idLab);
+      Map projectIdMap = (Map)labToProjectMap.get(key);
       
       
       parent.addContent(labNode);
       
       // For each project in lab
-      for(Iterator i1 = ids.iterator(); i1.hasNext();) {
-        Integer idProject = (Integer)i1.next();
+      for(Iterator i1 = projectIdMap.keySet().iterator(); i1.hasNext();) {
+        String projectKey = (String)i1.next();
+
+        
+        Integer idProject = (Integer)projectIdMap.get(projectKey);
 
         Element projectNode = (Element)projectMap.get(idProject);
-        List codes = (List)projectToRequestCategoryMap.get(idProject);
+        Map codeMap = (Map)projectToRequestCategoryMap.get(idProject);
         
         labNode.addContent(projectNode);
         
         
         // For each request category in project
-        if (codes != null) {
-          for(Iterator i2 = codes.iterator(); i2.hasNext();) {
+        if (codeMap != null) {
+          for(Iterator i2 = codeMap.keySet().iterator(); i2.hasNext();) {
             String code = (String)i2.next();
             Element categoryNode = (Element)categoryMap.get(code);
-            List idRequests = (List)categoryToRequestMap.get(code);
+            Map idRequestMap = (Map)categoryToRequestMap.get(code);
             
             if (categoryNode != null) {
               projectNode.addContent(categoryNode);
               
               // For each request in request category
-              for(Iterator i3 = idRequests.iterator(); i3.hasNext();) {
-                Integer idRequest = (Integer)i3.next();
+              for(Iterator i3 = idRequestMap.keySet().iterator(); i3.hasNext();) {
+                String requestKey = (String)i3.next();
+                Integer idRequest = (Integer)idRequestMap.get(requestKey);
                 Element requestNode = (Element)requestMap.get(idRequest);
                 categoryNode.addContent(requestNode);
                 
