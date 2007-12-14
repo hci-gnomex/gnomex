@@ -5,9 +5,10 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.ProjectRequestLuceneFilter;
-import hci.gnomex.model.ProtocolLuceneFilter;
-import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.lucene.ExperimentIndexHelper;
+import hci.gnomex.lucene.ExperimentFilter;
+import hci.gnomex.lucene.ProtocolIndexHelper;
+import hci.gnomex.lucene.ProtocolFilter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -26,14 +27,12 @@ import org.apache.log4j.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Searcher;
-import org.hibernate.Session;
 import org.jdom.Element;
 
 
@@ -44,8 +43,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndex.class);
 
-  private ProjectRequestLuceneFilter projectRequestFilter = null;
-  private ProtocolLuceneFilter       protocolFilter = null;
+  private ExperimentFilter experimentFilter = null;
+  private ProtocolFilter       protocolFilter = null;
   
   private String listKind = "SearchList";
   
@@ -74,11 +73,11 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
     
     
-    projectRequestFilter = new ProjectRequestLuceneFilter();
-    HashMap errors = this.loadDetailObject(request, projectRequestFilter);
+    experimentFilter = new ExperimentFilter();
+    HashMap errors = this.loadDetailObject(request, experimentFilter);
     this.addInvalidFields(errors);
     
-    protocolFilter = new ProtocolLuceneFilter();
+    protocolFilter = new ProtocolFilter();
     errors = this.loadDetailObject(request, protocolFilter);
     this.addInvalidFields(errors);
     
@@ -90,7 +89,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String code = codes[i];
         experimentDesignCodes.add(code);
       }
-      projectRequestFilter.setExperimentDesignCodes(experimentDesignCodes);
+      experimentFilter.setExperimentDesignCodes(experimentDesignCodes);
     }
     
     List experimentFactorCodes = new ArrayList();
@@ -100,7 +99,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String code = codes[i];
         experimentFactorCodes.add(code);
       }
-      projectRequestFilter.setExperimentFactorCodes(experimentFactorCodes);
+      experimentFilter.setExperimentFactorCodes(experimentFactorCodes);
     }
     
   }
@@ -115,8 +114,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       Searcher searcher = new IndexSearcher(indexReader);
       
       //  Build a Query object
-      String searchText = projectRequestFilter.getSearchText().toString();
-      searchDisplayText = projectRequestFilter.toString();
+      String searchText = experimentFilter.getSearchText().toString();
+      searchDisplayText = experimentFilter.toString();
       
       // Build a Query to represent the security filter
       String securitySearchText = this.buildSecuritySearch();
@@ -153,7 +152,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       Searcher protocolSearcher = new IndexSearcher(protocolIndexReader);
       
       //  Build a Query object
-      String protocolSearchText = projectRequestFilter.getSearchText().toString();
+      String protocolSearchText = experimentFilter.getSearchText().toString();
       
       if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
         log.debug("Lucene protocol search: " + protocolSearchText);
@@ -292,11 +291,11 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private void mapProtocolDocument(org.apache.lucene.document.Document doc, int rank, float score) {
     
-    Integer idProtocol         = new Integer(doc.get("idProtocol"));
-    String protocolType        = doc.get("protocolType");
-    String protocolName        = doc.get("name") != null ? doc.get("name") : "";
-    String protocolDescription = doc.get("description") != null ? doc.get("description") : "";
-    String protocolClassName   = doc.get("className") != null ? doc.get("className") : "";
+    Integer idProtocol         = new Integer(doc.get(ProtocolIndexHelper.ID_PROTOCOL));
+    String protocolType        = doc.get(ProtocolIndexHelper.PROTOCOL_TYPE);
+    String protocolName        = doc.get(ProtocolIndexHelper.NAME) != null ? doc.get(ProtocolIndexHelper.NAME) : "";
+    String protocolDescription = doc.get(ProtocolIndexHelper.DESCRIPTION) != null ? doc.get(ProtocolIndexHelper.DESCRIPTION) : "";
+    String protocolClassName   = doc.get(ProtocolIndexHelper.CLASS_NAME) != null ? doc.get(ProtocolIndexHelper.CLASS_NAME) : "";
     
     Element node = new Element("Protocol");
     node.setAttribute("idProtocol",    idProtocol.toString());
@@ -317,19 +316,19 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private void mapDocument(org.apache.lucene.document.Document doc, int rank, float score) {
     
-    Integer idProject = new Integer(doc.get("idProject"));
-    Integer idLab     = new Integer(doc.get("projectIdLab"));
-    Integer idRequest          = doc.get("idRequest")           != null ? new Integer(doc.get("idRequest")) : null;
-    String codeRequestCategory = doc.get("codeRequestCategory") != null ? doc.get("codeRequestCategory") : null;
-    String codeMicroarrayCategory = doc.get("codeMicroarrayCategory") != null ? doc.get("codeMicroarrayCategory") : null;
+    Integer idProject = new Integer(doc.get(ExperimentIndexHelper.ID_PROJECT));
+    Integer idLab     = new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT));
+    Integer idRequest          = doc.get(ExperimentIndexHelper.ID_REQUEST)           != null ? new Integer(doc.get(ExperimentIndexHelper.ID_REQUEST)) : null;
+    String codeRequestCategory = doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) : null;
+    String codeMicroarrayCategory = doc.get(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY) : null;
     String catKey = idProject + "-" + codeRequestCategory + "-" + codeMicroarrayCategory;      
     
     Element labNode = (Element)labMap.get(idLab);
     if (labNode == null) {
       Element node = new Element("Lab");
       node.setAttribute("idLab", idLab.toString());
-      node.setAttribute("labName", doc.get("projectLab"));
-      node.setAttribute("projectLabName", doc.get("projectLab"));
+      node.setAttribute("labName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
+      node.setAttribute("projectLabName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
       labMap.put(idLab, node);
     }
 
@@ -337,10 +336,10 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (projectNode == null) {
       Element node = new Element("Project");
       node.setAttribute("idProject", idProject.toString());
-      node.setAttribute("projectName", doc.get("projectName"));
-      node.setAttribute("projectDescription", doc.get("projectDescription") != null ? doc.get("projectDescription") : "");
-      node.setAttribute("codeVisibility", doc.get("projectCodeVisibility"));
-      node.setAttribute("projectPublicNote", doc.get("projectPublicNote") != null ? doc.get("projectPublicNote") : "");
+      node.setAttribute("projectName", ExperimentIndexHelper.PROJECT_NAME);
+      node.setAttribute("projectDescription", doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) != null ? doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) : "");
+      node.setAttribute("codeVisibility", doc.get(ExperimentIndexHelper.PROJECT_CODE_VISIBILITY));
+      node.setAttribute("projectPublicNote", doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) : "");
       if (idRequest == null || idRequest.intValue() == 0) {
         if (rank >= 0) {
           node.setAttribute("searchRank", new Integer(rank + 1).toString());
@@ -378,9 +377,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }    
     
     
-    String labName     = doc.get("projectLab");
-    String projectName = doc.get("projectName");
-    String requestCreateDate = doc.get("requestCreateDate");
+    String labName     = doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME);
+    String projectName = doc.get(ExperimentIndexHelper.PROJECT_NAME);
+    String requestCreateDate = doc.get(ExperimentIndexHelper.CREATE_DATE);
     String labKey = labName + "---" + idLab;
     Map projectIdMap = (Map)labToProjectMap.get(labKey);
     if (projectIdMap == null) {
@@ -410,19 +409,19 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeMicroarrayCategory, Document doc, float score, int rank) {
     node.setAttribute("idRequest", idRequest.toString());
-    node.setAttribute("requestNumber", doc.get("requestNumber"));
-    node.setAttribute("requestCreateDate", doc.get("requestCreateDate"));
-    node.setAttribute("codeVisibility",  doc.get("requestCodeVisibility") != null ? doc.get("requestCodeVisibility") : "");
-    node.setAttribute("requestPublicNote", doc.get("requestPublicNote") != null ? doc.get("requestPublicNote") : "");
-    node.setAttribute("displayName", doc.get("requestDisplayName"));
-    node.setAttribute("ownerFirstName", doc.get("requestOwnerFirstName"));
-    node.setAttribute("ownerLastName", doc.get("requestOwnerLastName"));
-    node.setAttribute("slideProductName", doc.get("slideProduct") != null ? doc.get("slideProduct") : "");
+    node.setAttribute("requestNumber", doc.get(ExperimentIndexHelper.REQUEST_NUMBER));
+    node.setAttribute("requestCreateDate", doc.get(ExperimentIndexHelper.CREATE_DATE));
+    node.setAttribute("codeVisibility",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null ? doc.get(ExperimentIndexHelper.CODE_VISIBILITY) : "");
+    node.setAttribute("requestPublicNote", doc.get(ExperimentIndexHelper.PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PUBLIC_NOTE) : "");
+    node.setAttribute("displayName", doc.get(ExperimentIndexHelper.DISPLAY_NAME));
+    node.setAttribute("ownerFirstName", doc.get(ExperimentIndexHelper.OWNER_FIRST_NAME));
+    node.setAttribute("ownerLastName", doc.get(ExperimentIndexHelper.OWNER_LAST_NAME));
+    node.setAttribute("slideProductName", doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) : "");
     node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
     node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
-    node.setAttribute("requestLabName", doc.get("requestLab"));
-    node.setAttribute("projectName", doc.get("projectName"));
-    node.setAttribute("idSlideProduct", doc.get("idSlideProduct") != null ? doc.get("idSlideProduct") : "");
+    node.setAttribute("requestLabName", doc.get(ExperimentIndexHelper.LAB_NAME));
+    node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME));
+    node.setAttribute("idSlideProduct", doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) : "");
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());          
       node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
@@ -533,7 +532,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private String buildSecuritySearch() throws Exception {
     boolean scopeToGroup = true;
-    if (projectRequestFilter.getSearchPublicProjects() != null && projectRequestFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
+    if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
       scopeToGroup = false;
     }
     

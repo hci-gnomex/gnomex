@@ -1,4 +1,4 @@
-package hci.gnomex.model;
+package hci.gnomex.lucene;
 
 
 import hci.gnomex.security.SecurityAdvisor;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class ProjectRequestLuceneFilter extends DetailObject {
+public class ExperimentFilter extends DetailObject {
   
   
   // Criteria
@@ -61,15 +61,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
   public String toString() {
     return displayText.toString();
   }
-  
-  private boolean hasSlideProductCriteria() {
-    if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) || 
-        idSlideProduct != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+
   
   
   private void addCriteria() {
@@ -81,7 +73,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
       text = text.replaceAll(" and ", " AND ");
       text = text.replaceAll(" or ", " OR ");
       this.addLogicalOperator();
-      searchText.append(" text:(");
+      searchText.append(" " + ExperimentIndexHelper.TEXT + ":(");
       searchText.append(text);
       searchText.append(") ");
 
@@ -103,7 +95,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
       // Search by text1
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
-        searchText.append(" text:");
+        searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append(text1);
         textCriteriaAdded = true;
         
@@ -119,7 +111,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
             this.addLogicalOperator();
           }          
         }
-        searchText.append(" text:");
+        searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append(text2);
         textCriteriaAdded = true;
         
@@ -135,7 +127,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
             this.addLogicalOperator();
           }          
         }
-        searchText.append(" text:");
+        searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append(text3);
         textCriteriaAdded = true;
         
@@ -151,7 +143,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
             this.addLogicalOperator();
           }          
         }
-        searchText.append(" text:");
+        searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append(text4);
         textCriteriaAdded = true;
         
@@ -166,7 +158,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (idOrganism != null && searchOrganismOnSlideProduct != null && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")){
       this.addLogicalOperator();
-      searchText.append(" idOrganismSlideProduct:");
+      searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT + ":");
       searchText.append(idOrganism);
 
       displayText.append(" organism of microarray slide = " + organism);
@@ -177,7 +169,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (idOrganism != null && searchOrganismOnSample != null && searchOrganismOnSample.equalsIgnoreCase("Y")){
       this.addLogicalOperator();
-      searchText.append(" idOrganismSamples:");
+      searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
       searchText.append(idOrganism);
 
       displayText.append(" organism of sample = " + organism);
@@ -189,8 +181,8 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (codeRequestCategory != null && !codeRequestCategory.equals("")){
       this.addLogicalOperator();
-      searchText.append(" codeRequestCategory:");
-      searchText.append(codeRequestCategory);
+      searchText.append(" " + ExperimentIndexHelper.CODE_REQUEST_CATEGORY + ":");
+searchText.append(codeRequestCategory);
       searchText.append("'");
       
       displayText.append(" request category = " + requestCategory);
@@ -202,7 +194,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")){
       this.addLogicalOperator();
-      searchText.append(" codeMicroarrayCategory:");
+      searchText.append(" " + ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY + ":");
       searchText.append(codeMicroarrayCategory);
       searchText.append("'");
       
@@ -214,7 +206,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (idLab != null){
       this.addLogicalOperator();
-      searchText.append(" projectIdLab:");
+      searchText.append(" " + ExperimentIndexHelper.ID_LAB_PROJECT + ":");
       searchText.append(idLab);
       
       displayText.append(" project lab = " + lab);
@@ -226,7 +218,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (idSlideProduct != null){
       this.addLogicalOperator();
-      searchText.append(" idSlideProduct:");
+      searchText.append(" " + ExperimentIndexHelper.ID_SLIDE_PRODUCT + ":");
       searchText.append(idSlideProduct);
       
       displayText.append(" microarray slide used = " + slideProduct);
@@ -237,7 +229,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (idSampleSource != null){
       this.addLogicalOperator();
-      searchText.append(" idSampleSources:");
+      searchText.append(" " + ExperimentIndexHelper.ID_SAMPLE_SOURCES + ":");
       searchText.append(idSampleSource);
 
       displayText.append(" sample source = " + idSampleSource);
@@ -249,7 +241,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //    
     if (experimentDesignCodes != null && experimentDesignCodes.size() > 0) {
       this.addLogicalOperator();
-      searchText.append(" codeExperimentDesigns:(");
+      searchText.append(" " + ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS + ":(");
       displayText.append(" project experiment designs at least one of (");
      
       for(Iterator i = experimentDesignCodes.iterator(); i.hasNext();) {
@@ -270,7 +262,7 @@ public class ProjectRequestLuceneFilter extends DetailObject {
     //
     if (experimentFactorCodes != null && experimentFactorCodes.size() > 0) {
       this.addLogicalOperator();
-      searchText.append(" codeExperimentFactors:(");
+      searchText.append(" " + ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS + ":(");
       displayText.append(" project experiment factors at least one of (");
      
       for(Iterator i = experimentFactorCodes.iterator(); i.hasNext();) {

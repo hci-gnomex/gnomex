@@ -1,39 +1,44 @@
-package hci.gnomex.controller;
+package hci.gnomex.lucene;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.security.UnknownPermissionException;
-import hci.framework.utilities.XMLReflectException;
+import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 
-import java.io.Serializable;
-import java.sql.Date;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
-public class BuildSearchIndex extends GNomExCommand implements Serializable {
+
+
+/**
+ * <p>Title: </p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Company: </p>
+ * @author unascribed
+ * @version 1.0
+ */
+
+public class BuildSearchIndex extends DetailObject {
+
+  private Configuration   configuration;
+  private Session         sess;
+  private SessionFactory  sessionFactory;
   
- 
-  
-  // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BuildSearchIndex.class);
   
   private Map projectRequestMap;
   private Map projectAnnotationMap;
@@ -45,116 +50,116 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
   private DictionaryHelper dh = null;
   
 
-  
-  public void validate() {
+  public BuildSearchIndex() {
+  }
+  public static void main(String[] args)
+  {
+    BuildSearchIndex app = new BuildSearchIndex();
+    try
+    {
+      System.out.println(new Date() + " connecting...");
+      app.connect();
+
+      System.out.println(new Date() + " initializing...");
+      app.init();
+
+      System.out.println(new Date() + " building lucene experiment index...");
+      app.buildExperimentIndex();
+
+      System.out.println(new Date() + " building lucene protocol index...");
+      app.buildExperimentIndex();
+      
+
+      System.out.println(new Date() + " disconnecting...");
+      app.disconnect();
+    }
+    catch( Exception e )
+    {
+      System.out.println( e.toString() );
+      e.printStackTrace();
+    }
+  }
+
+
+  private void connect()
+      throws Exception
+  {
+    configuration = new Configuration()
+    .addFile("SchemaGNomEx.hbm.xml");
+    
+    sessionFactory = configuration.buildSessionFactory();
+    sess = sessionFactory.openSession();
   }
   
-  public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+  private void disconnect() 
+    throws Exception {
+    sess.close();
+  }
+  
+  private void init() throws Exception {
+    // Get dictionaries
+    dh = new DictionaryHelper();
+    dh.getDictionaries(sess);
     
   }
+  
+  private void buildExperimentIndex() throws Exception{
 
-  public Command execute() throws RollBackCommandException {
+    IndexWriter experimentIndexWriter = new IndexWriter(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY, new StandardAnalyzer(), true);
+
+    // Get basic project/request data
+    getProjectRequestData(sess);
     
-    try {
-      
-   
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+    // Get project annotations (experiment design and factors)
+    getProjectAnnotations(sess);
     
-      IndexWriter experimentIndexWriter = new IndexWriter(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY, new StandardAnalyzer(), true);
-      IndexWriter protocolIndexWriter   = new IndexWriter(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY,   new StandardAnalyzer(), true);
+    // Get sample annotations (sample characteristics)
+    getSampleAnnotations(sess);
+    
+    //
+    // Write Experiment Lucene Index.
+    // (A document for each request)
+    //
+    for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
       
-      // Get dictionaries
-      dh = new DictionaryHelper();
-      dh.getDictionaries(sess);
-      
-      
-      // Get basic protocol data
-      getProtocolData(sess);
-      
-      // Get basic project/request data
-      getProjectRequestData(sess);
-      
-      // Get project annotations (experiment design and factors)
-      getProjectAnnotations(sess);
-      
-      // Get sample annotations (sample characteristics)
-      getSampleAnnotations(sess);
+      Object[] keyTokens = key.split("-");
+      Integer idProject = new Integer((String)keyTokens[0]);
+      Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
+      List rows = (List)projectRequestMap.get(key);
       
       
-      //
-      // Write Protocol Lucene Index.
-      // (A document for each protocol)
-      //
-      for( Iterator i = protocolMap.keySet().iterator(); i.hasNext();) {
-        String key = (String)i.next();
-        Object[] keyTokens = key.split("-");
-        String  protocolType = (String)keyTokens[0];
-        Integer idProtocol  = new Integer((String)keyTokens[1]);
-        Object[] row = (Object[])protocolMap.get(key);
-        
-        Document doc = buildProtocolDocument(protocolType, idProtocol, row);
-        protocolIndexWriter.addDocument(doc);
-      }
-      protocolIndexWriter.optimize();
-      protocolIndexWriter.close();
-
-      //
-      // Write Experiment Lucene Index.
-      // (A document for each request)
-      //
-      for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
-        String key = (String)i.next();
-        
-        Object[] keyTokens = key.split("-");
-        Integer idProject = new Integer((String)keyTokens[0]);
-        Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
-        List rows = (List)projectRequestMap.get(key);
-        
-        
-        Document doc = buildExperimentDocument(idProject, idRequest, rows);
-        experimentIndexWriter.addDocument(doc);
-      }
-      experimentIndexWriter.optimize();
-      experimentIndexWriter.close();
-
-    }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in GetLab ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetLab ", e);
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetLab ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetLab ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e){
-      log.error("An exception has occurred in GetLab ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
-      }
+      Document doc = buildExperimentDocument(idProject, idRequest, rows);
+      experimentIndexWriter.addDocument(doc);
     }
+    experimentIndexWriter.optimize();
+    experimentIndexWriter.close();
+  }
+  
+  private void buildProtocolIndex() throws Exception{
+
+    IndexWriter protocolIndexWriter   = new IndexWriter(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY,   new StandardAnalyzer(), true);
+
+    // Get basic protocol data
+    getProtocolData(sess);
+
     
-    
-    if (isValid()) {
-      setResponsePage(this.SUCCESS_JSP);
-    } else {
-      setResponsePage(this.ERROR_JSP);
+    //
+    // Write Protocol Lucene Index.
+    // (A document for each protocol)
+    //
+    for( Iterator i = protocolMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      Object[] keyTokens = key.split("-");
+      String  protocolType = (String)keyTokens[0];
+      Integer idProtocol  = new Integer((String)keyTokens[1]);
+      Object[] row = (Object[])protocolMap.get(key);
+      
+      Document doc = buildProtocolDocument(protocolType, idProtocol, row);
+      protocolIndexWriter.addDocument(doc);
     }
-    
-    return this;
+    protocolIndexWriter.optimize();
+    protocolIndexWriter.close();
   }
   
   private void getProjectRequestData(Session sess) throws Exception{
@@ -378,24 +383,7 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
 
 
   }
-  
-  private void addIndexedField(Document doc, String name, String value) {
-    if (value != null && !value.trim().equals("")) {
-      doc.add( new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));          
-    }
-  }
 
-  private void addIndexedField(Document doc, String name, Integer value) {
-    if (value != null) {
-      doc.add( new Field(name, value.toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));          
-    }
-  }
-
-  private void addNonIndexedField(Document doc, String name, String value) {
-    if (value != null && !value.trim().equals("")) {
-      doc.add( new Field(name, value, Field.Store.YES, Field.Index.NO));          
-    }
-  }
   
   private Document buildExperimentDocument(Integer idProject, Integer idRequest, List rows) {
     
@@ -600,53 +588,6 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
       
     }
     
-    //
-    // Add non-indexed fields
-    //
-    addNonIndexedField(doc, "idProject",          idProject.toString());  
-    if (idRequest != null) {
-      addNonIndexedField(doc, "idRequest",        idRequest.toString());               
-    }
-    addNonIndexedField(doc, "requestNumber",          requestNumber);  
-    addNonIndexedField(doc, "requestDisplayName",     requestDisplayName.toString());  
-    addNonIndexedField(doc, "requestOwnerFirstName",  requestOwnerFirstName);  
-    addNonIndexedField(doc, "requestOwnerLastName",   requestOwnerLastName);  
-    addNonIndexedField(doc, "requestCreateDate",      this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));  
-    addNonIndexedField(doc, "microarrayCategory",     microarrayCategory);  
-    addNonIndexedField(doc, "projectPublicNote",      projectPublicNote);  
-    addNonIndexedField(doc, "requestPublicNote",      requestPublicNote);  
-    
-    
-    //
-    // Add indexed fields
-    //
-    addIndexedField(doc, "projectName",               projectName);     
-    addIndexedField(doc, "projectDescription",        projectDescription);     
-    addIndexedField(doc, "hybNotes",                  hybNotes.toString());     
-    addIndexedField(doc, "sampleNames",               sampleNames.toString());             
-    addIndexedField(doc, "sampleDescriptions",        sampleDescriptions.toString());    
-    addIndexedField(doc, "sampleOrganisms",           sampleOrganisms.toString());    
-    addIndexedField(doc, "idOrganismSamples",         idOrganismSamples.toString());    
-    addIndexedField(doc, "sampleSources",             sampleSources.toString());    
-    addIndexedField(doc, "idSampleSources",           idSampleSources.toString());    
-    addIndexedField(doc, "requestCategory",           requestCategory);    
-    addIndexedField(doc, "codeRequestCategory",       codeRequestCategory);    
-    addIndexedField(doc, "codeMicroarrayCategory",    codeMicroarrayCategory);    
-    addIndexedField(doc, "idSlideProduct",            idSlideProduct);    
-    addIndexedField(doc, "slideProduct",              slideProduct);    
-    addIndexedField(doc, "slideProductOrganism",      slideProductOrganism);    
-    addIndexedField(doc, "idOrganismSlideProduct",    idOrganismSlideProduct);    
-    addIndexedField(doc, "requestCategory",           requestCategory);    
-    addIndexedField(doc, "projectIdLab",              idLabProject);    
-    addIndexedField(doc, "projectLab",                labProject);    
-    addIndexedField(doc, "requestIdLab",              idLabRequest);    
-    addIndexedField(doc, "requestLab",                labRequest);    
-    addIndexedField(doc, "projectCodeVisibility",     projectCodeVisibility);  
-    addIndexedField(doc, "requestCodeVisibility",     requestCodeVisibility);  
-    addIndexedField(doc, "projectAnnotations",        projectAnnotations.toString());               
-    addIndexedField(doc, "codeExperimentDesigns",     codeExperimentDesigns.toString());               
-    addIndexedField(doc, "codeExperimentFactors",     codeExperimentFactors.toString());               
-    addIndexedField(doc, "sampleAnnotations",         sampleAnnotations.toString());               
 
     // Combine all text into one search field
     StringBuffer text = new StringBuffer();
@@ -676,7 +617,51 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     text.append(" ");        
     text.append(labRequest);
     text.append(" ");        
-    addIndexedField(doc, "text",                      text.toString());
+
+    
+    Map nonIndexedFieldMap = new HashMap();
+    nonIndexedFieldMap.put(ExperimentIndexHelper.ID_PROJECT, idProject.toString());
+    nonIndexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest.toString());      
+    nonIndexedFieldMap.put(ExperimentIndexHelper.REQUEST_NUMBER, requestNumber);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.DISPLAY_NAME, requestDisplayName.toString());
+    nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_FIRST_NAME, requestOwnerFirstName);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_LAST_NAME, requestOwnerLastName);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.CREATE_DATE, this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));
+    nonIndexedFieldMap.put(ExperimentIndexHelper.MICROARRAY_CATEGORY, microarrayCategory);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, projectPublicNote);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.PUBLIC_NOTE, requestPublicNote);
+    
+    Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(ExperimentIndexHelper.PROJECT_NAME, projectName);
+    indexedFieldMap.put(ExperimentIndexHelper.PROJECT_DESCRIPTION, projectDescription);
+    indexedFieldMap.put(ExperimentIndexHelper.HYB_NOTES, hybNotes.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_NAMES, sampleNames.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_DESCRIPTIONS, sampleDescriptions.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_ORGANISMS, sampleOrganisms.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.ID_ORGANISM_SAMPLE, idOrganismSamples.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_SOURCES, sampleSources.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_SOURCES, idSampleSources.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.REQUEST_CATEGORY, requestCategory);
+    indexedFieldMap.put(ExperimentIndexHelper.CODE_REQUEST_CATEGORY, codeRequestCategory);
+    indexedFieldMap.put(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY, codeMicroarrayCategory);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_SLIDE_PRODUCT, idSlideProduct != null ? idSlideProduct.toString() : null);
+    indexedFieldMap.put(ExperimentIndexHelper.SLIDE_PRODUCT, slideProduct);
+    indexedFieldMap.put(ExperimentIndexHelper.SLIDE_PRODUCT_ORGANISM, slideProductOrganism);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT, idOrganismSlideProduct != null ? idOrganismSlideProduct.toString() : null);
+    indexedFieldMap.put(ExperimentIndexHelper.REQUEST_CATEGORY, requestCategory);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_LAB_PROJECT, idLabProject != null ? idLabProject.toString() : null);
+    indexedFieldMap.put(ExperimentIndexHelper.PROJECT_LAB_NAME, labProject);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_LAB, idLabRequest != null ? idLabRequest.toString() : null);
+    indexedFieldMap.put(ExperimentIndexHelper.LAB_NAME, labRequest);
+    indexedFieldMap.put(ExperimentIndexHelper.PROJECT_CODE_VISIBILITY, projectCodeVisibility);
+    indexedFieldMap.put(ExperimentIndexHelper.CODE_VISIBILITY, requestCodeVisibility);
+    indexedFieldMap.put(ExperimentIndexHelper.PROJECT_ANNOTATIONS, projectAnnotations.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, codeExperimentDesigns.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS, codeExperimentFactors.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_ANNOTATIONS, sampleAnnotations.toString());        
+    indexedFieldMap.put(ExperimentIndexHelper.TEXT, text.toString());
+    
+    ExperimentIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
     return doc;
     
@@ -690,16 +675,21 @@ public class BuildSearchIndex extends GNomExCommand implements Serializable {
     String description = (String)row[2];
     String className   = (String)row[3];
     
-    addIndexedField(doc, "name", name);
-    addIndexedField(doc, "description", description);
-    addIndexedField(doc, "text", name + " " + description);
+    Map nonIndexedFieldMap = new HashMap();
+    nonIndexedFieldMap.put(ProtocolIndexHelper.ID_PROTOCOL, idProtocol.toString());
+    nonIndexedFieldMap.put(ProtocolIndexHelper.PROTOCOL_TYPE, protocolType);
+    nonIndexedFieldMap.put(ProtocolIndexHelper.CLASS_NAME, className);
     
-    addNonIndexedField(doc, "idProtocol",   idProtocol.toString());
-    addNonIndexedField(doc, "protocolType", protocolType);
-    addNonIndexedField(doc, "className",    className);
+
+    Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(ProtocolIndexHelper.NAME, name);
+    indexedFieldMap.put(ProtocolIndexHelper.DESCRIPTION, description);
+    indexedFieldMap.put(ProtocolIndexHelper.TEXT, name + " " + description);
+    
+    ProtocolIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
     return doc;
   }
-    
+
 
 }

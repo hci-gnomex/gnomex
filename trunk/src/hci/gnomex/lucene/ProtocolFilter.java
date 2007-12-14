@@ -1,10 +1,10 @@
-package hci.gnomex.model;
+package hci.gnomex.lucene;
 
 
 
 import hci.framework.model.DetailObject;
 
-public class ProtocolLuceneFilter extends DetailObject {
+public class ProtocolFilter extends DetailObject {
   
   
   // Criteria
@@ -47,7 +47,7 @@ public class ProtocolLuceneFilter extends DetailObject {
       text = text.replaceAll(" and ", " AND ");
       text = text.replaceAll(" or ", " OR ");
       this.addLogicalOperator();
-      searchText.append(" text:(");
+      searchText.append(" " + ProtocolIndexHelper.TEXT + ":(");
       searchText.append(text);
       searchText.append(") ");
       
@@ -65,7 +65,7 @@ public class ProtocolLuceneFilter extends DetailObject {
       // Search by text1
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
-        searchText.append(" text:");
+        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append(text1);
         textCriteriaAdded = true;
         
@@ -81,7 +81,7 @@ public class ProtocolLuceneFilter extends DetailObject {
             this.addLogicalOperator();
           }          
         }
-        searchText.append(" text:");
+        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append(text2);
         textCriteriaAdded = true;
         
@@ -97,7 +97,7 @@ public class ProtocolLuceneFilter extends DetailObject {
             this.addLogicalOperator();
           }          
         }
-        searchText.append(" text:");
+        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append(text3);
         textCriteriaAdded = true;
         
@@ -113,7 +113,7 @@ public class ProtocolLuceneFilter extends DetailObject {
             this.addLogicalOperator();
           }          
         }
-        searchText.append(" text:");
+        searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
         searchText.append(text4);
         textCriteriaAdded = true;
         
