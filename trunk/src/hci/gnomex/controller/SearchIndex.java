@@ -9,6 +9,7 @@ import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ExperimentFilter;
 import hci.gnomex.lucene.ProtocolIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
+import hci.gnomex.model.Visibility;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -336,7 +337,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (projectNode == null) {
       Element node = new Element("Project");
       node.setAttribute("idProject", idProject.toString());
-      node.setAttribute("projectName", ExperimentIndexHelper.PROJECT_NAME);
+      node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME));
       node.setAttribute("projectDescription", doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) != null ? doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) : "");
       node.setAttribute("codeVisibility", doc.get(ExperimentIndexHelper.PROJECT_CODE_VISIBILITY));
       node.setAttribute("projectPublicNote", doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) : "");
@@ -366,7 +367,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       
       Element requestNode = (Element)requestMap.get(idRequest);
       if (requestNode == null) {
-        Element node = new Element("Request");
+        Element node = new Element("RequestNode");
         Element node1 = new Element("Request");
         buildRequestNode(node, idRequest, codeRequestCategory, codeMicroarrayCategory, doc, score, rank);
         buildRequestNode(node1, idRequest, codeRequestCategory, codeMicroarrayCategory, doc, score, rank);
@@ -412,6 +413,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("requestNumber", doc.get(ExperimentIndexHelper.REQUEST_NUMBER));
     node.setAttribute("requestCreateDate", doc.get(ExperimentIndexHelper.CREATE_DATE));
     node.setAttribute("codeVisibility",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null ? doc.get(ExperimentIndexHelper.CODE_VISIBILITY) : "");
+    node.setAttribute("isPublic",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null && doc.get(ExperimentIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Y" : "N");
     node.setAttribute("requestPublicNote", doc.get(ExperimentIndexHelper.PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PUBLIC_NOTE) : "");
     node.setAttribute("displayName", doc.get(ExperimentIndexHelper.DISPLAY_NAME));
     node.setAttribute("ownerFirstName", doc.get(ExperimentIndexHelper.OWNER_FIRST_NAME));
@@ -543,14 +545,14 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     StringBuffer searchText1 = new StringBuffer();
     StringBuffer searchText2 = new StringBuffer();
     addedFilter1 = this.getSecAdvisor().buildLuceneSecurityFilter(searchText1, 
-                                                                   "projectIdLab", 
-                                                                   "projectCodeVisibility", 
+                                                                   ExperimentIndexHelper.ID_LAB_PROJECT, 
+                                                                   ExperimentIndexHelper.PROJECT_CODE_VISIBILITY, 
                                                                    scopeToGroup);
     if (addedFilter1) {
       searchText2 = new StringBuffer();
       addedFilter2 = this.getSecAdvisor().buildLuceneSecurityFilter(searchText2, 
-                                                                    "requestIdLab",
-                                                                    "requestCodeVisibility",
+                                                                    ExperimentIndexHelper.ID_LAB,
+                                                                    ExperimentIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup);
     }
     if (addedFilter1) {

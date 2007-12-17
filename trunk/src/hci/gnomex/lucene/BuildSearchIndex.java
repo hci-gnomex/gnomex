@@ -7,6 +7,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -67,10 +68,10 @@ public class BuildSearchIndex extends DetailObject {
       app.buildExperimentIndex();
 
       System.out.println(new Date() + " building lucene protocol index...");
-      app.buildExperimentIndex();
+      app.buildProtocolIndex();
       
-
       System.out.println(new Date() + " disconnecting...");
+      System.out.println();
       app.disconnect();
     }
     catch( Exception e )
@@ -161,6 +162,7 @@ public class BuildSearchIndex extends DetailObject {
     protocolIndexWriter.optimize();
     protocolIndexWriter.close();
   }
+  
   
   private void getProjectRequestData(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
