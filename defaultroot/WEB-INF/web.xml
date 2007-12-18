@@ -46,9 +46,9 @@
 		<url-pattern>/Captcha.jpg</url-pattern>
 	</servlet-mapping>
 	
-	
+	<!-- Session timeout set to 4 hours -->
 	<session-config>
-		<session-timeout>1440</session-timeout>
+		<session-timeout>240</session-timeout>
 	</session-config>
 	
 	<security-constraint>

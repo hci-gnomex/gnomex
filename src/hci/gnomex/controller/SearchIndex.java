@@ -417,7 +417,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("requestNumber", doc.get(ExperimentIndexHelper.REQUEST_NUMBER));
     node.setAttribute("requestCreateDate", doc.get(ExperimentIndexHelper.CREATE_DATE));
     node.setAttribute("codeVisibility",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null ? doc.get(ExperimentIndexHelper.CODE_VISIBILITY) : "");
-    node.setAttribute("isPublic",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null && doc.get(ExperimentIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Y" : "N");
+    node.setAttribute("public",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null && doc.get(ExperimentIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Public" : "");
     node.setAttribute("requestPublicNote", doc.get(ExperimentIndexHelper.PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PUBLIC_NOTE) : "");
     node.setAttribute("displayName", doc.get(ExperimentIndexHelper.DISPLAY_NAME));
     node.setAttribute("ownerFirstName", doc.get(ExperimentIndexHelper.OWNER_FIRST_NAME));

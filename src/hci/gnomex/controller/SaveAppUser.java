@@ -129,7 +129,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     appUser.setUserNameExternal(appUserScreen.getUserNameExternal());
     
     // Only encrypt and set the password if something has been entered in the text field.
-    if (appUserScreen.getPasswordExternal() != "" && !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+    if (appUserScreen.getPasswordExternal() != null && appUserScreen.getPasswordExternal() != "" && !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
       String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
       appUser.setPasswordExternal(encryptedPassword);      
     }
