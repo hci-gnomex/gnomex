@@ -875,7 +875,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
 
   
-  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroup) {
+  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
     boolean addedFilter = false;
     
     // Admins
@@ -883,6 +883,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     // GNomEx users
     else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      searchText.append(" ( ");
       
       boolean added1 = buildLuceneMembershipFilter(searchText, labField, visibilityField);
 
@@ -896,12 +897,22 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (added1 || added2) {
         searchText.append(" OR ");        
       }
-      boolean added3 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup);
+      boolean added3 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup, null);
       addedFilter = added1 || added2 || added3;
+
+      searchText.append(" ) ");
+      
+      // Add exclusion criteria
+      if (addedFilter && leftJoinExclusionCriteria != null) {
+        searchText.append(" OR ");
+        searchText.append(" ( ");
+        searchText.append(leftJoinExclusionCriteria);
+        searchText.append(" ) ");
+      }
     }
     // Guest
     else {
-      addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false);        
+      addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false, leftJoinExclusionCriteria);        
     }
     
     return addedFilter;
@@ -968,9 +979,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
 
-  public boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups) {
+  public boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups, String leftJoinExclusionCriteria) {
     searchText.append(" ( ");
 
+    searchText.append(" ( ");
     if (scopeToGroups) {
       Set labs = getAllMyGroups();
       if (!labs.isEmpty()) {
@@ -991,6 +1003,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     searchText.append(visibilityField);
     searchText.append(":");
     searchText.append(Visibility.VISIBLE_TO_PUBLIC);
+    searchText.append(" ) ");
+    
+    // Add exclusion criteria
+    if (leftJoinExclusionCriteria != null) {
+      searchText.append(" OR ");
+      searchText.append(" ( ");
+      searchText.append(leftJoinExclusionCriteria);
+      searchText.append(" ) ");
+    }
     
     searchText.append(" ) ");
     return true;

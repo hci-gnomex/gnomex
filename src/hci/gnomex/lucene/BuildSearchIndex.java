@@ -194,7 +194,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate ");
     buf.append("FROM        Project as proj ");
-    buf.append("JOIN        proj.requests as req ");
+    buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
     buf.append("LEFT JOIN   req.lab as labReq ");
     buf.append("LEFT JOIN   req.slideProduct as slideProd ");
@@ -623,17 +623,17 @@ public class BuildSearchIndex extends DetailObject {
     
     Map nonIndexedFieldMap = new HashMap();
     nonIndexedFieldMap.put(ExperimentIndexHelper.ID_PROJECT, idProject.toString());
-    nonIndexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest.toString());      
     nonIndexedFieldMap.put(ExperimentIndexHelper.REQUEST_NUMBER, requestNumber);
     nonIndexedFieldMap.put(ExperimentIndexHelper.DISPLAY_NAME, requestDisplayName.toString());
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_FIRST_NAME, requestOwnerFirstName);
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_LAST_NAME, requestOwnerLastName);
-    nonIndexedFieldMap.put(ExperimentIndexHelper.CREATE_DATE, this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));
+    nonIndexedFieldMap.put(ExperimentIndexHelper.CREATE_DATE, requestCreateDate != null ? this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL) : null);
     nonIndexedFieldMap.put(ExperimentIndexHelper.MICROARRAY_CATEGORY, microarrayCategory);
     nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, projectPublicNote);
     nonIndexedFieldMap.put(ExperimentIndexHelper.PUBLIC_NOTE, requestPublicNote);
     
     Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest != null ? idRequest.toString() : "unknown");      
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_NAME, projectName);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_DESCRIPTION, projectDescription);
     indexedFieldMap.put(ExperimentIndexHelper.HYB_NOTES, hybNotes.toString());
