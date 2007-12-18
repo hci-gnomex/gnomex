@@ -309,7 +309,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
     }
     if (score >= 0) {
-      node.setAttribute("searchScore", new Integer(Math.round(score) * 100).toString() + "%");                    
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");                    
     }
     
     rankedProtocolNodes.add(node);
@@ -319,7 +319,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     Integer idProject = new Integer(doc.get(ExperimentIndexHelper.ID_PROJECT));
     Integer idLab     = new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT));
-    Integer idRequest          = doc.get(ExperimentIndexHelper.ID_REQUEST)           != null ? new Integer(doc.get(ExperimentIndexHelper.ID_REQUEST)) : null;
+    Integer idRequest          = doc.get(ExperimentIndexHelper.ID_REQUEST).equals("unknown") ? null : new Integer(doc.get(ExperimentIndexHelper.ID_REQUEST));
     String codeRequestCategory = doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) : null;
     String codeMicroarrayCategory = doc.get(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY) : null;
     String catKey = idProject + "-" + codeRequestCategory + "-" + codeMicroarrayCategory;      
@@ -337,7 +337,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (projectNode == null) {
       Element node = new Element("Project");
       node.setAttribute("idProject", idProject.toString());
-      node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME));
+      node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
       node.setAttribute("projectDescription", doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) != null ? doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) : "");
       node.setAttribute("codeVisibility", doc.get(ExperimentIndexHelper.PROJECT_CODE_VISIBILITY));
       node.setAttribute("projectPublicNote", doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) : "");
@@ -347,7 +347,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
         }
         if (score >= 0) {
-          node.setAttribute("searchScore", new Integer(Math.round(score) * 100).toString() + "%");                    
+          node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");                    
         }
       }
       projectMap.put(idProject, node);
@@ -375,7 +375,11 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         requestMap.put(idRequest, node);
         rankedRequestNodes.add(node1);
       }        
-    }    
+    } else {
+      Element node = new Element("Request");
+      buildEmptyRequestNode(node, idProject, doc, score, rank);
+      rankedRequestNodes.add(node);
+    }
     
     
     String labName     = doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME);
@@ -433,6 +437,21 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
 
   }
+  
+  private void buildEmptyRequestNode(Element node,  Integer idProject, Document doc, float score, int rank) {
+    node.setAttribute("idRequest", "-1");
+    node.setAttribute("idProject", idProject.toString());
+    node.setAttribute("projectName",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
+
+  }
+
   
   private org.jdom.Document buildXMLDocument() {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
@@ -547,13 +566,15 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     addedFilter1 = this.getSecAdvisor().buildLuceneSecurityFilter(searchText1, 
                                                                    ExperimentIndexHelper.ID_LAB_PROJECT, 
                                                                    ExperimentIndexHelper.PROJECT_CODE_VISIBILITY, 
-                                                                   scopeToGroup);
+                                                                   scopeToGroup,
+                                                                   null);
     if (addedFilter1) {
       searchText2 = new StringBuffer();
       addedFilter2 = this.getSecAdvisor().buildLuceneSecurityFilter(searchText2, 
                                                                     ExperimentIndexHelper.ID_LAB,
                                                                     ExperimentIndexHelper.CODE_VISIBILITY,
-                                                                    scopeToGroup);
+                                                                    scopeToGroup,
+                                                                    ExperimentIndexHelper.ID_REQUEST + ":unknown" );
     }
     if (addedFilter1) {
       searchText.append("(");
