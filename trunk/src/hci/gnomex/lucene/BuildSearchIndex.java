@@ -39,7 +39,9 @@ public class BuildSearchIndex extends DetailObject {
   private Configuration   configuration;
   private Session         sess;
   private SessionFactory  sessionFactory;
-  
+  private static String  dbhost = "hci-db";
+  private static String  dbUserName = "GuestGNomEx";
+  private static String  dbPassword = "p@ssw0rd";
   
   private Map projectRequestMap;
   private Map projectAnnotationMap;
@@ -55,6 +57,12 @@ public class BuildSearchIndex extends DetailObject {
   }
   public static void main(String[] args)
   {
+    if (args.length > 0) {
+      dbhost = args[0];
+    }
+    if (args.length > 1) {
+      dbPassword = args[1];
+    }
     BuildSearchIndex app = new BuildSearchIndex();
     try
     {
@@ -87,6 +95,16 @@ public class BuildSearchIndex extends DetailObject {
   {
     configuration = new Configuration()
     .addFile("SchemaGNomEx.hbm.xml");
+    
+      
+    configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.SybaseDialect")
+                 .setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'")
+                 .setProperty("hibernate.connection.driver_class", "com.microsoft.jdbc.sqlserver.SQLServerDriver")
+                 .setProperty("hibernate.connection.username", dbUserName)
+                 .setProperty("hibernate.connection.password", dbPassword)
+                 .setProperty("hibernate.connection.url", "jdbc:microsoft:sqlserver://" + dbhost + ":1433;databaseName=GNomEx;SelectMethod=cursor" )
+                 .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.HashtableCacheProvider");
+                 
     
     sessionFactory = configuration.buildSessionFactory();
     sess = sessionFactory.openSession();
