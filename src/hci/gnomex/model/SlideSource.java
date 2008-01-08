@@ -7,6 +7,10 @@ import java.io.Serializable;
 
 public class SlideSource extends DictionaryEntry implements Serializable {
   
+  public static final String    STRIPPED    = "REUSE";
+  public static final String    CORE        = "CORE";
+  public static final String    CLIENT      = "CLIENT";
+  
   private String codeSlideSource;
   private String slideSource;  
   private String isActive;

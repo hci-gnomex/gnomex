@@ -71,6 +71,22 @@
       padding-right: 4;
       padding-left: 4;
   }
+  
+    td.gridreverse {
+
+      font-family: Trebuchet MS;
+      font-size: 9pt;
+      border-top: thin solid;
+      border-left: thin solid;
+      border-color: #CDCDC1;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4;
+      color: white;
+      font-weight: bold;
+      background-color: gray;
+  }
 
   td.gridleft {
 

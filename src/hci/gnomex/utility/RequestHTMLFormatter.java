@@ -8,6 +8,7 @@ import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SlideSource;
 import hci.framework.model.DetailObject;
 
 import java.util.Iterator;
@@ -265,7 +266,12 @@ public class RequestHTMLFormatter {
       }
       this.addCell(row, hyb.getIdSlideDesign() != null         ? dictionaryHelper.getSlideDesignName(hyb.getIdSlideDesign()) : "&nbsp;");
       this.addCell(row, slideDesignProtocolName != null        ? slideDesignProtocolName                                : "&nbsp;");
-      this.addCell(row, slideSource != null                    ? slideSource                                               : "&nbsp;");      
+      if (hyb.getCodeSlideSource() != null && hyb.getCodeSlideSource().equals(SlideSource.STRIPPED)) {
+        this.addHighlightedCell(row, slideSource != null ? slideSource : "&nbsp;");              
+        
+      } else {
+        this.addCell(row, slideSource != null ? slideSource : "&nbsp;");              
+      }
       if (includeMicroarrayCoreNotes) {
         this.addSmallEmptyCell(row);
         this.addEmptyCell(row);        
@@ -322,6 +328,13 @@ public class RequestHTMLFormatter {
       cell.addContent(value);
       row.addContent(cell);
   }
+  
+  private void addHighlightedCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "gridreverse");      
+    cell.addContent(value);
+    row.addContent(cell);
+}
   
   private void addEmptyCell(Element row) {
     Element cell = new Element("TD");
