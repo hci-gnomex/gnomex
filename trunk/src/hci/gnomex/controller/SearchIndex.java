@@ -72,6 +72,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
       listKind = request.getParameter("listKind");
     }
+
+    
     
     
     experimentFilter = new ExperimentFilter();
@@ -302,6 +304,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("idProtocol",    idProtocol.toString());
     node.setAttribute("protocolType", protocolType);
     node.setAttribute("name",         protocolName);
+    node.setAttribute("label",        protocolName);
     node.setAttribute("description",  protocolDescription);
     node.setAttribute("className",    protocolClassName);
     if (rank >= 0) {
@@ -329,6 +332,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       Element node = new Element("Lab");
       node.setAttribute("idLab", idLab.toString());
       node.setAttribute("labName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
+      node.setAttribute("label", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
       node.setAttribute("projectLabName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME));
       labMap.put(idLab, node);
     }
@@ -338,6 +342,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       Element node = new Element("Project");
       node.setAttribute("idProject", idProject.toString());
       node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
+      node.setAttribute("label", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
       node.setAttribute("projectDescription", doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) != null ? doc.get(ExperimentIndexHelper.PROJECT_DESCRIPTION) : "");
       node.setAttribute("codeVisibility", doc.get(ExperimentIndexHelper.PROJECT_CODE_VISIBILITY));
       node.setAttribute("projectPublicNote", doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE) : "");
@@ -360,6 +365,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         Element node = new Element("RequestCategory");
         node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
         node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
+        node.setAttribute("label", codeRequestCategory + " " + codeMicroarrayCategory);
         node.setAttribute("idProject",idProject.toString());     
         categoryMap.put(catKey, node);
       }
@@ -420,6 +426,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("public",  doc.get(ExperimentIndexHelper.CODE_VISIBILITY) != null && doc.get(ExperimentIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Public" : "");
     node.setAttribute("requestPublicNote", doc.get(ExperimentIndexHelper.PUBLIC_NOTE) != null ? doc.get(ExperimentIndexHelper.PUBLIC_NOTE) : "");
     node.setAttribute("displayName", doc.get(ExperimentIndexHelper.DISPLAY_NAME));
+    node.setAttribute("label", doc.get(ExperimentIndexHelper.DISPLAY_NAME));
     node.setAttribute("ownerFirstName", doc.get(ExperimentIndexHelper.OWNER_FIRST_NAME));
     node.setAttribute("ownerLastName", doc.get(ExperimentIndexHelper.OWNER_LAST_NAME));
     node.setAttribute("slideProductName", doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) : "");
@@ -442,6 +449,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("idRequest", "-1");
     node.setAttribute("idProject", idProject.toString());
     node.setAttribute("projectName",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
+    node.setAttribute("label",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());          
       node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
