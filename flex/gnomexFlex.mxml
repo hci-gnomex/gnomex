@@ -108,6 +108,13 @@
             	
             }
             private function onManageDictionaries(event:ResultEvent):void {
+            	var emptyNode:XML = <DictionaryEntry value='' display=''/>;
+            
+            	var dictionaryList:XMLList = manageDictionaries.lastResult.Dictionary;     			
+	        	for(var i:Number = 0; i < dictionaryList.length(); i++) {
+	        		dictionaryList[i].insertChildAfter(null, emptyNode);
+	        	}
+	        	enableApp();
             }
             
             private function onGetAppUserList(event:ResultEvent):void {
