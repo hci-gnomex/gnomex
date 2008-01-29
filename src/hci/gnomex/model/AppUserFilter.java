@@ -54,6 +54,7 @@ public class AppUserFilter extends DetailObject {
       addSecurityCriteria();      
     }
     
+    queryBuf.append(" order by user.lastName, user.firstName ");
   }
   
   
