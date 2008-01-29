@@ -133,7 +133,10 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
       appUser.setPasswordExternal(encryptedPassword);      
     } else {
-      appUser.setPasswordExternal(null);
+      // Only blank out the external password if a UNID has been entered.
+      if (appUserScreen.getuNID() != null && !appUserScreen.getuNID().trim().equals("")) {
+        appUser.setPasswordExternal(null);        
+      }
     }
     
     
