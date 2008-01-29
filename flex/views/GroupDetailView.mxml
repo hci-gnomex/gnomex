@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
+	 height="100%" width="100%" label="Group Detail" cornerRadius="0" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+
+    
+	<mx:VBox height="100%" width="100%" paddingTop="8" paddingBottom="8" paddingLeft="8" paddingRight="8">
+    
+	<mx:VBox width="100%"  >
+      <mx:Tile width="100%">
+			<mx:HBox width="100%" height="30">
+				<mx:Label text="Name" width="75"/>
+				<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" width="129" text="{parentDocument.fullLab.@name}"/>
+			</mx:HBox>
+			<mx:HBox width="100%" height="30">
+				<mx:Label text="Department" id="Label1" width="75"/>
+				<mx:TextInput width="159" id="department" text="{parentDocument.fullLab.@department}"/>
+			</mx:HBox>
+			
+
+	    
+	    </mx:Tile>
+   <mx:HBox width="100%">
+	<mx:HBox width="100%" height="100%" borderStyle="none" paddingLeft="5" paddingRight="5" >
+	</mx:HBox>
+		
+
+  </mx:HBox>
+
+  </mx:VBox>
+	   
+	   <mx:VBox width="100%" height="100%">
+	<mx:HBox width="100%" height="100%" paddingLeft="8">
+	  <mx:DataGrid id="membersGrid" width="30%" height="100%" dataProvider="{parentDocument.fullLab.members.AppUser}">
+            <mx:columns>
+                <mx:DataGridColumn dataField="@displayName" headerText="Members"/>
+            </mx:columns>
+        </mx:DataGrid>
+	    <mx:DataGrid id="collaboratorsGrid" width="30%" height="100%" dataProvider="{parentDocument.fullLab.collaborators.AppUser}">
+            <mx:columns>
+                <mx:DataGridColumn dataField="@displayName" headerText="Collaborators"/>
+            </mx:columns>
+        </mx:DataGrid>
+	    <mx:DataGrid id="managersGrid" width="30%" height="100%" dataProvider="{parentDocument.fullLab.managers.AppUser}">
+            <mx:columns>
+                <mx:DataGridColumn dataField="@displayName" headerText="Managers"/>
+            </mx:columns>
+        </mx:DataGrid>
+	</mx:HBox>
+	   	<mx:HBox width="100%" horizontalAlign="right" paddingLeft="10" paddingRight="10">
+	   		<mx:Button label="Save"/>
+	   		
+	   	</mx:HBox>
+	   </mx:VBox>
+    </mx:VBox>
+  
+</mx:Canvas>

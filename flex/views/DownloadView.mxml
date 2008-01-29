@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
+ <mx:Script>
+ 	<![CDATA[
+ 	import flash.display.Sprite;
+    import flash.net.FileReference;
+    import flash.net.URLRequest;
+    import flash.net.URLRequestMethod;
+    import flash.net.URLVariables;
+    import mx.managers.PopUpManager;
+   
+	
+ 	[Bindable]
+    private var rowCountMessage:String = new String();
+    
+    private const FILE_URL:String = "http://localhost/gnomex/DownloadResultsServlet.gx";   
+            
+    public function downloadFolders():void { 
+    	var resultKeys:String = "";
+    	for(var i:Number = 0; i < downloadList.length; i++) {
+    		if (downloadList[i].@isSelected != null && downloadList[i].@isSelected.toString() == "true") {
+        		resultKeys += downloadList[i].@key + ":";
+      		}
+        } 
+    	
+        var parms:String = "resultKeys="+ resultKeys;
+        //parentApplication.downloadProgress.visible = "true";
+        //parentApplication.cancelDownloadButton.visible = "true";
+		//parentApplication.fileDownloadUtil = new views.FileDownloadUtil();
+    	//parentApplication.fileDownloadUtil.setURL(FILE_URL, parms);
+    	//parentApplication.fileDownloadUtil.init(parentApplication.downloadProgress, null, parentApplication.cancelDownloadButton);
+    	//parentApplication.fileDownloadUtil.startDownload();
+    	
+    	var progressWindow:views.DownloadProgress = new views.DownloadProgress();
+    	progressWindow.init(this, this.FILE_URL, parms, downloadButton);
+
+    	
+
+
+ 	}
+    
+    private function doEvent(evt:Event):void {
+        /* Create shortcut to the FileReference object. */
+        var fr:FileReference = evt.currentTarget as FileReference;   
+
+        mx.controls.Alert.show(evt.type + " " + evt.toString());   
+
+    }   
+
+
+    
+    public function setResultsCount():void {
+    	rowCountMessage = downloadList.length + " folders found.";
+    }
+    
+    private function getGridRowNumber(item:Object,col:int):String
+    {
+       var x:int = downloadList.getItemIndex(item) + 1;
+       return String(x);
+    } 
+    
+ 	]]>
+ </mx:Script>
+ 
+    <mx:XMLListCollection id="downloadList" source="{parentDocument.getRequestDownloadList.lastResult.RequestDownload}"/>
+
+	<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
+	
+		<mx:HBox horizontalAlign="right" width="100%">
+		  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}"/>
+		  <mx:Button label="Download" id="downloadButton" click="downloadFolders()"/>
+		  <mx:Button label="Show Files"/>
+		</mx:HBox>
+			
+			   
+	             
+	     
+	       <views:DataGridAlternatingGroup  dataProvider="{downloadList}"  width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4">
+	         <views:columns>
+				<!--<mx:DataGridColumn editable="false" headerText=""  width="25" labelFunction="getGridRowNumber"/> 
+	             -->
+	            <mx:DataGridColumn headerText=" " 
+	            	width="10" 
+	            	editable="true"                        	
+	            	dataField="@isSelected" 
+	            	editorDataField="selected" 
+	            	itemRenderer="views.CheckBoxIsSelected">
+	            </mx:DataGridColumn>
+		       	<mx:DataGridColumn headerText="#" width="30" dataField="@requestNumber"/>
+		       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
+		       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
+		        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+		       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
+		       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
+		       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
+		       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
+		       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
+	         </views:columns>
+	       </views:DataGridAlternatingGroup>
+	
+	     
+	</mx:VBox>
+	
+
+
+
+</mx:Canvas>
+
+

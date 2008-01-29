@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Advanced Search"  
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%"  creationPolicy="all"
+>
+
+
+  <mx:HTTPService  
+    id="searchGNomEx" 
+    url="http://localhost/gnomex/SearchIndex.gx"
+    destination="searchGNomEx"
+    resultFormat="e4x"
+    result="onSearchIndex(event)"
+    fault="onSearchIndexFailed(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+            <listKind>SearchList</listKind>
+            <matchAnyTerm>{matchAnyTermRadio.selected == true ? "Y" : "N"}</matchAnyTerm>
+            <matchAllTerms>{matchAllTermsRadio.selected == true ? "Y" : "N"}</matchAllTerms>
+            <text1>{text1.text}</text1>
+            <text2>{text2.text}</text2>
+            <text3>{text3.text}</text3>
+            <text4>{text4.text}</text4>
+            <idLab>{labCombo.selectedItem.@idLab}</idLab>
+            <idOrganism>{organismCombo.selectedItem.@value}</idOrganism>
+            <searchOrganismOnSlideProduct>{searchOrganismOnSlideProductRadio.selected == true ? "Y" : "N" }</searchOrganismOnSlideProduct>
+            <searchOrganismOnSample>{searchOrganismOnSampleRadio.selected == true ? "Y" : "N" }</searchOrganismOnSample>
+            <codeMicroarrayCategory>{microarrayCategoryCombo.selectedItem.@value}</codeMicroarrayCategory>
+            <idSampleSource>{sampleSourceCombo.selectedItem.@value}</idSampleSource>
+            <idSlideProduct>{microarrayCombo.selectedItem.@idSlideProduct}</idSlideProduct>
+            <experimentDesignConcatCodes>{experimentDesignCodes}</experimentDesignConcatCodes>
+            <experimentFactorConcatCodes>{experimentFactorCodes}</experimentFactorConcatCodes>
+            <lab>{labCombo.selectedItem.@name}</lab>
+            <organism>{organismCombo.selectedItem.@organism}</organism>
+            <slideProduct>{microarrayCombo.selectedItem.@name}</slideProduct>
+            <microarrayCategory>{microarrayCategoryCombo.selectedItem.@display}</microarrayCategory>
+            <sampleSource>{sampleSourceCombo.selectedItem.@display}</sampleSource>
+            <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
+            <myxmldata>{myXMLString}</myxmldata>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:Script> 
+        <![CDATA[
+        import mx.rpc.events.FaultEvent;           
+        import mx.rpc.events.ResultEvent;   
+        import mx.controls.Alert;
+        
+        
+        [Bindable]
+        private var experimentDesignCodes:String = new String();
+        [Bindable]
+        private var experimentFactorCodes:String = new String();
+        
+        [Bindable]
+        private var myXMLString:String = "";
+
+        private function filterSlideProduct(item:Object):Boolean {
+        	if (item.@idSlideProduct == "") {
+        		return true;
+        	}
+        	var doesMatchOrganism:Boolean = true;
+        	if (organismCombo.selectedItem != null && organismCombo.selectedItem.@value != "") {
+        		if (item.@idOrganism == organismCombo.selectedItem.@idOrganism) {
+        			doesMatchOrganism = true;
+        		} else {
+        			doesMatchOrganism = false;
+        		}
+        	}
+        	var doesMatchExperimentCategory:Boolean = true;
+        	if (microarrayCategoryCombo.selectedItem != null && microarrayCategoryCombo.selectedItem.@value != "") {
+        		doesMatchExperimentCategory = false;
+        		var categoriesForSlideProduct:XMLList  = item.microarrayCategories.MicroarrayCategory;
+        		for(var x:Number = 0; x < categoriesForSlideProduct.length(); x++) {
+        			if (categoriesForSlideProduct[x].@codeMicroarrayCategory == microarrayCategoryCombo.selectedItem.@value) {
+        				doesMatchExperimentCategory = true;
+        				break;
+        			}
+        		}
+        	}
+        	var doesMatchGroup:Boolean = true;
+        	if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != "") {
+        		if (item.@isCustom == "Y" && item.@idLab == labCombo.selectedItem.@idLab) {
+        			doesMatchGroup = true;
+        		} else {
+        			doesMatchGroup = false;
+        		}
+        	}
+        	
+        	return doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
+        }  
+        private function callSearchIndex():void {
+			var codeDesignList:XMLList = parentApplication.getExperimentDesignList.lastResult.ExperimentDesign;     			
+			experimentDesignCodes = new String(); 
+        	for(var i:Number = 0; i < codeDesignList.length(); i++) {
+        		if (codeDesignList[i].@isSelected != null && codeDesignList[i].@isSelected.toString() == "true") {
+            		experimentDesignCodes = experimentDesignCodes + codeDesignList[i].@codeExperimentDesign + ":";
+          		}
+            } 
+            
+            var codeFactorList:XMLList = parentApplication.getExperimentFactorList.lastResult.ExperimentFactor;     			
+			experimentFactorCodes = new String(); 
+        	for(var i1:Number = 0; i1 < codeFactorList.length(); i1++) {
+        		if (codeFactorList[i1].@isSelected != null && codeFactorList[i1].@isSelected.toString() == "true") {
+            		experimentFactorCodes = experimentFactorCodes + codeFactorList[i1].@codeExperimentFactor + ":";
+          		}
+            } 
+            
+            //var codeFactorList:XMLList = parentApplication.getExperimentFactorList.lastResult.ExperimentFactor;    
+            //myXMLString = codeFactorList.toXMLString();
+            //trace(myXMLString.length);
+            //trace(myXMLString);
+        	searchGNomEx.send(); 
+        }
+        
+        private function onSearchIndex(event:ResultEvent): void {        	
+        	parentDocument.searchViews.selectedIndex=1;
+        	parentDocument.setResultsCount();
+        }
+        
+        private function onSearchIndexFailed(event:FaultEvent):void {
+        	Alert.show("Service failed");
+        	var errors:String = "On search failed:\n";
+        	errors += "\nfault code: " + event.fault.faultCode;
+        	errors += "\nfault detail: " + event.fault.faultDetail;
+        	errors += "\nfault string: " + event.fault.faultString;
+        	trace(errors);
+        			
+        }
+        
+
+                
+           
+
+        ]]>
+    </mx:Script>
+    
+    <mx:XMLListCollection id="filteredSlideProductList" source="{parentApplication.getSlideProductList.lastResult.SlideProduct}" filterFunction="filterSlideProduct"/>
+    
+   
+    <mx:VBox width="100%" height="100%" top="12" bottom="4" left="8" right="8"  backgroundAlpha="1.0">
+    
+     <mx:HBox horizontalAlign="right" width="100%">
+        	<mx:Button label="Search" click="callSearchIndex()" width="100" themeColor="#ffff80">
+        	</mx:Button>
+        	<mx:Button label="Clear" width="100" themeColor="#ffff80">
+        	</mx:Button>
+        	
+        </mx:HBox>
+        <mx:VBox width="100%" height="100%" verticalGap="1">
+            <mx:HBox width="100%" paddingBottom="10">
+                <mx:RadioButtonGroup id="radiogroup1"/>
+                <mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
+                <mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
+                <mx:HBox width="100%" height="100%" horizontalAlign="right">
+                    <mx:CheckBox label="Include public projects in search" id="includePublicProjectsCheckBox" selected="true"/>
+                </mx:HBox>
+            </mx:HBox>
+            <mx:HBox width="100%">
+              <mx:VBox width="100%">
+                <mx:HBox width="100%">
+                	<mx:Label text="Keywords:"/>
+                	<mx:TextInput id="text1" width="25%">
+                    </mx:TextInput>
+                    <mx:TextInput id="text2" width="25%">
+                    </mx:TextInput>
+                    <mx:TextInput id="text3" width="25%">
+                    </mx:TextInput>
+                    <mx:TextInput id="text4" width="25%">
+                    </mx:TextInput>
+
+                </mx:HBox>
+                <mx:VBox width="100%" height="100%">
+                   <mx:HBox width="100%" horizontalGap="20">
+                    <mx:HBox paddingBottom="10">
+                     <mx:Label text="Organism" width="130"/>
+                    <mx:VBox>
+                       <mx:ComboBox 
+                       	id="organismCombo"  labelField="@display" 
+                     	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"  
+                     	width="220" change="filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+                       </mx:ComboBox>
+                       <mx:HBox>
+                          <mx:RadioButtonGroup id="radiogroup2"/>
+                          <mx:RadioButton id="searchOrganismOnSlideProductRadio" label="Microarray" groupName="radiogroup2" selected="true"/>
+                          <mx:RadioButton id="searchOrganismOnSampleRadio" label="Sample" groupName="radiogroup2" />
+                       </mx:HBox>
+                    </mx:VBox>
+                  </mx:HBox>
+                  
+                  <mx:HBox>
+                  	
+                    <mx:HBox>
+                     <mx:Label text="Experiment Category" width="130"/>
+                     <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
+                     	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}" 
+                     	 width="220" change="filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+                     </mx:ComboBox>
+                    </mx:HBox>
+                  	
+                  </mx:HBox>
+                  	
+                   	
+                   </mx:HBox>
+                  <mx:HBox width="100%" horizontalGap="20">
+                   <mx:HBox>
+                   <mx:Label text="Group" width="130"/>
+                   <mx:ComboBox id="labCombo"  
+                   	labelField="@name" dataProvider="{parentApplication.getLabList.lastResult.Lab}" 
+                    width="220"
+                    change="filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+                   	</mx:ComboBox>
+                   	
+                   </mx:HBox>
+                   <mx:HBox >
+                    <mx:Label text="Sample Source" width="130"/>
+                    <mx:ComboBox id="sampleSourceCombo"  
+                     labelField="@display" dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry}"
+                    	 width="220">
+                    </mx:ComboBox>
+                   </mx:HBox>
+                  </mx:HBox>
+                  <mx:HBox width="100%">
+                   <mx:Label text="Microarray" width="130"/>
+                   <mx:ComboBox id="microarrayCombo"  
+                   	labelField="@name" 
+                   	dataProvider="{filteredSlideProductList}" 
+                   	 width="100%">
+                  </mx:ComboBox>
+                  </mx:HBox>
+                </mx:VBox> 
+              	
+              </mx:VBox>
+            </mx:HBox>
+            <mx:HBox width="100%" height="100%" paddingTop="6">
+                <mx:DataGrid width="50%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" fontSize="9">
+                    <mx:columns>
+                        <mx:DataGridColumn headerText=" " 
+                        	width="30" 
+                        	editable="true"                        	
+                        	dataField="@isSelected" 
+                        	editorDataField="selected"
+                        	itemRenderer="views.CheckBoxIsSelected" >
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
+                    </mx:columns>
+                </mx:DataGrid>
+                <mx:DataGrid width="50%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" fontSize="9">
+                    <mx:columns>
+                        <mx:DataGridColumn headerText=" " 
+                        	width="30" 
+                        	editable="true"                        	
+                        	dataField="@isSelected" 
+                        	editorDataField="selected" 
+                        	itemRenderer="views.CheckBoxIsSelected">
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn headerText="Experimental Factor (differences between samples)" editable="false" dataField="@experimentFactor"/>
+                    </mx:columns>
+                </mx:DataGrid>
+            </mx:HBox>
+        </mx:VBox>
+
+       
+	</mx:VBox>
+						
+						
+
+</mx:Canvas>

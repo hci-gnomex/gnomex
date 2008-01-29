@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     xmlns:SubmitRequestView="SubmitRequestView.*" label="Submit Request" width="100%" height="100%">
+	<mx:TabNavigator width="100%" height="100%">
+		<mx:Canvas label="Request Setup" width="100%" height="100%">
+		</mx:Canvas>
+	</mx:TabNavigator>
+	
+    
+</mx:Canvas>

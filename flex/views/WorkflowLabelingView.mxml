@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Labeling"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	
+	<mx:HTTPService 
+    id="getWorkList" 
+    url="http://localhost/gnomex/GetWorkItemList.gx"
+    resultFormat="e4x"
+    destination="getWorkList"
+    showBusyCursor="true"
+    useProxy="false">
+    <mx:request>
+        <codeStepNext>LABEL</codeStepNext>
+    </mx:request>
+    </mx:HTTPService >
+
+    <mx:Script>
+        <![CDATA[ 
+        import mx.rpc.events.ResultEvent;   
+        import mx.controls.Alert;
+ 
+        private function getGridRowNumber(item:Object,col:int):String
+        {
+           var x:int = workList.getItemIndex(item) + 1;
+           return String(x);
+        }
+        
+        public function refreshWorkList():void {
+        	getWorkList.send();
+        }
+
+        
+        private function onEdit(event:Event):void {
+        	workListGrid.selectedItem.@isDirty = "Y";
+        }
+        
+        private function save():void {
+        	var dirtyWorkItems:XMLListCollection = new XMLListCollection(getWorkList.lastResult.WorkItem.(@isDirty == 'Y'));
+        	Alert.show(dirtyWorkItems.toXMLString(), 'dirty work items', Alert.OK);
+        }
+  
+           
+
+        ]]>
+    </mx:Script>
+    
+     <mx:XMLListCollection id="workList" source="{getWorkList.lastResult..WorkItem}"/>
+   
+  <mx:VBox width="100%" height="100%">
+
+							<mx:DataGrid height="100%" id="workListGrid" width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
+								<mx:columns>
+									<mx:DataGridColumn editable="false" headerText=""  width="3" labelFunction="getGridRowNumber"/>
+									<mx:DataGridColumn editable="false" headerText="Request #"  width="12" dataField="@requestNumber"/>
+									<mx:DataGridColumn editable="false" headerText="Ready Date" width="15" dataField="@workItemCreateDate"/>
+									<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+				                    <!-- <mx:DataGridColumn dataField="@idAppUser" 
+                                       width="20" textAlign="left"
+                                       headerText="Requester" 
+                                       sortable="false" 
+                                       editable="false"
+                                       rendererIsEditor="false"  itemRenderer="views.ComboBoxUser" /> -->
+				                    <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
+									<mx:DataGridColumn editable="false"  headerText="Mod Nucleotide" width="15" dataField="@idLabel"/>
+									<mx:DataGridColumn headerText="Labeling Yield" width="15" dataField="@labelingYield"/>
+									<mx:DataGridColumn headerText="Reaction Size" width="15" 
+										dataField="@codeLabelingReactionSize"
+                                       sortable="false" 
+                                       editable="true"
+                                       rendererIsEditor="true"  
+                                       itemRenderer="views.ComboBoxLabelingReactionSize" />
+									<mx:DataGridColumn headerText="# Reactions" width="15" dataField="@numberOfReactions"/>
+                                    <mx:DataGridColumn headerText="Status"  width="12" dataField="@labelingStatus" 
+                                    	editorDataField="value"
+                                       sortable="false" 
+                                       editable="true"
+                                       rendererIsEditor="true"  
+                                       itemRenderer="views.ComboBoxWorkflowStatus" />
+								</mx:columns>
+							</mx:DataGrid>
+                            <mx:HBox width="100%" horizontalAlign="right">
+                            	<mx:Button label="Save" click="save()">
+                            	</mx:Button>
+                            	<mx:Button label="Refresh"/>
+                            	
+                            	
+                            </mx:HBox>
+						  	
+						  </mx:VBox>
+						
+						
+
+</mx:Canvas>

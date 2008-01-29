@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  
+	xmlns:SearchView="SearchView.*" 
+	label="Search" 
+	width="100%" height="100%" creationPolicy="all" >
+	
+	<mx:Script>
+    <![CDATA[ 
+    
+        [Bindable]
+        private var rowCountMessage:String = new String();
+        
+        private function getGridRowNumber(item:Object,col:int):String
+        {
+           var x:int = searchList.getItemIndex(item) + 1;
+           return String(x);
+        }
+        
+        public function setResultsCount():void {
+        	rowCountMessage = searchList.length + " experiments found.";
+        }
+        
+        
+	    private function expandAllNodes():void
+  		{
+  			resultsTree.openItems = searchView.searchGNomEx.lastResult..Lab;
+  			resultsTree.openItems = searchView.searchGNomEx.lastResult..Project;
+  			resultsTree.openItems = searchView.searchGNomEx.lastResult..RequestCategory;
+  		}
+  		
+  		private function collapsAllNodes():void {
+  			resultsTree.openItems = [];
+  		}
+
+    ]]>
+    </mx:Script>
+    
+    <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
+    
+	<mx:Accordion  id="searchViews" width="100%" height="100%" 
+			 fillColors="[#fee789, #ffffff]" 
+        headerHeight="25" backgroundAlpha=".3" fillAlphas="[1, .7]" creationPolicy="all"
+		>
+	
+		<views:SearchView id="searchView" width="100%" height="100%">
+		</views:SearchView>
+		
+		<mx:Canvas id="searchResultsView" label="Results" width="100%" height="100%">
+		  <mx:VBox width="100%" height="100%" left="20" right="20" top="20" bottom="20" verticalGap="0">
+		     <mx:HBox width="100%" paddingBottom="7">
+		       <mx:VBox verticalGap="1">
+		        <mx:RadioButtonGroup id="radiogroup1"/>
+		        <mx:RadioButton label="List View" groupName="radiogroup1" click="resultViews.selectedIndex = 0" selected="true"/>
+		        <mx:RadioButton label="Tree View" groupName="radiogroup1" click="resultViews.selectedIndex = 1;callLater(expandAllNodes)"/>		       	
+		       </mx:VBox>
+		       <mx:HBox width="100%" height="100%" alpha="0.62" verticalGap="0">
+		          <mx:Label text="Criteria" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" fontSize="9">
+		          	
+		          </mx:Label>
+		       	  <mx:Text id="searchCriteriaLabel" 
+		       	  	text="{searchView.searchGNomEx.lastResult.@search}" width="100%" fontSize="9" truncateToFit="true" height="100%"/>      	  	
+		       </mx:HBox>
+		     </mx:HBox>
+		     <mx:HBox horizontalAlign="left" width="100%" color="#8000ff">
+   		       <mx:Label id="rowCountLabel" width="195" text="{rowCountMessage}"/>		     	
+		     </mx:HBox>
+
+             <mx:ViewStack id="resultViews" width="100%" height="100%">
+             
+             <mx:VBox id="listView" width="100%" height="100%">
+  		       <mx:DataGrid  dataProvider="{searchList}"  width="100%" height="100%">
+		       <mx:columns>
+				<!--<mx:DataGridColumn editable="false" headerText=""  width="25" labelFunction="getGridRowNumber"/> -->
+		       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
+		       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
+		       	<mx:DataGridColumn headerText="Group" width="50" dataField="@requestLabName"/>
+		       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory"/>
+		       	<mx:DataGridColumn headerText="Request Date" width="37" dataField="@requestCreateDate"/>
+		       	<mx:DataGridColumn headerText="Request #" width="35" dataField="@requestNumber"/>
+		       	<mx:DataGridColumn headerText="Microarray" width="170" dataField="@slideProductName"/>
+		       </mx:columns>
+		       </mx:DataGrid>
+		     </mx:VBox>
+		     
+		     <mx:VBox id="treeView">
+		     	<mx:Tree id="resultsTree" width="100%" height="100%" 
+		     		dataProvider="{searchView.searchGNomEx.lastResult.ProjectRequestList}"
+		     		labelField="@label" 
+		     		showRoot="false" >
+		     	</mx:Tree>
+		     	
+		     </mx:VBox>
+             	
+             </mx:ViewStack>
+		  	
+		  </mx:VBox>
+		</mx:Canvas>
+	</mx:Accordion>
+    
+</mx:Canvas>

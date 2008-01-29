@@ -1,0 +1,21 @@
+/* CSS file */
+.tab {
+    background-color: #e1e1e1
+}
+
+.panel {
+    background-color: #e1e1e1
+}
+
+
+.catalogPanel
+{
+    highlightAlphas:        .7, .6, .5, .25;
+    headerColors:           #456F84, #9ABBC9;
+    borderAlpha:            1;
+    borderColor:            #FFFFFF;
+    borderThicknessRight:   1;
+    borderThicknessBottom:  1;
+    paddingRight:           0;
+    paddingBottom:          0;
+}

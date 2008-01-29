@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     xmlns:AdminView="AdminView.*" label="Admin" width="100%" height="100%" xmlns:views="views.*">
+	
+
+    	<mx:VBox height="100%" width="100%">
+		  
+			<mx:HBox width="100%" height="30" horizontalGap="0">
+				<mx:LinkButton label="Users" textDecoration="underline" fontSize="10" click="adminViews.selectedChild=UsersView;"/>
+				<mx:LinkButton label="Groups" textDecoration="underline" fontSize="10" click="adminViews.selectedChild=GroupsView;"/>
+				<mx:LinkButton label="Experiment Permissions" textDecoration="underline" fontSize="10" click="adminViews.selectedChild=ExperimentPermissionsView;"/>
+				<mx:LinkButton label="Group Membership" textDecoration="underline" fontSize="10" click="adminViews.selectedChild=GroupMembershipView;"/>
+			</mx:HBox>
+			
+		  
+		
+       <mx:Canvas height="100%"  width="100%">
+	     <mx:ViewStack id="adminViews" width="100%" creationPolicy="all" height="100%">
+	        <views:UsersView id="UsersView" width="100%" height="100%">	
+	        </views:UsersView>
+	        
+	        <views:GroupsView id="GroupsView" width="100%" height="100%">
+	        </views:GroupsView>
+	        
+	        <views:ExperimentPermissionsView id="ExperimentPermissionsView" width="100%" height="100%">
+	        </views:ExperimentPermissionsView>
+	        
+	        <views:GroupMembershipView id="GroupMembershipView" width="100%" height="100%">
+	        </views:GroupMembershipView>
+	        
+
+
+         </mx:ViewStack>
+		</mx:Canvas>
+		
+	</mx:VBox>
+    
+    
+    
+</mx:Canvas>
