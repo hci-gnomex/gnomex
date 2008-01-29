@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	title="Downloading File" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
+	 backgroundAlpha="0.04" creationComplete="centerPopup()">
+    <mx:ProgressBar id="downloadProgress" label="" mode="manual" />
+    <mx:ControlBar horizontalAlign="right">
+        <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true" />
+        <mx:Button label="Close" click="PopUpManager.removePopUp(this)"/>
+    </mx:ControlBar>
+    
+    <mx:Script>
+    	<![CDATA[
+    		import mx.core.IFlexDisplayObject;
+
+		import mx.managers.PopUpManager;
+		import mx.controls.Button;
+		import mx.controls.ProgressBar;
+		import flash.net.URLRequest;
+    	import flash.net.URLRequestMethod;
+    	import flash.net.URLVariables;
+    	import flash.events.Event;
+    	import flash.events.ProgressEvent;
+    	import mx.managers.PopUpManager;
+    	import flash.net.FileReference;
+        import flash.display.DisplayObject;
+		
+		
+		private var fr:FileReference;
+	    private var btn:Button;
+	    private var url:String = "";
+	    private var params:Object;
+	    private var theParent:DisplayObject;
+	    
+	    
+
+		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button):void {
+			this.url = url;
+	    	this.params = params;
+			this.btn = startDownloadButton;
+			this.theParent = parent;
+			
+			fr = new FileReference();
+	        fr.addEventListener(Event.OPEN, openHandler);
+	        fr.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+	        fr.addEventListener(Event.COMPLETE, completeHandler);
+	        
+	        this.startDownload();
+		}
+		
+		private function centerPopup():void {
+			PopUpManager.centerPopUp(this);			
+		}
+
+	    
+	     /**
+	     * Begin downloading the file specified in the DOWNLOAD_URL constant.
+	     */
+	    public function startDownload():void
+	    {
+	        var request:URLRequest = new URLRequest();
+	        request.url = this.url;
+	        request.data = this.params;
+	        fr.download(request, "gnomex_data.zip");
+	
+	    }
+	    
+	    public  function formatDate(date:Date):String {
+		    return date.getFullYear().toString() + 
+	            '-' + (date.getMonth()+1).toString() + '-' + date.getDate();
+	    }
+	    
+	
+	
+	   /**
+	     * When the OPEN event has dispatched, change the progress bar's label 
+	     * and enable the "Cancel" button, which allows the user to abort the 
+	     * download operation.
+	     */
+	    private function openHandler(event:Event):void
+	    {
+	    	PopUpManager.addPopUp(this, theParent, false);
+	    	centerPopup();
+	        downloadProgress.label = "Downloading %3%%";
+	        if (btn != null) {
+		        btn.enabled = true;
+	        }
+	    }
+	    /**
+	     * While the file is downloading, update the progress bar's status.
+	     */
+	    private function progressHandler(event:ProgressEvent):void
+	    {
+			downloadProgress.setProgress(event.bytesLoaded, event.bytesTotal);
+	    }
+	    
+	      /**
+	     * Once the download has completed, change the progress bar's label one 
+	     * last time and disable the "Cancel" button since the download is 
+	     * already completed.
+	     */
+	    private function completeHandler(event:Event):void
+	    {
+	        downloadProgress.label = "Download complete";
+	        downloadProgress.setProgress(1, 1);
+	        if (btn != null) {
+		        btn.enabled = false;
+	        }
+	    }
+	    
+	    /**
+	     * Cancel the current file download.
+	     */
+	    public function cancelDownload():void
+	    {
+	        fr.cancel();
+	        downloadProgress.label = "Download cancelled";
+	        if (btn != null) {
+		        btn.enabled = false;        	
+	        }
+	    }
+    
+    	]]>
+    </mx:Script>
+</mx:Panel>

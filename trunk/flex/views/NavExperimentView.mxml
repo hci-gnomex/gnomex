@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+	xmlns:RequestsView="RequestsView.*" 
+	label="Experiments" width="100%" height="100%" 
+	xmlns:views="views.*" cornerRadius="10">
+
+
+  <mx:HTTPService  
+    id="getRequestDownloadList" 
+    url="http://localhost/gnomex/GetRequestDownloadList.gx"
+    destination="getRequestDownloadList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequestDownloadList(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+            <idLab>{labCombo.selectedItem.@idLab}</idLab>
+            <idAppUser>{userCombo.selectedItem.@idLab}</idAppUser>
+            <idProject>{projectCombo.selectedItem.@idProject}</idProject>
+            <requestNumber>{requestNumber.text}</requestNumber>
+            <createDateFrom>{parentApplication.formatDate(requestDateFrom.selectedDate)}</createDateFrom>
+            <createDateTo>{parentApplication.formatDate(requestDateTo.selectedDate)}</createDateTo>
+            <requestDateLastWeek>{requestDateLastWeekCheckBox.selected == true ? "Y" : "N"}</requestDateLastWeek>
+            <requestDateLastMonth>{requestDateLastMonthCheckBox.selected == true ? "Y" : "N"}</requestDateLastMonth>
+            <requestDateLastYear>{requestDateLastYearCheckBox.selected == true ? "Y" : "N"}</requestDateLastYear>
+            <isComplete>{isCompleteCheckBox.selected == true ? "Y" : "N"}</isComplete>
+            <isNotComplete>{isNotCompleteCheckBox.selected == true ? "Y" : "N"}</isNotComplete>
+            <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
+    </mx:request>
+    </mx:HTTPService >	
+	   <mx:Script> 
+        <![CDATA[
+        
+        import mx.rpc.events.ResultEvent;   
+       
+        private function setResultsCount():void {
+        	downloadView.setResultsCount();
+        }
+        
+        
+
+        private function filterProject(item:Object):Boolean {
+        	if (item.@idProject == "") {
+        		return true;
+        	}
+        	
+        	var doesMatchGroup:Boolean = true;
+        	if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != "") {
+        		if (item.@idLab == labCombo.selectedItem.@idLab) {
+        			doesMatchGroup = true;
+        		} else {
+        			doesMatchGroup = false;
+        		}
+        	} else {
+        		doesMatchGroup = false;
+        	}
+        	
+        	return doesMatchGroup;
+        }  
+        
+        private function onGetRequestDownloadList(event:ResultEvent): void {        	
+        	setResultsCount();
+        }
+
+       ]]>
+    </mx:Script>
+
+    <mx:XMLListCollection id="filteredProjectList" source="{parentApplication.getProjectList.lastResult.Project}" filterFunction="filterProject"/>
+
+	<mx:HDividedBox height="100%" width="100%">
+	
+		<mx:Accordion width="220" height="100%" 
+			 fillColors="[#fee789, #ffffff]"
+			headerHeight="25" backgroundAlpha=".3" fillAlphas="[1, .7]" focusEnabled="true">
+			<mx:Canvas label="Browse" width="100%" height="100%">
+						<mx:VBox width="100%" height="100%">
+						</mx:VBox>
+					</mx:Canvas>
+			<mx:Canvas label="Download" width="100%" height="100%" fontSize="9">
+						<mx:Form  paddingLeft="4" paddingTop="4" paddingRight="2" paddingBottom="2"  height="100%" verticalGap="3">
+							<mx:VBox width="100%" verticalGap="0">
+								<mx:Label text="Group">
+								</mx:Label>
+								<mx:ComboBox id="labCombo" 
+									labelField="@name"
+									dataProvider="{parentApplication.getLabList.lastResult.Lab}"
+									 change="filteredProjectList.refresh();projectCombo.selectedIndex=0;labCombo.selectedIndex &gt; 0 ? projectCombo.enabled = true : projectCombo.enabled = false;"  width="205" selectedIndex="1">
+								</mx:ComboBox>
+							</mx:VBox>
+							<mx:VBox width="100%" verticalGap="0">
+								<mx:Label text="Requester">
+								</mx:Label>
+								<mx:ComboBox id="userCombo"
+									labelField="@displayName"
+									dataProvider="{parentApplication.getAppUserList.lastResult.AppUser}"  width="205">
+								</mx:ComboBox>
+							</mx:VBox>
+							<mx:VBox width="100%" verticalGap="0">
+								<mx:Label text="Project">
+								</mx:Label>
+								<mx:ComboBox id="projectCombo" 
+									labelField="@name"
+									dataProvider="{filteredProjectList}" maxWidth="250" width="205" enabled="false"/>
+							</mx:VBox>
+							<mx:HBox width="100%">
+							<mx:VBox verticalGap="0">
+								<mx:Label text="Request #">
+								</mx:Label>
+								<mx:TextInput width="60" id="requestNumber"></mx:TextInput>
+							</mx:VBox>
+							<mx:VBox verticalGap="0" paddingTop="4" paddingLeft="0" paddingRight="0" paddingBottom="0">
+								<mx:CheckBox label="Completed" id="isCompleteCheckBox"/>
+								<mx:CheckBox label="Not Completed" id="isNotCompleteCheckBox"/>
+							</mx:VBox>
+								
+							</mx:HBox>
+							<mx:VBox verticalGap="0">
+								<mx:Label text="Request Date"/>
+							<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="5">
+							<mx:HBox width="100%" horizontalGap="1">
+								<mx:DateField id="requestDateFrom" editable="true" yearNavigationEnabled="true" fontSize="9"/>
+								<mx:Label text="-" textAlign="center"/>
+								<mx:DateField id="requestDateTo" yearNavigationEnabled="true" editable="true" fontSize="9"/>
+							</mx:HBox>
+							<mx:VBox width="100%" horizontalGap="1" verticalGap="0">
+								<mx:CheckBox label="Last Week" id="requestDateLastWeekCheckBox">
+									<mx:click>
+									{if (requestDateLastWeekCheckBox.selected == true) {
+										requestDateLastMonthCheckBox.selected = false;
+										requestDateLastYearCheckBox.selected = false;
+									}
+								    }
+								    </mx:click>
+								</mx:CheckBox>
+								<mx:CheckBox label="Last Month"  id="requestDateLastMonthCheckBox">
+									<mx:click>
+									{if (requestDateLastMonthCheckBox.selected == true) {
+										requestDateLastWeekCheckBox.selected = false;
+										requestDateLastYearCheckBox.selected = false;
+									}
+								    }
+								    </mx:click>
+								</mx:CheckBox>
+								<mx:CheckBox label="Last Year"  id="requestDateLastYearCheckBox">
+									<mx:click>
+									{if (requestDateLastYearCheckBox.selected == true) {
+										requestDateLastMonthCheckBox.selected = false;
+										requestDateLastWeekCheckBox.selected = false;
+									}
+								    }
+								    </mx:click>
+								</mx:CheckBox>
+							</mx:VBox>
+							</mx:VBox>
+								
+							</mx:VBox>
+							<mx:HBox width="100%">
+								<mx:CheckBox label="Include public projects in search" id="includePublicProjectsCheckBox" selected="true"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="right" paddingRight="7" paddingTop="6">
+								<mx:Button label="Get Download List" click="{getRequestDownloadList.send()};requestViews.selectedIndex=2" fontSize="10"/>
+							</mx:HBox>
+						</mx:Form>
+			</mx:Canvas>
+			
+			<mx:Canvas label="Submit Request" width="100%" height="100%">
+			</mx:Canvas>
+			<mx:Canvas label="Track Requests" width="100%" height="100%">
+			</mx:Canvas>
+			<mx:Canvas label="Set Visibility" width="100%" height="100%">
+			</mx:Canvas>
+		</mx:Accordion>
+			
+
+		
+       <mx:Canvas height="100%" dropShadowEnabled="true" dropShadowColor="#C0C0C0" width="100%">
+	     <mx:ViewStack id="requestViews" creationPolicy="all" width="100%" height="100%">
+	        <mx:Canvas label="" width="100%" height="100%">	        	
+	        </mx:Canvas>
+
+	        <views:BrowseRequestsView id="BrowseRequestsView" width="100%" height="100%">
+	        </views:BrowseRequestsView>
+
+	        <views:DownloadView id="downloadView" width="100%" height="100%">
+	        </views:DownloadView>
+	        
+	        <views:SubmitRequestView id="SubmitRequestView" width="100%" height="100%">	
+	        </views:SubmitRequestView>
+	        
+	        <views:TrackRequestsView id="TrackRequestsView" width="100%" height="100%">
+	        </views:TrackRequestsView>
+	        
+	        
+	        
+
+
+         </mx:ViewStack>
+		</mx:Canvas>
+		
+	</mx:HDividedBox>
+	
+	
+	
+
+    
+</mx:Canvas>

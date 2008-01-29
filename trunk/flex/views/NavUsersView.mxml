@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+	xmlns:UsersView="UsersView.*" label="Users And Groups" 
+	width="100%" height="100%" xmlns:views="views.*" 
+	cornerRadius="8"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" initialize="callInitialServices()">
+
+        <mx:Style source="../css/gnomex_flex.css" />
+
+     <mx:HTTPService 
+    id="getAppUserList" 
+    url="http://localhost/gnomex/GetAppUserList.gx"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+    destination="getAppUserList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getAppUser" 
+    url="http://localhost/gnomex/GetAppUser.gx"
+    destination="getAppUser"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+    useProxy="false">
+    <mx:request>
+            <idAppUser>{selectedUser.@idAppUser}</idAppUser>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="deleteAppUser" 
+    url="http://localhost/gnomex/DeleteAppUser.gx"
+    destination="deleteAppUser"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+    useProxy="false">
+    <mx:request>
+            <idAppUser>{selectedUser.@idAppUser}</idAppUser>
+    </mx:request>
+    </mx:HTTPService >
+    
+     <mx:HTTPService 
+    id="getLabList" 
+    url="http://localhost/gnomex/GetLabList.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+    destination="getLabList"
+    useProxy="false">
+    <mx:request>
+           <listKind>UnboundedLabList</listKind>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getLab" 
+    url="http://localhost/gnomex/GetLab.gx"
+    destination="getLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+    useProxy="false">
+    <mx:request>
+            <idLab>{selectedLab.@idLab}</idLab>
+    </mx:request>
+    </mx:HTTPService >
+  
+
+
+    <mx:XMLListCollection id="appUsers" source="{getAppUserList.lastResult..AppUser}" filterFunction="filterUser"/>
+    <mx:XMLListCollection id="labs" source="{getLabList.lastResult..Lab}" filterFunction="filterLab"/>
+    
+    <mx:XMLListCollection id="membershipLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).labs.Lab}"/>
+    <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
+    <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
+    	
+
+    <mx:Script>
+        <![CDATA[
+
+          import mx.rpc.events.ResultEvent; 
+		  import mx.controls.Alert;
+
+          [Bindable]
+          public var selectedUser:Object;
+          [Bindable]
+          public var selectedLab:Object;
+          [Bindable]
+          public var fullUser:Object;
+          [Bindable]
+          public var fullLab:Object;
+          [Bindable]
+          public var filteredAppGroupXML:XMLList;
+          
+
+        
+          private function userRowSelected():void 
+           {
+           	this.selectedUser = usersGrid.selectedItem;
+            callGetAppUser();
+ 
+          }
+          
+          private function labRowSelected():void 
+           {
+           	this.selectedLab = labsGrid.selectedItem;
+           	callGetLab();
+            detailViews.selectedIndex=1;
+          }
+          
+          private function prepareToAddUser():void 
+           {
+           	this.selectedUser = null;
+           	this.fullUser = null;
+            detailViews.selectedIndex=0;
+          }
+          private function callInitialServices():void
+          {
+          	callGetAppUserList();
+          	callGetLabList();
+          }
+          
+          public function refreshAppUserList():void 
+           {
+          	callGetAppUserList();
+          	appUsers.refresh()
+          }
+          private function callGetAppUser():void 
+           {
+          	var call:Object = getAppUser.send();
+          	call.marker = "doneGetAppUser";
+          }
+          
+          private function callGetAppUserList():void
+          {
+          	var call:Object = getAppUserList.send();
+          	call.marker = "doneGetAppUserList";
+          }
+          
+          private function callGetLabList():void
+          {
+          	var call:Object = getLabList.send();
+          	call.marker = "doneGetLabList";
+          }
+          
+          private function callGetLab():void
+          {
+          	var call:Object = getLab.send();
+          	call.marker = "doneGetLab";
+          }
+          private function callDeleteAppUser():void
+          {
+          	var call:Object = deleteAppUser.send();
+          	call.marker = "doneDeleteAppUser";
+          }
+          
+          
+          private function userTreeItemSelected(event:Event):void {
+          	this.selectedUser=Tree(event.target).selectedItem;
+          	trace(selectedUser.@isActive.toString());
+          	if (selectedUser.@isActive.toString() == "Y") {
+          		userDetailView.isActive.selected = true;
+          	} else {
+          		userDetailView.isActive.selected = false;
+          	}
+          	var call:Object = getAppUser.send();
+          	call.marker = "doneGetAppUser";
+          	
+          }
+
+
+          private function filterUser(item:Object):Boolean {
+                return item.@displayName.toString().match(new RegExp("^" + userSearchText.text + ".*", "i"));
+          }          
+          private function filterLab(item:Object):Boolean {
+                return item.@name.toString().match(new RegExp("^" + labSearchText.text + ".*", "i"));
+          }    
+                     
+
+          private function resultHandler(event:ResultEvent):void {
+            var call:Object = event.token;
+            if (call.marker == "doneGetAppUser") {
+              fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
+              userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
+              //Alert.show((fullUser.@isActiveBoolean.toString()), 'isActive data field', mx.controls.Alert.OK);
+              detailViews.selectedIndex=0;
+            } else if (call.marker == "doneGetAppUserList") {
+              filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
+            } else if (call.marker == "doneGetLabList") {
+            } if (call.marker == "doneGetLab") {
+              fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
+            } if (call.marker == "doneDeleteAppUser") {
+              refreshAppUserList();
+            } 
+
+          }
+
+           
+         
+        ]]>
+    </mx:Script>
+
+    
+    
+
+      <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
+	
+	
+	
+	    <mx:Accordion height="100%" 
+	        fillColors="[#fee789, #ffffff]"
+	    	backgroundAlpha=".3"
+	    	 fillAlphas="[1, .7]"
+	    	headerHeight="25" width="250">
+	      <mx:Canvas label="Users" height="100%" width="100%">
+	        
+	        <mx:VBox height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%">
+       	      <mx:TextInput id="userSearchText" editable="true" change="appUsers.refresh()" width="100%"/>
+	    
+	          <mx:Tree id="usersTree" visible="false" dataProvider="{filteredAppGroupXML}" height="0" width="0" labelField="@displayName" showRoot="false" change="userTreeItemSelected(event)"></mx:Tree>
+
+    	      <mx:DataGrid id="usersGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{appUsers}" height="100%"  top="40" left="20"  right="20" itemClick="userRowSelected()">
+				<mx:columns>
+							<mx:DataGridColumn headerText="User Name" width="100" dataField="@displayName"/>
+							<!-- <mx:DataGridColumn headerText="Active" width="30" dataField="@isActiveBoolean" itemRenderer="mx.controls.CheckBox" editable="false"/> -->
+						
+			    </mx:columns>
+      	     </mx:DataGrid>
+
+
+	         <mx:HBox horizontalAlign="right" paddingRight="10" paddingBottom="8" paddingTop="8" width="100%">
+        	    <mx:Button x="20" y="10" label="Add"  id="addUserButton" click="prepareToAddUser()"/>	    	
+	            <mx:Button label="Refresh" id="refreshButton0" click="refreshAppUserList()"/>
+    	       <mx:Button label="Delete" id="deleteUserButton" click="callDeleteAppUser()"/>
+   	         </mx:HBox>
+    	    </mx:VBox>
+    	    
+	      </mx:Canvas>
+	      
+	      
+	      <mx:Canvas label="Groups" width="100%" height="100%">
+	      
+	        <mx:VBox height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%">
+       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%"/>
+	    
+	         
+    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()">
+				<mx:columns>
+							<mx:DataGridColumn headerText="Lab name" width="100" dataField="@name"/>
+						
+			    </mx:columns>
+      	     </mx:DataGrid>
+
+
+	         <mx:HBox horizontalAlign="right" paddingRight="10" paddingBottom="8" paddingTop="8" width="100%">
+        	    <mx:Button x="20" y="10" label="Add"  id="addLabButton"/>	    	
+	            <mx:Button label="Refresh" id="refreshLabButton" click="callGetLabList();labs.refresh()"/>
+    	       <mx:Button label="Delete" click="callGetLabList()" id="deleteLabButton"/>
+   	         </mx:HBox>
+    	    </mx:VBox>
+
+	      </mx:Canvas>
+	    </mx:Accordion>
+	    
+    <mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
+		    <views:UserDetailView id="userDetailView" height="100%">	
+	        </views:UserDetailView>
+		    <views:GroupDetailView id="groupDetailView" height="100%">	
+	        </views:GroupDetailView>
+   </mx:ViewStack>
+	
+    
+</mx:HDividedBox>
+
+</mx:Canvas>

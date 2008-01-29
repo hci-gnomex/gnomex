@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+	xmlns:views="views.*" xmlns:WorkflowView="WorkflowView.*" 
+	label="Core Lab" width="100%" height="100%" >
+
+    <mx:Script>
+        <![CDATA[ 
+
+        ]]>
+    </mx:Script>
+
+
+  
+			<mx:Accordion  width="100%" height="100%" 
+							 fillColors="[#fee789, #ffffff]"
+							 backgroundAlpha=".3" fillAlphas="[1, .7]"
+							  headerHeight="25">
+
+			    
+				<mx:Canvas label="Microarray Workflow" width="100%" height="100%" >
+				<mx:VBox top="20" bottom="20" left="20" right="20" >
+				  <mx:RadioButtonGroup id="radiogroup1" />
+				    <mx:HBox>
+				  <mx:RadioButton label="Quality Control" groupName="radiogroup1" click="worklistViews.selectedIndex = 0"/>
+				  <mx:RadioButton label="Labeling" groupName="radiogroup1" click="workflowLabelingView.refreshWorkList();worklistViews.selectedIndex = 1"/>
+				  <mx:RadioButton label="Hybridization" groupName="radiogroup1" click="worklistViews.selectedIndex = 2"/>
+				  <mx:RadioButton label="Scan / Feature Extraction" groupName="radiogroup1" click="worklistViews.selectedIndex = 3"/>
+				    	
+				    </mx:HBox>
+					<mx:ViewStack id="worklistViews" height="100%" width="100%"  >
+					   <mx:Canvas label="Quality Control" width="100%" height="100%">
+			           </mx:Canvas>
+			           
+			           <views:WorkflowLabelingView id="workflowLabelingView"/>
+			    
+						<mx:Canvas label="Hybridization" width="100%" height="100%">
+						</mx:Canvas>
+						<mx:Canvas label="Scan / Feature Extraction" width="100%" height="100%">
+						</mx:Canvas>
+						
+					</mx:ViewStack>
+					
+				</mx:VBox>
+				</mx:Canvas>
+				<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
+				</mx:Canvas>
+				<mx:Canvas label="Microarray Slides" width="100%" height="100%">
+				</mx:Canvas>
+			</mx:Accordion>
+			
+	
+    
+</mx:Canvas>

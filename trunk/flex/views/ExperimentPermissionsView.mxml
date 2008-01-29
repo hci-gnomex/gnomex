@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     xmlns:ExperimentPerimissionsView="ExperimentPerimissionsView.*" label="Experiment Permissions" width="100%" height="100%">
+	<mx:Label x="81" y="33" text="Experiment Permissions"/>
+	
+    
+</mx:Canvas>
