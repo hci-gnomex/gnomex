@@ -131,6 +131,7 @@ public class GetExperimentFactorList extends GNomExCommand implements Serializab
       ExperimentFactor ef = (ExperimentFactor)i.next();
       Element node = ef.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       node.setAttribute("isUsed", isUsed);
+      node.setAttribute("isSelected", "false");
       doc.getRootElement().addContent(node);      
     }
   }
