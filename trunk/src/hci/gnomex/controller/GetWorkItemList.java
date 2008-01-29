@@ -121,6 +121,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("idHybridization",        row[10] == null ? "" :  ((Integer)row[10]).toString());
           n.setAttribute("hybNumber",              row[11] == null ? "" :  (String)row[11]);
           n.setAttribute("workItemCreateDate",     row[12] == null ? "" :  this.formatDate((java.sql.Date)row[12]));
+          n.setAttribute("isDirty","N");
           
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)) {
             n.setAttribute("qualDate",                   row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
