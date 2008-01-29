@@ -22,21 +22,9 @@
         		resultKeys += downloadList[i].@key + ":";
       		}
         } 
-    	
         var parms:String = "resultKeys="+ resultKeys;
-        //parentApplication.downloadProgress.visible = "true";
-        //parentApplication.cancelDownloadButton.visible = "true";
-		//parentApplication.fileDownloadUtil = new views.FileDownloadUtil();
-    	//parentApplication.fileDownloadUtil.setURL(FILE_URL, parms);
-    	//parentApplication.fileDownloadUtil.init(parentApplication.downloadProgress, null, parentApplication.cancelDownloadButton);
-    	//parentApplication.fileDownloadUtil.startDownload();
-    	
-    	var progressWindow:views.DownloadProgress = new views.DownloadProgress();
+    	var progressWindow:views.DownloadProgressView = new views.DownloadProgressView();
     	progressWindow.init(this, this.FILE_URL, parms, downloadButton);
-
-    	
-
-
  	}
     
     private function doEvent(evt:Event):void {

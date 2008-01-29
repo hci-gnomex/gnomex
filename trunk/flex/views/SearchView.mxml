@@ -2,6 +2,7 @@
 <mx:Canvas label="Advanced Search"  
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%"  creationPolicy="all"
+	creationComplete="initFilter()"
 >
 
 
@@ -56,12 +57,19 @@
         [Bindable]
         private var myXMLString:String = "";
 
+
+       private function initFilter():void {
+       	parentApplication.filteredSlideProductList.filterFunction = filterSlideProduct;
+       }
+       
         private function filterSlideProduct(item:Object):Boolean {
-        	if (item.@idSlideProduct == "") {
+        	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
         		return true;
         	}
         	var doesMatchOrganism:Boolean = true;
-        	if (organismCombo.selectedItem != null && organismCombo.selectedItem.@value != "") {
+        	if (organismCombo.selectedItem != null && 
+        	    organismCombo.selectedItem.@value != null  &&
+        	    organismCombo.selectedItem.@value != "") {
         		if (item.@idOrganism == organismCombo.selectedItem.@idOrganism) {
         			doesMatchOrganism = true;
         		} else {
@@ -69,7 +77,9 @@
         		}
         	}
         	var doesMatchExperimentCategory:Boolean = true;
-        	if (microarrayCategoryCombo.selectedItem != null && microarrayCategoryCombo.selectedItem.@value != "") {
+        	if (microarrayCategoryCombo.selectedItem != null && 
+        	    microarrayCategoryCombo.selectedItem.@value != null &&
+        	    microarrayCategoryCombo.selectedItem.@value != "") {
         		doesMatchExperimentCategory = false;
         		var categoriesForSlideProduct:XMLList  = item.microarrayCategories.MicroarrayCategory;
         		for(var x:Number = 0; x < categoriesForSlideProduct.length(); x++) {
@@ -136,8 +146,6 @@
         ]]>
     </mx:Script>
     
-    <mx:XMLListCollection id="filteredSlideProductList" source="{parentApplication.getSlideProductList.lastResult.SlideProduct}" filterFunction="filterSlideProduct"/>
-    
    
     <mx:VBox width="100%" height="100%" top="12" bottom="4" left="8" right="8"  backgroundAlpha="1.0">
     
@@ -179,7 +187,8 @@
                        <mx:ComboBox 
                        	id="organismCombo"  labelField="@display" 
                      	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"  
-                     	width="220" change="filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+                     	width="220" 
+                     	change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
                        </mx:ComboBox>
                        <mx:HBox>
                           <mx:RadioButtonGroup id="radiogroup2"/>
@@ -195,7 +204,7 @@
                      <mx:Label text="Experiment Category" width="130"/>
                      <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
                      	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}" 
-                     	 width="220" change="filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+                     	 width="220" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
                      </mx:ComboBox>
                     </mx:HBox>
                   	
@@ -207,9 +216,9 @@
                    <mx:HBox>
                    <mx:Label text="Group" width="130"/>
                    <mx:ComboBox id="labCombo"  
-                   	labelField="@name" dataProvider="{parentApplication.getLabList.lastResult.Lab}" 
+                   	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
                     width="220"
-                    change="filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+                    change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
                    	</mx:ComboBox>
                    	
                    </mx:HBox>
@@ -225,7 +234,7 @@
                    <mx:Label text="Microarray" width="130"/>
                    <mx:ComboBox id="microarrayCombo"  
                    	labelField="@name" 
-                   	dataProvider="{filteredSlideProductList}" 
+                   	dataProvider="{parentApplication.filteredSlideProductList}" 
                    	 width="100%">
                   </mx:ComboBox>
                   </mx:HBox>

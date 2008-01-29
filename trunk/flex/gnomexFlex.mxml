@@ -2,8 +2,8 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
 	paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" 
-	backgroundGradientColors="[#8db4d3, #ffffff]" 
-	initialize="init()" 
+	backgroundGradientColors="[#7da9cc, #e3edf4]" 
+	preinitialize="init()" 
 	>
 	
 
@@ -13,13 +13,30 @@
             <mx:Script>
             
         <![CDATA[
+        	import views.PromptXMLListCollection;
         	import mx.collections.XMLListCollection;
             import mx.controls.Alert;
             import mx.rpc.events.ResultEvent;        
             import mx.managers.CursorManager;
+            import mx.managers.PopUpManager;
 
+			[Bindable]
+			public var promptedLabList:views.PromptXMLListCollection;
+			[Bindable]
+			public var promptedAppUserList:views.PromptXMLListCollection;
+			[Bindable]
+			public var promptedSlideProductList:views.PromptXMLListCollection;
+			[Bindable]
+			public var filteredSlideProductList:XMLListCollection;
+			[Bindable]
+			public var promptedProjectList:views.PromptXMLListCollection;
+			[Bindable]
+			public var filteredProjectList:XMLListCollection;
+			
             public	var fileDownloadUtil:views.FileDownloadUtil;
 
+
+			private var appProgressBar:views.AppProgressView;
             
             private function search():void {
             	theViews.selectedIndex=7;
@@ -39,7 +56,7 @@
             private function init():void {
             	XML.ignoreWhitespace = true;
 				XML.prettyPrinting = false;
-
+				
             	createSecurityAdvisor.send();
             } 
             public  function formatDate(date:Date):String {
@@ -76,6 +93,11 @@
             }
             
             private function onCreateSecurityAdvisor(event:ResultEvent):void {
+
+			    appProgressBar = new views.AppProgressView();
+			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
+			    PopUpManager.centerPopUp(appProgressBar);
+
             	manageDictionaries.send();
             	getAppUserList.send();
             	getExperimentDesignList.send();
@@ -83,11 +105,15 @@
             	getLabList.send();
             	getSlideProductList.send();
             	getProjectList.send();
+            	
             }
             private function onManageDictionaries(event:ResultEvent):void {
             }
             
             private function onGetAppUserList(event:ResultEvent):void {
+	        	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
+	        	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser));
+	        	enableApp();
             }
             
             private function onGetExperimentDesignList(event:ResultEvent):void {
@@ -97,11 +123,47 @@
 	        }
 	        
 	        private function onGetLabList(event:ResultEvent):void {
+	        	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
+	        	promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
+	        	enableApp();
 	        }		
             
             private function onGetSlideProductList(event:ResultEvent):void {
+	        	var emptyNode:XML = <SlideProduct idSlideProduct='' name='' label=''/>;
+	        	promptedSlideProductList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideProductList.lastResult.SlideProduct));
+	        	
+	        	filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
+	        	filteredSlideProductList.addItemAt(emptyNode, 0);
+	        	enableApp();
+	            
 	        }		
             private function onGetProjectList(event:ResultEvent):void {
+	        	var emptyNode:XML = <Project idProject='' name='' idLab=''/>;
+	        	promptedProjectList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getProjectList.lastResult.Project));
+	        	
+	        	filteredProjectList = new XMLListCollection(getProjectList.lastResult.Project);
+	        	filteredProjectList.addItemAt(emptyNode, 0);
+	        	enableApp();
+	        }
+	        
+	        private function enableApp():void {
+	        	if (promptedProjectList != null &&
+	        	    filteredProjectList != null &&
+	        	    promptedAppUserList != null &&
+	        	    promptedLabList != null &&
+	        	    promptedSlideProductList != null &&
+	        	    filteredSlideProductList != null) {
+	        	    	
+	        	    toggleButtonBar.enabled = true;
+	        	    toggleButtonBar.visible = true;
+	        	    PopUpManager.removePopUp(appProgressBar);
+	        	    searchText.visible = true;
+	        	    requestNumber.visible = true;
+	        	    requestNumberLabel.visible = true;
+	        	    searchButton.visible = true;
+	        	    lookupButton.visible = true;
+	        	    	
+	        	}
 	        }
             
             
@@ -216,22 +278,22 @@
 
 	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="0">
 	      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" paddingBottom="0">
-	        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0">
+	        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="12">
 	          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="18" color="#ffffff"/>
 	          <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="26">
 	            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="40">
 	            </mx:HBox>
 	            
 	            <mx:HBox height="100%" horizontalGap="2">
-	              <mx:Label text="Request #" color="#ffffff"/>
-	              <mx:TextInput id="requestNumber" backgroundAlpha="0.89" borderStyle="inset" width="56"/>
+	              <mx:Label text="Request #" color="#ffffff" id="requestNumberLabel" visible="false"/>
+	              <mx:TextInput id="requestNumber" backgroundAlpha="0.89" borderStyle="inset" width="56" visible="false"/>
 	              <mx:Button label="Lookup" id="lookupButton"  
-	              	fontFamily="Arial" fillColors="[#6aa0c8, #bad8bb]" 
-	              	alpha="1.0" fillAlphas="[.71, .71]" color="#400040"/>
+	              	fontFamily="Arial" 
+	              	color="#400040" visible="false"/>
 	            </mx:HBox>
 	            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2">
-	              <mx:TextInput id="searchText" backgroundAlpha="0.89" borderStyle="inset" width="118"/>
-	              <mx:Button label="Search" id="searchButton" click="theViews.selectedIndex=7;callLater(search)" fontFamily="Arial" fillColors="[#6aa0c8, #bad8bb]" fillAlphas="[0.71, 1.0]"/>
+	              <mx:TextInput id="searchText" backgroundAlpha="0.89" borderStyle="inset" width="118" visible="false"/>
+	              <mx:Button label="Search" id="searchButton" click="theViews.selectedIndex=7;callLater(search)" fontFamily="Arial" visible="false"/>
 	            </mx:HBox>
 	          </mx:HBox>
 	        </mx:HBox>
@@ -248,9 +310,9 @@
 	      <mx:VBox id="mainArea" width="100%" height="100%" paddingTop="1" paddingLeft="0" paddingRight="0" horizontalCenter="0"  verticalGap="12">
 <!--        <mx:ApplicationControlBar id="navBar" width="100%"  horizontalAlign="center" fontGridFitType="pixel" fillAlphas="[1.0, 1.0]" fillColors="[#d7ffd7, #5083ad]">
  -->            
-            <mx:ToggleButtonBar
+            <mx:ToggleButtonBar id="toggleButtonBar"
                 dataProvider="{theViews}" width="100%" 
-                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" alpha="1.0" buttonHeight="25"/>
+                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" alpha="1.0" buttonHeight="25" enabled="false" visible="false"/>
                 
 <!--        </mx:ApplicationControlBar> -->
 
@@ -286,10 +348,6 @@
      
 
 	 </mx:VBox>
-	    <mx:HBox width="100%" visible="true">
-	    	    <mx:ProgressBar id="downloadProgress" label="" mode="manual"  labelPlacement="left" visible="false"/>
-	    	    <mx:Button id="cancelDownloadButton" label="Cancel" click="fileDownloadUtil.cancelDownload();" enabled="true"  fillColors="[#6aa0c8, #bad8bb]" fontFamily="Arial" color="#000000" visible="false"/>
-	    </mx:HBox>
 	
 	
 </mx:Application>

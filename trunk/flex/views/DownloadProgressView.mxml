@@ -2,11 +2,11 @@
 <mx:Panel 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	title="Downloading File" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
-	 backgroundAlpha="0.04" creationComplete="centerPopup()">
+	 backgroundAlpha="1.0" creationComplete="centerPopup()">
     <mx:ProgressBar id="downloadProgress" label="" mode="manual" />
     <mx:ControlBar horizontalAlign="right">
-        <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true" />
-        <mx:Button label="Close" click="PopUpManager.removePopUp(this)"/>
+        <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"  fontFamily="Arial"/>
+        <mx:Button label="Close" click="PopUpManager.removePopUp(this)" fontFamily="Arial"/>
     </mx:ControlBar>
     
     <mx:Script>
@@ -49,7 +49,7 @@
 		}
 		
 		private function centerPopup():void {
-			PopUpManager.centerPopUp(this);			
+			PopUpManager.centerPopUp(this);	
 		}
 
 	    
@@ -83,7 +83,7 @@
 	    	centerPopup();
 	        downloadProgress.label = "Downloading %3%%";
 	        if (btn != null) {
-		        btn.enabled = true;
+		        btn.enabled = false;
 	        }
 	    }
 	    /**
@@ -104,7 +104,7 @@
 	        downloadProgress.label = "Download complete";
 	        downloadProgress.setProgress(1, 1);
 	        if (btn != null) {
-		        btn.enabled = false;
+		        btn.enabled = true;
 	        }
 	    }
 	    
@@ -116,7 +116,7 @@
 	        fr.cancel();
 	        downloadProgress.label = "Download cancelled";
 	        if (btn != null) {
-		        btn.enabled = false;        	
+		        btn.enabled = true;        	
 	        }
 	    }
     

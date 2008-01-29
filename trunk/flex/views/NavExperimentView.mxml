@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:RequestsView="RequestsView.*" 
 	label="Experiments" width="100%" height="100%" 
-	xmlns:views="views.*" cornerRadius="10">
+	xmlns:views="views.*" cornerRadius="10" >
 
 
   <mx:HTTPService  
@@ -33,6 +33,13 @@
         <![CDATA[
         
         import mx.rpc.events.ResultEvent;   
+        import mx.collections.XMLListCollection;
+        
+
+       private function initFilter():void {
+       	parentApplication.filteredProjectList.filterFunction = filterProject;
+       }
+       
        
         private function setResultsCount():void {
         	downloadView.setResultsCount();
@@ -41,12 +48,12 @@
         
 
         private function filterProject(item:Object):Boolean {
-        	if (item.@idProject == "") {
+        	if (item.@idProject == null || item.@idProject == "") {
         		return true;
         	}
         	
         	var doesMatchGroup:Boolean = true;
-        	if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != "") {
+        	if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != null && labCombo.selectedItem.@idLab != "") {
         		if (item.@idLab == labCombo.selectedItem.@idLab) {
         			doesMatchGroup = true;
         		} else {
@@ -66,8 +73,7 @@
        ]]>
     </mx:Script>
 
-    <mx:XMLListCollection id="filteredProjectList" source="{parentApplication.getProjectList.lastResult.Project}" filterFunction="filterProject"/>
-
+    
 	<mx:HDividedBox height="100%" width="100%">
 	
 		<mx:Accordion width="220" height="100%" 
@@ -84,8 +90,8 @@
 								</mx:Label>
 								<mx:ComboBox id="labCombo" 
 									labelField="@name"
-									dataProvider="{parentApplication.getLabList.lastResult.Lab}"
-									 change="filteredProjectList.refresh();projectCombo.selectedIndex=0;labCombo.selectedIndex &gt; 0 ? projectCombo.enabled = true : projectCombo.enabled = false;"  width="205" selectedIndex="1">
+									dataProvider="{parentApplication.promptedLabList}"
+									 change="parentApplication.filteredProjectList.refresh();projectCombo.selectedIndex=0;labCombo.selectedIndex &gt; 0 ? projectCombo.enabled = true : projectCombo.enabled = false;"  width="205" selectedIndex="1">
 								</mx:ComboBox>
 							</mx:VBox>
 							<mx:VBox width="100%" verticalGap="0">
@@ -93,7 +99,7 @@
 								</mx:Label>
 								<mx:ComboBox id="userCombo"
 									labelField="@displayName"
-									dataProvider="{parentApplication.getAppUserList.lastResult.AppUser}"  width="205">
+									dataProvider="{parentApplication.promptedAppUserList}"  width="205">
 								</mx:ComboBox>
 							</mx:VBox>
 							<mx:VBox width="100%" verticalGap="0">
@@ -101,7 +107,8 @@
 								</mx:Label>
 								<mx:ComboBox id="projectCombo" 
 									labelField="@name"
-									dataProvider="{filteredProjectList}" maxWidth="250" width="205" enabled="false"/>
+									creationComplete="callLater(initFilter)" 
+									dataProvider="{parentApplication.filteredProjectList}" maxWidth="250" width="205" enabled="false"/>
 							</mx:VBox>
 							<mx:HBox width="100%">
 							<mx:VBox verticalGap="0">
