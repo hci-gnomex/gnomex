@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<mx:ProgressBar xmlns:mx="http://www.adobe.com/2006/mxml" x="0" y="50" indeterminate="true" labelPlacement="top" label="Loading application properties" textAlign="center" />
