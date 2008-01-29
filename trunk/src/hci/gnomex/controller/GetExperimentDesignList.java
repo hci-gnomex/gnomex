@@ -133,6 +133,7 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
       ExperimentDesign ed = (ExperimentDesign)i.next();
       Element node = ed.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       node.setAttribute("isUsed", isUsed);
+      node.setAttribute("isSelected", "false");
       doc.getRootElement().addContent(node);      
     }
   }
