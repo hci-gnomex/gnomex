@@ -38,6 +38,7 @@ public class DownloadResultsServlet extends HttpServlet {
   private String    keysString = null;
   private String    includeTIF = "N";
   private String    includeJPG = "N";
+  private static int      totalFileSize = 0;
 
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadResultsServlet.class);
@@ -76,7 +77,13 @@ public class DownloadResultsServlet extends HttpServlet {
         
        
         Map fileNameMap = new HashMap();
+        totalFileSize = 0;
         getFileNamesToDownload(keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+
+        // Set content length to estimated zip (compressed) size.
+        int estimatedCompressedSize = new Double(totalFileSize / 2.5).intValue();
+        response.setContentLength(estimatedCompressedSize);
+
         
         ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
         byte b[] = new byte[102400];
@@ -114,7 +121,8 @@ public class DownloadResultsServlet extends HttpServlet {
 
             // Add ZIP entry to output stream.
             // (The file name starts after the year subdirectory)
-            zout.putNextEntry(new ZipEntry(filename.substring(Constants.MICROARRAY_DIRECTORY.length() + 5)));
+            ZipEntry zipEntry = new ZipEntry(filename.substring(Constants.MICROARRAY_DIRECTORY.length() + 5));
+            zout.putNextEntry(zipEntry);
 
             // Transfer bytes from the file to the ZIP file
             int numRead = 0;
@@ -128,17 +136,20 @@ public class DownloadResultsServlet extends HttpServlet {
                 size += numRead;
               }
             }
-            totalZipSize += size;
 
             zout.closeEntry();
+            totalZipSize += zipEntry.getCompressedSize();
           }     
           
           
         }
         
+        response.setContentLength(totalZipSize);
         
         zout.finish();
         zout.flush();
+        
+
         
         long time3 = System.currentTimeMillis();
 
@@ -220,6 +231,8 @@ public class DownloadResultsServlet extends HttpServlet {
             include = false;
           }
           if (include) {
+            totalFileSize += f1.length();
+            
             List fileNames = (List)fileNameMap.get(requestNumber);
             if (fileNames == null) {
               fileNames = new ArrayList();
