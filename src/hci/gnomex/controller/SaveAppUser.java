@@ -64,9 +64,20 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           if (this.isValid()) {
             appUser = appUserScreen;
             
-            if (appUser.getPasswordExternal() != null && appUser.getPasswordExternal() != "" && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-              String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
-              appUser.setPasswordExternal(encryptedPassword);      
+            if (appUser.getuNID() != null && 
+                !appUser.getuNID().trim().equals("")) {
+              appUser.setUserNameExternal(null);
+              appUser.setPasswordExternal(null);
+              
+            } else {
+              if (appUser.getUserNameExternal() != null  && !appUser.getUserNameExternal().trim().equals("")) {
+                appUser.setuNID(null);
+              }
+              if (appUser.getPasswordExternal() != null && appUser.getPasswordExternal() != "" && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+                String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
+                appUser.setPasswordExternal(encryptedPassword);      
+              }
+              
             }
             
             sess.save(appUser);
@@ -128,16 +139,25 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     appUser.setuNID(appUserScreen.getuNID());
     appUser.setUserNameExternal(appUserScreen.getUserNameExternal());
     
-    // Only encrypt and set the password if something has been entered in the text field.
-    if (appUserScreen.getPasswordExternal() != null && appUserScreen.getPasswordExternal() != "" && !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-      String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
-      appUser.setPasswordExternal(encryptedPassword);      
-    } else {
-      // Only blank out the external password if a UNID has been entered.
+     
+      // Blank out the external password if a UNID has been entered.
       if (appUserScreen.getuNID() != null && !appUserScreen.getuNID().trim().equals("")) {
-        appUser.setPasswordExternal(null);        
+        appUser.setPasswordExternal(null); 
+        appUser.setUserNameExternal(null);
       }
-    }
+      // Only encrypt and set the password if something has been entered in the text field.
+      else {
+        if (appUserScreen.getUserNameExternal() != null &&
+            !appUserScreen.getUserNameExternal().trim().equals("")) {
+          appUser.setuNID(null);
+        }
+        if (appUserScreen.getPasswordExternal() != null && 
+            !appUserScreen.getPasswordExternal().trim().equals("") && 
+            !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+          String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
+          appUser.setPasswordExternal(encryptedPassword);      
+        }
+      }
     
     
   }
