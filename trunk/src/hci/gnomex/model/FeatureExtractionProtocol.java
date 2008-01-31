@@ -16,6 +16,10 @@ public class FeatureExtractionProtocol extends DictionaryEntry implements Serial
   
   public String getDisplay() {
     String display = this.getNonNullString(getFeatureExtractionProtocol());
+    if (isActive == null || isActive.equals("N")) {
+      display += " (inactive)";
+    }
+
     return display;
   }
 

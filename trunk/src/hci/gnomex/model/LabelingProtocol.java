@@ -15,6 +15,10 @@ public class LabelingProtocol extends DictionaryEntry implements Serializable {
   
   public String getDisplay() {
     String display = this.getNonNullString(getLabelingProtocol());
+    if (isActive == null || isActive.equals("N")) {
+      display += " (inactive)";
+    }
+
     return display;
   }
 

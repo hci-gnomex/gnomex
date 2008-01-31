@@ -22,6 +22,14 @@ public class HybProtocol extends DictionaryEntry implements Serializable {
     return getIdHybProtocol().toString();
   }
   
+  public String getActiveNote() {
+    if (isActive == null || isActive.equals("N")) {
+      return " (inactive)";
+    } else {
+      return "";
+    }
+  }
+  
   public Integer getIdHybProtocol() {
     return idHybProtocol;
   }
