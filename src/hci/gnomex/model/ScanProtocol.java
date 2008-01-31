@@ -25,6 +25,14 @@ public class ScanProtocol extends DictionaryEntry implements Serializable {
   public String getIsActive() {
     return isActive;
   }
+  
+  public String getActiveNote() {
+    if (isActive == null || isActive.equals("N")) {
+      return " (inactive)";
+    } else {
+      return "";
+    }
+  }
 
   
   public void setIsActive(String isActive) {
