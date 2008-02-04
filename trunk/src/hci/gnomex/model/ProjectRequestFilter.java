@@ -33,6 +33,8 @@ public class ProjectRequestFilter extends DetailObject {
   private String                searchOrganismOnSlideProduct;
   private String                searchOrganismOnSample;
   private String                searchPublicProjects;
+  private String                showSamples = "Y";
+  private String                showCategory = "Y";
   
   
   
@@ -538,6 +540,26 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setSearchPublicProjects(String searchPublicProjects) {
     this.searchPublicProjects = searchPublicProjects;
+  }
+
+  
+  public String getShowSamples() {
+    return showSamples;
+  }
+
+  
+  public void setShowSamples(String showSamples) {
+    this.showSamples = showSamples;
+  }
+
+  
+  public String getShowCategory() {
+    return showCategory;
+  }
+
+  
+  public void setShowCategory(String showCategory) {
+    this.showCategory = showCategory;
   }
 
 
