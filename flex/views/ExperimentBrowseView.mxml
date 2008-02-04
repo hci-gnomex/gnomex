@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
+ <mx:Script>
+ 	<![CDATA[
+
+	
+ 	[Bindable]
+    private var rowCountMessage:String = new String();
+
+    public function setResultsCount():void {
+    	rowCountMessage = parentDocument.browseTree.selectedItem..Request.length() + " experiments.";
+    }
+    
+    private function getFullName(item:Object, col:int):String {
+    	return item.@ownerLastName + ", " + item.@ownerFirstName;
+    }
+    
+    private function getRequestKind(item:Object, col:int):String {
+    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	if (de.length() == 1) {
+	    	return de[0].@display;
+    	} else {
+    		return "";
+    	}
+    }
+    private function getExperimentKind(item:Object, col:int):String {
+    	if (item.@codeMicroarrayCategory == "") {
+    		return getRequestKind(item, col);
+    	} else {
+	    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == item.@codeMicroarrayCategory);
+	    	if (de.length() == 1) {
+		    	return de[0].@display;    		
+	    	} else {
+	    		return getRequestKind(item, col);
+	    	}
+    		
+    	}
+    }
+    
+    private function getGridRowNumber(item:Object,col:int):String
+    {
+       var x:int = browseList.getItemIndex(item) + 1;
+       return String(x);
+    } 
+    
+	public function expandAllNodes():void
+  	{
+  		experimentTree.openItems = parentDocument.browseTree.selectedItem;
+  		experimentTree.openItems = parentDocument.browseTree.selectedItem..Lab;
+  		experimentTree.openItems = parentDocument.browseTree.selectedItem..Project;
+  		experimentTree.validateNow();
+  		treeContainer.validateNow();
+  	}
+  	
+  	private function collapsAllNodes():void {
+  		experimentTree.openItems = [];
+  	}
+    
+ 	]]>
+ </mx:Script>
+ 
+    <mx:XMLListCollection id="browseList" source="{parentDocument.getProjectRequestList.lastResult..Request}"/>
+
+	<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
+	
+		       <mx:HBox >
+	        <mx:RadioButtonGroup id="radiogroup1"/>
+	        <mx:RadioButton label="List View" groupName="radiogroup1" click="theViews.selectedIndex = 0" selected="true"/>
+	        <mx:RadioButton label="Tree View" groupName="radiogroup1" click="theViews.selectedIndex = 1;expandAllNodes()"/>		       	
+	       </mx:HBox>
+
+		<mx:HBox horizontalAlign="right" width="100%">
+		  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}"/>
+		</mx:HBox>
+			
+			   
+	             
+	     <mx:ViewStack id="theViews" width="100%" height="100%">
+	       <mx:VBox  width="100%" height="100%">
+	           <mx:HBox horizontalAlign="right" width="100%">
+			       <mx:Button label="Download" id="downloadButton" />
+	           	
+	           </mx:HBox>
+		       <mx:DataGrid  id="experimentList" dataProvider="{parentDocument.browseTree.selectedItem..Request}"  width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4">
+		         <mx:columns>
+		            <mx:DataGridColumn headerText=" " 
+		            	width="10" 
+		            	editable="true"                        	
+		            	dataField="@isSelected" 
+		            	editorDataField="selected" 
+		            	itemRenderer="views.CheckBoxIsSelected">
+		            </mx:DataGridColumn>
+			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@labName"/>
+			        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="getFullName"/>
+			       	<mx:DataGridColumn headerText="Project" width="40" dataField="@projectName"/>
+			       	<mx:DataGridColumn headerText="Experiment Kind" width="40" labelFunction="getExperimentKind"/>
+			       	<mx:DataGridColumn headerText="#" width="30" dataField="@requestNumber"/>
+			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@requestCreateDateDisplay"/>
+			       	<mx:DataGridColumn headerText="Microarray" width="100" dataField="@slideProductName"/>
+		         </mx:columns>
+		       </mx:DataGrid> 	       	
+	       </mx:VBox>
+	       
+
+	     	
+	     	<mx:VBox  id="treeContainer" width="100%" height="100%">
+		       <mx:Tree id="experimentTree" dataProvider="{parentDocument.browseTree.selectedItem}" width="100%" height="100%" labelField="@label" showRoot="true">	     		
+		     	</mx:Tree>
+	     		
+	       </mx:VBox>
+	       
+	     	
+	     </mx:ViewStack>
+	
+	     
+	</mx:VBox>
+	
+
+
+
+</mx:Canvas>
+
+
