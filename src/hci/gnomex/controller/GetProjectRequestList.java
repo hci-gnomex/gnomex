@@ -189,6 +189,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     labNode.setAttribute("idLab",            ((Integer)row[11]).toString());
     labNode.setAttribute("labName",          (row[17] == null? "" : (String)row[17]).toString());
     labNode.setAttribute("projectLabName",   row[19] == null ? "" : (String)row[19]);
+    labNode.setAttribute("label",            row[19] == null ? "" : (String)row[19]);
     rootNode.addContent(labNode);
   }
   
@@ -196,6 +197,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     projectNode = new Element("Project");
     projectNode.setAttribute("idProject",              row[0] == null ? ""  : ((Integer)row[0]).toString());
     projectNode.setAttribute("projectName",            row[1] == null ? ""  : (String)row[1]);
+    projectNode.setAttribute("label",                  row[1] == null ? ""  : (String)row[1]);
     projectNode.setAttribute("projectDescription",     row[2] == null ? ""  : (String)row[2]);
     projectNode.setAttribute("codeVisibility",         row[20] == null ? "" : (String)row[20]);
     projectNode.setAttribute("ownerFirstName",         row[22] == null ? "" : (String)row[22]);
@@ -214,11 +216,15 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   }
   
   private void addRequestCategoryNode(Object[] row) {
-    requestCatNode = new Element("RequestCategory");
-    requestCatNode.setAttribute("idProject",              row[0] == null ? ""     : ((Integer)row[0]).toString());
-    requestCatNode.setAttribute("codeRequestCategory",    row[15] == null ? ""    : (String)row[15]);
-    requestCatNode.setAttribute("codeMicroarrayCategory",    row[16] == null ? "" : (String)row[16]);
-    projectNode.addContent(requestCatNode);
+    if (filter.getShowCategory().equals("Y")) {
+      requestCatNode = new Element("RequestCategory");
+      requestCatNode.setAttribute("idProject",              row[0] == null ? ""     : ((Integer)row[0]).toString());
+      requestCatNode.setAttribute("codeRequestCategory",    row[15] == null ? ""    : (String)row[15]);
+      requestCatNode.setAttribute("codeMicroarrayCategory", row[16] == null ? ""    : (String)row[16]);
+      requestCatNode.setAttribute("label",                  row[16] == null ? ""    : (String)row[16]);
+      projectNode.addContent(requestCatNode);
+      
+    }
   }
   
   private void addRequestNode(Object[] row) {
@@ -257,6 +263,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       displayName.append(requestNode.getAttributeValue("requestCreateDate"));      
 
       requestNode.setAttribute("displayName", displayName.toString());
+      requestNode.setAttribute("label",       displayName.toString());
     } else {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));
@@ -270,16 +277,24 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       displayName.append(requestNode.getAttributeValue("requestCreateDateDisplay"));      
       
       requestNode.setAttribute("displayName", displayName.toString());
+      requestNode.setAttribute("label",       displayName.toString());
     }
-     
-    requestCatNode.addContent(requestNode);   
+    
+    if (filter.getShowCategory().equals("Y")) {
+      requestCatNode.addContent(requestNode);         
+    } else {
+      projectNode.addContent(requestNode);
+    }
   }
   
   private void addSampleNode(Object[] row) {
-    Element n = new Element("Sample");
-    n.setAttribute("sampleName",           row[7] == null ? ""  : (String)row[7]);
-    n.setAttribute("idSampleType",         row[8] == null ? ""  : ((Integer)row[8]).toString());
-    n.setAttribute("idSample",             row[10] == null ? "" : ((Integer)row[10]).toString());
-    requestNode.addContent(n);
+    if (filter.getShowSamples().equals("Y")) {
+      Element n = new Element("Sample");
+      n.setAttribute("sampleName",           row[7] == null ? ""  : (String)row[7]);
+      n.setAttribute("label",                row[7] == null ? ""  : (String)row[7]);
+      n.setAttribute("idSampleType",         row[8] == null ? ""  : ((Integer)row[8]).toString());
+      n.setAttribute("idSample",             row[10] == null ? "" : ((Integer)row[10]).toString());
+      requestNode.addContent(n);      
+    }
   }
 }
