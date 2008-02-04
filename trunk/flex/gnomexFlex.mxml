@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
-	paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" 
-	backgroundGradientColors="[#7da9cc, #e3edf4]" 
+
 	preinitialize="init()" 
-	>
+	 backgroundGradientColors="[#a8c1ce, #fbfcfd]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0">
 	
 
 	     
@@ -184,7 +183,7 @@
     resultFormat="e4x"
     result="onCreateSecurityAdvisor(event)"
     destination="createSecurityAdvisor"
-    showBusyCursor="true"
+    showBusyCursor="false"
     useProxy="false">
     <mx:request>
     </mx:request>
@@ -210,7 +209,7 @@
     resultFormat="e4x"
         result="onManageDictionaries(event)"
     destination="manageDictionaries"
-    showBusyCursor="true"
+    showBusyCursor="false"
     useProxy="false">
     <mx:request>
        <action>load</action>
@@ -245,7 +244,7 @@
     <mx:HTTPService 
     id="getLabList" 
     url="http://localhost/gnomex/GetLabList.gx"
-    showBusyCursor="true"
+    showBusyCursor="false"
     resultFormat="e4x"
     result="onGetLabList(event)"
     destination="getLabList"
@@ -284,53 +283,60 @@
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}"/>
 
 	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="0">
-	      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" paddingBottom="0">
-	        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="12">
-	          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="18" color="#ffffff"/>
-	          <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="26">
-	            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="40">
-	            </mx:HBox>
-	            
-	            <mx:HBox height="100%" horizontalGap="2">
-	              <mx:Label text="Request #" color="#ffffff" id="requestNumberLabel" visible="false"/>
-	              <mx:TextInput id="requestNumber" backgroundAlpha="0.89" borderStyle="inset" width="56" visible="false"/>
-	              <mx:Button label="Lookup" id="lookupButton"  
-	              	fontFamily="Arial" 
-	              	color="#400040" visible="false"/>
-	            </mx:HBox>
-	            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2">
-	              <mx:TextInput id="searchText" backgroundAlpha="0.89" borderStyle="inset" width="118" visible="false"/>
-	              <mx:Button label="Search" id="searchButton" click="theViews.selectedIndex=7;callLater(search)" fontFamily="Arial" visible="false"/>
-	            </mx:HBox>
-	          </mx:HBox>
-	        </mx:HBox>
-	        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
-	    	    <mx:LinkButton label="Help" color="#ffffff"/>
-	    	    <mx:LinkButton label="About" color="#ffffff"/>
-	        </mx:HBox>
-	      </mx:HBox>
+	    
+		   <mx:ApplicationControlBar  width="100%" fillColors="[#2e63a5, #6295d2]" fillAlphas="[1.0, 1]" dock="true"  paddingBottom="0" paddingLeft="1" paddingRight="1" paddingTop="1">
+		      <mx:VBox width="100%" verticalGap="0">
+			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" paddingBottom="0" backgroundAlpha=".5" styleName="catalogPanel">
+			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2">
+			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="18" color="#ffffff"/>
+			          <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="26">
+			            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="40">
+			            </mx:HBox>
+			            
+			            <mx:HBox height="100%" horizontalGap="2">
+			              <mx:Label text="Request #" color="#ffffff" id="requestNumberLabel" visible="false"/>
+			              <mx:TextInput id="requestNumber" backgroundAlpha="0.89" borderStyle="inset" width="56" visible="false"/>
+			              <mx:Button label="Lookup" id="lookupButton"  
+			              	fontFamily="Arial" 
+			              	color="#400040" visible="false"/>
+			            </mx:HBox>
+			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2">
+			              <mx:TextInput id="searchText" backgroundAlpha="0.89" borderStyle="inset" width="118" visible="false"/>
+			              <mx:Button label="Search" id="searchButton" click="theViews.selectedIndex=7;callLater(search)" fontFamily="Arial" visible="false"/>
+			            </mx:HBox>
+			          </mx:HBox>
+			        </mx:HBox>
+			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
+			    	    <mx:LinkButton label="Help" color="#ffffff"/>
+			    	    <mx:LinkButton label="About" color="#ffffff"/>
+			        </mx:HBox>
+			      </mx:HBox>
+		          <mx:ToggleButtonBar id="toggleButtonBar"
+	                dataProvider="{theViews}" width="100%" 
+                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="false" alpha="1" useHandCursor="true"/>
+		      	
+		      	
+		      </mx:VBox>
+
+		      
+		</mx:ApplicationControlBar>
 	    
 	    
 
         
         
-	      <mx:VBox id="mainArea" width="100%" height="100%" paddingTop="1" paddingLeft="0" paddingRight="0" horizontalCenter="0"  verticalGap="12">
-<!--        <mx:ApplicationControlBar id="navBar" width="100%"  horizontalAlign="center" fontGridFitType="pixel" fillAlphas="[1.0, 1.0]" fillColors="[#d7ffd7, #5083ad]">
- -->            
-            <mx:ToggleButtonBar id="toggleButtonBar"
-                dataProvider="{theViews}" width="100%" 
-                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" alpha="1.0" buttonHeight="25" enabled="false" visible="false"/>
-                
-<!--        </mx:ApplicationControlBar> -->
+	      <mx:VBox id="mainArea" width="100%" height="100%" paddingTop="1" paddingBottom="1" paddingLeft="0" paddingRight="0" horizontalCenter="0">
+          
+   
 
-        <mx:ViewStack id="theViews" width="100%" height="100%"  creationPolicy="auto">
+        <mx:ViewStack id="theViews" width="100%" height="100%"  creationPolicy="auto" paddingTop="5">
 
 	        <mx:Canvas label="Submit Request"/>
 	        
 	        <views:NavExperimentView width="100%" height="100%">
 	        </views:NavExperimentView>
 	        
-	        <mx:Canvas label="Analysis"/>
+	        <views:NavAnalysisView label="Analysis"/>
 
 
 	        <mx:Canvas label="Methods and Materials"/>
