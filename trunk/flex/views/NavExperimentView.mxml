@@ -20,6 +20,17 @@
             <showCategory>N</showCategory>
     </mx:request>
    </mx:HTTPService>
+   
+   <mx:HTTPService  
+    id="getRequest" 
+    url="http://localhost/gnomex/GetRequest.gx"
+    destination="getRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequest(event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
 
   <mx:HTTPService  
     id="getRequestDownloadList" 
@@ -50,6 +61,11 @@
         
         import mx.rpc.events.ResultEvent;   
         import mx.collections.XMLListCollection;
+        
+        public var selectedIdRequest:Object;
+        
+        [Bindable]
+        public var selectedExperiment:Object;
         
 
        private function initFilter():void {
@@ -111,6 +127,39 @@
   			browseTree.openItems = [];
   		}
 
+		private function onBrowseTree():void {
+			if (browseTree.selectedItem.name() == 'Request') {
+				selectedIdRequest = browseTree.selectedItem.@idRequest;
+				var parms:Object = new Object();
+				parms.idRequest = selectedIdRequest;
+				getRequest.send(parms);
+				
+			} else {
+				theViews.selectedIndex=1;
+				browseView.expandAllNodes();
+				browseView.setResultsCount();
+			}
+		}
+		
+		private function onGetRequest(event:ResultEvent):void {
+			selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
+		    theViews.selectedIndex = 2;
+		}
+		public function getTreeIcon(item:Object):Class {
+				if (item.name() == "Lab") {
+					return parentApplication.iconGroup;
+				} else if (item.name() == "Project") {
+					return parentApplication.iconProject;
+				} else if (item.name() == "RequestCategory") {
+					return parentApplication.iconCategory;
+				} else if (item.name() == "Request" &&
+				           item.@codeRequestCategory == "QC") {
+					return parentApplication.iconQC;
+				}else {
+					return parentApplication.iconExperiment;
+				}
+		}
+		
        ]]>
     </mx:Script>
     
@@ -120,9 +169,9 @@
 	
 		<mx:Accordion width="220" height="100%" 
 			 fillColors="[#fee789, #ffffff]"
-			headerHeight="25" backgroundAlpha=".3" fillAlphas="[1, .7]" focusEnabled="true">
-			<mx:Canvas label="Browse" width="100%" height="100%">
-						<mx:VBox width="100%" height="100%">
+			headerHeight="25" backgroundAlpha=".3" fillAlphas="[1, .7]" focusEnabled="true" borderStyle="outset">
+			<mx:Canvas label="Experiments" width="100%" height="100%">
+						<mx:VBox width="100%" height="100%" paddingTop="8" paddingLeft="6">
 									<mx:VBox width="100%" verticalGap="0">
 										<mx:Label text="Group">
 										</mx:Label>
@@ -137,13 +186,18 @@
 										dataProvider="{getProjectRequestList.lastResult}" 
 										showRoot="false" 
 										 labelFunction="getBrowseTreeLabel"
-										id="browseTree" click="theViews.selectedIndex=1" change="browseView.expandAllNodes();browseView.setResultsCount()"></mx:Tree>
+										id="browseTree" click="onBrowseTree()" 
+										backgroundAlpha=".1" borderStyle="none"
+										iconFunction="getTreeIcon"></mx:Tree>
 										
 									</mx:VBox>
 						</mx:VBox>
 					</mx:Canvas>
-			<mx:Canvas label="Download" width="100%" height="100%" fontSize="9">
-						<mx:Form  paddingLeft="4" paddingTop="4" paddingRight="2" paddingBottom="2"  height="100%" verticalGap="3">
+			<mx:Canvas label="Download Experiments" width="100%" height="100%" fontSize="9">
+						<mx:Form  paddingLeft="4" paddingTop="6" paddingRight="2" paddingBottom="2"  height="100%" verticalGap="3">
+							<mx:HBox width="100%" horizontalAlign="left" paddingRight="7" paddingTop="6" paddingBottom="14">
+								<mx:Button click="{getRequestDownloadList.send()};theViews.selectedIndex=3" fontSize="10" icon="@Embed('../assets/find.png')" toolTip="Get download list"/>
+							</mx:HBox>
 							<mx:VBox width="100%" verticalGap="0">
 								<mx:Label text="Group">
 								</mx:Label>
@@ -224,9 +278,6 @@
 							<mx:HBox width="100%">
 								<mx:CheckBox label="Include public projects in search" id="includePublicProjectsCheckBox" selected="true"/>
 							</mx:HBox>
-							<mx:HBox width="100%" horizontalAlign="right" paddingRight="7" paddingTop="6">
-								<mx:Button label="Get Download List" click="{getRequestDownloadList.send()};theViews.selectedIndex=2" fontSize="10"/>
-							</mx:HBox>
 						</mx:Form>
 			</mx:Canvas>
 			
@@ -242,11 +293,14 @@
 		
        <mx:Canvas height="100%" dropShadowEnabled="true" dropShadowColor="#C0C0C0" width="100%">
 	     <mx:ViewStack id="theViews" creationPolicy="all" width="100%" height="100%">
-	        <mx:Canvas label="" width="100%" height="100%">	        	
+	        <mx:Canvas label="" width="100%" height="100%" borderStyle="inset">	        	
 	        </mx:Canvas>
 
 	        <views:ExperimentBrowseView id="browseView" width="100%" height="100%">
 	        </views:ExperimentBrowseView>
+
+	        <views:ExperimentDetailView id="detailView" width="100%" height="100%">
+	        </views:ExperimentDetailView>
 
 	        <views:DownloadView id="downloadView" width="100%" height="100%">
 	        </views:DownloadView>

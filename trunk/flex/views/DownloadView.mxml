@@ -55,9 +55,9 @@
 	<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
 	
 		<mx:HBox horizontalAlign="right" width="100%">
-		  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}"/>
-		  <mx:Button label="Download" id="downloadButton" click="downloadFolders()"/>
-		  <mx:Button label="Show Files"/>
+		  <mx:Button id="downloadButton" click="downloadFolders()" icon="@Embed('../assets/icon_download.gif')" toolTip="Download selected folders" label="Download" fontFamily="Arial"/>
+		  <mx:Button icon="@Embed('../assets/folder_explore.png')" toolTip="Explore selected folders" label="Explore files" fontFamily="Arial"/>
+		  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}" textAlign="right"/>
 		</mx:HBox>
 			
 			   

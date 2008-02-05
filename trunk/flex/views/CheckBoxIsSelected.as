@@ -14,7 +14,7 @@ package views
           }
           override public function set data(o:Object):void {
           	_data = o;
-          	if (o != null && o.@isSelected == "true") {
+          	if (o != null && o.hasOwnProperty("@isSelected") && o.@isSelected == "true") {
           		this.selected = true;
           	} else {
           		this.selected = false;

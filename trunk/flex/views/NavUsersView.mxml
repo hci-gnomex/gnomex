@@ -218,25 +218,30 @@
 	    	headerHeight="25" width="250">
 	      <mx:Canvas label="Users" height="100%" width="100%">
 	        
+
 	        <mx:VBox height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%">
-       	      <mx:TextInput id="userSearchText" editable="true" change="appUsers.refresh()" width="100%"/>
-	    
-	          <mx:Tree id="usersTree" visible="false" dataProvider="{filteredAppGroupXML}" height="0" width="0" labelField="@displayName" showRoot="false" change="userTreeItemSelected(event)"></mx:Tree>
-
-    	      <mx:DataGrid id="usersGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{appUsers}" height="100%"  top="40" left="20"  right="20" itemClick="userRowSelected()">
-				<mx:columns>
-							<mx:DataGridColumn headerText="User Name" width="100" dataField="@displayName"/>
-							<!-- <mx:DataGridColumn headerText="Active" width="30" dataField="@isActiveBoolean" itemRenderer="mx.controls.CheckBox" editable="false"/> -->
-						
-			    </mx:columns>
-      	     </mx:DataGrid>
-
-
-	         <mx:HBox horizontalAlign="right" paddingRight="10" paddingBottom="8" paddingTop="8" width="100%">
-        	    <mx:Button x="20" y="10" label="Add"  id="addUserButton" click="prepareToAddUser()"/>	    	
-	            <mx:Button label="Refresh" id="refreshButton0" click="refreshAppUserList()"/>
-    	       <mx:Button label="Delete" id="deleteUserButton" click="callDeleteAppUser()"/>
+	         <mx:HBox horizontalAlign="left" width="100%" horizontalGap="6" paddingTop="2" paddingBottom="2">
+        	    <mx:Button x="20" y="10" id="addUserButton" click="prepareToAddUser()" icon="@Embed('../assets/page_add.png')" toolTip="Add user" fontFamily="Arial"/>	    	
+        	    <mx:Button id="deleteUserButton" click="callDeleteAppUser()" icon="@Embed('../assets/page_delete.png')" toolTip="Delete user" fontFamily="Arial"/>
+	            <mx:Button id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list" fontFamily="Arial"/>
    	         </mx:HBox>
+
+              <mx:VBox  verticalGap="0" width="100%" height="100%" >
+	       	      <mx:TextInput id="userSearchText" editable="true" change="appUsers.refresh()" width="100%"/>
+		    
+		          <mx:Tree id="usersTree" visible="false" dataProvider="{filteredAppGroupXML}" height="0" width="0" labelField="@displayName" showRoot="false" change="userTreeItemSelected(event)"></mx:Tree>
+	
+	    	      <mx:DataGrid id="usersGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{appUsers}" height="100%"  top="40" left="20"  right="20" itemClick="userRowSelected()">
+					<mx:columns>
+								<mx:DataGridColumn headerText="User Name" width="100" dataField="@displayName"/>
+								<!-- <mx:DataGridColumn headerText="Active" width="30" dataField="@isActiveBoolean" itemRenderer="mx.controls.CheckBox" editable="false"/> -->
+							
+				    </mx:columns>
+	      	     </mx:DataGrid>
+              	
+              </mx:VBox>
+
+
     	    </mx:VBox>
     	    
 	      </mx:Canvas>
