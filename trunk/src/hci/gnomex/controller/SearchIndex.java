@@ -75,6 +75,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
     
     
+   
+    
+    
     
     experimentFilter = new ExperimentFilter();
     HashMap errors = this.loadDetailObject(request, experimentFilter);
@@ -511,14 +514,22 @@ public class SearchIndex extends GNomExCommand implements Serializable {
             Map idRequestMap = (Map)categoryToRequestMap.get(code);
             
             if (categoryNode != null) {
-              projectNode.addContent(categoryNode);
+              
+              if (this.experimentFilter.getShowCategory().equals("Y")) {
+                projectNode.addContent(categoryNode);                
+              }
               
               // For each request in request category
               for(Iterator i3 = idRequestMap.keySet().iterator(); i3.hasNext();) {
                 String requestKey = (String)i3.next();
                 Integer idRequest = (Integer)idRequestMap.get(requestKey);
                 Element requestNode = (Element)requestMap.get(idRequest);
-                categoryNode.addContent(requestNode);
+                
+                if (this.experimentFilter.getShowCategory().equals("Y")) {
+                  categoryNode.addContent(requestNode);                  
+                } else {
+                  projectNode.addContent(requestNode);
+                }
                 
               }              
             }

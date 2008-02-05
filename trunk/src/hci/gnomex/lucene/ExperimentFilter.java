@@ -32,6 +32,7 @@ public class ExperimentFilter extends DetailObject {
   private String                searchOrganismOnSlideProduct;
   private String                searchOrganismOnSample;
   private String                searchPublicProjects;
+  private String                showCategory = "Y";
   
   // Display fields
   private String                lab;
@@ -558,6 +559,16 @@ searchText.append(codeRequestCategory);
   
   public void setSlideProduct(String slideProduct) {
     this.slideProduct = slideProduct;
+  }
+
+  
+  public String getShowCategory() {
+    return showCategory;
+  }
+
+  
+  public void setShowCategory(String showCategory) {
+    this.showCategory = showCategory;
   }
 
 

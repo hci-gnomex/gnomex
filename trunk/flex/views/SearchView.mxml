@@ -38,6 +38,7 @@
             <microarrayCategory>{microarrayCategoryCombo.selectedItem.@display}</microarrayCategory>
             <sampleSource>{sampleSourceCombo.selectedItem.@display}</sampleSource>
             <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
+            <showCategory>N</showCategory>
     </mx:request>
     </mx:HTTPService >
     
