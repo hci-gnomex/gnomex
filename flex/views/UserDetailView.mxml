@@ -35,9 +35,13 @@
     </mx:request>
     </mx:HTTPService >
     
-	<mx:VDividedBox height="100%" width="100%" paddingTop="8" paddingBottom="8" paddingLeft="8" paddingRight="8">
+	<mx:VDividedBox height="100%" width="100%" borderStyle="inset" paddingLeft="8" paddingBottom="8" paddingRight="8" paddingTop="8">
     
 	<mx:VBox  width="100%" height="100%">
+		<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" fontFamily="Arial" paddingBottom="4" verticalAlign="middle" paddingTop="4">
+			<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_save.gif')" width="70"/>
+			
+		</mx:HBox>
       <mx:Tile width="100%">
 			<mx:VBox verticalGap="1" width="100%">
 				<mx:Label text="Last name"/>
@@ -126,10 +130,6 @@
             </mx:columns>
         </mx:DataGrid>
 	</mx:HBox>
-	   	<mx:HBox width="100%" horizontalAlign="right" paddingLeft="10" paddingRight="10">
-	   		<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()"/>
-	   		
-	   	</mx:HBox>
 	   </mx:VBox>
     </mx:VDividedBox>
   

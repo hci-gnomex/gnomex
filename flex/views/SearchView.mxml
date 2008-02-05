@@ -38,7 +38,6 @@
             <microarrayCategory>{microarrayCategoryCombo.selectedItem.@display}</microarrayCategory>
             <sampleSource>{sampleSourceCombo.selectedItem.@display}</sampleSource>
             <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
-            <myxmldata>{myXMLString}</myxmldata>
     </mx:request>
     </mx:HTTPService >
     
@@ -138,7 +137,7 @@
         	trace(errors);
         			
         }
-        
+
 
                 
            
@@ -149,10 +148,10 @@
    
     <mx:VBox width="100%" height="100%" top="12" bottom="4" left="8" right="8"  backgroundAlpha="1.0">
     
-     <mx:HBox horizontalAlign="right" width="100%">
-        	<mx:Button label="Search" click="callSearchIndex()" width="100" themeColor="#ffff80">
+     <mx:HBox horizontalAlign="left" width="100%" paddingBottom="10">
+        	<mx:Button label="Search" click="callSearchIndex()" themeColor="#ffff80" fontFamily="Arial" icon="@Embed('../assets/magnifier.png')">
         	</mx:Button>
-        	<mx:Button label="Clear" width="100" themeColor="#ffff80">
+        	<mx:Button label="Clear" themeColor="#ffff80" fontFamily="Arial">
         	</mx:Button>
         	
         </mx:HBox>

@@ -18,6 +18,29 @@
             import mx.rpc.events.ResultEvent;        
             import mx.managers.CursorManager;
             import mx.managers.PopUpManager;
+	
+	        [Bindable]
+	        [Embed(source="assets/group.png")]
+	        public var iconGroup:Class;
+	        
+	        
+	        [Bindable]
+	        [Embed(source="assets/folder_brick.png")]
+	        public var iconProject:Class;
+	
+	        [Bindable]
+	        [Embed(source="assets/color_swatch.png")]
+	        public var iconExperiment:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/basket.png")]
+	        public var iconCategory:Class;
+	        
+	        
+	        [Bindable]
+	        [Embed(source="assets/chart_curve_error.png")]
+	        public var iconQC:Class;
+	        
 
 			[Bindable]
 			public var promptedLabList:views.PromptXMLListCollection;
@@ -168,9 +191,12 @@
 	        	    requestNumberLabel.visible = true;
 	        	    searchButton.visible = true;
 	        	    lookupButton.visible = true;
+	        	    searchLabel.visible = true;
 	        	    	
 	        	}
 	        }
+	        	
+	        
             
             
         ]]>
@@ -282,27 +308,29 @@
     <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}"/>
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}"/>
 
-	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="0">
+	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="22">
 	    
 		   <mx:ApplicationControlBar  width="100%" fillColors="[#2e63a5, #6295d2]" fillAlphas="[1.0, 1]" dock="true"  paddingBottom="0" paddingLeft="1" paddingRight="1" paddingTop="1">
 		      <mx:VBox width="100%" verticalGap="0">
-			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" paddingBottom="0" backgroundAlpha=".5" styleName="catalogPanel">
+			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" paddingBottom="3" backgroundAlpha=".5" styleName="catalogPanel">
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2">
-			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="18" color="#ffffff"/>
+			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="16" color="#ffffff" fontWeight="bold"/>
 			          <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="26">
 			            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="40">
 			            </mx:HBox>
 			            
 			            <mx:HBox height="100%" horizontalGap="2">
-			              <mx:Label text="Request #" color="#ffffff" id="requestNumberLabel" visible="false"/>
-			              <mx:TextInput id="requestNumber" backgroundAlpha="0.89" borderStyle="inset" width="56" visible="false"/>
-			              <mx:Button label="Lookup" id="lookupButton"  
-			              	fontFamily="Arial" 
-			              	color="#400040" visible="false"/>
+			              <mx:Label text="Lookup by #" height="20" color="#ffffff" id="requestNumberLabel" visible="false"/>
+			              <mx:TextInput id="requestNumber" height="20" backgroundAlpha="0.89" borderStyle="inset" width="56" visible="false"/>
+			              <mx:Button id="lookupButton"  
+			              	fontFamily="Arial"  height="20"
+			              	color="#400040" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 			            </mx:HBox>
+			            <mx:Spacer width="100"/>
 			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2">
-			              <mx:TextInput id="searchText" backgroundAlpha="0.89" borderStyle="inset" width="118" visible="false"/>
-			              <mx:Button label="Search" id="searchButton" click="theViews.selectedIndex=7;callLater(search)" fontFamily="Arial" visible="false"/>
+			              <mx:Label text="Search" height="20" color="#ffffff" id="searchLabel" visible="false"/>
+			              <mx:TextInput id="searchText" height="20" backgroundAlpha="0.89" borderStyle="inset" width="118" visible="false"/>
+			              <mx:Button id="searchButton" height="20" click="theViews.selectedIndex=7;callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search"/>
 			            </mx:HBox>
 			          </mx:HBox>
 			        </mx:HBox>
@@ -313,7 +341,7 @@
 			      </mx:HBox>
 		          <mx:ToggleButtonBar id="toggleButtonBar"
 	                dataProvider="{theViews}" width="100%" 
-                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="false" alpha="1" useHandCursor="true"/>
+                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="false" alpha=".6" useHandCursor="true" verticalAlign="middle" color="#ffffff" toggleOnClick="true"/>
 		      	
 		      	
 		      </mx:VBox>
@@ -329,7 +357,7 @@
           
    
 
-        <mx:ViewStack id="theViews" width="100%" height="100%"  creationPolicy="auto" paddingTop="5">
+        <mx:ViewStack id="theViews" width="100%" height="100%"  creationPolicy="auto" paddingTop="0">
 
 	        <mx:Canvas label="Submit Request"/>
 	        
