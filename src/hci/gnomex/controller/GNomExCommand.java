@@ -96,6 +96,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
    *@return          The processed response
    */
   public HttpServletResponse setResponseState(HttpServletResponse response) {
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     return response;
   }
 
