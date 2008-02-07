@@ -35,7 +35,7 @@
     </mx:request>
     </mx:HTTPService >
     
-	<mx:VDividedBox height="100%" width="100%" borderStyle="inset" paddingLeft="8" paddingBottom="8" paddingRight="8" paddingTop="8">
+	<mx:VDividedBox height="100%" width="100%" borderStyle="none" paddingLeft="8" paddingBottom="8" paddingRight="8" paddingTop="8">
     
 	<mx:VBox  width="100%" height="100%">
 		<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" fontFamily="Arial" paddingBottom="4" verticalAlign="middle" paddingTop="4">

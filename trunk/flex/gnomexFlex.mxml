@@ -192,6 +192,7 @@
 	        	    searchButton.visible = true;
 	        	    lookupButton.visible = true;
 	        	    searchLabel.visible = true;
+	        	    //theViews.visible = true;
 	        	    	
 	        	}
 	        }
@@ -341,7 +342,7 @@
 			      </mx:HBox>
 		          <mx:ToggleButtonBar id="toggleButtonBar"
 	                dataProvider="{theViews}" width="100%" 
-                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="false" alpha=".6" useHandCursor="true" verticalAlign="middle" color="#ffffff" toggleOnClick="true"/>
+                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="false" alpha=".6" useHandCursor="true" verticalAlign="middle" color="#ffffff" toggleOnClick="true" itemClick="theViews.visible = true"/>
 		      	
 		      	
 		      </mx:VBox>
@@ -353,13 +354,13 @@
 
         
         
-	      <mx:VBox id="mainArea" width="100%" height="100%" paddingTop="1" paddingBottom="1" paddingLeft="0" paddingRight="0" horizontalCenter="0">
+	    <mx:VBox id="mainArea" width="100%" height="100%" paddingTop="1" paddingBottom="1" paddingLeft="0" paddingRight="0" horizontalCenter="0">
           
    
 
-        <mx:ViewStack id="theViews" width="100%" height="100%"  creationPolicy="auto" paddingTop="0">
+        <mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  creationPolicy="auto" paddingTop="0">
 
-	        <mx:Canvas label="Submit Request"/>
+
 	        
 	        <views:NavExperimentView width="100%" height="100%">
 	        </views:NavExperimentView>
@@ -368,6 +369,8 @@
 
 
 	        <mx:Canvas label="Methods and Materials"/>
+
+	        <mx:Canvas label="Slides"/>
 	        
 
 	        <views:NavWorkflowView width="100%" height="100%">

@@ -135,7 +135,7 @@
 				getRequest.send(parms);
 				
 			} else {
-				theViews.selectedIndex=1;
+				theViews.selectedIndex=0;
 				browseView.expandAllNodes();
 				browseView.setResultsCount();
 			}
@@ -143,7 +143,7 @@
 		
 		private function onGetRequest(event:ResultEvent):void {
 			selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
-		    theViews.selectedIndex = 2;
+		    theViews.selectedIndex = 1;
 		}
 		public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Lab") {
@@ -173,8 +173,6 @@
 			<mx:Canvas label="Experiments" width="100%" height="100%">
 						<mx:VBox width="100%" height="100%" paddingTop="8" paddingLeft="6">
 									<mx:VBox width="100%" verticalGap="0">
-										<mx:Label text="Group">
-										</mx:Label>
 										<mx:ComboBox id="browseLabCombo" 
 											labelField="@name"
 											dataProvider="{parentApplication.promptedLabList}"
@@ -293,8 +291,6 @@
 		
        <mx:Canvas height="100%" dropShadowEnabled="true" dropShadowColor="#C0C0C0" width="100%">
 	     <mx:ViewStack id="theViews" creationPolicy="all" width="100%" height="100%">
-	        <mx:Canvas label="" width="100%" height="100%" borderStyle="inset">	        	
-	        </mx:Canvas>
 
 	        <views:ExperimentBrowseView id="browseView" width="100%" height="100%">
 	        </views:ExperimentBrowseView>
