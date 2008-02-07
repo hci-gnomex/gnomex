@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Labeling"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:Canvas label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
 	
 	<mx:HTTPService 
     id="getWorkList" 
@@ -11,18 +11,18 @@
 	fault="onFailGetWorkList(event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>LABEL</codeStepNext>
+        <codeStepNext>HYB</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
     <mx:HTTPService 
-    id="saveWorkItemLabeling" 
-    url="http://localhost/gnomex/SaveWorkItemLabeling.gx"
+    id="saveWorkItem" 
+    url="http://localhost/gnomex/SaveWorkItemHyb.gx"
     resultFormat="e4x"
-    destination="saveWorkItemLabeling"
+    destination="saveWorkItem"
     showBusyCursor="true"
-    result="onSaveWorkItemLabeling(event)"
-    fault="onFailSaveWorkItemLabeling(event)"
+    result="onSaveWorkItem(event)"
+    fault="onFailSaveWorkItem(event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -35,7 +35,7 @@
 
     <mx:Script>
         <![CDATA[
-        	import mx.collections.ArrayCollection;
+        import mx.collections.ArrayCollection;
         import mx.collections.XMLListCollection;
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
@@ -60,16 +60,25 @@
         		return "";
         	}
         }
+        
+		private function getSlideDesignName(item:Object, col:int):String {
+			var de:XMLList = parentApplication.getSlideProductList.lastResult.SlideProduct..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
+	    	if (de.length() == 1) {
+		    	return de[0].@name;
+	    	} else {
+	    		return "";
+	    	}
+		}            
                 
         private function onEdit(event:Event):void {
         	workList.filterFunction = null;
-        	workListGrid.selectedItem.@isDirty = "Y";
+	    	workListGrid.selectedItem.@isDirty = "Y";
         }
         
         private function save():void {
         	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
-        	saveWorkItemLabeling.send();
+        	saveWorkItem.send();
         }
         
         private function onGetWorkList(event:ResultEvent):void {
@@ -80,10 +89,10 @@
         	Alert.show("failed to get work list " + event.message);
         }
         
-        private function onSaveWorkItemLabeling(event:ResultEvent):void {
+        private function onSaveWorkItem(event:ResultEvent):void {
         }
         
-        private function onFailSaveWorkItemLabeling(event:FaultEvent):void {
+        private function onFailSaveWorkItem(event:FaultEvent):void {
         	Alert.show("failed to save work list " + event.message);
         }
         
@@ -132,57 +141,50 @@
     
    
     <mx:VBox width="100%" height="100%">
-		
-		<mx:HBox width="100%" horizontalAlign="left" paddingBottom="6">
-		<mx:Image source="@Embed('../assets/asterisk_yellow.png')" autoLoad="true"/>
-		<mx:Label text="Labeling" fontWeight="bold" textAlign="center"/>
+        <mx:HBox width="100%" horizontalAlign="left" paddingBottom="6">
+			<mx:Image source="@Embed('../assets/basket_put.png')" autoLoad="true"/>
+			<mx:Label text="Hybridization" fontWeight="bold" textAlign="center"/>
+        	
+        </mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left" fontFamily="Arial">
+			<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
+			</mx:Button>
+			<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
+				click="refreshWorkList();"/>
+			<mx:Spacer width="50" height="100%"/>
+			<mx:Label text="Request #"/>
+			<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()" ></mx:ComboBox>
+			
 			
 		</mx:HBox>
-
-		<mx:VBox width="100%" height="100%">
-			<mx:HBox width="100%" horizontalAlign="left" fontFamily="Arial">
-				<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
-				</mx:Button>
-				<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
-					click="refreshWorkList();"/>
-				<mx:Spacer width="50" height="100%"/>
-				<mx:Label text="Request #"/>
-				<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()" ></mx:ComboBox>
-				
-				
-			</mx:HBox>
-		<mx:DataGrid height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)" fontFamily="Arial">
-			<mx:columns>
-				<mx:DataGridColumn editable="false" headerText=""  width="3" labelFunction="getGridRowNumber"/>
-				<mx:DataGridColumn editable="false" headerText="Request #"  width="12" dataField="@requestNumber"/>
-				<mx:DataGridColumn editable="false" headerText="Ready Date" width="15" dataField="@workItemCreateDate"/>
-				<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
-                <!-- <mx:DataGridColumn dataField="@idAppUser" 
-                   width="20" textAlign="left"
-                   headerText="Requester" 
-                   sortable="false" 
-                   editable="false"
-                   rendererIsEditor="false"  itemRenderer="views.ComboBoxUser" /> -->
-                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
-				<mx:DataGridColumn editable="false"  headerText="Mod Nucleotide" width="15" dataField="@idLabel"/>
-				<mx:DataGridColumn headerText="Labeling Yield" width="15" dataField="@labelingYield"/>
-				<mx:DataGridColumn headerText="Reaction Size" width="15" 
-					dataField="@codeLabelingReactionSize"
-                   sortable="false" 
-                   editable="true"
-                   rendererIsEditor="true"  
-                   itemRenderer="views.ComboBoxLabelingReactionSize" />
-				<mx:DataGridColumn headerText="# Reactions" width="15" dataField="@numberOfReactions"/>
-                <mx:DataGridColumn headerText="Status"  width="12" dataField="@labelingStatus" 
-                	editorDataField="value"
-                   sortable="false" 
-                   editable="true"
-                   rendererIsEditor="true"  
-                   itemRenderer="views.ComboBoxWorkflowStatus" />
-			</mx:columns>
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+			<mx:DataGrid height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)" fontFamily="Arial">
+				<mx:columns>
+					<mx:DataGridColumn editable="false" headerText=""  width="3" labelFunction="getGridRowNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Request #"  width="10" dataField="@requestNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Ready Date" width="10" dataField="@workItemCreateDate"/>
+					<mx:DataGridColumn editable="false" headerText="Requester name"  width="17" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="8" dataField="@hybNumber"/>
+					<mx:DataGridColumn headerText="Slide" width="30" labelFunction="getSlideDesignName"/>
+					<mx:DataGridColumn headerText="Slide Barcode" width="12" dataField="@slideBarcode"/>
+					<mx:DataGridColumn headerText="Coord" width="8" dataField="@idArrayCoordinate"/>
+					<mx:DataGridColumn headerText="Hyb Protocol"  width="25" dataField="@idHybProtocol" 
+	                	editorDataField="value"
+	                   sortable="false" 
+	                   editable="true"
+	                   rendererIsEditor="true"  
+	                   itemRenderer="views.ComboBoxHybProtocol" />
+	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@status" 
+	                	editorDataField="value"
+	                   sortable="false" 
+	                   editable="true"
+	                   rendererIsEditor="true"  
+	                   itemRenderer="views.ComboBoxWorkflowStatus" />
+				</mx:columns>
 		</mx:DataGrid>
 			
-	    </mx:VBox>
+		</mx:VBox>
 	  	
 	  </mx:VBox>
 					

@@ -6,7 +6,7 @@ package views
 	import flash.events.Event;
 	import mx.events.ListEvent;
 
-	public class ComboBoxLabelingReactionSize extends ComboBox
+	public class ComboBoxHybProtocol extends ComboBox
 	{
 		    private var _data:Object;
 		  
@@ -16,7 +16,7 @@ package views
                 _data = o;
                 this.selectedIndex = 0;
                 for(var i:Number = 0; i < this.dataProvider.length; i++) {
-                	if(dataProvider[i].@value == o.@codeLabelingReactionSize) {
+                	if(dataProvider[i].@value == o.@idHybProtocol) {
                           this.selectedIndex = i;
                           break;
                      }
@@ -26,7 +26,7 @@ package views
             override public function get data():Object 
             {
             	if (_data != null) {
-            		return _data.@codeLabelingReactionSize;
+            		return _data.@idHybProtocol;
             	} else {
             		return null;
             	}
@@ -37,13 +37,13 @@ package views
             override protected function initializationComplete():void
             {   
                 this.addEventListener(ListEvent.CHANGE, change);
-            	dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingReactionSize').DictionaryEntry;
+            	dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.HybProtocol').DictionaryEntry;
             	labelField = "@display";
             }
             
             
             private function change(event:ListEvent):void {
-            	_data.@codeLabelingReactionSize = this.selectedItem.@value;
+            	_data.@idHybProtocol = this.selectedItem.@value;
             	_data.@isDirty = "Y";
             }
             
