@@ -6,7 +6,7 @@ package views
 	import flash.events.Event;
 	import mx.events.ListEvent;
 
-	public class ComboBoxLabelingReactionSize extends ComboBox
+	public class ComboBoxLabelingProtocol extends ComboBox
 	{
 		    private var _data:Object;
 		  
@@ -14,14 +14,20 @@ package views
             override public function set data(o:Object):void
             {
                 _data = o;
+
+
+				dataProvider = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == "" || @codeRequestCategory == _data.@codeRequestCategory1));
+ 
+
                 this.selectedIndex = 0;
                 for(var i:Number = 0; i < this.dataProvider.length; i++) {
-                	if(dataProvider[i].@value == o.@codeLabelingReactionSize) {
+                	if(dataProvider[i].@value == o.@idLabelingProtocol) {
                           this.selectedIndex = i;
                           break;
                      }
                 }
             }
+            
             [Bindable]           
             override public function get data():Object 
             {
@@ -31,7 +37,7 @@ package views
 
             override public function get value():Object {
              	if (_data != null) {
-            		return _data.@codeLabelingReactionSize;
+            		return _data.@idLabelingProtocol;
             	} else {
             		return null;
             	} 
@@ -43,13 +49,12 @@ package views
             override protected function initializationComplete():void
             {   
                 this.addEventListener(ListEvent.CHANGE, change);
-            	dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingReactionSize').DictionaryEntry;
             	labelField = "@display";
             }
             
             
             private function change(event:ListEvent):void {
-            	_data.@codeLabelingReactionSize = this.selectedItem.@value;
+            	_data.@idLabelingProtocol = this.selectedItem.@value;
             	_data.@isDirty = "Y";
             }
             

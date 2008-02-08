@@ -30,7 +30,7 @@
     </mx:request>
     </mx:HTTPService >
     
-    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}" filterFunction="filterWorkList"/>
+    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
     
 
     <mx:Script>
@@ -81,6 +81,11 @@
         }
         
         private function onSaveWorkItemLabeling(event:ResultEvent):void {
+        	if (saveWorkItemLabeling.lastResult.name() == "WorkItemList") {
+        		
+        	} else {
+        		Alert.show(saveWorkItemLabeling.lastResult..ACTMESSAGE.@TEXT);
+        	}        	
         }
         
         private function onFailSaveWorkItemLabeling(event:FaultEvent):void {
@@ -165,9 +170,16 @@
                    rendererIsEditor="false"  itemRenderer="views.ComboBoxUser" /> -->
                 <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
 				<mx:DataGridColumn editable="false"  headerText="Mod Nucleotide" width="15" dataField="@idLabel"/>
-				<mx:DataGridColumn headerText="Labeling Yield" width="15" dataField="@labelingYield"/>
+				<mx:DataGridColumn headerText="Labeling Protocol"  width="29" dataField="@idLabelingProtocol" 
+                	editorDataField="value"
+                   sortable="false" 
+                   editable="true"
+                   rendererIsEditor="true"  
+                   itemRenderer="views.ComboBoxLabelingProtocol" />
+	            <mx:DataGridColumn headerText="Labeling Yield" width="15" dataField="@labelingYield"/>
 				<mx:DataGridColumn headerText="Reaction Size" width="15" 
 					dataField="@codeLabelingReactionSize"
+					editorDataField="value"
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="true"  
@@ -178,7 +190,7 @@
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="true"  
-                   itemRenderer="views.ComboBoxWorkflowStatus" />
+                   itemRenderer="views.ComboBoxWorkflowStatusLabeling" />
 			</mx:columns>
 		</mx:DataGrid>
 			
