@@ -8,16 +8,17 @@
         import mx.controls.Alert;
         
         private function onWorklistChange():void {
-        	if (detailViews.selectedIndex == 1) {
-        		workflowLabelingView.getWorkList.send();
-        		detailViews.visible = true;
-        	} else if (detailViews.selectedIndex == 0) {
+        	if (detailViews.selectedIndex == 0) {
         		workflowQCView.getWorkListQC.send();
-        		detailViews.visible = true;
+        	} else if (detailViews.selectedIndex == 1) {
+        		workflowLabelingView.getWorkList.send();
         	} else if (detailViews.selectedIndex == 2) {
         		workflowHybView.getWorkList.send();
-        		detailViews.visible = true;
+        	} else if (detailViews.selectedIndex == 3) {
+        		workflowExtractionView.getWorkList.send();
         	}
+			detailViews.visible = true;
+
         }
 
         ]]>
@@ -51,9 +52,7 @@
     
            <views:WorkflowHybView label="Hybridization" id="workflowHybView" icon="@Embed('../assets/basket_put.png')"/>
 
-			<mx:Canvas label="Scan / FE" width="100%" height="100%" icon="@Embed('../assets/color_swatch.png')">
-			</mx:Canvas>
-			
+           <views:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="@Embed('../assets/color_swatch.png')"/>
 		</mx:ViewStack>
 	
 	</mx:HDividedBox>

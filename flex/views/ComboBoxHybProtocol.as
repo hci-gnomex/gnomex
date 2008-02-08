@@ -14,6 +14,11 @@ package views
             override public function set data(o:Object):void
             {
                 _data = o;
+
+
+				dataProvider = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.HybProtocol').DictionaryEntry.(@value == "" || @codeRequestCategory == _data.@codeRequestCategory1));
+ 
+
                 this.selectedIndex = 0;
                 for(var i:Number = 0; i < this.dataProvider.length; i++) {
                 	if(dataProvider[i].@value == o.@idHybProtocol) {
@@ -22,14 +27,21 @@ package views
                      }
                 }
             }
-             [Bindable]           
+            
+            [Bindable]           
             override public function get data():Object 
             {
-            	if (_data != null) {
+            	return _data;
+            }
+            
+
+            override public function get value():Object {
+             	if (_data != null) {
             		return _data.@idHybProtocol;
             	} else {
             		return null;
-            	}
+            	} 
+            	
             }
             
 
@@ -37,7 +49,6 @@ package views
             override protected function initializationComplete():void
             {   
                 this.addEventListener(ListEvent.CHANGE, change);
-            	dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.HybProtocol').DictionaryEntry;
             	labelField = "@display";
             }
             
