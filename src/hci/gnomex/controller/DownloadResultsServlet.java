@@ -69,6 +69,7 @@ public class DownloadResultsServlet extends HttpServlet {
       if (secAdvisor != null) {
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment;filename=microarray.zip");
+        response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         long time1 = System.currentTimeMillis();
         

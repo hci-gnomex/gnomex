@@ -53,6 +53,7 @@ public class DownloadFileServlet extends HttpServlet {
     
 
     try {
+      
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -60,7 +61,7 @@ public class DownloadFileServlet extends HttpServlet {
       if (secAdvisor != null) {
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment;filename=microarray.zip");
-        
+        response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
@@ -73,6 +74,7 @@ public class DownloadFileServlet extends HttpServlet {
         
         int totalZipSize = 0;
         // For each request
+        
         for(Iterator i = parser.getRequestNumbers().iterator(); i.hasNext();) {
           String requestNumber = (String)i.next();
           

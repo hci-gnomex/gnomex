@@ -24,6 +24,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private Date      lastModifyDate;
   private String    type;
   private String    zipEntryName;
+  private String    directoryName;
   private List      children = new ArrayList();
   
   public FileDescriptor() {    
@@ -188,5 +189,27 @@ public class FileDescriptor extends DetailObject implements Serializable {
   public void setChildren(List children) {
     this.children = children;
   }
- 
+
+  
+  public String getDirectoryName() {
+    return directoryName;
+  }
+
+  
+  public void setDirectoryName(String directoryName) {
+    this.directoryName = directoryName;
+  }
+  
+  public String getLastModifyDateDisplay() {
+    if (this.lastModifyDate != null) {
+      return this.formatDate(this.lastModifyDate, DATE_OUTPUT_SQL);
+    } else {
+      return "";
+    }
+  }
+  
+
+  public String getIsSelected() {
+    return "false";
+  }
 }

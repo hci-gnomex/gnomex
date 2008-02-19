@@ -87,6 +87,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       }
 
       // For each directory of request
+      boolean firstDirForRequest = true;
       for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
         
         String directoryKey = (String)i1.next();
@@ -95,15 +96,35 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         
         Element dirNode = new Element("Directory");
         dirNode.setAttribute("name", tokens[1]);
+        
+        
         requestNode.addContent(dirNode);
 
         // For each file in the directory
+        boolean firstFileInDir = true;
         for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
           FileDescriptor fd = (FileDescriptor) i2.next();
+          fd.setDirectoryName(tokens[1]);
+
+
+          // Use attribute to get "control break" on request number and directory name
+          // for grid of files
+          Element fdNode = fd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement();
+          if (firstDirForRequest) {
+            fdNode.setAttribute("showRequestNumber", "Y");
+            firstDirForRequest = false;
+          } else {
+            fdNode.setAttribute("showRequestNumber", "N");
+          }          
+          if (firstFileInDir) {
+            fdNode.setAttribute("showDirectoryName", "Y");
+            firstFileInDir = false;
+          } else {
+            fdNode.setAttribute("showDirectoryName", "N");
+          }          
           
           
-          
-          dirNode.addContent(fd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement());
+          dirNode.addContent(fdNode);
         }
         
       }
