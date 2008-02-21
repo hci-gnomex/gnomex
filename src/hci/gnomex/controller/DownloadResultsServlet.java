@@ -38,7 +38,6 @@ public class DownloadResultsServlet extends HttpServlet {
   private String    keysString = null;
   private String    includeTIF = "N";
   private String    includeJPG = "N";
-  private static int      totalFileSize = 0;
 
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadResultsServlet.class);
@@ -78,12 +77,10 @@ public class DownloadResultsServlet extends HttpServlet {
         
        
         Map fileNameMap = new HashMap();
-        totalFileSize = 0;
-        getFileNamesToDownload(keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+        long fileSizeTotal = getFileNamesToDownload(keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
 
         // Set content length to estimated zip (compressed) size.
-        int estimatedCompressedSize = new Double(totalFileSize / 2.5).intValue();
-        response.setContentLength(estimatedCompressedSize);
+        int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
 
         
         ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
@@ -146,6 +143,7 @@ public class DownloadResultsServlet extends HttpServlet {
         }
         
         response.setContentLength(totalZipSize);
+        System.out.println("actual content length = " + totalZipSize + "   estimated content length = " + estimatedCompressedSize);
         
         zout.finish();
         zout.flush();
@@ -195,8 +193,9 @@ public class DownloadResultsServlet extends HttpServlet {
     return request;    
   }
     
-  public static void getFileNamesToDownload(String keysString, Map fileNameMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
+  public static long getFileNamesToDownload(String keysString, Map fileNameMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
 
+    long fileSizeTotal = 0;
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
@@ -208,14 +207,17 @@ public class DownloadResultsServlet extends HttpServlet {
       String resultDirectory = tokens[3];
 
       String directoryName = Constants.MICROARRAY_DIRECTORY + createYear + "/" + requestNumber + "/" + resultDirectory;      
-      getFileNames(requestNumber, directoryName, fileNameMap, includeAllTIFFiles, includeAllJPGFiles);
+      fileSizeTotal += getFileNames(requestNumber, directoryName, fileNameMap, includeAllTIFFiles, includeAllJPGFiles);
     }
+    return fileSizeTotal;
   }      
       
      
     
-  public static void getFileNames(String requestNumber, String directoryName, Map fileNameMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
+  public static long getFileNames(String requestNumber, String directoryName, Map fileNameMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
     File fd = new File(directoryName);
+    
+    long fileSizeTotal = 0;
 
     if (fd.isDirectory()) {
       String[] fileList = fd.list();
@@ -223,7 +225,7 @@ public class DownloadResultsServlet extends HttpServlet {
         String fileName = directoryName + "/" + fileList[x];
         File f1 = new File(fileName);
         if (f1.isDirectory()) {
-          getFileNames(requestNumber, fileName, fileNameMap, includeAllTIFFiles, includeAllJPGFiles);
+          fileSizeTotal += getFileNames(requestNumber, fileName, fileNameMap, includeAllTIFFiles, includeAllJPGFiles);
         } else {
           boolean include = true;
           if (!includeAllJPGFiles && fileName.toLowerCase().endsWith(".jpg")) {
@@ -232,7 +234,8 @@ public class DownloadResultsServlet extends HttpServlet {
             include = false;
           }
           if (include) {
-            totalFileSize += f1.length();
+            fileSizeTotal += f1.length();
+            
             
             List fileNames = (List)fileNameMap.get(requestNumber);
             if (fileNames == null) {
@@ -244,5 +247,6 @@ public class DownloadResultsServlet extends HttpServlet {
         }
       }
     }
+    return fileSizeTotal;
   }
 }
