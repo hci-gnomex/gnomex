@@ -31,20 +31,22 @@
 	    private var url:String = "";
 	    private var params:Object;
 	    private var theParent:DisplayObject;
+	    private var estimatedDownloadSize:int;
 	    
 	    
 
-		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button):void {
+		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:int):void {
 			this.url = url;
 	    	this.params = params;
 			this.btn = startDownloadButton;
 			this.theParent = parent;
+			this.estimatedDownloadSize = estimatedDownloadSize;
 			
 			fr = new FileReference();
 	        fr.addEventListener(Event.OPEN, openHandler);
 	        fr.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 	        fr.addEventListener(Event.COMPLETE, completeHandler);
-	        
+
 	        this.startDownload();
 		}
 		
@@ -60,8 +62,14 @@
 	    {
 	        var request:URLRequest = new URLRequest();
 	        request.url = this.url;
-	        request.data = this.params;
-	        fr.download(request, "gnomex_data.zip");
+	        if (this.params != null) {
+		        request.data = this.params;
+	        }
+	        try {
+		        fr.download(request, "gnomex_data.zip");	        	
+	        } catch (error:Error) {
+	        	mx.controls.Alert.show("Unable to download file. " + error.message);
+	        }
 	
 	    }
 	    
@@ -91,7 +99,11 @@
 	     */
 	    private function progressHandler(event:ProgressEvent):void
 	    {
-			downloadProgress.setProgress(event.bytesLoaded, event.bytesTotal);
+	    	if (event.bytesTotal == 0 || event.bytesTotal <= event.bytesLoaded) {
+				downloadProgress.setProgress(event.bytesLoaded, estimatedDownloadSize);    		
+	    	} else {
+				downloadProgress.setProgress(event.bytesLoaded, event.bytesTotal);    		
+	    	}
 	    }
 	    
 	      /**
@@ -106,6 +118,7 @@
 	        if (btn != null) {
 		        btn.enabled = true;
 	        }
+	        cancelDownloadButton.visible = false;
 	    }
 	    
 	    /**

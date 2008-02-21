@@ -12,9 +12,11 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+
   
  <mx:Script>
  	<![CDATA[
+ 		import mx.controls.Alert;
  	
  	import mx.rpc.events.ResultEvent;
 
@@ -25,7 +27,7 @@
     [Bindable]
     public var selectedExperiment:Object;
     
-    private var selectedIdRequest:Object;
+    private var selectedIdRequest:int;
 
     public function setResultsCount():void {
     	rowCountMessage = parentDocument.browseTree.selectedItem..Request.length() + " experiments.";
@@ -34,7 +36,7 @@
     private function getFullName(item:Object, col:int):String {
     	return item.@ownerLastName + ", " + item.@ownerFirstName;
     }
-    
+
     private function getRequestKind(item:Object, col:int):String {
     	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
     	if (de.length() == 1) {
@@ -57,24 +59,44 @@
     	}
     }
     
+  	public function refreshDownloadList():void {
+		if (theViews.selectedIndex == 1) {
+			var params:Object = new Object();
+			if (parentDocument.selectedIdLab != null) {
+				params.idLab = parentDocument.selectedIdLab;				
+			} 
+			if (parentDocument.selectedIdProject != null) {
+				params.idProject = parentDocument.selectedIdProject;
+			}
+			downloadView.getRequestDownloadList.send(params);
+			
+		}
+	}
+	
+	public function refreshTrackList():void {
+		if (theViews.selectedIndex == 2) {
+			var params:Object = new Object();
+			if (parentDocument.selectedIdLab != null) {
+				params.idLab = parentDocument.selectedIdLab;				
+			} 
+			if (parentDocument.selectedIdProject != null) {
+				params.idProject = parentDocument.selectedIdProject;
+			}
+			if (trackView.progressList != null) {
+				trackView.progressList.removeAll();
+				trackView.progressList.refresh();
+			}
+			trackView.getRequestProgressList.send(params);
+			
+		}		
+	}
+    
     private function getGridRowNumber(item:Object,col:int):String
     {
        var x:int = browseList.getItemIndex(item) + 1;
        return String(x);
     } 
     
-	public function expandAllNodes():void
-  	{
-  		experimentTree.openItems = parentDocument.browseTree.selectedItem;
-  		experimentTree.openItems = parentDocument.browseTree.selectedItem..Lab;
-  		experimentTree.openItems = parentDocument.browseTree.selectedItem..Project;
-  		experimentTree.validateNow();
-  		treeContainer.validateNow();
-  	}
-  	
-  	private function collapsAllNodes():void {
-  		experimentTree.openItems = [];
-  	}
   	
   	private function onExperimentRowSelected():void {
 		selectedIdRequest = experimentList.selectedItem.@idRequest;
@@ -85,13 +107,7 @@
   	}
 
   	private function onExperimentNodeSelected():void {
-  		if (experimentTree.selectedItem.name() == 'Request') {
-			selectedIdRequest = experimentTree.selectedItem.@idRequest;
-			
-			var parms:Object = new Object();
-			parms.idRequest = selectedIdRequest;
-			getRequest.send(parms);
-  		}
+
   	}
   	
   	private function onGetRequest(event:ResultEvent):void {
@@ -117,27 +133,25 @@
 					return parentApplication.iconExperiment;
 				}	
 	}   
+	
+	private function onViewSwitch():void {
+		this.refreshDownloadList();
+		this.refreshTrackList();
+	}
 
  	]]>
  </mx:Script>
  
     <mx:XMLListCollection id="browseList" source="{parentDocument.getProjectRequestList.lastResult..Request}"/>
-    <mx:VDividedBox width="100%" height="100%" verticalGap="30" dividerColor="#004080" borderStyle="none">
+ 
+     <mx:VDividedBox width="100%" height="100%" verticalGap="30" dividerColor="#004080" borderStyle="none">
 		<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
 		
-		    <mx:HBox width="100%">
-				<mx:HBox >
-			        <mx:Button icon="@Embed('../assets/application_view_detail.png')" 
-			        	label="List" fontFamily="Arial"
-			        	click="theViews.selectedIndex = 0" />
-			        <mx:Button icon="@Embed('../assets/chart_organisation.png')" 
-			        	label="Tree" fontFamily="Arial"
-			        	click="theViews.selectedIndex = 1;expandAllNodes()"
-			        	/>
-			        <mx:Spacer width="50"/>
-			        <mx:Button id="downloadButton" label="Show download list"  icon="@Embed('../assets/folder_go.png')" 
-			        	toolTip="Show download list on selected items" fontFamily="Arial" 
-			        	/>
+		    <mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
+				<mx:HBox  verticalAlign="middle">
+			        <mx:ToggleButtonBar dataProvider="{theViews}" fontFamily="Arial" itemClick="onViewSwitch()">
+			        </mx:ToggleButtonBar>
+			        <mx:Spacer width="100"/>
 			    </mx:HBox>
 		
 				<mx:HBox horizontalAlign="right" width="100%">
@@ -149,12 +163,12 @@
 				   
 		             
 		     <mx:ViewStack id="theViews" width="100%" height="100%">
-		       <mx:VBox  width="100%" height="100%">
-		           <mx:HBox horizontalAlign="right" width="100%">
-		           </mx:HBox>
+		       <mx:VBox  width="100%" height="100%" 
+		       	icon="@Embed('../assets/application_view_detail.png')" 
+		       	label="Browse" visible="false">
 			       <mx:DataGrid  id="experimentList" dataProvider="{parentDocument.browseTree.selectedItem..Request}"  
 			       	width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4" 
-			       	itemClick="onExperimentRowSelected()">
+			       	itemDoubleClick="onExperimentRowSelected()" doubleClickEnabled="true">
 			         <mx:columns>
 			            <mx:DataGridColumn headerText=" " 
 			            	width="10" 
@@ -175,17 +189,14 @@
 		       </mx:VBox>
 		       
 	
+				<views:ExperimentDownloadView id="downloadView" label="Downloads" icon="@Embed('../assets/folder_go.png')" >
+				</views:ExperimentDownloadView>
+				
+	 			<views:ExperimentTrackView id="trackView" label="Track" icon="@Embed('../assets/application_go.png')" >
+				</views:ExperimentTrackView>
+				
 		     	
-		     	<mx:VBox  id="treeContainer" width="100%" height="100%">
-			       <mx:Tree id="experimentTree" 
-			       	dataProvider="{parentDocument.browseTree.selectedItem}" 
-			       	width="100%" height="100%" labelField="@label" showRoot="true" 
-			       	change="onExperimentNodeSelected()"
-			       	 iconFunction="getTreeIcon">	     		
-			     	</mx:Tree>
-		     		
-		       </mx:VBox>
-		       
+
 		     	
 		     </mx:ViewStack>
 		

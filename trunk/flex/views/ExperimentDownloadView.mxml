@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
+
+   <mx:HTTPService  
+    id="getExpandedFileList" 
+    url="http://localhost/gnomex/GetExpandedFileList.gx"
+    destination="getExpandedFileList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetExpandedFileList(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<resultKeys>{resultKeys}</resultKeys>
+    </mx:request>
+  </mx:HTTPService>
+
+   <mx:HTTPService  
+    id="cacheFileDownloadList" 
+    url="http://localhost/gnomex/CacheFileDownloadList.gx"
+    destination="cacheFileDownloadList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onCacheFileDownloadList(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+    </mx:request>
+  </mx:HTTPService>
+  
+    
+    <mx:HTTPService  
+    id="getRequestDownloadList" 
+    url="http://localhost/gnomex/GetRequestDownloadList.gx"
+    destination="getRequestDownloadList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequestDownloadList(event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >	
+    
+    <mx:HTTPService  
+    id="getDownloadEstimatedSize" 
+    url="http://localhost/gnomex/GetDownloadEstimatedSize.gx"
+    destination="getDownloadEstimatedSize"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetDownloadEstimatedSize(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<resultKeys>{resultKeys}</resultKeys>
+    </mx:request>
+    </mx:HTTPService>
+  
+
+ <mx:Script>
+ <![CDATA[
+ 	import mx.formatters.DateFormatter;
+    import mx.rpc.events.ResultEvent;
+ 	import flash.display.Sprite;
+    import flash.net.FileReference;
+    import flash.net.URLRequest;
+    import flash.net.URLRequestMethod;
+    import flash.net.URLVariables;
+    import mx.managers.PopUpManager;
+   
+	
+ 	[Bindable]
+    private var rowCountMessage:String = new String();
+ 	[Bindable]
+    private var fileCountMessage:String = new String();
+    
+    [Bindable]
+    private var selectedFileList:XMLListCollection;
+    
+    private var estimatedDownloadSize:Number;
+    
+    private const DOWNLOAD_FOLDERS_URL:String = "http://localhost/gnomex/DownloadResultsServlet.gx"; 
+    private const DOWNLOAD_FILES_URL:String   = "http://localhost/gnomex/DownloadFileServlet.gx"; 
+    
+    [Bindable]
+    public var resultKeys:String;  
+    
+    private var dateFormatter:DateFormatter = new DateFormatter();
+        
+    private function onGetRequestDownloadList(event:ResultEvent): void { 
+    		
+    }
+    private function getSelectedFolders():void {
+		resultKeys = "";
+    	for(var i:Number = 0; i < downloadList.length; i++) {
+    		if (downloadList[i].@isSelected != null && downloadList[i].@isSelected.toString() == "true") {
+        		resultKeys += downloadList[i].@key + ":";
+      		}
+        }     	
+    }
+    
+    public function prepareToDownloadFolders():void { 
+    	getSelectedFolders();
+    	getDownloadEstimatedSize.send();
+    	
+ 	}
+            
+    public function downloadFolders():void { 
+    	
+        var parms:String = "resultKeys="+ resultKeys;
+    	var progressWindow:views.DownloadProgressView = new views.DownloadProgressView();
+    	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, downloadButton, estimatedDownloadSize);
+    	
+ 	}
+ 	
+ 	public function downloadFiles():void {
+		var selectedFiles:XMLList = getExpandedFileList.lastResult..FileDescriptor.(@isSelected == "true");        	
+    	selectedFileList = new XMLListCollection(selectedFiles);
+    	estimatedDownloadSize = 0;
+    	for each (var item:Object in selectedFileList) {
+    		var fileSize:Number = item.@fileSize;
+			estimatedDownloadSize += fileSize;
+		}
+		estimatedDownloadSize = estimatedDownloadSize / 2.5;
+    	
+    	cacheFileDownloadList.send();
+ 	}
+ 	
+ 	
+ 	
+ 	public function exploreFolders():void {
+ 		getSelectedFolders();
+ 		
+ 		getExpandedFileList.send();
+ 		exploreView.enabled = true;
+ 	}
+ 	
+ 	private function getRequestNumber(item:Object, col:int):String {
+ 		if (item.@showRequestNumber == "Y") {
+	    	return item.@requestNumber;
+ 		} else {
+ 			return "";
+ 		}
+    }
+    private function getDirectoryName(item:Object, col:int):String {
+ 		if (item.@showDirectoryName == "Y") {
+	    	return item.@directoryName;
+ 		} else {
+ 			return "";
+ 		}
+    }
+    
+
+	public function setFileCount():void {
+		fileCountMessage = expandedFileList.length + " files found.";
+	}
+
+    
+    public function setResultsCount():void {
+    	rowCountMessage = downloadList.length + " folders found.";
+    }
+    
+    private function getGridRowNumber(item:Object,col:int):String
+    {
+       var x:int = downloadList.getItemIndex(item) + 1;
+       return String(x);
+    } 
+    
+    private function onGetExpandedFileList(event:ResultEvent):void {
+    	setFileCount();
+    	theTab.selectedIndex = 1;
+    }
+    
+    private function onGetDownloadEstimatedSize(event:ResultEvent):void {
+    	estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
+    	downloadFolders();
+    }
+    
+    private function onCacheFileDownloadList(event:ResultEvent):void {
+    	var progressWindow:views.DownloadProgressView = new views.DownloadProgressView();
+    	progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, downloadFilesButton, estimatedDownloadSize);
+    }
+
+    
+ ]]>
+ </mx:Script>
+ 
+    <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.RequestDownload}"/>
+    <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult.RequestDirectory.Directory.FileDescriptor}"/>
+
+	
+	<mx:TabNavigator id="theTab"  
+		width="100%" height="100%" 
+		 backgroundAlpha=".2" >
+		<mx:VBox label="Folders" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
+			<mx:HBox horizontalAlign="right" width="100%">
+			  <mx:Button id="downloadButton" 
+			  	click="prepareToDownloadFolders()" 
+			  	icon="@Embed('../assets/icon_download.gif')" 
+			  	toolTip="Download selected folders"
+			  	label="Download" 
+			  	fontFamily="Arial"/>
+			  <mx:Button icon="@Embed('../assets/folder_explore.png')"
+			  	click="exploreFolders()"
+			  	toolTip="Explore selected folders" 
+			  	label="Explore files" 
+			  	fontFamily="Arial"/>
+			  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}" textAlign="right"/>
+			</mx:HBox>
+				
+				   
+		             
+		     
+		       <views:DataGridAlternatingGroup  dataProvider="{downloadList}"  width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4">
+		         <views:columns>
+					<!--<mx:DataGridColumn editable="false" headerText=""  width="25" labelFunction="getGridRowNumber"/> 
+		             -->
+		            <mx:DataGridColumn headerText=" " 
+		            	width="10" 
+		            	editable="true"                        	
+		            	dataField="@isSelected" 
+		            	editorDataField="selected" 
+		            	itemRenderer="views.CheckBoxIsSelected">
+		            </mx:DataGridColumn>
+			       	<mx:DataGridColumn headerText="#" width="30" dataField="@requestNumber"/>
+			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
+			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
+			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
+			       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
+			       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
+			       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
+			       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
+		         </views:columns>
+		       </views:DataGridAlternatingGroup>
+		
+		     
+		</mx:VBox>
+		
+		
+		<mx:VBox id="exploreView" label="Files" width="100%" height="100%" 
+			enabled="false"
+			paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
+		    <mx:HBox horizontalAlign="right" width="100%">
+		      <mx:Button id="downloadFilesButton" 
+		      	click="downloadFiles()" 
+		      	icon="@Embed('../assets/icon_download.gif')" 
+		      	toolTip="Download selected folders"
+		      	label="Download" 
+		      	fontFamily="Arial"/>
+		      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
+		    </mx:HBox>
+		    <mx:DataGrid 
+		    	 width="100%" height="100%" 
+		    	 fontFamily="Arial"
+		    	 dataProvider="{expandedFileList}">
+		       <mx:columns>
+	            <mx:DataGridColumn headerText=" " 
+	            	width="3" 
+	            	editable="true"                        	
+	            	dataField="@isSelected" 
+	            	editorDataField="selected" 
+	            	itemRenderer="views.CheckBoxIsSelected"/>
+	            <mx:DataGridColumn width="11" headerText="#">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0" >
+	                          <mx:Image id="experimentImage" render="callLater(show)"  source="@Embed('../assets/color_swatch.png')">
+		                         <mx:Script>
+		                    	 <![CDATA[
+		                    		private function show():void {
+		                    			if (data != null && data.@showRequestNumber == "Y") {
+											visible = true;                    				
+		                    			} else {
+			                    			visible = false;
+		                    			}
+		                    		}	
+		                    	 ]]>
+		                    	 </mx:Script>
+	                    	 </mx:Image> 
+	                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="16" headerText="Folder" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0" >
+	                          <mx:Image id="directoryImage" render="callLater(show)"  source="@Embed('../assets/folder.png')">
+		                         <mx:Script>
+		                    	 <![CDATA[
+		                    		private function show():void {
+		                    			if (data != null && data.@showDirectoryName == "Y") {
+											visible = true;                    				
+		                    			} else {
+			                    			visible = false;
+		                    			}
+		                    		}	
+		                    	 ]]>
+		                    	 </mx:Script>
+	                    	 </mx:Image> 
+	                           <mx:Label id="directoryName" text="{data.@directoryName}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	              	<mx:DataGridColumn dataField="@displayName"    headerText="File"   width="70"/>
+		    	<mx:DataGridColumn dataField="@type"           headerText="Type"   width="12"/>
+		    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size"   width="12"/>
+		    	<mx:DataGridColumn dataField="@lastModifyDateDisplay" headerText="Date"   width="22"/>
+		      </mx:columns>	
+		    	
+		    </mx:DataGrid>
+		</mx:VBox>
+		
+	</mx:TabNavigator>
+	
+
+
+
+</mx:Canvas>
+
+
