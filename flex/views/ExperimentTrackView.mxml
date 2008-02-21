@@ -58,70 +58,88 @@
     <mx:XMLListCollection id="progressList" source="{getRequestProgressList.lastResult.RequestProgress}"/>
 
 	
-	<mx:VBox  width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
-	       <views:DataGridAlternatingGroup  id="progressGrid" dataProvider="{progressList}"  width="100%" height="100%" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4">
+	<mx:VBox  width="100%" height="100%" >
+	       <views:DataGridAlternatingGroup  id="progressGrid" dataProvider="{progressList}"  width="100%" height="100%" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4" fontFamily="Arial">
 	         <views:columns>
-		       	<mx:DataGridColumn headerText="#"                 width="5" dataField="@requestNumber" />
-	            <mx:DataGridColumn headerText="Request Kind"      width="10" labelFunction="getRequestKind"/>
-		       	<mx:DataGridColumn headerText="Date"              width="10" dataField="@createDate"/>
-		        <mx:DataGridColumn headerText="Requester"         width="10" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
-		       	<mx:DataGridColumn headerText="Hyb #"             width="5" dataField="@hybNumber"/>
-		       	<mx:DataGridColumn headerText="Cy3 Sample"        width="10" dataField="@nameSample1"   headerStyleName="cy3"/>
-	            <mx:DataGridColumn width="5" headerText="QC" headerStyleName="cy3">
+	            <mx:DataGridColumn width="18" headerText="#">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0" >
+	                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
+	                    	 </mx:Image> 
+	                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+		       	<mx:DataGridColumn headerText="Date"              width="15" dataField="@createDate"/>
+	            <mx:DataGridColumn headerText="Request Kind"      width="24" labelFunction="getRequestKind"/>
+		        <mx:DataGridColumn headerText="Requester"         width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+		       	<mx:DataGridColumn headerText="Hyb #"             width="10" dataField="@hybNumber"/>
+		       	<mx:DataGridColumn headerText="Cy3 Sample"        width="25" dataField="@nameSample1"  />
+	            <mx:DataGridColumn width="7" headerText="QC" >
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
-	                          <mx:Image id="qcImage"      activate="callLater(show)" source="@Embed('../assets/tick.png')">
-		                         <mx:Script>
-		                    	 <![CDATA[
-		                    		private function show():void {
-		                    			if (data != null && data.@qualDateSample1 != "") {
-											visible = true;                    				
-		                    			} else {
-			                    			visible = false;
-		                    			}
-		                    		}	
-		                    		private function hide():void {
-		                    			visible = false;
-		                    		}
-
-		                    	 ]]>
-		                    	 </mx:Script>
+	                          <mx:Image source="{data.@qualDateSample1 != '' ? '../assets/tick.png' : ''}">
 	                    	 </mx:Image> 
 	                        </mx:HBox>
 	                    </mx:Component>
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
-	            <mx:DataGridColumn width="5" headerText="Labeling" headerStyleName="cy3">
+	            <mx:DataGridColumn width="7" headerText="Label">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
-	                          <mx:Image id="qcImage"  visible="false" creationComplete="callLater(show)" source="@Embed('../assets/tick.png')">
-		                         <mx:Script>
-		                    	 <![CDATA[
-		                    		private function show():void {
-		                    			if (data != null && data.@LabelingDateSample1 != "") {
-											visible = true;                    				
-		                    			} else {
-			                    			visible = false;
-		                    			}
-		                    		}
-		                    		private function hide():void {
-		                    			visible = false;
-		                    		}
-		                    	 ]]>
-		                    	 </mx:Script>
+	                          <mx:Image source="{data.@labelingDateSample1 != '' ? '../assets/tick.png' : ''}">
 	                    	 </mx:Image> 
 	                        </mx:HBox>
 	                    </mx:Component>
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
 		       	
-		       	<mx:DataGridColumn headerText="Cy5 Sample"        width="10" dataField="@nameSample2" headerStyleName="cy5"/>
-		       	<mx:DataGridColumn headerText="QC"                width="10" dataField="@qualDateSample2" headerStyleName="cy5"/>
-		       	<mx:DataGridColumn headerText="Labeling"          width="10" dataField="@labelingDateSample2" headerStyleName="cy5"/>
-		       	<mx:DataGridColumn headerText="Hyb"               width="10" dataField="@hybDate" />
-		       	<mx:DataGridColumn headerText="Extraction"        width="10" dataField="@extractionDate" />
+		       	<mx:DataGridColumn headerText="Cy5 Sample"        width="25" dataField="@nameSample2" />
+	            <mx:DataGridColumn width="7" headerText="QC" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@qualDateSample2 != '' ? '../assets/tick.png' : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Label" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@labelingDateSample2 != '' ? '../assets/tick.png' : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Hyb">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@hybDate != '' ? '../assets/tick.png' : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Extract" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@extractionDate != '' ? '../assets/tick.png' : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
 	         </views:columns>
 	       </views:DataGridAlternatingGroup>
 	

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
+
+
+   <mx:Style source="../css/gnomex_flex.css" />
+
+
+   <mx:HTTPService  
+    id="saveVisibility" 
+    url="http://localhost/gnomex/SaveVisibility.gx"
+    destination="saveVisibility"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveVisibility(event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+
+ <mx:Script>
+ <![CDATA[
+ 	import mx.collections.XMLListCollection;
+ 
+ 	import mx.rpc.events.ResultEvent;
+
+ 	private function getRequestKind(item:Object, col:int):String {
+		var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	if (de.length() == 1) {
+	    	return de[0].@display;
+    	} else {
+    		return "";
+    	}
+	}
+	
+	private function save():void {
+	    var dirtyRequests:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Request.(@isDirty == 'Y');        	
+    	var dirtyRequestList:XMLListCollection = new XMLListCollection(dirtyRequests);
+    	
+    	var params:Object = new Object();
+    	params.idProject = parentDocument.parentDocument.browseTree.selectedItem.@idProject;
+    	params.codeVisibility = projectVisibilityCombo.selectedItem.@codeVisibility;
+    	params.visibilityXMLString = dirtyRequestList.toXMLString();
+    	saveVisibility.send(params);
+
+	}
+	
+	private function onSaveVisibility(event:ResultEvent):void {
+		parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility = projectVisibilityCombo.selectedItem.@value;
+	}
+	
+	                
+    private function onEdit(event:Event):void {
+    	visibilityGrid.selectedItem.@isDirty = "Y";
+    }
+    
+    public function setVisibilityCombo():void {
+    	projectVisibilityCombo.selectedIndex = 0;
+        if (parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility != null) {
+            for(var i:Number = 0; i < projectVisibilityCombo.dataProvider.length; i++) {
+            	if(projectVisibilityCombo.dataProvider[i].@value == parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility) {
+                      projectVisibilityCombo.selectedIndex = i;
+                      break;
+                 }
+            }
+        	
+        }
+    }
+    
+    
+    
+    
+    
+ ]]>
+ </mx:Script>
+	
+	<mx:VBox  width="100%" height="100%"  borderStyle="outset" cornerRadius="4">
+	       <mx:HBox width="100%" paddingBottom="10">
+	              <mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')" fontFamily="Arial">
+	              </mx:Button>
+	       </mx:HBox>
+	       <mx:HBox width="100%" horizontalAlign="left">
+					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@projectName}"/>
+	                <mx:ComboBox id="projectVisibilityCombo" labelField="@display"  
+                     	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
+                     	  width="250" fontFamily="Arial"/>
+	       </mx:HBox>
+	       <mx:DataGrid  id="visibilityGrid" 
+	       	dataProvider="{parentDocument.parentDocument.browseTree.selectedItem..Request}" 
+	       	 width="100%" height="100%" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4" 
+	       	 fontFamily="Arial"
+	       	 itemEditEnd="onEdit(event)">
+	         <mx:columns>
+	            <mx:DataGridColumn width="28" headerText="#">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0" >
+	                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
+	                    	 </mx:Image> 
+	                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+		       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"/>
+		        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="parentDocument.getFullName"/>
+		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"/>
+		       	<mx:DataGridColumn headerText="Microarray" width="90" dataField="@slideProductName"/>
+				<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
+	                   editorDataField="value"
+	                   sortable="false" 
+	                   editable="true"
+	                   rendererIsEditor="true"  
+	                   itemRenderer="views.ComboBoxVisibility" />
+	         </mx:columns>
+	       </mx:DataGrid>
+	
+	     
+	</mx:VBox>
+	
+	
+
+
+
+</mx:Canvas>
+
+
