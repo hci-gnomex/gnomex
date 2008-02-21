@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
-
 	preinitialize="init()" 
 	 backgroundGradientColors="[#a8c1ce, #fbfcfd]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0">
 	
@@ -72,6 +71,13 @@
             	CursorManager.removeBusyCursor();
             	
             	
+            }
+            
+            private function onViewSelection():void {
+            	if (theViews.selectedIndex == 0) {
+            		navExperimentView.initializeExperiments();
+            	}
+            	theViews.visible = true;
             }
 
             
@@ -342,7 +348,8 @@
 			      </mx:HBox>
 		          <mx:ToggleButtonBar id="toggleButtonBar"
 	                dataProvider="{theViews}" width="100%" 
-                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="true" useHandCursor="true" verticalAlign="middle" toggleOnClick="true" itemClick="theViews.visible = true"/>
+                paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" buttonHeight="25" enabled="true" visible="true" 
+                useHandCursor="true" verticalAlign="middle" toggleOnClick="true" itemClick="onViewSelection()"/>
 		      	
 		      	
 		      </mx:VBox>
@@ -362,7 +369,7 @@
 
 
 	        
-	        <views:NavExperimentView width="100%" height="100%" icon="@Embed('assets/color_swatch.png')">
+	        <views:NavExperimentView id = "navExperimentView" width="100%" height="100%" icon="@Embed('assets/color_swatch.png')">
 	        </views:NavExperimentView>
 	        
 	        <views:NavAnalysisView label="Analysis" icon="@Embed('assets/map_edit.png')"/>

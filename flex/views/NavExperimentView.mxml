@@ -2,7 +2,8 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:RequestsView="RequestsView.*" 
 	label="Experiments" width="100%" height="100%" 
-	xmlns:views="views.*" cornerRadius="10" >
+	xmlns:views="views.*" 
+	cornerRadius="10" >
 
 
   <mx:HTTPService  
@@ -15,7 +16,7 @@
     method="POST"
     useProxy="false">
     <mx:request>
-            <idLab>{browseLabCombo.selectedItem.@idLab}</idLab>
+            <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
             <showSamples>N</showSamples>
             <showCategory>N</showCategory>
     </mx:request>
@@ -67,6 +68,8 @@
         [Bindable]
         public var selectedExperiment:Object;
         
+        public var selectedIdLab:String;
+        public var selectedIdProject:String;
 
        private function initFilter():void {
        	parentApplication.filteredProjectList.filterFunction = filterProject;
@@ -111,6 +114,11 @@
         	setResultsCount();
         }
         private function onGetProjectRequestList(event:ResultEvent): void {  
+        	if (getProjectRequestList.lastResult.Lab.length() == 0) {
+        		browseTree.visible = false;
+        	} else {
+        		browseTree.visible = true;
+        	}
         	expandAllBrowseNodes();      	
         }
         
@@ -133,13 +141,29 @@
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
 				getRequest.send(parms);
+				selectedIdLab = null;
+				selectedIdProject = null;
 				
 			} else {
+				selectedIdLab = browseTree.selectedItem.@idLab.toString();
+				
+				if (browseTree.selectedItem.name() == 'Project') {
+					selectedIdProject = browseTree.selectedItem.@idProject.toString();
+				} else {
+					selectedIdProject = null;
+				}
+				
 				theViews.selectedIndex=0;
-				browseView.expandAllNodes();
 				browseView.setResultsCount();
+				browseView.refreshDownloadList();
+				browseView.refreshTrackList();
 			}
+			theViews.visible = true;
+			
+			
 		}
+		
+
 		
 		private function onGetRequest(event:ResultEvent):void {
 			selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
@@ -160,6 +184,23 @@
 				}
 		}
 		
+		public function initializeExperiments():void {
+			var canAccessAnyObject:Object = parentApplication.createSecurityAdvisor.lastResult..Permission.(@name == 'canAccessAnyObject');
+			if (canAccessAnyObject.length() > 0) {
+				browseLabCombo.height = 20;
+				browseLabCombo.visible = true;
+				
+			} else {
+				browseLabCombo.visible = false;
+				if (navViews.selectedIndex == 0) {
+					if (getProjectRequestList.lastResult == null) {
+						getProjectRequestList.send();
+					}
+				}
+				
+			}
+		}
+		
        ]]>
     </mx:Script>
     
@@ -167,34 +208,36 @@
     
 	<mx:HDividedBox height="100%" width="100%">
 	
-		<mx:Accordion width="220" height="100%" 
+		<mx:Accordion width="220" height="100%"  id="navViews"
 			 fillColors="[#fee789, #ffffff]"
-			headerHeight="25" backgroundAlpha=".3" fillAlphas="[1, .7]" focusEnabled="true" borderStyle="outset">
+			headerHeight="25" backgroundAlpha=".3" fillAlphas="[1, .7]" focusEnabled="true" borderStyle="outset"  >
+			
 			<mx:Canvas label="Experiments" width="100%" height="100%">
-						<mx:VBox width="100%" height="100%" paddingTop="8" paddingLeft="6">
-									<mx:VBox width="100%" verticalGap="0">
-										<mx:ComboBox id="browseLabCombo" 
-											labelField="@name"
-											dataProvider="{parentApplication.promptedLabList}"
-											 change="getProjectRequestList.send()"  width="205">
-										</mx:ComboBox>
-									</mx:VBox>
-									<mx:VBox id="treeContainer" width="100%" height="100%">
-									<mx:Tree width="100%" height="100%" 
-										dataProvider="{getProjectRequestList.lastResult}" 
-										showRoot="false" 
-										 labelFunction="getBrowseTreeLabel"
-										id="browseTree" click="onBrowseTree()" 
-										backgroundAlpha=".1" borderStyle="none"
-										iconFunction="getTreeIcon"></mx:Tree>
-										
-									</mx:VBox>
-						</mx:VBox>
-					</mx:Canvas>
-			<mx:Canvas label="Download Experiments" width="100%" height="100%" fontSize="9">
+				<mx:VBox width="100%" height="100%" paddingTop="6" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="2">
+						<mx:ComboBox id="browseLabCombo" 
+							labelField="@name"
+							dataProvider="{parentApplication.promptedLabList}"
+							 change="getProjectRequestList.send()"  
+							 width="205"
+							 height="0"
+							 visible="false">
+						</mx:ComboBox>
+					<mx:VBox id="treeContainer" width="100%" height="100%">
+					<mx:Tree width="100%" height="100%" 
+						dataProvider="{getProjectRequestList.lastResult}" 
+						showRoot="false" 
+						labelFunction="getBrowseTreeLabel"
+						id="browseTree" click="onBrowseTree()" 
+						borderStyle="none"
+						iconFunction="getTreeIcon"></mx:Tree>
+						
+					</mx:VBox>
+				</mx:VBox>
+			</mx:Canvas> 
+			<mx:Canvas label="Track Requests" width="100%" height="100%" fontSize="9">
 						<mx:Form  paddingLeft="4" paddingTop="6" paddingRight="2" paddingBottom="2"  height="100%" verticalGap="3">
-							<mx:HBox width="100%" horizontalAlign="left" paddingRight="7" paddingTop="6" paddingBottom="14">
-								<mx:Button click="{getRequestDownloadList.send()};theViews.selectedIndex=3" fontSize="10" icon="@Embed('../assets/find.png')" toolTip="Get download list"/>
+							<mx:HBox width="100%" horizontalAlign="left" paddingBottom="4">
+								<mx:Button click="{getRequestDownloadList.send()};theViews.visible=true;theViews.selectedIndex=2" icon="@Embed('../assets/folder_go.png')" toolTip="List downloads" label="List downloads" fontFamily="Arial"/>
 							</mx:HBox>
 							<mx:VBox width="100%" verticalGap="0">
 								<mx:Label text="Group">
@@ -241,7 +284,7 @@
 								<mx:Label text="-" textAlign="center"/>
 								<mx:DateField id="requestDateTo" yearNavigationEnabled="true" editable="true" fontSize="9"/>
 							</mx:HBox>
-							<mx:VBox width="100%" horizontalGap="1" verticalGap="0">
+							<mx:VBox width="100%" horizontalGap="1" verticalGap="0" paddingTop="3">
 								<mx:CheckBox label="Last Week" id="requestDateLastWeekCheckBox">
 									<mx:click>
 									{if (requestDateLastWeekCheckBox.selected == true) {
@@ -281,8 +324,6 @@
 			
 			<mx:Canvas label="Submit Request" width="100%" height="100%">
 			</mx:Canvas>
-			<mx:Canvas label="Track Requests" width="100%" height="100%">
-			</mx:Canvas>
 			<mx:Canvas label="Set Visibility" width="100%" height="100%">
 			</mx:Canvas>
 		</mx:Accordion>
@@ -290,7 +331,7 @@
 
 		
        <mx:Canvas height="100%" dropShadowEnabled="true" dropShadowColor="#C0C0C0" width="100%">
-	     <mx:ViewStack id="theViews" creationPolicy="all" width="100%" height="100%">
+	     <mx:ViewStack id="theViews" creationPolicy="all" visible="false" width="100%" height="100%">
 
 	        <views:ExperimentBrowseView id="browseView" width="100%" height="100%">
 	        </views:ExperimentBrowseView>
@@ -298,8 +339,8 @@
 	        <views:ExperimentDetailView id="detailView" width="100%" height="100%">
 	        </views:ExperimentDetailView>
 
-	        <views:DownloadView id="downloadView" width="100%" height="100%">
-	        </views:DownloadView>
+	        <views:ExperimentDownloadView id="downloadView" width="100%" height="100%">
+	        </views:ExperimentDownloadView>
 	        
 	        <views:SubmitRequestView id="SubmitRequestView" width="100%" height="100%">	
 	        </views:SubmitRequestView>
