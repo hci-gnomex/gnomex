@@ -16,11 +16,8 @@
   
  <mx:Script>
  	<![CDATA[
- 		import mx.controls.Alert;
- 	
  	import mx.rpc.events.ResultEvent;
 
-	
  	[Bindable]
     private var rowCountMessage:String = new String();
     
@@ -32,12 +29,12 @@
     public function setResultsCount():void {
     	rowCountMessage = parentDocument.browseTree.selectedItem..Request.length() + " experiments.";
     }
-    
-    private function getFullName(item:Object, col:int):String {
+        
+    public function getFullName(item:Object, col:int):String {
     	return item.@ownerLastName + ", " + item.@ownerFirstName;
     }
 
-    private function getRequestKind(item:Object, col:int):String {
+    public function getRequestKind(item:Object, col:int):String {
     	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
     	if (de.length() == 1) {
 	    	return de[0].@display;
@@ -45,7 +42,7 @@
     		return "";
     	}
     }
-    private function getExperimentKind(item:Object, col:int):String {
+    public function getExperimentKind(item:Object, col:int):String {
     	if (item.@codeMicroarrayCategory == "") {
     		return getRequestKind(item, col);
     	} else {
@@ -55,7 +52,6 @@
 	    	} else {
 	    		return getRequestKind(item, col);
 	    	}
-    		
     	}
     }
     
@@ -69,7 +65,8 @@
 				params.idProject = parentDocument.selectedIdProject;
 			}
 			downloadView.getRequestDownloadList.send(params);
-			
+			theDetailViews.visible = false;
+			theDetailViews.height = 0;
 		}
 	}
 	
@@ -87,8 +84,18 @@
 				trackView.progressList.refresh();
 			}
 			trackView.getRequestProgressList.send(params);
+			theDetailViews.visible = false;
+			theDetailViews.height = 0;
 			
 		}		
+	}
+	
+	public function refreshVisibilityList():void {
+		if (theViews.selectedIndex == 3) {
+			visibilityView.setVisibilityCombo();
+			theDetailViews.visible = false;
+			theDetailViews.height = 0;
+		}
 	}
     
     private function getGridRowNumber(item:Object,col:int):String
@@ -96,7 +103,6 @@
        var x:int = browseList.getItemIndex(item) + 1;
        return String(x);
     } 
-    
   	
   	private function onExperimentRowSelected():void {
 		selectedIdRequest = experimentList.selectedItem.@idRequest;
@@ -106,37 +112,18 @@
 		getRequest.send(parms);
   	}
 
-  	private function onExperimentNodeSelected():void {
-
-  	}
-  	
   	private function onGetRequest(event:ResultEvent):void {
 		selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
 	    theDetailViews.visible = true;
 	    theDetailViews.selectedIndex = 1;
 	    theDetailViews.percentHeight = 100;
 	    detailView.validateNow();
-	    
-	    
 	}
-   public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Lab") {
-					return parentApplication.iconGroup;
-				} else if (item.name() == "Project") {
-					return parentApplication.iconProject;
-				} else if (item.name() == "RequestCategory") {
-					return parentApplication.iconCategory;
-				} else if (item.name() == "Request" &&
-				           item.@codeRequestCategory == "QC") {
-					return parentApplication.iconQC;
-				}else {
-					return parentApplication.iconExperiment;
-				}	
-	}   
-	
+
 	private function onViewSwitch():void {
 		this.refreshDownloadList();
 		this.refreshTrackList();
+		this.refreshVisibilityList();
 	}
 
  	]]>
@@ -145,18 +132,21 @@
     <mx:XMLListCollection id="browseList" source="{parentDocument.getProjectRequestList.lastResult..Request}"/>
  
      <mx:VDividedBox width="100%" height="100%" verticalGap="30" dividerColor="#004080" borderStyle="none">
-		<mx:VBox width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
+		<mx:VBox width="100%" height="100%" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2">
 		
-		    <mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
-				<mx:HBox  verticalAlign="middle">
-			        <mx:ToggleButtonBar dataProvider="{theViews}" fontFamily="Arial" itemClick="onViewSwitch()">
-			        </mx:ToggleButtonBar>
-			        <mx:Spacer width="100"/>
-			    </mx:HBox>
-		
-				<mx:HBox horizontalAlign="right" width="100%">
-				  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}" textAlign="right"/>
+		    <mx:HBox width="100%" verticalAlign="middle" horizontalGap="2" paddingBottom="10" backgroundAlpha=".2">
+		        <mx:HBox width="100%" backgroundColor="#cbc9b6" paddingLeft="4" paddingRight="4" paddingTop="2" paddingBottom="2" borderStyle="outset" themeColor="#ffffff">
+					<mx:HBox  verticalAlign="middle">
+				        <mx:ToggleButtonBar dataProvider="{theViews}" fontFamily="Arial" itemClick="onViewSwitch()">
+				        </mx:ToggleButtonBar>
+				        <mx:Spacer width="100"/>
+				    </mx:HBox>
+			
+					<mx:HBox horizontalAlign="right" width="100%">
+					  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}" textAlign="right"/>
 				</mx:HBox>
+		        	
+		        </mx:HBox>
 			    	
 		    </mx:HBox>
 				
@@ -175,27 +165,42 @@
 			            	editable="true"                        	
 			            	dataField="@isSelected" 
 			            	editorDataField="selected" 
-			            	itemRenderer="views.CheckBoxIsSelected">
-			            </mx:DataGridColumn>
-				       	<mx:DataGridColumn headerText="Group" width="40" dataField="@labName"/>
+			            	itemRenderer="views.CheckBoxIsSelected"/>
+			            <mx:DataGridColumn width="28" headerText="#">
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                        <mx:HBox  horizontalGap="0" >
+			                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
+			                    	 </mx:Image> 
+			                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
+			                           </mx:Label>
+			                        </mx:HBox>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> 
+				       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"/>
 				        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="getFullName"/>
 				       	<mx:DataGridColumn headerText="Project" width="40" dataField="@projectName"/>
 				       	<mx:DataGridColumn headerText="Experiment Kind" width="40" labelFunction="getExperimentKind"/>
-				       	<mx:DataGridColumn headerText="#" width="30" dataField="@requestNumber"/>
-				       	<mx:DataGridColumn headerText="Date" width="42" dataField="@requestCreateDateDisplay"/>
 				       	<mx:DataGridColumn headerText="Microarray" width="100" dataField="@slideProductName"/>
 			         </mx:columns>
 			       </mx:DataGrid> 	       	
 		       </mx:VBox>
 		       
 	
-				<views:ExperimentDownloadView id="downloadView" label="Downloads" icon="@Embed('../assets/folder_go.png')" >
+				<views:ExperimentDownloadView id="downloadView" label="Download List" icon="@Embed('../assets/folder_go.png')" >
 				</views:ExperimentDownloadView>
 				
 	 			<views:ExperimentTrackView id="trackView" label="Track" icon="@Embed('../assets/application_go.png')" >
 				</views:ExperimentTrackView>
 				
-		     	
+	 			<views:ExperimentVisibilityView id="visibilityView" label="Visibility" icon="@Embed('../assets/lock.png')" >
+				</views:ExperimentVisibilityView>
+				
+		        <mx:Canvas id="projectDetailView" icon="@Embed('../assets/folder.png')" label="Project detail" width="100%" height="100%">
+	        	</mx:Canvas>
+	        
+
 
 		     	
 		     </mx:ViewStack>
