@@ -132,7 +132,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         
         String requestNumber = (String)row[1];
         if (!requestNumber.equals(prevRequestNumber)) {
-          alt = !alt;
+          alt = !alt;         
         }
         
 
@@ -141,6 +141,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("key", key);
         n.setAttribute("isSelected", "N");
         n.setAttribute("altColor", new Boolean(alt).toString());
+        n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");
         n.setAttribute("idRequest", row[21].toString());
         n.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
         n.setAttribute("requestNumber", (String)row[1]);

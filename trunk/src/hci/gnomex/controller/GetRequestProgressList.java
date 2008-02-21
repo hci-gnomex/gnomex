@@ -99,6 +99,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
         n.setAttribute("key", key);
         n.setAttribute("isSelected", "N");
         n.setAttribute("altColor", new Boolean(alt).toString());
+        n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");        
         n.setAttribute("idRequest", row[19].toString());
         n.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
         n.setAttribute("requestNumber", (String)row[1]);
