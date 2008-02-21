@@ -245,6 +245,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("codeVisibility",         row[21] == null ? "" : (String)row[21]);
     requestNode.setAttribute("ownerFirstName",         row[24] == null ? "" : (String)row[24]);
     requestNode.setAttribute("ownerLastName",          row[25] == null ? "" : (String)row[25]);
+    requestNode.setAttribute("isDirty",                "N");
+    requestNode.setAttribute("isSelected",             "N");
     
     if (requestNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       requestNode.setAttribute("requestPublicNote",          "(Public) ");
