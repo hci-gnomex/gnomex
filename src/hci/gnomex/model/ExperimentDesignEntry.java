@@ -59,5 +59,13 @@ public class ExperimentDesignEntry extends HibernateDetailObject {
   public void setOtherLabel(String otherLabel) {
     this.otherLabel = otherLabel;
   }
+  
+  public String getIsSelected() {
+    if (value != null && value.equals("Y")) {
+      return "true";
+    } else {
+      return "false";
+    }
+  }
     
 }
