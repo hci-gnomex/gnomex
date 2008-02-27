@@ -33,6 +33,18 @@
     useProxy="false">
   </mx:HTTPService>
 
+   
+   <mx:HTTPService  
+    id="getProject" 
+    url="http://localhost/gnomex/GetProject.gx"
+    destination="getProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetProject(event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
  
 	   <mx:Script> 
         <![CDATA[
@@ -44,6 +56,9 @@
         
         [Bindable]
         public var selectedExperiment:Object;
+        
+        [Bindable]
+        public var selectedProject:Object;
         
         public var selectedIdLab:String;
         public var selectedIdProject:String;
@@ -91,6 +106,7 @@
   		}
 
 		private function onBrowseTree():void {
+			
 			if (browseTree.selectedItem.name() == 'Request') {
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
@@ -99,11 +115,14 @@
 				selectedIdLab = null;
 				selectedIdProject = null;
 				
-			} else {
+			} else {												
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
+					var parms1:Object = new Object;
+					parms1.idProject = selectedIdProject;
+					getProject.send(parms1);
 				} else {
 					selectedIdProject = null;
 				}
@@ -125,6 +144,11 @@
 			selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
 		    theViews.selectedIndex = 1;
 		}
+		
+		private function onGetProject(event:ResultEvent):void {
+			selectedProject = getProject.lastResult.Project.(@idProject == selectedIdProject);
+		}
+
 		public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Lab") {
 					return parentApplication.iconGroup;
@@ -149,9 +173,9 @@
 			} else {
 				browseLabCombo.visible = false;
 				
-					if (getProjectRequestList.lastResult == null) {
-						getProjectRequestList.send();
-					}
+				if (getProjectRequestList.lastResult == null) {
+					getProjectRequestList.send();
+				}
 				
 			}
 		}
@@ -182,7 +206,7 @@
 						labelFunction="getBrowseTreeLabel"
 						id="browseTree" click="onBrowseTree()" 
 						borderStyle="none"
-						iconFunction="getTreeIcon"></mx:Tree>
+						iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE"></mx:Tree>
 					<mx:HBox width="100%">
 						<mx:Button icon="@Embed('../assets/folder_add.png')" fontFamily="Arial"  label="New project"/>
 						<mx:Button icon="@Embed('../assets/folder_delete.png')" fontFamily="Arial" label="Delete project"/> 

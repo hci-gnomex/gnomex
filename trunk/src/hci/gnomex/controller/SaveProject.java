@@ -45,6 +45,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
   
   private Project    project;
   private boolean   isNewProject = false;
+  private String     parseEntries = "N";
   
   
   public void validate() {
@@ -55,6 +56,10 @@ public class SaveProject extends GNomExCommand implements Serializable {
     
     if (request.getParameter("projectXMLString") != null && !request.getParameter("projectXMLString").equals("")) {
       projectXMLString = request.getParameter("projectXMLString");
+    }
+    
+    if (request.getParameter("parseEntries") != null && !request.getParameter("parseEntries").equals("")) {
+      parseEntries = request.getParameter("parseEntries");
     }
     
     StringReader reader = new StringReader(projectXMLString);
@@ -77,9 +82,22 @@ public class SaveProject extends GNomExCommand implements Serializable {
       initializeProject(projectNode, sess);      
       
       if (this.getSecAdvisor().canUpdate(project)) {
-        initializeExperimentFactors(projectNode.getChild("ExperimentFactor"),  sess);
-        initializeExperimentDesigns(projectNode.getChild("ExperimentDesign"),  sess);
-        initializeExperimentQuality(projectNode.getChild("ExperimentQuality"), sess);
+
+        sess.save(project);
+        sess.flush();
+
+        
+        if (parseEntries.equals("Y")) {
+          initializeExperimentFactorEntries(projectNode.getChild("ExperimentFactorEntries"),  sess);
+          initializeExperimentDesignEntries(projectNode.getChild("ExperimentDesignEntries"),  sess);
+          
+        }
+        else {
+          initializeExperimentFactors(projectNode.getChild("ExperimentFactor"),  sess);
+          initializeExperimentDesigns(projectNode.getChild("ExperimentDesign"),  sess);
+          initializeExperimentQuality(projectNode.getChild("ExperimentQuality"), sess);
+          
+        }
         
         sess.flush();
 
@@ -136,10 +154,6 @@ public class SaveProject extends GNomExCommand implements Serializable {
     project.setIdLab(new Integer(n.getAttributeValue("idLab")));
     
     
-    sess.save(project);
-    
-    
-    sess.flush();
   }
   
   
@@ -299,6 +313,76 @@ public class SaveProject extends GNomExCommand implements Serializable {
     
     sess.flush();
   }
+   
+   private void initializeExperimentFactorEntries(Element n, Session sess) throws Exception {
+     // Delete the existing experiment factor entries
+     if (!isNewProject) {
+       for(Iterator i = project.getExperimentFactorEntries().iterator(); i.hasNext();) {
+         ExperimentFactorEntry entry = (ExperimentFactorEntry)i.next();
+         sess.delete(entry);
+       }
+     }
+     
+
+     // Add experiment factor entry for each one marked as 'isSelected'.
+     for(Iterator i = n.getChildren().iterator(); i.hasNext();) {
+       
+       Element node = (Element)i.next();
+       
+       String code = node.getAttributeValue("codeExperimentFactor");
+       String isSelected = node.getAttributeValue("isSelected");
+       String otherLabel = node.getAttributeValue("otherLabel");
+       
+       if (isSelected.equals("true")) {
+         ExperimentFactorEntry entry = new ExperimentFactorEntry();
+         entry.setIdProject(project.getIdProject());
+         entry.setCodeExperimentFactor(code);
+         entry.setValue("Y");
+         if (otherLabel != null && !otherLabel.equals("")) {
+           entry.setOtherLabel(otherLabel);             
+         }
+         
+         sess.save(entry);         
+       }       
+     }
+     
+     sess.flush();
+   }
+
+   private void initializeExperimentDesignEntries(Element n, Session sess) throws Exception {
+     // Delete the existing experiment design entries
+     if (!isNewProject) {
+       for(Iterator i = project.getExperimentDesignEntries().iterator(); i.hasNext();) {
+         ExperimentDesignEntry entry = (ExperimentDesignEntry)i.next();
+         sess.delete(entry);
+       }
+     }
+     
+
+     // Add experiment design entry for each one marked as 'isSelected'.
+     for(Iterator i = n.getChildren().iterator(); i.hasNext();) {
+       
+       Element node = (Element)i.next();
+       
+       String code = node.getAttributeValue("codeExperimentDesign");
+       String isSelected = node.getAttributeValue("isSelected");
+       String otherLabel = node.getAttributeValue("otherLabel");
+       
+       if (isSelected.equals("true")) {
+         ExperimentDesignEntry entry = new ExperimentDesignEntry();
+         entry.setIdProject(project.getIdProject());
+         entry.setCodeExperimentDesign(code);
+         entry.setValue("Y");
+         if (otherLabel != null && !otherLabel.equals("")) {
+           entry.setOtherLabel(otherLabel);             
+         }
+         
+         sess.save(entry);         
+       }       
+     }
+     
+     sess.flush();
+   }
 
 
 

@@ -24,6 +24,10 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 
+import hci.gnomex.model.ExperimentDesign;
+import hci.gnomex.model.ExperimentDesignEntry;
+import hci.gnomex.model.ExperimentFactor;
+import hci.gnomex.model.ExperimentFactorEntry;
 import hci.gnomex.model.Project;
 
 
@@ -54,13 +58,71 @@ public class GetProject extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
       Project project = (Project)sess.get(Project.class, idProject);
+      
+      StringBuffer queryBuf = new StringBuffer();
+      queryBuf.append("SELECT ed from ExperimentDesign as ed ");
+      List experimentDesigns = sess.createQuery(queryBuf.toString()).list();
+
+      queryBuf = new StringBuffer();
+      queryBuf.append("SELECT ef from ExperimentFactor as ef ");
+      List experimentFactors = sess.createQuery(queryBuf.toString()).list();
+
+      
       if (this.getSecAdvisor().canRead(project)) {
       
         this.getSecAdvisor().flagPermissions(project);
 
       
         Document doc = new Document(new Element("OpenProjectList"));
-        doc.getRootElement().addContent(project.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+        Element projectNode = project.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        doc.getRootElement().addContent(projectNode);
+
+        // Show list of experiment design entries
+        Element edParentNode = new Element("ExperimentDesignEntries");
+        projectNode.addContent(edParentNode);
+        for(Iterator i = experimentDesigns.iterator(); i.hasNext();) {
+          ExperimentDesign ed = (ExperimentDesign)i.next();
+
+          Element edNode = new Element("ExperimentDesignEntry");
+          ExperimentDesignEntry entry = null;
+          for(Iterator i1 = project.getExperimentDesignEntries().iterator(); i1.hasNext();) {
+            ExperimentDesignEntry edEntry = (ExperimentDesignEntry)i1.next();
+            if (edEntry.getCodeExperimentDesign().equals(ed.getCodeExperimentDesign())) {
+              entry = edEntry;
+              break;
+            }
+          }
+          edNode.setAttribute("codeExperimentDesign", ed.getCodeExperimentDesign());
+          edNode.setAttribute("experimentDesign", ed.getExperimentDesign());
+          edNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
+          edNode.setAttribute("isSelected", entry != null ? "true" : "false");
+                  
+          edParentNode.addContent(edNode);
+        }
+        
+        // Show list of experiment Factor entries
+        Element efParentNode = new Element("ExperimentFactorEntries");
+        projectNode.addContent(efParentNode);
+        for(Iterator i = experimentFactors.iterator(); i.hasNext();) {
+          ExperimentFactor ef = (ExperimentFactor)i.next();
+
+          Element efNode = new Element("ExperimentFactorEntry");
+          ExperimentFactorEntry entry = null;
+          for(Iterator i1 = project.getExperimentFactorEntries().iterator(); i1.hasNext();) {
+            ExperimentFactorEntry efEntry = (ExperimentFactorEntry)i1.next();
+            if (efEntry.getCodeExperimentFactor().equals(ef.getCodeExperimentFactor())) {
+              entry = efEntry;
+              break;
+            }
+          }
+          efNode.setAttribute("codeExperimentFactor", ef.getCodeExperimentFactor());
+          efNode.setAttribute("experimentFactor", ef.getExperimentFactor());
+          efNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
+          efNode.setAttribute("isSelected", entry != null ? "true" : "false");
+                  
+          efParentNode.addContent(efNode);
+        }
+
       
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
