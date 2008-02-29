@@ -33,8 +33,24 @@
     fontWeight: bold;
 }
 
-.header {
-	    fontWeight: normal;
+
+
+
+
+.form {
+	  backgroundColor: #e3ecf4;
+}
+
+ Button {
+        fillAlphas: 1, 1;
+        fontWeight: normal;
+}
+
+TabNavigator {
+        backgroundColor: #2e63a5;
+	    backgroundAlpha:            .2;
+	    tabStyleName:      tabHeader;
+		selectedTabTextStyleName: tabHeaderTextSelected;
 }
 
 .tabHeader {
@@ -48,21 +64,28 @@
 	    fontWeight:  normal;
 }
 
-.tabBody {
-        backgroundColor: #2e63a5;
-	    backgroundAlpha:            .2;
+ApplicationControlBar {
+	fillColors: #548db8, #97b8d2; 
 }
-.linkBar {
+
+LinkBar {
 	    fontWeight: normal;
 	    disabledColor: #FFFFFF; 
 	    rollOverColor: #FFFFFF; 
 	    selectionColor: #FFFFFF;
+	    useHandCursor: true;
 }
 
-.applicationBar {
-	fillColors: #548db8, #97b8d2; 
+Accordion {
+	fillColors:  #fee789, #ffffff;
+	backgroundAlpha: .3;
+	fillAlphas: 1, .7;
+	headerHeight: 25
 }
 
-.form {
-	fillColors: #548db8, #97b8d2; 
+DataGrid {
+	headerStyleName: header;
+}
+.header {
+	    fontWeight: normal;
 }
