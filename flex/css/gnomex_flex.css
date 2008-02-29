@@ -34,5 +34,35 @@
 }
 
 .header {
-	    fontWeight: bold;
+	    fontWeight: normal;
+}
+
+.tabHeader {
+	fillColors: #FFFFFF, #FFFFFF; 
+	fillAlphas:  .2, .2;
+ 	    fontWeight: 		normal;		    
+	    backgroundAlpha:            .2;
+}
+
+.tabHeaderTextSelected {
+	    fontWeight:  normal;
+}
+
+.tabBody {
+        backgroundColor: #2e63a5;
+	    backgroundAlpha:            .2;
+}
+.linkBar {
+	    fontWeight: normal;
+	    disabledColor: #FFFFFF; 
+	    rollOverColor: #FFFFFF; 
+	    selectionColor: #FFFFFF;
+}
+
+.applicationBar {
+	fillColors: #548db8, #97b8d2; 
+}
+
+.form {
+	fillColors: #548db8, #97b8d2; 
 }

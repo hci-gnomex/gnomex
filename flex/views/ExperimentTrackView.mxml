@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
 
+   <mx:Style source="../css/gnomex_flex.css" />
+
    <mx:HTTPService  
     id="getRequestProgressList" 
     url="http://localhost/gnomex/GetRequestProgressList.gx"
@@ -12,8 +14,7 @@
     useProxy="false">
   </mx:HTTPService>
 
-     <mx:Style source="../css/gnomex_flex.css" />
-
+    
  <mx:Script>
  <![CDATA[
  	import mx.formatters.DateFormatter;

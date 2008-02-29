@@ -73,7 +73,7 @@
 			}
 		}
 		
-		private function save():void {
+		public function save():void {
 			parentDocument.parentDocument.selectedProject.@name = projectName.text;
 			parentDocument.parentDocument.selectedProject.@description = projectDescription.text;
 			
@@ -119,107 +119,104 @@
 	  unique="true"/>
  
 
-   <mx:VBox width="100%" height="100%">
-       <mx:HBox width="100%" paddingBottom="10">
-              <mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')" fontFamily="Arial">
-              </mx:Button>
-       </mx:HBox> 
+	<mx:HDividedBox width="100%" height="100%" horizontalAlign="left" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		<mx:VBox width="40%" height="100%" verticalGap="10"  >
+		    <mx:VBox width="100%" verticalGap="0">
+				<mx:Label text="Project name:"/>
+				<mx:TextInput id="projectName" width="100%"  
+					text="{parentDocument.parentDocument.selectedProject.@name}">
+					<mx:toolTip>(Suggested naming convention: Lab-Species-Experiment title)</mx:toolTip>
+				</mx:TextInput>			    	
+		    </mx:VBox>
+			
+			<mx:VBox width="100%" verticalGap="0" height="100%">
+				<mx:Label text="Project description:"/>
+				<mx:TextArea height="100%" id="projectDescription" width="100%" 
+					text="{parentDocument.parentDocument.selectedProject.@description}"/>			    	
+		    </mx:VBox>
+		    
+		    <mx:VBox width="100%" verticalGap="0">
+				<mx:Label text="Visibility to experiment and data:"/>
+				<mx:RadioButton id="isVisibleToMembers" label="Visible to members" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToMembers == 'Y'}"/>
+				<mx:RadioButton id="isVisibleToMembersAndCollaborators" label="Visible to members and collaborators" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToMembersAndCollaborators == 'Y'}"/>
+				<mx:RadioButton id="isVisibleToPublic" label="Visible to everyone (available to public)" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToPublic == 'Y'}"/>
+		    </mx:VBox>
+		</mx:VBox>
+
+	    <mx:DataGrid width="30%" height="100%" 
+	    	dataProvider="{experimentDesignEntries}" 
+	    	selectionColor="#FFFFFF" fontSize="9"
+ 			showHeaders="true" headerHeight="20" variableRowHeight="true">
+	        <mx:columns>
+	            <mx:DataGridColumn headerText=" " 
+	            	width="17" 
+	            	editable="true"                        	
+	            	dataField="@isSelected" 
+	            	editorDataField="selected"
+	            	itemRenderer="views.CheckBoxIsSelected" >
+	            </mx:DataGridColumn>
+	            <mx:DataGridColumn  
+	            	headerText="Experiment Design (general intent)"
+	            	editable="false" editorDataField="selected" 
+	            	dataField="@experimentDesign">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                         <mx:HBox>
+	                           <mx:Label text="{data.@experimentDesign}">			                           	
+	                           </mx:Label>
+	                           <mx:TextInput id="edOtherLabel" fontSize="9"
+	                           	text="{data.@otherLabel}"
+	                           	change="{data.@otherLabel = edOtherLabel.text}" 
+	                           	width="{data.@experimentDesign == 'Other' ? 130 : 0}"  
+	                           	height="{data.@experimentDesign == 'Other' ? 20 : 0}"  
+	                           	visible="{data.@experimentDesign == 'Other' ? true : false}" 
+	                           	editable="{data.@experimentDesign == 'Other' ? true : false}">			                           
+	                           </mx:TextInput>
+	                         	
+	                         </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+                </mx:DataGridColumn>
+            </mx:columns>
+	    </mx:DataGrid>
+
+	    <mx:DataGrid width="30%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" fontSize="9" showHeaders="true" headerHeight="20" variableRowHeight="true">
+	        <mx:columns>
+	            <mx:DataGridColumn headerText=" " 
+	            	width="17" 
+	            	editable="true"                        	
+	            	dataField="@isSelected" 
+	            	editorDataField="selected" 
+	            	itemRenderer="views.CheckBoxIsSelected">
+	            </mx:DataGridColumn>
+	            <mx:DataGridColumn  
+	            	headerText="Factors (differences between samples)" 
+	            	editable="false" editorDataField="selected" 
+	            	dataField="@experimentFactor">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                         <mx:HBox horizontalGap="1">
+	                           <mx:Label text="{data.@experimentFactor}">			                           	
+	                           </mx:Label>
+	                           <mx:TextInput id="efOtherLabel" fontSize="9"
+	                           	text="{data.@otherLabel}"
+	                           	change="{data.@otherLabel = efOtherLabel.text}" 
+	                           	width="{data.@experimentFactor == 'Other' ? 130 : 0}"  
+	                           	height="{data.@experimentFactor == 'Other' ? 20 : 0}"  
+	                           	visible="{data.@experimentFactor == 'Other' ? true : false}" 
+	                           	editable="{data.@experimentFactor == 'Other' ? true : false}">			                           
+	                           </mx:TextInput>
+	                         	
+	                         </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+                </mx:DataGridColumn>
+	        </mx:columns>
+	    </mx:DataGrid>
+
+
        
-		<mx:TabNavigator width="100%" height="100%"  backgroundAlpha=".2" paddingTop="4">
-			<mx:Canvas label="Project" width="100%" height="100%" >
-				<mx:VBox width="100%" height="100%" verticalGap="20"  paddingLeft="8" paddingRight="8"  paddingTop="8">
-				    <mx:VBox width="100%" verticalGap="0">
-						<mx:Label text="Project name:"/>
-						<mx:TextInput id="projectName" width="100%"  
-							text="{parentDocument.parentDocument.selectedProject.@name}"/>			    	
-						<mx:Label text="(Suggested naming convention: Lab-Species-Experiment title)"/>
-				    </mx:VBox>
-					
-					<mx:VBox width="100%" verticalGap="0">
-						<mx:Label text="Project description:"/>
-						<mx:TextArea height="60" id="projectDescription" width="100%" 
-							text="{parentDocument.parentDocument.selectedProject.@description}"/>			    	
-				    </mx:VBox>
-				    
-				    <mx:VBox width="100%" verticalGap="0">
-						<mx:Label text="Visibility to experiment and data:"/>
-						<mx:RadioButton id="isVisibleToMembers" label="Visible to members" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToMembers == 'Y'}"/>
-						<mx:RadioButton id="isVisibleToMembersAndCollaborators" label="Visible to members and collaborators" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToMembersAndCollaborators == 'Y'}"/>
-						<mx:RadioButton id="isVisibleToPublic" label="Visible to everyone (available to public)" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToPublic == 'Y'}"/>
-				    	
-				    </mx:VBox>
-					
-					
-				</mx:VBox>
-			</mx:Canvas>
-			<mx:Canvas label="Experiment Design" width="100%" height="100%">
-				<mx:HBox width="100%" height="100%" paddingTop="2" paddingRight="8" paddingLeft="8" paddingBottom="1">
-				    <mx:DataGrid width="50%" height="100%" 
-				    	dataProvider="{experimentDesignEntries}" 
-				    	selectionColor="#FFFFFF" fontSize="9"
-				    	 >
-				        <mx:columns>
-				            <mx:DataGridColumn headerText=" " 
-				            	width="10" 
-				            	editable="true"                        	
-				            	dataField="@isSelected" 
-				            	editorDataField="selected"
-				            	itemRenderer="views.CheckBoxIsSelected" >
-				            </mx:DataGridColumn>
-				            <mx:DataGridColumn  width="200" headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign">
-				                <mx:itemRenderer>
-				                    <mx:Component >
-				                         <mx:HBox>
-				                           <mx:Label text="{data.@experimentDesign}">			                           	
-				                           </mx:Label>
-				                           <mx:TextInput id="edOtherLabel" fontSize="9"
-				                           	text="{data.@otherLabel}"
-				                           	change="{data.@otherLabel = edOtherLabel.text}" 
-				                           	width="{data.@experimentDesign == 'Other' ? 170 : 0}"  
-				                           	visible="{data.@experimentDesign == 'Other' ? true : false}" 
-				                           	editable="{data.@experimentDesign == 'Other' ? true : false}">			                           
-				                           </mx:TextInput>
-				                         	
-				                         </mx:HBox>
-				                    </mx:Component>
-				                </mx:itemRenderer>
-			                </mx:DataGridColumn>
-			            </mx:columns>
-				    </mx:DataGrid>
-				    <mx:DataGrid width="50%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" fontSize="9">
-				        <mx:columns>
-				            <mx:DataGridColumn headerText=" " 
-				            	width="10" 
-				            	editable="true"                        	
-				            	dataField="@isSelected" 
-				            	editorDataField="selected" 
-				            	itemRenderer="views.CheckBoxIsSelected">
-				            </mx:DataGridColumn>
-				            <mx:DataGridColumn  width="200" headerText="Experimental Factors (differences between samples)" editable="false" editorDataField="selected" dataField="@experimentFactor">
-				                <mx:itemRenderer>
-				                    <mx:Component >
-				                         <mx:HBox>
-				                           <mx:Label text="{data.@experimentFactor}">			                           	
-				                           </mx:Label>
-				                           <mx:TextInput id="efOtherLabel" fontSize="9"
-				                           	text="{data.@otherLabel}"
-				                           	change="{data.@otherLabel = efOtherLabel.text}" 
-				                           	width="{data.@experimentFactor == 'Other' ? 170 : 0}"  
-				                           	visible="{data.@experimentFactor == 'Other' ? true : false}" 
-				                           	editable="{data.@experimentFactor == 'Other' ? true : false}">			                           
-				                           </mx:TextInput>
-				                         	
-				                         </mx:HBox>
-				                    </mx:Component>
-				                </mx:itemRenderer>
-			                </mx:DataGridColumn>
-				        </mx:columns>
-				    </mx:DataGrid>
-				</mx:HBox>
-			</mx:Canvas>
-		</mx:TabNavigator>
-       
-   </mx:VBox>
+   </mx:HDividedBox>
    
 
 	
