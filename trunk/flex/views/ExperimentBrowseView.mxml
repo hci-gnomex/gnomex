@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
 
-
+	<mx:Style source="../css/gnomex_flex.css" />
+	
    <mx:HTTPService  
     id="getRequest" 
     url="http://localhost/gnomex/GetRequest.gx"
@@ -65,8 +66,6 @@
 				params.idProject = parentDocument.selectedIdProject;
 			}
 			downloadView.getRequestDownloadList.send(params);
-			theDetailViews.visible = false;
-			theDetailViews.height = 0;
 		}
 	}
 	
@@ -84,8 +83,6 @@
 				trackView.progressList.refresh();
 			}
 			trackView.getRequestProgressList.send(params);
-			theDetailViews.visible = false;
-			theDetailViews.height = 0;
 			
 		}		
 	}
@@ -93,8 +90,6 @@
 	public function refreshVisibilityList():void {
 		if (theViews.selectedIndex == 3) {
 			visibilityView.setVisibilityCombo();
-			theDetailViews.visible = false;
-			theDetailViews.height = 0;
 		}
 	}
     
@@ -114,115 +109,174 @@
 
   	private function onGetRequest(event:ResultEvent):void {
 		selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
-	    theDetailViews.visible = true;
-	    theDetailViews.selectedIndex = 1;
-	    theDetailViews.percentHeight = 100;
-	    detailView.validateNow();
 	}
 
 	private function onViewSwitch():void {
 		this.refreshDownloadList();
 		this.refreshTrackList();
 		this.refreshVisibilityList();
+		
+		if (theViews.selectedChild == browseView ) {
+			if (browseView.selectedChild == projectDetailView) {
+				buttonStack.selectedChild = saveProjectButtonView;
+				buttonStack.visible = true;
+			} else {
+				buttonStack.visible = false;
+			}
+		} else if (theViews.selectedChild == visibilityView) {
+			buttonStack.selectedChild = saveVisibilityButtonView;
+			buttonStack.visible = true;		    
+		}else if (theViews.selectedChild == downloadView) {
+			if (downloadView.theTab.selectedIndex == 0) {
+				buttonStack.selectedChild = downloadFoldersButtonView;			
+			} else {
+				buttonStack.selectedChild = downloadFilesButtonView;
+			}
+			buttonStack.visible = true;
+		}else {
+			buttonStack.visible = false;
+		}
 	}
+	
+	private function onBrowseTabSwitch():void {
+		if (theViews.selectedChild == browseView ) {
+			if (browseView.selectedChild == projectDetailView) {
+				buttonStack.selectedChild = saveProjectButtonView;
+				buttonStack.visible = true;
+			} else {
+				buttonStack.visible = false;
+			}
+		} 
+	}
+	
+
 
  	]]>
  </mx:Script>
  
     <mx:XMLListCollection id="browseList" source="{parentDocument.getProjectRequestList.lastResult..Request}"/>
  
-     <mx:VDividedBox width="100%" height="100%" verticalGap="30" dividerColor="#004080" borderStyle="none">
 		<mx:VBox width="100%" height="100%" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2">
 		
 		    
-		        <mx:ApplicationControlBar fillColors="[#676767, #b9b9b9]" 
+		        <mx:ApplicationControlBar 
+	        	     styleName="applicationBar"
 		        	width="100%" 
-		        	id="linkBar" dock="true" fillAlphas="[1, 1]" paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+		        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
+		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
 		        
-					<mx:HBox  verticalAlign="middle" width="100%">
-				        <mx:LinkBar dataProvider="{theViews}" itemClick="onViewSwitch()" disabledColor="#FFFFFF" backgroundDisabledColor="#FFFF80">
+					<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left">
+				        <mx:LinkBar dataProvider="{theViews}" 
+				        	itemClick="onViewSwitch()" 
+				        	useHandCursor="true" styleName="linkBar"  >
 				        </mx:LinkBar>
-				        <mx:Spacer width="100"/>
-				         <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}" textAlign="right"/>
+				        
+				        <mx:VRule height="20"/>
+				        <mx:Label id="rowCountLabel"  text="{rowCountMessage}"/>
+		
+		                <mx:ViewStack width="100%" id="buttonStack">
+		                    <mx:HBox  horizontalAlign="right" width="100%" id="saveProjectButtonView">
+							    <mx:Button label="Save" 
+							    	icon="@Embed('../assets/action_save.gif')" 
+							    	fontFamily="Arial" 
+							    	click="projectDetailView.save()"  visible="true">
+					            </mx:Button>
+		                    </mx:HBox>
+		                	<mx:HBox  horizontalAlign="right" width="100%" id="saveVisibilityButtonView">
+							    <mx:Button label="Save" 
+							    	icon="@Embed('../assets/action_save.gif')" 
+							    	fontFamily="Arial" 
+							    	click="visibilityView.save()"  visible="true">
+					            </mx:Button>
+		                    </mx:HBox>
+		                    <mx:HBox horizontalAlign="right"  width="100%" id="downloadFoldersButtonView">
+							    <mx:Button id="downloadFoldersButton" 
+							    	click="downloadView.downloadFolders()" 
+							    	icon="@Embed('../assets/icon_download.gif')" 
+							    	toolTip="Download selected folders"
+							    	label="Download" 
+							    	fontFamily="Arial" visible="true"/>
+		                    </mx:HBox>		                    
+		                    <mx:HBox horizontalAlign="right"  width="100%" id="downloadFilesButtonView">
+							      <mx:Button id="downloadFilesButton" 
+							      	click="downloadView.downloadFiles()" 
+							      	icon="@Embed('../assets/icon_download.gif')" 
+							      	toolTip="Download selected files"
+							      	label="Download" 
+							      	fontFamily="Arial"/>
+		                    </mx:HBox>		                    
+		                    
+		                	
+		                </mx:ViewStack>
 				    </mx:HBox>
-			
-		        	
 		        </mx:ApplicationControlBar>
 			    	
 		    	
 				   
 		             
-		     <mx:ViewStack id="theViews" width="100%" height="100%">
-		       <mx:VBox  width="100%" height="100%" 
-		       	icon="@Embed('../assets/application_view_detail.png')" 
-		       	label="Browse" visible="false">
-			       <mx:DataGrid  id="experimentList" dataProvider="{parentDocument.browseTree.selectedItem..Request}"  
-			       	width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4" 
-			       	itemDoubleClick="onExperimentRowSelected()" doubleClickEnabled="true">
-			         <mx:columns>
-			            <mx:DataGridColumn headerText=" " 
-			            	width="10" 
-			            	editable="true"                        	
-			            	dataField="@isSelected" 
-			            	editorDataField="selected" 
-			            	itemRenderer="views.CheckBoxIsSelected"/>
-			            <mx:DataGridColumn width="28" headerText="#">
-			                <mx:itemRenderer>
-			                    <mx:Component >
-			                        <mx:HBox  horizontalGap="0" >
-			                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
-			                    	 </mx:Image> 
-			                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
-			                           </mx:Label>
-			                        </mx:HBox>
-			                    </mx:Component>
-			                </mx:itemRenderer>
-			            </mx:DataGridColumn> 
-				       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"/>
-				        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="getFullName"/>
-				       	<mx:DataGridColumn headerText="Project" width="40" dataField="@projectName"/>
-				       	<mx:DataGridColumn headerText="Experiment Kind" width="40" labelFunction="getExperimentKind"/>
-				       	<mx:DataGridColumn headerText="Microarray" width="100" dataField="@slideProductName"/>
-			         </mx:columns>
-			       </mx:DataGrid> 	       	
-		       </mx:VBox>
-		       
+		<mx:ViewStack id="theViews" width="100%" height="100%">
+		       <mx:TabNavigator id="browseView" width="100%" height="100%" 	icon="@Embed('../assets/application_view_detail.png')" 
+			       	label="Browse" visible="false" 
+			       	backgroundAlpha=".2" change="onBrowseTabSwitch()">
+			       <mx:VBox  width="100%" height="100%" label="Experiments">
+				       <mx:DataGrid  id="experimentList" dataProvider="{parentDocument.browseTree.selectedItem..Request}"  
+				       	width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4" 
+				       	itemDoubleClick="onExperimentRowSelected()" doubleClickEnabled="true">
+				         <mx:columns>
+				            <mx:DataGridColumn headerText=" " 
+				            	width="10" 
+				            	editable="true"                        	
+				            	dataField="@isSelected" 
+				            	editorDataField="selected" 
+				            	itemRenderer="views.CheckBoxIsSelected"/>
+				            <mx:DataGridColumn width="28" headerText="#">
+				                <mx:itemRenderer>
+				                    <mx:Component >
+				                        <mx:HBox  horizontalGap="0" >
+				                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
+				                    	 </mx:Image> 
+				                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
+				                           </mx:Label>
+				                        </mx:HBox>
+				                    </mx:Component>
+				                </mx:itemRenderer>
+				            </mx:DataGridColumn> 
+					       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"/>
+					        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="getFullName"/>
+					       	<mx:DataGridColumn headerText="Project" width="40" dataField="@projectName"/>
+					       	<mx:DataGridColumn headerText="Experiment Kind" width="40" labelFunction="getExperimentKind"/>
+					       	<mx:DataGridColumn headerText="Microarray" width="100" dataField="@slideProductName"/>
+				         </mx:columns>
+				       </mx:DataGrid> 	    
+				       
 	
-				<views:ExperimentDownloadView id="downloadView" label="Download List" icon="@Embed('../assets/folder_go.png')" >
+		       	   	
+			       </mx:VBox>
+			       
+			       <views:ProjectDetailView id="projectDetailView" label="Project">
+			       </views:ProjectDetailView>   
+	     	   </mx:TabNavigator>
+		       
+
+	
+				<views:ExperimentDownloadView id="downloadView" label="Download List" icon="@Embed('../assets/folder_go.png')">
 				</views:ExperimentDownloadView>
 				
 	 			<views:ExperimentTrackView id="trackView" label="Track" icon="@Embed('../assets/application_go.png')" >
 				</views:ExperimentTrackView>
 				
-	 			<views:ExperimentVisibilityView id="visibilityView" label="Visibility" icon="@Embed('../assets/lock.png')" >
+	 			<views:ExperimentVisibilityView id="visibilityView" label="Visibility" icon="@Embed('../assets/lock.png')">
 				</views:ExperimentVisibilityView>
 				
-		        <views:ProjectDetailView id="projectDetailView" icon="@Embed('../assets/folder.png')" label="Project detail" width="100%" height="100%">
-	        	</views:ProjectDetailView> 
-	        
 
 
 		     	
-		     </mx:ViewStack>
 		
-		     
-		</mx:VBox>
 		
-		<mx:ViewStack id="theDetailViews" width="100%" height="0" visible="true" borderStyle="inset" paddingLeft="10" paddingTop="10" paddingRight="10" paddingBottom="10">
-		
-			<mx:Canvas width="100%">
-			</mx:Canvas>
-			
-			<views:ExperimentDetailView id="detailView">
-			</views:ExperimentDetailView>
-
-			
 		</mx:ViewStack>
-    	
-    </mx:VDividedBox>
 	
 
-
+</mx:VBox>
 
 </mx:Canvas>
 

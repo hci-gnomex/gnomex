@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
 
+
+	<mx:Style source="../css/gnomex_flex.css" />
+
    <mx:HTTPService  
     id="getExpandedFileList" 
     url="http://localhost/gnomex/GetExpandedFileList.gx"
@@ -98,17 +101,17 @@
         }     	
     }
     
-    public function prepareToDownloadFolders():void { 
+    public function downloadFolders():void { 
     	getSelectedFolders();
     	getDownloadEstimatedSize.send();
     	
  	}
             
-    public function downloadFolders():void { 
+    public function downloadFoldersAndShowProgress():void { 
     	
         var parms:String = "resultKeys="+ resultKeys;
     	var progressWindow:views.DownloadProgressView = new views.DownloadProgressView();
-    	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, downloadButton, estimatedDownloadSize);
+    	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize);
     	
  	}
  	
@@ -172,12 +175,21 @@
     
     private function onGetDownloadEstimatedSize(event:ResultEvent):void {
     	estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
-    	downloadFolders();
+    	downloadFoldersAndShowProgress();
     }
     
     private function onCacheFileDownloadList(event:ResultEvent):void {
     	var progressWindow:views.DownloadProgressView = new views.DownloadProgressView();
-    	progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, downloadFilesButton, estimatedDownloadSize);
+    	progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize);
+    }
+    
+    private function onTabSwitch():void {
+    	if (theTab.selectedChild == exploreView) {
+    		exploreFolders();
+    		parentDocument.buttonStack.selectedChild = parentDocument.downloadFilesButtonView;
+    	} else {
+    		parentDocument.buttonStack.selectedChild = parentDocument.downloadFoldersButtonView;    		
+    	}
     }
 
     
@@ -190,86 +202,29 @@
 	
 	<mx:TabNavigator id="theTab"  
 		width="100%" height="100%" 
-		 backgroundAlpha=".2" >
-		<mx:VBox label="Folders" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
-			<mx:HBox horizontalAlign="right" width="100%">
-			  <mx:Button id="downloadButton" 
-			  	click="prepareToDownloadFolders()" 
-			  	icon="@Embed('../assets/icon_download.gif')" 
-			  	toolTip="Download selected folders"
-			  	label="Download" 
-			  	fontFamily="Arial"/>
-			  <mx:Button icon="@Embed('../assets/folder_explore.png')"
-			  	click="exploreFolders()"
-			  	toolTip="Explore selected folders" 
-			  	label="Explore files" 
-			  	fontFamily="Arial"/>
-			  <mx:Label id="rowCountLabel" width="100%" text="{rowCountMessage}" textAlign="right"/>
-			</mx:HBox>
-				
-				   
-		             
-		     
-		       <views:DataGridAlternatingGroup  dataProvider="{downloadList}"  width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4">
-		         <views:columns>
-		            <mx:DataGridColumn headerText=" " 
-		            	width="10" 
-		            	editable="true"                        	
-		            	dataField="@isSelected" 
-		            	editorDataField="selected" 
-		            	itemRenderer="views.CheckBoxIsSelected">
-		            </mx:DataGridColumn>
-		            <mx:DataGridColumn width="35" headerText="#">
-		                <mx:itemRenderer>
-		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
-		                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
-		                    	 </mx:Image> 
-		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-		                           </mx:Label>
-		                        </mx:HBox>
-		                    </mx:Component>
-		                </mx:itemRenderer>
-		            </mx:DataGridColumn> 
-			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
-			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
-			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
-			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
-			       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
-			       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
-			       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
-			       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
-		         </views:columns>
-		       </views:DataGridAlternatingGroup>
-		
-		     
-		</mx:VBox>
-		
-		
-		<mx:VBox id="exploreView" label="Files" width="100%" height="100%" 
-			enabled="false"
-			paddingLeft="8" paddingRight="4" paddingTop="8" paddingBottom="4">
-		    <mx:HBox horizontalAlign="right" width="100%">
-		      <mx:Button id="downloadFilesButton" 
-		      	click="downloadFiles()" 
-		      	icon="@Embed('../assets/icon_download.gif')" 
-		      	toolTip="Download selected folders"
-		      	label="Download" 
-		      	fontFamily="Arial"/>
-		      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
-		    </mx:HBox>
-		    <mx:DataGrid 
-		    	 width="100%" height="100%" 
-		    	 fontFamily="Arial"
-		    	 dataProvider="{expandedFileList}">
-		       <mx:columns>
+		  change="onTabSwitch()" 
+
+		tabStyleName="tabHeader"
+		  selectedTabTextStyleName="tabHeaderTextSelected"
+ 		styleName="tabBody"  borderStyle="none">
+		<mx:VBox id="folderView" 
+			label="Folders" width="100%" height="100%" 
+			paddingLeft="4" paddingRight="4" 
+			paddingTop="0" paddingBottom="0" verticalGap="0">
+	       <views:DataGridAlternatingGroup  
+	       	
+	       	dataProvider="{downloadList}"  
+	       	width="100%" height="100%"
+	       	 styleName="header" headerStyleName="header">
+	         <views:columns>
 	            <mx:DataGridColumn headerText=" " 
-	            	width="3" 
+	            	width="10" 
 	            	editable="true"                        	
 	            	dataField="@isSelected" 
-	            	editorDataField="selected" 
-	            	itemRenderer="views.CheckBoxIsSelected"/>
-	            <mx:DataGridColumn width="8" headerText="#">
+	            	editorDataField="selected"
+	            	itemRenderer="views.CheckBoxIsSelected">
+	            </mx:DataGridColumn>
+	            <mx:DataGridColumn width="35" headerText="#">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0" >
@@ -281,7 +236,49 @@
 	                    </mx:Component>
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
-	            <mx:DataGridColumn width="12" headerText="Folder" >
+		       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
+		       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
+		        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+		       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
+		       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
+		       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
+		       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
+		       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
+	         </views:columns>
+	       </views:DataGridAlternatingGroup>
+		</mx:VBox>
+		
+		
+		<mx:VBox id="exploreView" label="Explore Files" width="100%" height="100%" 
+			enabled="true"
+			verticalGap="0" paddingLeft="4" paddingRight="4">
+		    <mx:HBox horizontalAlign="right" width="100%">
+		      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
+		    </mx:HBox>
+		    <mx:DataGrid 
+		    	 width="100%" height="100%" 
+		    	 dataProvider="{expandedFileList}" 
+		    	 styleName="header" headerStyleName="header">
+		       <mx:columns>
+	            <mx:DataGridColumn headerText=" " 
+	            	width="3" 
+	            	editable="true"                        	
+	            	dataField="@isSelected" 
+	            	editorDataField="selected" 
+	            	itemRenderer="views.CheckBoxIsSelected"/>
+	            <mx:DataGridColumn width="14" headerText="#">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0" >
+	                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
+	                    	 </mx:Image> 
+	                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="18" headerText="Folder" >
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0" >

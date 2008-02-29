@@ -2,7 +2,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
 	preinitialize="init()" 
-	 backgroundGradientColors="[#a8c1ce, #fbfcfd]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0">
+	 backgroundGradientColors="[#dfdfdf, #f9f9f9]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
 	
 
 	     
@@ -315,9 +315,10 @@
     <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}"/>
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}"/>
 
-	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="8">
+	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="12">
 	    
-		   <mx:ApplicationControlBar  width="100%" fillColors="[#2e63a5, #6295d2]" fillAlphas="[1.0, 1]" dock="true"  
+		   <mx:ApplicationControlBar  width="100%" styleName="applicationBar"
+		   	fillAlphas="[1, 1]" dock="true"  
 		   	paddingBottom="0" paddingLeft="1" paddingRight="1" paddingTop="1">
 		      <mx:VBox width="100%" verticalGap="0">
 			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" backgroundAlpha=".5" styleName="catalogPanel" paddingBottom="5">
@@ -354,7 +355,7 @@
                      enabled="false" visible="false" 
                      useHandCursor="true" 
                      verticalAlign="middle"
-                     itemClick="onViewSelection()" color="#232323" selectionColor="#CFDCF3" rollOverColor="#CFDCF3" disabledColor="#FFFFFF">
+                     itemClick="onViewSelection()" styleName="linkBar">
 			      </mx:LinkBar>
 	      	
 		      	
@@ -367,7 +368,9 @@
 
         
         
-	    <mx:VBox id="mainArea" width="100%" height="100%" paddingTop="1" paddingBottom="1" paddingLeft="0" paddingRight="0" horizontalCenter="0">
+	    <mx:VBox id="mainArea" width="100%" 
+	    	height="100%" paddingTop="1" paddingBottom="1" paddingLeft="0" 
+	    	paddingRight="0" horizontalCenter="0">
           
    
 

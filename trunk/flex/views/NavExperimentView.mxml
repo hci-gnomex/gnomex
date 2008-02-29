@@ -190,7 +190,7 @@
 	
 			
 			<mx:Canvas label="Experiments"  height="100%">
-				<mx:VBox width="100%" height="100%">
+				<mx:VBox width="100%" height="100%" verticalGap="0">
 						<mx:ComboBox id="browseLabCombo" 
 							labelField="@name"
 							dataProvider="{parentApplication.promptedLabList}"
@@ -199,14 +199,14 @@
 							 height="0"
 							 visible="false">
 						</mx:ComboBox>
-					<mx:VBox id="treeContainer" width="100%" height="100%">
+					<mx:VBox id="treeContainer" width="100%" height="100%" backgroundAlpha="0.84">
 					<mx:Tree width="100%" height="100%" 
 						dataProvider="{getProjectRequestList.lastResult}" 
 						showRoot="false" 
 						labelFunction="getBrowseTreeLabel"
 						id="browseTree" click="onBrowseTree()" 
 						borderStyle="none"
-						iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE"></mx:Tree>
+						iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="0.0"></mx:Tree>
 					<mx:HBox width="100%">
 						<mx:Button icon="@Embed('../assets/folder_add.png')" fontFamily="Arial"  label="New project"/>
 						<mx:Button icon="@Embed('../assets/folder_delete.png')" fontFamily="Arial" label="Delete project"/> 
