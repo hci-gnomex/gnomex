@@ -100,7 +100,7 @@
         	
         	return doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
-        private function callSearchIndex():void {
+        public function callSearchIndex():void {
 			var codeDesignList:XMLList = parentApplication.getExperimentDesignList.lastResult.ExperimentDesign;     			
 			experimentDesignCodes = new String(); 
         	for(var i:Number = 0; i < codeDesignList.length(); i++) {
@@ -125,7 +125,8 @@
         }
         
         private function onSearchIndex(event:ResultEvent): void {        	
-        	parentDocument.searchViews.selectedIndex=1;
+        	parentDocument.searchViews.selectedChild = parentDocument.searchResultsView;
+        	parentDocument.onViewSwitch();
         	parentDocument.setResultsCount();
         }
         
@@ -147,15 +148,8 @@
     </mx:Script>
     
    
-    <mx:VBox width="100%" height="100%" top="12" bottom="4" left="8" right="8"  backgroundAlpha="1.0">
+    <mx:VBox width="100%" height="100%" top="4" bottom="4" left="4" right="4"  backgroundAlpha="1.0">
     
-     <mx:HBox horizontalAlign="left" width="100%" paddingBottom="10">
-        	<mx:Button label="Search" click="callSearchIndex()" themeColor="#ffff80" fontFamily="Arial" icon="@Embed('../assets/magnifier.png')">
-        	</mx:Button>
-        	<mx:Button label="Clear" themeColor="#ffff80" fontFamily="Arial">
-        	</mx:Button>
-        	
-        </mx:HBox>
         <mx:VBox width="100%" height="100%" verticalGap="1">
             <mx:HBox width="100%" paddingBottom="10">
                 <mx:RadioButtonGroup id="radiogroup1"/>

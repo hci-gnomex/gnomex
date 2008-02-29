@@ -2,7 +2,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
 	preinitialize="init()" 
-	 backgroundGradientColors="[#dfdfdf, #f9f9f9]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
+	 backgroundGradientColors="[#ffffff, #ffffff]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
 	
 
 	     
@@ -40,7 +40,11 @@
 	        [Embed(source="assets/chart_curve_error.png")]
 	        public var iconQC:Class;
 	        
-
+	        
+	        [Bindable]
+	        [Embed(source="assets/sitemap.png")]
+	        public var iconTree:Class;
+	        
 			[Bindable]
 			public var promptedLabList:views.PromptXMLListCollection;
 			[Bindable]
@@ -317,7 +321,7 @@
 
 	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="12">
 	    
-		   <mx:ApplicationControlBar  width="100%" styleName="applicationBar"
+		   <mx:ApplicationControlBar  width="100%" 
 		   	fillAlphas="[1, 1]" dock="true"  
 		   	paddingBottom="0" paddingLeft="1" paddingRight="1" paddingTop="1">
 		      <mx:VBox width="100%" verticalGap="0">
@@ -353,9 +357,8 @@
 			      	 dataProvider="{theViews}" width="100%"
 					paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
                      enabled="false" visible="false" 
-                     useHandCursor="true" 
                      verticalAlign="middle"
-                     itemClick="onViewSelection()" styleName="linkBar">
+                     itemClick="onViewSelection()" >
 			      </mx:LinkBar>
 	      	
 		      	

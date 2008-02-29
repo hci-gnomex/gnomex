@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
-
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" styleName="form">
 <mx:Script>
 	<![CDATA[
 		private function getSlideSource(item:Object, col:int):String {
@@ -89,35 +88,55 @@
 </mx:Script>
 	
     <mx:VBox height="100%"  width="100%" verticalGap="0">
-    
-        <mx:HBox width="100%" paddingBottom="12">
+
+
+		
+		    
+		        <mx:ApplicationControlBar 
+	        	     styleName="applicationBar"
+		        	width="100%" 
+		        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
+		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+		        
+					<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left">
+		
+		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView">
+							    <mx:Button label="Save" 
+							    	icon="@Embed('../assets/action_save.gif')" 
+							    	  visible="true">
+					            </mx:Button>
+		                    </mx:HBox>
+
+				    </mx:HBox>
+		        </mx:ApplicationControlBar>    
+        <mx:HBox width="100%" paddingTop="12" paddingBottom="8">
         	<mx:VBox verticalGap="0">
         		<mx:HBox>
                     <mx:Label text="#"  width="90"/>
-                    <mx:TextInput editable="false" backgroundAlpha=".3" id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80"/>
+                    <mx:TextInput editable="false" id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80"/>
                 </mx:HBox>
                 <mx:HBox verticalGap="0">
                   <mx:Label text="Submit Date"  width="90"/>
-                  <mx:TextInput editable="false" backgroundAlpha=".3"  text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
+                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
                 </mx:HBox>
                 <mx:HBox verticalGap="0">
                   <mx:Label text="Complete Date"  width="90"/>
-                  <mx:TextInput editable="false" backgroundAlpha=".3"  text="{parentDocument.selectedExperiment.@completedDate}" width="80"/>
+                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@completedDate}" width="80"/>
                 </mx:HBox>
         	</mx:VBox>
         	<mx:VBox verticalGap="0">
 	        	
 	        	 <mx:HBox verticalGap="0">
 	        	   <mx:Label text="Submitter"  width="100"/>
-	        	   <mx:TextInput editable="false" backgroundAlpha=".3"  text="{parentDocument.selectedExperiment.@ownerName}"/>
+	        	   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@ownerName}"/>
 	        	 </mx:HBox>
 	        	 <mx:HBox verticalGap="0">
 	        	       <mx:Label text="Platform"  width="100"/>
-	        	       <mx:TextInput editable="false" backgroundAlpha=".3" text="{parentDocument.selectedExperiment.@codeRequestCategory}"/>
+	        	       <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@codeRequestCategory}"/>
 	        	   </mx:HBox>
 	            <mx:HBox verticalGap="0">
 	                <mx:Label text="Experiment Type"  width="100"/>
-	                <mx:TextInput editable="false" backgroundAlpha=".3"  text="{parentDocument.selectedExperiment.@codeMicroarrayCategory}"/>
+	                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@codeMicroarrayCategory}"/>
 	            </mx:HBox>
             
         		
@@ -126,22 +145,23 @@
 	        	
 	            <mx:HBox verticalGap="0" width="100%">
 	                   <mx:Label text="Group"  width="50"/>
-	                   <mx:TextInput editable="false" backgroundAlpha=".3" text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
+	                   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
 	               </mx:HBox>
 	            <mx:HBox verticalGap="0" width="100%">
 	                <mx:Label text="Account"  width="50"/>
-	                <mx:TextInput editable="false" backgroundAlpha=".3" text="{parentDocument.selectedExperiment.@idBillingAccount}" width="100%"/>
+	                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@idBillingAccount}" width="100%"/>
 	            </mx:HBox>
 	            <mx:HBox verticalGap="0" width="100%">
 	                <mx:Label text="Project"  width="50"/>
-	                <mx:TextInput editable="false" backgroundAlpha=".3" text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
+	                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
 	            </mx:HBox>
         		
         	</mx:VBox>
         </mx:HBox>
         	
        
-		<mx:TabNavigator width="100%" height="100%"  backgroundAlpha=".2" selectedIndex="1">
+		<mx:TabNavigator width="100%" height="100%"  
+			selectedIndex="1" >
 			<mx:Canvas label="Annotations" width="100%" height="100%">
 			    <mx:HBox width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
 			        <mx:VBox height="100%">
@@ -177,7 +197,7 @@
 			</mx:Canvas>
 			<mx:Canvas label="Samples" width="100%" height="100%" backgroundAlpha=".7">
 			    <mx:VBox  width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
-					<mx:DataGrid fontSize="9" width="100%" height="100%">
+					<mx:DataGrid width="100%" height="100%">
 						<mx:dataProvider>{parentDocument.selectedExperiment.samples.Sample}</mx:dataProvider>
 						<mx:columns>
 							<mx:DataGridColumn headerText="Sample #" dataField="@number"/>
@@ -195,7 +215,7 @@
 			</mx:Canvas>
 			<mx:Canvas label="Hybridizations" width="100%" height="100%" backgroundAlpha=".7"  >
   			    <mx:VBox  width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
-					<mx:DataGrid fontSize="9" width="100%" height="100%" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}">
+					<mx:DataGrid width="100%" height="100%" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Slide #" width="50" dataField="col1"/>
 							<mx:DataGridColumn headerText="Hyb #" width="50" dataField="@number"/>

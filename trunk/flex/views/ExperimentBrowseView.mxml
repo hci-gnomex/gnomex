@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
 
-	<mx:Style source="../css/gnomex_flex.css" />
-	
+
    <mx:HTTPService  
     id="getRequest" 
     url="http://localhost/gnomex/GetRequest.gx"
@@ -160,7 +159,6 @@
 		
 		    
 		        <mx:ApplicationControlBar 
-	        	     styleName="applicationBar"
 		        	width="100%" 
 		        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
 		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
@@ -172,38 +170,36 @@
 				        </mx:LinkBar>
 				        
 				        <mx:VRule height="20"/>
-				        <mx:Label id="rowCountLabel"  text="{rowCountMessage}"/>
 		
-		                <mx:ViewStack width="100%" id="buttonStack">
-		                    <mx:HBox  horizontalAlign="right" width="100%" id="saveProjectButtonView">
+		                <mx:ViewStack width="100%" id="buttonStack" >
+		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView">
 							    <mx:Button label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
-							    	fontFamily="Arial" 
 							    	click="projectDetailView.save()"  visible="true">
 					            </mx:Button>
+							    <mx:Label id="rowCountLabel"  text="{rowCountMessage}" width="100%" textAlign="right"/>
 		                    </mx:HBox>
-		                	<mx:HBox  horizontalAlign="right" width="100%" id="saveVisibilityButtonView">
+		                	<mx:HBox  horizontalAlign="left" width="100%" id="saveVisibilityButtonView">
 							    <mx:Button label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
-							    	fontFamily="Arial" 
 							    	click="visibilityView.save()"  visible="true">
 					            </mx:Button>
 		                    </mx:HBox>
-		                    <mx:HBox horizontalAlign="right"  width="100%" id="downloadFoldersButtonView">
+		                    <mx:HBox horizontalAlign="left"  width="100%" id="downloadFoldersButtonView">
 							    <mx:Button id="downloadFoldersButton" 
 							    	click="downloadView.downloadFolders()" 
 							    	icon="@Embed('../assets/icon_download.gif')" 
 							    	toolTip="Download selected folders"
 							    	label="Download" 
-							    	fontFamily="Arial" visible="true"/>
+							    	visible="true"/>
 		                    </mx:HBox>		                    
-		                    <mx:HBox horizontalAlign="right"  width="100%" id="downloadFilesButtonView">
+		                    <mx:HBox horizontalAlign="left"  width="100%" id="downloadFilesButtonView">
 							      <mx:Button id="downloadFilesButton" 
 							      	click="downloadView.downloadFiles()" 
 							      	icon="@Embed('../assets/icon_download.gif')" 
 							      	toolTip="Download selected files"
 							      	label="Download" 
-							      	fontFamily="Arial"/>
+/>
 		                    </mx:HBox>		                    
 		                    
 		                	
@@ -215,12 +211,13 @@
 				   
 		             
 		<mx:ViewStack id="theViews" width="100%" height="100%">
-		       <mx:TabNavigator id="browseView" width="100%" height="100%" 	icon="@Embed('../assets/application_view_detail.png')" 
+		       <mx:TabNavigator id="browseView" width="100%" height="100%" 	
+		       	    icon="@Embed('../assets/application_view_detail.png')" 
 			       	label="Browse" visible="false" 
-			       	backgroundAlpha=".2" change="onBrowseTabSwitch()">
+			        change="onBrowseTabSwitch()">
 			       <mx:VBox  width="100%" height="100%" label="Experiments">
 				       <mx:DataGrid  id="experimentList" dataProvider="{parentDocument.browseTree.selectedItem..Request}"  
-				       	width="100%" height="100%" fontSize="9" borderColor="#c0c0c0" borderStyle="outset" cornerRadius="4" 
+				       	width="100%" height="100%" 
 				       	itemDoubleClick="onExperimentRowSelected()" doubleClickEnabled="true">
 				         <mx:columns>
 				            <mx:DataGridColumn headerText=" " 
@@ -259,7 +256,9 @@
 		       
 
 	
-				<views:ExperimentDownloadView id="downloadView" label="Download List" icon="@Embed('../assets/folder_go.png')">
+				<views:ExperimentDownloadView id="downloadView" 
+					label="Download List" 
+					icon="@Embed('../assets/folder_go.png')">
 				</views:ExperimentDownloadView>
 				
 	 			<views:ExperimentTrackView id="trackView" label="Track" icon="@Embed('../assets/application_go.png')" >

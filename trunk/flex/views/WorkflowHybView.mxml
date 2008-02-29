@@ -146,22 +146,37 @@
     
    
     <mx:VBox width="100%" height="100%">
-        <mx:HBox width="100%" horizontalAlign="left" paddingBottom="6">
-			<mx:Image source="@Embed('../assets/basket_put.png')" autoLoad="true"/>
-			<mx:Label text="Hybridization" fontWeight="bold" textAlign="center"/>
+    
+    
+    
+        <mx:ApplicationControlBar width="100%" fillAlphas="[.8, .5]"  paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+            <mx:HBox horizontalAlign="left" width="170" verticalAlign="middle" paddingBottom="1">
+            <mx:Image source="@Embed('../assets/basket_put.png')" autoLoad="true"/>
+            <mx:Label text="Hybridization" textAlign="center"/>
+            	
+            </mx:HBox>
+            <mx:VRule height="20"/>
+            <mx:HBox width="100%" horizontalAlign="left">
+            	<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
+            	</mx:Button>
+            	<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
+            		click="refreshWorkList();"/>
+            	<mx:VRule height="20"/>
+            	<mx:HBox width="100%" horizontalAlign="right">
+	            	<mx:Label text="Request #"/>
+	            	<mx:ComboBox id="requestNumberCombo" 
+	            		dataProvider="{requestNumbers}" 
+	            		change="workList.filterFunction = filterWorkList;workList.refresh()"  
+	            		width="70">
+	            	</mx:ComboBox>
+            		
+            	</mx:HBox>
+            	
+            	
+            </mx:HBox>
         	
-        </mx:HBox>
-		<mx:HBox width="100%" horizontalAlign="left" fontFamily="Arial">
-			<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
-			</mx:Button>
-			<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
-				click="refreshWorkList();"/>
-			<mx:Spacer width="50" height="100%"/>
-			<mx:Label text="Request #"/>
-			<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()" ></mx:ComboBox>
-			
-			
-		</mx:HBox>
+        </mx:ApplicationControlBar>
+
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
 			<mx:DataGrid height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)" fontFamily="Arial">
