@@ -112,7 +112,7 @@
             detailViews.selectedIndex=1;
           }
           
-          private function prepareToAddUser():void 
+          public function prepareToAddUser():void 
            {
            	this.selectedUser = null;
            	this.fullUser = null;
@@ -141,7 +141,7 @@
           	call.marker = "doneGetAppUserList";
           }
           
-          private function callGetLabList():void
+          public function callGetLabList():void
           {
           	var call:Object = getLabList.send();
           	call.marker = "doneGetLabList";
@@ -152,7 +152,7 @@
           	var call:Object = getLab.send();
           	call.marker = "doneGetLab";
           }
-          private function callDeleteAppUser():void
+          public function callDeleteAppUser():void
           {
           	var call:Object = deleteAppUser.send();
           	call.marker = "doneDeleteAppUser";
@@ -212,34 +212,27 @@
 	
 	
 	    <mx:Accordion height="100%" 
-	        fillColors="[#fee789, #ffffff]"
-	    	backgroundAlpha=".3"
-	    	 fillAlphas="[1, .7]"
-	    	headerHeight="25" width="250">
+
+	    	width="250" >
 	      <mx:Canvas label="Users" height="100%" width="100%">
 	        
 
-	        <mx:VBox height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%">
-	         <mx:HBox horizontalAlign="left" width="100%" horizontalGap="6" paddingTop="2" paddingBottom="2">
-        	    <mx:Button x="20" y="10" id="addUserButton" click="prepareToAddUser()" icon="@Embed('../assets/page_add.png')" toolTip="Add user" fontFamily="Arial"/>	    	
-        	    <mx:Button id="deleteUserButton" click="callDeleteAppUser()" icon="@Embed('../assets/page_delete.png')" toolTip="Delete user" fontFamily="Arial"/>
-	            <mx:Button id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list" fontFamily="Arial"/>
-   	         </mx:HBox>
-
-              <mx:VBox  verticalGap="0" width="100%" height="100%" >
-	       	      <mx:TextInput id="userSearchText" editable="true" change="appUsers.refresh()" width="100%"/>
+	        <mx:VBox height="100%" paddingBottom="6" width="100%" verticalGap="1" 
+	        	paddingLeft="6" paddingRight="6" paddingTop="6" >
+	       	      <mx:TextInput id="userSearchText" editable="true" 
+	       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list"/>
 		    
 		          <mx:Tree id="usersTree" visible="false" dataProvider="{filteredAppGroupXML}" height="0" width="0" labelField="@displayName" showRoot="false" change="userTreeItemSelected(event)"></mx:Tree>
 	
-	    	      <mx:DataGrid id="usersGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{appUsers}" height="100%"  top="40" left="20"  right="20" itemClick="userRowSelected()">
+	    	      <mx:DataGrid id="usersGrid" 
+	    	      	visible="true" width="100%" editable="false" enabled="true" 
+	    	      	dataProvider="{appUsers}" height="100%"  
+	    	      	itemClick="userRowSelected()" showHeaders="false">
 					<mx:columns>
-								<mx:DataGridColumn headerText="User Name" width="100" dataField="@displayName"/>
-								<!-- <mx:DataGridColumn headerText="Active" width="30" dataField="@isActiveBoolean" itemRenderer="mx.controls.CheckBox" editable="false"/> -->
-							
+								<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
 				    </mx:columns>
 	      	     </mx:DataGrid>
               	
-              </mx:VBox>
 
 
     	    </mx:VBox>
@@ -247,25 +240,19 @@
 	      </mx:Canvas>
 	      
 	      
-	      <mx:Canvas label="Groups" width="100%" height="100%">
+	      <mx:Canvas label="Groups" width="100%" height="100%" 
+	      	>
 	      
 	        <mx:VBox height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%">
-       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%"/>
+       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list."/>
 	    
 	         
-    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()">
+    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false">
 				<mx:columns>
-							<mx:DataGridColumn headerText="Lab name" width="100" dataField="@name"/>
+							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
 						
 			    </mx:columns>
       	     </mx:DataGrid>
-
-
-	         <mx:HBox horizontalAlign="right" paddingRight="10" paddingBottom="8" paddingTop="8" width="100%">
-        	    <mx:Button x="20" y="10" label="Add"  id="addLabButton"/>	    	
-	            <mx:Button label="Refresh" id="refreshLabButton" click="callGetLabList();labs.refresh()"/>
-    	       <mx:Button label="Delete" click="callGetLabList()" id="deleteLabButton"/>
-   	         </mx:HBox>
     	    </mx:VBox>
 
 	      </mx:Canvas>
