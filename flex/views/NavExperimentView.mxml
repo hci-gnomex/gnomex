@@ -43,6 +43,9 @@
     result="onGetProject(event)"
     method="POST"
     useProxy="false">
+    <mx:request>
+      <idProject>{selectedIdProject}</idProject>
+    </mx:request>
   </mx:HTTPService>
 
  
@@ -61,6 +64,8 @@
         public var selectedProject:Object;
         
         public var selectedIdLab:String;
+        
+        [Bindable]
         public var selectedIdProject:String;
 
 
@@ -120,9 +125,7 @@
 				
 				if (browseTree.selectedItem.name() == 'Project') {
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
-					var parms1:Object = new Object;
-					parms1.idProject = selectedIdProject;
-					getProject.send(parms1);
+					getProject.send();
 				} else {
 					selectedIdProject = null;
 				}
@@ -208,8 +211,6 @@
 						borderStyle="none"
 						iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="0.0"></mx:Tree>
 					<mx:HBox width="100%">
-						<mx:Button icon="@Embed('../assets/folder_add.png')" fontFamily="Arial"  label="New project"/>
-						<mx:Button icon="@Embed('../assets/folder_delete.png')" fontFamily="Arial" label="Delete project"/> 
 					</mx:HBox>
 						
 					</mx:VBox>

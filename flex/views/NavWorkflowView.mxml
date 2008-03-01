@@ -26,11 +26,11 @@
 
 
 	<mx:HDividedBox width="100%" height="100%">
-		<mx:Accordion  width="135" height="100%">
+		<mx:Accordion  height="100%">
 
 		    
 			<mx:Canvas label="Microarray Workflow" width="100%" height="100%" >
-			<mx:VBox top="12" bottom="8" left="4" right="2" >
+			<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			  <mx:ToggleButtonBar dataProvider="detailViews" direction="vertical"  toggleOnClick="true" itemClick="onWorklistChange()">
 			  </mx:ToggleButtonBar>
 				
@@ -43,7 +43,7 @@
 	
 		<mx:ViewStack id="detailViews"  styleName="form" visible="false" height="100%" width="100%"  >
 
-           <views:WorkflowQCView label="Qual Control" id="workflowQCView" icon="@Embed('../assets/chart_curve.png')"/> 
+           <views:WorkflowQCView label="Quality Control" id="workflowQCView" icon="@Embed('../assets/chart_curve.png')"/> 
            
            <views:WorkflowLabelingView label="Labeling" id="workflowLabelingView" icon="@Embed('../assets/asterisk_yellow.png')"/>
     

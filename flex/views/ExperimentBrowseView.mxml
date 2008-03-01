@@ -171,13 +171,16 @@
 				        
 				        <mx:VRule height="20"/>
 		
-		                <mx:ViewStack width="100%" id="buttonStack" >
-		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView">
+		                <mx:ViewStack  id="buttonStack" >
+		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView" horizontalGap="2">
 							    <mx:Button label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
 							    	click="projectDetailView.save()"  visible="true">
 					            </mx:Button>
-							    <mx:Label id="rowCountLabel"  text="{rowCountMessage}" width="100%" textAlign="right"/>
+					            
+								<mx:Button icon="@Embed('../assets/folder_add.png')" label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
+								<mx:Button icon="@Embed('../assets/folder_delete.png')" label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
+								
 		                    </mx:HBox>
 		                	<mx:HBox  horizontalAlign="left" width="100%" id="saveVisibilityButtonView">
 							    <mx:Button label="Save" 
@@ -204,6 +207,7 @@
 		                    
 		                	
 		                </mx:ViewStack>
+						<mx:Label id="rowCountLabel"  text="{rowCountMessage}" width="100%" textAlign="left"/>
 				    </mx:HBox>
 		        </mx:ApplicationControlBar>
 			    	
@@ -273,6 +277,8 @@
 		
 		
 		</mx:ViewStack>
+		<mx:HBox width="100%">
+		</mx:HBox>
 	
 
 </mx:VBox>

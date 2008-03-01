@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:UsersView="UsersView.*"
-	 height="100%" width="100%" label="User Detail" 
-	 cornerRadius="0" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+	 height="100%" width="100%" 
+	 label="User Detail" 
+	 styleName="form">
 
 
     <mx:Script>
@@ -35,102 +36,111 @@
     </mx:request>
     </mx:HTTPService >
     
-	<mx:VDividedBox height="100%" width="100%" borderStyle="none" paddingLeft="8" paddingBottom="8" paddingRight="8" paddingTop="8">
+	<mx:VBox height="100%" width="100%" borderStyle="none" >
+	<mx:ApplicationControlBar width="100%" fillAlphas="[.8, .2]" paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+		<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_save.gif')" width="70"/>
+		<mx:Button id="addUserButton" click="parentDocument.prepareToAddUser()" icon="@Embed('../assets/user_add.png')" toolTip="Add user" label="New User"/>
+		<mx:Button id="deleteUserButton" click="parentDocument.callDeleteAppUser()" icon="@Embed('../assets/user_delete.png')" toolTip="Delete user" label="Delete"/>
+		<mx:VRule height="20"/>
+		<mx:Button id="refreshButton0" click="parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list" label="Refresh List"/>
+	</mx:ApplicationControlBar>
     
-	<mx:VBox  width="100%" height="100%">
-		<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" fontFamily="Arial" paddingBottom="4" verticalAlign="middle" paddingTop="4">
-			<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_save.gif')" width="70"/>
-			
-		</mx:HBox>
-      <mx:Tile width="100%">
-			<mx:VBox verticalGap="1" width="100%">
-				<mx:Label text="Last name"/>
-				<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}"/>
-			</mx:VBox>
-			<mx:VBox verticalGap="1"  width="100%">
-				<mx:Label text="First name"/>
-				<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}"/>
-			</mx:VBox>
-			<mx:VBox verticalGap="1"  width="100%" >
-				<mx:Label text="Email" id="Label"/>
-				<mx:TextInput id="email" text="{parentDocument.fullUser.@email}"/>
-			</mx:VBox>
-			<mx:VBox verticalGap="1"  width="100%" >
-				<mx:Label text="Phone" id="Label0"/>
-				<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}"/>
-			</mx:VBox>
-			<mx:VBox verticalGap="1"   width="100%" >
-				<mx:Label text="Department" id="Label1"/>
-				<mx:TextInput id="department" text="{parentDocument.fullUser.@department}"/>
-			</mx:VBox>
-			<mx:VBox verticalGap="1"   width="100%" >
-				<mx:Label text="Institution" id="Label2"/>
-				<mx:TextInput width="159" id="institute" text="{parentDocument.fullUser.@institute}"/>
-			</mx:VBox>
-			<mx:VBox verticalGap="1"   width="100%">
-				<mx:Label text="Job Title" id="Label3"/>
-				<mx:TextInput id="jobTitle" text="{parentDocument.fullUser.@jobTitle}"/>
-			</mx:VBox>
-			<mx:CheckBox id="isActive" label="Active" >
-			</mx:CheckBox>
-		</mx:Tile>
-	  	<mx:HBox width="100%">
-			<mx:HBox borderStyle="solid" borderColor="#808080" cornerRadius="6" borderThickness=".3" height="100" width="300">
-			  <mx:VBox verticalGap="1"  width="100%">
-			    <mx:Label text="uNID" />
-			    <mx:TextInput id="uNID" text="{parentDocument.fullUser.@uNID}" width="100"/>
-			   </mx:VBox>
-			  <mx:Label text="OR"/>
-			  <mx:VBox width="100%">
-			  <mx:VBox verticalGap="1"  width="100%">
-			  	<mx:Label text="External user name" />
-			  	<mx:TextInput id="externalUserName" text="{parentDocument.fullUser.@userNameExternal}"/>
-			  </mx:VBox>
-			  <mx:VBox verticalGap="1"  width="100%" >
-			  	<mx:Label text="Password"/>
-			  	<mx:TextInput id="externalUserPassword" text="{parentDocument.fullUser.@passwordExternalEntered}" displayAsPassword="true"/>
-			  </mx:VBox>
-			  </mx:VBox>
-			</mx:HBox>
-			<mx:VBox borderStyle="solid" borderColor="#808080" cornerRadius="6" borderThickness=".3" verticalGap="0" height="100" width="100">
-			  <mx:Label text="Permission Level"/>
-			    <mx:VBox>
-	  			    <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
-		 		    <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup">
-				      <mx:value>ADMIN</mx:value>
-				    </mx:RadioButton>
-				    <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup">
-				      <mx:value>LAB</mx:value>
-				    </mx:RadioButton>
-				    	
-			    </mx:VBox>
-			</mx:VBox>
-			
-
-	    
-	    </mx:HBox>
-
-  </mx:VBox>
+    
+	<mx:VDividedBox  width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	
+		<mx:VBox  width="100%" height="100%">
+	      <mx:Tile width="100%">
+				<mx:VBox verticalGap="1" width="100%">
+					<mx:Label text="Last name"/>
+					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"  width="100%">
+					<mx:Label text="First name"/>
+					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"  width="100%" >
+					<mx:Label text="Email" id="Label"/>
+					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"  width="100%" >
+					<mx:Label text="Phone" id="Label0"/>
+					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"   width="100%" >
+					<mx:Label text="Department" id="Label1"/>
+					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"   width="100%" >
+					<mx:Label text="Institution" id="Label2"/>
+					<mx:TextInput width="159" id="institute" text="{parentDocument.fullUser.@institute}"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"   width="100%">
+					<mx:Label text="Job Title" id="Label3"/>
+					<mx:TextInput id="jobTitle" text="{parentDocument.fullUser.@jobTitle}"/>
+				</mx:VBox>
+				<mx:CheckBox id="isActive" label="Active" >
+				</mx:CheckBox>
+			</mx:Tile>
+		  	<mx:HBox width="100%">
+				<mx:HBox borderStyle="solid" borderColor="#808080" cornerRadius="6" borderThickness=".3" height="100" width="300">
+				  <mx:VBox verticalGap="1"  width="100%">
+				    <mx:Label text="uNID" />
+				    <mx:TextInput id="uNID" text="{parentDocument.fullUser.@uNID}" width="100"/>
+				   </mx:VBox>
+				  <mx:Label text="OR"/>
+				  <mx:VBox width="100%">
+				  <mx:VBox verticalGap="1"  width="100%">
+				  	<mx:Label text="External user name" />
+				  	<mx:TextInput id="externalUserName" text="{parentDocument.fullUser.@userNameExternal}"/>
+				  </mx:VBox>
+				  <mx:VBox verticalGap="1"  width="100%" >
+				  	<mx:Label text="Password"/>
+				  	<mx:TextInput id="externalUserPassword" text="{parentDocument.fullUser.@passwordExternalEntered}" displayAsPassword="true"/>
+				  </mx:VBox>
+				  </mx:VBox>
+				</mx:HBox>
+				<mx:VBox borderStyle="solid" borderColor="#808080" cornerRadius="6" borderThickness=".3" verticalGap="0" height="100" width="100">
+				  <mx:Label text="Permission Level"/>
+				    <mx:VBox>
+		  			    <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
+			 		    <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup">
+					      <mx:value>ADMIN</mx:value>
+					    </mx:RadioButton>
+					    <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup">
+					      <mx:value>LAB</mx:value>
+					    </mx:RadioButton>
+					    	
+				    </mx:VBox>
+				</mx:VBox>
+				
+	
+		    
+		    </mx:HBox>
+	
+	  </mx:VBox>
 	   
-	   <mx:VBox width="100%" height="200">
-	<mx:HBox width="100%" paddingLeft="8" height="100%">
-	  <mx:DataGrid id="membershipLabs" width="30%" height="100%" dataProvider="{parentDocument.membershipLabs}">
-            <mx:columns>
-                <mx:DataGridColumn dataField="@name" headerText="Labs"/>
-            </mx:columns>
-        </mx:DataGrid>
-	    <mx:DataGrid id="collaboratingLabs" width="30%" height="100%" dataProvider="{parentDocument.collaboratingLabs}">
-            <mx:columns>
-                <mx:DataGridColumn dataField="@name" headerText="Collaborating Labs"/>
-            </mx:columns>
-        </mx:DataGrid>
-	    <mx:DataGrid id="managingLabs" width="30%" height="100%" dataProvider="{parentDocument.managingLabs}">
-            <mx:columns>
-                <mx:DataGridColumn dataField="@name" headerText="Managing Labs"/>
-            </mx:columns>
-        </mx:DataGrid>
-	</mx:HBox>
-	   </mx:VBox>
-    </mx:VDividedBox>
+		<mx:VBox width="100%" height="200">
+			<mx:HBox width="100%" paddingLeft="8" height="100%">
+			  <mx:DataGrid id="membershipLabs" width="30%" height="100%" dataProvider="{parentDocument.membershipLabs}">
+		            <mx:columns>
+		                <mx:DataGridColumn dataField="@name" headerText="Labs"/>
+		            </mx:columns>
+		        </mx:DataGrid>
+			    <mx:DataGrid id="collaboratingLabs" width="30%" height="100%" dataProvider="{parentDocument.collaboratingLabs}">
+		            <mx:columns>
+		                <mx:DataGridColumn dataField="@name" headerText="Collaborating Labs"/>
+		            </mx:columns>
+		        </mx:DataGrid>
+			    <mx:DataGrid id="managingLabs" width="30%" height="100%" dataProvider="{parentDocument.managingLabs}">
+		            <mx:columns>
+		                <mx:DataGridColumn dataField="@name" headerText="Managing Labs"/>
+		            </mx:columns>
+		        </mx:DataGrid>
+			</mx:HBox>
+		</mx:VBox>
+	
+
+	</mx:VDividedBox>
+	</mx:VBox>
   
 </mx:Canvas>
