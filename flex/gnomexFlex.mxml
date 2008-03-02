@@ -64,8 +64,9 @@
 			private var appProgressBar:views.AppProgressView;
             
             private function search():void {
-            	theViews.selectedIndex=8;
- 				navSearchView.searchViews.selectedIndex=1;
+            	theViews.visible = true;
+            	theViews.selectedChild = navSearchView;
+ 				navSearchView.searchViews.selectedChild = navSearchView.searchResultsView;
             	var params:Object = new Object();
             	params.text = searchText.text;
             	
@@ -380,7 +381,7 @@
 			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle">
 			              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
 			              <mx:TextInput id="searchText"  height="18" fontFamily="Arial" width="118" visible="false" borderStyle="none" backgroundAlpha=".42"/>
-			              <mx:Button id="searchButton" height="18" click="theViews.selectedIndex=8;callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search"/>
+			              <mx:Button id="searchButton" height="18" click="theViews.selectedChild=navSearchView;callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search"/>
 			            </mx:HBox>
 			          </mx:HBox>
 			        </mx:HBox>
