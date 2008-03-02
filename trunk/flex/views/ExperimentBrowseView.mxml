@@ -118,34 +118,28 @@
 		if (theViews.selectedChild == browseView ) {
 			if (browseView.selectedChild == projectDetailView) {
 				buttonStack.selectedChild = saveProjectButtonView;
-				buttonStack.visible = true;
 			} else {
-				buttonStack.visible = false;
+				buttonStack.selectedChild = browseButtonView;
 			}
+		} else if (theViews.selectedChild == trackView) {
+			buttonStack.selectedChild = trackButtonView;
 		} else if (theViews.selectedChild == visibilityView) {
 			buttonStack.selectedChild = saveVisibilityButtonView;
-			buttonStack.visible = true;		    
-		}else if (theViews.selectedChild == downloadView) {
+		} else if (theViews.selectedChild == downloadView) {
 			if (downloadView.theTab.selectedIndex == 0) {
 				buttonStack.selectedChild = downloadFoldersButtonView;			
 			} else {
 				buttonStack.selectedChild = downloadFilesButtonView;
 			}
-			buttonStack.visible = true;
-		}else {
-			buttonStack.visible = false;
 		}
 	}
 	
 	private function onBrowseTabSwitch():void {
-		if (theViews.selectedChild == browseView ) {
-			if (browseView.selectedChild == projectDetailView) {
-				buttonStack.selectedChild = saveProjectButtonView;
-				buttonStack.visible = true;
-			} else {
-				buttonStack.visible = false;
-			}
-		} 
+		if (browseView.selectedChild == projectDetailView) {
+			buttonStack.selectedChild = saveProjectButtonView;
+		} else {
+			buttonStack.selectedChild = browseButtonView;
+		}
 	}
 	
 
@@ -171,7 +165,11 @@
 				        
 				        <mx:VRule height="20"/>
 		
-		                <mx:ViewStack  id="buttonStack" >
+		                <mx:ViewStack  id="buttonStack"  width="100%" >
+		                    <mx:HBox  horizontalAlign="left" width="100%" id="browseButtonView" horizontalGap="2">
+								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
+							    <mx:Button visible="false"/>
+		                    </mx:HBox>
 		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView" horizontalGap="2">
 							    <mx:Button label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
@@ -182,11 +180,15 @@
 								<mx:Button icon="@Embed('../assets/folder_delete.png')" label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
 								
 		                    </mx:HBox>
+		                    <mx:HBox  horizontalAlign="left" width="100%" id="trackButtonView" horizontalGap="2">
+								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
+		                    </mx:HBox>
 		                	<mx:HBox  horizontalAlign="left" width="100%" id="saveVisibilityButtonView">
 							    <mx:Button label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
 							    	click="visibilityView.save()"  visible="true">
 					            </mx:Button>
+								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
 		                    </mx:HBox>
 		                    <mx:HBox horizontalAlign="left"  width="100%" id="downloadFoldersButtonView">
 							    <mx:Button id="downloadFoldersButton" 
@@ -195,19 +197,19 @@
 							    	toolTip="Download selected folders"
 							    	label="Download" 
 							    	visible="true"/>
+								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
 		                    </mx:HBox>		                    
 		                    <mx:HBox horizontalAlign="left"  width="100%" id="downloadFilesButtonView">
-							      <mx:Button id="downloadFilesButton" 
+							     <mx:Button id="downloadFilesButton" 
 							      	click="downloadView.downloadFiles()" 
 							      	icon="@Embed('../assets/icon_download.gif')" 
 							      	toolTip="Download selected files"
-							      	label="Download" 
-/>
+							      	label="Download"/>
+								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
 		                    </mx:HBox>		                    
 		                    
 		                	
 		                </mx:ViewStack>
-						<mx:Label id="rowCountLabel"  text="{rowCountMessage}" width="100%" textAlign="left"/>
 				    </mx:HBox>
 		        </mx:ApplicationControlBar>
 			    	
