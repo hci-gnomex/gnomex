@@ -99,3 +99,13 @@ DataGrid {
 ComboBox {
 	fontWeight: normal;
 }
+
+RadioButton {
+	disabledColor: #5f5f5f;
+}
+TextInput {
+	disabledColor: #5f5f5f;
+}
+TextArea {
+	disabledColor: #5f5f5f;
+}

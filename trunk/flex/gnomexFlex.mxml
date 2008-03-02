@@ -133,7 +133,7 @@
 				return hasPermission;
             }
             
-            public function hasLabsToManage():Boolean {
+            public function hasGroupsToManage():Boolean {
             	var groupsToManage:XMLList = createSecurityAdvisor.lastResult..groupsToManage.Lab;
             	if (groupsToManage.length() > 0) {
             		return true;
@@ -144,7 +144,7 @@
             
             private function checkSecurity():void {
 				if (!hasPermission("canAdministerUsers") &&
-				    !hasLabsToManage()) {
+				    !hasGroupsToManage()) {
 					theViews.removeChild(navUsersView);
 				} 
 				if (!hasPermission("canSubmitRequests")) {
