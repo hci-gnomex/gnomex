@@ -124,7 +124,44 @@
        	
             }
             
+            public function hasPermission(permission:String):Boolean {
+            	var hasPermission:Boolean = false;
+				var thePermission:Object = createSecurityAdvisor.lastResult..Permission.(@name == permission);
+				if (thePermission.length() > 0) { 
+					hasPermission = true;
+				}
+				return hasPermission;
+            }
+            
+            public function hasLabsToManage():Boolean {
+            	var groupsToManage:XMLList = createSecurityAdvisor.lastResult..groupsToManage.Lab;
+            	if (groupsToManage.length() > 0) {
+            		return true;
+            	} else {
+            		return false;
+            	}
+            }
+            
+            private function checkSecurity():void {
+				if (!hasPermission("canAdministerUsers") &&
+				    !hasLabsToManage()) {
+					theViews.removeChild(navUsersView);
+				} 
+				if (!hasPermission("canSubmitRequests")) {
+					theViews.removeChild(submitRequestView);
+				}
+				if (!hasPermission("canManageWorkflow")) {
+					theViews.removeChild(navWorkflowView);
+					theViews.removeChild(slideManagementView);
+				}
+				if (!hasPermission("canWriteDictionaries")) {
+					theViews.removeChild(dictionariesView);
+				}            	
+            }
+            
             private function onCreateSecurityAdvisor(event:ResultEvent):void {
+
+				checkSecurity();
 
 			    appProgressBar = new views.AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
@@ -389,19 +426,19 @@
 
  
 
-	        <views:NavWorkflowView width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
+	        <views:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 	        </views:NavWorkflowView>
 
 	        <mx:Canvas label="Methods and Materials" icon="@Embed('assets/bullet_wrench.png')"/>
 
-	        <mx:Canvas label="Slides" icon="@Embed('assets/application_cascade.png')"/>
+	        <mx:Canvas label="Slides" id="slideManagementView" icon="@Embed('assets/application_cascade.png')"/>
 	        
 
 	        
-	        <views:NavUsersView icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
+	        <views:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 	        </views:NavUsersView>
 
-	        <mx:Canvas label="Dictionaries"  icon="@Embed('assets/book.png')"/>
+	        <mx:Canvas label="Dictionaries"  id="dictionariesView" icon="@Embed('assets/book.png')"/>
 	        
            <views:NavSearchView id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 	        </views:NavSearchView>
