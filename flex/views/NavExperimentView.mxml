@@ -68,7 +68,6 @@
         [Bindable]
         public var selectedIdProject:String;
 
-
        
         private function setResultsCount():void {
         	downloadView.setResultsCount();
@@ -88,14 +87,24 @@
         private function onGetRequestDownloadList(event:ResultEvent): void {        	
         	setResultsCount();
         }
+        
         private function onGetProjectRequestList(event:ResultEvent): void {  
         	if (getProjectRequestList.lastResult.Lab.length() == 0) {
         		browseTree.visible = false;
         	} else {
         		browseTree.visible = true;
         	}
-        	expandAllBrowseNodes();      	
-        }
+        	expandAllBrowseNodes();  
+        	callLater(selectedTreeItem);    	
+	    }
+	    
+	    private function selectedTreeItem():void {
+			if (selectedIdProject != null) {
+				var selectedNode:Object = getProjectRequestList.lastResult..Project.(@idProject == selectedIdProject);
+				browseTree.selectedItem = selectedNode;
+			}
+	    	
+	    }
         
         
 	    private function expandAllBrowseNodes():void
@@ -131,11 +140,8 @@
 				}
 				
 				theViews.selectedIndex=0;
-				browseView.setResultsCount();
-				browseView.refreshDownloadList();
-				browseView.refreshTrackList();
-				browseView.refreshVisibilityList();
-			}
+			} 
+			browseView.refreshVisibilityList();
 			theViews.visible = true;
 			
 			
@@ -150,6 +156,11 @@
 		
 		private function onGetProject(event:ResultEvent):void {
 			selectedProject = getProject.lastResult.Project.(@idProject == selectedIdProject);
+			browseView.setResultsCount();
+			browseView.refreshBrowseList();
+			browseView.refreshDownloadList();
+			browseView.refreshTrackList();
+			browseView.refreshVisibilityList();
 		}
 
 		public function getTreeIcon(item:Object):Class {
@@ -167,6 +178,10 @@
 				}
 		}
 		
+		public function refreshExperiments():void {
+			getProjectRequestList.send();
+		}
+		
 		public function initializeExperiments():void {
 			var canAccessAnyObject:Object = parentApplication.createSecurityAdvisor.lastResult..Permission.(@name == 'canAccessAnyObject');
 			if (canAccessAnyObject.length() > 0) {
@@ -179,7 +194,7 @@
 				browseLabCombo.visible = false;
 				
 				if (getProjectRequestList.lastResult == null) {
-					getProjectRequestList.send();
+					refreshExperiments();
 				}
 				
 			}

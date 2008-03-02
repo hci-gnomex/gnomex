@@ -20,6 +20,22 @@
  	import mx.collections.XMLListCollection;
  
  	import mx.rpc.events.ResultEvent;
+ 	
+ 	public function checkSecurity():void {
+ 		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project") {
+ 			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility == "Y") {
+ 				parentDocument.saveVisibilityButton.visible = true;
+ 				projectVisibilityCombo.enabled = true;
+ 			} else {
+ 				parentDocument.saveVisibilityButton.visible = false;
+ 				projectVisibilityCombo.enabled = false;
+ 			}
+ 		} else {
+ 			parentDocument.saveVisibilityButton.visible = false;
+ 			projectVisibilityCombo.enabled = false;
+ 		}
+ 	}
+			
 
  	private function getRequestKind(item:Object, col:int):String {
 		var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
@@ -43,8 +59,15 @@
 	}
 	
 	private function onSaveVisibility(event:ResultEvent):void {
-		parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility = projectVisibilityCombo.selectedItem.@value;
+		if (saveVisibility.lastResult.name() == "SUCCESS" ||
+		    saveVisibility.lastResult.name() == "ProjectRequestVisibilityList") {
+    		parentDocument.parentDocument.refreshExperiments();
+    	} else {
+    		mx.controls.Alert.show(saveVisibility.lastResult..ACTMESSAGE.@TEXT);
+    	}
 	}
+	
+	
 	
 	                
     private function onEdit(event:Event):void {

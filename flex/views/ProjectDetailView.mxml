@@ -19,6 +19,42 @@
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		
+		
+		public function checkSecurity():void {
+			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility != "Y") {
+				isVisibleToMembers.enabled = false;
+				isVisibleToMembersAndCollaborators.enabled = false;
+				isVisibleToPublic.enabled = false;
+			}else {
+				isVisibleToMembers.enabled = true;
+				isVisibleToMembersAndCollaborators.enabled = true;
+				isVisibleToPublic.enabled = true;
+			}
+			
+			if (parentDocument.parentDocument.selectedProject.@canUpdate != "Y") {
+				projectName.editable = false;
+				projectName.enabled = false;
+				projectDescription.editable = false;
+				projectDescription.enabled = false;
+			} else {
+				projectName.editable = true;
+				projectName.enabled = true;
+				projectDescription.editable = true;
+				projectDescription.enabled = true;
+			}
+			if (parentDocument.parentDocument.selectedProject.@canUpdate == "Y") {
+				parentDocument.saveProjectButton.visible = true;
+			} else{
+				parentDocument.saveProjectButton.visible = false;
+			}
+			
+			if (parentDocument.parentDocument.selectedProject.@canDelete == "Y") {
+				parentDocument.deleteProjectButton.visible = true;
+			} else{
+				parentDocument.deleteProjectButton.visible = false;
+			}
+		}
+		
 		public function sortExperimentDesigns(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
 				return 0;
@@ -93,7 +129,7 @@
 		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
-        		
+        		parentDocument.parentDocument.refreshExperiments();
         	} else {
         		Alert.show(saveProject.lastResult..ACTMESSAGE.@TEXT);
         	}
@@ -143,7 +179,7 @@
 		    </mx:VBox>
 		</mx:VBox>
 
-	    <mx:DataGrid width="30%" height="100%" 
+	    <mx:DataGrid id="experimentDesignEntryGrid" width="30%" height="100%" 
 	    	dataProvider="{experimentDesignEntries}" 
 	    	selectionColor="#FFFFFF" fontSize="9"
  			showHeaders="true" headerHeight="20" variableRowHeight="true">
@@ -180,7 +216,7 @@
             </mx:columns>
 	    </mx:DataGrid>
 
-	    <mx:DataGrid width="30%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" fontSize="9" showHeaders="true" headerHeight="20" variableRowHeight="true">
+	    <mx:DataGrid id="experimentFactorEntryGrid" width="30%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" fontSize="9" showHeaders="true" headerHeight="20" variableRowHeight="true">
 	        <mx:columns>
 	            <mx:DataGridColumn headerText=" " 
 	            	width="17" 

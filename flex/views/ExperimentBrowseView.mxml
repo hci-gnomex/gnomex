@@ -55,6 +55,14 @@
     	}
     }
     
+    public function refreshBrowseList():void {
+    	if (theViews.selectedChild == browseView) {
+    		if (browseView.selectedChild == projectDetailView) {
+    			projectDetailView.checkSecurity();
+    		}
+    	}
+    }
+    
   	public function refreshDownloadList():void {
 		if (theViews.selectedIndex == 1) {
 			var params:Object = new Object();
@@ -88,6 +96,7 @@
 	
 	public function refreshVisibilityList():void {
 		if (theViews.selectedIndex == 3) {
+			visibilityView.checkSecurity();
 			visibilityView.setVisibilityCombo();
 		}
 	}
@@ -111,6 +120,7 @@
 	}
 
 	private function onViewSwitch():void {
+		this.refreshBrowseList();
 		this.refreshDownloadList();
 		this.refreshTrackList();
 		this.refreshVisibilityList();
@@ -136,6 +146,7 @@
 	
 	private function onBrowseTabSwitch():void {
 		if (browseView.selectedChild == projectDetailView) {
+			projectDetailView.checkSecurity();
 			buttonStack.selectedChild = saveProjectButtonView;
 		} else {
 			buttonStack.selectedChild = browseButtonView;
@@ -171,20 +182,20 @@
 							    <mx:Button visible="false"/>
 		                    </mx:HBox>
 		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView" horizontalGap="2">
-							    <mx:Button label="Save" 
+							    <mx:Button id="saveProjectButton" label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
-							    	click="projectDetailView.save()"  visible="true">
+							    	click="projectDetailView.save()"  toolTip="Save project">
 					            </mx:Button>
 					            
-								<mx:Button icon="@Embed('../assets/folder_add.png')" label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
-								<mx:Button icon="@Embed('../assets/folder_delete.png')" label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
+								<mx:Button id="newProjectButton" icon="@Embed('../assets/folder_add.png')" label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
+								<mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
 								
 		                    </mx:HBox>
 		                    <mx:HBox  horizontalAlign="left" width="100%" id="trackButtonView" horizontalGap="2">
 								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
 		                    </mx:HBox>
 		                	<mx:HBox  horizontalAlign="left" width="100%" id="saveVisibilityButtonView">
-							    <mx:Button label="Save" 
+							    <mx:Button label="Save" id="saveVisibilityButton"
 							    	icon="@Embed('../assets/action_save.gif')" 
 							    	click="visibilityView.save()"  visible="true">
 					            </mx:Button>
