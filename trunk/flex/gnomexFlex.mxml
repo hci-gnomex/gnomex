@@ -64,19 +64,21 @@
 			private var appProgressBar:views.AppProgressView;
 			
 			private function lookupExperiment():void {
-				navExperimentView.selectedRequestNumber = requestNumber.text;
+				showExperiment(requestNumber.text);
+			}
+			
+			public function showExperiment(requestNumber:String):void {
+				navExperimentView.selectedRequestNumber = requestNumber;
 				navExperimentView.selectedIdRequest = null;
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 
 				var parms:Object = new Object();
-				parms.requestNumber = requestNumber.text;
+				parms.requestNumber = requestNumber;
 				navExperimentView.getRequest.send(parms);
 
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
-				
-				
 			}
             
             private function search():void {

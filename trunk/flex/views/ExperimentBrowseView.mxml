@@ -108,11 +108,15 @@
     } 
   	
   	private function onExperimentRowSelected():void {
-		selectedIdRequest = experimentList.selectedItem.@idRequest;
-		
+		showExperimentDetail(experimentList.selectedItem.@idRequest);
+  	}
+  	
+  	public function showExperimentDetail(idRequest:int):void {
+  		selectedIdRequest = idRequest;
+
 		var parms:Object = new Object();
 		parms.idRequest = selectedIdRequest;
-		getRequest.send(parms);
+		getRequest.send(parms);  		
   	}
 
   	private function onGetRequest(event:ResultEvent):void {
@@ -162,7 +166,7 @@
  
     <mx:XMLListCollection id="browseList" source="{parentDocument.getProjectRequestList.lastResult..Request}"/>
  
-		<mx:VBox width="100%" height="100%" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2">
+		<mx:VBox width="100%" height="100%" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2" verticalGap="8">
 		
 		    
 		        <mx:ApplicationControlBar 
