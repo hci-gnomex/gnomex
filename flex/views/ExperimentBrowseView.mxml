@@ -117,6 +117,8 @@
 
   	private function onGetRequest(event:ResultEvent):void {
 		selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
+		parentDocument.selectedExperiment = selectedExperiment;
+		parentDocument.theViews.selectedChild = parentDocument.detailView;
 	}
 
 	private function onViewSwitch():void {

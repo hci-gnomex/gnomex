@@ -176,7 +176,7 @@
 				params.showCategory = "N";
 				getProjectRequestList.send(params);
 			}
-		    theViews.selectedIndex = 1;
+		    theViews.selectedChild = detailView;
 		    theViews.visible = true;
 		}
 		
