@@ -98,7 +98,11 @@
         	} else {
         		browseTree.visible = true;
         	}
-        	expandAllBrowseNodes();  
+        	if (selectedRequestNumber != null) {
+	        	expandAllNodes();          		
+        	} else {
+        		expandLabNodes();
+        	}
         	callLater(reselectTreeItem);    	
 	    }
 	    
@@ -117,17 +121,29 @@
 	    
 	    private function selectRequestNode():void {
 	    	browseTree.selectedItem = selectedRequestNode;
+	    	//browseTree.firstVisibleItem = selectedRequestNode;
+			browseTree.validateNow();
+  			treeContainer.validateNow();
+
 	    }
 	    
         
         
-	    private function expandAllBrowseNodes():void
+	    private function expandLabNodes():void
   		{
   			browseTree.openItems = getProjectRequestList.lastResult..Lab;
-  			//browseTree.openItems = getProjectRequestList.lastResult..Project;
   			browseTree.validateNow();
   			treeContainer.validateNow();
   		}
+
+	    private function expandAllNodes():void
+  		{
+  			browseTree.openItems = getProjectRequestList.lastResult..Lab;
+  			browseTree.openItems = getProjectRequestList.lastResult..Project;
+  			browseTree.validateNow();
+  			treeContainer.validateNow();
+  		}
+  		
   		
   		private function collapseAllBrowseNodes():void {
   			browseTree.openItems = [];
@@ -247,14 +263,14 @@
 							 change="getProjectRequestList.send()"  
 							 visible="false" height="0" width="220">
 						</mx:ComboBox>
-					<mx:VBox id="treeContainer" width="100%" height="100%" backgroundAlpha="0.84">
-					<mx:Tree width="100%" height="100%" 
-						dataProvider="{getProjectRequestList.lastResult}" 
-						showRoot="false" 
-						labelFunction="getBrowseTreeLabel"
-						id="browseTree" click="onBrowseTree()" 
-						borderStyle="none"
-						iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="0.0"></mx:Tree>
+					<mx:VBox id="treeContainer" width="100%" height="100%" >
+						<mx:Tree width="100%" height="100%" 
+							dataProvider="{getProjectRequestList.lastResult}" 
+							showRoot="false" 
+							labelFunction="getBrowseTreeLabel"
+							id="browseTree" click="onBrowseTree()" 
+							borderStyle="none"
+							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="0.0"></mx:Tree>
 						
 					</mx:VBox>
 				</mx:VBox>
