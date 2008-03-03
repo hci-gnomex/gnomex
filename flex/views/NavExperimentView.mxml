@@ -51,11 +51,13 @@
  
 	   <mx:Script> 
         <![CDATA[
+        	import mx.controls.Alert;
         
         import mx.rpc.events.ResultEvent;   
         import mx.collections.XMLListCollection;
         
         public var selectedIdRequest:Object;
+        public var selectedRequestNumber:Object;
         
         [Bindable]
         public var selectedExperiment:Object;
@@ -64,6 +66,8 @@
         public var selectedProject:Object;
         
         public var selectedIdLab:String;
+        
+        public var selectedRequestNode:Object;
         
         [Bindable]
         public var selectedIdProject:String;
@@ -95,16 +99,26 @@
         		browseTree.visible = true;
         	}
         	expandAllBrowseNodes();  
-        	callLater(selectedTreeItem);    	
+        	callLater(reselectTreeItem);    	
 	    }
 	    
-	    private function selectedTreeItem():void {
+	    private function reselectTreeItem():void {
 			if (selectedIdProject != null) {
 				var selectedNode:Object = getProjectRequestList.lastResult..Project.(@idProject == selectedIdProject);
 				browseTree.selectedItem = selectedNode;
+			} else if (selectedRequestNumber != null) {
+				selectedRequestNode = getProjectRequestList.lastResult..Request.(@requestNumber == selectedRequestNumber);
+				browseTree.openItems = getProjectRequestList.lastResult..Project;
+				callLater(selectRequestNode);
+				
 			}
 	    	
 	    }
+	    
+	    private function selectRequestNode():void {
+	    	browseTree.selectedItem = selectedRequestNode;
+	    }
+	    
         
         
 	    private function expandAllBrowseNodes():void
@@ -115,8 +129,9 @@
   			treeContainer.validateNow();
   		}
   		
-  		private function collapsAllBrowseNodes():void {
+  		private function collapseAllBrowseNodes():void {
   			browseTree.openItems = [];
+  			browseTree.validateNow();
   		}
 
 		private function onBrowseTree():void {
@@ -150,8 +165,19 @@
 
 		
 		private function onGetRequest(event:ResultEvent):void {
-			selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
+			if (selectedIdRequest != null) {
+				selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);			
+			} else {
+				selectedExperiment = getRequest.lastResult.Request.(@number == selectedRequestNumber);
+				
+				var params:Object = new Object();
+				params.idProject = selectedExperiment.@idProject;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				getProjectRequestList.send(params);
+			}
 		    theViews.selectedIndex = 1;
+		    theViews.visible = true;
 		}
 		
 		private function onGetProject(event:ResultEvent):void {
@@ -193,7 +219,10 @@
 			} else {
 				browseLabCombo.visible = false;
 				
-				if (getProjectRequestList.lastResult == null) {
+				if (getProjectRequestList.lastResult == null ||
+				    selectedRequestNumber != null) {
+				    collapseAllBrowseNodes();
+				    selectedRequestNumber = null;
 					refreshExperiments();
 				}
 				
