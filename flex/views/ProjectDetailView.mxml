@@ -12,15 +12,31 @@
     method="POST"
     useProxy="false">
 </mx:HTTPService>
+
+<mx:HTTPService  
+    id="deleteProject" 
+    url="http://localhost/gnomex/DeleteProject.gx"
+    destination="deleteProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onDeleteProject(event)"
+    fault="onDeleteProjectFailed(event)"
+    method="POST"
+    useProxy="false">
+</mx:HTTPService>
   
 <mx:Script>
 	<![CDATA[
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
+		import mx.events.CloseEvent;
 		
 		
 		public function checkSecurity():void {
+			if (parentDocument.parentDocument.selectedProject == null) {
+				return;
+			}
 			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility != "Y") {
 				isVisibleToMembers.enabled = false;
 				isVisibleToMembersAndCollaborators.enabled = false;
@@ -50,8 +66,10 @@
 			
 			if (parentDocument.parentDocument.selectedProject.@canDelete == "Y") {
 				parentDocument.deleteProjectButton.visible = true;
+				parentDocument.deleteProjectButton2.visible = true;
 			} else{
 				parentDocument.deleteProjectButton.visible = false;
+				parentDocument.deleteProjectButton2.visible = false;
 			}
 		}
 		
@@ -127,6 +145,28 @@
 			saveProject.send(params);
 		}
 		
+		public function promptToDeleteProject():void {
+			Alert.show("Delete project " + parentDocument.parentDocument.selectedProject.@name + "?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDeleteProject);
+			
+		}
+		
+		private function onPromptToDeleteProject(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	removeProject();
+            }
+        }
+
+		
+		private function removeProject():void {
+			var params:Object = new Object();
+			params.idProject = parentDocument.parentDocument.selectedProject.@idProject;
+			deleteProject.send(params);
+			
+		}
+		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
         		parentDocument.parentDocument.refreshExperiments();
@@ -136,8 +176,23 @@
 			
 		}
 		
+		private function onDeleteProject(event:ResultEvent):void {
+        	if (deleteProject.lastResult.name() == "SUCCESS") {
+        		parentDocument.parentDocument.refreshExperiments();
+        		parentDocument.parentDocument.theViews.visible = false;
+        		parentDocument.buttonStack.selectedChild = parentDocument.browseButtonView;
+        	} else {
+        		Alert.show(deleteProject.lastResult..ACTMESSAGE.@TEXT);
+        	}
+		}
+
+		
 		private function onSaveProjectFailed(event:FaultEvent):void {
 			Alert.show("failed to save project " + event.message);
+		}
+		
+		private function onDeleteProjectFailed(event:FaultEvent):void {
+			Alert.show("failed to delete project " + event.message);
 		}
 
 	]]>

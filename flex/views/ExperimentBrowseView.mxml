@@ -56,8 +56,8 @@
     }
     
     public function refreshBrowseList():void {
-    	if (theViews.selectedChild == browseView) {
-    		if (browseView.selectedChild == projectDetailView) {
+    	if (theViews.selectedChild == browseTabView) {
+    		if (browseTabView.selectedChild == projectDetailView) {
     			projectDetailView.checkSecurity();
     		}
     	}
@@ -100,6 +100,7 @@
 			visibilityView.setVisibilityCombo();
 		}
 	}
+	
     
     private function getGridRowNumber(item:Object,col:int):String
     {
@@ -131,11 +132,21 @@
 		this.refreshTrackList();
 		this.refreshVisibilityList();
 		
-		if (theViews.selectedChild == browseView ) {
-			if (browseView.selectedChild == projectDetailView) {
+		refreshButtonStack();
+
+	}
+	
+	public function refreshButtonStack():void {
+		projectDetailView.checkSecurity();
+		if (theViews.selectedChild == browseTabView ) {
+			if (browseTabView.selectedChild == projectDetailView) {
 				buttonStack.selectedChild = saveProjectButtonView;
 			} else {
-				buttonStack.selectedChild = browseButtonView;
+				if (parentDocument.selectedIdProject == null) {
+					buttonStack.selectedChild = browseButtonView;				
+				} else {
+					buttonStack.selectedChild = browseProjectButtonView;
+				}
 			}
 		} else if (theViews.selectedChild == trackView) {
 			buttonStack.selectedChild = trackButtonView;
@@ -147,15 +158,19 @@
 			} else {
 				buttonStack.selectedChild = downloadFilesButtonView;
 			}
-		}
+		}		
 	}
 	
 	private function onBrowseTabSwitch():void {
-		if (browseView.selectedChild == projectDetailView) {
-			projectDetailView.checkSecurity();
+		projectDetailView.checkSecurity();
+		if (browseTabView.selectedChild == projectDetailView) {
 			buttonStack.selectedChild = saveProjectButtonView;
 		} else {
-			buttonStack.selectedChild = browseButtonView;
+			if (parentDocument.selectedIdProject == null) {
+				buttonStack.selectedChild = browseButtonView;				
+			} else {
+				buttonStack.selectedChild = browseProjectButtonView;
+			}
 		}
 	}
 	
@@ -181,52 +196,60 @@
 				        </mx:LinkBar>
 				        
 				        <mx:VRule height="20"/>
-		
-		                <mx:ViewStack  id="buttonStack"  width="100%" >
-		                    <mx:HBox  horizontalAlign="left" width="100%" id="browseButtonView" horizontalGap="2">
-								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
-							    <mx:Button visible="false"/>
-		                    </mx:HBox>
-		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView" horizontalGap="2">
-							    <mx:Button id="saveProjectButton" label="Save" 
-							    	icon="@Embed('../assets/action_save.gif')" 
-							    	click="projectDetailView.save()"  toolTip="Save project">
-					            </mx:Button>
-					            
-								<mx:Button id="newProjectButton" icon="@Embed('../assets/folder_add.png')" label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
-								<mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
-								
-		                    </mx:HBox>
-		                    <mx:HBox  horizontalAlign="left" width="100%" id="trackButtonView" horizontalGap="2">
-								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
-		                    </mx:HBox>
-		                	<mx:HBox  horizontalAlign="left" width="100%" id="saveVisibilityButtonView">
-							    <mx:Button label="Save" id="saveVisibilityButton"
-							    	icon="@Embed('../assets/action_save.gif')" 
-							    	click="visibilityView.save()"  visible="true">
-					            </mx:Button>
-								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
-		                    </mx:HBox>
-		                    <mx:HBox horizontalAlign="left"  width="100%" id="downloadFoldersButtonView">
-							    <mx:Button id="downloadFoldersButton" 
-							    	click="downloadView.downloadFolders()" 
-							    	icon="@Embed('../assets/icon_download.gif')" 
-							    	toolTip="Download selected folders"
-							    	label="Download" 
-							    	visible="true"/>
-								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
-		                    </mx:HBox>		                    
-		                    <mx:HBox horizontalAlign="left"  width="100%" id="downloadFilesButtonView">
-							     <mx:Button id="downloadFilesButton" 
-							      	click="downloadView.downloadFiles()" 
-							      	icon="@Embed('../assets/icon_download.gif')" 
-							      	toolTip="Download selected files"
-							      	label="Download"/>
-								<mx:Label text="{rowCountMessage}" width="100%" textAlign="right"/>
-		                    </mx:HBox>		                    
-		                    
-		                	
-		                </mx:ViewStack>
+				        <mx:ViewStack  id="buttonStack"  width="100%" >
+				            <mx:HBox  horizontalAlign="left" width="100%" id="browseButtonView" horizontalGap="2">
+				            <mx:Label text="{rowCountMessage}" width="100%"/>
+				            <mx:Button visible="false"/>
+				            </mx:HBox>
+				            <mx:HBox  horizontalAlign="right" width="100%" id="browseProjectButtonView">
+				            <mx:Label text="{rowCountMessage}" width="100%"/>
+				            <mx:Button id="deleteProjectButton2" icon="@Embed('../assets/folder_delete.png')" 
+				            	click="projectDetailView.promptToDeleteProject()"
+				            	label="Delete project"  letterSpacing=".3" horizontalGap="0"/>
+
+				            </mx:HBox>
+				            <mx:HBox  horizontalAlign="right" width="100%" id="saveProjectButtonView" horizontalGap="2">
+				            <mx:Button id="saveProjectButton" label="Save" 
+				            	icon="@Embed('../assets/action_save.gif')" 
+				            	click="projectDetailView.save()"  toolTip="Save project">
+				                  </mx:Button>
+				            <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
+				            	click="projectDetailView.promptToDeleteProject()"
+				            	label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
+				            
+				            </mx:HBox>
+				            <mx:HBox  horizontalAlign="left" width="100%" id="trackButtonView" horizontalGap="2">
+				            <mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
+				            </mx:HBox>
+				        	<mx:HBox  horizontalAlign="right" width="100%" id="saveVisibilityButtonView">
+				        	<mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
+				        	<mx:Button label="Save" id="saveVisibilityButton"
+				        		icon="@Embed('../assets/action_save.gif')" 
+				        		click="visibilityView.save()"  visible="true">
+				        	      </mx:Button>
+				        	   </mx:HBox>
+				            <mx:HBox horizontalAlign="right"  width="100%" id="downloadFoldersButtonView">
+				            <mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
+				            <mx:Button id="downloadFoldersButton" 
+				            	click="downloadView.downloadFolders()" 
+				            	icon="@Embed('../assets/icon_download.gif')" 
+				            	toolTip="Download selected folders"
+				            	label="Download" 
+				            	visible="true"/>
+				            </mx:HBox>		                    
+				            <mx:HBox horizontalAlign="right"  width="100%" id="downloadFilesButtonView">
+				            <mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
+				            <mx:Button id="downloadFilesButton" 
+				             	click="downloadView.downloadFiles()" 
+				             	icon="@Embed('../assets/icon_download.gif')" 
+				             	toolTip="Download selected files"
+				             	label="Download"/>
+				            </mx:HBox>		                    
+				            
+				        	
+				        </mx:ViewStack>
+				        <mx:Button id="newProjectButton0" icon="@Embed('../assets/folder_add.png')" 
+				        	label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
 				    </mx:HBox>
 		        </mx:ApplicationControlBar>
 			    	
@@ -234,7 +257,7 @@
 				   
 		             
 		<mx:ViewStack id="theViews" width="100%" height="100%">
-		       <mx:TabNavigator id="browseView" width="100%" height="100%" 	
+		       <mx:TabNavigator id="browseTabView" width="100%" height="100%" 	
 		       	    icon="@Embed('../assets/application_view_detail.png')" 
 			       	label="Browse" visible="false" 
 			        change="onBrowseTabSwitch()">
