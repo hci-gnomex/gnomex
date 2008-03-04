@@ -151,6 +151,9 @@
   		}
 
 		private function onBrowseTree():void {
+			selectedProject = null;
+			selectedIdProject = null;
+			selectedIdLab = null;
 			
 			if (browseTree.selectedItem.name() == 'Request') {
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
@@ -164,10 +167,13 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
+					browseView.projectDetailView.enabled = true;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
 					getProject.send();
 				} else {
 					selectedIdProject = null;
+					browseView.buttonStack.selectedChild = browseView.browseButtonView;
+					browseView.projectDetailView.enabled = false;
 				}
 				
 				theViews.selectedIndex=0;
@@ -203,6 +209,9 @@
 			browseView.refreshDownloadList();
 			browseView.refreshTrackList();
 			browseView.refreshVisibilityList();
+			
+			browseView.refreshButtonStack();
+
 		}
 
 		public function getTreeIcon(item:Object):Class {

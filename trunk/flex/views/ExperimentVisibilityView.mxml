@@ -22,7 +22,8 @@
  	import mx.rpc.events.ResultEvent;
  	
  	public function checkSecurity():void {
- 		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project") {
+ 		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project" &&
+ 		    parentDocument.parentDocument.selectedProject != null) {
  			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility == "Y") {
  				parentDocument.saveVisibilityButton.visible = true;
  				projectVisibilityCombo.enabled = true;
