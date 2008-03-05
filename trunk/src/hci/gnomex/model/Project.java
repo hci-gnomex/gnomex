@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import hci.framework.utilities.XMLReflectException;
 import hci.hibernate3utils.HibernateDetailObject;
@@ -23,11 +24,11 @@ public class Project extends HibernateDetailObject {
   private Lab       lab;
   private Integer   idAppUser;
   private AppUser   appUser;
-  private String    codeVisibility;
-  private Set       requests;
-  private Set       experimentDesignEntries;
-  private Set       experimentFactorEntries;
-  private Set       qualityControlStepEntries;
+  private String    codeVisibility = Visibility.VISIBLE_TO_GROUP_MEMBERS;
+  private Set       requests = new TreeSet();
+  private Set       experimentDesignEntries = new TreeSet();
+  private Set       experimentFactorEntries = new TreeSet();
+  private Set       qualityControlStepEntries = new TreeSet();
   
   // permission field
   private boolean  canUpdateVisibility;

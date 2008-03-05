@@ -34,10 +34,10 @@
 		
 		
 		public function checkSecurity():void {
-			if (parentDocument.parentDocument.selectedProject == null) {
+			if (parentApplication.navExperimentView.selectedProject == null) {
 				return;
 			}
-			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility != "Y") {
+			if (parentApplication.navExperimentView.selectedProject.@canUpdateVisibility != "Y") {
 				isVisibleToMembers.enabled = false;
 				isVisibleToMembersAndCollaborators.enabled = false;
 				isVisibleToPublic.enabled = false;
@@ -47,7 +47,7 @@
 				isVisibleToPublic.enabled = true;
 			}
 			
-			if (parentDocument.parentDocument.selectedProject.@canUpdate != "Y") {
+			if (parentApplication.navExperimentView.selectedProject.@canUpdate != "Y") {
 				projectName.editable = false;
 				projectName.enabled = false;
 				projectDescription.editable = false;
@@ -58,13 +58,13 @@
 				projectDescription.editable = true;
 				projectDescription.enabled = true;
 			}
-			if (parentDocument.parentDocument.selectedProject.@canUpdate == "Y") {
+			if (parentApplication.navExperimentView.selectedProject.@canUpdate == "Y") {
 				parentDocument.saveProjectButton.visible = true;
 			} else{
 				parentDocument.saveProjectButton.visible = false;
 			}
 			
-			if (parentDocument.parentDocument.selectedProject.@canDelete == "Y") {
+			if (parentApplication.navExperimentView.selectedProject.@canDelete == "Y") {
 				parentDocument.deleteProjectButton.visible = true;
 				parentDocument.deleteProjectButton2.visible = true;
 			} else{
@@ -128,25 +128,25 @@
 		}
 		
 		public function save():void {
-			parentDocument.parentDocument.selectedProject.@name = projectName.text;
-			parentDocument.parentDocument.selectedProject.@description = projectDescription.text;
+			parentApplication.navExperimentView.selectedProject.@name = projectName.text;
+			parentApplication.navExperimentView.selectedProject.@description = projectDescription.text;
 			
 			if (isVisibleToMembers.selected) {
-				parentDocument.parentDocument.selectedProject.@codeVisibility = 'MEM';
+				parentApplication.navExperimentView.selectedProject.@codeVisibility = 'MEM';
 			} else if (isVisibleToMembersAndCollaborators.selected) {
-				parentDocument.parentDocument.selectedProject.@codeVisibility = 'MEMCOL';
+				parentApplication.navExperimentView.selectedProject.@codeVisibility = 'MEMCOL';
 			} else if (isVisibleToPublic.selected) {
-				parentDocument.parentDocument.selectedProject.@codeVisibility = 'PUBLIC';
+				parentApplication.navExperimentView.selectedProject.@codeVisibility = 'PUBLIC';
 			} 
 			
 			var params:Object = new Object();
-			params.projectXMLString = parentDocument.parentDocument.selectedProject.toXMLString();
+			params.projectXMLString = parentApplication.navExperimentView.selectedProject.toXMLString();
 			params.parseEntries = 'Y';
 			saveProject.send(params);
 		}
 		
 		public function promptToDeleteProject():void {
-			Alert.show("Delete project " + parentDocument.parentDocument.selectedProject.@name + "?", 
+			Alert.show("Delete project " + parentApplication.navExperimentView.selectedProject.@name + "?", 
 						null, 
 						(Alert.YES | Alert.NO), this, 
 						onPromptToDeleteProject);
@@ -162,14 +162,14 @@
 		
 		private function removeProject():void {
 			var params:Object = new Object();
-			params.idProject = parentDocument.parentDocument.selectedProject.@idProject;
+			params.idProject = parentApplication.navExperimentView.selectedProject.@idProject;
 			deleteProject.send(params);
 			
 		}
 		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
-        		parentDocument.parentDocument.refreshExperiments();
+        		parentApplication.navExperimentView.refreshExperiments();
         	} else {
         		Alert.show(saveProject.lastResult..ACTMESSAGE.@TEXT);
         	}
@@ -178,9 +178,9 @@
 		
 		private function onDeleteProject(event:ResultEvent):void {
         	if (deleteProject.lastResult.name() == "SUCCESS") {
-        		parentDocument.parentDocument.refreshExperiments();
-        		parentDocument.parentDocument.theViews.visible = false;
-        		parentDocument.buttonStack.selectedChild = parentDocument.browseButtonView;
+        		parentApplication.navExperimentView.refreshExperiments();
+        		parentApplication.navExperimentView.theViews.visible = false;
+        		parentApplication.navExperimentView.browseView.buttonStack.selectedChild = parentDocument.browseButtonView;
         	} else {
         		Alert.show(deleteProject.lastResult..ACTMESSAGE.@TEXT);
         	}
@@ -199,12 +199,12 @@
 </mx:Script>
 
 	  
-	  <mx:XMLListCollection id="experimentDesignEntries" source="{parentDocument.parentDocument.selectedProject.ExperimentDesignEntries.ExperimentDesignEntry}" 
+	  <mx:XMLListCollection id="experimentDesignEntries" source="{parentApplication.navExperimentView.selectedProject.ExperimentDesignEntries.ExperimentDesignEntry}" 
 	  	 sort="{experimentDesignSorter}"/>
 	  <mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns"
 	  unique="true"/>
 	  
-	  <mx:XMLListCollection id="experimentFactorEntries" source="{parentDocument.parentDocument.selectedProject.ExperimentFactorEntries.ExperimentFactorEntry}" 
+	  <mx:XMLListCollection id="experimentFactorEntries" source="{parentApplication.navExperimentView.selectedProject.ExperimentFactorEntries.ExperimentFactorEntry}" 
 	  	 sort="{experimentFactorSorter}"/>
 	  <mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors"
 	  unique="true"/>
@@ -223,14 +223,14 @@
 			<mx:VBox width="100%" verticalGap="0" height="100%">
 				<mx:Label text="Project description:"/>
 				<mx:TextArea height="100%" id="projectDescription" width="100%" 
-					text="{parentDocument.parentDocument.selectedProject.@description}"/>			    	
+					text="{parentApplication.navExperimentView.selectedProject.@description}"/>			    	
 		    </mx:VBox>
 		    
 		    <mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Visibility to experiment and data:"/>
-				<mx:RadioButton id="isVisibleToMembers" label="Visible to members" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToMembers == 'Y'}"/>
-				<mx:RadioButton id="isVisibleToMembersAndCollaborators" label="Visible to members and collaborators" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToMembersAndCollaborators == 'Y'}"/>
-				<mx:RadioButton id="isVisibleToPublic" label="Visible to everyone (available to public)" groupName="radiogroup1" selected="{parentDocument.parentDocument.selectedProject.@isVisibleToPublic == 'Y'}"/>
+				<mx:RadioButton id="isVisibleToMembers" label="Visible to members" groupName="radiogroup1" selected="{parentApplication.navExperimentView.selectedProject.@isVisibleToMembers == 'Y'}"/>
+				<mx:RadioButton id="isVisibleToMembersAndCollaborators" label="Visible to members and collaborators" groupName="radiogroup1" selected="{parentApplication.navExperimentView.selectedProject.@isVisibleToMembersAndCollaborators == 'Y'}"/>
+				<mx:RadioButton id="isVisibleToPublic" label="Visible to everyone (available to public)" groupName="radiogroup1" selected="{parentApplication.navExperimentView.selectedProject.@isVisibleToPublic == 'Y'}"/>
 		    </mx:VBox>
 		</mx:VBox>
 

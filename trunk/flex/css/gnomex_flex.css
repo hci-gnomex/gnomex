@@ -109,3 +109,11 @@ TextInput {
 TextArea {
 	disabledColor: #5f5f5f;
 }
+
+TitleWindow {
+        backgroundColor: #e3ecf4;
+	    backgroundAlpha:            1;
+
+}
+
+

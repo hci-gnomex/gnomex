@@ -54,10 +54,17 @@ public class GetProject extends GNomExCommand implements Serializable {
     
     try {
       
-   
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      Project project = null;
+      if (idProject.intValue() == 0) {
+        project = new Project();
+        project.setIdProject(new Integer(0));
+      } else {
+        project = (Project)sess.get(Project.class, idProject);
+        
+      }
+   
     
-      Project project = (Project)sess.get(Project.class, idProject);
       
       StringBuffer queryBuf = new StringBuffer();
       queryBuf.append("SELECT ed from ExperimentDesign as ed ");

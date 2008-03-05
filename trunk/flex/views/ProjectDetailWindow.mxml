@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="800" height="500" 
+	xmlns:views="views.*" showCloseButton="true" close="{PopUpManager.removePopUp(this);}" title="New Project" 
+	titleIcon="@Embed('../assets/folder_add.png')" >
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+            
+	]]>
+</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<views:ProjectDetailView id="projectDetailView">
+		</views:ProjectDetailView>
+		<mx:HBox width="100%" horizontalAlign="right">
+			<mx:Button id="saveProjectButton" label="Save" 
+				icon="@Embed('../assets/action_save.gif')" 
+				click="projectDetailView.save()"
+				toolTip="Save project">
+			 </mx:Button>
+			<mx:Button id="cancelButton" label="Cancel" 
+				 click="{PopUpManager.removePopUp(this);}">
+			 </mx:Button>
+		</mx:HBox>
+		
+	</mx:VBox>
+</mx:TitleWindow>
