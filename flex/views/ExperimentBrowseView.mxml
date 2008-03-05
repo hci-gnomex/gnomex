@@ -13,10 +13,30 @@
     useProxy="false">
   </mx:HTTPService>
 
+
+   <mx:HTTPService  
+    id="getNewProject" 
+    url="http://localhost/gnomex/GetProject.gx"
+    destination="getProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetNewProject(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+   		<idProject>0</idProject>    	
+    </mx:request>
+  </mx:HTTPService>
+
   
  <mx:Script>
  	<![CDATA[
+ 	import mx.core.IContainer;
  	import mx.rpc.events.ResultEvent;
+    import mx.managers.PopUpManager;
+	import mx.containers.TitleWindow;
+
+
 
  	[Bindable]
     private var rowCountMessage:String = new String();
@@ -29,6 +49,8 @@
     public function setResultsCount():void {
     	rowCountMessage = parentDocument.browseTree.selectedItem..Request.length() + " experiments.";
     }
+    
+    private var projectDetailWindow:views.ProjectDetailWindow;
         
     public function getFullName(item:Object, col:int):String {
     	return item.@ownerLastName + ", " + item.@ownerFirstName;
@@ -174,6 +196,19 @@
 		}
 	}
 	
+	private function showNewProjectWindow():void {
+		getNewProject.send();
+	}
+
+	private function onGetNewProject(event:ResultEvent):void {
+		 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
+		 parentDocument.selectedProject.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+		 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
+		 this.projectDetailWindow = views.ProjectDetailWindow(PopUpManager.createPopUp(this, views.ProjectDetailWindow, true));
+		 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+		 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+		 PopUpManager.centerPopUp(this.projectDetailWindow);		
+	}
 
 
  	]]>
@@ -248,7 +283,7 @@
 				            
 				        	
 				        </mx:ViewStack>
-				        <mx:Button id="newProjectButton0" icon="@Embed('../assets/folder_add.png')" 
+				        <mx:Button id="newProjectButton0" click="showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
 				        	label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
 				    </mx:HBox>
 		        </mx:ApplicationControlBar>
