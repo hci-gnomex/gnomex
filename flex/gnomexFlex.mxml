@@ -161,6 +161,15 @@
             	}
             }
             
+            public function canSubmitRequests(idLab:int):Boolean {
+            	var theLab:Object = getLabList.lastResult..Lab.(@idLab == idLab);
+            	if (theLab != null && theLab.@canSubmitRequests == 'Y') {
+            		return true;
+            	} else {
+            		return false;
+            	}
+            }
+            
             private function checkSecurity():void {
 				if (!hasPermission("canAdministerUsers") &&
 				    !hasGroupsToManage()) {

@@ -61,23 +61,26 @@ public class GetProject extends GNomExCommand implements Serializable {
         project.setIdProject(new Integer(0));
       } else {
         project = (Project)sess.get(Project.class, idProject);
-        
+        if (!this.getSecAdvisor().canRead(project)) {
+          this.addInvalidField("permissionerror", "Insufficient permissions to access this project.");
+        } else {
+          this.getSecAdvisor().flagPermissions(project);
+          
+        }
       }
    
     
-      
-      StringBuffer queryBuf = new StringBuffer();
-      queryBuf.append("SELECT ed from ExperimentDesign as ed ");
-      List experimentDesigns = sess.createQuery(queryBuf.toString()).list();
+      if (isValid())  {
+        StringBuffer queryBuf = new StringBuffer();
+        queryBuf.append("SELECT ed from ExperimentDesign as ed ");
+        List experimentDesigns = sess.createQuery(queryBuf.toString()).list();
 
-      queryBuf = new StringBuffer();
-      queryBuf.append("SELECT ef from ExperimentFactor as ef ");
-      List experimentFactors = sess.createQuery(queryBuf.toString()).list();
+        queryBuf = new StringBuffer();
+        queryBuf.append("SELECT ef from ExperimentFactor as ef ");
+        List experimentFactors = sess.createQuery(queryBuf.toString()).list();
 
       
-      if (this.getSecAdvisor().canRead(project)) {
       
-        this.getSecAdvisor().flagPermissions(project);
 
       
         Document doc = new Document(new Element("OpenProjectList"));
@@ -133,8 +136,6 @@ public class GetProject extends GNomExCommand implements Serializable {
       
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
-      } else {
-        this.addInvalidField("Insufficient Permission", "Insufficient permission to access this project");      
       }
     
       if (isValid()) {
