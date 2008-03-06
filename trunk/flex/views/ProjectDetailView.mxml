@@ -32,6 +32,9 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		
+		private var closeWindowAfterSave:Boolean = false;
+		
+		
 		
 		public function checkSecurity():void {
 			if (parentApplication.navExperimentView.selectedProject == null) {
@@ -127,6 +130,11 @@
 			}
 		}
 		
+		public function saveAndClose():void {
+			closeWindowAfterSave = true;
+			save();
+		}
+		
 		public function save():void {
 			parentApplication.navExperimentView.selectedProject.@name = projectName.text;
 			parentApplication.navExperimentView.selectedProject.@description = projectDescription.text;
@@ -169,7 +177,14 @@
 		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
+				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
+				parentApplication.navExperimentView.getProject.send();
+        		parentApplication.navExperimentView.browseView.browseTabView.selectedChild = parentApplication.navExperimentView.browseView.projectDetailView;
         		parentApplication.navExperimentView.refreshExperiments();
+        		
+        		if (closeWindowAfterSave) {
+        			parentDocument.closeWindow();
+        		}
         	} else {
         		Alert.show(saveProject.lastResult..ACTMESSAGE.@TEXT);
         	}

@@ -115,6 +115,16 @@
 				browseTree.openItems = getProjectRequestList.lastResult..Project;
 				callLater(selectRequestNode);
 				
+			} else if (selectedIdProject != null) {
+				var selectedLabNode:Object = getProjectRequestList.lastResult..Lab.(@idLab == selectedIdLab);
+				browseTree.selectedItem = selectedLabNode;
+				
+				
+			} else {
+				var firstLabNode:Object = getProjectRequestList.lastResult..Lab[0];
+				browseTree.selectedItem = firstLabNode;
+				onBrowseTree();
+				
 			}
 	    	
 	    }

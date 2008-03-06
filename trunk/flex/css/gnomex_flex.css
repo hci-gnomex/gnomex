@@ -111,9 +111,25 @@ TextArea {
 }
 
 TitleWindow {
-        backgroundColor: #e3ecf4;
-	    backgroundAlpha:            1;
+		panelAlpha: .5;
+		dropShadowEnabled: false;
+        borderAlpha: 1.0;
+        borderColor: #fee789;
+        backgroundColor: haloSilver;
+        cornerRadius: 14;
+        roundedBottomCorners: true;
+        borderThicknessBottom: 4;
+        borderThicknessTop: 4;
+        borderThicknessLeft: 4;
+        borderThicknessRight: 4;
+
 
 }
+
+
+
+
+
+
 
 

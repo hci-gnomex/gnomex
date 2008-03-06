@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="800" height="500" 
-	xmlns:views="views.*" showCloseButton="true" close="{PopUpManager.removePopUp(this);}" title="New Project" 
-	titleIcon="@Embed('../assets/folder_add.png')" >
+	xmlns:views="views.*" showCloseButton="true" close="closeWindow()" title="New Project" 
+	titleIcon="@Embed('../assets/folder_add.png')" borderColor="#FFFFFF" borderThickness="4">
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
+		
+		public function closeWindow():void {
+			PopUpManager.removePopUp(this);
+		}
             
 	]]>
 </mx:Script>
@@ -14,11 +18,11 @@
 		<mx:HBox width="100%" horizontalAlign="right">
 			<mx:Button id="saveProjectButton" label="Save" 
 				icon="@Embed('../assets/action_save.gif')" 
-				click="projectDetailView.save()"
+				click="projectDetailView.saveAndClose()"
 				toolTip="Save project">
 			 </mx:Button>
 			<mx:Button id="cancelButton" label="Cancel" 
-				 click="{PopUpManager.removePopUp(this);}">
+				 click="closeWindow()">
 			 </mx:Button>
 		</mx:HBox>
 		

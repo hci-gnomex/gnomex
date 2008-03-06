@@ -62,6 +62,12 @@ public class GetLab extends GNomExCommand implements Serializable {
     
     Lab theLab = (Lab)sess.get(Lab.class, lab.getIdLab());
     
+    
+    theLab.excludeMethodFromXML("getIsMyLab");
+    theLab.excludeMethodFromXML("getCanSubmitRequests");
+    theLab.excludeMethodFromXML("getCanManage");
+    theLab.excludeMethodFromXML("getHasPublicData");
+    
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) ||
         this.getSecAdvisor().canUpdate(lab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP)) {
       Hibernate.initialize(theLab.getMembers());

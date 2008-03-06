@@ -180,7 +180,8 @@
 			} else {
 				buttonStack.selectedChild = downloadFilesButtonView;
 			}
-		}		
+		}
+		
 	}
 	
 	private function onBrowseTabSwitch():void {
@@ -197,17 +198,26 @@
 	}
 	
 	private function showNewProjectWindow():void {
-		getNewProject.send();
+		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
+			getNewProject.send();		
+		} else {
+			mx.controls.Alert.show("You are not able to add projects in this group.");
+		}
 	}
 
 	private function onGetNewProject(event:ResultEvent):void {
-		 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
-		 parentDocument.selectedProject.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
-		 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
-		 this.projectDetailWindow = views.ProjectDetailWindow(PopUpManager.createPopUp(this, views.ProjectDetailWindow, true));
-		 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
-		 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
-		 PopUpManager.centerPopUp(this.projectDetailWindow);		
+		if (getNewProject.lastResult.name() == "OpenProjectList") {
+			 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
+			 parentDocument.selectedProject.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
+			 this.projectDetailWindow = views.ProjectDetailWindow(PopUpManager.createPopUp(this, views.ProjectDetailWindow, true));
+			 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+			 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+			 PopUpManager.centerPopUp(this.projectDetailWindow);		
+			
+		} else {
+			mx.controls.Alert.show(getNewProject.lastResult..ACTMESSAGE.@TEXT, "Get new project failed");
+		}
 	}
 
 
@@ -283,7 +293,7 @@
 				            
 				        	
 				        </mx:ViewStack>
-				        <mx:Button id="newProjectButton0" click="showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
+				        <mx:Button id="newProjectButton" click="showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
 				        	label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
 				    </mx:HBox>
 		        </mx:ApplicationControlBar>
