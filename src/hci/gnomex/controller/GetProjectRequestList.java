@@ -24,6 +24,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.ProjectRequestFilter;
 import hci.gnomex.model.RequestCategory;
@@ -41,6 +42,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private Element              requestCatNode = null;
   private Element              requestNode = null;
   private String               listKind = "ProjectRequestList";
+  private String               showMyLabsAlways = "N";
   
   public void validate() {
   }
@@ -50,6 +52,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     filter = new ProjectRequestFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
+    
+    if (request.getParameter("showMyLabsAlways") != null && !request.getParameter("showMyLabsAlways").equals("")) {
+      showMyLabsAlways = request.getParameter("showMyLabsAlways");
+    }
     
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
       listKind = request.getParameter("listKind");
@@ -81,6 +87,17 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     try {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      
+      HashMap myLabMap = new HashMap();
+      if (showMyLabsAlways.equals("Y")) {
+        for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
+          Lab lab = (Lab)i.next();
+          if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+            myLabMap.put(lab.getIdLab(), lab);
+          }
+        }
+      }
+      
     
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
       log.info("Query for GetProjectRequestList: " + buf.toString());
@@ -107,6 +124,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         
         Element n = null;
         if (idLab.intValue() != prevIdLab.intValue()) {
+          // Keep track of which of users labs are in results set
+          if (showMyLabsAlways.equals("Y")) {
+            myLabMap.remove(idLab);            
+          }
           addLabNode(row);
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
@@ -144,6 +165,16 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         prevIdLab     = idLab;
         prevCodeRequestCategory = codeRequestCategory;
         prevCodeMicroarrayCategory = codeMicroarrayCategory;
+      }
+      
+      
+      // For those labs that user is member of that do not have any projects,
+      // create a lab node in the XML document.
+      if (showMyLabsAlways.equals("Y")) {
+        for(Iterator i = myLabMap.keySet().iterator(); i.hasNext();) {
+          Lab lab = (Lab)myLabMap.get(i.next());
+          addLabNode(lab);
+        }
       }
    
       
@@ -190,6 +221,15 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     labNode.setAttribute("labName",          (row[17] == null? "" : (String)row[17]).toString());
     labNode.setAttribute("projectLabName",   row[19] == null ? "" : (String)row[19]);
     labNode.setAttribute("label",            row[19] == null ? "" : (String)row[19]);
+    rootNode.addContent(labNode);
+  }
+
+  private void addLabNode(Lab lab) {
+    labNode = new Element("Lab");
+    labNode.setAttribute("idLab",            lab.getIdLab().toString());
+    labNode.setAttribute("labName",          lab.getName());
+    labNode.setAttribute("projectLabName",   lab.getName());
+    labNode.setAttribute("label",            lab.getName());
     rootNode.addContent(labNode);
   }
   
