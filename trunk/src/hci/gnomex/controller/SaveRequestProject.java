@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
@@ -59,7 +60,20 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       
       request = (Request)sess.load(Request.class, idRequest);
       
-      if (this.getSecAdvisor().canUpdate(request)) {
+      Project project = (Project)sess.get(Project.class, idProject);
+      
+      if (!this.getSecAdvisor().canUpdate(project)) {
+        this.addInvalidField("projectperm", "You do not have update permissions on project " + project.getName() + ".");
+        setResponsePage(this.ERROR_JSP);
+      }
+      
+      if (this.isValid() && 
+          !this.getSecAdvisor().canUpdate(request)) {
+        this.addInvalidField("Insufficient permissions", "You do not have update permissions on experiment " + request.getNumber() + ".");
+        setResponsePage(this.ERROR_JSP);
+      }
+      
+      if (this.isValid()) {
         request.setIdProject(idProject);            
 
         sess.save(request);
@@ -70,10 +84,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         this.xmlResult = "<SUCCESS idRequest=\"" + request.getIdRequest() + "\"/>";
       
         setResponsePage(this.SUCCESS_JSP);        
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to modify request.");
-        setResponsePage(this.ERROR_JSP);
-      }
+      } 
     }catch (Exception e){
       log.error("An exception has occurred in SaveRequest ", e);
       e.printStackTrace();
