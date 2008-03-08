@@ -10,6 +10,7 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 
@@ -50,19 +51,34 @@ public class DeleteProject extends GNomExCommand implements Serializable {
     
       if (this.getSecAdvisor().canDelete(project)) {
         
-        
         //
-        // Delete Project
+        // Initialize the requests.  We don't want to orphan them unintentionally.
         //
-        sess.delete(project);
+        Hibernate.initialize(project.getRequests());
+        if (project.getRequests().size() > 0) {
+          this.addInvalidField("project with requests", 
+              "Project cannot be deleted because it has experiments.  Please reassign experiments to another project before deleting.");
+        }
         
-        sess.flush();
-        
-       
+        if (this.isValid()) {
+          
+          //
+          // Delete Project
+          //
+          sess.delete(project);
+          
+          sess.flush();
+          
+         
 
-        this.xmlResult = "<SUCCESS/>";
+          this.xmlResult = "<SUCCESS/>";
+          setResponsePage(this.SUCCESS_JSP);
+          
+        } else {
+          this.setResponsePage(this.ERROR_JSP);
+        }
+        
       
-        setResponsePage(this.SUCCESS_JSP);
       
       
       } else {
