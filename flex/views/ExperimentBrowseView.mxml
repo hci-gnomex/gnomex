@@ -192,13 +192,13 @@
 	public function filterList():void {
 		if (theViews.selectedChild == experimentListView ||
 		    theViews.selectedChild == visibilityView) {
-			browseList.filterFunction = parentDocument.filterBrowseList;
+			browseList.filterFunction = parentDocument.filterExperimentList;
 			browseList.refresh();
 		} else if (theViews.selectedChild == downloadView) {
-			downloadView.downloadList.filterFunction = parentDocument.filterDownloadList;
+			downloadView.downloadList.filterFunction = parentDocument.filterExperimentList;
 			downloadView.downloadList.refresh();
 		} else if (theViews.selectedChild == this.trackView) {
-			trackView.progressList.filterFunction = parentDocument.filterProgressList;
+			trackView.progressList.filterFunction = parentDocument.filterExperimentList;
 			trackView.progressList.refresh();
 		}
 		
@@ -302,15 +302,20 @@
    	 	            </mx:VBox>
 
 		        </mx:ApplicationControlBar>
-			    	
+			    	 
 		    	
 	    <mx:HBox id="filterListView" width="100%" paddingTop="12"  horizontalGap="30">
-	    	<mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()">					    		
-	    	</mx:ComboBox> 
+	        <mx:HBox horizontalGap="0">
+		    	<mx:Label text="Experiment #"/>
+		    	<mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()" width="80">					    		
+		    	</mx:ComboBox> 
+	        	
+	        </mx:HBox>
 	    	
 	    	<mx:HBox horizontalGap="0">
-	    		<mx:CheckBox id="lastWeekCheckbox" label="Last weeks experiments" change="filterList()"/>
-	    		<mx:CheckBox  id="lastMonthCheckbox" label="Last month experiments" change="filterList()"/>
+	    		<mx:CheckBox id="lastWeekCheckbox" label="Last week's experiments" change="filterList()"/>
+	    		<mx:CheckBox  id="lastMonthCheckbox" label="Last month" change="filterList()"/>
+	    		<mx:CheckBox  id="lastYearCheckbox" label="Last year" change="filterList()"/>
 	    	</mx:HBox>
 	    	
 	    	<mx:CheckBox label="My experiments only" id="myExperimentsCheckbox" change="filterList()"/>

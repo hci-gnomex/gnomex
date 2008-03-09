@@ -97,9 +97,6 @@
         [Bindable]
     	public var rowCountMessage:String = new String();
     
-       	[Bindable]
- 		public var requestNumbers:ArrayCollection;
- 	
 
 	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
 	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
@@ -248,6 +245,9 @@
 				
 				theViews.selectedIndex=0;
 			} 
+			
+			browseView.requestNumberCombo.selectedIndex = -1;
+			browseView.browseList.refresh();
 			refreshRequestNumbers(browseView.browseList);
 			browseView.refreshVisibilityList();
 			theViews.visible = true;
@@ -256,7 +256,8 @@
 		}
 		
 		public function refreshRequestNumbers(experimentList:XMLListCollection):void {
-	    	requestNumbers = new ArrayCollection();
+	    	requestNumbers.removeAll();
+	    	browseView.requestNumberCombo.selectedIndex = -1;
 	
 			var blankItem:Object = new Object();
 			blankItem.data = "";
@@ -280,9 +281,38 @@
 	    			requestNumbers.addItem(newItem);
 	    		}
 	    	}
+	    	requestNumbers.refresh();
 	    }		
 		
-		public function filterBrowseList(item:Object):Boolean {
+		public function sortRequestNumbers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var num1:String = obj1.label;
+				var num2:String = obj2.label;
+				
+				if (num1 == 'Other') {
+					return 1;
+				} else if (num2 == 'Other') {
+					return  -1;
+				} else {
+					if (num1 < num2) {
+						return -1;
+					} else if (num1 > num2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}			
+				
+			}
+		}
+
+		public function filterExperimentList(item:Object):Boolean {
 			var experimentDate:Date = new Date(item.@createDate.toString());
 			
         	var keep:Boolean = true;
@@ -319,46 +349,21 @@
         				keep = true;
         			}
         		}
-        	} 	
+        	}
+        	if (keep) {
+        		if (browseView.lastYearCheckbox.selected == true) {
+        			keep = false;
+					var oneYearAgo:Date = new Date();
+					oneYearAgo.setTime(oneYearAgo.getTime() - millisecondsPerYear);
+        			if (experimentDate >= oneYearAgo) {
+        				keep = true;
+        			}
+        		}
+        	}  	
         	return keep;
         }
         
-        public function filterDownloadList(item:Object):Boolean {
-        	var keep:Boolean = true;
-        	if (browseView.requestNumberCombo.selectedItem != null && browseView.requestNumberCombo.selectedItem.label != "") {
-        		keep = false; 
-        		if (item.@requestNumber == browseView.requestNumberCombo.selectedItem.label) {
-        			keep = true;
-        		}
-        	}  
-			if (keep) {
-	        	if (browseView.myExperimentsCheckbox.selected == true) {
-	        		keep = false;
-	        		if (item.@idAppUser == parentApplication.createSecurityAdvisor.lastResult.@idAppUser) {
-	        			keep = true;
-	        		}
-	        	}
-        	}             	      	
-        	return keep;
-        }
-        public function filterProgressList(item:Object):Boolean {
-        	var keep:Boolean = true;
-        	if (browseView.requestNumberCombo.selectedItem != null && browseView.requestNumberCombo.selectedItem.label != "") {
-        		keep = false; 
-        		if (item.@requestNumber == browseView.requestNumberCombo.selectedItem.label) {
-        			keep = true;
-        		}
-        	}        	
-			if (keep) {
-	        	if (browseView.myExperimentsCheckbox.selected == true) {
-	        		keep = false;
-	        		if (item.@idAppUser == parentApplication.createSecurityAdvisor.lastResult.@idAppUser) {
-	        			keep = true;
-	        		}
-	        	}
-        	}             	      	
-        	return keep;
-        }
+ 
 
 		
 		private function onGetRequest(event:ResultEvent):void {
@@ -518,7 +523,8 @@
 		
        ]]>
     </mx:Script>
-    
+   	  <mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
+	  <mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
     
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
