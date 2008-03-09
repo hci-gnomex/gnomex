@@ -19,6 +19,7 @@
             <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
             <showSamples>N</showSamples>
             <showCategory>N</showCategory>
+            <showMyLabsAlways>Y</showMyLabsAlways>
     </mx:request>
    </mx:HTTPService>
    
@@ -47,12 +48,30 @@
       <idProject>{selectedIdProject}</idProject>
     </mx:request>
   </mx:HTTPService>
+  
+  <mx:HTTPService  
+    id="saveRequestProject" 
+    url="http://localhost/gnomex/SaveRequestProject.gx"
+    destination="saveRequestProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveRequestProject(event)"
+    method="POST"
+    useProxy="false">    
+  </mx:HTTPService>
+
 
  
 	   <mx:Script> 
         <![CDATA[
-        	import mx.controls.Alert;
-        
+        import mx.controls.Alert;
+        import mx.managers.DragManager;
+        import mx.core.DragSource;
+        import mx.events.DragEvent;
+        import mx.events.CloseEvent;
+        import mx.controls.Menu;
+        import mx.collections.ArrayCollection;
+
         import mx.rpc.events.ResultEvent;   
         import mx.collections.XMLListCollection;
         
@@ -67,16 +86,27 @@
         
         public var selectedIdLab:String;
         
-        public var selectedRequestNode:Object;
+        public var selectedNode:Object;
+        
+        private var dropProject:Object;
+        private var dragRequest:Object;
         
         [Bindable]
         public var selectedIdProject:String;
-
-       
-        private function setResultsCount():void {
-        	downloadView.setResultsCount();
-        }
         
+        [Bindable]
+    	public var rowCountMessage:String = new String();
+    
+       	[Bindable]
+ 		public var requestNumbers:ArrayCollection;
+ 	
+
+	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
+	 	public static const millisecondsPerMonth:Number = 1000 * 60 * 60 * 24 * 30;
+	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
+
+
         private function getBrowseTreeLabel(item:Object):String {
         	var label:String = item.@label;
         	
@@ -106,35 +136,37 @@
         	callLater(reselectTreeItem);    	
 	    }
 	    
+
+	    
+	    
 	    private function reselectTreeItem():void {
 			if (selectedIdProject != null) {
-				var selectedNode:Object = getProjectRequestList.lastResult..Project.(@idProject == selectedIdProject);
-				browseTree.selectedItem = selectedNode;
-			} else if (selectedRequestNumber != null) {
-				selectedRequestNode = getProjectRequestList.lastResult..Request.(@requestNumber == selectedRequestNumber);
-				browseTree.openItems = getProjectRequestList.lastResult..Project;
-				callLater(selectRequestNode);
+				selectedNode = getProjectRequestList.lastResult..Project.(@idProject == selectedIdProject);
+				callLater(selectTreeNode);
+				// Can't expand project because it messes up dropindex for future drag operations.
 				
-			} else if (selectedIdProject != null) {
-				var selectedLabNode:Object = getProjectRequestList.lastResult..Lab.(@idLab == selectedIdLab);
-				browseTree.selectedItem = selectedLabNode;
+			} else if (selectedRequestNumber != null) {
+				selectedNode = getProjectRequestList.lastResult..Request.(@requestNumber == selectedRequestNumber);
+				browseTree.openItems = getProjectRequestList.lastResult..Project;
+				callLater(selectTreeNode);
+				
+			} else if (selectedIdLab != null) {
+				selectedNode = getProjectRequestList.lastResult..Lab.(@idLab == selectedIdLab);
+				callLater(selectTreeNode);
 				
 				
 			} else {
-				var firstLabNode:Object = getProjectRequestList.lastResult..Lab[0];
-				browseTree.selectedItem = firstLabNode;
+				selectedNode = getProjectRequestList.lastResult..Lab[0];
+				browseTree.selectedItem = selectedNode;
 				onBrowseTree();
-				
 			}
 	    	
 	    }
 	    
-	    private function selectRequestNode():void {
-	    	browseTree.selectedItem = selectedRequestNode;
+	    private function selectTreeNode():void {
+	    	browseTree.selectedItem = selectedNode;
 	    	//browseTree.firstVisibleItem = selectedRequestNode;
-			browseTree.validateNow();
-  			treeContainer.validateNow();
-
+	    	onBrowseTree();
 	    }
 	    
         
@@ -159,13 +191,30 @@
   			browseTree.openItems = [];
   			browseTree.validateNow();
   		}
+  		
+	    public function setResultsCount():void {
+	    	if (browseTree.selectedItem == null) {
+	    		rowCountMessage = "";
+	    	} else if (browseTree.selectedItem..Request.length() == 1) {
+		    	rowCountMessage = "(" + browseTree.selectedItem..Request.length() + " experiment)";
+	    	} else {
+			   	rowCountMessage = "(" + browseTree.selectedItem..Request.length() + " experiments)";
+	    	}
+	    }
+    
 
 		private function onBrowseTree():void {
+			setResultsCount();
+
 			selectedProject = null;
 			selectedIdProject = null;
 			selectedIdLab = null;
 			
+			browseView.deleteProjectButton.visible = false;
+			
 			if (browseTree.selectedItem.name() == 'Request') {
+				bodyPanel.title = "Experiment " + browseTree.selectedItem.@requestNumber;
+				bodyPanel.titleIcon = parentApplication.iconExperiment;
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
@@ -177,23 +226,139 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
-					browseView.projectDetailView.enabled = true;
+					bodyPanel.title = "Project " + browseTree.selectedItem.@projectName + "\t\t" + rowCountMessage;
+					bodyPanel.titleIcon = parentApplication.iconProject;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
+					if (!browseView.theViews.contains(browseView.projectDetailView)) {
+						browseView.theViews.addChild(browseView.projectDetailView);
+					}
 					getProject.send();
+					
 				} else {
+					bodyPanel.title =  browseTree.selectedItem.@labName + "\t\t" + rowCountMessage;;
+					bodyPanel.titleIcon = parentApplication.iconGroup;
 					selectedIdProject = null;
+					if (browseView.theViews.contains(browseView.projectDetailView)) {
+						browseView.theViews.removeChild(browseView.projectDetailView);
+					}
 					browseView.buttonStack.selectedChild = browseView.browseButtonView;
-					browseView.projectDetailView.enabled = false;
+					browseView.refreshButtonStack();
+					
 				}
 				
 				theViews.selectedIndex=0;
 			} 
+			refreshRequestNumbers(browseView.browseList);
 			browseView.refreshVisibilityList();
 			theViews.visible = true;
 			
 			
 		}
 		
+		public function refreshRequestNumbers(experimentList:XMLListCollection):void {
+	    	requestNumbers = new ArrayCollection();
+	
+			var blankItem:Object = new Object();
+			blankItem.data = "";
+			blankItem.label = "";
+	    	requestNumbers.addItem(blankItem);
+	    	
+	    	for(var x:Number = 0; x < experimentList.length; x++) {
+	    		var item:Object = experimentList.getItemAt(x, 0);
+	    		
+	    		var found:Boolean = false;
+	    		for(var i:Number = 0; i < requestNumbers.length; i++) {
+	    			if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
+	    				found = true;
+	    				break;
+	    			}
+	    		}
+	    		if (found == false) {
+	    			var newItem:Object = new Object();
+	    			newItem.data = item.@requestNumber;
+	    			newItem.label = item.@requestNumber;
+	    			requestNumbers.addItem(newItem);
+	    		}
+	    	}
+	    }		
+		
+		public function filterBrowseList(item:Object):Boolean {
+			var experimentDate:Date = new Date(item.@createDate.toString());
+			
+        	var keep:Boolean = true;
+        	if (browseView.requestNumberCombo.selectedItem != null && browseView.requestNumberCombo.selectedItem.label != "") {
+        		keep = false; 
+        		if (item.@requestNumber == browseView.requestNumberCombo.selectedItem.label) {
+        			keep = true;
+        		}
+        	}   
+        	if (keep) {
+	        	if (browseView.myExperimentsCheckbox.selected == true) {
+	        		keep = false;
+	        		if (item.@idAppUser == parentApplication.createSecurityAdvisor.lastResult.@idAppUser) {
+	        			keep = true;
+	        		}
+	        	}
+        	}    
+        	if (keep) {
+        		if (browseView.lastWeekCheckbox.selected == true) {
+        			keep = false;
+					var oneWeekAgo:Date = new Date();
+					oneWeekAgo.setTime(oneWeekAgo.getTime() - millisecondsPerWeek);
+        			if (experimentDate >= oneWeekAgo) {
+        				keep = true;
+        			}
+        		}
+        	} 	
+        	if (keep) {
+        		if (browseView.lastMonthCheckbox.selected == true) {
+        			keep = false;
+					var oneMonthAgo:Date = new Date();
+					oneMonthAgo.setTime(oneMonthAgo.getTime() - millisecondsPerMonth);
+        			if (experimentDate >= oneMonthAgo) {
+        				keep = true;
+        			}
+        		}
+        	} 	
+        	return keep;
+        }
+        
+        public function filterDownloadList(item:Object):Boolean {
+        	var keep:Boolean = true;
+        	if (browseView.requestNumberCombo.selectedItem != null && browseView.requestNumberCombo.selectedItem.label != "") {
+        		keep = false; 
+        		if (item.@requestNumber == browseView.requestNumberCombo.selectedItem.label) {
+        			keep = true;
+        		}
+        	}  
+			if (keep) {
+	        	if (browseView.myExperimentsCheckbox.selected == true) {
+	        		keep = false;
+	        		if (item.@idAppUser == parentApplication.createSecurityAdvisor.lastResult.@idAppUser) {
+	        			keep = true;
+	        		}
+	        	}
+        	}             	      	
+        	return keep;
+        }
+        public function filterProgressList(item:Object):Boolean {
+        	var keep:Boolean = true;
+        	if (browseView.requestNumberCombo.selectedItem != null && browseView.requestNumberCombo.selectedItem.label != "") {
+        		keep = false; 
+        		if (item.@requestNumber == browseView.requestNumberCombo.selectedItem.label) {
+        			keep = true;
+        		}
+        	}        	
+			if (keep) {
+	        	if (browseView.myExperimentsCheckbox.selected == true) {
+	        		keep = false;
+	        		if (item.@idAppUser == parentApplication.createSecurityAdvisor.lastResult.@idAppUser) {
+	        			keep = true;
+	        		}
+	        	}
+        	}             	      	
+        	return keep;
+        }
 
 		
 		private function onGetRequest(event:ResultEvent):void {
@@ -207,20 +372,26 @@
 				params.showSamples = "N";
 				params.showCategory = "N";
 				getProjectRequestList.send(params);
+				
+			    bodyPanel.title = "Experiment " + selectedRequestNumber;
+			    bodyPanel.titleIcon = parentApplication.iconExperiment;
 			}
 		    theViews.selectedChild = detailView;
+
 		    theViews.visible = true;
 		}
 		
 		private function onGetProject(event:ResultEvent):void {
 			selectedProject = getProject.lastResult.Project.(@idProject == selectedIdProject);
-			browseView.setResultsCount();
-			browseView.refreshBrowseList();
 			browseView.refreshDownloadList();
 			browseView.refreshTrackList();
 			browseView.refreshVisibilityList();
 			
 			browseView.refreshButtonStack();
+			if (!browseView.theViews.contains(browseView.projectDetailView)) {
+				browseView.theViews.addChild(browseView.projectDetailView);
+			}
+			browseView.projectDetailView.checkSecurity();
 
 		}
 
@@ -264,17 +435,100 @@
 			}
 		}
 		
+	  
+	  	private function onDragDrop( event:DragEvent ) : void
+		{
+	       var ds:DragSource = event.dragSource;
+	       var dropTarget:Tree = Tree(event.currentTarget);
+	
+	       // retrieve the data associated with the "items" format. This will be the data that
+	       // the dragInitiator has copied into the DragSource.
+	       var items:Array = ds.dataForFormat("treeItems") as Array;
+	
+	       // determine where in the tree the drop occurs and select that node by the index; followed by 
+	       // retrieving the node itself. 
+	       var r:int = browseTree.calculateDropIndex(event);
+	       browseTree.selectedIndex = r;
+	       var node:XML = browseTree.selectedItem as XML;
+	       var p:*;
+	
+	
+	       if (node.name() == "Project") {
+	       		p = node;
+	       } else if (node.name() == "Request") {
+	       		p = node.parent();
+	       }else {
+	       		//ignore drop operations on lab.
+	       }
+	
+	       // taking all of the items in the DragSouce, insert them into the 
+	       // tree using parent p. 
+	       if (p != null) {
+		       for(var i:Number=0; i < items.length; i++) {
+		       	if (items[i].name() == "Request") {
+		             browseTree.dataDescriptor.addChildAt(p, items[i], r+i);
+		             
+		             dropProject = p;
+		             dragRequest = items[i];
+		           	 promptToReassignProject();
+		             
+		       	} 
+		       }
+	       	
+	       }	       
+		}
+		
+	    public function promptToReassignProject():void {
+	   		var message:String = "Reassign experiment " + dragRequest.@requestNumber +
+	               " to project " + dropProject.@projectName + "?";
+	
+			Alert.show(message, 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToReassignProject);
+			
+		}
+		
+		private function onPromptToReassignProject(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+	            selectedProject = dropProject;
+	            selectedIdProject = dropProject.@idProject;
+	            selectedIdLab = dropProject.@idLab;
+	            
+	            var params:Object = new Object();
+	            params.idRequest = dragRequest.@idRequest;
+	            params.idProject = dropProject.@idProject;
+	                  		
+           		saveRequestProject.send(params);
+            }
+        }
+
+       	private function onSaveRequestProject(event:ResultEvent): void {
+   			dropProject = null;
+   			dragRequest = null;
+       		if (saveRequestProject.lastResult.name() == "SUCCESS") {
+				this.refreshExperiments();
+			
+        	} else {
+        		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
+        	}	    	
+	    }
+
+		
+		
        ]]>
     </mx:Script>
     
     
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+
     
 	<mx:HDividedBox height="100%" width="100%">
 	
 	
 			
-			<mx:Canvas label="Experiments"  height="100%">
-				<mx:VBox width="100%" height="100%" verticalGap="1">
+			<mx:Accordion label="Experiments"  height="100%">
+				<mx:VBox width="100%" height="100%" verticalGap="1" label="Experiments">
 				        <mx:Label id="groupLabel" visible="false" height="0" text="Select group to show experiments:"/>
 						<mx:ComboBox id="browseLabCombo" 
 							labelField="@name"
@@ -286,21 +540,25 @@
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
-							labelFunction="getBrowseTreeLabel"
-							id="browseTree" click="onBrowseTree()" 
+							id="browseTree" click="onBrowseTree();" 
 							borderStyle="none"
-							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="0.0"></mx:Tree>
+							labelField="@label"
+					        dragEnabled="true" 
+					        dropEnabled="true" 
+					        dragMoveEnabled="true"
+							dragDrop="onDragDrop(event);" 
+							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
 						
 					</mx:VBox>
 				</mx:VBox>
-			</mx:Canvas> 
+			</mx:Accordion> 
 
 
 		
-       <mx:Canvas height="100%" dropShadowEnabled="true" dropShadowColor="#C0C0C0" width="100%">
+       <mx:Panel height="100%" dropShadowEnabled="true" width="100%" title="Experiments" paddingTop="0" id="bodyPanel">
 	     <mx:ViewStack id="theViews" creationPolicy="all" visible="false" width="100%" height="100%">
 
-	        <views:ExperimentBrowseView id="browseView" width="100%" height="100%">
+	        <views:ExperimentBrowseView id="browseView"  width="100%" height="100%">
 	        </views:ExperimentBrowseView>
 
 	        <views:ExperimentDetailView id="detailView" width="100%" height="100%">
@@ -320,7 +578,7 @@
 
 
          </mx:ViewStack>
-		</mx:Canvas>
+		</mx:Panel>
 		
 	</mx:HDividedBox>
 	

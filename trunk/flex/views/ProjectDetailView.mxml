@@ -69,10 +69,8 @@
 			
 			if (parentApplication.navExperimentView.selectedProject.@canDelete == "Y") {
 				parentDocument.deleteProjectButton.visible = true;
-				parentDocument.deleteProjectButton2.visible = true;
 			} else{
 				parentDocument.deleteProjectButton.visible = false;
-				parentDocument.deleteProjectButton2.visible = false;
 			}
 		}
 		
@@ -130,8 +128,9 @@
 			}
 		}
 		
-		public function saveAndClose():void {
+		public function addProject():void {
 			closeWindowAfterSave = true;
+			parentApplication.navExperimentView.selectedProject.@idLab = parentDocument.labCombo.selectedItem.@idLab;
 			save();
 		}
 		
@@ -173,13 +172,12 @@
 			params.idProject = parentApplication.navExperimentView.selectedProject.@idProject;
 			deleteProject.send(params);
 			
-		}
+		} 
 		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
 				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
 				parentApplication.navExperimentView.getProject.send();
-        		parentApplication.navExperimentView.browseView.browseTabView.selectedChild = parentApplication.navExperimentView.browseView.projectDetailView;
         		parentApplication.navExperimentView.refreshExperiments();
         		
         		if (closeWindowAfterSave) {
@@ -193,6 +191,8 @@
 		
 		private function onDeleteProject(event:ResultEvent):void {
         	if (deleteProject.lastResult.name() == "SUCCESS") {
+        		parentApplication.navExperimentView.selectedProject = null;
+        		parentApplication.navExperimentView.selectedIdProject = null;
         		parentApplication.navExperimentView.refreshExperiments();
         		parentApplication.navExperimentView.theViews.visible = false;
         		parentApplication.navExperimentView.browseView.buttonStack.selectedChild = parentDocument.browseButtonView;

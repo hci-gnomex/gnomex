@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" xmlns:views="views.*"
+	  verticalGap="0" paddingTop="0">
+	  
 
 
    <mx:HTTPService  
@@ -31,6 +34,7 @@
   
  <mx:Script>
  	<![CDATA[
+ 		import mx.collections.ArrayCollection;
  	import mx.core.IContainer;
  	import mx.rpc.events.ResultEvent;
     import mx.managers.PopUpManager;
@@ -38,18 +42,11 @@
 
 
 
- 	[Bindable]
-    private var rowCountMessage:String = new String();
-    
     [Bindable]
     public var selectedExperiment:Object;
     
     private var selectedIdRequest:int;
 
-    public function setResultsCount():void {
-    	rowCountMessage = parentDocument.browseTree.selectedItem..Request.length() + " experiments.";
-    }
-    
     private var projectDetailWindow:views.ProjectDetailWindow;
         
     public function getFullName(item:Object, col:int):String {
@@ -77,13 +74,7 @@
     	}
     }
     
-    public function refreshBrowseList():void {
-    	if (theViews.selectedChild == browseTabView) {
-    		if (browseTabView.selectedChild == projectDetailView) {
-    			projectDetailView.checkSecurity();
-    		}
-    	}
-    }
+   
     
   	public function refreshDownloadList():void {
 		if (theViews.selectedIndex == 1) {
@@ -149,27 +140,41 @@
 	}
 
 	private function onViewSwitch():void {
-		this.refreshBrowseList();
+		
 		this.refreshDownloadList();
 		this.refreshTrackList();
 		this.refreshVisibilityList();
 		
 		refreshButtonStack();
+		refreshFilterView();
+		filterList();
+		
 
 	}
 	
+	public function refreshFilterView():void {
+		if (theViews.selectedChild == projectDetailView) {
+			filterListView.visible = false;
+			filterListView.height = 0;
+		} else {
+			filterListView.visible = true;
+			filterListView.height = 34;
+		}
+	}
+	
+    
+
+	
 	public function refreshButtonStack():void {
-		projectDetailView.checkSecurity();
-		if (theViews.selectedChild == browseTabView ) {
-			if (browseTabView.selectedChild == projectDetailView) {
-				buttonStack.selectedChild = saveProjectButtonView;
-			} else {
-				if (parentDocument.selectedIdProject == null) {
-					buttonStack.selectedChild = browseButtonView;				
-				} else {
-					buttonStack.selectedChild = browseProjectButtonView;
-				}
-			}
+		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
+			newProjectButton.visible = true;
+		} else {
+			newProjectButton.visible = false;
+		}
+		if (theViews.selectedChild == experimentListView ) {
+			buttonStack.selectedChild = browseButtonView;				
+		} else if (theViews.selectedChild == projectDetailView) {
+			buttonStack.selectedChild = saveProjectButtonView;
 		} else if (theViews.selectedChild == trackView) {
 			buttonStack.selectedChild = trackButtonView;
 		} else if (theViews.selectedChild == visibilityView) {
@@ -184,18 +189,22 @@
 		
 	}
 	
-	private function onBrowseTabSwitch():void {
-		projectDetailView.checkSecurity();
-		if (browseTabView.selectedChild == projectDetailView) {
-			buttonStack.selectedChild = saveProjectButtonView;
-		} else {
-			if (parentDocument.selectedIdProject == null) {
-				buttonStack.selectedChild = browseButtonView;				
-			} else {
-				buttonStack.selectedChild = browseProjectButtonView;
-			}
+	public function filterList():void {
+		if (theViews.selectedChild == experimentListView ||
+		    theViews.selectedChild == visibilityView) {
+			browseList.filterFunction = parentDocument.filterBrowseList;
+			browseList.refresh();
+		} else if (theViews.selectedChild == downloadView) {
+			downloadView.downloadList.filterFunction = parentDocument.filterDownloadList;
+			downloadView.downloadList.refresh();
+		} else if (theViews.selectedChild == this.trackView) {
+			trackView.progressList.filterFunction = parentDocument.filterProgressList;
+			trackView.progressList.refresh();
 		}
+		
 	}
+	
+	
 	
 	private function showNewProjectWindow():void {
 		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
@@ -213,6 +222,10 @@
 			 this.projectDetailWindow = views.ProjectDetailWindow(PopUpManager.createPopUp(this, views.ProjectDetailWindow, true));
 			 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 			 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+			 
+			 var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == parentDocument.selectedIdLab);
+			 this.projectDetailWindow.labCombo.selectedItem = selectedLabNode;
+			 
 			 PopUpManager.centerPopUp(this.projectDetailWindow);		
 			
 		} else {
@@ -224,92 +237,96 @@
  	]]>
  </mx:Script>
  
-    <mx:XMLListCollection id="browseList" source="{parentDocument.getProjectRequestList.lastResult..Request}"/>
+    <mx:XMLListCollection id="browseList" source="{parentDocument.browseTree.selectedItem..Request}"/>
  
-		<mx:VBox width="100%" height="100%" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2" verticalGap="8">
 		
 		    
 		        <mx:ApplicationControlBar 
 		        	width="100%" 
 		        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
-		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
-		        
-					<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left">
-				        <mx:LinkBar dataProvider="{theViews}" 
-				        	itemClick="onViewSwitch()" 
-				        	useHandCursor="true" styleName="linkBar"  >
-				        </mx:LinkBar>
-				        
-				        <mx:VRule height="20"/>
-				        <mx:ViewStack  id="buttonStack"  width="100%" >
-				            <mx:HBox  horizontalAlign="left" width="100%" id="browseButtonView" horizontalGap="2">
-				            <mx:Label text="{rowCountMessage}" width="100%"/>
-				            <mx:Button visible="false"/>
-				            </mx:HBox>
-				            <mx:HBox  horizontalAlign="right" width="100%" id="browseProjectButtonView">
-				            <mx:Label text="{rowCountMessage}" width="100%"/>
-				            <mx:Button id="deleteProjectButton2" icon="@Embed('../assets/folder_delete.png')" 
-				            	click="projectDetailView.promptToDeleteProject()"
-				            	label="Delete project"  letterSpacing=".3" horizontalGap="0"/>
+		        	paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" cornerRadius="0">
+		            <mx:VBox width="100%" height="100%">
+		            	
+						<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="2">
+					        <mx:LinkBar dataProvider="{theViews}" 
+					        	itemClick="onViewSwitch()" 
+					        	useHandCursor="true" styleName="linkBar"  >
+					        </mx:LinkBar>
+					        
+					        <mx:VRule height="20"/>
+					        <mx:ViewStack  id="buttonStack"  width="100%" >
+					            <mx:HBox   verticalAlign="middle" horizontalAlign="left" width="100%" id="browseButtonView" horizontalGap="2">
+					            </mx:HBox>
+					            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" width="100%" id="browseProjectButtonView">
+					            </mx:HBox>
+					            <mx:HBox horizontalAlign="right" width="100%" id="saveProjectButtonView" horizontalGap="2" verticalAlign="middle">
+						            <mx:Button id="saveProjectButton" label="Save" 
+						            	icon="@Embed('../assets/action_save.gif')" 
+						            	click="projectDetailView.save()"  toolTip="Save project">
+						                  </mx:Button>
+						            
+					            </mx:HBox>
+					            <mx:HBox  verticalAlign="middle" horizontalAlign="left" width="100%" id="trackButtonView" horizontalGap="2">
+					            </mx:HBox>
+					        	<mx:HBox  verticalAlign="middle" horizontalAlign="right" width="100%" id="saveVisibilityButtonView">
+						        	<mx:Button label="Save" id="saveVisibilityButton"
+						        		icon="@Embed('../assets/action_save.gif')" 
+						        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for project and experiments">
+						        	      </mx:Button>
+					        	</mx:HBox>
+					            <mx:HBox  verticalAlign="middle" horizontalAlign="right"  width="100%" id="downloadFoldersButtonView">
+						            <mx:Button id="downloadFoldersButton" 
+						            	click="downloadView.downloadFolders()" 
+						            	icon="@Embed('../assets/icon_download.gif')" 
+						            	toolTip="Download selected folders"
+						            	label="Download" 
+						            	visible="true"/>
+					            </mx:HBox>		                    
+					            <mx:HBox  verticalAlign="middle" horizontalAlign="right"  width="100%" id="downloadFilesButtonView">
+						            <mx:Button id="downloadFilesButton" 
+						             	click="downloadView.downloadFiles()" 
+						             	icon="@Embed('../assets/icon_download.gif')" 
+						             	toolTip="Download selected files"
+						             	label="Download"/>
+					            </mx:HBox>		                    
+					            
+					        	
+					        </mx:ViewStack>
+					        <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
+					        	click="projectDetailView.promptToDeleteProject()"
+					        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project"/>
+					        <mx:Button id="newProjectButton" click="showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
+					        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..."/>
+					    </mx:HBox>
+					    
+   	 	            </mx:VBox>
 
-				            </mx:HBox>
-				            <mx:HBox  horizontalAlign="right" width="100%" id="saveProjectButtonView" horizontalGap="2">
-				            <mx:Button id="saveProjectButton" label="Save" 
-				            	icon="@Embed('../assets/action_save.gif')" 
-				            	click="projectDetailView.save()"  toolTip="Save project">
-				                  </mx:Button>
-				            <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
-				            	click="projectDetailView.promptToDeleteProject()"
-				            	label="Delete project" paddingLeft="1" paddingRight="0" letterSpacing=".3" horizontalGap="0"/>
-				            
-				            </mx:HBox>
-				            <mx:HBox  horizontalAlign="left" width="100%" id="trackButtonView" horizontalGap="2">
-				            <mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
-				            </mx:HBox>
-				        	<mx:HBox  horizontalAlign="right" width="100%" id="saveVisibilityButtonView">
-				        	<mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
-				        	<mx:Button label="Save" id="saveVisibilityButton"
-				        		icon="@Embed('../assets/action_save.gif')" 
-				        		click="visibilityView.save()"  visible="true">
-				        	      </mx:Button>
-				        	   </mx:HBox>
-				            <mx:HBox horizontalAlign="right"  width="100%" id="downloadFoldersButtonView">
-				            <mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
-				            <mx:Button id="downloadFoldersButton" 
-				            	click="downloadView.downloadFolders()" 
-				            	icon="@Embed('../assets/icon_download.gif')" 
-				            	toolTip="Download selected folders"
-				            	label="Download" 
-				            	visible="true"/>
-				            </mx:HBox>		                    
-				            <mx:HBox horizontalAlign="right"  width="100%" id="downloadFilesButtonView">
-				            <mx:Label text="{rowCountMessage}" width="100%" textAlign="left"/>
-				            <mx:Button id="downloadFilesButton" 
-				             	click="downloadView.downloadFiles()" 
-				             	icon="@Embed('../assets/icon_download.gif')" 
-				             	toolTip="Download selected files"
-				             	label="Download"/>
-				            </mx:HBox>		                    
-				            
-				        	
-				        </mx:ViewStack>
-				        <mx:Button id="newProjectButton" click="showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
-				        	label="New project" paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3"/>
-				    </mx:HBox>
 		        </mx:ApplicationControlBar>
 			    	
 		    	
+	    <mx:HBox id="filterListView" width="100%" paddingTop="12"  horizontalGap="30">
+	    	<mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()">					    		
+	    	</mx:ComboBox> 
+	    	
+	    	<mx:HBox horizontalGap="0">
+	    		<mx:CheckBox id="lastWeekCheckbox" label="Last weeks experiments" change="filterList()"/>
+	    		<mx:CheckBox  id="lastMonthCheckbox" label="Last month experiments" change="filterList()"/>
+	    	</mx:HBox>
+	    	
+	    	<mx:CheckBox label="My experiments only" id="myExperimentsCheckbox" change="filterList()"/>
+
+	    </mx:HBox>
 				   
-		             
-		<mx:ViewStack id="theViews" width="100%" height="100%">
-		       <mx:TabNavigator id="browseTabView" width="100%" height="100%" 	
-		       	    icon="@Embed('../assets/application_view_detail.png')" 
-			       	label="Browse" visible="false" 
-			        change="onBrowseTabSwitch()">
-			       <mx:VBox  width="100%" height="100%" label="Experiments">
-				       <mx:DataGrid  id="experimentList" dataProvider="{parentDocument.browseTree.selectedItem..Request}"  
+		              
+		<mx:ViewStack id="theViews"  paddingTop="8" width="100%" height="100%" >
+			       <mx:VBox id="experimentListView" width="100%" height="100%" 
+			       	label="Experiments"
+			       	icon="@Embed('../assets/application_view_detail.png')" >
+				       <mx:DataGrid  id="experimentList" 
+				       	dataProvider="{browseList}"  
 				       	width="100%" height="100%" 
-				       	itemDoubleClick="onExperimentRowSelected()" doubleClickEnabled="true">
+				       	itemDoubleClick="onExperimentRowSelected()" 
+				       	doubleClickEnabled="true">
 				         <mx:columns>
 				            <mx:DataGridColumn headerText=" " 
 				            	width="10" 
@@ -341,35 +358,31 @@
 		       	   	
 			       </mx:VBox>
 			       
-			       <views:ProjectDetailView id="projectDetailView" label="Project">
-			       </views:ProjectDetailView>   
-	     	   </mx:TabNavigator>
-		       
+			       
+
 
 	
 				<views:ExperimentDownloadView id="downloadView" 
-					label="Download List" 
+					label="Downloads" 
 					icon="@Embed('../assets/folder_go.png')">
 				</views:ExperimentDownloadView>
 				
-	 			<views:ExperimentTrackView id="trackView" label="Track" icon="@Embed('../assets/application_go.png')" >
+	 			<views:ExperimentTrackView id="trackView" label="Progress" icon="@Embed('../assets/application_go.png')" >
 				</views:ExperimentTrackView>
 				
 	 			<views:ExperimentVisibilityView id="visibilityView" label="Visibility" icon="@Embed('../assets/lock.png')">
 				</views:ExperimentVisibilityView>
 				
-
+				<views:ProjectDetailView id="projectDetailView" label="Project"  icon="@Embed('../assets/folder.png')">
+			     </views:ProjectDetailView>   
 
 		     	
 		
 		
 		</mx:ViewStack>
-		<mx:HBox width="100%">
-		</mx:HBox>
-	
+		
 
 </mx:VBox>
 
-</mx:Canvas>
 
 

@@ -89,6 +89,7 @@
     private var dateFormatter:DateFormatter = new DateFormatter();
         
     private function onGetRequestDownloadList(event:ResultEvent): void { 
+    	parentDocument.filterList();
     		
     }
     private function getSelectedFolders():void {

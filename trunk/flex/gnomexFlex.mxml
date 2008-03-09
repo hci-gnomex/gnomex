@@ -2,7 +2,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
 	preinitialize="init()" 
-	 backgroundGradientColors="[#ffffff, #ffffff]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
+	 backgroundGradientColors="[#747474, #9f9f9f]" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
 	
 
 	     
@@ -48,6 +48,10 @@
 			[Bindable]
 			public var promptedLabList:views.PromptXMLListCollection;
 			[Bindable]
+			public var submitRequestLabList:XMLListCollection;
+			[Bindable]
+			public var manageLabList:XMLListCollection;
+			[Bindable]
 			public var promptedAppUserList:views.PromptXMLListCollection;
 			[Bindable]
 			public var promptedSlideProductList:views.PromptXMLListCollection;
@@ -79,6 +83,7 @@
 
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
+				
 			}
             
             private function search():void {
@@ -229,6 +234,8 @@
 	        private function onGetLabList(event:ResultEvent):void {
 	        	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 	        	promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
+	        	submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
+	        	manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
 	        	enableApp();
 	        }		
             
