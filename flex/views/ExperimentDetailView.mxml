@@ -96,14 +96,14 @@
 	        	     styleName="applicationBar"
 		        	width="100%" 
 		        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
-		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
+		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1" cornerRadius="0">
 		        
 					<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left">
 		
-		                    <mx:HBox  horizontalAlign="left" width="100%" id="saveProjectButtonView">
+		                    <mx:HBox  horizontalAlign="right" width="100%" id="saveProjectButtonView">
 							    <mx:Button label="Save" 
 							    	icon="@Embed('../assets/action_save.gif')" 
-							    	  visible="true">
+							    	  visible="true" toolTip="Save experiment.">
 					            </mx:Button>
 		                    </mx:HBox>
 

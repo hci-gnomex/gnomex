@@ -77,9 +77,7 @@ LinkBar {
 }
 
 Accordion {
-	fillColors:  #fee789, #ffffff;
-	backgroundAlpha: .3;
-	fillAlphas: 1, .7;
+
 	headerHeight: 25;
 	headerStyleName: accordionHeader;
 }

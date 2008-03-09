@@ -31,6 +31,7 @@
     
     
     private function onGetRequestProgressList(event:ResultEvent): void { 
+    	parentDocument.filterList();
     	progressGrid.validateNow();
     }    
     public function setResultsCount():void {
