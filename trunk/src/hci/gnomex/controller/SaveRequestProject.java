@@ -74,7 +74,8 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       }
       
       if (this.isValid()) {
-        request.setIdProject(idProject);            
+        request.setIdProject(idProject);       
+        request.setIdLab(project.getIdLab());
 
         sess.save(request);
         sess.flush();
