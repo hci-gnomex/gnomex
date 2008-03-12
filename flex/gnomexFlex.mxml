@@ -277,7 +277,6 @@
 	        	slideProductList.addItemAt(emptyNode, 0);
 	        	
 	        	filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
-	        	filteredSlideProductList.addItemAt(emptyNode, 0);
 	        	
 	        	filteredSlideProductListForSubmitRequests = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
 

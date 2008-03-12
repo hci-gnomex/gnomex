@@ -107,6 +107,9 @@
 		[Bindable]
 		public var requestToClone:Object;
 		
+		[Bindable]
+		private var selectedIdSlideProduct:Object;
+		
 		private function getSamplesGridRowNumber(item:Object,col:int):String
         {
         	if (samples!= null) {
@@ -124,6 +127,32 @@
         	} else {
         		return "";
         	}
+        }
+		private function getSampleChannel1Name(item:Object,col:int):String
+        {
+        	var sampleName:String = "";
+        	if (hybsGrid!= null) {
+        		for each(var sample:Object in samples) {
+        			if (sample.@idSample == item.@idSampleChannel1) {
+        				sampleName = sample.@name;
+        				break;
+        			}
+        		}
+        	} 
+        	return sampleName;
+        }
+		private function getSampleChannel2Name(item:Object,col:int):String
+        {
+        	var sampleName:String = "";
+        	if (hybsGrid!= null) {
+        		for each(var sample:Object in samples) {
+        			if (sample.@idSample == item.@idSampleChannel2) {
+        				sampleName = sample.@name;
+        				break;
+        			}
+        		}
+        	} 
+        	return sampleName;
         }
 
 
@@ -318,6 +347,7 @@
 		}
 		
 		private function initializeControls():void {
+			
 			callLater(initializeControlsImpl);
 		}
 		
@@ -327,9 +357,31 @@
 			sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
 			sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
 			samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
-			theTab.selectedChild = setupView;
+			
+			
+			selectedIdSlideProduct = request.@idSlideProduct;
+			numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
+			var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
+			microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
+			organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
+			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+			slideProductCombo.selectedItem = theSlideProduct;
+			
+			// We have problems with the SlideDesignComboBox item renderer selecting the correct slidedesign AFTER the
+			// dataprovider is refreshed (filtered by organism, etc.)  So to work around this problem,
+			// the column is hidden and then shown again in the 'show' event of the hybs tab.
+			// This somehow forces the correct order of events to occur.
+			slideDesignColumn.visible = false;
+			
+			
 			
 		}
+		
+		private function showSlideDesignColumn():void {
+			slideDesignColumn.visible = true;
+		}
+		
+		
 		
 		public function sortSampleCharacteristics(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
@@ -478,6 +530,8 @@
     			addSample();
     		}
         }
+        
+        
 
 		private function addHyb():void {
 			var emptyNode:XML = new XML("<Hybridization idHybridization='' notes='' " + 
@@ -506,7 +560,8 @@
 					var emptyNode:XML = new XML("<Hybridization idHybridization='' " + 
 					" notes='" + hybToCopy.@notes + "'" + 
 					" idSampleChannel1='" + hybToCopy.@idSampleChannel1 + "'" +
-					" idSampleChannel2='" + hybToCopy.@idSampleChannel2 + "'" +				
+					" idSampleChannel2='" + hybToCopy.@idSampleChannel2 + "'" +	
+					" codeSlideSource='" + hybToCopy.@codeSlideSource + "'" +			
 					"/>");
 			
 					hybs.addItem(emptyNode);
@@ -516,7 +571,7 @@
 		}
 		
 		public function promptToClearAllHybs():void {
-			Alert.show("Remove all samples currently showing in list?",
+			Alert.show("Remove all hybs currently showing in list?",
 						null, 
 						(Alert.YES | Alert.NO), this, 
 						onPromptToClearAllHybs);
@@ -525,9 +580,31 @@
 		
 		private function onPromptToClearAllHybs(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
-            	samples.removeAll();
+            	hybs.removeAll();
             }
         }
+        private function initializeHybsGrid():void {
+        	if (requestToClone != null) {
+        		return;
+        	}
+        	
+        	if (numberOfHybs.text == null || numberOfHybs.text == "0" || numberOfHybs.text == '') {
+        		return;
+        	}
+        	if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@value == '') {
+        		return;
+        	}
+    		var numberOfHybsToAdd:Number = new Number(numberOfHybs.text);
+    		if(hybs.length <= numberOfHybsToAdd) {
+    			numberOfHybsToAdd = numberOfHybsToAdd - hybs.length;
+    		} else {
+    			numberOfHybsToAdd = 0;
+    		}
+    		for(var x:int = 0; x < numberOfHybsToAdd; x++) {
+    			addHyb();
+    		}
+        }
+
 
 		]]>
 	</mx:Script>
@@ -541,8 +618,10 @@
 
 	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}"/>
 
+	<mx:XMLListCollection id="slideDesigns" source="{parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == selectedIdSlideProduct).slideDesigns.SlideDesign}"/>
+
 	<mx:VBox  width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:TabNavigator  click="theTab.creationPolicy='all'" id="theTab" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop = "12" paddingBottom="4" >
+		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop = "12" paddingBottom="4" >
 			<mx:Canvas  id="setupView" label="Request setup" width="100%" height="100%">
 				<mx:VBox width="100%" height="100%" verticalGap="30">
 					<mx:HBox width="100%" horizontalGap="0">
@@ -738,7 +817,7 @@
 					
 				</mx:HBox>
 			</mx:Canvas>
-			<mx:Canvas label="Samples"  id="samplesView" width="100%" height="100%">
+			<mx:Canvas label="Samples"  id="samplesView" width="100%" height="100%" >
 				<mx:VBox width="100%" height="100%">
 					<mx:Label text="Fill in sample details.  Fields in pink are required."/>
 					<mx:HBox width="100%">
@@ -821,7 +900,7 @@
 						<mx:Text width="340">
 							<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
 						</mx:Text>
-						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo" creationComplete="addSlideProductFilter()">							
+						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;initializeHybsGrid()}" creationComplete="addSlideProductFilter()">							
 							<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -830,7 +909,7 @@
 						<mx:Text width="340" >
 							<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
 						</mx:Text>
-						<mx:TextInput width="40" id="numberOfHybs">
+						<mx:TextInput width="40" id="numberOfHybs" change="initializeHybsGrid()">
 							
 						</mx:TextInput>
 					</mx:HBox>
@@ -848,8 +927,8 @@
 					
 				</mx:VBox>
 			</mx:Canvas>
-			<mx:Canvas label="Hybs" width="100%" height="100%">
-				<mx:VBox width="100%" height="100%">
+			<mx:Canvas label="Hybs" width="100%" height="100%" show="{slideDesignColumn.visible = true}">
+				<mx:VBox id="hybsContainer" width="100%" height="100%">
 					<mx:Label text="Fill in the samples to be used on each hybridization."/>
 					<mx:HBox width="100%">
 						<mx:HBox>
@@ -865,7 +944,9 @@
 					<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true">
 						<mx:columns>
 						    <mx:DataGridColumn editable="false" headerText=""  width="2" labelFunction="getHybsGridRowNumber"/>
-				             <mx:DataGridColumn headerText="Slide"  width="32" dataField="@idSlideDesign" 
+						    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="12" labelFunction="getSampleChannel1Name"/>
+						    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="12" labelFunction="getSampleChannel2Name"/>
+				             <mx:DataGridColumn id="slideDesignColumn" headerText="Slide"  width="32" dataField="@idSlideDesign" 
 				                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSlideDesign" />
 				             <mx:DataGridColumn headerText="Slide Source"  width="12" dataField="@codeSlideSource" 
 				                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSlideSource" />
