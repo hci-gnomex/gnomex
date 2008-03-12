@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.security.UnknownPermissionException;
@@ -42,10 +43,10 @@ public class Request extends HibernateDetailObject {
   private Date         completedDate;
   private String       isArrayINFORequest;
   private String       codeVisibility;
-  private Set          samples;
-  private Set          labeledSamples;
-  private Set          hybridizations;
-  private Set          workItems;
+  private Set          samples = new TreeSet();
+  private Set          labeledSamples = new TreeSet();
+  private Set          hybridizations = new TreeSet();
+  private Set          workItems = new TreeSet();;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -346,7 +347,12 @@ public class Request extends HibernateDetailObject {
 
   
   public String getProjectName() {
-    return project.getName();
+    if (project != null) {
+      return project.getName();
+    } else {
+      return "";
+    }
+    
   }
   
   public String getCanRead() {

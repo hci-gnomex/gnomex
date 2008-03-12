@@ -23,8 +23,13 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.ExperimentDesign;
+import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
+import hci.gnomex.model.SampleCharacteristic;
+import hci.gnomex.model.SampleCharacteristicEntry;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
@@ -61,8 +66,17 @@ public class GetRequest extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
  
       // Find request
+      boolean newRequest = false;
+      
       Request request = null;
-      if (idRequest != null) {
+      if (idRequest != null && idRequest.intValue() == 0) {
+        newRequest = true;
+        request = new Request();
+        request.setIdRequest(idRequest);
+        request.canRead(true);
+        request.canDelete(true);
+        request.canUpdate(true);
+      } else if (idRequest != null) {
         request = (Request)sess.get(Request.class, idRequest);
       } else {
         requestNumber = requestNumber.replaceAll("#", "");
@@ -74,22 +88,63 @@ public class GetRequest extends GNomExCommand implements Serializable {
       }      
       if (request != null) {
         // Make sure user has permission to view request
-        if (this.getSecAdvisor().canRead(request)) {
+        if (!newRequest) {
+          if (!this.getSecAdvisor().canRead(request)) {
+            this.addInvalidField("perm", "Insufficient permission to access this request");
+          }          
+        }
+          
+        if (this.isValid()) {
           
           Hibernate.initialize(request.getSamples());
           Hibernate.initialize(request.getHybridizations());
           
-          this.getSecAdvisor().flagPermissions(request);
+          if (!newRequest) {
+            this.getSecAdvisor().flagPermissions(request);            
+          }
+          
+          StringBuffer queryBuf = new StringBuffer();
+          queryBuf.append("SELECT sc from SampleCharacteristic as sc ");
+          List sampleCharacteristics = sess.createQuery(queryBuf.toString()).list();
+
+
         
           // Generate xml
           Document doc = new Document(new Element("OpenRequestList"));
-          doc.getRootElement().addContent(request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+          Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+          
+          
+          // Show list of sample characteristic entries
+          Element scParentNode = new Element("SampleCharacteristicEntries");
+          requestNode.addContent(scParentNode);
+          for(Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
+            SampleCharacteristic sc = (SampleCharacteristic)i.next();
+
+            Element scNode = new Element("SampleCharacteristicEntry");
+            SampleCharacteristicEntry entry = null;
+            for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
+              Sample sample = (Sample)i1.next();
+              for(Iterator i2 = sample.getSampleCharacteristicEntries().iterator(); i2.hasNext();) {
+                SampleCharacteristicEntry scEntry = (SampleCharacteristicEntry)i2.next();
+                if (scEntry.getCodeSampleCharacteristic().equals(sc.getCodeSampleCharacteristic())) {
+                  entry = scEntry;
+                  break;
+                }
+              }
+            }
+            scNode.setAttribute("codeSampleCharacteristic", sc.getCodeSampleCharacteristic());
+            scNode.setAttribute("sampleCharacteristic", sc.getSampleCharacteristic());
+            scNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
+            scNode.setAttribute("isSelected", entry != null ? "true" : "false");
+                    
+            scParentNode.addContent(scNode);
+          }
+
+          doc.getRootElement().addContent(requestNode);
         
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = out.outputString(doc);
-        } else {
-          this.addInvalidField("Insufficient Permission", "Insufficient permission to access this request");      
-        }
+        } 
         
       }
     
