@@ -14,27 +14,24 @@ package views
             override public function set data(o:Object):void
             {
                 _data = o;
-
-
-				var slideDesigns:XMLListCollection = new XMLListCollection();
-				for each(var sp:Object in parentApplication.slideProductList) {
-					if (sp.@idSlideProduct == parentDocument.slideProductCombo.selectedItem.@idSlideProduct) {
-						for each(var sd:Object in sp.slideDesigns.SlideDesign) {
-							slideDesigns.addItem(sd);
-						}
-					}
-				}
-				dataProvider = slideDesigns;
- 
-
-                this.selectedIndex = 0;
-                for(var i:Number = 0; i < this.dataProvider.length; i++) {
-                	if(dataProvider[i].@idSlideDesign == o.@idSlideDesign) {
-                          this.selectedIndex = i;
-                          break;
-                     }
-                }
+                
+                dataProvider = parentDocument.slideDesigns;
+				selectItem(); 
             }
+            
+            private function selectItem():void {
+            	if (_data != null) {
+					this.selectedIndex = 0;
+	                for(var i:Number = 0; i < this.dataProvider.length; i++) {
+	                	if(dataProvider[i].@idSlideDesign == _data.@idSlideDesign) {
+	                          this.selectedIndex = i;
+	                          break;
+	                     }
+	                }
+            		
+            	}
+            }
+
             
             [Bindable]           
             override public function get data():Object 
@@ -58,6 +55,10 @@ package views
             {   
                 this.addEventListener(ListEvent.CHANGE, change);
             	labelField = "@name";
+            }
+            
+            private function onMyEvent(event:mx.events.FlexEvent):void {
+            	selectItem();
             }
             
             
