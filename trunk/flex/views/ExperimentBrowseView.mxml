@@ -338,11 +338,11 @@
 				            	editable="true"                        	
 				            	dataField="@isSelected" 
 				            	editorDataField="selected" 
-				            	itemRenderer="views.CheckBoxIsSelected"/>
-				            <mx:DataGridColumn width="28" headerText="#">
+				            	itemRenderer="views.CheckBoxIsSelected" textAlign="center"/>
+				            <mx:DataGridColumn  width="28" headerText="#">
 				                <mx:itemRenderer>
 				                    <mx:Component >
-				                        <mx:HBox  horizontalGap="0" >
+				                        <mx:HBox  horizontalGap="0"  >
 				                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
 				                    	 </mx:Image> 
 				                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
@@ -369,7 +369,7 @@
 	
 				<views:ExperimentDownloadView id="downloadView" 
 					label="Downloads" 
-					icon="@Embed('../assets/folder_go.png')">
+					icon="@Embed('../assets/folder_go.png')" borderStyle="none">
 				</views:ExperimentDownloadView>
 				
 	 			<views:ExperimentTrackView id="trackView" label="Progress" icon="@Embed('../assets/application_go.png')" >

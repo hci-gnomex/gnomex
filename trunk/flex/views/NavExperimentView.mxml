@@ -561,7 +561,7 @@
 
 
 		
-       <mx:Panel height="100%" dropShadowEnabled="true" width="100%" title="Experiments" paddingTop="0" id="bodyPanel">
+       <mx:Panel height="100%" dropShadowEnabled="true" width="100%" title="Experiments" paddingTop="0" id="bodyPanel" headerHeight="24">
 	     <mx:ViewStack id="theViews" creationPolicy="all" visible="false" width="100%" height="100%">
 
 	        <views:ExperimentBrowseView id="browseView"  width="100%" height="100%">

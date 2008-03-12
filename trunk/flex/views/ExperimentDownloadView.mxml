@@ -199,104 +199,107 @@
     <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.RequestDownload}"/>
     <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult.RequestDirectory.Directory.FileDescriptor}"/>
 
+	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:TabNavigator id="theTab"  
+			width="100%" height="100%" 
+			change="onTabSwitch()" 
+			borderStyle="solid">
+			<mx:VBox id="folderView" 
+				label="Folders" width="100%" height="100%" 
+				paddingLeft="4" paddingRight="4" 
+				paddingTop="0" paddingBottom="4" verticalGap="0">
+		       <views:DataGridAlternatingGroup  
+		       	
+		       	dataProvider="{downloadList}"  
+		       	width="100%" height="100%"
+		       	 >
+		         <views:columns>
+		            <mx:DataGridColumn headerText=" " 
+		            	width="10" 
+		            	editable="true"                        	
+		            	dataField="@isSelected" 
+		            	editorDataField="selected"
+		            	itemRenderer="views.CheckBoxIsSelected">
+		            </mx:DataGridColumn>
+		            <mx:DataGridColumn width="35" headerText="#">
+		                <mx:itemRenderer>
+		                    <mx:Component >
+		                        <mx:HBox  horizontalGap="0" >
+		                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
+		                    	 </mx:Image> 
+		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
+		                           </mx:Label>
+		                        </mx:HBox>
+		                    </mx:Component>
+		                </mx:itemRenderer>
+		            </mx:DataGridColumn> 
+			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
+			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
+			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
+			       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
+			       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
+			       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
+			       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
+		         </views:columns>
+		       </views:DataGridAlternatingGroup>
+			</mx:VBox>
+			
+			
+			<mx:VBox id="exploreView" label="Explore Files" width="100%" height="100%" 
+				enabled="true"
+				verticalGap="0" paddingLeft="4" paddingRight="4">
+			    <mx:HBox horizontalAlign="right" width="100%">
+			      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
+			    </mx:HBox>
+			    <mx:DataGrid 
+			    	 width="100%" height="100%" 
 	
-	<mx:TabNavigator id="theTab"  
-		width="100%" height="100%" 
-		change="onTabSwitch()" 
-		borderStyle="none">
-		<mx:VBox id="folderView" 
-			label="Folders" width="100%" height="100%" 
-			paddingLeft="4" paddingRight="4" 
-			paddingTop="0" paddingBottom="0" verticalGap="0">
-	       <views:DataGridAlternatingGroup  
-	       	
-	       	dataProvider="{downloadList}"  
-	       	width="100%" height="100%"
-	       	 >
-	         <views:columns>
-	            <mx:DataGridColumn headerText=" " 
-	            	width="10" 
-	            	editable="true"                        	
-	            	dataField="@isSelected" 
-	            	editorDataField="selected"
-	            	itemRenderer="views.CheckBoxIsSelected">
-	            </mx:DataGridColumn>
-	            <mx:DataGridColumn width="35" headerText="#">
-	                <mx:itemRenderer>
-	                    <mx:Component >
-	                        <mx:HBox  horizontalGap="0" >
-	                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
-	                    	 </mx:Image> 
-	                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-	                           </mx:Label>
-	                        </mx:HBox>
-	                    </mx:Component>
-	                </mx:itemRenderer>
-	            </mx:DataGridColumn> 
-		       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
-		       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
-		        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
-		       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
-		       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
-		       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
-		       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
-		       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
-	         </views:columns>
-	       </views:DataGridAlternatingGroup>
-		</mx:VBox>
-		
-		
-		<mx:VBox id="exploreView" label="Explore Files" width="100%" height="100%" 
-			enabled="true"
-			verticalGap="0" paddingLeft="4" paddingRight="4">
-		    <mx:HBox horizontalAlign="right" width="100%">
-		      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
-		    </mx:HBox>
-		    <mx:DataGrid 
-		    	 width="100%" height="100%" 
-		    	 dataProvider="{expandedFileList}" 
-		    	 >
-		       <mx:columns>
-	            <mx:DataGridColumn headerText=" " 
-	            	width="3" 
-	            	editable="true"                        	
-	            	dataField="@isSelected" 
-	            	editorDataField="selected" 
-	            	itemRenderer="views.CheckBoxIsSelected"/>
-	            <mx:DataGridColumn width="14" headerText="#">
-	                <mx:itemRenderer>
-	                    <mx:Component >
-	                        <mx:HBox  horizontalGap="0" >
-	                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
-	                    	 </mx:Image> 
-	                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-	                           </mx:Label>
-	                        </mx:HBox>
-	                    </mx:Component>
-	                </mx:itemRenderer>
-	            </mx:DataGridColumn> 
-	            <mx:DataGridColumn width="18" headerText="Folder" >
-	                <mx:itemRenderer>
-	                    <mx:Component >
-	                        <mx:HBox  horizontalGap="0" >
-	                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? '../assets/folder.png' : ''}">
-	                    	 </mx:Image> 
-	                           <mx:Label id="directoryName" text="{data.@showDirectoryName == 'Y' ? data.@directoryName : ''}">
-	                           </mx:Label>
-	                        </mx:HBox>
-	                    </mx:Component>
-	                </mx:itemRenderer>
-	            </mx:DataGridColumn> 
-	              	<mx:DataGridColumn dataField="@displayName"    headerText="File"   width="70"/>
-		    	<mx:DataGridColumn dataField="@type"           headerText="Type"   width="12"/>
-		    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size"   width="12"/>
-		    	<mx:DataGridColumn dataField="@lastModifyDateDisplay" headerText="Date"   width="22"/>
-		      </mx:columns>	
-		    	
-		    </mx:DataGrid>
-		</mx:VBox>
-		
+			    	 dataProvider="{expandedFileList}" 
+			    	 >
+			       <mx:columns>
+		            <mx:DataGridColumn headerText=" " 
+		            	width="3" 
+		            	editable="true"                        	
+		            	dataField="@isSelected" 
+		            	editorDataField="selected" 
+		            	itemRenderer="views.CheckBoxIsSelected"/>
+		            <mx:DataGridColumn width="14" headerText="#">
+		                <mx:itemRenderer>
+		                    <mx:Component >
+		                        <mx:HBox  horizontalGap="0" >
+		                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
+		                    	 </mx:Image> 
+		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
+		                           </mx:Label>
+		                        </mx:HBox>
+		                    </mx:Component>
+		                </mx:itemRenderer>
+		            </mx:DataGridColumn> 
+		            <mx:DataGridColumn width="18" headerText="Folder" >
+		                <mx:itemRenderer>
+		                    <mx:Component >
+		                        <mx:HBox  horizontalGap="0" >
+		                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? '../assets/folder.png' : ''}">
+		                    	 </mx:Image> 
+		                           <mx:Label id="directoryName" text="{data.@showDirectoryName == 'Y' ? data.@directoryName : ''}">
+		                           </mx:Label>
+		                        </mx:HBox>
+		                    </mx:Component>
+		                </mx:itemRenderer>
+		            </mx:DataGridColumn> 
+		              	<mx:DataGridColumn dataField="@displayName"    headerText="File"   width="70"/>
+			    	<mx:DataGridColumn dataField="@type"           headerText="Type"   width="12"/>
+			    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size"   width="12"/>
+			    	<mx:DataGridColumn dataField="@lastModifyDateDisplay" headerText="Date"   width="22"/>
+			      </mx:columns>	
+			    	
+			    </mx:DataGrid>
+			</mx:VBox>
+			
 	</mx:TabNavigator>
+		
+	</mx:VBox>
 	
 
 
