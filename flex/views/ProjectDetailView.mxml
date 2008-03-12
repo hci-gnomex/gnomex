@@ -33,6 +33,7 @@
 		import mx.events.CloseEvent;
 		
 		private var closeWindowAfterSave:Boolean = false;
+		public var fromSubmitRequestWindow:Boolean = false;
 		
 		
 		
@@ -128,6 +129,8 @@
 			}
 		}
 		
+
+		
 		public function addProject():void {
 			closeWindowAfterSave = true;
 			parentApplication.navExperimentView.selectedProject.@idLab = parentDocument.labCombo.selectedItem.@idLab;
@@ -177,11 +180,16 @@
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
 				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
-				parentApplication.navExperimentView.getProject.send();
-        		parentApplication.navExperimentView.refreshExperiments();
+				if (fromSubmitRequestWindow) {
+					parentApplication.submitRequestView.onProjectAdded(saveProject.lastResult.@idProject);
+				}else {
+					parentApplication.navExperimentView.getProject.send();
+	        		parentApplication.navExperimentView.refreshExperiments();
+				}
         		
         		if (closeWindowAfterSave) {
         			parentDocument.closeWindow();
+        			closeWindowAfterSave = false;
         		}
         	} else {
         		Alert.show(saveProject.lastResult..ACTMESSAGE.@TEXT);
@@ -230,7 +238,7 @@
 		    <mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Project name:"/>
 				<mx:TextInput id="projectName" width="100%"  
-					text="{parentDocument.parentDocument.selectedProject.@name}">
+					text="{parentApplication.navExperimentView.selectedProject.@name}">
 					<mx:toolTip>(Suggested naming convention: Lab-Species-Experiment title)</mx:toolTip>
 				</mx:TextInput>			    	
 		    </mx:VBox>

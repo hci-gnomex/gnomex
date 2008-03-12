@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="508" height="486" 
+	title="Pick an existing request as a template"
+	 backgroundAlpha="1" borderColor="#ffffff" close="closeWindow()"
+	 showCloseButton="true">
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+		
+		public function closeWindow():void {
+			PopUpManager.removePopUp(this);
+		}
+		
+		public function expandAllNodes():void {
+			browseTree.openItems = parentApplication.submitRequestView.getProjectRequestList.lastResult..Lab;
+			browseTree.openItems = parentApplication.submitRequestView.getProjectRequestList.lastResult..Project;
+			browseTree.validateNow();
+		}
+		
+		private function onNodeSelected():void {
+			parentApplication.submitRequestView.cloneRequest(browseTree.selectedItem);
+			closeWindow();
+		}
+	]]>
+</mx:Script>
+<mx:VBox width="100%" height="100%">
+		<mx:Tree width="100%" height="100%" 
+			dataProvider="{parentApplication.submitRequestView.getProjectRequestList.lastResult}" 
+			showRoot="false" 
+			id="browseTree" 
+			labelField="@label"
+			iconFunction="parentApplication.navExperimentView.getTreeIcon" 
+			selectionColor="#FBF5B5" 
+			 doubleClick="onNodeSelected()"
+			rollOverColor="#CECECE" doubleClickEnabled="true">
+		</mx:Tree>
+
+		<mx:HBox width="100%" horizontalAlign="right">
+			<mx:Button id="cancelButton" label="Cancel" 
+				 click="closeWindow()">
+			 </mx:Button>
+		</mx:HBox>	
+</mx:VBox>
+	
+</mx:TitleWindow>

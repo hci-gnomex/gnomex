@@ -48,7 +48,7 @@
 
 TabNavigator {
         backgroundColor: #2e63a5;
-	    backgroundAlpha:            .2;
+	    backgroundAlpha:            .1;
 	    tabStyleName:      tabHeader;
 		selectedTabTextStyleName: tabHeaderTextSelected;
 }
@@ -57,7 +57,7 @@ TabNavigator {
 	fillColors: #FFFFFF, #FFFFFF; 
 	fillAlphas:  .2, .2;
  	    fontWeight: 		normal;		    
-	    backgroundAlpha:            .2;
+	    backgroundAlpha:            .1;
 }
 
 .tabHeaderTextSelected {
