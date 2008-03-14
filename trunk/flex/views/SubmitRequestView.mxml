@@ -5,7 +5,7 @@
 	label="Submit Request" width="100%" height="100%" 
 	titleIcon="@Embed('../assets/cart_add.png')" 
 	title="Submit Request" backgroundColor="#ffffff">
-
+ 
    <mx:HTTPService  
     id="getNewProject" 
     url="http://localhost/gnomex/GetProject.gx"
@@ -114,7 +114,10 @@
 		public var requestToClone:Object;
 		
 		[Bindable]
+		public var slideDesigns:XMLListCollection = new XMLListCollection();
+		[Bindable]
 		private var selectedIdSlideProduct:Object;
+		
 		
 		private function setRequestCategoryName():void {
 			requestCategoryName = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue).@display.toString();
@@ -405,7 +408,21 @@
 			request.@idLab = labCombo.selectedItem.@idLab;
 			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
 			request.@idProject = projectCombo.selectedItem.@idProject;
-			this.initializeControls();
+
+
+			// Make sure we render the annotation tab because
+			// otherwise we won't activate the renderer code that
+			// hides/shows the sample annotation columns in the samples
+			// grid
+			theTab.selectedChild = this.annotationView;
+						
+			callLater(initializeControls);
+			
+			
+			callLater(checkSampleSetupCompleteness);
+			callLater(checkSamplesCompleteness);
+			callLater(checkHybSetupCompleteness);
+			callLater(checkHybsCompleteness);
 			
 			
 		}
@@ -436,14 +453,10 @@
 			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
 
 		}
-		
+
 		private function initializeControls():void {
-			
-			callLater(initializeControlsImpl);
-		}
-		
-		private function initializeControlsImpl():void {
 			numberOfSamples.text = new String(request.samples.Sample.length());
+			sampleConcentration.text = "100";
 			sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
 			sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
 			sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
@@ -457,6 +470,7 @@
 			organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
 			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 			slideProductCombo.selectedItem = theSlideProduct;
+			initializeSlideDesigns();
 			
 			// We have problems with the SlideDesignComboBox item renderer selecting the correct slidedesign AFTER the
 			// dataprovider is refreshed (filtered by organism, etc.)  So to work around this problem,
@@ -464,7 +478,43 @@
 			// This somehow forces the correct order of events to occur.
 			slideDesignColumn.visible = false;
 			
+			theTab.selectedChild = this.setupView;
 			
+			
+			
+		}
+		
+		private function initializeSlideDesigns():void {
+			selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
+			slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == selectedIdSlideProduct));
+			
+			// If there is only one slide design (besides the blank entry) for the slide product,
+			// set all of the hybs to it.
+			if (slideDesigns.length == 2) {
+				for each (var hyb:Object in hybs) {
+					hyb.@idSlideDesign = slideDesigns[1].@idSlideDesign;
+				}
+			}
+			// If there is more than one slide design, add an empty node so that
+			// the user notices that a selection is required for each
+			// hyb slide design. 
+			else {
+				//var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
+				//slideDesigns.addItemAt(emptyNode, 0);				
+			}
+			checkHybsCompleteness();
+			slideDesignColumn.visible = false;
+		}
+		
+		private function clearHybSlideDesigns():void {
+			if (request.@idSlideProduct == '' ||
+				request.@idSlideProduct != slideProductCombo.selectedItem.@idSlideProduct) {
+			
+				for each (var hyb:Object in hybs) {
+					hyb.@idSlideDesign = '';
+				}
+				checkHybsCompleteness();
+			}
 			
 		}
 		
@@ -502,6 +552,67 @@
 			}
 		}	
 		
+		public function clearOutUncheckedSampleAnnotations():void {
+			for each(var annotation:Object in sampleCharacteristicEntries) {
+				if (annotation.@isSelected == "false") {
+					for each(var sample:XML in samples) {
+						switch (annotation.@codeSampleCharacteristic.toString()) { 
+    						case 'AGE' :
+    							sample.@AGE = '';
+    							break;
+    						case 'CELLLINE' :
+    							sample.@CELLLINE = '';
+    							break;
+    						case 'CELLTYPE' :
+    							sample.@CELLTYPE = '';
+    							break;
+    						case 'CLININFO' :
+    							sample.@CLININFO = '';
+    							break;
+    						case 'COMPOUND' :
+    							sample.@COMPOUND = '';
+    							break;
+    						case 'DOSE' :
+    							sample.@DOSE = '';
+    							break;
+    						case 'DISSTATE' :
+    							sample.@DISSTATE = '';
+    							break;
+    						case 'GENMOD' :
+    							sample.@GENMOD = '';
+    							break;
+    						case 'GROWTHCOND' :
+    							sample.@GROWTHCOND = '';
+    							break;
+    						case 'GENOTYPE' :
+    							sample.@GENOTYPE = '';
+    							break;
+    						case 'INDIV' :
+    							sample.@INDIV = '';
+    							break;
+    						case 'ORGPART' :
+    							sample.@ORGPART = '';
+    							break;
+    						case 'OTHER' :
+    							sample.@OTHER = '';
+    							break;
+    						case 'SEX' :
+    							sample.@SEX = '';
+    							break;
+    						case 'TEMP' :
+    							sample.@TEMP = '';
+    							break;
+    						case 'TIME' :
+    							sample.@TIME = '';
+    							break;
+    						default :
+    							break;    							 
+    					}
+					}
+				}
+			}
+		}
+		
 		
 		public function showSampleAnnotationColumn(codeSampleCharacteristic:String, show:Boolean):void {
 			if (samplesGrid == null) {
@@ -511,12 +622,14 @@
 				var dc:DataGridColumn = samplesGrid.columns[x];
 				if ( dc.dataField == "@" + codeSampleCharacteristic) {
 					dc.visible = show;
+					break;					
 				}
 			}
 			for (var x1:Number = 0; x1 < this.samplesGridConfirm.columnCount; x1++) {
 				var dc1:DataGridColumn = samplesGridConfirm.columns[x1];
 				if ( dc1.dataField == "@" + codeSampleCharacteristic) {
 					dc1.visible = show;
+					break;
 				}
 			}
 		}
@@ -549,7 +662,8 @@
 				for each(var i:int in samplesGrid.selectedIndices) {					
 					var sampleToCopy:Object = samples[i];
 					
-					var emptyNode:XML = new XML("<Sample idSample='' " + 
+					var emptyNode:XML = new XML("<Sample " +
+					" idSample='" + "SAMPLE" + samples.length + "'" +
 					" name='" +  sampleToCopy.@name + "'" + 
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
@@ -686,6 +800,25 @@
         	}
         
         }
+        public function checkHybsCompleteness():void {
+        	var completeCount:int = 0;
+        	for each(var hyb:Object in hybs) {
+        		if (hyb.@idSampleChannel1 != null && hyb.@idSampleChannel1 != ''  &&
+        			hyb.@idSlideDesign != null && hyb.@idSlideDesign != '') {
+        			completeCount++;       				
+        		}
+        	}
+        	if (completeCount == hybs.length) {
+        		this.nextButton6.enabled = true;
+        		this.confirmView.enabled = true;
+        		
+        	} else {
+        		this.nextButton6.enabled = false;
+        		this.confirmView.enabled = false;
+        	}
+        
+        }
+
 
 		private function addHyb():void {
 			var emptyNode:XML = new XML("<Hybridization idHybridization='' notes='' " + 
@@ -697,6 +830,21 @@
 			hybs.addItem(emptyNode);
 	        	
 		}
+		
+		private function checkHybSetupCompleteness():void {
+        	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
+        	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@value != '' &&
+        	    this.slideSourceGroup.selectedValue != null ) {
+        	    	
+        		this.nextButton5.enabled = true;
+        		this.hybsView.enabled = true;
+        	    	
+        	} else {
+        		this.nextButton5.enabled = false;
+        		this.hybsView.enabled = false;
+        	}
+        }
+
 		
 		private function deleteHyb():void {
 			if (hybsGrid.selectedIndex != -1) {
@@ -788,6 +936,7 @@
 		       	event.preventDefault();
 		       	event.target.hideDropFeedback(event);
 		       	DragManager.showFeedback(DragManager.NONE);
+		       	checkHybsCompleteness();
 		       	return;
 	       }
 	       
@@ -831,6 +980,8 @@
 	       // Don't allow flex to do any default moves to the data.  
 	       // We handle it in the code above.
 	       event.preventDefault();
+	       
+	       checkHybsCompleteness();
 		}
 
 		]]>
@@ -844,32 +995,34 @@
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>
 
 	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}"/>
-
-	<mx:XMLListCollection id="slideDesigns" source="{parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == selectedIdSlideProduct).slideDesigns.SlideDesign}"/>
- 
-	<mx:VBox  width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingTop = "12" paddingBottom="4" >
+  
+ 	<mx:VBox  width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6">
 			<mx:Canvas  id="setupView" label="Request setup" width="100%" height="100%">
 				<mx:VBox width="100%" height="100%" verticalGap="20">
 					<mx:VBox width="100%" verticalGap="1">
 					    <mx:HBox  width="100%" horizontalAlign="left" paddingBottom="14">
-					        <mx:Button id="nextButton1"  label="Next &gt;" enabled="false"/>
+					        <mx:Button label="&lt; Back" enabled="false" visible="true"/>
+					        <mx:Button id="nextButton1"  label="Next &gt;" enabled="false" click="{theTab.selectedChild = sampleSetupView;}"/>
 					        <mx:Button label="Cancel" id="cancelButton1"/>
 					    </mx:HBox>
 					    <mx:HBox width="100%" horizontalGap="0">
 					    <mx:Image source="assets/bullet_orange.png"/>
 					    <mx:Label text="Select a request type:" width="240"/>
-							<mx:VBox width="100%" verticalGap="1">
-							    <mx:Spacer width="6"/>
-								<mx:VBox verticalGap = "0">
+							<mx:HBox width="100%" horizontalGap="8">
+								<mx:VBox verticalGap="1">
 								    <mx:RadioButtonGroup id="requestTypeGroup"/>
 									<mx:RadioButton groupName="requestTypeGroup" label="Agilent Oligo Microarray Platform" value="AGIL" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>							
+									<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>							
+									<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray Platform" value="NIMBLE" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>							
 								</mx:VBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>
-								<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen  Microarray Platform" value="NIMBLE" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>
+								<mx:VBox>									
 									<mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>														
-									<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>														
-							</mx:VBox>
+								</mx:VBox>
+								<mx:VBox>
+									<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>																							
+								</mx:VBox>
+							</mx:HBox>
 					    </mx:HBox>
 					</mx:VBox>
 					<mx:HBox width="100%" horizontalGap="0">
@@ -890,14 +1043,14 @@
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%">
-						    <mx:Spacer width="1"/>
-						    							<mx:Text width="100%">
-						    							    							<mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below. Forward the completed form to the Microarray Core Facility (HCI room 3350; Fax 585-0900)]]></mx:htmlText>
+						    <mx:Spacer width="240"/>
+						    <mx:Text width="100%">
+						        <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3350; Fax 585-0900)]]></mx:htmlText>
 							</mx:Text>
 							
 						</mx:HBox>
 						<mx:HBox width="100%">
-						    <mx:Spacer width="1"/>
+						    <mx:Spacer width="240"/>
 							<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff">
 								<mx:click>navigateToURL(new URLRequest('https://hci-as1.hci.utah.edu/gnomex/microarray_work_authorization_form_0906.pdf'), '_blank');</mx:click>
 							</mx:LinkButton>
@@ -925,7 +1078,7 @@
 					    <mx:HBox horizontalGap="0">
 					    <mx:Image source="assets/bullet_orange.png"/>
 					    <mx:Label text="Pick a starting point:" width="240"/>
-					    	<mx:VBox verticalGap="0" width="100%">
+					    	<mx:VBox verticalGap="1" width="100%">
 								<mx:RadioButton groupName="requestTemplateGroup" label="Submit a new request from scratch" selected="true"/>							
 								<mx:HBox width="100%">
 									<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous request as a template" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
@@ -940,58 +1093,62 @@
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="sampleSetupView" label="Sample setup" width="100%" height="100%" enabled="false">
-				<mx:VBox width="100%" height="100%" verticalGap="20">
+				<mx:VBox width="100%" height="100%" verticalGap="2">
 					<mx:HBox width="100%" horizontalAlign="left">
-					    <mx:Button label="&lt; Back" enabled="true"/>
-					    <mx:Button label="Next &gt;" id="nextButton2" enabled="false"/>
+					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = setupView;}"/>
+					    <mx:Button label="Next &gt;" id="nextButton2" enabled="false" click="{theTab.selectedChild = annotationView;}"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="How many samples will you be submitting?" width="340" />
-						<mx:TextInput width="40" id="numberOfSamples" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-						<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();checkSampleSetupCompleteness()">							
-							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry}</mx:dataProvider>
-						</mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select the organism of your samples:" width="340"/>
-						<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;checkSampleSetupCompleteness()">							
-							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
-						</mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select the source of your samples:" width="340"/>
-						<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()">							
-							<mx:dataProvider>{parentApplication.sampleSourceList}</mx:dataProvider>
-						</mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Enter the approximate sample concentration:" width="340"/>
-						<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select the nucleic acid purification/extraction method:" width="340"/>
-						<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
-							<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
-						</mx:ComboBox>
-					</mx:HBox>
+					<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20">
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:Image source="assets/bullet_orange.png"/>
+							<mx:Label text="How many samples will you be submitting?" width="340" />
+							<mx:TextInput width="40" id="numberOfSamples" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:Image source="assets/bullet_orange.png"/>
+							<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
+							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();checkSampleSetupCompleteness()">							
+								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry}</mx:dataProvider>
+							</mx:ComboBox>
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:Image source="assets/bullet_orange.png"/>
+							<mx:Label text="Select the organism of your samples:" width="340"/>
+							<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;checkSampleSetupCompleteness()">							
+								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+							</mx:ComboBox>
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:Image source="assets/bullet_orange.png"/>
+							<mx:Label text="Select the source of your samples:" width="340"/>
+							<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()">							
+								<mx:dataProvider>{parentApplication.sampleSourceList}</mx:dataProvider>
+							</mx:ComboBox>
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:Image source="assets/bullet_orange.png"/>
+							<mx:Label text="Enter the approximate sample concentration:" width="340"/>
+							<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:Image source="assets/bullet_orange.png"/>
+							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340"/>
+							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
+								<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
+							</mx:ComboBox>
+						</mx:HBox>
+						
+					</mx:VBox>
+					
 				</mx:VBox>
 				
 			</mx:Canvas>
 			<mx:Canvas label="Annotations" width="100%" height="100%" enabled="false" id="annotationView">
 				<mx:VBox width="100%" height="100%">
 					<mx:HBox width="100%" horizontalAlign="left">
-					    <mx:Button label="&lt; Back" enabled="true"/>
-					    <mx:Button label="Next &gt;" id="nextButton3" enabled="true"/>
+					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = sampleSetupView;}"/>
+					    <mx:Button label="Next &gt;" id="nextButton3" enabled="true" click="{theTab.selectedChild = samplesView;}"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
 					<mx:HBox width="100%" height="100%" horizontalGap="24">
@@ -1057,69 +1214,72 @@
 			<mx:Canvas label="Samples"  id="samplesView" width="100%" height="100%"  enabled="false">
 				<mx:VBox width="100%" height="100%">
 					<mx:HBox width="100%" horizontalAlign="left">
-					    <mx:Button label="&lt; Back" enabled="true"/>
-					    <mx:Button label="Next &gt;" id="nextButton4" enabled="false"/>
+					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = annotationView;}"/>
+					    <mx:Button label="Next &gt;" id="nextButton4" enabled="false" click="{theTab.selectedChild = hybSetupView;}"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
-					<mx:Label text="Fill in sample details.  Fields in pink are required."/>
-					<mx:HBox width="100%">
-						<mx:HBox>
-							<mx:Button label="Add" click="addSample()" icon="@Embed('../assets/table_row_insert.png')"/>
-							<mx:Button label="Copy" click="copySample()" icon="@Embed('../assets/table_multiple.png')"/>
-							<mx:Button label="Delete" click="deleteSample()" icon="@Embed('../assets/table_row_delete.png')"/>
+					<mx:Panel title="Samples" headerHeight="20" width="100%" height="100%">
+						<mx:Label text="Fill in sample details.  Fields in pink are required."/>
+						<mx:HBox width="100%">
+							<mx:HBox>
+								<mx:Button label="Add" click="addSample()" icon="@Embed('../assets/table_row_insert.png')"/>
+								<mx:Button label="Copy" click="copySample()" icon="@Embed('../assets/table_multiple.png')"/>
+								<mx:Button label="Delete" click="deleteSample()" icon="@Embed('../assets/table_row_delete.png')"/>
+							</mx:HBox>
+							<mx:HBox horizontalAlign="right" width="100%">
+								<mx:Button label="Clear all" click="promptToClearAllSamples()" icon="@Embed('../assets/folder_delete.png')"/>
+							</mx:HBox>
+								
 						</mx:HBox>
-						<mx:HBox horizontalAlign="right" width="100%">
-							<mx:Button label="Clear all" click="promptToClearAllSamples()" icon="@Embed('../assets/folder_delete.png')"/>
-						</mx:HBox>
-							
-					</mx:HBox>
-					<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()">
-						<mx:columns>
-  					        <mx:DataGridColumn editable="false" headerText=""  width="15" resizable="false" labelFunction="getSamplesGridRowNumber"/>
-							<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
-							<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
-			                <mx:DataGridColumn headerText="Sample Type"  width="12" dataField="@idSampleType" 
-			                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleType" />
-			                <mx:DataGridColumn headerText="Organism"  width="12" dataField="@idOrganism" 
-			                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxOrganism" />
-			                <mx:DataGridColumn headerText="Sample Source"  width="12" dataField="@idSampleSource" 
-			                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleSource" />
-			                <mx:DataGridColumn headerText="Sample Prep Method"  width="12" dataField="@idSamplePrepMethod" 
-			                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSamplePrepMethod" />
-							<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
-							<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
-							<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
-							<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
-							<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
-							<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
-							<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
-							<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
-							<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-							<mx:DataGridColumn id="Other" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
-							<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
-						</mx:columns>
-					</mx:DataGrid>
+						<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()">
+							<mx:columns>
+	  					        <mx:DataGridColumn editable="false" headerText=""  width="15" resizable="false" labelFunction="getSamplesGridRowNumber"/>
+								<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
+								<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
+				                <mx:DataGridColumn headerText="Sample Type"  width="12" dataField="@idSampleType" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleType" />
+				                <mx:DataGridColumn headerText="Organism"  width="12" dataField="@idOrganism" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxOrganism" />
+				                <mx:DataGridColumn headerText="Sample Source"  width="12" dataField="@idSampleSource" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleSource" />
+				                <mx:DataGridColumn headerText="Sample Prep Method"  width="12" dataField="@idSamplePrepMethod" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSamplePrepMethod" />
+								<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
+								<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
+								<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
+								<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
+								<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
+								<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
+								<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
+								<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
+								<mx:DataGridColumn id="Other" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+								<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
+							</mx:columns>
+						</mx:DataGrid>
+						
+					</mx:Panel>
 					
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas label="Hyb setup" width="100%" height="100%" enabled="false" id="hybSetupView">
 				<mx:VBox width="100%" height="100%" verticalGap="20">
 					<mx:HBox width="100%" horizontalAlign="left">
-					    <mx:Button label="&lt; Back" enabled="true"/>
-					    <mx:Button label="Next &gt;" id="nextButton5" enabled="true"/>
+					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = samplesView;}"/>
+					    <mx:Button label="Next &gt;" id="nextButton5" enabled="false" click="{theTab.selectedChild = hybsView;}"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0">
 						<mx:Image source="assets/bullet_orange.png"/>
 						<mx:Label text="Select an organism:" width="300" />
 						<mx:ComboBox labelField="@display" width="300" id="organismCombo">							
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;</mx:change>
+							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -1127,7 +1287,7 @@
 						<mx:Image source="assets/bullet_orange.png"/>
 						<mx:Label text="Select an experiment category:" width="300" />
 						<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;</mx:change>
+							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -1136,10 +1296,10 @@
 						<mx:Label text="Select on of the following:" width="300" />
 						<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
 						<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true">
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;</mx:change>
+							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 						</mx:RadioButton>
 						<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio">
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;</mx:change>
+							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 						</mx:RadioButton>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0">
@@ -1147,7 +1307,7 @@
 						<mx:Text width="300">
 							<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
 						</mx:Text>
-						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;initializeHybsGrid()}" creationComplete="addSlideProductFilter()">							
+						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{clearHybSlideDesigns();initializeSlideDesigns();initializeHybsGrid();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
 							<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -1156,7 +1316,7 @@
 						<mx:Text width="300" >
 							<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
 						</mx:Text>
-						<mx:TextInput width="40" id="numberOfHybs" change="initializeHybsGrid()">
+						<mx:TextInput width="40" id="numberOfHybs" change="initializeHybsGrid();checkHybSetupCompleteness()">
 							
 						</mx:TextInput>
 					</mx:HBox>
@@ -1166,9 +1326,9 @@
 						<mx:VBox verticalGap="1">
 							
 							<mx:RadioButtonGroup id="slideSourceGroup"/>
-							<mx:RadioButton label="New microarray purchased from core facility" groupName="slideSourceGroup" id="coreSlideSourceRadio" selected="true" value="CORE"/>
-							<mx:RadioButton label="New microarray purchased by lab" groupName="slideSourceGroup" id="customSlideSourceRadio" value="CLIENT"/>
-							<mx:RadioButton label="Strip and reuse existing microarray" groupName="slideSourceGroup" id="stripSlideSourceRadio" value="REUSE"/>
+							<mx:RadioButton label="New microarray purchased from core facility" groupName="slideSourceGroup" id="coreSlideSourceRadio" selected="true" value="CORE" change="checkHybSetupCompleteness()"/>
+							<mx:RadioButton label="New microarray purchased by lab" groupName="slideSourceGroup" id="customSlideSourceRadio" value="CLIENT" change="checkHybSetupCompleteness()"/>
+							<mx:RadioButton label="Strip and reuse existing microarray" groupName="slideSourceGroup" id="stripSlideSourceRadio" value="REUSE" change="checkHybSetupCompleteness()"/>
 						</mx:VBox>
 					</mx:HBox>
 					
@@ -1177,8 +1337,8 @@
 			<mx:Canvas label="Hybs" width="100%" height="100%" show="{slideDesignColumn.visible = true}" enabled="false" id="hybsView">
 			    <mx:VBox width="100%" height="100%" verticalGap="10">
 				    <mx:HBox width="100%" horizontalAlign="left">
-				        <mx:Button label="&lt; Back" enabled="true"/>
-				        <mx:Button label="Next &gt;" id="nextButton6" enabled="true"/>
+				        <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybSetupView;}"/>
+				        <mx:Button label="Next &gt;" id="nextButton6" enabled="false" click="{theTab.selectedChild = confirmView;}"/>
 				        <mx:Button label="Cancel"/>
 				    </mx:HBox>
 				    <mx:HDividedBox height="100%" width="100%">
@@ -1205,7 +1365,7 @@
 								</mx:HBox>
 									
 							</mx:HBox>
-							<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)">
+							<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()">
 								<mx:columns>
 								    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="15" labelFunction="getHybsGridRowNumber"/>
 								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name"/>
@@ -1225,12 +1385,13 @@
 			    </mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas label="Confirm" width="100%" height="100%" enabled="false" id="confirmView">
-			<mx:VBox id="confirmContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+			<mx:VBox id="confirmContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10">
 				<mx:HBox width="100%" horizontalAlign="left">
-				    <mx:Button label="&lt; Back" enabled="true"/>
+				    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybsView;}"/>
 				    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')"/>
 				    <mx:Button label="Cancel"/>
 				</mx:HBox>
+			<mx:VDividedBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0">
 				<mx:HBox width="100%" horizontalGap="20">
 					<mx:VBox height="100%" verticalGap="0">
 						<mx:Label text="Request Kind" textDecoration="underline"/>
@@ -1249,52 +1410,53 @@
 						<mx:Text text="{billingAccountCombo.selectedItem.@accountName}"/>
 					</mx:VBox>
 				</mx:HBox>
-				<mx:VBox width="100%" height="100%" verticalGap="0">
-					<mx:Label text="Samples"/>
-					<mx:DataGrid width="100%" height="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid">
-						<mx:columns>
-						    <mx:DataGridColumn editable="false" headerText=""  width="10" resizable="false" labelFunction="getSamplesGridRowNumber"/>
-							<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
-							<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
-				            <mx:DataGridColumn headerText="Sample Type"  width="12" labelFunction="lookupSampleTypeName"/>
-				            <mx:DataGridColumn headerText="Organism"  width="12" labelFunction="lookupOrganism"/>
-				            <mx:DataGridColumn headerText="Sample Source"  width="12" labelFunction="lookupSampleSource"/>
-				            <mx:DataGridColumn headerText="Sample Prep Method"  width="12" labelFunction="lookupSamplePrepMethod"/>
-							<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
-							<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
-							<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
-							<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
-							<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
-							<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
-							<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
-							<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
-							<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
-							<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-							<mx:DataGridColumn id="OTHER0" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
-							<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
-						</mx:columns>
-					</mx:DataGrid>
-					
+					<mx:VBox verticalGap="0" width="100%">
+						<mx:Label text="{samples.length + ' Samples'}"/>
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid">
+							<mx:columns>
+							    <mx:DataGridColumn editable="false" headerText=""  width="10" resizable="false" labelFunction="getSamplesGridRowNumber"/>
+								<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
+								<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
+					            <mx:DataGridColumn headerText="Sample Type"  width="12" labelFunction="lookupSampleTypeName"/>
+					            <mx:DataGridColumn headerText="Organism"  width="12" labelFunction="lookupOrganism"/>
+					            <mx:DataGridColumn headerText="Sample Source"  width="12" labelFunction="lookupSampleSource"/>
+					            <mx:DataGridColumn headerText="Sample Prep Method"  width="12" labelFunction="lookupSamplePrepMethod"/>
+								<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
+								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
+								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
+								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
+								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
+								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
+								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
+								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
+								<mx:DataGridColumn id="OTHER0" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+								<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
+							</mx:columns>
+						</mx:DataGrid>
+						
 				</mx:VBox>
-				<mx:VBox width="100%" height="100%" verticalGap="0">
-					<mx:Label text="Hybs"/>
-					<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  editable="false" dataProvider="{hybs}"  backgroundAlpha="0" borderStyle="solid">
-						<mx:columns>
-						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="15" labelFunction="getHybsGridRowNumber"/>
-						    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="28" labelFunction="getSampleChannel1Name"/>
-						    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="28" labelFunction="getSampleChannel2Name"/>
-						     <mx:DataGridColumn id="slideDesignColumn0" headerText="Slide"  width="72" labelFunction="lookupSlideDesignName" />
-						     <mx:DataGridColumn headerText="Slide Source"  width="18"  labelFunction="lookupSlideSource" />
-							<mx:DataGridColumn headerText="Notes" width="20" dataField="@notes"/>
-						</mx:columns>
-					</mx:DataGrid>
-					
-				</mx:VBox>
+					<mx:VBox width="100%" height="100%" verticalGap="0">
+						<mx:Label text="{hybs.length + ' Hybridizations'}"/>
+						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  editable="false" dataProvider="{hybs}"  backgroundAlpha="0" borderStyle="solid">
+							<mx:columns>
+							    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="19" labelFunction="getHybsGridRowNumber"/>
+							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="28" labelFunction="getSampleChannel1Name"/>
+							    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="28" labelFunction="getSampleChannel2Name"/>
+							     <mx:DataGridColumn id="slideDesignColumn0" headerText="Slide"  width="72" labelFunction="lookupSlideDesignName" />
+							     <mx:DataGridColumn headerText="Slide Source"  width="18"  labelFunction="lookupSlideSource" />
+								<mx:DataGridColumn headerText="Notes" width="20" dataField="@notes"/>
+							</mx:columns>
+						</mx:DataGrid>
+						
+					</mx:VBox>
+				</mx:VDividedBox>
 				
 			</mx:VBox>
 			</mx:Canvas>

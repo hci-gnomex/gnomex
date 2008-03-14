@@ -31,6 +31,7 @@ package views
           	} else {
           		_data.@isSelected = "false";
           		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, false);
+          		parentDocument.clearOutUncheckedSampleAnnotations();
           	}
           }
 	}

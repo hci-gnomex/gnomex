@@ -20,8 +20,8 @@ package views
             }
             
             private function selectItem():void {
-            	if (_data != null) {
-					this.selectedIndex = 0;
+				this.selectedIndex = -1;
+            	if (_data != null && dataProvider != null) {
 	                for(var i:Number = 0; i < this.dataProvider.length; i++) {
 	                	if(dataProvider[i].@idSlideDesign == _data.@idSlideDesign) {
 	                          this.selectedIndex = i;
@@ -65,6 +65,7 @@ package views
             private function change(event:ListEvent):void {
             	_data.@idSlideDesign = this.selectedItem.@idSlideDesign;
             	_data.@isDirty = "Y";
+            	parentDocument.checkHybsCompleteness();
             }
             
 	}
