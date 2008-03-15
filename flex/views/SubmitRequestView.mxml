@@ -109,6 +109,9 @@
         import mx.core.DragSource;
         import mx.events.DragEvent;
         
+        
+        
+        
         [Bindable]
         private var submittedIdRequest:String;
         [Bindable]
@@ -135,9 +138,10 @@
 		
 		
 		public function initializeForm():void {
-			if (setupView == null || setupView.enabled) {
+			if (setupView == null) {
 				return;
 			}
+			
 			requestToClone = null;
 			submittedIdRequest = null;
 			submittedRequestNumber = null;
@@ -154,29 +158,47 @@
 			this.requestRadioSolexa.selected = false;
 			submitNewRequestRadio.selected = true;
 			
-			numberOfSamples.text = '';
-			sampleTypeCombo.selectedIndex = -1;
-			samplePrepMethodCombo.selectedIndex = -1;
-			sampleSourceCombo.selectedIndex = -1;
-			this.sampleOrganismCombo.selectedIndex = -1;
-			this.sampleConcentration.text = '';
-						
-			organismCombo.selectedIndex = -1;
-			microarrayCategoryCombo.selectedIndex = -1;
-			slideProductCombo.selectedIndex = -1;
-			numberOfHybs.text = '';
-			isCatalogRadio.selected = true;
-			this.slideSourceGroup.selectedValue = '';
-			coreSlideSourceRadio.selected = true;
+			theTab.creationPolicy = 'all';
 			
-			confirmButtonStack.selectedIndex = 0;
+			if (sampleSetupView != null) {
+				numberOfSamples.text = '';
+				sampleTypeCombo.selectedIndex = -1;
+				samplePrepMethodCombo.selectedIndex = -1;
+				sampleSourceCombo.selectedIndex = -1;
+				this.sampleOrganismCombo.selectedIndex = -1;
+				this.sampleConcentration.text = '';
+				sampleSetupView.enabled = false;
+				annotationView.enabled = false;			
+			}
+					
+			if (hybSetupView != null) {
+				organismCombo.selectedIndex = -1;
+				microarrayCategoryCombo.selectedIndex = -1;
+				slideProductCombo.selectedIndex = -1;
+				numberOfHybs.text = '';
+				isCatalogRadio.selected = true;
+				coreSlideSourceCheckbox.selected = false;
+			 	this.clientSlideSourceCheckbox.selected = false;
+				this.stripSlideSourceCheckbox.selected = false;
+				
+			}	
 			
-			sampleSetupView.enabled = false;
-			annotationView.enabled = false;			
-			samplesView.enabled = false;
-			hybSetupView.enabled = false;
-			hybsView.enabled = false;
-			confirmView.enabled = false;
+			if (confirmButtonStack != null) {
+				confirmButtonStack.selectedIndex = 0;
+			}
+			
+			if (samplesView != null) {
+				samplesView.enabled = false;			
+			}
+			if (hybSetupView != null) {
+				hybSetupView.enabled = false;
+			}
+			if (hybsView != null) {
+				hybsView.enabled = false;
+			}
+			if (confirmView != null) {
+				confirmView.enabled = false;
+			}
 			this.theTab.selectedChild = setupView;
 			
 			
@@ -335,6 +357,10 @@
         	if (item.@value == "") {
         		return true;
         	}
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
         	var doesMatch:Boolean = true;
         	if (sampleTypeCombo.selectedItem != null && 
         	    sampleTypeCombo.selectedItem.@value != null  &&
@@ -359,6 +385,10 @@
         private function filterSlideProduct(item:Object):Boolean {
         	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
         		return true;
+        	}
+        	
+        	if (item.@isActive == 'N') {
+        		return false;	
         	}
         	var doesMatchOrganism:Boolean = true;
         	if (organismCombo.selectedItem != null && 
@@ -534,6 +564,7 @@
 			organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
 			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 			slideProductCombo.selectedItem = theSlideProduct;
+			this.coreSlideSourceCheckbox.selected = true;
 			initializeSlideDesigns();
 			
 			// We have problems with the SlideDesignComboBox item renderer selecting the correct slidedesign AFTER the
@@ -912,7 +943,7 @@
 			var emptyNode:XML = new XML("<Hybridization " +
 			    " idHybridization='" + "Hyb" + hybs.length + "'" +
 			    " notes='' " + 
-				" codeSlideSource='" + slideSourceGroup.selectedValue + "'" +
+				" codeSlideSource='" + getCheckedCodeSlideSource() + "'" +
 				" idSampleChannel1='0'" +
 				" idSampleChannel2='0'" +
 				"/>");
@@ -921,10 +952,45 @@
 	        	
 		}
 		
+		private function getCheckedCodeSlideSource():String {
+			if (this.coreSlideSourceCheckbox.selected == true) {
+				return "CORE";
+			} else if (this.clientSlideSourceCheckbox.selected == true ) {
+				return "CLIENT";
+			} else if (this.stripSlideSourceCheckbox.selected== true) {
+				return "REUSE";
+			} else {
+				return '';
+			}
+		}
+		private function toggleCheckedCodeSlideSource(checkBoxNumber:int):void {
+			if (checkBoxNumber == 1) {
+				this.clientSlideSourceCheckbox.selected = false;
+				this.stripSlideSourceCheckbox.selected  = false;
+			} else if (checkBoxNumber == 2) {
+				this.coreSlideSourceCheckbox.selected = false;
+				this.stripSlideSourceCheckbox.selected  = false;
+			} else if (checkBoxNumber == 3) {
+				this.coreSlideSourceCheckbox.selected  = false;
+				this.clientSlideSourceCheckbox.selected = false;
+			} 
+		}
+		
+		private function propagateCheckCodeSlideSource():void {
+			for each (var hyb:Object in hybs) {
+				hyb.@codeSlideSource = this.getCheckedCodeSlideSource();
+			}
+		}
+		private function propagateSlideDesign():void {
+			for each (var hyb:Object in hybs) {
+				hyb.@idSideDesign = this.slideProductCombo.selectedItem.@idSlideDesign;
+			}
+		}
+		
 		private function checkHybSetupCompleteness():void {
         	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
-        	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@value != '' &&
-        	    this.slideSourceGroup.selectedValue != null ) {
+        	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
+        	    this.getCheckedCodeSlideSource() != '' ) {
         	    	
         		this.nextButton5.enabled = true;
         		this.hybsView.enabled = true;
@@ -987,6 +1053,11 @@
         	if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@value == '') {
         		return;
         	}
+        	if (this.getCheckedCodeSlideSource() == '') {
+        		return;
+        	}
+        	
+        	
     		var numberOfHybsToAdd:Number = new Number(numberOfHybs.text);
     		if(hybs.length <= numberOfHybsToAdd) {
     			numberOfHybsToAdd = numberOfHybsToAdd - hybs.length;
@@ -1451,7 +1522,7 @@
 						<mx:Text width="300">
 							<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
 						</mx:Text>
-						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
+						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateSlideDesign();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
 							<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -1468,11 +1539,9 @@
 						<mx:Image source="assets/bullet_orange.png"/>
 						<mx:Label text="Where will the microarrays come from?" width="300" />
 						<mx:VBox verticalGap="1">
-							
-							<mx:RadioButtonGroup id="slideSourceGroup"/>
-							<mx:RadioButton label="New microarray purchased from core facility" groupName="slideSourceGroup" id="coreSlideSourceRadio" selected="true" value="CORE" change="checkHybSetupCompleteness()"/>
-							<mx:RadioButton label="New microarray purchased by lab" groupName="slideSourceGroup" id="customSlideSourceRadio" value="CLIENT" change="checkHybSetupCompleteness()"/>
-							<mx:RadioButton label="Strip and reuse existing microarray" groupName="slideSourceGroup" id="stripSlideSourceRadio" value="REUSE" change="checkHybSetupCompleteness()"/>
+							<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   click="this.toggleCheckedCodeSlideSource(1);;initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
+							<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(2);initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
+							<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(3);initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
 						</mx:VBox>
 					</mx:HBox>
 					
