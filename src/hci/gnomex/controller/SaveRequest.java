@@ -196,7 +196,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
       
 
-        this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\"/>";
+        this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber()  + "\"/>";
         
         if (requestParser.isNewRequest()) {
           sess.refresh(requestParser.getRequest());
