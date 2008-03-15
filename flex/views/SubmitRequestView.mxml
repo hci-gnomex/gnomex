@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
-	styleName="form"
 	label="Submit Request" width="100%" height="100%" 
 	titleIcon="@Embed('../assets/cart_add.png')" 
-	title="Submit Request" backgroundColor="#ffffff">
+	title="Submit Request" backgroundColor="#ffffff" borderColor="#ffffff" themeColor="#ffffff">
  
    <mx:HTTPService  
     id="getNewProject" 
@@ -88,6 +87,17 @@
     </mx:request>
   </mx:HTTPService>
   
+  <mx:HTTPService  
+    id="saveNewRequest" 
+    url="http://localhost/gnomex/SaveRequest.gx"
+    destination="saveNewRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveNewRequest(event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+  
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -98,12 +108,17 @@
         import mx.managers.DragManager;
         import mx.core.DragSource;
         import mx.events.DragEvent;
+        
+        [Bindable]
+        private var submittedIdRequest:String;
+        [Bindable]
+        private var submittedRequestNumber:String;
 
 		[Bindable]
 		private var requestCategoryName:String;
 		
 		[Bindable]
-		private var request:Object;
+		public var request:Object;
 		
 		private var projectDetailWindow:views.ProjectDetailWindow;
 		private var selectedIdProject:Object;
@@ -118,6 +133,55 @@
 		[Bindable]
 		private var selectedIdSlideProduct:Object;
 		
+		
+		public function initializeForm():void {
+			if (setupView == null || setupView.enabled) {
+				return;
+			}
+			requestToClone = null;
+			submittedIdRequest = null;
+			submittedRequestNumber = null;
+
+			setupView.enabled = true;
+			labCombo.selectedIndex = -1;
+			billingAccountCombo.selectedIndex = -1;
+			projectCombo.selectedIndex = -1;
+			this.requestTypeGroup.selectedValue = '';
+			this.requestRadioAffy.selected = false;
+			this.requestRadioAgilent.selected = false;
+			this.requestRadioNimbleGen.selected = false;
+			this.requestRadioQC.selected = false;
+			this.requestRadioSolexa.selected = false;
+			submitNewRequestRadio.selected = true;
+			
+			numberOfSamples.text = '';
+			sampleTypeCombo.selectedIndex = -1;
+			samplePrepMethodCombo.selectedIndex = -1;
+			sampleSourceCombo.selectedIndex = -1;
+			this.sampleOrganismCombo.selectedIndex = -1;
+			this.sampleConcentration.text = '';
+						
+			organismCombo.selectedIndex = -1;
+			microarrayCategoryCombo.selectedIndex = -1;
+			slideProductCombo.selectedIndex = -1;
+			numberOfHybs.text = '';
+			isCatalogRadio.selected = true;
+			this.slideSourceGroup.selectedValue = '';
+			coreSlideSourceRadio.selected = true;
+			
+			confirmButtonStack.selectedIndex = 0;
+			
+			sampleSetupView.enabled = false;
+			annotationView.enabled = false;			
+			samplesView.enabled = false;
+			hybSetupView.enabled = false;
+			hybsView.enabled = false;
+			confirmView.enabled = false;
+			this.theTab.selectedChild = setupView;
+			
+			
+			
+		}
 		
 		private function setRequestCategoryName():void {
 			requestCategoryName = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue).@display.toString();
@@ -403,12 +467,12 @@
 		}
 		
 		private function onGetRequestToClone(event:ResultEvent):void {
-			request = getRequestToClone.lastResult..Request.(@idRequest = requestToClone.@idRequest);
+			request = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
 			request.@idRequest = "0";
+			request.@number = "";
 			request.@idLab = labCombo.selectedItem.@idLab;
 			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
 			request.@idProject = projectCombo.selectedItem.@idProject;
-
 
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
@@ -554,60 +618,84 @@
 		
 		public function clearOutUncheckedSampleAnnotations():void {
 			for each(var annotation:Object in sampleCharacteristicEntries) {
+				var isSelected:String;
+				var value:String;
 				if (annotation.@isSelected == "false") {
-					for each(var sample:XML in samples) {
-						switch (annotation.@codeSampleCharacteristic.toString()) { 
-    						case 'AGE' :
-    							sample.@AGE = '';
-    							break;
-    						case 'CELLLINE' :
-    							sample.@CELLLINE = '';
-    							break;
-    						case 'CELLTYPE' :
-    							sample.@CELLTYPE = '';
-    							break;
-    						case 'CLININFO' :
-    							sample.@CLININFO = '';
-    							break;
-    						case 'COMPOUND' :
-    							sample.@COMPOUND = '';
-    							break;
-    						case 'DOSE' :
-    							sample.@DOSE = '';
-    							break;
-    						case 'DISSTATE' :
-    							sample.@DISSTATE = '';
-    							break;
-    						case 'GENMOD' :
-    							sample.@GENMOD = '';
-    							break;
-    						case 'GROWTHCOND' :
-    							sample.@GROWTHCOND = '';
-    							break;
-    						case 'GENOTYPE' :
-    							sample.@GENOTYPE = '';
-    							break;
-    						case 'INDIV' :
-    							sample.@INDIV = '';
-    							break;
-    						case 'ORGPART' :
-    							sample.@ORGPART = '';
-    							break;
-    						case 'OTHER' :
-    							sample.@OTHER = '';
-    							break;
-    						case 'SEX' :
-    							sample.@SEX = '';
-    							break;
-    						case 'TEMP' :
-    							sample.@TEMP = '';
-    							break;
-    						case 'TIME' :
-    							sample.@TIME = '';
-    							break;
-    						default :
-    							break;    							 
-    					}
+					isSelected = "N";
+					value = '';
+				} else {
+					isSelected = "Y";
+					value = null;
+				}
+					
+				for each(var sample:XML in samples) {
+					switch (annotation.@codeSampleCharacteristic.toString()) { 
+						case 'AGE' :
+							sample.@AGE = (value == null ? sample.@AGE : value);
+							request.@AGE = isSelected;
+							break;
+						case 'CELLLINE' :
+							sample.@CELLLINE = (value == null ? sample.@CELLLINE : value);
+							request.@CELLLINE = isSelected;
+							break;
+						case 'CELLTYPE' :
+							sample.@CELLTYPE = (value == null ? sample.@CELLTYPE : value);
+							request.@CELLTYPE = isSelected;
+							break;
+						case 'CLININFO' :
+							sample.@CLININFO = (value == null ? sample.@CLININFO : value);
+							request.@CLININFO = isSelected;
+							break;
+						case 'COMPOUND' :
+							sample.@COMPOUND = (value == null ? sample.@COMPOUND : value);
+							request.@COMPOUND = isSelected;
+							break;
+						case 'DOSE' :
+							sample.@DOSE = (value == null ? sample.@DOSE : value);
+							request.@DOSE = isSelected;
+							break;
+						case 'DISSTATE' :
+							sample.@DISSTATE = (value == null ? sample.@DISSTATE : value);
+							request.@DISSTATE = isSelected;
+							break;
+						case 'GENMOD' :
+							sample.@GENMOD = (value == null ? sample.@GENMOD : value);
+							request.@GENMOD = isSelected;
+							break;
+						case 'GROWTHCOND' :
+							sample.@GROWTHCOND = (value == null ? sample.@GROWTHCOND : value);
+							request.@GROWTHCOND = isSelected;
+							break;
+						case 'GENOTYPE' :
+							sample.@GENOTYPE = (value == null ? sample.@GENOTYPE : value);
+							request.@GENOTYPE = isSelected;
+							break;
+						case 'INDIV' :
+							sample.@INDIV = (value == null ? sample.@INDIV : value);
+							request.@INDIV = isSelected;
+							break;
+						case 'ORGPART' :
+							sample.@ORGPART = (value == null ? sample.@ORGPART : value);
+							request.@ORGPART = isSelected;
+							break;
+						case 'OTHER' :
+							sample.@OTHER = (value == null ? sample.@OTHER : value);
+							request.@OTHER = isSelected;
+							break;
+						case 'SEX' :
+							sample.@SEX = (value == null ? sample.@SEX : value);
+							request.@SEX = isSelected;
+							break;
+						case 'TEMP' :
+							sample.@TEMP = (value == null ? sample.@TEMP : value);
+							request.@TEMP = isSelected;
+							break;
+						case 'TIME' :
+							sample.@TIME = (value == null ? sample.@TIME : value);
+							request.@TIME = isSelected;
+							break;
+						default :
+							break;    							 
 					}
 				}
 			}
@@ -636,7 +724,7 @@
 		
 		private function addSample():void {
 			var emptyNode:XML = new XML("<Sample " +
-			    " idSample='" + "SAMPLE" + samples.length + "'" +
+			    " idSample='" + "Sample" + samples.length + "'" +
 			    " name='' description='' " +
 				" concentration='" + sampleConcentration.text + "'" +
 				" idSampleType='" + sampleTypeCombo.selectedItem.@value + "'" +
@@ -663,7 +751,7 @@
 					var sampleToCopy:Object = samples[i];
 					
 					var emptyNode:XML = new XML("<Sample " +
-					" idSample='" + "SAMPLE" + samples.length + "'" +
+					" idSample='" + "Sample" + samples.length + "'" +
 					" name='" +  sampleToCopy.@name + "'" + 
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
@@ -790,7 +878,7 @@
         			completeCount++;       				
         		}
         	}
-        	if (completeCount == samples.length) {
+        	if (samples.length > 0 && completeCount == samples.length) {
         		this.nextButton4.enabled = true;
         		this.hybSetupView.enabled = true;
         		
@@ -803,12 +891,12 @@
         public function checkHybsCompleteness():void {
         	var completeCount:int = 0;
         	for each(var hyb:Object in hybs) {
-        		if (hyb.@idSampleChannel1 != null && hyb.@idSampleChannel1 != ''  &&
+        		if (hyb.@idSampleChannel1 != null && hyb.@idSampleChannel1 != '0'  &&
         			hyb.@idSlideDesign != null && hyb.@idSlideDesign != '') {
         			completeCount++;       				
         		}
         	}
-        	if (completeCount == hybs.length) {
+        	if (hybs.length > 0 && completeCount == hybs.length) {
         		this.nextButton6.enabled = true;
         		this.confirmView.enabled = true;
         		
@@ -821,7 +909,9 @@
 
 
 		private function addHyb():void {
-			var emptyNode:XML = new XML("<Hybridization idHybridization='' notes='' " + 
+			var emptyNode:XML = new XML("<Hybridization " +
+			    " idHybridization='" + "Hyb" + hybs.length + "'" +
+			    " notes='' " + 
 				" codeSlideSource='" + slideSourceGroup.selectedValue + "'" +
 				" idSampleChannel1='0'" +
 				" idSampleChannel2='0'" +
@@ -859,7 +949,8 @@
 				for each(var i:int in hybsGrid.selectedIndices) {					
 					var hybToCopy:Object = hybs[i];
 					
-					var emptyNode:XML = new XML("<Hybridization idHybridization='' " + 
+					var emptyNode:XML = new XML("<Hybridization " +
+    			    " idHybridization='" + "Hyb" + hybs.length + "'" +
 					" notes='" + hybToCopy.@notes + "'" + 
 					" idSampleChannel1='" + hybToCopy.@idSampleChannel1 + "'" +
 					" idSampleChannel2='" + hybToCopy.@idSampleChannel2 + "'" +	
@@ -983,6 +1074,59 @@
 	       
 	       checkHybsCompleteness();
 		}
+		
+		private function submitRequest():void {
+			request.@codeRequestCategory = this.requestTypeGroup.selectedValue;
+			request.@idLab = labCombo.selectedItem.@idLab;
+			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			request.@idBillingAccount = this.billingAccountCombo.selectedItem.@idBillingAccount;
+			request.@idProject = projectCombo.selectedItem.@idProject;
+			request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
+			
+			request.@idSampleTypeDefault = sampleTypeCombo.selectedItem.@value;
+			request.@idSampleSourceDefault = sampleSourceCombo.selectedItem.@value;
+			request.@idSamplePrepMethodDefault = samplePrepMethodCombo.selectedItem.@value;
+			request.@idOrganismSampleDefault = this.sampleOrganismCombo.selectedItem.@value;
+			request.@codeMicroarrayCategory = this.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;
+			
+			request.replace("samples", <samples></samples>); 
+			for each(var sample:Object in samples) {
+				request.samples.appendChild(sample);
+			}
+			request.replace("hybridizations", <hybridizations></hybridizations>); 
+			for each(var hyb:Object in hybs) {
+				request.hybridizations.appendChild(hyb);
+			}
+
+			var params:Object = new Object();
+			params.requestXMLString = request.toXMLString();
+			params.idProject = projectCombo.selectedItem.@idProject;
+			saveNewRequest.send(params);			
+		}
+		
+		private function onSaveNewRequest(event:ResultEvent):void {
+			if (saveNewRequest.lastResult.name() == "SUCCESS") {
+				submittedIdRequest = saveNewRequest.lastResult.@idRequest;
+				submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
+				confirmButtonStack.selectedIndex = 1;
+				
+				setupView.enabled = false;
+				sampleSetupView.enabled = false;
+				annotationView.enabled = false;
+				samplesView.enabled = false;
+				hybSetupView.enabled = false;
+				hybsView.enabled = false;
+				
+			} else {
+				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
+		
+		private function showPrintableRequestForm():void {
+			var url:URLRequest = new URLRequest('http://localhost/gnomex/ShowRequestForm.gx?idRequest=' + submittedIdRequest);
+			navigateToURL(url, '_blank');			
+		}
+
 
 		]]>
 	</mx:Script>
@@ -996,7 +1140,7 @@
 
 	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}"/>
   
- 	<mx:VBox  width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+ 	<mx:VBox  width="100%" height="100%" paddingBottom="6" paddingLeft="6" paddingRight="6" paddingTop="6">
 		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6">
 			<mx:Canvas  id="setupView" label="Request setup" width="100%" height="100%">
 				<mx:VBox width="100%" height="100%" verticalGap="20">
@@ -1011,16 +1155,16 @@
 					    <mx:Label text="Select a request type:" width="240"/>
 							<mx:HBox width="100%" horizontalGap="8">
 								<mx:VBox verticalGap="1">
-								    <mx:RadioButtonGroup id="requestTypeGroup"/>
-									<mx:RadioButton groupName="requestTypeGroup" label="Agilent Oligo Microarray Platform" value="AGIL" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>							
-									<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>							
-									<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray Platform" value="NIMBLE" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>							
+								    <mx:RadioButtonGroup id="requestTypeGroup" />
+									<mx:RadioButton groupName="requestTypeGroup" label="Agilent Oligo Microarray Platform" value="AGIL" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
+									<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
+									<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray Platform" value="NIMBLE" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioNimbleGen"/>							
 								</mx:VBox>
 								<mx:VBox>									
-									<mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>														
+									<mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC"/>														
 								</mx:VBox>
 								<mx:VBox>
-									<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="setRequestCategoryName()" change="checkSetupCompleteness()"/>																							
+									<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
 								</mx:VBox>
 							</mx:HBox>
 					    </mx:HBox>
@@ -1079,7 +1223,7 @@
 					    <mx:Image source="assets/bullet_orange.png"/>
 					    <mx:Label text="Pick a starting point:" width="240"/>
 					    	<mx:VBox verticalGap="1" width="100%">
-								<mx:RadioButton groupName="requestTemplateGroup" label="Submit a new request from scratch" selected="true"/>							
+								<mx:RadioButton groupName="requestTemplateGroup" label="Submit a new request from scratch" selected="true" id="submitNewRequestRadio"/>							
 								<mx:HBox width="100%">
 									<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous request as a template" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
 									<mx:Label text="{requestToClone.@label}" color="#0000ff" width="100%"/>
@@ -1181,7 +1325,7 @@
 							                       </mx:Label>
 							                       <mx:TextInput id="scOtherLabel" fontSize="9"
 							                       	text="{data.@otherLabel}"
-							                       	change="{data.@otherLabel = scOtherLabel.text}" 
+							                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.otherDataColumn.headerText = scOtherLabel.text;parentDocument.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
 							                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
 							                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
 							                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
@@ -1259,7 +1403,7 @@
 								<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
 								<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
 								<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-								<mx:DataGridColumn id="Other" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+								<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
 								<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
 							</mx:columns>
 						</mx:DataGrid>
@@ -1307,7 +1451,7 @@
 						<mx:Text width="300">
 							<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
 						</mx:Text>
-						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{clearHybSlideDesigns();initializeSlideDesigns();initializeHybsGrid();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
+						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
 							<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -1316,7 +1460,7 @@
 						<mx:Text width="300" >
 							<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
 						</mx:Text>
-						<mx:TextInput width="40" id="numberOfHybs" change="initializeHybsGrid();checkHybSetupCompleteness()">
+						<mx:TextInput width="40" id="numberOfHybs" change="initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();checkHybSetupCompleteness()">
 							
 						</mx:TextInput>
 					</mx:HBox>
@@ -1385,12 +1529,26 @@
 			    </mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas label="Confirm" width="100%" height="100%" enabled="false" id="confirmView">
-			<mx:VBox id="confirmContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10">
-				<mx:HBox width="100%" horizontalAlign="left">
-				    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybsView;}"/>
-				    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')"/>
-				    <mx:Button label="Cancel"/>
-				</mx:HBox>
+			<mx:VBox id="confirmContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
+			    <mx:ViewStack id="confirmButtonStack" width="100%" height="36">
+					<mx:HBox width="100%" horizontalAlign="left">
+					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybsView;}"/>
+					    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="submitRequest()"/>
+					    <mx:Button label="Cancel"/>
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="outset" backgroundColor="#ffffff" paddingTop="2" paddingRight="2" paddingLeft="2">
+						<mx:Button label="Printable request form" click="showPrintableRequestForm()" icon="@Embed('../assets/page.png')"/>
+						<mx:HBox width="100%" >
+							<mx:Text fontWeight="bold" color="#008040" text="{'Request #   ' + submittedRequestNumber + '    has been submitted.'}">
+							</mx:Text>
+							<mx:Text width="100%" fontWeight="bold" color="#008040">
+								<mx:text>Please print off the request form and deliver it along with your samples to the Microarray Core Facility.</mx:text>
+							</mx:Text>
+							
+						</mx:HBox>
+					</mx:HBox>
+			    	
+			    </mx:ViewStack>
 			<mx:VDividedBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0">
 				<mx:HBox width="100%" horizontalGap="20">
 					<mx:VBox height="100%" verticalGap="0">
@@ -1436,7 +1594,7 @@
 								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
 								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
 								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-								<mx:DataGridColumn id="OTHER0" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
 								<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
 							</mx:columns>
 						</mx:DataGrid>

@@ -28,6 +28,7 @@ package views
           	if (this.selected) {
           		_data.@isSelected = "true";
           		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, true);
+          		parentDocument.clearOutUncheckedSampleAnnotations();
           	} else {
           		_data.@isSelected = "false";
           		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, false);
