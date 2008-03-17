@@ -5,6 +5,7 @@ package views
 	import mx.collections.XMLListCollection;
 	import flash.events.Event;
 	import mx.events.ListEvent;
+	import flash.display.Graphics;
 
 	public class ComboBoxSamplePrepMethod extends ComboBox
 	{
@@ -57,6 +58,28 @@ package views
             	_data.@idSamplePrepMethod = this.selectedItem.@value;
             	_data.@isDirty = "Y";
             }
+
+
             
+		    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+		    {
+		          super.updateDisplayList(unscaledWidth,unscaledHeight);
+		          if (_data == null) {
+		          	return;
+		          }
+		          
+			      var colors:Array = new Array();
+		          if(_data.@idSamplePrepMethod == '') {
+			          colors.push(parentApplication.REQUIRED_FIELD_BACKGROUND);		          
+			          colors.push("0xCCCCCC");		          
+			          this.setStyle("fillColors", colors);
+		          	
+		          } else {
+			          colors.push("0xFFFFFF");
+			          colors.push("0xCCCCCC");		          
+			          this.setStyle("fillColors", colors);
+		          }
+		    }
 	}
+
 }

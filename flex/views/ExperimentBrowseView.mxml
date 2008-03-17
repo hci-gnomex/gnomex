@@ -307,7 +307,7 @@
 	    <mx:HBox id="filterListView" width="100%" paddingTop="12"  horizontalGap="30">
 	        <mx:HBox horizontalGap="0">
 		    	<mx:Label text="Experiment #"/>
-		    	<mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()" width="80">					    		
+		    	<mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()" width="80" fillColors="[#ffd8bb, #ffd8bb]">					    		
 		    	</mx:ComboBox> 
 	        	
 	        </mx:HBox>

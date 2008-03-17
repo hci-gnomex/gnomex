@@ -5,9 +5,8 @@ package views
 	import mx.collections.XMLListCollection;
 	import flash.events.Event;
 	import mx.events.ListEvent;
-	
 
-	public class ComboBoxSampleType extends ComboBox
+	public class ComboBoxConcentrationUnit extends ComboBox
 	{
 		    private var _data:Object;
 		  
@@ -17,12 +16,12 @@ package views
                 _data = o;
 
 
-				dataProvider = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry);
+				dataProvider = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.ConcentrationUnit').DictionaryEntry);
  
 
                 this.selectedIndex = 0;
                 for(var i:Number = 0; i < this.dataProvider.length; i++) {
-                	if(dataProvider[i].@value == o.@idSampleType) {
+                	if(dataProvider[i].@value == o.@codeConcentrationUnit) {
                           this.selectedIndex = i;
                           break;
                      }
@@ -38,7 +37,7 @@ package views
 
             override public function get value():Object {
              	if (_data != null) {
-            		return _data.@idSampleType;
+            		return _data.@codeConcentrationUnit;
             	} else {
             		return null;
             	} 
@@ -55,29 +54,9 @@ package views
             
             
             private function change(event:ListEvent):void {
-            	_data.@idSampleType = this.selectedItem.@value;
+            	_data.@codeConcentrationUnit = this.selectedItem.@value;
             	_data.@isDirty = "Y";
             }
-            
-		    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
-		    {
-		          super.updateDisplayList(unscaledWidth,unscaledHeight);
-		          if (_data == null) {
-		          	return;
-		          }
-		          
-			      var colors:Array = new Array();
-		          if(_data.@idSampleType == '') {
-			          colors.push(parentApplication.REQUIRED_FIELD_BACKGROUND);		          
-			          colors.push("0xCCCCCC");		          
-			          this.setStyle("fillColors", colors);
-		          	
-		          } else {
-			          colors.push("0xFFFFFF");
-			          colors.push("0xCCCCCC");		          
-			          this.setStyle("fillColors", colors);
-		          }
-		    }            
             
 	}
 }

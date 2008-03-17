@@ -48,6 +48,8 @@
 	        [Embed(source="assets/sitemap.png")]
 	        public var iconTree:Class;
 	        
+	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
+	        
 			[Bindable]
 			public var promptedLabList:views.PromptXMLListCollection;
 			[Bindable]

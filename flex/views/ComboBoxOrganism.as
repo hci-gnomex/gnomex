@@ -58,5 +58,25 @@ package views
             	_data.@isDirty = "Y";
             }
             
+		    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+		    {
+		          super.updateDisplayList(unscaledWidth,unscaledHeight);
+		          if (_data == null) {
+		          	return;
+		          }
+		          
+			      var colors:Array = new Array();
+		          if(_data.@idOrganism == '') {
+			          colors.push(parentApplication.REQUIRED_FIELD_BACKGROUND);		          
+			          colors.push("0xCCCCCC");		          
+			          this.setStyle("fillColors", colors);
+		          	
+		          } else {
+			          colors.push("0xFFFFFF");
+			          colors.push("0xCCCCCC");		          
+			          this.setStyle("fillColors", colors);
+		          }
+		    }            
+            
 	}
 }
