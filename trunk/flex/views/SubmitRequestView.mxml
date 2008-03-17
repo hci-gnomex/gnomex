@@ -207,6 +207,67 @@
 		
 		private function setRequestCategoryName():void {
 			requestCategoryName = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue).@display.toString();
+			if (this.requestTypeGroup.selectedValue == "QC") {
+				if (!sampleSetupContainer.contains(bioanalyzerContainer)) {
+					sampleSetupContainer.addChildAt(bioanalyzerContainer, 6);
+				}
+				if (sampleSetupContainer.contains(sampleOrganismContainer)) {
+					sampleSetupContainer.removeChild(sampleOrganismContainer);
+				}
+				if (sampleSetupContainer.contains(sampleSourceContainer)) {
+					sampleSetupContainer.removeChild(sampleSourceContainer);
+				}
+				if (confirmContainer.contains(hybsConfirmContainer)) {
+					confirmContainer.removeChild(hybsConfirmContainer);
+				}
+				if (this.theTab.contains(annotationView)) {
+					this.theTab.removeChild(annotationView);				
+				}
+				if (this.theTab.contains(hybSetupView)) {
+					this.theTab.removeChild(hybSetupView);				
+				}
+				if (this.theTab.contains(hybsView)) {
+					this.theTab.removeChild(hybsView);				
+				}
+				this.sampleOrganismColumn.visible = false;
+				this.sampleOrganismConfirmColumn.visible = false;
+				this.sampleSourceColumn.visible  = false;
+				this.sampleSourceConfirmColumn.visible  = false;
+				this.concentrationUnitColumn.visible = true;
+				this.concentrationUnitConfirmColumn.visible = true;
+				this.chipTypeColumn.visible = true;
+				this.chipTypeConfirmColumn.visible = true;
+			} else {
+				if (sampleSetupContainer.contains(bioanalyzerContainer)) {
+					sampleSetupContainer.removeChild(bioanalyzerContainer);
+				}
+				if (!sampleSetupContainer.contains(sampleOrganismContainer)) {
+					sampleSetupContainer.addChildAt(sampleOrganismContainer, 2);
+				}
+				if (!sampleSetupContainer.contains(sampleSourceContainer)) {
+					sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
+				}
+				if (!confirmContainer.contains(hybsConfirmContainer)) {
+					confirmContainer.addChild(hybsConfirmContainer);
+				}
+				if (!this.theTab.contains(annotationView)) {
+					this.theTab.addChildAt(annotationView, 3);				
+				}
+				if (!this.theTab.contains(hybSetupView)) {
+					this.theTab.addChildAt(hybSetupView, 4);				
+				}
+				if (!this.theTab.contains(hybsView)) {
+					this.theTab.addChildAt(hybsView, 5);				
+				}
+				this.sampleOrganismColumn.visible = true;
+				this.sampleOrganismConfirmColumn.visible = true;
+				this.sampleSourceColumn.visible  = true;
+				this.sampleSourceConfirmColumn.visible  = true;
+				this.concentrationUnitColumn.visible = false;
+				this.concentrationUnitConfirmColumn.visible = false;
+				this.chipTypeColumn.visible = false;
+				this.chipTypeConfirmColumn.visible = false;
+			}
 		}
 		
 		private function getSamplesGridRowNumber(item:Object,col:int):String
@@ -580,14 +641,10 @@
 		}
 		
 		private function initializeSlideDesigns():void {
-			selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
-			slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == selectedIdSlideProduct));
-			
-			// If there is only one slide design (besides the blank entry) for the slide product,
-			// set all of the hybs to it.
-			if (slideDesigns.length == 2) {
+			var slideDesign:Object = this.getDefaultSlideDesign();
+			if (slideDesign != null) {
 				for each (var hyb:Object in hybs) {
-					hyb.@idSlideDesign = slideDesigns[1].@idSlideDesign;
+					hyb.@idSlideDesign = slideDesign.@idSlideDesign;
 				}
 			}
 			// If there is more than one slide design, add an empty node so that
@@ -753,26 +810,71 @@
 			}
 		}
 		
+		
+		
 		private function addSample():void {
-			var emptyNode:XML = new XML("<Sample " +
+			var emptyNode:XML = null;
+			if (requestTypeGroup.selectedValue == "QC") {
+				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + samples.length + "'" +
 			    " name='' description='' " +
 				" concentration='" + sampleConcentration.text + "'" +
+				" codeConcentrationUnit='ng/ul'" + 
+				" codeBioanalyzerChipType='" + getSelectedCodeBioanalyzerChipType() + "'" +
 				" idSampleType='" + sampleTypeCombo.selectedItem.@value + "'" +
 				" idSamplePrepMethod='" + samplePrepMethodCombo.selectedItem.@value + "'" +				
-				" idOrganism='" + this.sampleOrganismCombo.selectedItem.@value + "'" +				
-				" idSampleSource='" + sampleSourceCombo.selectedItem.@value + "'" +				
 				"/>");
+			
+			} else {
+				emptyNode = new XML("<Sample " +
+			    " idSample='" + "Sample" + samples.length + "'" +
+			    " name='' description='' " +
+				" concentration='" + sampleConcentration.text + "'" +
+				" codeConcentrationUnit='ng/ul'" + 
+				" idSampleType='" + sampleTypeCombo.selectedItem.@value + "'" +
+				" idSamplePrepMethod='" + samplePrepMethodCombo.selectedItem.@value + "'" +				
+				" idOrganism='"  + sampleOrganismCombo.selectedItem.@value + "'" +				
+				" idSampleSource='"  + sampleSourceCombo.selectedItem.@value + "'" +				
+				"/>");
+			}
 			
 			samples.addItem(emptyNode);
 	        	
 		}
 		
-		private function deleteSample():void {
-			if (samplesGrid.selectedIndex != -1) {
-				for each(var i:int in samplesGrid.selectedIndices) {					
-					samples.removeItemAt(i);
+		private function getSelectedCodeBioanalyzerChipType():String {
+			var selectedCode:String = '';
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@isSelected != null && item.@isSelected == "true") {
+					selectedCode = item.@value;
+					break;
 				}
+			} 
+			return selectedCode;
+		}
+		
+		private function deleteSample():void {
+			if (samplesGrid.selectedItems.length > 0) {
+				for each(var sample:Object in samplesGrid.selectedItems) {					
+					for each(var hyb:Object in hybs) {
+						if (hyb.@idSampleChannel1 == sample.@idSample) {
+							hyb.@idSampleChannel1 = '0';
+						}
+						if (hyb.@idSampleChannel2 == sample.@idSample) {
+							hyb.@idSampleChannel2 = '0';
+						}
+					}
+
+					samples.removeItemAt(samples.getItemIndex(sample));
+					
+				}
+			}
+			if (requestTypeGroup.selectedValue == "QC") {
+				
+			} else {
+				hybsGrid.invalidateList();
+				hybsGrid.invalidateDisplayList();
+				
 			}
 		}
 		
@@ -790,6 +892,8 @@
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
 					" idSampleSource='" + sampleToCopy.@idSampleSource + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
+					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
+					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" AGE='" + sampleToCopy.@AGE + "'" +				
 					" CELLLINE='" + sampleToCopy.@CELLLINE + "'" +				
 					" CELLTYPE='" + sampleToCopy.@CELLTYPE + "'" +				
@@ -825,32 +929,18 @@
 		private function onPromptToClearAllSamples(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
             	samples.removeAll();
+            	checkSamplesCompleteness();
+            	checkHybsCompleteness();
             }
         }
         
-        private function initializeSamplesGrid():void {
+       	public function initializeSamplesGrid():void {
         	if (requestToClone != null) {
         		return;
         	}
-        	
-        	if (numberOfSamples.text == null || numberOfSamples.text == "0" || numberOfSamples.text == '') {
-        		return;
-        	}
-        	if (sampleTypeCombo.selectedItem == null || sampleTypeCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (samplePrepMethodCombo.selectedItem == null || samplePrepMethodCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (sampleSourceCombo.selectedItem == null || sampleSourceCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (sampleConcentration.text == null || this.sampleConcentration.text == '') {
-        		return;
-        	}
+       		if (!this.checkSampleSetupCompleteness()) {
+       			return;
+       		}
         	
     		var numberOfSamplesToAdd:Number = new Number(numberOfSamples.text);
     		if(samples.length <= numberOfSamplesToAdd) {
@@ -869,57 +959,99 @@
         	    this.billingAccountCombo.selectedItem != null && 
         	    this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '') {
         	    	
-        		this.nextButton1.enabled = true;
+        		this.nextButton1.enabled = true;        		
         		this.sampleSetupView.enabled = true;
-        		this.annotationView.enabled = true;
+        		if (theTab.contains(annotationView)) {
+	        		this.annotationView.enabled = true;
+        		}
         	    	
         	} else {
         		this.nextButton1.enabled = false;
         		this.sampleSetupView.enabled = false;
-        		this.annotationView.enabled = false;
+        		if (theTab.contains(annotationView)) {
+	        		this.annotationView.enabled = false;        			
+        		}
         	}
         }
         
-        private function checkSampleSetupCompleteness():void {
-        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
-        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
-        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
-        	    	
-        		this.nextButton2.enabled = true;
-        		this.samplesView.enabled = true;
-        	    	
+      	public function checkSampleSetupCompleteness():Boolean {
+        	var isComplete:Boolean = false;
+        	if (this.requestTypeGroup.selectedValue == "QC") {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+	        	    	
+	        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+	        			if (chipType.@isSelected == "true") {
+	        				isComplete = true;
+	        				break;
+	        			}
+	        		}
+	        	}
         	} else {
-        		this.nextButton2.enabled = false;
-        		this.samplesView.enabled = false;
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+					isComplete = true;	        	    	
+	        	}
         	}
+    		this.nextButton2.enabled = isComplete;
+    		this.samplesView.enabled = isComplete;
+    		return isComplete;
+    	    	
         }
         
         public function checkSamplesCompleteness():void {
         	var completeCount:int = 0;
         	for each(var sample:Object in samples) {
-        		if (sample.@name != null && sample.@name != '' &&
-        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-        			sample.@concentration != null && sample.@concentration != '' &&
-        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-        			sample.@idOrganism != null && sample.@idOrganism != '') {
-        			completeCount++;       				
+        		if (requestTypeGroup.selectedValue == "QC") {
+	        		if (sample.@name != null && sample.@name != '' &&
+	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
+	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
+	        			sample.@concentration != null && sample.@concentration != '' &&
+	        			sample.@codeConcentrationUnit != null && sample.@codeConcentrationUnit != '' &&
+	        			sample.@codeBioanalyzerChipType != null && sample.@codeBioanalyzerChipType != '') {
+	        			completeCount++;       				
+	        		}
+        		} else {
+	        		if (sample.@name != null && sample.@name != '' &&
+	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
+	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
+	        			sample.@concentration != null && sample.@concentration != '' &&
+	        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
+	        			sample.@idOrganism != null && sample.@idOrganism != '') {
+	        			completeCount++;       				
+	        		}
+        			
         		}
         	}
         	if (samples.length > 0 && completeCount == samples.length) {
         		this.nextButton4.enabled = true;
-        		this.hybSetupView.enabled = true;
+        		if (theTab.contains(hybSetupView)) {
+	        		this.hybSetupView.enabled = true;
+        		} else {
+        			this.confirmView.enabled = true;
+        		}
         		
         	} else {
         		this.nextButton4.enabled = false;
-        		this.hybSetupView.enabled = false;
+        		if (theTab.contains(hybSetupView)) {
+	        		this.hybSetupView.enabled = false;        			
+        		} else {
+        			this.confirmView.enabled = false;
+        		}
         	}
         
         }
         public function checkHybsCompleteness():void {
+        	if (requestTypeGroup.selectedValue == "QC") {
+        		return;
+        	}
+        	
         	var completeCount:int = 0;
         	for each(var hyb:Object in hybs) {
         		if (hyb.@idSampleChannel1 != null && hyb.@idSampleChannel1 != '0'  &&
@@ -939,10 +1071,31 @@
         }
 
 
+		private function getDefaultSlideDesign():Object {
+			var slideDesign:Object = null;
+			selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
+			slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == selectedIdSlideProduct));
+			
+			// If there is only one slide design (besides the blank entry) for the slide product,
+			// set all of the hybs to it.
+			if (slideDesigns.length == 2) {
+				slideDesign = slideDesigns[1];
+			}
+			return slideDesign;
+
+		}
+
 		private function addHyb():void {
+			var defaultSlideDesign:Object = getDefaultSlideDesign();
+			var idSlideDesign:String = '';
+			if (defaultSlideDesign != null) {
+				idSlideDesign = defaultSlideDesign.@idSlideDesign;
+			}
+			
 			var emptyNode:XML = new XML("<Hybridization " +
 			    " idHybridization='" + "Hyb" + hybs.length + "'" +
 			    " notes='' " + 
+				" idSlideDesign='" + idSlideDesign + "'" +
 				" codeSlideSource='" + getCheckedCodeSlideSource() + "'" +
 				" idSampleChannel1='0'" +
 				" idSampleChannel2='0'" +
@@ -1003,9 +1156,9 @@
 
 		
 		private function deleteHyb():void {
-			if (hybsGrid.selectedIndex != -1) {
-				for each(var i:int in hybsGrid.selectedIndices) {					
-					hybs.removeItemAt(i);
+			if (hybsGrid.selectedItems.length > 0) {
+				for each(var hyb:Object in hybsGrid.selectedItems) {					
+					hybs.removeItemAt(hybs.getItemIndex(hyb));
 				}
 			}
 		}
@@ -1021,6 +1174,7 @@
 					" idSampleChannel1='" + hybToCopy.@idSampleChannel1 + "'" +
 					" idSampleChannel2='" + hybToCopy.@idSampleChannel2 + "'" +	
 					" codeSlideSource='" + hybToCopy.@codeSlideSource + "'" +			
+					" idSlideDesign='" + hybToCopy.@idSlideDesign + "'" +			
 					"/>");
 			
 					hybs.addItem(emptyNode);
@@ -1040,6 +1194,7 @@
 		private function onPromptToClearAllHybs(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
             	hybs.removeAll();
+            	checkHybsCompleteness();
             }
         }
         private function initializeHybsGrid():void {
@@ -1197,6 +1352,15 @@
 			var url:URLRequest = new URLRequest('http://localhost/gnomex/ShowRequestForm.gx?idRequest=' + submittedIdRequest);
 			navigateToURL(url, '_blank');			
 		}
+		
+		public function toggleOtherChipTypeSelections(codeSelected:String):void {
+			
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@value != codeSelected) {
+					item.@isSelected = "false";
+				}
+			}
+		}
 
 
 		]]>
@@ -1311,14 +1475,14 @@
 				<mx:VBox width="100%" height="100%" verticalGap="2">
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = setupView;}"/>
-					    <mx:Button label="Next &gt;" id="nextButton2" enabled="false" click="{theTab.selectedChild = annotationView;}"/>
+					    <mx:Button label="Next &gt;" id="nextButton2" enabled="false" click="{if (theTab.contains(annotationView)) theTab.selectedChild = annotationView else theTab.selectedChild = samplesView;}"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
-					<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20">
+					<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="How many samples will you be submitting?" width="340" />
-							<mx:TextInput width="40" id="numberOfSamples" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
+							<mx:TextInput width="40" id="numberOfSamples" change="initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
@@ -1327,14 +1491,14 @@
 								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0">
+						<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the organism of your samples:" width="340"/>
 							<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;checkSampleSetupCompleteness()">							
 								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0">
+						<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the source of your samples:" width="340"/>
 							<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()">							
@@ -1345,6 +1509,7 @@
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Enter the approximate sample concentration:" width="340"/>
 							<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
+							<mx:Label text="ng/µL"/>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
@@ -1353,6 +1518,39 @@
 								<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
+						<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
+							<mx:HBox width="100%" horizontalGap="0">
+								<mx:Image source="assets/bullet_orange.png"/>
+								<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
+							</mx:HBox>
+							<mx:HBox width="100%">
+								<mx:Spacer width="8"/>								
+								<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"  >
+									<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '')}</mx:dataProvider>
+									<mx:columns>
+									    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
+									        	width="20" 
+									        	editable="true"                        	
+									        	dataField="@isSelected" 
+									        	editorDataField="selected"
+									        	itemRenderer="views.CheckBoxIsSelectedChipType" />
+										<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
+										<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
+										<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
+										<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
+										<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
+										
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
+								<mx:HBox borderStyle="inset" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+									<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
+									</mx:Text>
+								</mx:HBox>
+							</mx:HBox>
+							
+						</mx:VBox>
 						
 					</mx:VBox>
 					
@@ -1429,36 +1627,41 @@
 			<mx:Canvas label="Samples"  id="samplesView" width="100%" height="100%"  enabled="false">
 				<mx:VBox width="100%" height="100%">
 					<mx:HBox width="100%" horizontalAlign="left">
-					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = annotationView;}"/>
-					    <mx:Button label="Next &gt;" id="nextButton4" enabled="false" click="{theTab.selectedChild = hybSetupView;}"/>
+					    <mx:Button label="&lt; Back" enabled="true" click="{if (theTab.contains(annotationView)) theTab.selectedChild = annotationView else theTab.selectedChild = sampleSetupView;}"/>
+					    <mx:Button label="Next &gt;" id="nextButton4" enabled="false" click="{if (theTab.contains(hybSetupView)) theTab.selectedChild = hybSetupView else theTab.selectedChild = confirmView;}"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
 					<mx:Panel title="Samples" headerHeight="20" width="100%" height="100%">
 						<mx:Label text="Fill in sample details.  Fields in pink are required."/>
 						<mx:HBox width="100%">
 							<mx:HBox>
-								<mx:Button label="Add" click="addSample()" icon="@Embed('../assets/table_row_insert.png')"/>
-								<mx:Button label="Copy" click="copySample()" icon="@Embed('../assets/table_multiple.png')"/>
-								<mx:Button label="Delete" click="deleteSample()" icon="@Embed('../assets/table_row_delete.png')"/>
+								<mx:Button label="Add" click="addSample();checkSamplesCompleteness()" icon="@Embed('../assets/table_row_insert.png')"/>
+								<mx:Button label="Copy" click="copySample();checkSamplesCompleteness()" icon="@Embed('../assets/table_multiple.png')"/>
+								<mx:Button label="Delete" click="deleteSample();checkSamplesCompleteness();checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')"/>
 							</mx:HBox>
 							<mx:HBox horizontalAlign="right" width="100%">
-								<mx:Button label="Clear all" click="promptToClearAllSamples()" icon="@Embed('../assets/folder_delete.png')"/>
+								<mx:Button label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../assets/folder_delete.png')"/>
 							</mx:HBox>
 								
 						</mx:HBox>
-						<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()">
+						<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" selectionColor="#FFFFB9" rollOverColor="#C0C0C0">
 							<mx:columns>
 	  					        <mx:DataGridColumn editable="false" headerText=""  width="15" resizable="false" labelFunction="getSamplesGridRowNumber"/>
-								<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
-								<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
+								<mx:DataGridColumn headerText="Sample Name" width="10" editorDataField="text" dataField="@name" itemRenderer="views.LabelSampleName"  itemEditor="views.TextInputSampleName" rendererIsEditor="false">
+								</mx:DataGridColumn>
+								<mx:DataGridColumn headerText="Concentration" width="8" dataField="@concentration" editorDataField="text"  itemRenderer="views.LabelConcentration"  itemEditor="views.TextInputConcentration" rendererIsEditor="false"/>
+				                <mx:DataGridColumn id="concentrationUnitColumn" headerText="Unit"  width="8" dataField="@codeConcentrationUnit" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxConcentrationUnit" />
 				                <mx:DataGridColumn headerText="Sample Type"  width="12" dataField="@idSampleType" 
 				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleType" />
-				                <mx:DataGridColumn headerText="Organism"  width="12" dataField="@idOrganism" 
+				                <mx:DataGridColumn id="sampleOrganismColumn" headerText="Organism"  width="12" dataField="@idOrganism" 
 				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxOrganism" />
 				                <mx:DataGridColumn headerText="Sample Source"  width="12" dataField="@idSampleSource" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleSource" />
+				                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleSource" />
 				                <mx:DataGridColumn headerText="Sample Prep Method"  width="12" dataField="@idSamplePrepMethod" 
 				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSamplePrepMethod" />
+				                <mx:DataGridColumn id="chipTypeColumn" headerText="Unit"  width="18" dataField="@codeBioanalyzerChipType" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxChipType" />
 								<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
@@ -1478,6 +1681,7 @@
 								<mx:DataGridColumn headerText="Description" width="20" dataField="@description"/>
 							</mx:columns>
 						</mx:DataGrid>
+
 						
 					</mx:Panel>
 					
@@ -1557,7 +1761,7 @@
 				    <mx:HDividedBox height="100%" width="100%">
 				        <mx:VBox height="100%" verticalGap="4">
 				        	<mx:Label text="Drag sample to hybridizations grid. "/>
-				        	<mx:DataGrid height="100%" width="100%" dataProvider="{samples}" labelField="@name" dragEnabled="true" id="sampleDragGrid">
+				        	<mx:DataGrid height="100%" width="100%" dataProvider="{samples}" labelField="@name" dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0">
 								<mx:columns>
 									<mx:DataGridColumn headerText = "Sample" width="15" dataField="@name"/>
 									<mx:DataGridColumn headerText = "Cy3"  width="3" labelFunction="getChannel1Count"/>
@@ -1569,20 +1773,20 @@
 						<mx:Panel title="Hybridizations" id="hybsContainer" width="100%" height="100%" headerHeight="20">
 							<mx:HBox width="100%">
 								<mx:HBox>
-									<mx:Button label="Add" click="addHyb()" icon="@Embed('../assets/table_row_insert.png')"/>
-									<mx:Button label="Copy" click="copyHyb()" icon="@Embed('../assets/table_multiple.png')"/>
-									<mx:Button label="Delete" click="deleteHyb()" icon="@Embed('../assets/table_row_delete.png')"/>
+									<mx:Button label="Add" click="addHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_insert.png')"/>
+									<mx:Button label="Copy" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_multiple.png')"/>
+									<mx:Button label="Delete" click="deleteHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')"/>
 								</mx:HBox>
 								<mx:HBox horizontalAlign="right" width="100%">
 									<mx:Button label="Clear all" click="promptToClearAllHybs()" icon="@Embed('../assets/folder_delete.png')"/>
 								</mx:HBox>
 									
 							</mx:HBox>
-							<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()">
+							<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
 								<mx:columns>
 								    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="15" labelFunction="getHybsGridRowNumber"/>
-								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name"/>
-								    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name"/>
+								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name" itemRenderer="views.LabelSampleChannel1"/>
+								    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name" />
 						             <mx:DataGridColumn id="slideDesignColumn" headerText="Slide"  width="92" dataField="@idSlideDesign" 
 						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSlideDesign" />
 						             <mx:DataGridColumn headerText="Slide Source"  width="18" dataField="@codeSlideSource" 
@@ -1598,10 +1802,10 @@
 			    </mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas label="Confirm" width="100%" height="100%" enabled="false" id="confirmView">
-			<mx:VBox id="confirmContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
+			<mx:VBox id="confirmHeaderContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
 			    <mx:ViewStack id="confirmButtonStack" width="100%" height="36">
 					<mx:HBox width="100%" horizontalAlign="left">
-					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybsView;}"/>
+					    <mx:Button label="&lt; Back" enabled="true" click="{if (theTab.contains(hybsView)) theTab.selectedChild = hybsView else theTab.selectedChild = samplesView;}"/>
 					    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="submitRequest()"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
@@ -1618,7 +1822,7 @@
 					</mx:HBox>
 			    	
 			    </mx:ViewStack>
-			<mx:VDividedBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0">
+			<mx:VDividedBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
 				<mx:HBox width="100%" horizontalGap="20">
 					<mx:VBox height="100%" verticalGap="0">
 						<mx:Label text="Request Kind" textDecoration="underline"/>
@@ -1639,15 +1843,19 @@
 				</mx:HBox>
 					<mx:VBox verticalGap="0" width="100%">
 						<mx:Label text="{samples.length + ' Samples'}"/>
-						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid">
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0">
 							<mx:columns>
 							    <mx:DataGridColumn editable="false" headerText=""  width="10" resizable="false" labelFunction="getSamplesGridRowNumber"/>
 								<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
 								<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
+				                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="8" dataField="@codeConcentrationUnit" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxConcentrationUnit" />
 					            <mx:DataGridColumn headerText="Sample Type"  width="12" labelFunction="lookupSampleTypeName"/>
-					            <mx:DataGridColumn headerText="Organism"  width="12" labelFunction="lookupOrganism"/>
-					            <mx:DataGridColumn headerText="Sample Source"  width="12" labelFunction="lookupSampleSource"/>
+					            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="12" labelFunction="lookupOrganism"/>
+					            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="12" labelFunction="lookupSampleSource"/>
 					            <mx:DataGridColumn headerText="Sample Prep Method"  width="12" labelFunction="lookupSamplePrepMethod"/>
+				                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Unit"  width="18" dataField="@codeBioanalyzerChipType" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxChipType" />
 								<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
@@ -1669,9 +1877,9 @@
 						</mx:DataGrid>
 						
 				</mx:VBox>
-					<mx:VBox width="100%" height="100%" verticalGap="0">
+					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
 						<mx:Label text="{hybs.length + ' Hybridizations'}"/>
-						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  editable="false" dataProvider="{hybs}"  backgroundAlpha="0" borderStyle="solid">
+						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  editable="false" dataProvider="{hybs}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
 							<mx:columns>
 							    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="19" labelFunction="getHybsGridRowNumber"/>
 							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="28" labelFunction="getSampleChannel1Name"/>
