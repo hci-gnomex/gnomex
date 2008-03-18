@@ -33,11 +33,13 @@ package views
 	          	parentDocument.toggleOtherChipTypeSelections(_data.@value);
           	} else {
           		_data.@isSelected = "false";
-          	}          	
-          	// check for sampleSetup completeness
-          	parentDocument.checkSampleSetupCompleteness();
+          	}   
           	// initialize the samples grid
           	parentDocument.initializeSamplesGrid();
+          	// propagate selected chip type to samples
+          	parentDocument.propagateChipType();       	
+          	// check for sampleSetup completeness
+          	parentDocument.checkSampleSetupCompleteness();
           }
           
 		  /**

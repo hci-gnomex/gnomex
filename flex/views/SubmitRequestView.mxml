@@ -395,6 +395,22 @@
         		return "";
         	}
         }
+        private function lookupChipType(item:Object,col:int):String {
+        	var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value == item.@codeBioanalyzerChipType);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        private function lookupConcentrationUnit(item:Object,col:int):String {
+        	var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.ConcentrationUnit').DictionaryEntry.(@value == item.@codeConcentrationUnit);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
 
 
 		public function filterProject(item:Object):Boolean {
@@ -558,18 +574,87 @@
 		}
 		
 		private function onGetRequestToClone(event:ResultEvent):void {
-			request = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
+			
+			var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
+			if (requestTypeGroup.selectedValue == "QC") {
+				clonedRequest.replace("hybridizations", <hybridizations></hybridizations>); 	
+			}
+			
+			request = clonedRequest;
 			request.@idRequest = "0";
 			request.@number = "";
 			request.@idLab = labCombo.selectedItem.@idLab;
 			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
 			request.@idProject = projectCombo.selectedItem.@idProject;
+			
+			// Clear out workflow fields from sample and hyb
+			for each(var sample:Object in samples) {
+				sample.@qualDate = '';
+				sample.@qualCompleted = 'N';
+				sample.@qualFailed = 'N';
+				sample.@qualBypassed="N"; 
+				sample.@qual260nmTo230nmRatio=""; 
+				sample.@qual260nmTo280nmRatio=""; 
+				sample.@qual28sTo18sRibosomalRatio=""; 
+				sample.@qualAverageFragmentLength=""; 
+				sample.@qualRINNumber=""; 
+				sample.@qualCalcConcentration="";
+				sample.@qualStatus = "";
+			}
+			for each(var hyb:Object in hybs) {
+				 hyb.@idArrayCoordinate="" 
+				 hyb.@idScanProtocol="";
+				 hyb.@extractionDate="";
+				 hyb.@extractionFailed=""; 
+				 hyb.@extractionBypassed="";
+				 hyb.@hybFailed="";
+				 hyb.@hybBypassed="";
+				 hyb.@idSlide = "";
+				 hyb.@idFeatureExtractionProtocol="";
+				 hyb.@hybDate; 
+				 hyb.@idLabeledSampleChannel1="";
+				 hyb.@idLabeledSampleChannel2=""
+				 hyb.@slideNumber="";
+				 hyb.@slide="";
+				 hyb.@hasResults=""; 
+				 hyb.@slideBarcode="";
+				 hyb.@hybCompleted="N"; 
+				 hyb.@extractionCompleted="N";
+				 hyb.@arrayCoordinate="";
+				 hyb.@idLabelingProtocolChannel1=""; 
+				 hyb.@idLabelingProtocolChannel2="";
+				 hyb.@labelingYieldChannel1="";
+				 hyb.@codeLabelingReactionSizeChannel1="STD"; 
+				 hyb.@labelingYieldChannel2=""; 
+				 hyb.@numberOfReactionsChannel2="" 
+				 hyb.@codeLabelingReactionSizeChannel2="STD"; 
+				 hyb.@labelingFailedChannel1="N"; 
+				 hyb.@labelingFailedChannel2="N"; 
+				 hyb.@labelingCompleteChannel1="N"; 
+				 hyb.@labelingCompleteChannel2="N"; 
+				 hyb.@labelingStatusChannel1=""; 
+				 hyb.@labelingStatusChannel2=""; 
+				 hyb.@arrayCoordinateName=""; 
+				 hyb.@hybStatus=""; 
+				 hyb.@extractionStatus="";
+			}
+			
 
+			// Clear out sample annotations for QC request cloned from another request
+			if (requestTypeGroup.selectedValue == "QC") {
+				for each(var annotation:Object in sampleCharacteristicEntries) {
+					annotation.@isSelected = "false";
+				}
+				this.clearOutUncheckedSampleAnnotations();
+			}
+			
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
 			// hides/shows the sample annotation columns in the samples
 			// grid
-			theTab.selectedChild = this.annotationView;
+			if (theTab.contains(annotationView)) {
+				theTab.selectedChild = this.annotationView;
+			}
 						
 			callLater(initializeControls);
 			
@@ -613,31 +698,43 @@
 			numberOfSamples.text = new String(request.samples.Sample.length());
 			sampleConcentration.text = "100";
 			sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
-			sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
-			sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
 			samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
+
 			
-			
-			selectedIdSlideProduct = request.@idSlideProduct;
-			numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
-			var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-			microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
-			organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
-			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
-			slideProductCombo.selectedItem = theSlideProduct;
-			this.coreSlideSourceCheckbox.selected = true;
-			initializeSlideDesigns();
-			
-			// We have problems with the SlideDesignComboBox item renderer selecting the correct slidedesign AFTER the
-			// dataprovider is refreshed (filtered by organism, etc.)  So to work around this problem,
-			// the column is hidden and then shown again in the 'show' event of the hybs tab.
-			// This somehow forces the correct order of events to occur.
-			slideDesignColumn.visible = false;
+			if (requestTypeGroup.selectedValue == "QC") {
+				
+			}else {
+				sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
+				sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
+
+				selectedIdSlideProduct = request.@idSlideProduct;
+				numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
+				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
+				microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
+				organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
+				initializeSlideProductCombo();
+				initializeSlideDesigns();
+				this.coreSlideSourceCheckbox.selected = true;
+				
+			}			
 			
 			theTab.selectedChild = this.setupView;
 			
 			
 			
+		}
+		
+		private function initializeSlideProductCombo():void {
+				parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+
+				slideProductCombo.selectedIndex = -1;
+				for each(var slideProduct:Object in slideProductCombo.dataProvider) {
+					if (slideProduct.@idSlideProduct == request.@idSlideProduct) {
+						slideProductCombo.selectedItem = slideProduct;
+						break;
+					}
+				}
+				
 		}
 		
 		private function initializeSlideDesigns():void {
@@ -647,15 +744,6 @@
 					hyb.@idSlideDesign = slideDesign.@idSlideDesign;
 				}
 			}
-			// If there is more than one slide design, add an empty node so that
-			// the user notices that a selection is required for each
-			// hyb slide design. 
-			else {
-				//var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
-				//slideDesigns.addItemAt(emptyNode, 0);				
-			}
-			checkHybsCompleteness();
-			slideDesignColumn.visible = false;
 		}
 		
 		private function clearHybSlideDesigns():void {
@@ -668,10 +756,6 @@
 				checkHybsCompleteness();
 			}
 			
-		}
-		
-		private function showSlideDesignColumn():void {
-			slideDesignColumn.visible = true;
 		}
 		
 		
@@ -933,6 +1017,38 @@
             	checkHybsCompleteness();
             }
         }
+       	private function propagateSampleType():void {
+			for each (var sample:Object in samples) {
+				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
+			}
+		}
+       	private function propagateSamplePrepMethod():void {
+			for each (var sample:Object in samples) {
+				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
+			}
+		}
+       	private function propagateSampleSource():void {
+			for each (var sample:Object in samples) {
+				sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@value;
+			}
+		}
+       	private function propagateSampleConcentration():void {
+			for each (var sample:Object in samples) {
+				sample.@concentration = this.sampleConcentration.text;
+			}
+		}
+       	private function propagateSampleOrganism():void {
+			for each (var sample:Object in samples) {
+				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+			}
+		}
+       	public function propagateChipType():void {
+       		var codeChipType:String = this.getSelectedCodeBioanalyzerChipType();
+			for each (var sample:Object in samples) {
+				sample.@codeBioanalyzerChipType = codeChipType;
+			}
+		}
+
         
        	public function initializeSamplesGrid():void {
         	if (requestToClone != null) {
@@ -1073,14 +1189,18 @@
 
 		private function getDefaultSlideDesign():Object {
 			var slideDesign:Object = null;
-			selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
-			slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == selectedIdSlideProduct));
 			
-			// If there is only one slide design (besides the blank entry) for the slide product,
-			// set all of the hybs to it.
-			if (slideDesigns.length == 2) {
-				slideDesign = slideDesigns[1];
+			if (slideProductCombo.selectedItem != null) {
+				selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
+				slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == selectedIdSlideProduct));
+				
+				// If there is only one slide design (besides the blank entry) for the slide product,
+				// set all of the hybs to it.
+				if (slideDesigns.length == 2) {
+					slideDesign = slideDesigns[1];
+				}
 			}
+			
 			return slideDesign;
 
 		}
@@ -1141,6 +1261,10 @@
 		}
 		
 		private function checkHybSetupCompleteness():void {
+			if (requestTypeGroup.selectedValue == "QC") {
+				return;
+			}
+			
         	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
         	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
         	    this.getCheckedCodeSlideSource() != '' ) {
@@ -1338,10 +1462,16 @@
 				
 				setupView.enabled = false;
 				sampleSetupView.enabled = false;
-				annotationView.enabled = false;
+				if (theTab.contains(annotationView)) {
+					annotationView.enabled = false;
+				}
 				samplesView.enabled = false;
-				hybSetupView.enabled = false;
-				hybsView.enabled = false;
+				if (theTab.contains(hybSetupView)) {
+					hybSetupView.enabled = false;
+				}
+				if (theTab.contains(hybsView)) {
+					hybsView.enabled = false;
+				}
 				
 			} else {
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
@@ -1487,34 +1617,34 @@
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();checkSampleSetupCompleteness()">							
+							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness()">							
 								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the organism of your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;checkSampleSetupCompleteness()">							
+							<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
 								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the source of your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()">							
+							<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
 								<mx:dataProvider>{parentApplication.sampleSourceList}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Enter the approximate sample concentration:" width="340"/>
-							<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();checkSampleSetupCompleteness()"/>							
+							<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
 							<mx:Label text="ng/µL"/>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
+							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
 								<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
@@ -1649,19 +1779,19 @@
 	  					        <mx:DataGridColumn editable="false" headerText=""  width="15" resizable="false" labelFunction="getSamplesGridRowNumber"/>
 								<mx:DataGridColumn headerText="Sample Name" width="10" editorDataField="text" dataField="@name" itemRenderer="views.LabelSampleName"  itemEditor="views.TextInputSampleName" rendererIsEditor="false">
 								</mx:DataGridColumn>
-								<mx:DataGridColumn headerText="Concentration" width="8" dataField="@concentration" editorDataField="text"  itemRenderer="views.LabelConcentration"  itemEditor="views.TextInputConcentration" rendererIsEditor="false"/>
+				 				<mx:DataGridColumn headerText="Concentration" width="8" dataField="@concentration" editorDataField="text"  itemRenderer="views.LabelConcentration"  itemEditor="views.TextInputConcentration" rendererIsEditor="false"/>
 				                <mx:DataGridColumn id="concentrationUnitColumn" headerText="Unit"  width="8" dataField="@codeConcentrationUnit" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxConcentrationUnit" />
-				                <mx:DataGridColumn headerText="Sample Type"  width="12" dataField="@idSampleType" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleType" />
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxConcentrationUnit" />
+				                 <mx:DataGridColumn headerText="Sample Type"  width="12" dataField="@idSampleType" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSampleType" />
 				                <mx:DataGridColumn id="sampleOrganismColumn" headerText="Organism"  width="12" dataField="@idOrganism" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxOrganism" />
+				                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxOrganism" />
 				                <mx:DataGridColumn headerText="Sample Source"  width="12" dataField="@idSampleSource" 
-				                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSampleSource" />
+				                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSampleSource" />
 				                <mx:DataGridColumn headerText="Sample Prep Method"  width="12" dataField="@idSamplePrepMethod" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSamplePrepMethod" />
-				                <mx:DataGridColumn id="chipTypeColumn" headerText="Unit"  width="18" dataField="@codeBioanalyzerChipType" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxChipType" />
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSamplePrepMethod" />
+				                <mx:DataGridColumn id="chipTypeColumn" headerText="Chip Type"  width="18" dataField="@codeBioanalyzerChipType" 
+				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxChipType" />
 								<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
@@ -1751,7 +1881,7 @@
 					
 				</mx:VBox>
 			</mx:Canvas>
-			<mx:Canvas label="Hybs" width="100%" height="100%" show="{slideDesignColumn.visible = true}" enabled="false" id="hybsView">
+			<mx:Canvas label="Hybs" width="100%" height="100%" enabled="false" id="hybsView">
 			    <mx:VBox width="100%" height="100%" verticalGap="10">
 				    <mx:HBox width="100%" horizontalAlign="left">
 				        <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybSetupView;}"/>
@@ -1788,9 +1918,9 @@
 								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name" itemRenderer="views.LabelSampleChannel1"/>
 								    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name" />
 						             <mx:DataGridColumn id="slideDesignColumn" headerText="Slide"  width="92" dataField="@idSlideDesign" 
-						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSlideDesign" />
+						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSlideDesign" />
 						             <mx:DataGridColumn headerText="Slide Source"  width="18" dataField="@codeSlideSource" 
-						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxSlideSource" />
+						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSlideSource" />
 									<mx:DataGridColumn headerText="Notes" width="20" dataField="@notes"/>
 								</mx:columns>
 							</mx:DataGrid>
@@ -1848,14 +1978,12 @@
 							    <mx:DataGridColumn editable="false" headerText=""  width="10" resizable="false" labelFunction="getSamplesGridRowNumber"/>
 								<mx:DataGridColumn headerText="Sample Name" width="10" dataField="@name"/>
 								<mx:DataGridColumn headerText="Concentration" width="5" dataField="@concentration"/>
-				                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="8" dataField="@codeConcentrationUnit" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxConcentrationUnit" />
+				                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="8" labelFunction="lookupConcentrationUnit" />
 					            <mx:DataGridColumn headerText="Sample Type"  width="12" labelFunction="lookupSampleTypeName"/>
 					            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="12" labelFunction="lookupOrganism"/>
 					            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="12" labelFunction="lookupSampleSource"/>
 					            <mx:DataGridColumn headerText="Sample Prep Method"  width="12" labelFunction="lookupSamplePrepMethod"/>
-				                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Unit"  width="18" dataField="@codeBioanalyzerChipType" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.ComboBoxChipType" />
+				                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="18" labelFunction="lookupChipType" />
 								<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
 								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>

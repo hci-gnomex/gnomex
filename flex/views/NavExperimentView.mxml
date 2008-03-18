@@ -13,7 +13,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProjectRequestList(event)"
-    method="POST"
+    method="POST" 
     useProxy="false">
     <mx:request>
             <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 

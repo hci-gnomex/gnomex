@@ -205,7 +205,7 @@
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxWorkflowStatusHyb" />
+	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusHyb" />
 				</mx:columns>
 		</mx:DataGrid>
 			

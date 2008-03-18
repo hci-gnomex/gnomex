@@ -179,7 +179,7 @@
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxWorkflowStatusQC" />
+	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusQC" />
 				</mx:columns>
 		</mx:DataGrid>
 			
