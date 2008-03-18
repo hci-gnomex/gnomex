@@ -203,7 +203,7 @@
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxWorkflowStatusExtraction" />
+	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusExtraction" />
 				</mx:columns>
 		</mx:DataGrid>
 			

@@ -123,12 +123,8 @@
 		        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="parentDocument.getFullName"/>
 		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"/>
 		       	<mx:DataGridColumn headerText="Microarray" width="90" dataField="@slideProductName"/>
-				<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
-	                   editorDataField="value"
-	                   sortable="false" 
-	                   editable="true"
-	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxVisibility" />
+		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
+					editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxVisibility" />
 	         </mx:columns>
 	       </mx:DataGrid>
 	
