@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="800" height="500" 
+	xmlns:views="views.*"
+	showCloseButton="true" 
+	close="{PopUpManager.removePopUp(this)}" 
+	title="GNomEx 3.0" 
+	borderColor="#9cccf3" borderThickness="4" backgroundColor="#ffffff" fontSize="16">
+	<mx:VBox width="100%" verticalGap="20" height="100%" fontSize="10" paddingTop="8" paddingLeft="8">
+		
+		<mx:VBox width="100%" verticalGap="2">
+			<mx:Text text="Functionality" fontWeight="bold" fontSize="11" paddingBottom="1"/>
+			<mx:HBox horizontalGap="0" width="100%">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="A LIMS for making and tracking requests for genomic analysis (e.g. Microarray hybridizations, massive parallel sequencing)"/>				
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" width="100%">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="Import of externally generated genomic datasets in their native formats (future)"/>				
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" width="100%">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="Entry and association of structured meta-data using MAGE ontologies for the samples and experimental parameters with the data"/>				
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" width="100%">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="Web tools to browse, search, mondify, and download data fiels associated with the aforementioned"/>				
+			</mx:HBox>
+			
+		</mx:VBox>
+			
+		<mx:VBox width="100%" verticalGap="1">		
+			<mx:Text text="Contact Info" fontWeight="bold" fontSize="11" paddingBottom="1"/>
+			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="To report software bugs or give feedback, please email" width="320"/>				
+				<mx:LinkButton label="bioinformaticscore@utah.edu" click="navigateToURL(new URLRequest('mailto:bioinformaticscore@utah.edu'), '_blank');" textDecoration="underline" color="#0000ff"/>				
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="To contact the Microarray Core Facility, please email" width="320"/>				
+				<mx:LinkButton label="brian.dalley@hci.utah.edu" click="navigateToURL(new URLRequest('mailto:brian.dalley@hci.utah.edu'), '_blank');" textDecoration="underline" color="#0000ff"/>				
+			</mx:HBox>
+		</mx:VBox>
+
+		<mx:VBox width="100%" verticalGap="1">
+			<mx:Text text="Credits" fontWeight="bold" fontSize="11" paddingBottom="1"/>
+			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="GNomEx was developed by Hunstman Cancer Institute Informatics and designed in conjuction with the Microarray Core Facility and the Microarray Bioinformatics Group." width="100%"/>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0"  verticalAlign="middle" width="100%">
+			    <mx:Image source="assets/bullet_orange.png"/>
+				<mx:Text text="Application icons by"/>
+				<mx:LinkButton label="FamFamFam Silk Icons" click="navigateToURL(new URLRequest('http://www.famfamfam.com/lab/icons/silk/'), '_blank');" textDecoration="underline" color="#0000ff"/>
+			</mx:HBox>
+		</mx:VBox>
+		
+		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="center" horizontalGap="60">
+			<mx:Image source="assets/hciInformatics.jpg"/>
+			<mx:Image source="assets/hcsLogo.jpg"/>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+		]]>
+	</mx:Script>
+</mx:TitleWindow>

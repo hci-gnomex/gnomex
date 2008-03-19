@@ -13,6 +13,7 @@
             <mx:Script>
             
         <![CDATA[
+        	import views.AboutView;
         	import mx.collections.Sort;
         	import views.PromptXMLListCollection;
         	import mx.collections.XMLListCollection;
@@ -47,6 +48,14 @@
 	        [Bindable]
 	        [Embed(source="assets/sitemap.png")]
 	        public var iconTree:Class;
+
+	        [Bindable]
+	        [Embed(source="assets/error.png")]
+	        public var iconError:Class;
+
+	        [Bindable]
+	        [Embed(source="assets/comment.png")]
+	        public var iconWarning:Class;
 	        
 	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
 	        
@@ -513,8 +522,8 @@
 			          </mx:HBox>
 			        </mx:HBox>
 			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
-			    	    <mx:LinkButton label="Help" color="#ffffff"/>
-			    	    <mx:LinkButton label="About" color="#ffffff"/>
+			    	    <mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest('http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm'), '_blank');"/>
+			    	    <mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.AboutView, true));"/>
 			        </mx:HBox>
 			      </mx:HBox>
 			      
@@ -545,7 +554,7 @@
         <mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  creationPolicy="auto" paddingTop="0">
 
             <views:SubmitRequestView id="submitRequestView" width="100%" height="100%" 
-            	label="Submit Request" icon="@Embed('assets/cart_add.png')" >
+            	label="Submit Request" icon="@Embed('assets/tag_blue_edit.png')" >
             </views:SubmitRequestView>
 	        
 	        <views:NavExperimentView id = "navExperimentView" width="100%" height="100%" 

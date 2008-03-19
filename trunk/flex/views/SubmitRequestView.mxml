@@ -2,7 +2,7 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
 	label="Submit Request" width="100%" height="100%" 
-	titleIcon="@Embed('../assets/cart_add.png')" 
+	titleIcon="@Embed('../assets/tag_blue_edit.png')" 
 	title="Submit Request" backgroundColor="#ffffff" borderColor="#ffffff" themeColor="#ffffff">
  
    <mx:HTTPService  
@@ -109,7 +109,12 @@
         import mx.core.DragSource;
         import mx.events.DragEvent;
         
-        
+
+		[Bindable]
+		private var errorMessage:String = "";
+		[Bindable]
+		private var warningMessage:String = "";
+		        
         
         
         [Bindable]
@@ -1425,7 +1430,71 @@
 	       checkHybsCompleteness();
 		}
 		
+		private function validateRequest():void {
+			errorMessage = '';
+			warningMessage = '';
+			
+			// All samples must be used on at least one hyb
+			var allSamplesUsed:Boolean = true;
+			var unusedSampleList:String = '';
+			if (requestTypeGroup.selectedValue != "QC") {
+				for each(var sample:Object in samples) {
+					if (getChannelCount(sample) == 0) {
+						allSamplesUsed = false;
+						if (unusedSampleList != '') {
+							unusedSampleList += ', ';							
+						}
+						unusedSampleList += sample.@name;
+						
+					}
+				}
+				if (!allSamplesUsed) {
+					errorMessage = 'The following samples  (' + unusedSampleList + 
+					')  are not used on any hybridizations.\n' +
+					'The request cannot be submitted until the unused samples are removed from the list or assigned to hybridizations.';
+				}
+			}	
+			
+			// Warn if some of the arrays (on a multi-array slide) are not used.	
+			
+			if (slideProductCombo.selectedItem.@arraysPerSlide != '' && slideProductCombo.selectedItem.@arraysPerSlide != 1) {
+				if (hybs.length % slideProductCombo.selectedItem.@arraysPerSlide != 0) {
+					warningMessage = "There are unused arrays on the multi-array slide  '" + slideProductCombo.selectedItem.@name +
+					 "'. ";
+				}
+			}
+		}
+		
+		private function getChannelCount(sample:Object):int {
+			var count:int = 0;
+        	if (hybs!= null) {
+        		for each(var hyb:Object in hybs) {
+        			if (hyb.@idSampleChannel1 == sample.@idSample ||
+        			    hyb.@idSampleChannel2 == sample.@idSample) {
+        				count++;
+        			}
+        		}
+        	} 								
+        	return count;
+		}
+		
+		private function validateAndSubmitRequest():void {
+			
+			// Only submit request if it is valid
+			validateRequest();
+			if (errorMessage != '') {
+				Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
+				return;
+			}
+			if (warningMessage != '') {
+				promptToSubmitRequest();
+				return;
+			}
+			submitRequest();
+		}
+		
 		private function submitRequest():void {
+			
 			request.@codeRequestCategory = this.requestTypeGroup.selectedValue;
 			request.@idLab = labCombo.selectedItem.@idLab;
 			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
@@ -1452,7 +1521,25 @@
 			params.requestXMLString = request.toXMLString();
 			params.idProject = projectCombo.selectedItem.@idProject;
 			saveNewRequest.send(params);			
+			
 		}
+		
+		public function promptToSubmitRequest():void {
+			Alert.show( warningMessage + "\n\nDo you want to submit the request anyway?", 
+						"Warning", 
+						(Alert.YES | Alert.NO), this, 
+						onPromptSubmitRequest,
+						parentApplication.iconWarning);
+			
+		}
+		
+		private function onPromptSubmitRequest(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	warningMessage = '';
+            	submitRequest();
+            }
+        }
+		
 		
 		private function onSaveNewRequest(event:ResultEvent):void {
 			if (saveNewRequest.lastResult.name() == "SUCCESS") {
@@ -1519,16 +1606,22 @@
 					    <mx:Image source="assets/bullet_orange.png"/>
 					    <mx:Label text="Select a request type:" width="240"/>
 							<mx:HBox width="100%" horizontalGap="8">
-								<mx:VBox verticalGap="1">
+								<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
 								    <mx:RadioButtonGroup id="requestTypeGroup" />
-									<mx:RadioButton groupName="requestTypeGroup" label="Agilent Oligo Microarray Platform" value="AGIL" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
-									<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
-									<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray Platform" value="NIMBLE" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioNimbleGen"/>							
+								    <mx:HBox>
+										<mx:RadioButton groupName="requestTypeGroup" label="Agilent Oligo Microarray Platform" value="AGIL" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
+								    </mx:HBox>
+								    <mx:HBox>
+										<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
+									</mx:HBox>
+								    <mx:HBox>
+										<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray Platform" value="NIMBLE" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioNimbleGen"/>							
+									</mx:HBox>
 								</mx:VBox>
-								<mx:VBox>									
-									<mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC"/>														
+								<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
+								    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC"/>														
 								</mx:VBox>
-								<mx:VBox>
+								<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">
 									<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
 								</mx:VBox>
 							</mx:HBox>
@@ -1587,7 +1680,7 @@
 					    <mx:HBox horizontalGap="0">
 					    <mx:Image source="assets/bullet_orange.png"/>
 					    <mx:Label text="Pick a starting point:" width="240"/>
-					    	<mx:VBox verticalGap="1" width="100%">
+					    	<mx:VBox verticalGap="2" width="100%">
 								<mx:RadioButton groupName="requestTemplateGroup" label="Submit a new request from scratch" selected="true" id="submitNewRequestRadio"/>							
 								<mx:HBox width="100%">
 									<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous request as a template" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
@@ -1936,7 +2029,7 @@
 			    <mx:ViewStack id="confirmButtonStack" width="100%" height="36">
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{if (theTab.contains(hybsView)) theTab.selectedChild = hybsView else theTab.selectedChild = samplesView;}"/>
-					    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="submitRequest()"/>
+					    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="validateAndSubmitRequest()"/>
 					    <mx:Button label="Cancel"/>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="outset" backgroundColor="#ffffff" paddingTop="2" paddingRight="2" paddingLeft="2">
