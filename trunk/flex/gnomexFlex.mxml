@@ -131,8 +131,7 @@
             
             private function onViewSelection():void {
             	if (theViews.selectedChild == submitRequestView) {
-	            	submitRequestView.getNewRequest.send();
-            		submitRequestView.initializeForm();
+            		submitRequestView.setupForm();
             	}
             	if (theViews.selectedChild == navExperimentView) {
             		callLater(navExperimentView.initializeExperiments);
