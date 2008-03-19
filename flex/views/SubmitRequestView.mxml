@@ -277,7 +277,9 @@
 		}
 		
 		private function setRequestCategoryName():void {
-			requestCategoryName = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue).@display.toString();
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
+			requestCategoryName = requestCategory.@display.toString();
+			
 			if (this.requestTypeGroup.selectedValue == "QC") {
 				if (!sampleSetupContainer.contains(bioanalyzerContainer)) {
 					sampleSetupContainer.addChildAt(bioanalyzerContainer, 6);
@@ -338,7 +340,18 @@
 				this.concentrationUnitConfirmColumn.visible = false;
 				this.chipTypeColumn.visible = false;
 				this.chipTypeConfirmColumn.visible = false;
+
+				// Hide/Show the channel 2 sample column
+				if (requestCategory.@numberOfChannels == "2") {
+					this.channel2SampleColumn.visible = true;
+					this.channel2SampleConfirmColumn.visible = true;
+				} else {
+					this.channel2SampleColumn.visible = false;
+					this.channel2SampleConfirmColumn.visible = false;
+				}
+
 			}
+			
 		}
 		
 		private function getSamplesGridRowNumber(item:Object,col:int):String
@@ -649,7 +662,7 @@
 			var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
 			if (requestTypeGroup.selectedValue == "QC") {
 				clonedRequest.replace("hybridizations", <hybridizations></hybridizations>); 	
-			}
+			} 
 			
 			request = clonedRequest;
 			request.@idRequest = "0";
@@ -657,6 +670,8 @@
 			request.@idLab = labCombo.selectedItem.@idLab;
 			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
 			request.@idProject = projectCombo.selectedItem.@idProject;
+
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
 			
 			// Clear out workflow fields from sample and hyb
 			for each(var sample:Object in samples) {
@@ -673,6 +688,10 @@
 				sample.@qualStatus = "";
 			}
 			for each(var hyb:Object in hybs) {
+				 // If this is a 1 channel kind if request, clear out channel2 of the cloned request
+				 if (requestCategory.@numberOfChannels != "2") {
+					hyb.@idSampleChannel2 = "0";
+				 }
 				 hyb.@idArrayCoordinate="" 
 				 hyb.@idScanProtocol="";
 				 hyb.@extractionDate="";
@@ -2164,7 +2183,7 @@
 								<mx:columns>
 								    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="15" labelFunction="getHybsGridRowNumber"/>
 								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name" itemRenderer="views.LabelSampleChannel1"/>
-								    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name" />
+								    <mx:DataGridColumn id="channel2SampleColumn" editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name" />
 						             <mx:DataGridColumn id="slideDesignColumn" headerText="Slide"  width="92" dataField="@idSlideDesign" 
 						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSlideDesign" />
 						             <mx:DataGridColumn headerText="Slide Source"  width="18" dataField="@codeSlideSource" 
@@ -2259,7 +2278,7 @@
 							<mx:columns>
 							    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="19" labelFunction="getHybsGridRowNumber"/>
 							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="28" labelFunction="getSampleChannel1Name"/>
-							    <mx:DataGridColumn editable="false" headerText="Cy5 Sample (red)"  width="28" labelFunction="getSampleChannel2Name"/>
+							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="28" labelFunction="getSampleChannel2Name"/>
 							     <mx:DataGridColumn id="slideDesignColumn0" headerText="Slide"  width="72" labelFunction="lookupSlideDesignName" />
 							     <mx:DataGridColumn headerText="Slide Source"  width="18"  labelFunction="lookupSlideSource" />
 								<mx:DataGridColumn headerText="Notes" width="20" dataField="@notes"/>
