@@ -1,5 +1,7 @@
 package views.renderers
 {
+	import mx.events.ListEvent;
+	
 	public class ComboBoxSlideSource extends ComboBoxBase
 	{
 			protected override function initializeFields():void {
@@ -7,7 +9,12 @@ package views.renderers
 		    	cellAttributeName            = "@codeSlideSource";
 		    	choiceDisplayAttributeName   = "@display";
 		    	choiceValueAttributeName     = "@value";
-		    }
+		    }            
+		    
+		    protected override function change(event:ListEvent):void {
+            	super.change(event);
+            	parentDocument.checkHybsCompleteness();
+            }
 	}
 
 }
