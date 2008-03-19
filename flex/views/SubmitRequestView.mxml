@@ -141,8 +141,73 @@
 		[Bindable]
 		private var selectedIdSlideProduct:Object;
 		
+		private function isRequestPending():Boolean {
+			if (this.setupView == null || request == null) {
+				return false;
+			} else if (request.@idRequest == '0'  && submittedIdRequest == null) {
+				if (nextButton1.enabled || this.nextButton2.enabled ||  this.nextButton4.enabled) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
 		
-		public function initializeForm():void {
+		private function promptToCancelRequest():void {
+			if (isRequestPending()) {
+				Alert.show( "The request has not been saved.  Are you sure you want to quit?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToCancelRequest,						
+						parentApplication.iconWarning);
+			}
+			
+		}
+		
+		private function onPromptToCancelRequest(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	cancelRequest();
+            }
+        }
+        
+        private function promptToCancelPriorRequest():void {
+			if (isRequestPending()) {
+				Alert.show( "The request you have entered has not been saved.  Do you want to start over?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToCancelPriorRequest,						
+						parentApplication.iconWarning);
+			}
+			
+		}
+		
+		private function onPromptToCancelPriorRequest(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	initializeForm();
+            }
+        }
+        
+        
+        public function cancelRequest():void {
+        	parentApplication.theViews.selectedIndex = -1;
+        	parentApplication.theViews.visible = false;
+        }
+		
+		
+		public function setupForm():void {
+			
+			if (isRequestPending()) {
+				this.promptToCancelPriorRequest();
+			} else {
+				initializeForm();
+			}
+		}
+		
+		private function initializeForm():void {	
+			getNewRequest.send();
+			
 			if (setupView == null) {
 				return;
 			}
@@ -1075,24 +1140,42 @@
         }
         
         private function checkSetupCompleteness():void {
+        	var isComplete:Boolean = false;
         	if (this.requestTypeGroup.selectedValue != null &&
         	    this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' &&
         	    this.billingAccountCombo.selectedItem != null && 
         	    this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '') {
+        	    isComplete = true;
         	    	
-        		this.nextButton1.enabled = true;        		
-        		this.sampleSetupView.enabled = true;
-        		if (theTab.contains(annotationView)) {
-	        		this.annotationView.enabled = true;
-        		}
-        	    	
-        	} else {
-        		this.nextButton1.enabled = false;
-        		this.sampleSetupView.enabled = false;
-        		if (theTab.contains(annotationView)) {
-	        		this.annotationView.enabled = false;        			
-        		}
-        	}
+        	} 
+    		this.nextButton1.enabled = isComplete;
+    		this.sampleSetupView.enabled = isComplete;
+    		if (theTab.contains(annotationView)) {
+        		this.annotationView.enabled = isComplete;        			
+    		}
+    		
+    		if (!isComplete) {
+	    		this.nextButton2.enabled = false;
+	    		this.samplesView.enabled = false;
+	    		
+	    		this.nextButton4.enabled = false;
+	        	if (theTab.contains(hybSetupView)) {
+		        	this.hybSetupView.enabled = false;
+	        	} 
+
+	    		this.nextButton5.enabled = false;
+	        	if (theTab.contains(hybsView)) {
+		        	this.hybsView.enabled = false;
+	        	} 
+
+	        	this.confirmView.enabled = false;
+    		} else {
+    			this.checkSampleSetupCompleteness();
+    			this.checkSamplesCompleteness();
+    			this.checkHybSetupCompleteness();
+    			this.checkHybsCompleteness();
+    		}
+    		
         }
         
       	public function checkSampleSetupCompleteness():Boolean {
@@ -1120,8 +1203,32 @@
 					isComplete = true;	        	    	
 	        	}
         	}
+
     		this.nextButton2.enabled = isComplete;
     		this.samplesView.enabled = isComplete;
+			if (theTab.contains(annotationView)) {
+				this.annotationView.enabled = isComplete;        			
+	    	}
+
+        	if (!isComplete) {
+	    		
+	    		this.nextButton4.enabled = false;
+	        	if (theTab.contains(hybSetupView)) {
+		        	this.hybSetupView.enabled = false;
+	        	} 
+
+	    		this.nextButton5.enabled = false;
+	        	if (theTab.contains(hybsView)) {
+		        	this.hybsView.enabled = false;
+	        	} 
+
+	        	this.confirmView.enabled = false;
+    		} else {
+    			this.checkSamplesCompleteness();
+    			this.checkHybSetupCompleteness();
+    			this.checkHybsCompleteness();
+    		}
+        	
     		return isComplete;
     	    	
         }
@@ -1150,22 +1257,36 @@
         			
         		}
         	}
+        	
+        	var isComplete:Boolean = false;
         	if (samples.length > 0 && completeCount == samples.length) {
-        		this.nextButton4.enabled = true;
-        		if (theTab.contains(hybSetupView)) {
-	        		this.hybSetupView.enabled = true;
-        		} else {
-        			this.confirmView.enabled = true;
-        		}
-        		
-        	} else {
-        		this.nextButton4.enabled = false;
-        		if (theTab.contains(hybSetupView)) {
-	        		this.hybSetupView.enabled = false;        			
-        		} else {
-        			this.confirmView.enabled = false;
-        		}
+        		isComplete = true;
         	}
+    		this.nextButton4.enabled = isComplete;
+    		if (theTab.contains(hybSetupView)) {
+        		this.hybSetupView.enabled = isComplete;
+    		} else {
+    			this.confirmView.enabled = isComplete;
+    		}
+
+
+        	if (!isComplete) {
+	    		this.nextButton4.enabled = false;
+	        	if (theTab.contains(hybSetupView)) {
+		        	this.hybSetupView.enabled = false;
+	        	} 
+
+	    		this.nextButton5.enabled = false;
+	        	if (theTab.contains(hybsView)) {
+		        	this.hybsView.enabled = false;
+	        	} 
+
+	        	this.confirmView.enabled = false;
+    		} else {
+    			this.checkHybSetupCompleteness();
+    			this.checkHybsCompleteness();
+    		}
+        	
         
         }
         public function checkHybsCompleteness():void {
@@ -1600,7 +1721,7 @@
 					    <mx:HBox  width="100%" horizontalAlign="left" paddingBottom="14">
 					        <mx:Button label="&lt; Back" enabled="false" visible="true"/>
 					        <mx:Button id="nextButton1"  label="Next &gt;" enabled="false" click="{theTab.selectedChild = sampleSetupView;}"/>
-					        <mx:Button label="Cancel" id="cancelButton1"/>
+					        <mx:Button label="Cancel" id="cancelButton1" click="promptToCancelRequest()"/>
 					    </mx:HBox>
 					    <mx:HBox width="100%" horizontalGap="0">
 					    <mx:Image source="assets/bullet_orange.png"/>
@@ -1699,7 +1820,7 @@
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = setupView;}"/>
 					    <mx:Button label="Next &gt;" id="nextButton2" enabled="false" click="{if (theTab.contains(annotationView)) theTab.selectedChild = annotationView else theTab.selectedChild = samplesView;}"/>
-					    <mx:Button label="Cancel"/>
+					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
 					</mx:HBox>
 					<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
 						<mx:HBox width="100%" horizontalGap="0">
@@ -1785,7 +1906,7 @@
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = sampleSetupView;}"/>
 					    <mx:Button label="Next &gt;" id="nextButton3" enabled="true" click="{theTab.selectedChild = samplesView;}"/>
-					    <mx:Button label="Cancel"/>
+					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
 					</mx:HBox>
 					<mx:HBox width="100%" height="100%" horizontalGap="24">
 						<mx:VBox height="100%">
@@ -1852,7 +1973,7 @@
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{if (theTab.contains(annotationView)) theTab.selectedChild = annotationView else theTab.selectedChild = sampleSetupView;}"/>
 					    <mx:Button label="Next &gt;" id="nextButton4" enabled="false" click="{if (theTab.contains(hybSetupView)) theTab.selectedChild = hybSetupView else theTab.selectedChild = confirmView;}"/>
-					    <mx:Button label="Cancel"/>
+					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
 					</mx:HBox>
 					<mx:Panel title="Samples" headerHeight="20" width="100%" height="100%">
 						<mx:Label text="Fill in sample details.  Fields in pink are required."/>
@@ -1915,7 +2036,7 @@
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = samplesView;}"/>
 					    <mx:Button label="Next &gt;" id="nextButton5" enabled="false" click="{theTab.selectedChild = hybsView;}"/>
-					    <mx:Button label="Cancel"/>
+					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0">
 						<mx:Image source="assets/bullet_orange.png"/>
@@ -1979,7 +2100,7 @@
 				    <mx:HBox width="100%" horizontalAlign="left">
 				        <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybSetupView;}"/>
 				        <mx:Button label="Next &gt;" id="nextButton6" enabled="false" click="{theTab.selectedChild = confirmView;}"/>
-				        <mx:Button label="Cancel"/>
+				        <mx:Button label="Cancel" click="promptToCancelRequest()"/>
 				    </mx:HBox>
 				    <mx:HDividedBox height="100%" width="100%">
 				        <mx:VBox height="100%" verticalGap="4">
@@ -2030,7 +2151,7 @@
 					<mx:HBox width="100%" horizontalAlign="left">
 					    <mx:Button label="&lt; Back" enabled="true" click="{if (theTab.contains(hybsView)) theTab.selectedChild = hybsView else theTab.selectedChild = samplesView;}"/>
 					    <mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="validateAndSubmitRequest()"/>
-					    <mx:Button label="Cancel"/>
+					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="outset" backgroundColor="#ffffff" paddingTop="2" paddingRight="2" paddingLeft="2">
 						<mx:Button label="Printable request form" click="showPrintableRequestForm()" icon="@Embed('../assets/page.png')"/>
