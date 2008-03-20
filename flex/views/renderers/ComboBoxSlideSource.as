@@ -12,7 +12,9 @@ package views.renderers
 		    }            
 		    
 		    protected override function change(event:ListEvent):void {
-            	super.change(event);
+            	_data[cellAttributeName] = this.selectedItem[this.choiceValueAttributeName];
+            	_data.@isDirty = "Y";
+            	parentDocument.propagateSlideSourceToHybsSameSlide(_data);
             	parentDocument.checkHybsCompleteness();
             }
 	}

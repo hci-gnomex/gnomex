@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
+    xmlns:views="views.*"
 	label="Submit Request" width="100%" height="100%" 
 	titleIcon="@Embed('../assets/tag_blue_edit.png')" 
 	title="Submit Request" backgroundColor="#ffffff" borderColor="#ffffff" themeColor="#ffffff">
@@ -747,6 +748,7 @@
 			}
 						
 			callLater(initializeControls);
+			callLater(assignSlideNumbers);
 			
 			
 			callLater(checkSampleSetupCompleteness);
@@ -1379,6 +1381,7 @@
 				idSlideDesign = defaultSlideDesign.@idSlideDesign;
 			}
 			
+			
 			var emptyNode:XML = new XML("<Hybridization " +
 			    " idHybridization='" + "Hyb" + hybs.length + "'" +
 			    " notes='' " + 
@@ -1389,7 +1392,45 @@
 				"/>");
 			
 			hybs.addItem(emptyNode);
-	        	
+	        assignSlideNumbers();	
+		}
+		
+		private function assignSlideNumbers():void {
+			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
+				return;
+			}
+			if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
+				slideProductCombo.selectedItem.@arraysPerSlide == '1') {
+				slideNumberColumn.visible = false;		
+			} else {
+				slideNumberColumn.visible = true;
+			}
+			var slideNumber:int = 0;
+			var count:int = 0;
+			var firstTime:Boolean = true;
+			var useAltColor:Boolean = true;
+			for each(var hyb:Object in hybs) {
+				if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
+				    slideProductCombo.selectedItem.@arraysPerSlide == '1') {
+					slideNumber++;    
+					hyb.@showSlideIcon = 'Y';	
+					hyb.@altColor = false;
+				} else {
+					if (firstTime || count == slideProductCombo.selectedItem.@arraysPerSlide) {
+						count = 0;
+						slideNumber ++;
+						hyb.@showSlideIcon = 'Y';
+						useAltColor = !useAltColor;
+						hyb.@altColor = useAltColor;
+					} else {
+						hyb.@showSlideIcon = 'N';							
+						hyb.@altColor = useAltColor;
+					}
+				}
+				hyb.@slideNumber = slideNumber;
+				count++;
+				firstTime = false;
+			}
 		}
 		
 		private function getCheckedCodeSlideSource():String {
@@ -1421,6 +1462,15 @@
 				hyb.@codeSlideSource = this.getCheckedCodeSlideSource();
 			}
 			callLater(checkHybsCompleteness);
+		}
+		
+		public function propagateSlideSourceToHybsSameSlide(theHyb:Object):void {
+			for each (var hyb:Object in hybs) {
+				if (theHyb.@slideNumber == hyb.@slideNumber) {
+					hyb.@codeSlideSource = theHyb.@codeSlideSource;
+				}
+			}
+			
 		}
 		private function propagateSlideDesign():void {
 			for each (var hyb:Object in hybs) {
@@ -1454,6 +1504,7 @@
 					hybs.removeItemAt(hybs.getItemIndex(hyb));
 				}
 			}
+	        assignSlideNumbers();	
 		}
 		
 		private function copyHyb():void {
@@ -1474,6 +1525,7 @@
 					
 				}
 			}
+	        assignSlideNumbers();	
 		}
 		
 		public function promptToClearAllHybs():void {
@@ -2123,7 +2175,7 @@
 						<mx:Text width="300">
 							<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
 						</mx:Text>
-						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateSlideDesign();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
+						<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
 							<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -2179,9 +2231,21 @@
 								</mx:HBox>
 									
 							</mx:HBox>
-							<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
-								<mx:columns>
+							<views:DataGridAlternatingGroup width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+								<views:columns>
 								    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="15" labelFunction="getHybsGridRowNumber"/>
+						            <mx:DataGridColumn width="6" id="slideNumberColumn" headerText="Slide">
+						                <mx:itemRenderer>
+						                    <mx:Component >
+						                        <mx:HBox  horizontalGap="0" >
+						                          <mx:Image id="experimentImage"  source="{data.@showSlideIcon == 'Y' ? '../assets/color_swatch.png' : ''}">
+						                    	 </mx:Image> 
+						                          <mx:Label  text="{data.@showSlideIcon == 'Y' ? data.@slideNumber : ''}">
+						                    	 </mx:Label> 
+						                        </mx:HBox>
+						                    </mx:Component>
+						                </mx:itemRenderer>
+						            </mx:DataGridColumn> 
 								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name" itemRenderer="views.LabelSampleChannel1"/>
 								    <mx:DataGridColumn id="channel2SampleColumn" editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name" />
 						             <mx:DataGridColumn id="slideDesignColumn" headerText="Slide"  width="92" dataField="@idSlideDesign" 
@@ -2189,8 +2253,8 @@
 						             <mx:DataGridColumn headerText="Slide Source"  width="18" dataField="@codeSlideSource" 
 						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSlideSource" />
 									<mx:DataGridColumn headerText="Notes" width="20" dataField="@notes"/>
-								</mx:columns>
-							</mx:DataGrid>
+								</views:columns>
+							</views:DataGridAlternatingGroup>
 							
 						</mx:Panel>
 				    	
