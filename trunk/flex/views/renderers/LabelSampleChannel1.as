@@ -1,4 +1,4 @@
-package views
+package views.renderers
 {
 	import mx.controls.Label;
 	import flash.display.Graphics;

@@ -399,37 +399,23 @@
         	} 
         	return sampleName;
         }
-		private function getChannel1Count(item:Object,col:int):String
+		private function getChannelCountLabelFunction(item:Object,col:int):String
         {
-        	var count:int = 0;
+        	var channel1Count:int = 0;
+        	var channel2Count:int = 0;
         	if (hybs!= null) {
         		for each(var hyb:Object in hybs) {
         			if (hyb.@idSampleChannel1 == item.@idSample) {
-        				count++;
+        				channel1Count++;
         			}
-        		}
-        	} 
-        	if (count == 0) {
-        		return "";
-        	} else {
-	        	return new String(count);        		
-        	}
-        }
-		private function getChannel2Count(item:Object,col:int):String
-        {
-        	var count:int = 0;
-        	if (hybs!= null) {
-        		for each(var hyb:Object in hybs) {
         			if (hyb.@idSampleChannel2 == item.@idSample) {
-        				count++;
+        				channel2Count++;
         			}
         		}
         	} 
-        	if (count == 0) {
-        		return "";
-        	} else {
-	        	return new String(count);        		
-        	}
+			item.@channel1Count = channel1Count;
+			item.@channel2Count = channel2Count;
+			return "";
         }
         
         private function lookupSampleTypeName(item:Object,col:int):String {
@@ -2210,14 +2196,28 @@
 				    <mx:HDividedBox height="100%" width="100%">
 				        <mx:VBox height="100%" verticalGap="4">
 				        	<mx:Label text="Drag sample to hybridizations grid. "/>
-				        	<mx:DataGrid height="100%" width="100%" dataProvider="{samples}" labelField="@name" dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0">
-								<mx:columns>
+				        	<views:DataGrid
+				        		dragProxyImage="views.DataGridSampleDragProxy" 
+				        		 height="100%" width="100%" 
+				        		 dataProvider="{samples}" labelField="@name" 
+				        		 dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0">
+								<views:columns>
 									<mx:DataGridColumn headerText = "Sample" width="15" dataField="@name"/>
-									<mx:DataGridColumn headerText = "Cy3"  width="3" labelFunction="getChannel1Count"/>
-									<mx:DataGridColumn headerText = "Cy5" width="3" labelFunction="getChannel2Count"/>
-								</mx:columns>
+						            <mx:DataGridColumn width="3"  labelFunction="getChannelCountLabelFunction" headerText="">
+						                <mx:itemRenderer>
+						                    <mx:Component >
+						                        <mx:HBox  horizontalGap="0" >
+						                          <mx:Image source="{data.@channel1Count > 0 ? '../assets/bullet_green.png' : ''}">
+						                    	 </mx:Image> 
+						                          <mx:Image source="{data.@channel2Count > 0 ? '../assets/bullet_red.png' : ''}">
+						                    	 </mx:Image> 
+						                        </mx:HBox>
+						                    </mx:Component>
+						                </mx:itemRenderer>
+						            </mx:DataGridColumn> 
+								</views:columns>
 											        				        		
-				        	</mx:DataGrid>
+				         	</views:DataGrid>
 				        </mx:VBox>
 						<mx:Panel title="Hybridizations" id="hybsContainer" width="100%" height="100%" headerHeight="20">
 							<mx:HBox width="100%">
@@ -2241,13 +2241,17 @@
 						                          <mx:Image id="experimentImage"  source="{data.@showSlideIcon == 'Y' ? '../assets/color_swatch.png' : ''}">
 						                    	 </mx:Image> 
 						                          <mx:Label  text="{data.@showSlideIcon == 'Y' ? data.@slideNumber : ''}">
-						                    	 </mx:Label> 
+						                    	 </mx:Label>  
 						                        </mx:HBox>
 						                    </mx:Component>
 						                </mx:itemRenderer>
 						            </mx:DataGridColumn> 
-								    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="22" labelFunction="getSampleChannel1Name" itemRenderer="views.LabelSampleChannel1"/>
-								    <mx:DataGridColumn id="channel2SampleColumn" editable="false" headerText="Cy5 Sample (red)"  width="22" labelFunction="getSampleChannel2Name" />
+								    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="22" 
+								    	labelFunction="getSampleChannel1Name" 
+                                        editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel1" itemRenderer="views.renderers.LabelSampleChannel1" />								    	
+								    <mx:DataGridColumn id="channel2SampleColumn" headerText="Cy5 Sample (red)"  width="22" 
+								    	labelFunction="getSampleChannel2Name" 
+                                        editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel2" itemRenderer="mx.controls.Label" />								    	
 						             <mx:DataGridColumn id="slideDesignColumn" headerText="Slide"  width="92" dataField="@idSlideDesign" 
 						                editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxSlideDesign" />
 						             <mx:DataGridColumn headerText="Slide Source"  width="18" dataField="@codeSlideSource" 
