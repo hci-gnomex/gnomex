@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*"
 	label="Submit Request" width="100%" height="100%" 
-	titleIcon="@Embed('../assets/tag_blue_edit.png')" 
-	title="Submit Request" backgroundColor="#ffffff" borderColor="#ffffff" themeColor="#ffffff">
+	backgroundColor="#ffffff" borderColor="#ffffff" 
+	themeColor="#ffffff">
  
    <mx:HTTPService  
     id="getNewProject" 
@@ -17,6 +17,20 @@
     useProxy="false">
     <mx:request>
    		<idProject>0</idProject>    	
+    </mx:request>
+  </mx:HTTPService>
+
+  <mx:HTTPService  
+    id="getLab" 
+    url="http://localhost/gnomex/GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{labCombo.selectedItem.@idLab}</idLab>
     </mx:request>
   </mx:HTTPService>
   
@@ -101,7 +115,7 @@
   
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+		import mx.controls.Alert;
 		
 		import mx.rpc.events.ResultEvent;
 		import mx.managers.PopUpManager;
@@ -110,6 +124,15 @@
         import mx.core.DragSource;
         import mx.events.DragEvent;
         
+        
+        [Bindable]
+        private var lab:Object = null;
+        
+        [Bindable]
+        private var appUsers:XMLListCollection;
+        private var appUserSort:Sort;
+        
+        private var idAppUser:Object = '';
 
 		[Bindable]
 		private var errorMessage:String = "";
@@ -142,7 +165,18 @@
 		[Bindable]
 		private var selectedIdSlideProduct:Object;
 		
-		private function isRequestPending():Boolean {
+		
+		public function checkSecurity():void {
+			if (parentApplication.hasPermission("canWriteAnyObject")) {
+				appUserContainer.visible = true;
+				idAppUser = '';
+			} else {
+				appUserContainer.visible = false;
+				idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			}
+		}
+		
+		public function isRequestPending():Boolean {
 			if (this.setupView == null || request == null) {
 				return false;
 			} else if (request.@idRequest == '0'  && submittedIdRequest == null) {
@@ -189,6 +223,7 @@
             	initializeForm();
             }
         }
+
         
         
         public function cancelRequest():void {
@@ -206,12 +241,33 @@
 			}
 		}
 		
-		private function initializeForm():void {	
+		
+		public function initializeForm():void {	
 			getNewRequest.send();
+
+			theTab.creationPolicy = 'all';
 			
 			if (setupView == null) {
 				return;
 			}
+			if (!theTab.contains(setupView)) {
+				theTab.addChildAt(setupView, 0);
+			}
+			if (!theTab.contains(sampleSetupView)) {
+				theTab.addChildAt(sampleSetupView, 1);
+			}
+			if (!theTab.contains(hybSetupView)) {
+				theTab.addChildAt(hybSetupView, 4);
+			}
+			if (!theTab.contains(confirmView)) {
+				theTab.addChildAt(confirmView, 6);
+			}
+
+
+			buttonBarAnnotation.visible = false;
+			buttonBarSamples.visible = false;
+			buttonBarHybs.visible = false;
+			
 			theTab.selectedChild = setupView;
 			
 			requestToClone = null;
@@ -230,9 +286,8 @@
 			this.requestRadioSolexa.selected = false;
 			submitNewRequestRadio.selected = true;
 			
-			theTab.creationPolicy = 'all';
 			
-			if (sampleSetupView != null) {
+			if (theTab.contains(sampleSetupView)) {
 				numberOfSamples.text = '';
 				sampleTypeCombo.selectedIndex = -1;
 				samplePrepMethodCombo.selectedIndex = -1;
@@ -240,10 +295,12 @@
 				this.sampleOrganismCombo.selectedIndex = -1;
 				this.sampleConcentration.text = '';
 				sampleSetupView.enabled = false;
-				annotationView.enabled = false;			
+				if (theTab.contains(annotationView)) {
+					annotationView.enabled = false;								
+				}
 			}
 					
-			if (hybSetupView != null) {
+			if (theTab.contains(hybSetupView)) {
 				organismCombo.selectedIndex = -1;
 				microarrayCategoryCombo.selectedIndex = -1;
 				slideProductCombo.selectedIndex = -1;
@@ -255,27 +312,53 @@
 				
 			}	
 			
-			if (confirmButtonStack != null) {
-				confirmButtonStack.selectedIndex = 0;
+			if (theTab.contains(confirmView)) {
+				if (confirmButtonStack != null) {
+					confirmButtonStack.selectedIndex = 0;
+				}
+				
 			}
 			
-			if (samplesView != null) {
+			if (theTab.contains(samplesView)) {
 				samplesView.enabled = false;			
 			}
-			if (hybSetupView != null) {
+			if (theTab.contains(hybSetupView)) {
 				hybSetupView.enabled = false;
 			}
-			if (hybsView != null) {
+			if (theTab.contains(hybsView)) {
 				hybsView.enabled = false;
 			}
-			if (confirmView != null) {
+			if (theTab.contains(confirmView)) {
 				confirmView.enabled = false;
 			}
-			this.theTab.selectedChild = setupView;
-			
-			
-			
+			if (theTab.contains(setupView)) {
+				this.theTab.selectedChild = setupView;				
+			} 
 		}
+		
+
+        private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var display1:String = obj1.@displayName;
+				var display2:String = obj2.@displayName;
+				
+				if (display1 < display2) {
+					return -1;
+				} else if (display1 > display2) {
+					return 1;
+				} else {
+					return 0;
+				}
+				
+			}
+		}			
+		
 		
 		private function setRequestCategoryName():void {
 			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
@@ -312,14 +395,16 @@
 				this.chipTypeColumn.visible = true;
 				this.chipTypeConfirmColumn.visible = true;
 			} else {
-				if (sampleSetupContainer.contains(bioanalyzerContainer)) {
-					sampleSetupContainer.removeChild(bioanalyzerContainer);
-				}
-				if (!sampleSetupContainer.contains(sampleOrganismContainer)) {
-					sampleSetupContainer.addChildAt(sampleOrganismContainer, 2);
-				}
-				if (!sampleSetupContainer.contains(sampleSourceContainer)) {
-					sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
+				if (theTab.contains(sampleSetupView)) {
+					if (sampleSetupContainer.contains(bioanalyzerContainer)) {
+						sampleSetupContainer.removeChild(bioanalyzerContainer);
+					}
+					if (!sampleSetupContainer.contains(sampleOrganismContainer)) {
+						sampleSetupContainer.addChildAt(sampleOrganismContainer, 2);
+					}
+					if (!sampleSetupContainer.contains(sampleSourceContainer)) {
+						sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
+					}
 				}
 				if (!confirmContainer.contains(hybsConfirmContainer)) {
 					confirmContainer.addChild(hybsConfirmContainer);
@@ -595,7 +680,7 @@
 		private function onGetNewProject(event:ResultEvent):void {
 			if (getNewProject.lastResult.name() == "OpenProjectList") {
 				 parentApplication.navExperimentView.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
-				 parentApplication.navExperimentView.selectedProject.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+				 parentApplication.navExperimentView.selectedProject.@idAppUser = idAppUser;
 				 parentApplication.navExperimentView.selectedProject.@idLab = labCombo.selectedItem.@idLab;
 
 				 this.projectDetailWindow = views.ProjectDetailWindow(PopUpManager.createPopUp(this, views.ProjectDetailWindow, true));
@@ -618,6 +703,28 @@
 			var params:Object = new Object();
 			params.idProject = idProject;
 			getProject.send(params);
+		}
+		
+		private function getMembersOfLab():void {
+			if (parentApplication.hasPermission("canWriteAnyObject") && 
+			    labCombo.selectedItem.@idLab != '') {
+			    idAppUser = null;
+				getLab.send();						    
+			}
+		}
+		private function onGetLab(event:ResultEvent):void {			
+			lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			appUsers = new XMLListCollection(lab.members.AppUser);
+			appUsers.addItemAt(emptyNode, 0);
+			
+			appUserSort = new Sort();
+	        appUserSort.compareFunction = this.sortAppUsers;
+	        appUsers.sort = appUserSort;
+	        appUsers.refresh();
+	        
+	        appUserCombo.selectedIndex = 0;
+
 		}
 		
 		private function onGetProject(event:ResultEvent):void {
@@ -655,7 +762,7 @@
 			request.@idRequest = "0";
 			request.@number = "";
 			request.@idLab = labCombo.selectedItem.@idLab;
-			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			request.@idAppUser = idAppUser;
 			request.@idProject = projectCombo.selectedItem.@idProject;
 
 			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
@@ -744,6 +851,58 @@
 			
 			
 		}
+
+		public function setupEditForm(theRequest:Object):void {
+			
+			request = theRequest;
+			
+			theTab.creationPolicy = 'all';				
+			
+			confirmButtonStack.selectedIndex = 0;
+			if (theTab.contains(setupView)) {
+				theTab.removeChild(setupView);
+			}
+			if (theTab.contains(sampleSetupView)) {
+				theTab.removeChild(sampleSetupView);
+			}
+			if (theTab.contains(hybSetupView)) {
+				theTab.removeChild(hybSetupView);
+			}
+			if (request.@codeRequestCategory == 'QC') {
+				if (theTab.contains(hybsView)) {
+					theTab.removeChild(hybsView);
+				}
+			} else {
+				if (theTab.contains(hybsView)) {
+					hybsView.enabled = true;
+				}
+			}
+			if (theTab.contains(confirmView)) {
+				theTab.removeChild(confirmView);
+			}
+			annotationView.enabled = true;			
+			samplesView.enabled = true;			
+			this.theTab.selectedChild = samplesView;
+
+			// Make sure we render the annotation tab because
+			// otherwise we won't activate the renderer code that
+			// hides/shows the sample annotation columns in the samples
+			// grid
+			if (theTab.contains(annotationView)) {
+				theTab.selectedChild = this.annotationView;
+			}
+			
+			buttonBarAnnotation.visible = false;
+			buttonBarSamples.visible = false;
+			buttonBarHybs.visible = false;
+		
+						
+			callLater(initializeControls);
+			callLater(assignSlideNumbers);			
+			callLater(checkSamplesCompleteness);
+			callLater(checkHybSetupCompleteness);
+			callLater(checkHybsCompleteness);
+		}
 		
 		private function onGetProjectForEdit(event:ResultEvent):void {
 			if (getProjectForEdit.lastResult.name() == "OpenProjectList") {
@@ -768,15 +927,19 @@
 		
 		private function onGetNewRequest(event:ResultEvent):void {
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
-			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			request.@idAppUser = idAppUser;
 
 		}
 
 		private function initializeControls():void {
-			numberOfSamples.text = new String(request.samples.Sample.length());
-			sampleConcentration.text = "100";
-			sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
-			samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
+			
+			if (theTab.contains(sampleSetupView)) {
+				numberOfSamples.text = new String(request.samples.Sample.length());
+				sampleConcentration.text = "100";
+				sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
+				samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
+				
+			}
 
 			
 			if (requestTypeGroup.selectedValue == "QC") {
@@ -796,7 +959,11 @@
 				
 			}			
 			
-			theTab.selectedChild = this.setupView;
+			if (theTab.contains(setupView)) {
+				theTab.selectedChild = this.setupView;			
+			} else {
+				theTab.selectedChild = this.samplesView;
+			}
 			
 			
 			
@@ -1154,7 +1321,10 @@
         
         private function checkSetupCompleteness():void {
         	var isComplete:Boolean = false;
-        	if (this.requestTypeGroup.selectedValue != null &&
+        	if (request.@idRequest != '0') {
+        		isComplete = true;
+        	}else if (this.idAppUser != null && this.idAppUser != '' &&
+        	    this.requestTypeGroup.selectedValue != null &&
         	    this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' &&
         	    this.billingAccountCombo.selectedItem != null && 
         	    this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '') {
@@ -1200,7 +1370,9 @@
         
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
-        	if (this.requestTypeGroup.selectedValue == "QC") {
+        	if (request.@idRequest != '0') {
+        		isComplete = true;
+        	}else if (this.requestTypeGroup.selectedValue == "QC") {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
@@ -1284,12 +1456,16 @@
         	var isComplete:Boolean = false;
         	if (samples.length > 0 && completeCount == samples.length) {
         		isComplete = true;
+        	} else if (request.@idRequest != '0') {
+        		isComplete = true;
         	}
     		this.nextButton4.enabled = isComplete;
     		if (theTab.contains(hybSetupView)) {
         		this.hybSetupView.enabled = isComplete;
     		} else {
-    			this.confirmView.enabled = isComplete;
+    			if (theTab.contains(confirmView)) {
+	    			this.confirmView.enabled = isComplete;
+    			}
     		}
 
 			callLater(postHybSetupCompleteness, [isComplete]);
@@ -1332,8 +1508,12 @@
         	}
         	if (hybs.length > 0 && completeCount == hybs.length) {
         		this.nextButton6.enabled = true;
-        		this.confirmView.enabled = true;
+        		if (theTab.contains(confirmView)){
+	        		this.confirmView.enabled = true;
+        		}
         		
+        	} else if (request.@idRequest != '0') {
+        		this.nextButton6.enabled = true;
         	} else {
         		this.nextButton6.enabled = false;
         		this.confirmView.enabled = false;
@@ -1466,7 +1646,7 @@
 		}
 		
 		private function checkHybSetupCompleteness():void {
-			if (requestTypeGroup.selectedValue == "QC") {
+			if (requestTypeGroup.selectedValue == "QC" || request.@codeRequestCategory == "QC") {
 				return;
 			}
 			
@@ -1477,6 +1657,9 @@
         		this.nextButton5.enabled = true;
         		this.hybsView.enabled = true;
         	    	
+        	} else if (request.@idRequest != '0') {
+        		this.nextButton5.enabled = true;
+        		this.hybsView.enabled = true;
         	} else {
         		this.nextButton5.enabled = false;
         		this.hybsView.enabled = false;
@@ -1709,7 +1892,7 @@
 			
 			request.@codeRequestCategory = this.requestTypeGroup.selectedValue;
 			request.@idLab = labCombo.selectedItem.@idLab;
-			request.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			request.@idAppUser = idAppUser;
 			request.@idBillingAccount = this.billingAccountCombo.selectedItem.@idBillingAccount;
 			request.@idProject = projectCombo.selectedItem.@idProject;
 			request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
@@ -1844,15 +2027,23 @@
 						<mx:Label text="Select the lab submitting this request:" width="240"/>
 						<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 							selectedIndex="-1" labelField="@name" 
-							width="370"
-							 change="parentApplication.filteredProjectListForSubmitRequests.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness()" id="labCombo">
+							width="300"
+							 change="parentApplication.filteredProjectListForSubmitRequests.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" id="labCombo">
 						</mx:ComboBox>
+						<mx:HBox id="appUserContainer" visible="true" paddingLeft="12" horizontalGap="0" width="100%">						    
+							<mx:Label text="User submitting request:"/>
+							<mx:ComboBox dataProvider="{appUsers}" 
+								selectedIndex="-1" labelField="@displayName" 
+							    id="appUserCombo" width="200">
+								<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
+							</mx:ComboBox>
+						</mx:HBox>
 					</mx:HBox>
 					<mx:VBox width="100%" verticalGap="0">
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the account to be billed:" width="240"/>
-							<mx:ComboBox labelField="@accountName" width="370" id="billingAccountCombo" change="checkSetupCompleteness()">
+							<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" change="checkSetupCompleteness()">
 								<mx:dataProvider>{labCombo.selectedItem.billingAccounts.BillingAccount}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
@@ -1994,7 +2185,7 @@
 			</mx:Canvas>
 			<mx:Canvas label="Annotations" width="100%" height="100%" enabled="false" id="annotationView">
 				<mx:VBox width="100%" height="100%">
-					<mx:HBox width="100%" horizontalAlign="left">
+					<mx:HBox width="100%" horizontalAlign="left" id="buttonBarAnnotation">
 					    <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = sampleSetupView;}"/>
 					    <mx:Button label="Next &gt;" id="nextButton3" enabled="true" click="{theTab.selectedChild = samplesView;}"/>
 					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
@@ -2061,7 +2252,7 @@
 			</mx:Canvas>
 			<mx:Canvas label="Samples"  id="samplesView" width="100%" height="100%"  enabled="false">
 				<mx:VBox width="100%" height="100%">
-					<mx:HBox width="100%" horizontalAlign="left">
+					<mx:HBox width="100%" horizontalAlign="left" id="buttonBarSamples">
 					    <mx:Button label="&lt; Back" enabled="true" click="{if (theTab.contains(annotationView)) theTab.selectedChild = annotationView else theTab.selectedChild = sampleSetupView;}"/>
 					    <mx:Button label="Next &gt;" id="nextButton4" enabled="false" click="{if (theTab.contains(hybSetupView)) theTab.selectedChild = hybSetupView else theTab.selectedChild = confirmView;}"/>
 					    <mx:Button label="Cancel" click="promptToCancelRequest()"/>
@@ -2188,7 +2379,7 @@
 			</mx:Canvas>
 			<mx:Canvas label="Hybs" width="100%" height="100%" enabled="false" id="hybsView">
 			    <mx:VBox width="100%" height="100%" verticalGap="10">
-				    <mx:HBox width="100%" horizontalAlign="left">
+				    <mx:HBox width="100%" horizontalAlign="left" id="buttonBarHybs">
 				        <mx:Button label="&lt; Back" enabled="true" click="{theTab.selectedChild = hybSetupView;}"/>
 				        <mx:Button label="Next &gt;" id="nextButton6" enabled="false" click="{theTab.selectedChild = confirmView;}"/>
 				        <mx:Button label="Cancel" click="promptToCancelRequest()"/>
@@ -2287,7 +2478,7 @@
 					</mx:HBox>
 			    	
 			    </mx:ViewStack>
-			<mx:VDividedBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+			<mx:VBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
 				<mx:HBox width="100%" horizontalGap="20">
 					<mx:VBox height="100%" verticalGap="0">
 						<mx:Label text="Request Kind" textDecoration="underline"/>
@@ -2354,7 +2545,7 @@
 						</mx:DataGrid>
 						
 					</mx:VBox>
-				</mx:VDividedBox>
+				</mx:VBox>
 				
 			</mx:VBox>
 			</mx:Canvas>
@@ -2363,4 +2554,4 @@
 	
 	
     
-</mx:Panel>
+</mx:Canvas>
