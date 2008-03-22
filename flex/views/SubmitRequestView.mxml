@@ -152,6 +152,9 @@
 		[Bindable]
 		public var request:Object;
 		
+		[Bindable]
+		public var pendingRequest:Object;
+		
 		private var projectDetailWindow:views.ProjectDetailWindow;
 		private var selectedIdProject:Object;
 		
@@ -227,23 +230,20 @@
         
         
         public function cancelRequest():void {
+        	getNewRequest.send();
+			initializeForm();
         	parentApplication.theViews.selectedIndex = -1;
         	parentApplication.theViews.visible = false;
         }
 		
 		
 		public function setupForm():void {
-			
-			if (isRequestPending()) {
-				this.promptToCancelPriorRequest();
-			} else {
-				initializeForm();
-			}
+			getNewRequest.send();
+			initializeForm();
 		}
 		
 		
 		public function initializeForm():void {	
-			getNewRequest.send();
 
 			theTab.creationPolicy = 'all';
 			
@@ -860,7 +860,7 @@
 			
 			confirmButtonStack.selectedIndex = 0;
 			if (theTab.contains(setupView)) {
-				theTab.removeChild(setupView);
+			theTab.removeChild(setupView);
 			}
 			if (theTab.contains(sampleSetupView)) {
 				theTab.removeChild(sampleSetupView);
@@ -1321,7 +1321,7 @@
         
         private function checkSetupCompleteness():void {
         	var isComplete:Boolean = false;
-        	if (request.@idRequest != '0') {
+        	if (request != null || request.@idRequest != '0') {
         		isComplete = true;
         	}else if (this.idAppUser != null && this.idAppUser != '' &&
         	    this.requestTypeGroup.selectedValue != null &&

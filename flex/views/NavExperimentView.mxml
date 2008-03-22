@@ -577,9 +577,6 @@
 	        <views:ExperimentDownloadView id="downloadView" width="100%" height="100%">
 	        </views:ExperimentDownloadView>
 	        
-	        <views:SubmitRequestView id="SubmitRequestView" width="100%" height="100%">	
-	        </views:SubmitRequestView>
-	        
 	        <views:TrackRequestsView id="TrackRequestsView" width="100%" height="100%">
 	        </views:TrackRequestsView>
 	        
