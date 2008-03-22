@@ -134,35 +134,13 @@
             	if (theViews.selectedChild == submitRequestPanel) {
             		submitRequestView.checkSecurity();
             		submitRequestView.setupForm();
-            	} else {
-            		promptToLeaveSubmitRequest();
             	}
-            	
             	if (theViews.selectedChild == navExperimentView) {
             		callLater(navExperimentView.initializeExperiments);
             	}
             	theViews.visible = true;
             }
             
-                    
-	        public function promptToLeaveSubmitRequest():void {
-				if (submitRequestView.isRequestPending()) {
-					Alert.show( "The request you have entered has not been saved.  Do you wish to leave this screen anyways?",
-							"Warning",
-							(Alert.YES | Alert.NO), this, 
-							onPromptToLeaveSubmitRequest,						
-							iconWarning);
-				}
-				
-			}
-			
-			private function onPromptToLeaveSubmitRequest(event:CloseEvent):void {
-	            if (event.detail==Alert.YES) {
-	            	submitRequestView.initializeForm();
-	            } else {
-	            	theViews.selectedChild = submitRequestPanel;
-	            }
-	        }
             
             private function onViewClick():void {
             	if (theViews.visible == false) {
