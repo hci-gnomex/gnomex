@@ -78,7 +78,7 @@ LinkBar {
 
 Accordion {
 
-	headerHeight: 25;
+	headerHeight: 20;
 	headerStyleName: accordionHeader;
 }
 .accordionHeader {
@@ -95,6 +95,21 @@ DataGrid {
 }
 
 ComboBox {
+	fontWeight: normal;
+}
+
+Panel {
+	fontWeight: normal;
+	titleStyleName: panelTitle;
+	headerHeight: 16;
+	borderThicknessTop: 4;
+	borderThicknessBottom: 4;
+	borderThicknessLeft: 4;
+	borderThicknessRight: 4;
+
+}
+
+.panelTitle {
 	fontWeight: normal;
 }
 

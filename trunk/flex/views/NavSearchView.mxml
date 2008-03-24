@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  
 	xmlns:SearchView="SearchView.*" 
 	label="Search" 
-	width="100%" height="100%" creationPolicy="all" styleName="form">
+	width="100%" height="100%" creationPolicy="all" title="Advanced Search" icon="@Embed('../assets/magnifier.png')">
 	
 	<mx:Script>
     <![CDATA[ 
@@ -18,6 +18,8 @@
         
         public function setResultsCount():void {
         	rowCountMessage = searchList.length + " experiments found.";
+        	searchResultsTreeView.enabled = true;
+        	this.searchResultsView.enabled = true;
 
         }
         
@@ -90,56 +92,58 @@
 
     ]]>
     </mx:Script>
+   
     
     <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
-    <mx:VBox width="100%" height="100%"  verticalGap="8">
-        <mx:ApplicationControlBar 
-        	width="100%" 
-        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
-        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
-        
-			<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left">
-		        <mx:LinkBar dataProvider="{searchViews}" 
-		        	itemClick="onViewSwitch()" 
-		        	useHandCursor="true" styleName="linkBar"  >
-		        </mx:LinkBar>
-		        
-		        <mx:VRule height="20"/>
+    <mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="4"  verticalGap="0" paddingTop="4">
 
-                <mx:ViewStack width="100%" id="buttonStack" >
-                    <mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView">
-			        	<mx:Button label="Search" click="searchView.callSearchIndex()"  icon="@Embed('../assets/magnifier.png')">
-			        	</mx:Button>
-			        	<mx:Button label="Clear" >
-			        	</mx:Button>
-                    </mx:HBox>
-                    <mx:HBox width="100%" horizontalAlign="right" id="resultButtonView" horizontalGap="20">
-					    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
-			        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
-                    </mx:HBox>
-                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeButtonView" >
-				          <mx:LinkButton  label="Collapse" click="collapseAllNodes()"  useHandCursor="true"/>
-				          <mx:LinkButton  label="Expand" click="expandAllNodes()" useHandCursor="true"/>
-    	                <mx:HBox width="100%" horizontalAlign="right"  horizontalGap="20">
+
+<mx:VBox width="100%" verticalGap="0" height="100%">
+				<mx:HBox width="100%" verticalAlign="top">
+	                <mx:ViewStack width="100%" id="buttonStack" >
+	                    <mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
+				        	<mx:Button label="Search" click="searchView.callSearchIndex()"  icon="@Embed('../assets/magnifier.png')">
+				        	</mx:Button>
+				        	<mx:Button label="Clear" >
+				        	</mx:Button>
+	                    </mx:HBox>
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">
 						    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
 				        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
 	                    </mx:HBox>
-                    </mx:HBox>
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeButtonView" >
+					          <mx:LinkButton  label="Collapse" click="collapseAllNodes()"  useHandCursor="true"/>
+					          <mx:LinkButton  label="Expand" click="expandAllNodes()" useHandCursor="true"/>
+	    	                <mx:HBox width="100%" horizontalAlign="left"  horizontalGap="20">
+							    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
+					        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
+		                    </mx:HBox>
+	                    </mx:HBox>
+	
+                	</mx:ViewStack>
+					
+				</mx:HBox>
+			<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="8" horizontalGap="0">
+		        <mx:TabBar dataProvider="{searchViews}" 
+		        	itemClick="onViewSwitch()" 
+		        	useHandCursor="true" styleName="form"  >
+		        </mx:TabBar>
+		        <mx:Spacer width="140"/>
 
-                </mx:ViewStack>
              </mx:HBox>
-        </mx:ApplicationControlBar>
+	
+
 	<mx:ViewStack  id="searchViews" width="100%" height="100%" 
-			 creationPolicy="all">
+			 creationPolicy="all" borderStyle="solid" styleName="form">
 	
 		<views:SearchView id="searchView" 
 			label="New search" 
-			icon="@Embed('../assets/application_form_magnify.png')" 
+
 			width="100%" height="100%" >
 		</views:SearchView>
 		
 		<mx:Canvas id="searchResultsView"  
-			icon="@Embed('../assets/application_view_detail.png')"
+			enabled = "false"
 			 label="Results" width="100%" height="100%">
 		  <mx:VBox width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
              <mx:VBox id="listView" width="100%" height="100%">
@@ -164,8 +168,7 @@
 		
 		<mx:Canvas id="searchResultsTreeView"  
 		   label="Results (tree)" 
-			icon="@Embed('../assets/sitemap.png')" 
-			visible="false"
+			enabled="false"
 			width="100%" height="100%">
 		  <mx:VBox width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 		     <mx:VBox id="treeView" width="100%" height="100%">
@@ -183,8 +186,12 @@
 		  </mx:VBox>
 		</mx:Canvas>
 	</mx:ViewStack>
+
+
+</mx:VBox>
+        
 		            	
     </mx:VBox>
 
     
-</mx:Canvas>
+</mx:Panel>

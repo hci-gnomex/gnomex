@@ -207,11 +207,11 @@
 			selectedIdProject = null;
 			selectedIdLab = null;
 			
-			browseView.deleteProjectButton.visible = false;
+			deleteProjectButton.visible = false;
 			
 			if (browseTree.selectedItem.name() == 'Request') {
 				bodyPanel.title = "Experiment " + browseTree.selectedItem.@requestNumber;
-				bodyPanel.titleIcon = parentApplication.iconExperiment;
+				//bodyPanel.titleIcon = parentApplication.iconExperiment;
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
@@ -223,8 +223,8 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
-					bodyPanel.title = "Project " + browseTree.selectedItem.@projectName + "\t\t" + rowCountMessage;
-					bodyPanel.titleIcon = parentApplication.iconProject;
+					bodyPanel.title = browseTree.selectedItem.@projectName + "\t\t" + rowCountMessage;
+					//bodyPanel.titleIcon = parentApplication.iconProject;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
 					if (!browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.addChild(browseView.projectDetailView);
@@ -233,7 +233,7 @@
 					
 				} else {
 					bodyPanel.title =  browseTree.selectedItem.@labName + "\t\t" + rowCountMessage;;
-					bodyPanel.titleIcon = parentApplication.iconGroup;
+					//bodyPanel.titleIcon = parentApplication.iconGroup;
 					selectedIdProject = null;
 					if (browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.removeChild(browseView.projectDetailView);
@@ -379,7 +379,7 @@
 				getProjectRequestList.send(params);
 				
 			    bodyPanel.title = "Experiment " + selectedRequestNumber;
-			    bodyPanel.titleIcon = parentApplication.iconExperiment;
+			    //bodyPanel.titleIcon = parentApplication.iconExperiment;
 			}
 		    theViews.selectedChild = detailView;
 		    detailView.setupEditForm(selectedExperiment);
@@ -534,8 +534,8 @@
 	
 	
 			
-			<mx:Accordion label="Experiments"  height="100%">
-				<mx:VBox width="100%" height="100%" verticalGap="1" label="Experiments">
+			<mx:Panel label="Experiments"  height="100%" title="Experiments" id="navPanel" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:VBox width="100%" height="100%" verticalGap="4" label="Experiments">
 				        <mx:Label id="groupLabel" visible="false" height="0" text="Select group to show experiments:"/>
 						<mx:ComboBox id="browseLabCombo" 
 							labelField="@name"
@@ -548,7 +548,7 @@
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
 							id="browseTree" click="onBrowseTree();" 
-							borderStyle="none"
+							borderStyle="solid"
 							labelField="@label"
 					        dragEnabled="true" 
 					        dropEnabled="true" 
@@ -557,15 +557,23 @@
 							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
 						
 					</mx:VBox>
+					<mx:HBox>
+						        <mx:Button id="newProjectButton" click="browseView.showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
+						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..."/>
+						        <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
+						        	click="browseView.projectDetailView.promptToDeleteProject()"
+						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project"/>
+						
+					</mx:HBox>
 				</mx:VBox>
-			</mx:Accordion> 
+			</mx:Panel> 
 
 
 
 	   
 
 		
-       <mx:Panel height="100%" dropShadowEnabled="true" width="100%" title="Experiments" paddingTop="0" id="bodyPanel" headerHeight="24">
+       <mx:Panel height="100%" dropShadowEnabled="true" width="100%" id="bodyPanel">
 	     <mx:ViewStack id="theViews" creationPolicy="all" visible="false" width="100%" height="100%">
 
 	        <views:ExperimentBrowseView id="browseView"  width="100%" height="100%">
