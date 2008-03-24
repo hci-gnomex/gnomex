@@ -59,7 +59,7 @@
     <mx:XMLListCollection id="progressList" source="{getRequestProgressList.lastResult.RequestProgress}"/>
 
 	
-	<mx:VBox  width="100%" height="100%" >
+	<mx:VBox  width="100%" height="100%" paddingLeft="3" paddingBottom="4" paddingTop="4" paddingRight="4">
 	       <views:DataGridAlternatingGroup  id="progressGrid" dataProvider="{progressList}"  width="100%" height="100%">
 	         <views:columns>
 	            <mx:DataGridColumn width="18" headerText="#">

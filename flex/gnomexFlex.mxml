@@ -131,6 +131,7 @@
             }
             
             private function onViewSelection():void {
+            	theViews.creationPolicy="all";
             	if (theViews.selectedChild == submitRequestPanel) {
             		submitRequestView.checkSecurity();
             		submitRequestView.setupForm();
@@ -138,21 +139,9 @@
             	if (theViews.selectedChild == navExperimentView) {
             		callLater(navExperimentView.initializeExperiments);
             	}
-            	theViews.visible = true;
             }
             
             
-            private function onViewClick():void {
-            	if (theViews.visible == false) {
-            		onViewSelection();
-            	}
-            }
-            
-            private function onViewChanging():void {
-            	Alert.show("view changing");
-            }
-
-
             
             private function init():void {
             	XML.ignoreWhitespace = true;
@@ -324,8 +313,6 @@
 	        	filteredProjectList.addItemAt(emptyNode, 0);
 	        	
 	        	filteredProjectListForSubmitRequests = new XMLListCollection(getProjectList.lastResult.Project);
-	        	filteredProjectListForSubmitRequests.filterFunction = submitRequestView.filterProject;
-	        	filteredProjectListForSubmitRequests.refresh();
 	        	
 	        	enableApp();
 	        } 
@@ -347,7 +334,6 @@
 	        	    searchButton.visible = true;
 	        	    lookupButton.visible = true;
 	        	    searchLabel.visible = true;
-	        	    //theViews.visible = true;
 	        	    	
 	        	}
 	        }
@@ -545,7 +531,6 @@
 					paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
                      enabled="true" visible="false"  
                      verticalAlign="middle"
-                     mouseDown="onViewClick()"
                      itemClick="onViewSelection()">
 			      </mx:LinkBar>
 	      	
@@ -565,14 +550,18 @@
           
    
 
-        <mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0">
+        <mx:ViewStack id="theViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0">
+
+			<mx:Canvas>
+			</mx:Canvas>
 
 		    <mx:Panel height="100%" dropShadowEnabled="true" width="100%" label="Submit Request" title="Submit Request" 
-		    	icon="@Embed('assets/tag_blue_edit.png')"  titleIcon="@Embed('assets/tag_blue_edit.png')" id="submitRequestPanel" headerHeight="24">
+		    	icon="@Embed('assets/tag_blue_edit.png')"   id="submitRequestPanel" alpha="1" roundedBottomCorners="true">
             	<views:SubmitRequestView id="submitRequestView" width="100%" height="100%" 
             		label="Submit Request"  >
             	</views:SubmitRequestView>
 		    </mx:Panel>
+		    
 	   
 	        
 	        <views:NavExperimentView id = "navExperimentView" width="100%" height="100%" 

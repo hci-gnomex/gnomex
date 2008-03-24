@@ -69,9 +69,9 @@
 			}
 			
 			if (parentApplication.navExperimentView.selectedProject.@canDelete == "Y") {
-				parentDocument.deleteProjectButton.visible = true;
+				parentApplication.navExperimentView.deleteProjectButton.visible = true;
 			} else{
-				parentDocument.deleteProjectButton.visible = false;
+				parentApplication.navExperimentView.deleteProjectButton.visible = false;
 			}
 		}
 		
