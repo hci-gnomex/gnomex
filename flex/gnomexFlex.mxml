@@ -528,10 +528,10 @@
 			      
 			      <mx:LinkBar id="linkButtonBar"
 			      	 dataProvider="{theViews}" width="100%"
-					paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
+					paddingBottom="0" paddingLeft="8" paddingRight="3" paddingTop="0" 
                      enabled="true" visible="false"  
                      verticalAlign="middle"
-                     itemClick="onViewSelection()">
+                     itemClick="onViewSelection()" horizontalGap="0" horizontalAlign="left">
 			      </mx:LinkBar>
 	      	
 		      	
