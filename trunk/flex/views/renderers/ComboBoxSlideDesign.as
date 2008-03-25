@@ -4,6 +4,7 @@ package views.renderers
 	import mx.events.CollectionEvent;
 	import mx.events.ListEvent;
 	import mx.controls.DataGrid;
+	import mx.controls.Alert;
 	
 	public class ComboBoxSlideDesign  extends ComboBoxBase
 	{
@@ -16,7 +17,7 @@ package views.renderers
 		    override public function set data(o:Object):void
             {
                 _data = o;
-                if (parentApplication.submitRequestView.slideDesigns == null) {
+                if (parentDocument.slideDesigns == null) {
                 	return;
                 }
                 setDataProvider();
@@ -24,16 +25,21 @@ package views.renderers
             }
 		    
 		    protected override function setDataProvider():void {
-				dataProvider = parentApplication.submitRequestView.slideDesigns;
+				dataProvider = parentDocument.slideDesigns;
 				
 				// This will detect changes to underlying data anc cause combobox to be selected based on value.
 				IList(DataGrid(owner).dataProvider).addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);
             }
             
-            protected override function change(event:ListEvent):void {
-            	super.change(event);
-            	parentDocument.checkHybsCompleteness();
-            }
+		    protected override function change(event:ListEvent):void {
+		     	if (_data.@canChangeSlideDesign == "Y" || parentApplication.hasPermission("canWriteAnyObject")) {
+	            	super.change(event);
+    	        	parentDocument.checkHybsCompleteness();
+		     	} else {
+		     		selectItem();
+		     		Alert.show("Slide cannot be changed.");
+		     	}
+            }            
             
 			
             

@@ -366,6 +366,70 @@
 				}
 			}			
 
+        public function lookupSampleTypeName(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == item.@idSampleType);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupOrganism(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == item.@idOrganism);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupSamplePrepMethod(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == item.@idSamplePrepMethod);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupSampleSource(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == item.@idSampleSource);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupSlideSource(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideSource').DictionaryEntry.(@value == item.@codeSlideSource);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupSlideDesignName(item:Object,col:int):String {
+        	var sd:Object = getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
+        	if (sd != null) {
+        		return sd.@name;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupChipType(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value == item.@codeBioanalyzerChipType);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupConcentrationUnit(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.ConcentrationUnit').DictionaryEntry.(@value == item.@codeConcentrationUnit);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
 	        	
 	        
             

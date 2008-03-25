@@ -1,4 +1,4 @@
-package views
+package views.renderers
 {
 	import mx.controls.TextInput;
 	import flash.display.Graphics;
@@ -12,6 +12,12 @@ package views
           	return;
           }
           this.setStyle("backgroundColor", data.@concentration == '' ? parentApplication.REQUIRED_FIELD_BACKGROUND : "0xffffff");
-	     }
+          if (data.@canChangeSampleConcentration == "Y" || parentApplication.hasPermission("canWriteAnyObject")) {
+	       	this.editable = true;
+	      } else {
+	       	this.editable = false;
+	      }
+          
+	    }
 	}
 }
