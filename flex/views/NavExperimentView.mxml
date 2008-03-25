@@ -209,6 +209,10 @@
 			
 			deleteProjectButton.visible = false;
 			
+			if (browseTree.selectedItem == null) {
+				return;
+			}
+			
 			if (browseTree.selectedItem.name() == 'Request') {
 				bodyPanel.title = "Experiment " + browseTree.selectedItem.@requestNumber;
 				//bodyPanel.titleIcon = parentApplication.iconExperiment;
@@ -382,7 +386,7 @@
 			    //bodyPanel.titleIcon = parentApplication.iconExperiment;
 			}
 		    theViews.selectedChild = detailView;
-		    detailView.setupEditForm(selectedExperiment);
+			detailView.setupForm();
 
 		    theViews.visible = true;
 		}
@@ -588,8 +592,8 @@
 	        <views:ExperimentBrowseView id="browseView"  width="100%" height="100%">
 	        </views:ExperimentBrowseView>
 
-	        <views:SubmitRequestView id="detailView" width="100%" height="100%">
-	        </views:SubmitRequestView>
+	        <views:ExperimentDetailView id="detailView" width="100%" height="100%">
+	        </views:ExperimentDetailView>
 
 	        <views:ExperimentDownloadView id="downloadView" width="100%" height="100%">
 	        </views:ExperimentDownloadView>

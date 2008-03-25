@@ -1,47 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" styleName="form">
+<mx:Canvas  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
 <mx:Script>
 	<![CDATA[
-		private function getSlideSource(item:Object, col:int):String {
-			var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideSource').DictionaryEntry.(@value == item.@codeSlideSource);
-	    	if (de.length() == 1) {
-		    	return de[0].@display;
-	    	} else {
-	    		return "";
-	    	}
+	
+		[Bindable]
+		private var requestCategoryName:String;
+		[Bindable]
+		private var experimentCategoryName:String;
+		[Bindable]
+		private var billingAccountName:String;
+	
+		public function setupForm():void {
+			this.theViews.selectedIndex = 0;
+			if (parentDocument.selectedExperiment.@codeRequestCategory == "QC") {
+				this.hybsConfirmContainer.visible = false;
+			} else {
+				this.hybsConfirmContainer.visible = true;
+			}
+			getRequestCategoryName();
+			getExperimentCategoryName();
+			getBillingAccountName();
 		}
-	    private function getOrganism(item:Object, col:int):String {
-			var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == item.@idOrganism);
-	    	if (de.length() == 1) {
-		    	return de[0].@display;
-	    	} else {
-	    		return "";
-	    	}
-		}
-		private function getSampleType(item:Object, col:int):String {
-			var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == item.@idSampleType);
-	    	if (de.length() == 1) {
-		    	return de[0].@display;
-	    	} else {
-	    		return "";
-	    	}
-		}
-		private function getSamplePrepMethod(item:Object, col:int):String {
-			var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == item.@idSamplePrepMethod);
-	    	if (de.length() == 1) {
-		    	return de[0].@display;
-	    	} else {
-	    		return "";
-	    	}
-		}
-	 	private function getSampleSource(item:Object, col:int):String {
-			var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == item.@idSampleSource);
-	    	if (de.length() == 1) {
-		    	return de[0].@display;
-	    	} else {
-	    		return "";
-	    	}
-		}
+
 	    private function getChannel1SampleName(item:Object, col:int):String {
 			var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
 	    	if (de.length() == 1) {
@@ -74,174 +54,168 @@
 	    		return "";
 	    	}
 		}
-		private function getSlideDesignName(item:Object, col:int):String {
-			var de:XMLList = parentApplication.getSlideProductList.lastResult.SlideProduct..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
-	    	if (de.length() == 1) {
-		    	return de[0].@name;
-	    	} else {
-	    		return "";
-	    	}
-		}
 
+   	 	private function getSamplesGridRowNumber(item:Object,col:int):String
+	    {
+    	   var x:int = samplesGridConfirm.dataProvider.getItemIndex(item) + 1;
+	       return String(x);
+	    } 
+   	 	private function getHybsGridRowNumber(item:Object,col:int):String
+	    {
+    	   var x:int = hybsGridConfirm.dataProvider.getItemIndex(item) + 1;
+	       return String(x);
+	    } 
+
+		private function getRequestCategoryName():void {
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == parentDocument.selectedExperiment.@codeRequestCategory);
+			requestCategoryName = requestCategory.@display.toString();
+		}
+		private function getExperimentCategoryName():void {
+			var experimentCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == parentDocument.selectedExperiment.@codeMicroarrayCategory);
+			experimentCategoryName = experimentCategory.@display.toString();
+		}
+		private function getBillingAccountName():void {
+			var billingAccount:Object = null;
+			for each(var lab:Object in parentApplication.promptedSubmitRequestLabList) {
+				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
+					if (ba.@idBillingAccount == parentDocument.selectedExperiment.@idBillingAccount) {
+						billingAccount = ba;
+						break;
+					}
+						
+				}
+			}
+			if (billingAccount != null) {
+				billingAccountName = billingAccount.@accountName;
+			}
+		}
 
 	]]>
 </mx:Script>
+
+<mx:VBox width="100%" height="100%">
 	
-    <mx:VBox height="100%"  width="100%" verticalGap="0">
-
-
 		
-		    
-		        <mx:ApplicationControlBar 
-	        	     styleName="applicationBar"
-		        	width="100%" 
-		        	id="linkBar" dock="true" fillAlphas="[.8, .5]" 
-		        	paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1" cornerRadius="0">
-		        
-					<mx:HBox  verticalAlign="middle" width="100%" horizontalAlign="left">
-		
-		                    <mx:HBox  horizontalAlign="right" width="100%" id="saveProjectButtonView">
-							    <mx:Button label="Save" 
-							    	icon="@Embed('../assets/action_save.gif')" 
-							    	  visible="true" toolTip="Save experiment.">
-					            </mx:Button>
-		                    </mx:HBox>
+	<mx:ViewStack id="theViews" width="100%" height="100%">
 
-				    </mx:HBox>
-		        </mx:ApplicationControlBar>    
-        <mx:HBox width="100%" paddingTop="12" paddingBottom="8">
-        	<mx:VBox verticalGap="0">
-        		<mx:HBox>
-                    <mx:Label text="#"  width="90"/>
-                    <mx:TextInput editable="false" id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80"/>
-                </mx:HBox>
-                <mx:HBox verticalGap="0">
-                  <mx:Label text="Submit Date"  width="90"/>
-                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
-                </mx:HBox>
-                <mx:HBox verticalGap="0">
-                  <mx:Label text="Complete Date"  width="90"/>
-                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@completedDate}" width="80"/>
-                </mx:HBox>
-        	</mx:VBox>
-        	<mx:VBox verticalGap="0">
-	        	
-	        	 <mx:HBox verticalGap="0">
-	        	   <mx:Label text="Submitter"  width="100"/>
-	        	   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@ownerName}"/>
-	        	 </mx:HBox>
-	        	 <mx:HBox verticalGap="0">
-	        	       <mx:Label text="Platform"  width="100"/>
-	        	       <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@codeRequestCategory}"/>
-	        	   </mx:HBox>
-	            <mx:HBox verticalGap="0">
-	                <mx:Label text="Experiment Type"  width="100"/>
-	                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@codeMicroarrayCategory}"/>
-	            </mx:HBox>
-            
-        		
-        	</mx:VBox>
-        	<mx:VBox width="100%" verticalGap="0">
-	        	
-	            <mx:HBox verticalGap="0" width="100%">
-	                   <mx:Label text="Group"  width="50"/>
-	                   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
-	               </mx:HBox>
-	            <mx:HBox verticalGap="0" width="100%">
-	                <mx:Label text="Account"  width="50"/>
-	                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@idBillingAccount}" width="100%"/>
-	            </mx:HBox>
-	            <mx:HBox verticalGap="0" width="100%">
-	                <mx:Label text="Project"  width="50"/>
-	                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
-	            </mx:HBox>
-        		
-        	</mx:VBox>
-        </mx:HBox>
-        	
-       
-		<mx:TabNavigator width="100%" height="100%"  
-			selectedIndex="1" >
-			<mx:Canvas label="Annotations" width="100%" height="100%">
-			    <mx:HBox width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
-			        <mx:VBox height="100%">
-						<mx:Text text="A.  Specify all sample characteristics you wish to annotation in subsequent columns:" width="378" height="32"/>
-						<mx:DataGrid 
-							showHeaders="false"
-							dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristic').DictionaryEntry.(@value != '')}" 
-							selectionColor="#FFFFFF" fontSize="9" height="100%" width="100%">
-						    <mx:columns>
-						        <mx:DataGridColumn headerText=" " 
-						        	width="30" 
-						        	editable="true"                        	
-						        	dataField="@isSelected" 
-						        	editorDataField="selected"
-						        	itemRenderer="views.CheckBoxIsSelected" >
-						        </mx:DataGridColumn>
-						        <mx:DataGridColumn editable="false" editorDataField="selected" dataField="@display"/>
-						    </mx:columns>
-						 </mx:DataGrid>
-						<mx:HBox width="100%">
-						    <mx:CheckBox label="Other (specify)"/>
-						    <mx:TextInput width="100%"/>
-						</mx:HBox>
-			        </mx:VBox>
-			        
-			        <mx:VBox width="100%" height="100%">
-						<mx:Label text="B.  Describe in general terms how the sample(s) differ:" height="32"/>
-						<mx:TextArea height="300" width="100%"/>
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+			<mx:HBox width="100%" styleName="form" paddingLeft="0">
+			    <mx:LinkButton label="Edit Experiment" click="{theViews.selectedIndex = 1;editView.setupEditForm(parentDocument.selectedExperiment)}" textDecoration="underline" color="#0000ff" paddingLeft="0">
+			        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 20 : 0}</mx:height>
+			        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+			    </mx:LinkButton>				
+			</mx:HBox>
+		    <mx:VBox height="100%"  width="100%" verticalGap="0" styleName="form">
+		        <mx:HBox width="100%" paddingTop="4" paddingBottom="6" horizontalGap="3" paddingLeft="6" paddingRight="6">
+		        	<mx:VBox verticalGap="0">
+		        		<mx:HBox horizontalGap="0">
+		                    <mx:Label text="#"  width="85">
+		                    	<mx:click>{theViews.selectedIndex = 1;editView.setupEditForm(parentDocument.selectedExperiment)}</mx:click>
+		                    </mx:Label>
+		                    <mx:TextInput editable="false" id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80" backgroundAlpha=".2"/>
+		                </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label text="Submit Date"  width="85"/>
+		                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@createDate}" width="80" backgroundAlpha=".2"/>
+		                </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label width="85" text="Completed on"/>
+		                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@completedDate}" width="80" backgroundAlpha=".2"/>
+		                </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox verticalGap="0">
 			        	
-			        </mx:VBox>
-			    	
-			    </mx:HBox>
-			</mx:Canvas>
-			<mx:Canvas label="Samples" width="100%" height="100%" backgroundAlpha=".7">
-			    <mx:VBox  width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
-					<mx:DataGrid width="100%" height="100%">
-						<mx:dataProvider>{parentDocument.selectedExperiment.samples.Sample}</mx:dataProvider>
-						<mx:columns>
-							<mx:DataGridColumn headerText="Sample #" dataField="@number"/>
-							<mx:DataGridColumn headerText="Sample Name" dataField="@name"/>
-							<mx:DataGridColumn headerText="Conc. (ng/uL)" dataField="@concentration"/>
-							<mx:DataGridColumn headerText="Sample Type" labelFunction="getSampleType"/>
-							<mx:DataGridColumn headerText="Organism" labelFunction="getOrganism"/>
-							<mx:DataGridColumn headerText="Source" labelFunction="getSampleSource"/>
-							<mx:DataGridColumn headerText="Sample Prep Method" labelFunction="getSamplePrepMethod"/>
-							<mx:DataGridColumn headerText="Description" dataField="@description"/>
-						</mx:columns>
-					</mx:DataGrid>
-			    
-			    </mx:VBox>
-			</mx:Canvas>
-			<mx:Canvas label="Hybridizations" width="100%" height="100%" backgroundAlpha=".7"  >
-  			    <mx:VBox  width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
-					<mx:DataGrid width="100%" height="100%" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}">
-						<mx:columns>
-							<mx:DataGridColumn headerText="Slide #" width="50" dataField="col1"/>
-							<mx:DataGridColumn headerText="Hyb #" width="50" dataField="@number"/>
-							<mx:DataGridColumn headerText="Cy3 Sample (green)" labelFunction="getChannel1SampleName"/>
-							<mx:DataGridColumn headerText="#" width="50" labelFunction="getChannel1SampleNumber"/>
-							<mx:DataGridColumn headerText="Cy5 Sample (red)" labelFunction="getChannel2SampleName"/>
-							<mx:DataGridColumn headerText="#"  width="50" labelFunction="getChannel2SampleNumber"/>
-							<mx:DataGridColumn headerText="Slide" width="100"  labelFunction="getSlideDesignName"/>
-							<mx:DataGridColumn headerText="Source" width="60" labelFunction="getSlideSource"/>
-							<mx:DataGridColumn headerText="Notes" dataField="@notes"/>
-						</mx:columns>
-					</mx:DataGrid>
-  			    </mx:VBox>
-			</mx:Canvas>
-			<mx:Canvas label="Visibility">
-				<mx:VBox width="100%" height="100%" paddingLeft="8" paddingBottom="8" paddingTop="8" paddingRight="8">
-					<mx:Label text="Visiblity to experiment and data:"/>
-					<mx:RadioButtonGroup id="radiogroup1"/>
-					<mx:RadioButton label="Visible to members" groupName="radiogroup1"/>
-					<mx:RadioButton label="Visible to members and collaborators" groupName="radiogroup1"/>
-					<mx:RadioButton label="Visible to everyone (available to public)" groupName="radiogroup1"/>
+			        	 <mx:HBox verticalGap="0" horizontalGap="0">
+			        	   <mx:Label text="Submitter"  width="99"/>
+			        	   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@ownerName}" width="180" backgroundAlpha=".2"/>
+			        	 </mx:HBox>
+			        	 <mx:HBox verticalGap="0" horizontalGap="0">
+			        	       <mx:Label text="Request Type"  width="99"/>
+			        	       <mx:TextInput editable="false" text="{requestCategoryName}" width="180" backgroundAlpha=".2"/>
+			        	   </mx:HBox>
+			            <mx:HBox verticalGap="0" horizontalGap="0">
+			                <mx:Label text="Experiment Type"  width="99"/>
+			                <mx:TextInput editable="false" text="{experimentCategoryName}" width="180" backgroundAlpha=".2"/>
+			            </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox width="100%" verticalGap="0">
+			        	
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                   <mx:Label text="Group"  width="47"/>
+			                   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@labName}" width="100%" backgroundAlpha=".2"/>
+			               </mx:HBox>
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                <mx:Label text="Account"  width="47"/>
+			                <mx:TextInput editable="false" text="{billingAccountName}" width="100%" backgroundAlpha=".2"/>
+			            </mx:HBox>
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                <mx:Label text="Project"  width="47"/>
+			                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@projectName}" width="100%" backgroundAlpha=".2"/>
+			            </mx:HBox>
+		        	</mx:VBox>
+		        </mx:HBox>
+	
+				<mx:VBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+					<mx:VBox verticalGap="0" width="100%" height="100%">
+						<mx:Label text="{'Samples'}"/>
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
+							<mx:columns>
+							    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="30" labelFunction="getSamplesGridRowNumber"/>
+								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+								<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
+				                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
+					            <mx:DataGridColumn headerText="Sample Type"  width="130" labelFunction="parentApplication.lookupSampleTypeName"/>
+					            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" labelFunction="parentApplication.lookupOrganism"/>
+					            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" labelFunction="parentApplication.lookupSampleSource"/>
+					            <mx:DataGridColumn headerText="Sample Prep Method"  width="160" labelFunction="parentApplication.lookupSamplePrepMethod"/>
+				                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="80" labelFunction="parentApplication.lookupChipType" />
+								<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
+								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
+								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
+								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
+								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
+								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
+								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
+								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
+								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
+								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+								<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:VBox>
+					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+						<mx:Label text="{'Hybridizations'}"/>
+						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" editable="false" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+							<mx:columns>
+							    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="35" labelFunction="getHybsGridRowNumber"/>
+							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
+							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
+							     <mx:DataGridColumn headerText="Slide"  width="320" labelFunction="parentApplication.lookupSlideDesignName" />
+							     <mx:DataGridColumn headerText="Slide Source"  width="82"  labelFunction="parentApplication.lookupSlideSource" />
+								<mx:DataGridColumn headerText="Notes" width="100" dataField="@notes"/>
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:VBox>
 				</mx:VBox>
-				
-			</mx:Canvas>
-		</mx:TabNavigator>
-    	
-    </mx:VBox>
+		    </mx:VBox>
+			
+		</mx:VBox>
+	    
+	    
+	    <views:SubmitRequestView id="editView">	    	
+	    </views:SubmitRequestView>
+
+
+
+		
+	</mx:ViewStack>
+	
+</mx:VBox>
 	
 </mx:Canvas>

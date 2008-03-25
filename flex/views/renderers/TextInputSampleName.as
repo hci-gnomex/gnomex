@@ -1,7 +1,9 @@
-package views
+package views.renderers
 {
 	import mx.controls.TextInput;
 	import flash.display.Graphics;
+	import mx.controls.Alert;
+	import flash.events.Event;
 
 	public class TextInputSampleName extends TextInput
 	{
@@ -12,6 +14,13 @@ package views
           	return;
           }
           this.setStyle("backgroundColor", data.@name == '' ? parentApplication.REQUIRED_FIELD_BACKGROUND : "0xffffff");
+          
+          if (data.@canChangeSampleName == "Y" || parentApplication.hasPermission("canWriteAnyObject")) {
+	       	this.editable = true;
+	      } else {
+	       	this.editable = false;
+	      }
+
 	     }
 	}
 }
