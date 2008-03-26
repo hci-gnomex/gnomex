@@ -26,10 +26,12 @@ package views
 		override public function set data(o:Object):void {
 		    _data = o;
  
-				var slideProduct:Object = parentApplication.getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == _data.@idSlideDesign).parent().parent();
-				if (slideProduct.@arraysPerSlide == "" || slideProduct.@arraysPerSlide == "1") {
-					this.enabled = false;
-				}
+			var slideProduct:Object = parentApplication.getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == _data.@idSlideDesign).parent().parent();
+			if (slideProduct.@arraysPerSlide == "" || slideProduct.@arraysPerSlide == "1") {
+				this.enabled = false;
+			} else {
+				this.enabled = true;
+			}
 
 		    this.selectedIndex = 0;
 		    for(var i:Number = 0; i < this.dataProvider.length; i++) {

@@ -438,9 +438,8 @@
 				if (sampleSetupContainer.contains(sampleSourceContainer)) {
 					sampleSetupContainer.removeChild(sampleSourceContainer);
 				}
-				if (confirmContainer.contains(hybsConfirmContainer)) {
-					confirmContainer.removeChild(hybsConfirmContainer);
-				}
+				hybsConfirmContainer.visible = false;
+				hybsConfirmContainer.height = 0;
 				if (this.theTab.contains(annotationView)) {
 					this.theTab.removeChild(annotationView);				
 				}
@@ -470,9 +469,8 @@
 						sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
 					}
 				}
-				if (!confirmContainer.contains(hybsConfirmContainer)) {
-					confirmContainer.addChild(hybsConfirmContainer);
-				}
+				hybsConfirmContainer.visible = true;
+				hybsConfirmContainer.percentHeight = 100;
 				if (!this.theTab.contains(annotationView)) {
 					this.theTab.addChildAt(annotationView, 3);				
 				}
@@ -1959,13 +1957,23 @@
 			request.@idOrganismSampleDefault = this.sampleOrganismCombo.selectedItem.@value;
 			request.@codeMicroarrayCategory = this.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;
 			
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
 				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
-			for each(var hyb:Object in hybs) {
-				request.hybridizations.appendChild(hyb);
+			if (request.@codeRequestCategory != "QC") {
+				for each(var hyb:Object in hybs) {
+					if (requestCategory.@numberOfChannels != "2") {
+						hyb.@idSampleChannel2 = "0";
+					}
+					request.hybridizations.appendChild(hyb);
+				 }
+			} else {
+				request.@codeMicroarrayCategory = '';
+				request.@idSlideProduct = '';
 			}
 
 			var params:Object = new Object();
@@ -2543,9 +2551,9 @@
 						<mx:Text text="{billingAccountCombo.selectedItem.@accountName}"/>
 					</mx:VBox>
 				</mx:HBox>
-					<mx:VBox verticalGap="0" width="100%">
+					<mx:VBox verticalGap="0" width="100%" height="100%">
 						<mx:Label text="{samples.length + ' Samples'}"/>
-						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto">
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
 							    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="getSamplesGridRowNumber"/>
 								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>

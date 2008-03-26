@@ -187,7 +187,7 @@
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="true"  
-                   itemRenderer="views.ComboBoxLabelingProtocol" />
+                   itemRenderer="views.renderers.ComboBoxLabelingProtocol" />
 	            <mx:DataGridColumn headerText="Labeling Yield" width="15" dataField="@labelingYield"/>
 				<mx:DataGridColumn headerText="Reaction Size" width="15" 
 					dataField="@codeLabelingReactionSize"
@@ -195,7 +195,7 @@
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="true"  
-                   itemRenderer="views.ComboBoxLabelingReactionSize" />
+                   itemRenderer="views.renderers.ComboBoxLabelingReactionSize" />
 				<mx:DataGridColumn headerText="# Reactions" width="15" dataField="@numberOfReactions"/>
                 <mx:DataGridColumn headerText="Status"  width="12" dataField="@labelingStatus" 
                 	editorDataField="value"

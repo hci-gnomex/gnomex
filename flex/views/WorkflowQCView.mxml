@@ -176,8 +176,6 @@
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
 	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@qualStatus" 
 	                	editorDataField="value"
-	                   sortable="false" 
-	                   editable="true"
 	                   rendererIsEditor="true"  
 	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusQC" />
 				</mx:columns>
