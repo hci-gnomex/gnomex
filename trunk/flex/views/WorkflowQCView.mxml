@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Quality Control"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:Panel label="Quality Control"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" title="Quality Control" titleIcon="@Embed('../assets/chart_curve.png')">
 	
 	<mx:HTTPService 
     id="getWorkListQC" 
@@ -137,14 +137,7 @@
     
    
     <mx:VBox width="100%" height="100%">
-        <mx:ApplicationControlBar width="100%" fillAlphas="[.8, .5]"  paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
-            <mx:HBox horizontalAlign="left" width="170" verticalAlign="middle">
-            <mx:Image source="@Embed('../assets/chart_curve.png')" autoLoad="true"/>
-            <mx:Label text="Quality Control" textAlign="center"/>
-            	
-            </mx:HBox>
-            <mx:VRule height="20"/>
-            <mx:HBox width="100%" horizontalAlign="left">
+            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
             	<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
             	</mx:Button>
             	<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
@@ -159,7 +152,6 @@
             	
             </mx:HBox>
         	
-        </mx:ApplicationControlBar>
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
 			<mx:DataGrid height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
@@ -187,4 +179,4 @@
 					
 						
 
-</mx:Canvas>
+</mx:Panel>

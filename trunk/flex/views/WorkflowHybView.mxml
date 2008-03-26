@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+<mx:Panel label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" title="Hybridization" 
+	titleIcon="@Embed('../assets/basket_put.png')">
 	
 	<mx:HTTPService 
     id="getWorkList" 
@@ -149,14 +151,7 @@
     
     
     
-        <mx:ApplicationControlBar width="100%" fillAlphas="[.8, .5]"  paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="1">
-            <mx:HBox horizontalAlign="left" width="170" verticalAlign="middle" paddingBottom="1">
-            <mx:Image source="@Embed('../assets/basket_put.png')" autoLoad="true"/>
-            <mx:Label text="Hybridization" textAlign="center"/>
-            	
-            </mx:HBox>
-            <mx:VRule height="20"/>
-            <mx:HBox width="100%" horizontalAlign="left">
+            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
             	<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
             	</mx:Button>
             	<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
@@ -175,7 +170,6 @@
             	
             </mx:HBox>
         	
-        </mx:ApplicationControlBar>
 
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
@@ -215,4 +209,4 @@
 					
 						
 
-</mx:Canvas>
+</mx:Panel>

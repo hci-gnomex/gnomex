@@ -41,7 +41,7 @@
 			
 		</mx:Accordion>
 	
-		<mx:ViewStack id="detailViews"  styleName="form" visible="false" height="100%" width="100%"  >
+		<mx:ViewStack id="detailViews"  visible="false" height="100%" width="100%"  >
 
            <views:WorkflowQCView label="Quality Control" id="workflowQCView" icon="@Embed('../assets/chart_curve.png')"/> 
            
