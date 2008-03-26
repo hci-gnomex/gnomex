@@ -168,26 +168,27 @@
 								<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 				                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
 					            <mx:DataGridColumn headerText="Sample Type"  width="130" labelFunction="parentApplication.lookupSampleTypeName"/>
-					            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" labelFunction="parentApplication.lookupOrganism"/>
-					            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" labelFunction="parentApplication.lookupSampleSource"/>
+					            <mx:DataGridColumn headerText="Organism" visible="{parentDocument.selectedExperiment.@codeRequestCategory != 'QC' ? true : false}"  id="sampleOrganismConfirmColumn" width="100" labelFunction="parentApplication.lookupOrganism"/>
+					            <mx:DataGridColumn headerText="Sample Source" visible="{parentDocument.selectedExperiment.@codeRequestCategory != 'QC' ? true : false}"  id="sampleSourceConfirmColumn" width="90" labelFunction="parentApplication.lookupSampleSource"/>
 					            <mx:DataGridColumn headerText="Sample Prep Method"  width="160" labelFunction="parentApplication.lookupSamplePrepMethod"/>
-				                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="80" labelFunction="parentApplication.lookupChipType" />
-								<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
-								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
-								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
-								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
-								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
-								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
-								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
-								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
-								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+				                <mx:DataGridColumn id="chipTypeConfirmColumn" visible="{parentDocument.selectedExperiment.@codeRequestCategory == 'QC' ? true : false}" headerText="Chip Type"  width="120" labelFunction="parentApplication.lookupChipType" />
+								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{parentDocument.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
+								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{parentDocument.selectedExperiment.@CELLINE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{parentDocument.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{parentDocument.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{parentDocument.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{parentDocument.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{parentDocument.selectedExperiment.@DOSE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{parentDocument.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{parentDocument.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{parentDocument.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{parentDocument.selectedExperiment.@INDIV == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{parentDocument.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{parentDocument.selectedExperiment.@SEX == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{parentDocument.selectedExperiment.@TEMP == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{parentDocument.selectedExperiment.@TIME == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{parentDocument.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{parentDocument.selectedExperiment.@OTHER == 'Y' ? true : false}" />
+								<mx:DataGridColumn visible="{parentDocument.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 								<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 							</mx:columns>
 						</mx:DataGrid>
