@@ -430,7 +430,46 @@
         		return "";
         	}
         }
-	        	
+        public function lookupLabelingProtocolChannel1(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocolChannel1);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }        
+        public function lookupLabelingProtocolChannel2(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocolChannel2);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }        
+        public function lookupHybProtocol(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.HybProtocol').DictionaryEntry.(@value == item.@idHybProtocol);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }	        	
+        public function lookupScanProtocol(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.ScanProtocol').DictionaryEntry.(@value == item.@idScanProtocol);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }	        	
+        public function lookupFeatureExtractionProtocol(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry.(@value == item.@idFeatureExtractionProtocol);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }	        	
 	        
             
             
