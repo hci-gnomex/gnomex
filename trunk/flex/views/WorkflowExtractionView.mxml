@@ -191,13 +191,13 @@
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxScanProtocol" />
+	                   itemRenderer="views.renderers.ComboBoxScanProtocol" />
 					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="29" dataField="@idFeatureExtractionProtocol" 
 	                	editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxFeatureExtractionProtocol" />
+	                   itemRenderer="views.renderers.ComboBoxFeatureExtractionProtocol" />
 	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@extractionStatus" 
 	                	editorDataField="value"
 	                   sortable="false" 

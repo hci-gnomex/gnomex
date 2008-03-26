@@ -14,8 +14,11 @@
 			this.theViews.selectedIndex = 0;
 			if (parentDocument.selectedExperiment.@codeRequestCategory == "QC") {
 				this.hybsConfirmContainer.visible = false;
+				this.hybsConfirmContainer.percentHeight = 0;
+				this.hybsConfirmContainer.height = 0;
 			} else {
 				this.hybsConfirmContainer.visible = true;
+				this.hybsConfirmContainer.percentHeight = 100;
 			}
 			getRequestCategoryName();
 			getExperimentCategoryName();

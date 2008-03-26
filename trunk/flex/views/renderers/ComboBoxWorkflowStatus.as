@@ -44,6 +44,11 @@ package views.renderers
             	labelField = choiceDisplayAttributeName;
             }
 
+		    protected override function change(event:ListEvent):void {
+		        parentDocument.workList.filterFunction = null;
+		        super.change(event);
+	        }
+
             
 	}
 }

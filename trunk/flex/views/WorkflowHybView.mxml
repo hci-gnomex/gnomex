@@ -193,13 +193,13 @@
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxArrayCoordinate" />
+	                   itemRenderer="views.renderers.ComboBoxArrayCoordinate" />
 					<mx:DataGridColumn headerText="Hyb Protocol"  width="29" dataField="@idHybProtocol" 
 	                	editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="true"  
-	                   itemRenderer="views.ComboBoxHybProtocol" />
+	                   itemRenderer="views.renderers.ComboBoxHybProtocol" />
 	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@hybStatus" 
 	                	editorDataField="value"
 	                   sortable="false" 
