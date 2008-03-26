@@ -219,7 +219,7 @@
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected"
-		            	itemRenderer="views.CheckBoxIsSelected">
+		            	itemRenderer="views.renderers.CheckBoxIsSelectedDownload">
 		            </mx:DataGridColumn>
 		            <mx:DataGridColumn width="35" headerText="#">
 		                <mx:itemRenderer>
@@ -263,7 +263,7 @@
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
-		            	itemRenderer="views.CheckBoxIsSelected"/>
+		            	itemRenderer="views.renderers.CheckBoxIsSelectedDownload"/>
 		            <mx:DataGridColumn width="14" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
