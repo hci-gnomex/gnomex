@@ -1,6 +1,7 @@
 package views.renderers
 {
 	import mx.collections.XMLListCollection;
+	import mx.events.ListEvent;
 	
 	public class ComboBoxVisibility extends ComboBoxBase
 	{
@@ -15,6 +16,11 @@ package views.renderers
 		    protected override function setDataProvider():void {
 				dataProvider = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == dictionaryClassName).DictionaryEntry);
             }
+            
+            protected override function change(event:ListEvent):void {
+		        parentDocument.parentDocument.clearFilter();
+		        super.change(event);
+	        }
 	}
 
 }
