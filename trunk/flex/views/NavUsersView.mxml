@@ -85,6 +85,7 @@
 
           import mx.rpc.events.ResultEvent; 
 		  import mx.controls.Alert;
+		  import mx.events.CloseEvent;
 
           [Bindable]
           public var selectedUser:Object;
@@ -99,12 +100,12 @@
           
 
 		 private function checkSecurity():void {
-			if (parentApplication.hasPermission("canAdministerUsers")) {
+/* 			if (parentApplication.hasPermission("canAdministerUsers")) {
 				navBar.removeChild(groupMembershipView);
 			} else {
 				navBar.removeChild(usersView);
 				navBar.removeChild(groupsView);
-			}
+			} */
 		 }
         
           private function userRowSelected():void 
@@ -118,14 +119,14 @@
            {
            	this.selectedLab = labsGrid.selectedItem;
            	callGetLab();
-            detailViews.selectedIndex=1;
+            detailViews.selectedChild = this.groupDetailView;
           }
           
           public function prepareToAddUser():void 
            {
            	this.selectedUser = null;
            	this.fullUser = null;
-            detailViews.selectedIndex=0;
+            detailViews.selectedChild = this.userDetailView;
           }
           private function callInitialServices():void
           {
@@ -161,6 +162,21 @@
           	var call:Object = getLab.send();
           	call.marker = "doneGetLab";
           }
+          
+		public function promptToDeleteAppUser():void {
+			Alert.show("Delete user " + selectedUser.@displayName + "?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDeleteAppUser);
+			
+		}
+		
+		private function onPromptToDeleteAppUser(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	callDeleteAppUser();
+            }
+        }
+
           public function callDeleteAppUser():void
           {
           	var call:Object = deleteAppUser.send();
@@ -168,18 +184,6 @@
           }
           
           
-          private function userTreeItemSelected(event:Event):void {
-          	this.selectedUser=Tree(event.target).selectedItem;
-          	trace(selectedUser.@isActive.toString());
-          	if (selectedUser.@isActive.toString() == "Y") {
-          		userDetailView.isActive.selected = true;
-          	} else {
-          		userDetailView.isActive.selected = false;
-          	}
-          	var call:Object = getAppUser.send();
-          	call.marker = "doneGetAppUser";
-          	
-          }
 
 
           private function filterUser(item:Object):Boolean {
@@ -196,7 +200,7 @@
               fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
               userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
               //Alert.show((fullUser.@isActiveBoolean.toString()), 'isActive data field', mx.controls.Alert.OK);
-              detailViews.selectedIndex=0;
+              detailViews.selectedChild = this.userDetailView;
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
             } else if (call.marker == "doneGetLabList") {
@@ -204,6 +208,7 @@
               fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
             } if (call.marker == "doneDeleteAppUser") {
               refreshAppUserList();
+              detailViews.selectedChild = this.groupDetailView;
             } 
 
           }
@@ -216,20 +221,19 @@
     
     
 
-      <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
+ <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
 	
-	
-	    <mx:Accordion id="navBar" height="100%" width="250" >
+	    <mx:TabNavigator id="navBar" height="100%" width="250"  styleName="userTabNavigator">
+	      <mx:change>{navBar.selectedChild == usersView ? detailViews.selectedChild = userEmptyView : detailViews.selectedChild = groupEmptyView}</mx:change>
 	      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
 	        
 
-	        <mx:VBox height="100%" paddingBottom="6" width="100%" verticalGap="1" 
-	        	paddingLeft="6" paddingRight="6" paddingTop="6" >
+	        <mx:VBox height="100%" paddingBottom="6" width="100%" 
+	        	paddingLeft="6" paddingRight="6" paddingTop="0">
 	       	      <mx:TextInput id="userSearchText" editable="true" 
 	       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list"/>
 		    
-		          <mx:Tree id="usersTree" visible="false" dataProvider="{filteredAppGroupXML}" height="0" width="0" labelField="@displayName" showRoot="false" change="userTreeItemSelected(event)"></mx:Tree>
 	
 	    	      <mx:DataGrid id="usersGrid" 
 	    	      	visible="true" width="100%" editable="false" enabled="true" 
@@ -239,6 +243,12 @@
 								<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
 				    </mx:columns>
 	      	     </mx:DataGrid>
+	      	     <mx:HBox>
+		    	      <mx:Button id="addUserButton" click="prepareToAddUser()" icon="@Embed('../assets/user_add.png')" toolTip="Add user" label="New"/>
+		    	      <mx:Button id="deleteUserButton" click="promptToDeleteAppUser()" icon="@Embed('../assets/user_delete.png')" toolTip="Delete user" label="Delete"/>
+		    	      <mx:Button id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
+	      	     	
+	      	     </mx:HBox>
               	
 
 
@@ -250,7 +260,7 @@
 	      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%" 
 	      	>
 	      
-	        <mx:VBox height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%">
+	        <mx:VBox height="100%" paddingLeft="6" paddingRight="6" paddingTop="0" paddingBottom="6" width="100%">
        	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list."/>
 	    
 	         
@@ -260,16 +270,28 @@
 						
 			    </mx:columns>
       	     </mx:DataGrid>
+      	     <mx:HBox>
+	    	      <mx:Button id="addGroupButton" icon="@Embed('../assets/group_add.png')" toolTip="Add group" label="New"/>
+	    	      <mx:Button id="deleteGroupButton"  icon="@Embed('../assets/group_delete.png')" toolTip="Delete group" label="Delete"/>
+	    	      <mx:Button id="refreshButton1"  click="callGetLabList();parentDocument.labs.refresh()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
+      	     	
+      	     </mx:HBox>
     	    </mx:VBox>
 
 	      </mx:Canvas>
 	      
-	      <mx:Canvas id="groupMembershipView" label="Group Membership" width="100%" height="100%"/>
-	    </mx:Accordion>
+	    </mx:TabNavigator>
+			
+	
 	    
     <mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
+            <mx:Panel id="userEmptyView" title="Users"/>
+            
 		    <views:UserDetailView id="userDetailView" height="100%">	
 	        </views:UserDetailView>
+	        
+	        <mx:Panel id="groupEmptyView" title="Groups"/>
+            
 		    <views:GroupDetailView id="groupDetailView" height="100%">	
 	        </views:GroupDetailView>
    </mx:ViewStack>

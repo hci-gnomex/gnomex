@@ -227,7 +227,7 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
-					bodyPanel.title = browseTree.selectedItem.@projectName + "\t\t" + rowCountMessage;
+					bodyPanel.title = browseTree.selectedItem.@projectName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;
 					//bodyPanel.titleIcon = parentApplication.iconProject;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
 					if (!browseView.theViews.contains(browseView.projectDetailView)) {
@@ -236,7 +236,7 @@
 					getProject.send();
 					
 				} else {
-					bodyPanel.title =  browseTree.selectedItem.@labName + "\t\t" + rowCountMessage;;
+					bodyPanel.title =  browseTree.selectedItem.@labName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;;
 					//bodyPanel.titleIcon = parentApplication.iconGroup;
 					selectedIdProject = null;
 					if (browseView.theViews.contains(browseView.projectDetailView)) {

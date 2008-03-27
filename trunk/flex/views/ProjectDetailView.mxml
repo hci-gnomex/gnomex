@@ -234,7 +234,7 @@
  
 
 	<mx:HDividedBox width="100%" height="100%" horizontalAlign="left" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4">
-		<mx:VBox width="40%" height="100%" verticalGap="10"  >
+		<mx:VBox width="33%" height="100%" verticalGap="10"  >
 		    <mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Project name:"/>
 				<mx:TextInput id="projectName" width="100%"  

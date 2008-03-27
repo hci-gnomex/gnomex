@@ -46,6 +46,8 @@
         fontWeight: normal;
 }
 
+
+
 TabNavigator {
         backgroundColor: #2e63a5;
 	    backgroundAlpha:            .1;
@@ -58,6 +60,22 @@ TabNavigator {
 	fillAlphas:  .2, .2;
  	    fontWeight: 		normal;		    
 	    backgroundAlpha:            .1;
+}
+
+.userTabNavigator {
+        backgroundColor: #FFFFFF;
+	    backgroundAlpha:            .5;
+	    tabStyleName:      userTabHeader;
+	selectedTabTextStyleName: userTabHeaderTextSelected;
+}
+
+.userTabHeader {
+	fillColors: #FFFFFF, #FFFFFF; 
+ 	    fontWeight: 		normal;		    
+	    backgroundAlpha:            .5;
+}
+.userTabHeaderTextSelected {
+	    fontWeight:  bold;
 }
 
 .tabHeaderTextSelected {
@@ -135,8 +153,9 @@ TitleWindow {
         borderThicknessTop: 4;
         borderThicknessLeft: 4;
         borderThicknessRight: 4;
-
-
+		showCloseButton:   true;
+      	borderColor: #FFFFFF; 
+      	borderThickness: 4;
 }
 
 

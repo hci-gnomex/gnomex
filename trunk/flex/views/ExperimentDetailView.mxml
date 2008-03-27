@@ -2,6 +2,7 @@
 <mx:Canvas  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
 <mx:Script>
 	<![CDATA[
+		import mx.managers.PopUpManager;
 	
 		[Bindable]
 		private var requestCategoryName:String;
@@ -129,6 +130,17 @@
 			var url:URLRequest = new URLRequest('http://localhost/gnomex/ShowRequestForm.gx?idRequest=' + parentDocument.selectedExperiment.@idRequest);
 			navigateToURL(url, '_blank');			
 		}
+		
+		private function showEditExperimentWindow():void {
+
+			 var editWindow:views.ExperimentEditWindow = views.ExperimentEditWindow(PopUpManager.createPopUp(this.parentApplication.topArea, views.ExperimentEditWindow, true));
+			 PopUpManager.centerPopUp(editWindow);		
+			 callLater(editWindow.detailView.setupEditForm, [parentDocument.selectedExperiment]);
+
+
+			//{theViews.selectedIndex = 1;
+			//editView.setupEditForm(parentDocument.selectedExperiment)}			
+		}
 
 
 	]]>
@@ -143,7 +155,7 @@
 			<mx:HBox width="100%"  paddingLeft="0">
 			    <mx:LinkButton label="Printable Request form" click="showPrintableRequestForm()"  textDecoration="underline" color="#0000ff"/>
 
-			    <mx:LinkButton label="Edit Experiment" click="{theViews.selectedIndex = 1;editView.setupEditForm(parentDocument.selectedExperiment)}" textDecoration="underline" color="#0000ff" paddingLeft="0">
+			    <mx:LinkButton label="Edit Experiment" click="showEditExperimentWindow()" textDecoration="underline" color="#0000ff" paddingLeft="0">
 			        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 20 : 0}</mx:height>
 			        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 			    </mx:LinkButton>				
@@ -203,7 +215,7 @@
 						<mx:HBox width="100%" horizontalGap="2">
 							<mx:Label text="{'Samples'}" fontWeight="bold"/>
 							<mx:Spacer width="74"/>
-							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC data"/>
+							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"/>
 						</mx:HBox>
 						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
@@ -252,10 +264,11 @@
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="8">
 							<mx:Label text="{'Hybridizations'}" fontWeight="bold"/>
 							<mx:Spacer width="40"/>
-							<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling data" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
-							<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Show Cy5 Labeling data" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
-							<mx:CheckBox id="showHybFieldsCheckBox" label="Show Hyb data"/>
-							<mx:CheckBox id="showExtFieldsCheckBox" label="Show Scan/FE data"/>
+							<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
+							<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
+							<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
+							<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
+							<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
 						</mx:HBox>
 						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
 							<mx:columns>
