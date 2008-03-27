@@ -37,7 +37,7 @@
     destination="deleteAppUser"
     showBusyCursor="true"
     resultFormat="e4x"
-    result="resultHandler(event)"
+    result="onDeleteAppUser(event)"
     useProxy="false">
     <mx:request>
             <idAppUser>{selectedUser.@idAppUser}</idAppUser>
@@ -70,6 +70,19 @@
     </mx:request>
     </mx:HTTPService >
   
+    
+    <mx:HTTPService 
+    id="deleteLab" 
+    url="http://localhost/gnomex/DeleteLab.gx"
+    destination="deleteLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onDeleteLab(event)"
+    useProxy="false">
+    <mx:request>
+            <idLab>{selectedLab.@idLab}</idLab>
+    </mx:request>
+    </mx:HTTPService >
 
 
     <mx:XMLListCollection id="appUsers" source="{getAppUserList.lastResult..AppUser}" filterFunction="filterUser"/>
@@ -128,6 +141,12 @@
            	this.fullUser = null;
             detailViews.selectedChild = this.userDetailView;
           }
+          public function prepareToAddGroup():void 
+           {
+           	this.selectedLab = null;
+           	this.fullLab = null;
+            detailViews.selectedChild = this.groupDetailView;
+          }
           private function callInitialServices():void
           {
           	callGetAppUserList();
@@ -139,6 +158,13 @@
           	callGetAppUserList();
           	appUsers.refresh()
           }
+          
+          public function refreshGroupList():void 
+           {
+          	callGetLabList();
+          	labs.refresh();
+          }
+          
           private function callGetAppUser():void 
            {
           	var call:Object = getAppUser.send();
@@ -163,24 +189,41 @@
           	call.marker = "doneGetLab";
           }
           
-		public function promptToDeleteAppUser():void {
-			Alert.show("Delete user " + selectedUser.@displayName + "?", 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDeleteAppUser);
+		  public function promptToDeleteAppUser():void {
+				Alert.show("Delete user " + selectedUser.@displayName + "?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteAppUser);
+				
+		  }
 			
-		}
-		
-		private function onPromptToDeleteAppUser(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	callDeleteAppUser();
-            }
-        }
+		  private function onPromptToDeleteAppUser(event:CloseEvent):void {
+	            if (event.detail==Alert.YES) {
+	            	callDeleteAppUser();
+	            }
+	      }
 
+          
+		  public function promptToDeleteGroup():void {
+				Alert.show("Delete group " + selectedLab.@name + "?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteGroup);
+				
+		  }
+			
+		  private function onPromptToDeleteGroup(event:CloseEvent):void {
+	            if (event.detail==Alert.YES) {
+	            	callDeleteGroup();
+	            }
+	      }
           public function callDeleteAppUser():void
           {
           	var call:Object = deleteAppUser.send();
-          	call.marker = "doneDeleteAppUser";
+          }
+          public function callDeleteGroup():void
+          {
+          	var call:Object = deleteLab.send();
           }
           
           
@@ -199,18 +242,32 @@
             if (call.marker == "doneGetAppUser") {
               fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
               userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
-              //Alert.show((fullUser.@isActiveBoolean.toString()), 'isActive data field', mx.controls.Alert.OK);
               detailViews.selectedChild = this.userDetailView;
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
             } else if (call.marker == "doneGetLabList") {
             } if (call.marker == "doneGetLab") {
               fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
-            } if (call.marker == "doneDeleteAppUser") {
-              refreshAppUserList();
               detailViews.selectedChild = this.groupDetailView;
             } 
 
+          }
+          
+          private function onDeleteLab(event:ResultEvent):void {          	
+          	if (deleteLab.lastResult.name() == "SUCCESS") {          		
+              refreshGroupList();
+              detailViews.selectedChild = this.groupEmptyView;              
+            } else {
+            	Alert.show("Delete group failed. " + deleteLab.lastResult..ACTMESSAGE.@TEXT);
+            }
+          }
+          private function onDeleteAppUser(event:ResultEvent):void {          	
+          	if (deleteAppUser.lastResult.name() == "SUCCESS") {          		
+              refreshAppUserList();
+              detailViews.selectedChild = this.userDetailView;              
+            } else {
+            	Alert.show("Delete user failed. " + deleteAppUser.lastResult..ACTMESSAGE.@TEXT);
+            }
           }
 
            
@@ -224,7 +281,7 @@
  <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
 	
-	    <mx:TabNavigator id="navBar" height="100%" width="250"  styleName="userTabNavigator">
+	    <mx:TabNavigator id="navBar" height="100%" width="250"  styleName="userTabNavigator" >
 	      <mx:change>{navBar.selectedChild == usersView ? detailViews.selectedChild = userEmptyView : detailViews.selectedChild = groupEmptyView}</mx:change>
 	      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
 	        
@@ -271,9 +328,9 @@
 			    </mx:columns>
       	     </mx:DataGrid>
       	     <mx:HBox>
-	    	      <mx:Button id="addGroupButton" icon="@Embed('../assets/group_add.png')" toolTip="Add group" label="New"/>
-	    	      <mx:Button id="deleteGroupButton"  icon="@Embed('../assets/group_delete.png')" toolTip="Delete group" label="Delete"/>
-	    	      <mx:Button id="refreshButton1"  click="callGetLabList();parentDocument.labs.refresh()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
+	    	      <mx:Button id="addGroupButton" icon="@Embed('../assets/group_add.png')" toolTip="Add group" label="New" click="prepareToAddGroup()"/>
+	    	      <mx:Button id="deleteGroupButton"  icon="@Embed('../assets/group_delete.png')" toolTip="Delete group" label="Delete" click="promptToDeleteGroup()"/>
+	    	      <mx:Button id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
       	     	
       	     </mx:HBox>
     	    </mx:VBox>
