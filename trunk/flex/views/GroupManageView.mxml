@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
+	 height="100%" width="100%" label="Group Detail" 
+	  title="{parentDocument.fullLab.@name}">
+	  
+  <mx:HTTPService  
+    id="saveGroupMembership" 
+    url="http://localhost/gnomex/SaveGroupMembership.gx"
+    destination="saveGroup" 
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveGroupMembership(event)"
+     fault="onFailSaveGroupMembership(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>    
+    </mx:request>
+  </mx:HTTPService>
+
+	  
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.controls.Alert;
+		import mx.rpc.events.FaultEvent;
+	
+		
+		private function addMember():void {
+			var node:XML = new XML("<AppUser " +
+			    " idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
+			    " displayName='" + memberCombo.selectedItem.@displayName + "'" +
+				"/>");
+			members.addItem(node);
+		}
+		
+		private function removeMember():void {
+			if (membersGrid.selectedIndex != -1) {
+				members.removeItemAt(membersGrid.selectedIndex);
+			}
+		}
+		private function addCollaborator():void {
+			var node:XML = new XML("<AppUser " +
+			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
+			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+				"/>");
+			collaborators.addItem(node);
+		}
+		
+		private function removeCollaborator():void {
+			if (collaboratorsGrid.selectedIndex != -1) {
+				collaborators.removeItemAt(collaboratorsGrid.selectedIndex);
+			}
+		}
+		
+		private function getExpirationDateString(item:Object,col:int):String
+        {
+        	return item.@expirationDateOther.toString();
+        }
+        
+        private function save():void {
+			
+			var params:Object = new Object();
+			
+			if (parentDocument.fullLab != null) {
+				params.idLab = parentDocument.fullLab.@idLab;			
+			} else {
+				params.idLab = '';
+			}
+
+			params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
+			params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
+
+			saveGroupMembership.send(params);			
+			
+		}
+		
+		private function onSaveGroupMembership(event:ResultEvent):void {
+			if (saveGroupMembership.lastResult.name() == "SUCCESS") {
+				parentDocument.refreshGroupList();
+			} else {
+				Alert.show(saveGroupMembership.lastResult..ACTMESSAGE.@TEXT);
+			}
+			
+		}
+		
+		private function onFailSaveGroupMembership(event:FaultEvent):void {
+        	Alert.show("failed to save Group " + event.message);
+        }
+
+
+
+	]]>
+</mx:Script>	  
+
+	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
+	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	
+	
+	<mx:VBox height="100%" width="100%" verticalGap="0" >
+
+		<mx:HBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<mx:Button label="Save" icon="@Embed('../assets/action_save.gif')" width="70" click="save()"/>
+		</mx:HBox>
+	
+			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
+				
+				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="10" styleName="form">
+				   <mx:Panel title="Members" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="190" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button label="Add" click="addMember()" icon="@Embed('../assets/table_row_insert.png')"/>
+				   	   </mx:HBox>
+				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
+				   	   	   <mx:Button label="Remove" click="removeMember()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   </mx:HBox>
+		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   </mx:Panel>
+				   <mx:Panel title="Collaborators" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="190" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button label="Add" click="addCollaborator()" icon="@Embed('../assets/table_row_insert.png')"/>
+				   	   </mx:HBox>
+				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
+				   	   	   <mx:Button label="Remove" click="removeCollaborator()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   </mx:HBox>
+		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   </mx:Panel>
+				    			    
+	
+				</mx:HBox>
+			</mx:VBox>			
+	   
+    </mx:VBox>
+    
+  
+</mx:Panel>
