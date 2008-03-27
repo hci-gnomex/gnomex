@@ -140,7 +140,7 @@
 	<mx:ViewStack id="theViews" width="100%" height="100%">
 
 		<mx:VBox width="100%" height="100%" verticalGap="0">
-			<mx:HBox width="100%" styleName="form" paddingLeft="0">
+			<mx:HBox width="100%"  paddingLeft="0">
 			    <mx:LinkButton label="Printable Request form" click="showPrintableRequestForm()"  textDecoration="underline" color="#0000ff"/>
 
 			    <mx:LinkButton label="Edit Experiment" click="{theViews.selectedIndex = 1;editView.setupEditForm(parentDocument.selectedExperiment)}" textDecoration="underline" color="#0000ff" paddingLeft="0">
@@ -148,52 +148,52 @@
 			        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 			    </mx:LinkButton>				
 			</mx:HBox>
-		    <mx:VBox height="100%"  width="100%" verticalGap="0" styleName="form">
-		        <mx:HBox width="100%" paddingTop="4" paddingBottom="6" horizontalGap="3" paddingLeft="6" paddingRight="6">
+		    <mx:VBox height="100%"  width="100%" verticalGap="0">
+		        <mx:HBox width="100%" paddingTop="4" paddingBottom="10" horizontalGap="6" paddingLeft="6" paddingRight="6">
 		        	<mx:VBox verticalGap="0">
 		        		<mx:HBox horizontalGap="0">
-		                    <mx:Label text="#"  width="85">
+		                    <mx:Label text="#:"  width="90">
 		                    	<mx:click>{theViews.selectedIndex = 1;editView.setupEditForm(parentDocument.selectedExperiment)}</mx:click>
 		                    </mx:Label>
-		                    <mx:TextInput editable="false" id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80" backgroundAlpha=".2"/>
+		                    <mx:Text  id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80" />
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label text="Submit Date"  width="85"/>
-		                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@createDate}" width="80" backgroundAlpha=".2"/>
+		                  <mx:Label text="Submit Date:"  width="90"/>
+		                  <mx:Text text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label width="85" text="Completed on"/>
-		                  <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@completedDate}" width="80" backgroundAlpha=".2"/>
+		                  <mx:Label width="90" text="Completed on:"/>
+		                  <mx:Text  text="{parentDocument.selectedExperiment.@completedDate}" width="80" />
 		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox verticalGap="0">
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	   <mx:Label text="Submitter"  width="99"/>
-			        	   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@ownerName}" width="180" backgroundAlpha=".2"/>
+			        	   <mx:Label text="Submitter:"  width="105"/>
+			        	   <mx:Text text="{parentDocument.selectedExperiment.@ownerName}" width="180" />
 			        	 </mx:HBox>
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	       <mx:Label text="Request Type"  width="99"/>
-			        	       <mx:TextInput editable="false" text="{requestCategoryName}" width="180" backgroundAlpha=".2"/>
+			        	       <mx:Label text="Request Type:"  width="105"/>
+			        	       <mx:Text text="{requestCategoryName}" width="180" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
-			                <mx:Label text="Experiment Type"  width="99"/>
-			                <mx:TextInput editable="false" text="{experimentCategoryName}" width="180" backgroundAlpha=".2"/>
+			                <mx:Label text="Experiment Type:"  width="105"/>
+			                <mx:Text  text="{experimentCategoryName}" width="180" />
 			            </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
 			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                   <mx:Label text="Group"  width="47"/>
-			                   <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@labName}" width="100%" backgroundAlpha=".2"/>
+			                   <mx:Label text="Group:"  width="55"/>
+			                   <mx:Text text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
 			               </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Account"  width="47"/>
-			                <mx:TextInput editable="false" text="{billingAccountName}" width="100%" backgroundAlpha=".2"/>
+			                <mx:Label text="Account:"  width="55"/>
+			                <mx:Text text="{billingAccountName}" width="100%" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Project"  width="47"/>
-			                <mx:TextInput editable="false" text="{parentDocument.selectedExperiment.@projectName}" width="100%" backgroundAlpha=".2"/>
+			                <mx:Label text="Project:"  width="55"/>
+			                <mx:Text  text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
 			            </mx:HBox>
 		        	</mx:VBox>
 		        </mx:HBox>
@@ -201,7 +201,7 @@
 				<mx:VBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
 					<mx:VBox verticalGap="0" width="100%" height="100%">
 						<mx:HBox width="100%" horizontalGap="2">
-							<mx:Label text="{'Samples'}"/>
+							<mx:Label text="{'Samples'}" fontWeight="bold"/>
 							<mx:Spacer width="74"/>
 							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC data"/>
 						</mx:HBox>
@@ -227,7 +227,7 @@
 
 								
 								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{parentDocument.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
-								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{parentDocument.selectedExperiment.@CELLINE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{parentDocument.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
 								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!parentDocument.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
 								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{parentDocument.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
 								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{parentDocument.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
@@ -249,8 +249,8 @@
 						</mx:DataGrid>
 					</mx:VBox>
 					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
-						<mx:HBox width="100%" horizontalGap="2" paddingTop="6">
-							<mx:Label text="{'Hybridizations'}"/>
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="8">
+							<mx:Label text="{'Hybridizations'}" fontWeight="bold"/>
 							<mx:Spacer width="40"/>
 							<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling data" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
 							<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Show Cy5 Labeling data" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
