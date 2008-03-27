@@ -113,12 +113,13 @@
           
 
 		 private function checkSecurity():void {
-/* 			if (parentApplication.hasPermission("canAdministerUsers")) {
-				navBar.removeChild(groupMembershipView);
+ 			if (parentApplication.hasPermission("canAdministerUsers")) {
+ 				navStack.selectedIndex = 0;
+ 				detailViews.selectedChild = this.userEmptyView;
 			} else {
-				navBar.removeChild(usersView);
-				navBar.removeChild(groupsView);
-			} */
+				navStack.selectedIndex = 1;
+				detailViews.selectedChild = this.groupEmptyView;
+			}
 		 }
         
           private function userRowSelected():void 
@@ -133,6 +134,13 @@
            	this.selectedLab = labsGrid.selectedItem;
            	callGetLab();
             detailViews.selectedChild = this.groupDetailView;
+          }
+
+          private function manageLabRowSelected():void 
+           {
+           	this.selectedLab = manageLabsGrid.selectedItem;
+           	callGetLab();
+            detailViews.selectedChild = this.groupManageView;
           }
           
           public function prepareToAddUser():void 
@@ -247,8 +255,12 @@
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
             } else if (call.marker == "doneGetLabList") {
             } if (call.marker == "doneGetLab") {
-              fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
-              detailViews.selectedChild = this.groupDetailView;
+            	fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
+	            if (parentApplication.hasPermission("canAdministerUsers")) {
+	            	detailViews.selectedChild = this.groupDetailView;
+            	} else {
+            		detailViews.selectedChild = this.groupManageView;	
+            	}
             } 
 
           }
@@ -280,8 +292,8 @@
 
  <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
-	
-	    <mx:TabNavigator id="navBar" height="100%" width="250"  styleName="userTabNavigator" >
+    <mx:ViewStack id="navStack" width="250" height="100%">
+	    <mx:TabNavigator id="navBar" height="100%" width="100%"  styleName="userTabNavigator" >
 	      <mx:change>{navBar.selectedChild == usersView ? detailViews.selectedChild = userEmptyView : detailViews.selectedChild = groupEmptyView}</mx:change>
 	      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
 	        
@@ -338,6 +350,19 @@
 	      </mx:Canvas>
 	      
 	    </mx:TabNavigator>
+
+		<mx:Panel title="Manage Groups">
+			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{parentApplication.createSecurityAdvisor.lastResult.groupsToManage.Lab}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
+			<mx:columns>
+						<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
+					
+			   </mx:columns>
+			 </mx:DataGrid>
+		</mx:Panel>
+		
+			
+ 	</mx:ViewStack>
+	
 			
 	
 	    
@@ -351,6 +376,9 @@
             
 		    <views:GroupDetailView id="groupDetailView" height="100%">	
 	        </views:GroupDetailView>
+
+		    <views:GroupManageView id="groupManageView" height="100%">	
+	        </views:GroupManageView>
    </mx:ViewStack>
 	
     
