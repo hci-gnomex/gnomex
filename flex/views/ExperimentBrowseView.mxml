@@ -270,6 +270,15 @@
 		this.myExperimentsCheckbox.selected = false;
 	}
 		
+	private function moreFilters():void {
+		if (filterStack.selectedIndex == 0) {
+			filterStack.selectedIndex = 1;
+			filterLinkButton.label = "Hide filters";	
+		} else {
+			filterStack.selectedIndex = 0;
+			filterLinkButton.label = "More filters";	
+		}
+	}
 
 
  	]]>
@@ -281,8 +290,8 @@
 		    
  	<mx:VBox width="100%"  verticalGap="0">
 		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" paddingTop="4" paddingBottom="4" paddingLeft="0" paddingRight="0" horizontalGap="0">
-	        <mx:ViewStack  id="buttonStack"   >
-	            <mx:HBox   verticalAlign="middle" horizontalAlign="left" id="browseButtonView" horizontalGap="2">
+	        <mx:ViewStack  id="buttonStack"  width="100%" >
+	            <mx:HBox   verticalAlign="middle" horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%">
 	            </mx:HBox>
 	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
 	            </mx:HBox>
@@ -320,27 +329,35 @@
 	            
 	        	
 	        </mx:ViewStack>
+	        
+	        <mx:HBox id="filterListView"  width="100%" horizontalAlign="right" horizontalGap="0">
+				<mx:ViewStack id="filterStack" width="100%" >
+				    <mx:HBox horizontalAlign="right" width="100%">
+				    	
+				    </mx:HBox>
+					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="10" horizontalAlign="right" verticalAlign="middle">
+				    	<mx:VRule height="22"/>
+						<mx:Spacer width="5"/>
+				    	<mx:CheckBox label="My experiments" id="myExperimentsCheckbox" change="filterList()" paddingLeft="0" paddingRight="0" horizontalGap="0" click="toggleMyExperimentFilter();filterList()"/>
+				    	<mx:VRule height="22"/>
+				    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="4" horizontalAlign="right" paddingRight="0">
+				    		<mx:Label text="Experiments in last "/>
+				    		<mx:CheckBox id="lastWeekCheckbox" label="week" change="filterList()" paddingRight="0" paddingLeft="0" horizontalGap="0" click="toggleDateCheckboxes(1);filterList()"/>
+				    		<mx:CheckBox  id="lastMonthCheckbox" label="month" change="filterList()" paddingRight="0" paddingLeft="0" horizontalGap="0" click="toggleDateCheckboxes(2);filterList()"/>
+				    		<mx:CheckBox  id="lastYearCheckbox" label="year" change="filterList()" paddingLeft="0" paddingRight="0" horizontalGap="0" click="toggleDateCheckboxes(3);filterList()"/>
+				    		<mx:VRule height="22"/>
+				    	</mx:HBox>
+			    </mx:HBox>
 					
-			<mx:HBox id="filterListView" width="100%" horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="10" horizontalAlign="right" verticalAlign="middle">
-		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0">
-			    	<mx:Label text="Experiment #"/>
-			    	<mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="toggleRequestNumberFilter();filterList()" width="80" >					    		
-			    	</mx:ComboBox> 
-		        	
+				</mx:ViewStack>				
+		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0" horizontalAlign="right" paddingLeft="2" verticalAlign="middle">
+			        <mx:LinkButton id="filterLinkButton" label="More filters" textDecoration="underline" color="#0000ff" click="moreFilters()"/>
+			        <mx:Label text="Experiment #"/>
+			        <mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="toggleRequestNumberFilter();filterList()" width="80" >					    		
+			        </mx:ComboBox> 
 		        </mx:HBox>
-				<mx:Spacer width="10"/>
-
-		    	<mx:VRule height="22"/>
-				<mx:Spacer width="10"/>
-		    	<mx:CheckBox label="My experiments only" id="myExperimentsCheckbox" change="filterList()" paddingLeft="0" paddingRight="0" horizontalGap="0" click="toggleMyExperimentFilter();filterList()"/>
-		    	
-		    		<mx:VRule height="22"/>
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="6">
-		    		<mx:CheckBox id="lastWeekCheckbox" label="Last week's experiments" change="filterList()" paddingRight="0" paddingLeft="0" horizontalGap="0" click="toggleDateCheckboxes(1);filterList()"/>
-		    		<mx:CheckBox  id="lastMonthCheckbox" label="Last month" change="filterList()" paddingRight="0" paddingLeft="0" horizontalGap="0" click="toggleDateCheckboxes(2);filterList()"/>
-		    		<mx:CheckBox  id="lastYearCheckbox" label="Last year" change="filterList()" paddingLeft="0" paddingRight="0" horizontalGap="0" click="toggleDateCheckboxes(3);filterList()"/>
-		    	</mx:HBox>
-		    </mx:HBox>
+	        	
+	        </mx:HBox>
 
 		</mx:HBox>
 

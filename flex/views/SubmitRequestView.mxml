@@ -266,6 +266,7 @@
 			editMode = false;
 
 			theTab.creationPolicy = 'all';
+			showWorkflowLabel.visible = false;
 			showQCFieldsCheckBox.visible = false;
 			showCy3LabelingFieldsCheckBox.visible = false;
 			showCy5LabelingFieldsCheckBox.visible = false;
@@ -872,6 +873,7 @@
 			editMode = true;
 			request = theRequest;
 			buttonStack.selectedIndex = 1;
+			showWorkflowLabel.visible = true;
 			showQCFieldsCheckBox.visible = true;
 			showCy3LabelingFieldsCheckBox.visible = true;
 			showCy5LabelingFieldsCheckBox.visible = true;
@@ -2472,7 +2474,7 @@
 							</mx:HBox>
 							<mx:Button label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../assets/folder_delete.png')" id="clearSamplesButton"/>
 							<mx:HBox width="100%" horizontalAlign="left" paddingLeft="20">
-								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC data">
+								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns">
 								</mx:CheckBox>							
 							</mx:HBox>
 							<mx:HBox horizontalAlign="right" width="100%">
@@ -2619,7 +2621,7 @@
 				        </mx:Panel>
 						<mx:Panel  id="hybsContainer" width="100%" height="100%">
 						   <mx:title><![CDATA[Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)]]></mx:title>
-								<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4">
+								<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
 									<mx:HBox>
 										<mx:Button label="Add" click="addHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addHybButton"/>
 										<mx:Button label="Copy" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyHybButton"/>
@@ -2628,18 +2630,12 @@
 									</mx:HBox>
 									
 									<mx:HBox horizontalAlign="right" width="100%">
-										<mx:HBox width="100%" horizontalGap="2"  horizontalAlign="left" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="4" paddingTop="2">
-										   <mx:VBox verticalGap="0" paddingRight="0">
-											<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling data" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
-											<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling data" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
-										   	
-										   </mx:VBox>
-										   <mx:VBox verticalGap="0">
-											<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb data" paddingLeft="0" paddingRight="0"/>
+										<mx:HBox width="100%" horizontalGap="0"  horizontalAlign="left" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="8" paddingTop="2">
+											<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
+											<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
+											<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
+											<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" paddingLeft="0" paddingRight="0"/>
 											<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE data" paddingLeft="0" paddingRight="0"/>
-										   	
-										   </mx:VBox>
-											
 										</mx:HBox>
 									</mx:HBox>
 										
