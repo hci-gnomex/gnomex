@@ -4,42 +4,191 @@
 	  title="{parentDocument.fullLab.@name}">
 
     
-	<mx:VBox height="100%" width="100%">
+	<mx:VBox height="100%" width="100%" verticalGap="0" styleName="form">
 
-		<mx:HBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0">
 			<mx:Button label="Save" icon="@Embed('../assets/action_save.gif')" width="70"/>
 		</mx:HBox>
 	
-		<mx:VDividedBox width="100%" height="100%" styleName="form">
-			<mx:VBox width="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-					<mx:HBox width="100%" height="30">
-						<mx:Label text="Name" width="75"/>
-						<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" width="129" text="{parentDocument.fullLab.@name}"/>
-					</mx:HBox>
-					<mx:HBox width="100%" height="30">
-						<mx:Label text="Department" id="Label1" width="75"/>
-						<mx:TextInput width="159" id="department" text="{parentDocument.fullLab.@department}"/>
-					</mx:HBox>
-			</mx:VBox>
-			<mx:HBox width="100%" height="100%" paddingLeft="8">
-			  <mx:DataGrid id="membersGrid" width="30%" height="100%" dataProvider="{parentDocument.fullLab.members.AppUser}">
-			           <mx:columns>
-			               <mx:DataGridColumn dataField="@displayName" headerText="Members"/>
-			           </mx:columns>
-			       </mx:DataGrid>
-			    <mx:DataGrid id="collaboratorsGrid" width="30%" height="100%" dataProvider="{parentDocument.fullLab.collaborators.AppUser}">
-			           <mx:columns>
-			               <mx:DataGridColumn dataField="@displayName" headerText="Collaborators"/>
-			           </mx:columns>
-			       </mx:DataGrid>
-			    <mx:DataGrid id="managersGrid" width="30%" height="100%" dataProvider="{parentDocument.fullLab.managers.AppUser}">
-			           <mx:columns>
-			               <mx:DataGridColumn dataField="@displayName" headerText="Managers"/>
-			           </mx:columns>
-			       </mx:DataGrid>
-			</mx:HBox>
-			
-		</mx:VDividedBox>
+		<mx:TabNavigator width="100%" height="100%" >
+			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
+				
+				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="20" horizontalAlign="left" width="100%">
+				   <mx:VBox   height="100%" verticalGap="1" width="100%">
+					   	<mx:HBox>
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Name"/>
+								<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="150"/>
+							</mx:VBox>
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Department" />
+								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="150"/>
+							</mx:VBox>
+					   		
+					   	</mx:HBox>
+						<mx:VBox  verticalGap="0" width="100%" height="100%">
+							<mx:Label text="Notes" />
+							<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}" width="100%"/>
+						</mx:VBox>
+				   	
+				   </mx:VBox>
+				   <mx:HBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="right">
+					   <mx:VBox verticalGap="0">
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Billing Contact" />
+								<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="140"/>
+							</mx:VBox>
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Address" />
+								<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="140"/>
+							</mx:VBox>
+					   </mx:VBox>
+					   <mx:VBox verticalGap="0">
+					        <mx:VBox  verticalGap="0">
+					        	<mx:Label text="City" />
+					        	<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="120"/>
+					        </mx:VBox>
+					        <mx:HBox width="100%">
+								<mx:VBox  verticalGap="0">
+									<mx:Label text="State" />
+									<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="60"/>
+								</mx:VBox>
+								<mx:VBox  verticalGap="0" width="100%">
+									<mx:Label text="Zip" />
+									<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="60"/>
+								</mx:VBox>
+					        	
+					        </mx:HBox>
+				   		</mx:VBox>
+					   <mx:VBox verticalGap="0">
+						   <mx:VBox  verticalGap="0">
+						   	<mx:Label text="Phone" />
+						   	<mx:TextInput id="contactPhone0" text="{parentDocument.fullLab.@contactPhone}" width="120"/>
+						   </mx:VBox>
+						   <mx:VBox  verticalGap="0">
+						   	<mx:Label text="Email" />
+						   	<mx:TextInput id="contactEmail0" text="{parentDocument.fullLab.@contactEmail}" width="120"/>
+						   </mx:VBox>
+					   	</mx:VBox>
+				   	
+				   </mx:HBox>
+				</mx:HBox>
+				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%">
+				   <mx:Panel title="Members" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="100%">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button label="Add"/>
+				   	   </mx:HBox>
+		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{parentDocument.fullLab.members.AppUser}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   	   <mx:HBox width="100%" horizontalAlign="right">
+				   	   	   <mx:Button label="Remove"/>
+				   	   </mx:HBox>
+				   </mx:Panel>
+				   <mx:Panel title="Collaborators" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="100%">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button label="Add"/>
+				   	   </mx:HBox>
+		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{parentDocument.fullLab.collaborators.AppUser}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   	   <mx:HBox width="100%" horizontalAlign="right">
+				   	   	   <mx:Button label="Remove"/>
+				   	   </mx:HBox>
+				   </mx:Panel>
+				   <mx:Panel title="Managers" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="100%">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button label="Add"/>
+				   	   </mx:HBox>
+					    <mx:DataGrid id="managersGrid" width="100%" dataProvider="{parentDocument.fullLab.managers.AppUser}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   	   <mx:HBox width="100%" horizontalAlign="right">
+				   	   	   <mx:Button label="Remove"/>
+				   	   </mx:HBox>
+				   </mx:Panel>
+				    			    
+	
+				</mx:HBox>
+			</mx:VBox>			
+			<mx:Panel label="Billing Accounts" title="Billing Accounts" width="100%" borderStyle="solid" layout="vertical" verticalGap="2" backgroundAlpha=".1">
+				<mx:HBox horizontalGap="3" width="100%">
+					<mx:VBox verticalGap="0" width="100%">
+						<mx:Label text="Account name"/>
+						<mx:TextInput id="accountName" width="100%"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Expires"/>
+						<mx:TextInput id="accountName0" width="80"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Bus"/>
+						<mx:TextInput id="accountName1" width="20"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Org"/>
+						<mx:TextInput id="accountName2" width="50"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Fund"/>
+						<mx:TextInput id="accountName3" width="50"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Activity"/>
+						<mx:TextInput id="accountName4" width="100"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Project"/>
+						<mx:TextInput id="accountName5" width="100"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Account"/>
+						<mx:TextInput width="50"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="AU"/>
+						<mx:TextInput width="20"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0" >
+						<mx:Label text="Year"/>
+						<mx:TextInput width="40"/>
+					</mx:VBox>
+				</mx:HBox>
+				<mx:HBox horizontalAlign="right" width="100%">
+					<mx:Button label="Add"/>
+				</mx:HBox>
+				<mx:DataGrid width="100%" height="100%">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Account name" width="200"/>
+						<mx:DataGridColumn headerText="Expires" width="70"/>
+						<mx:DataGridColumn headerText="Bus" width="20"/>
+						<mx:DataGridColumn headerText="Org" width="60"/>
+						<mx:DataGridColumn headerText="Fund" width="60"/>
+						<mx:DataGridColumn headerText="Activity" width="90"/>
+						<mx:DataGridColumn headerText="Project" width="90"/>
+						<mx:DataGridColumn headerText="Acct" width="50"/>
+						<mx:DataGridColumn headerText="AU" width="20"/>
+						<mx:DataGridColumn headerText="Year" width="40"/>
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:HBox horizontalAlign="right" width="100%">
+					<mx:Button label="Remove"/>
+				</mx:HBox>
+				
+			</mx:Panel>
+		</mx:TabNavigator>
 	   
     </mx:VBox>
     
