@@ -164,47 +164,47 @@
 		        <mx:HBox width="100%" paddingTop="4" paddingBottom="10" horizontalGap="6" paddingLeft="6" paddingRight="6">
 		        	<mx:VBox verticalGap="0">
 		        		<mx:HBox horizontalGap="0">
-		                    <mx:Label text="#:"  width="90">
+		                    <mx:Label text="#"  width="90" fontWeight="bold">
 		                    	<mx:click>{theViews.selectedIndex = 1;editView.setupEditForm(parentDocument.selectedExperiment)}</mx:click>
 		                    </mx:Label>
 		                    <mx:Text  id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80" />
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label text="Submit Date:"  width="90"/>
+		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
 		                  <mx:Text text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label width="90" text="Completed on:"/>
+		                  <mx:Label width="90" text="Completed on" fontWeight="bold"/>
 		                  <mx:Text  text="{parentDocument.selectedExperiment.@completedDate}" width="80" />
 		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox verticalGap="0">
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	   <mx:Label text="Submitter:"  width="105"/>
+			        	   <mx:Label text="Submitter"  width="105" fontWeight="bold"/>
 			        	   <mx:Text text="{parentDocument.selectedExperiment.@ownerName}" width="180" />
 			        	 </mx:HBox>
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	       <mx:Label text="Request Type:"  width="105"/>
+			        	       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
 			        	       <mx:Text text="{requestCategoryName}" width="180" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
-			                <mx:Label text="Experiment Type:"  width="105"/>
+			                <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
 			                <mx:Text  text="{experimentCategoryName}" width="180" />
 			            </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
 			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                   <mx:Label text="Group:"  width="55"/>
+			                   <mx:Label text="Group"  width="55" fontWeight="bold"/>
 			                   <mx:Text text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
 			               </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Account:"  width="55"/>
+			                <mx:Label text="Account"  width="55" fontWeight="bold"/>
 			                <mx:Text text="{billingAccountName}" width="100%" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Project:"  width="55"/>
+			                <mx:Label text="Project"  width="55" fontWeight="bold"/>
 			                <mx:Text  text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
 			            </mx:HBox>
 		        	</mx:VBox>
