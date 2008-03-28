@@ -639,6 +639,23 @@
         	if (item.@isActive == 'N') {
         		return false;	
         	}
+        	
+			var doesMatchRequestCategoryVendor:Boolean = true;
+        	if (this.requestTypeGroup.selectedValue != null && 
+        	    this.requestTypeGroup.selectedValue != "") {
+				var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
+        		doesMatchRequestCategoryVendor = false;
+        		if (item.@idVendor == requestCategory.@idVendor) {
+        			doesMatchRequestCategoryVendor = true;
+        		}
+        	} else if(request != null && request.@idRequest != '0') {
+        		doesMatchRequestCategoryVendor = false;
+				var rCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+        		if (item.@idVendor == rCategory.@idVendor) {
+        			doesMatchRequestCategoryVendor = true;        			
+        		}
+        	}       	
+        	
         	var doesMatchOrganism:Boolean = true;
         	if (organismCombo.selectedItem != null && 
         	    organismCombo.selectedItem.@value != null  &&
@@ -677,7 +694,7 @@
         		}
         	}
         	
-        	return doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
+        	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
 		
 
