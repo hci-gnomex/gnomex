@@ -284,7 +284,7 @@ public class Sample extends HibernateDetailObject {
     
   }
   
-  public String getChangeChangeSamplePrepMethod() {
+  public String getCanChangeSamplePrepMethod() {
     return getCanChangeSampleInfo();    
   }
 
