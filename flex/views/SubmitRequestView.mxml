@@ -1670,6 +1670,22 @@
 	        assignSlideNumbers();	
 		}
 		
+		private function propagateHybChannel1Samples():void {
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
+			if (requestCategory.@numberOfChannels == "1") {
+				var count:int = 0;
+				for each(var sample:Object in samples) {
+					if (hybs.length == count) {
+						break;
+					}
+					var hyb:Object = hybs.getItemAt(count);
+					hyb.@idSampleChannel1 = sample.@idSample;
+					count++;
+				}
+			}
+			
+		}
+		
 		private function assignSlideNumbers():void {
 			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
 				return;
@@ -1906,6 +1922,8 @@
     		for(var x:int = 0; x < numberOfHybsToAdd; x++) {
     			addHyb();
     		}
+    		
+    		this.propagateHybChannel1Samples();
         }
 
 	  	private function onDragDrop(event:DragEvent) : void
