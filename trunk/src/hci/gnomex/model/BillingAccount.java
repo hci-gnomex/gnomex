@@ -161,6 +161,9 @@ public class BillingAccount extends HibernateDetailObject {
     this.accountNumberYear = accountNumberYear;
   }
 
+  public String getExpirationDateOther() {
+    return this.formatDate(this.expirationDate, this.DATE_OUTPUT_SLASH); 
+  }
 
  
   
