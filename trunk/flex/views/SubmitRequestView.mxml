@@ -888,7 +888,12 @@
 
 		public function setupEditForm(theRequest:Object):void {
 			editMode = true;
+
 			request = theRequest;
+
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+			requestCategoryName = requestCategory.@display.toString();
+
 			buttonStack.selectedIndex = 1;
 			showWorkflowLabel.visible = true;
 			showQCFieldsCheckBox.visible = true;
@@ -1041,6 +1046,7 @@
 				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
 				microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
 				organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
+				checkForSampleTypeCompatibility();
 				initializeSlideProductCombo();
 				initializeSlideDesigns();
 				this.coreSlideSourceCheckbox.selected = true;
@@ -1080,7 +1086,9 @@
 		}
 		
 		private function clearHybSlideDesigns():void {
-			if (request.@idSlideProduct == '' ||
+			if (slideProductCombo.selectedItem == null ||
+			    slideProductCombo.selectedItem.@idSlideProduct == '' ||
+			    request.@idSlideProduct == '' ||
 				request.@idSlideProduct != slideProductCombo.selectedItem.@idSlideProduct) {
 			
 				for each (var hyb:Object in hybs) {
@@ -1753,7 +1761,7 @@
 			
         	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
         	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
-        	    this.getCheckedCodeSlideSource() != '' ) {
+        	    this.getCheckedCodeSlideSource() != '' && isSampleTypeCompatibile() ) {
         	    	
         		this.hybsView.enabled = true;
         	    	
@@ -1770,6 +1778,61 @@
         		slideProductStack.selectedIndex = 1;
         	} else {
         		slideProductStack.selectedIndex = 0;
+        	}
+        }
+        
+        private function isSampleTypeCompatibile():Boolean {
+        	var compatible:Boolean = true;
+        	var sampleTypeX:Object = null;
+        	
+        	if (editMode) {
+        		if (request.@codeMicroarrayCategory!= '' &&
+	        	    request.@idSampleTypeDefault != '') {
+    	    	    compatible = false;
+					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
+						if (sampleTypeX.@codeMicroarrayCategory == request.@codeMicroarrayCategory &&
+					    	sampleTypeX.@idSampleType == request.@idSampleTypeDefault) {
+							compatible = true;
+							break;
+					}
+				}        		    	
+        	}
+
+        	} else {
+	        	if (this.microarrayCategoryCombo.selectedItem.@value != '' &&
+	        	    this.sampleTypeCombo.selectedItem.@value != '') {
+	        	    compatible = false;
+					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
+						if (sampleTypeX.@codeMicroarrayCategory == microarrayCategoryCombo.selectedItem.@value &&
+						    sampleTypeX.@idSampleType == sampleTypeCombo.selectedItem.@value) {
+							compatible = true;
+							break;
+						}
+					}        		    	
+	        	}
+        		
+        	}
+        	return compatible;
+        }
+        
+        private function checkForSampleTypeCompatibility():void {
+        	if (!this.isSampleTypeCompatibile()) {
+        		if (editMode) {
+					var sampleType:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
+					var sampleTypeName:String = sampleType.@display.toString();
+        			
+	        		Alert.show('Sample type ' + sampleTypeName + 
+	        		' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
+	        		' experiments.  Please change the microarray category.');
+        			
+        		} else {
+	        		Alert.show('Sample type ' + sampleTypeCombo.selectedItem.@display + 
+	        		' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
+	        		' experiments.  Please change the sample type or microarray category.');
+        			
+        		}
+
+        		slideProductCombo.selectedIndex = 0;
         	}
         }
 
@@ -2353,7 +2416,7 @@
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness()">							
+							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();checkForSampleTypeCompatibility()">							
 								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
@@ -2564,7 +2627,7 @@
 						<mx:Image source="assets/bullet_orange.png"/>
 						<mx:Label text="Select an organism:" width="300" />
 						<mx:ComboBox labelField="@display" width="300" id="organismCombo">							
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
+							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -2572,7 +2635,7 @@
 						<mx:Image source="assets/bullet_orange.png"/>
 						<mx:Label text="Select an experiment category:" width="300" />
 						<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
+							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)</mx:change>
 							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}</mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
@@ -2580,10 +2643,10 @@
 						<mx:Image source="assets/bullet_orange.png"/>
 						<mx:Label text="Select on of the following:" width="300" />
 						<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
-						<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="checkForSlideProductWarning()">
+						<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)">
 							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 						</mx:RadioButton>
-						<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="checkForSlideProductWarning()">
+						<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)">
 							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 						</mx:RadioButton>
 					</mx:HBox>
