@@ -6,7 +6,145 @@
 	label="Submit Request" width="100%" height="100%" 
 	backgroundColor="#ffffff" borderColor="#ffffff" 
 	themeColor="#ffffff">
- 
+    <mx:states>
+        <mx:State name="SolexaState">
+            <mx:AddChild relativeTo="{concentrationContainer}">
+                <mx:HBox width="100%">
+    	            <mx:Label text="Enter approximate volume:"/>
+	                <mx:TextInput id="volume" />
+					<mx:Label text="ng" />
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{concentrationContainer}" position="after">
+				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Are the samples already prepped?" width="340" />
+					<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaStateAlreadyPrepped' : 'SolexaState'}" label="Yes, samples have already been prepped" />							
+					<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaState' : 'SolexaStateAlreadyPrepped'}"  label="No, please prep the samples" selected="true"/>							
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{bioanalyzerContainer}"/>
+            <mx:RemoveChild target="{hybsConfirmContainer}"/>
+            <mx:AddChild relativeTo="{samplesConfirmContainer}" position="after">
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
+						<mx:Label text="{lanes.length + 'Sequencing Lanes'}"/>
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:columns>
+						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
+						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
+				             <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
+				             <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+							<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
+						</mx:columns>
+					</mx:DataGrid>
+					
+				</mx:VBox>					        			
+            
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{samplesView}" position="after">
+            	<mx:Canvas label="Sequencing Lanes" id="lanesView" enabled="false">
+            		<mx:VBox width="100%" height="100%" verticalGap="6">
+            			<mx:HBox>
+							<mx:Image source="assets/bullet_orange.png"/>
+            				<mx:Label width="230" text="How many sequencing lanes will be run?"/>
+            				<mx:TextInput id="numberOfLanes" width="40" change="initializeLanesGrid()"/>
+            			</mx:HBox>
+            			<mx:HBox>
+							<mx:Image source="assets/bullet_orange.png"/>
+            				<mx:Label width="230" text="Select the type of flow cell to be used:"/>
+            				<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="initializeLanesGrid();propagateFlowCellType()">
+            					<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
+            				</mx:ComboBox>
+            				<mx:Spacer width="10"/>
+            				<mx:HBox>
+            					<mx:Label width="300" text="Select the minimum number of sequencing cycles:"/>
+            					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="initializeLanesGrid();propagateNumberSequencingCycles()">
+            						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
+            					</mx:ComboBox>
+            				</mx:HBox>
+            			</mx:HBox>
+            			<mx:HBox>
+							<mx:Image source="assets/bullet_orange.png"/>
+            				<mx:Label width="230" text="Should a test run be performed?"/>
+            				<mx:RadioButton id="performTestRunRadio" label="Yes, perform test run" click="initializeLanesGrid()"/>
+            				<mx:RadioButton id="dontPerformTestRunRadio" label="No, run all lanes for all samples at once" click="initializeLanesGrid()"/>
+            			</mx:HBox>
+            			<mx:HDividedBox width="100%" height="100%" paddingTop="10">
+					        <mx:Panel  title="Samples" height="100%" verticalGap="4">
+					        	<views:DataGrid
+					        		dragProxyImage="views.DataGridSampleDragProxy" 
+					        		 height="100%" width="100%" 
+					        		 dataProvider="{samples}" labelField="@name" 
+					        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
+									<views:columns>
+										<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
+<!--							            <mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+							                <mx:itemRenderer>
+							                    <mx:Component >
+							                        <mx:HBox  horizontalGap="0" >
+							                          <mx:Image source="{data.@laneCount > 0 ? '../assets/tick.png' : ''}">
+							                    	 </mx:Image> 
+							                        </mx:HBox>
+							                    </mx:Component>
+							                </mx:itemRenderer>
+							            </mx:DataGridColumn> 
+ -->									</views:columns>												        				        		
+					         	</views:DataGrid>
+					        </mx:Panel>            	
+
+							<mx:Panel  id="lanesContainer" width="100%" height="100%">
+							   <mx:title><![CDATA[Sequencing Lanes    (Drag sample onto sequencing lane sample cell)]]></mx:title>
+									<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
+										<mx:HBox>
+											<mx:Button label="Add" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addLaneButton"/>
+											<mx:Button label="Copy" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyLaneButton"/>
+											<mx:Button label="Delete" click="deleteLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteLaneButton"/>
+											<mx:Button label="Clear all" click="promptToClearAllLanes()" icon="@Embed('../assets/folder_delete.png')" id="clearLaneButton"/>
+										</mx:HBox>
+										
+									</mx:HBox>
+								<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" dataProvider="{lanes}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDropLane(event)" itemFocusOut="checkLanesCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+									<mx:columns>
+									    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
+									    <mx:DataGridColumn  headerText="Sample"  width="222" 
+									    	labelFunction="getLaneSampleName" 
+	                                        editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
+							             <mx:DataGridColumn  width="200" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
+							             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+										<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
+									</mx:columns>
+								</mx:DataGrid>
+								
+							</mx:Panel>					        			
+            			</mx:HDividedBox>
+            		</mx:VBox>
+            	</mx:Canvas>
+            </mx:AddChild>
+            <mx:RemoveChild target="{label1}"/>
+        </mx:State>
+        <mx:State name="SolexaStateAlreadyPrepped" basedOn="SolexaState">
+            <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Describe the nucleic acid purification/extraction method:" width="340"/>
+					<mx:TextInput id="samplePrepMethodText"/>			
+					<mx:Spacer width="40"/>				
+					<mx:RadioButton id="isFragLib" label="Fragment"/>
+					<mx:RadioButton id="isPairedEndLib" label="Paired Ends"/>
+					<mx:Spacer width="40"/>				
+					<mx:CheckBox id="isSizeSelected" label="Size Selected?"/>
+					<mx:TextInput id="sizeSelectedFrom" width="30"/>	
+					<mx:Label text="-" textAlign="center"/>
+					<mx:TextInput id="sizeSelectedTo" width="30"/>
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:RemoveChild target="{samplePrepContainer}">            	
+            </mx:RemoveChild>
+        </mx:State>
+    </mx:states>
+    
    <mx:HTTPService  
     id="getNewProject" 
     url="http://localhost/gnomex/GetProject.gx"
@@ -445,78 +583,85 @@
 		private function setRequestCategoryName():void {
 			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
 			requestCategoryName = requestCategory.@display.toString();
-			
-			if (this.requestTypeGroup.selectedValue == "QC") {
-				if (!sampleSetupContainer.contains(bioanalyzerContainer)) {
-					sampleSetupContainer.addChildAt(bioanalyzerContainer, 6);
-				}
-				if (sampleSetupContainer.contains(sampleOrganismContainer)) {
-					sampleSetupContainer.removeChild(sampleOrganismContainer);
-				}
-				if (sampleSetupContainer.contains(sampleSourceContainer)) {
-					sampleSetupContainer.removeChild(sampleSourceContainer);
-				}
-				hybsConfirmContainer.visible = false;
-				hybsConfirmContainer.height = 0;
-				if (this.theTab.contains(annotationView)) {
-					this.theTab.removeChild(annotationView);				
-				}
-				if (this.theTab.contains(hybSetupView)) {
-					this.theTab.removeChild(hybSetupView);				
-				}
-				if (this.theTab.contains(hybsView)) {
-					this.theTab.removeChild(hybsView);				
-				}
-				this.sampleOrganismColumn.visible = false;
-				this.sampleOrganismConfirmColumn.visible = false;
-				this.sampleSourceColumn.visible  = false;
-				this.sampleSourceConfirmColumn.visible  = false;
-				this.concentrationUnitColumn.visible = true;
-				this.concentrationUnitConfirmColumn.visible = true;
-				this.chipTypeColumn.visible = true;
-				this.chipTypeConfirmColumn.visible = true;
+
+			if (requestTypeGroup.selectedValue == 'SOLEXA') {
+				this.currentState = 'SolexaState';				
 			} else {
-				if (theTab.contains(sampleSetupView)) {
-					if (sampleSetupContainer.contains(bioanalyzerContainer)) {
-						sampleSetupContainer.removeChild(bioanalyzerContainer);
+				this.currentState = '';
+				if (this.requestTypeGroup.selectedValue == "QC") {
+					if (!sampleSetupContainer.contains(bioanalyzerContainer)) {
+						sampleSetupContainer.addChildAt(bioanalyzerContainer, 6);
 					}
-					if (!sampleSetupContainer.contains(sampleOrganismContainer)) {
-						sampleSetupContainer.addChildAt(sampleOrganismContainer, 2);
+					if (sampleSetupContainer.contains(sampleOrganismContainer)) {
+						sampleSetupContainer.removeChild(sampleOrganismContainer);
 					}
-					if (!sampleSetupContainer.contains(sampleSourceContainer)) {
-						sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
+					if (sampleSetupContainer.contains(sampleSourceContainer)) {
+						sampleSetupContainer.removeChild(sampleSourceContainer);
 					}
-				}
-				hybsConfirmContainer.visible = true;
-				hybsConfirmContainer.percentHeight = 100;
-				if (!this.theTab.contains(annotationView)) {
-					this.theTab.addChildAt(annotationView, 3);				
-				}
-				if (!this.theTab.contains(hybSetupView)) {
-					this.theTab.addChildAt(hybSetupView, 4);				
-				}
-				if (!this.theTab.contains(hybsView)) {
-					this.theTab.addChildAt(hybsView, 5);				
-				}
-				this.sampleOrganismColumn.visible = true;
-				this.sampleOrganismConfirmColumn.visible = true;
-				this.sampleSourceColumn.visible  = true;
-				this.sampleSourceConfirmColumn.visible  = true;
-				this.concentrationUnitColumn.visible = false;
-				this.concentrationUnitConfirmColumn.visible = false;
-				this.chipTypeColumn.visible = false;
-				this.chipTypeConfirmColumn.visible = false;
-
-				// Hide/Show the channel 2 sample column
-				if (requestCategory.@numberOfChannels == "2") {
-					this.channel2SampleColumn.visible = true;
-					this.channel2SampleConfirmColumn.visible = true;
+					hybsConfirmContainer.visible = false;
+					hybsConfirmContainer.height = 0;
+					if (this.theTab.contains(annotationView)) {
+						this.theTab.removeChild(annotationView);				
+					}
+					if (this.theTab.contains(hybSetupView)) {
+						this.theTab.removeChild(hybSetupView);				
+					}
+					if (this.theTab.contains(hybsView)) {
+						this.theTab.removeChild(hybsView);				
+					}
+					this.sampleOrganismColumn.visible = false;
+					this.sampleOrganismConfirmColumn.visible = false;
+					this.sampleSourceColumn.visible  = false;
+					this.sampleSourceConfirmColumn.visible  = false;
+					this.concentrationUnitColumn.visible = true;
+					this.concentrationUnitConfirmColumn.visible = true;
+					this.chipTypeColumn.visible = true;
+					this.chipTypeConfirmColumn.visible = true;
 				} else {
-					this.channel2SampleColumn.visible = false;
-					this.channel2SampleConfirmColumn.visible = false;
+					if (theTab.contains(sampleSetupView)) {
+						if (sampleSetupContainer.contains(bioanalyzerContainer)) {
+							sampleSetupContainer.removeChild(bioanalyzerContainer);
+						}
+						if (!sampleSetupContainer.contains(sampleOrganismContainer)) {
+							sampleSetupContainer.addChildAt(sampleOrganismContainer, 2);
+						}
+						if (!sampleSetupContainer.contains(sampleSourceContainer)) {
+							sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
+						}
+					}
+					hybsConfirmContainer.visible = true;
+					hybsConfirmContainer.percentHeight = 100;
+					if (!this.theTab.contains(annotationView)) {
+						this.theTab.addChildAt(annotationView, 3);				
+					}
+					if (!this.theTab.contains(hybSetupView)) {
+						this.theTab.addChildAt(hybSetupView, 4);				
+					}
+					if (!this.theTab.contains(hybsView)) {
+						this.theTab.addChildAt(hybsView, 5);				
+					}
+					this.sampleOrganismColumn.visible = true;
+					this.sampleOrganismConfirmColumn.visible = true;
+					this.sampleSourceColumn.visible  = true;
+					this.sampleSourceConfirmColumn.visible  = true;
+					this.concentrationUnitColumn.visible = false;
+					this.concentrationUnitConfirmColumn.visible = false;
+					this.chipTypeColumn.visible = false;
+					this.chipTypeConfirmColumn.visible = false;
+	
+					// Hide/Show the channel 2 sample column
+					if (requestCategory.@numberOfChannels == "2") {
+						this.channel2SampleColumn.visible = true;
+						this.channel2SampleConfirmColumn.visible = true;
+					} else {
+						this.channel2SampleColumn.visible = false;
+						this.channel2SampleConfirmColumn.visible = false;
+					}
+	
 				}
-
 			}
+			
+			
 			
 		}
 		
@@ -533,6 +678,15 @@
         {
         	if (hybs!= null) {
 	           var x:int = hybs.getItemIndex(item) + 1;
+	           return String(x);     		
+        	} else {
+        		return "";
+        	}
+        }
+		private function getLanesGridRowNumber(item:Object,col:int):String
+        {
+        	if (lanes!= null) {
+	           var x:int = lanes.getItemIndex(item) + 1;
 	           return String(x);     		
         	} else {
         		return "";
@@ -557,6 +711,19 @@
         	if (hybsGrid!= null) {
         		for each(var sample:Object in samples) {
         			if (sample.@idSample == item.@idSampleChannel2) {
+        				sampleName = sample.@name;
+        				break;
+        			}
+        		}
+        	} 
+        	return sampleName;
+        }
+		private function getLaneSampleName(item:Object,col:int):String
+        {
+        	var sampleName:String = "";
+        	if (lanesGrid!= null) {
+        		for each(var sample:Object in samples) {
+        			if (sample.@idSample == item.@idSample) {
         				sampleName = sample.@name;
         				break;
         			}
@@ -1568,15 +1735,44 @@
     		enableNextButtons();
     		if (theTab.contains(hybSetupView)) {
         		this.hybSetupView.enabled = isComplete;
+    		} if (currentState == 'SolexaState' || currentState == 'SolexaStateAlreadyPrepped') {
+    			this.lanesView.enabled = isComplete;
     		} else {
     			if (theTab.contains(confirmView)) {
 	    			this.confirmView.enabled = isComplete;
     			}
     		}
 
-			callLater(postHybSetupCompleteness, [isComplete]);
+			callLater(postSamplesCompleteness, [isComplete]);
         	
         
+        }
+        
+                
+        private function postSamplesCompleteness(isComplete:Boolean):void {
+	    		
+	    	if (!isComplete) {
+	        	if (theTab.contains(hybSetupView)) {
+		        	this.hybSetupView.enabled = false;
+	        	} 
+	
+	        	if (theTab.contains(hybsView)) {
+		        	this.hybsView.enabled = false;
+	        	} 
+	        	
+	        	if (currentState == 'SolexaState' || currentState == 'SolexaStateAlreadyPrepped') {
+	    			this.lanesView.enabled = false;
+	        	}
+	
+	        	this.confirmView.enabled = false;
+    		} else {
+    			if (theTab.contains(hybSetupView)) {
+	    			this.checkHybSetupCompleteness();    				
+    			} else if (theTab.contains(lanesView)) {
+    				this.checkLanesCompleteness();
+    			}
+    		}
+        	
         }
         
         private function postHybSetupCompleteness(isComplete:Boolean):void { 
@@ -1772,6 +1968,9 @@
 		
 		private function checkHybSetupCompleteness():void {
 			if ((request!= null && request.@codeRequestCategory == "QC") || requestTypeGroup.selectedValue == "QC" ) {
+				return;
+			}
+			if ((request!= null && request.@codeRequestCategory == "SOLEXA") || requestTypeGroup.selectedValue == "SOLEXA" ) {
 				return;
 			}
 			
@@ -2017,6 +2216,180 @@
 	       checkHybsCompleteness();
 		}
 		
+		private function addLane():void {
+			var emptyNode:XML = new XML("<SequenceLane " +
+			    " idSequenceLane='" + "SequenceLane" + lanes.length + "'" +
+			    " notes='' " + 
+				" idFlowCellType='" + flowCellTypeCombo.selectedItem.@value + "'" +
+				" idNumberSequencingCycles='" + numberSequencingCyclesCombo.selectedItem.@value + "'" +
+				" idSample='0'" +
+				"/>");
+			
+			lanes.addItem(emptyNode);
+		}
+
+		private function copyLane():void {
+			if (lanesGrid.selectedIndex != -1) {
+				for each(var i:int in lanesGrid.selectedIndices) {					
+					var laneToCopy:Object = lanes[i];
+					
+					var emptyNode:XML = new XML("<SequenceLane " +
+    			    " idSequenceLane='" + "SequenceLane" + lanes.length + "'" +
+					" notes='" + laneToCopy.@notes + "'" + 
+					" idSample='" + laneToCopy.@idSample + "'" +
+					" idFlowCellType='" + laneToCopy.@idFlowCellType + "'" +			
+					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
+					"/>");
+			
+					lanes.addItem(emptyNode);
+					
+				}
+			}
+		}
+		private function deleteLane():void {
+			if (lanesGrid.selectedItems.length > 0) {
+				for each(var lane:Object in lanesGrid.selectedItems) {					
+					lanes.removeItemAt(lanes.getItemIndex(lane));
+				}
+			}
+		}
+		public function promptToClearAllLanes():void {
+			Alert.show("Remove all sequence lanes currently showing in list?",
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToClearAllLanes);
+			
+		}
+        private function initializeLanesGrid():void {
+        	if (requestToClone != null) {
+        		return;
+        	}
+        	
+        	if (numberOfLanes.text == null || numberOfLanes.text == "0" || numberOfLanes.text == '') {
+        		return;
+        	}
+        	if (flowCellTypeCombo.selectedItem == null || flowCellTypeCombo.selectedItem.@value == '') {
+        		return;
+        	}
+        	if (numberSequencingCyclesCombo.selectedItem == null || numberSequencingCyclesCombo.selectedItem.@value == '') {
+        		return;
+        	}
+        	if (!this.performTestRunRadio.selected && !this.dontPerformTestRunRadio.selected) {
+        		return;
+        	}
+        	
+        	
+    		var numberOfLanesToAdd:Number = new Number(numberOfLanes.text);
+    		if(lanes.length <= numberOfLanesToAdd) {
+    			numberOfLanesToAdd = numberOfLanesToAdd - lanes.length;
+    		} else {
+    			numberOfLanesToAdd = 0;
+    		}
+    		for(var x:int = 0; x < numberOfLanesToAdd; x++) {
+    			addLane();
+    		}
+    		
+        }
+		private function propagateFlowCellType():void {
+			for each (var lane:Object in lanes) {
+				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
+			callLater(checkLanesCompleteness);
+		}
+		private function propagateNumberSequencingCycles():void {
+			for each (var lane:Object in lanes) {
+				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+			}
+			callLater(checkLanesCompleteness);
+		}
+
+		private function onPromptToClearAllLanes(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	lanes.removeAll();
+            	checkLanesCompleteness();
+            }
+        }
+        public function checkLanesCompleteness():void {
+        	var completeCount:int = 0;
+        	for each(var lane:Object in lanes) {
+        		if (lane.@idSample != null && lane.@idSample!= '0'  &&
+        			lane.@idFlowCellType != null && lane.@idFlowCellType != '' &&
+        			lane.@idNumberSequencingCycles != null && lane.@idNumberSequencingCycles != '') {
+        			completeCount++;       				
+        		}
+        	}
+        	if (lanes.length > 0 && completeCount == lanes.length) {
+        		if (theTab.contains(confirmView)){
+	        		this.confirmView.enabled = true;
+        		}
+        		
+        	} else if (request.@idRequest != '0') {
+        		if (theTab.contains(confirmView)) {
+ 		       		this.confirmView.enabled = true;        			
+        		}
+        	} else {
+        		if (theTab.contains(confirmView)) {
+	        		this.confirmView.enabled = false;        			
+        		}
+        	}
+        	enableNextButtons();
+        
+        }
+
+	  	private function onDragDropLane(event:DragEvent) : void
+		{
+	       // retrieve the data associated with the "items" format. This will be the data that
+	       // the dragInitiator has copied into the DragSource.
+	       var items:Array = event.dragSource.dataForFormat("items") as Array;
+	
+	       // determine where in the grid the drop occurs and select that node by the index; followed by 
+	       // retrieving the node itself. 
+	       var r:int = lanesGrid.calculateDropIndex(event);
+	       lanesGrid.selectedIndex = r;
+	       var node:XML = lanesGrid.selectedItem as XML;
+	       var p:*;
+	
+	
+	       if (node.name()  == "SequenceLane") {
+	       		p = node;
+	       } else {
+	       		//ignore drop operations not on existing hyb row
+	       }
+	       
+	        
+	       // Disallow operation if samples cannot be changed on hyb
+	       if (lanesGrid.selectedItem.@canChangeSampleDesignations == "Y" ||
+	           parentApplication.hasPermission("canWriteAnyObject")) {
+	           	
+	       } else {
+	       	  	Alert.show("Lane samples cannot be changed.");
+		       	event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);
+				return;	       	  	
+	       }
+	
+	       // taking all of the items in the DragSouce, update the appropriate
+	       // sample id on the hyb node.
+	       if (p != null) {
+		       for(var i:Number=0; i < items.length; i++) {
+		       	if (items[i].name() == "Sample") {
+			    	lanesGrid.selectedItem.@idSample = items[i].@idSample;	       			
+		       	} 
+		       }
+	       	
+	       }	
+	       
+	       this.sampleLaneDragGrid.invalidateDisplayList();
+	       this.sampleLaneDragGrid.invalidateList();
+	       
+	       // Don't allow flex to do any default moves to the data.  
+	       // We handle it in the code above.
+	       event.preventDefault();
+	       
+	       checkLanesCompleteness();
+		}
+
 		private function validateRequest():void {
 			errorMessage = '';
 			warningMessage = '';
@@ -2283,6 +2656,9 @@
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>
 
 	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}"/>
+
+
+	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
   
  	<mx:VBox  width="100%" height="100%" paddingBottom="6" paddingLeft="6" paddingRight="6" paddingTop="6" verticalGap="0">
  		<mx:ViewStack id="buttonStack" width="100%">
@@ -2452,13 +2828,14 @@
 								<mx:dataProvider>{parentApplication.sampleSourceList}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0">
+						<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Enter the approximate sample concentration:" width="340"/>
 							<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
-							<mx:Label text="ng/µL"/>
+							<mx:Label text="ng/µL" id="concentrationLabel"/>
+							<mx:Spacer width="40"/>
 						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0">
+						<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340"/>
 							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
@@ -2937,8 +3314,8 @@
 						<mx:Text text="{billingAccountCombo.selectedItem.@accountName}"/>
 					</mx:VBox>
 				</mx:HBox>
-					<mx:VBox verticalGap="0" width="100%" height="100%">
-						<mx:Label text="{samples.length + ' Samples'}"/>
+					<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesConfirmContainer">
+						<mx:Label text="{samples.length + ' Samples'}" id="label1"/>
 						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{samples}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
 							    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="getSamplesGridRowNumber"/>

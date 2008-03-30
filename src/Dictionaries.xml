@@ -9,6 +9,7 @@
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
     </Dictionary>
     <Dictionary displayName="Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
+    <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
 	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" />
 	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" />
 	<Dictionary displayName="Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
@@ -23,6 +24,7 @@
 	</Dictionary>
 	<Dictionary displayName="Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
 	<Dictionary displayName="Microarray Category" className="hci.gnomex.model.MicroarrayCategory" />
+	<Dictionary displayName="Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism" />
 	<Dictionary displayName="Protocol Type (IRB or IACUC)" className="hci.gnomex.model.ProtocolType" />	
 	<Dictionary displayName="Quality Control Step" className="hci.gnomex.model.QualityControlStep" />	
