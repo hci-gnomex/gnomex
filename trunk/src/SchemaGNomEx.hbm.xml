@@ -417,7 +417,15 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
-	
+	<!-- hci.gnomex.model.FlowCellType -->
+	<class name="hci.gnomex.model.FlowCellType" table="FlowCellType">
+		<id name="idFlowCellType" column="idFlowCellType" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="flowCellType" column="flowCellType" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+		
 	<!-- hci.gnomex.model.HybProtocol -->
 	<class name="hci.gnomex.model.HybProtocol" table="HybProtocol">
 		<id name="idHybProtocol" column="idHybProtocol" type="integer">
@@ -466,6 +474,15 @@
 			<generator class="assigned"/>
 		</id>
 		<property name="microarrayCategory" column="microarrayCategory" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+	
+	<!-- hci.gnomex.model.NumberSequencingCycles -->
+	<class name="hci.gnomex.model.NumberSequencingCycles" table="NumberSequencingCycles">
+		<id name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="numberSequencingCycles" column="numberSequencingCycles" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
