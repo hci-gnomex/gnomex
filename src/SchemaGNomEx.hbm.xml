@@ -426,6 +426,16 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 		
+	<!-- hci.gnomex.model.GenomeBuild -->
+	<class name="hci.gnomex.model.GenomeBuild" table="GenomeBuild">
+		<id name="idGenomeBuild" column="idGenomeBuild" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="genomeBuildName" column="genomeBuildName" type="string"/>
+		<property name="idOrganism" column="idOrganism" type="integer"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
 	<!-- hci.gnomex.model.HybProtocol -->
 	<class name="hci.gnomex.model.HybProtocol" table="HybProtocol">
 		<id name="idHybProtocol" column="idHybProtocol" type="integer">
