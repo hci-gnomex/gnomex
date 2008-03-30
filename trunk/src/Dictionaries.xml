@@ -15,6 +15,9 @@
 	<Dictionary displayName="Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
+    <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
+      <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
+	</Dictionary>
 	<Dictionary displayName="Hyb Protocol" className="hci.gnomex.model.HybProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>

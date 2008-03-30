@@ -123,12 +123,31 @@
             	</mx:Canvas>
             </mx:AddChild>
             <mx:RemoveChild target="{label1}"/>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" >
+                <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
+                	<mx:Image source="assets/bullet_orange.png"/>
+                	<mx:Label text="Should the sequence be aligned to a genome build?" width="340"/>
+                	<mx:VBox visible="{alignCheckBox.selected}" width="100%" id="alignMoreContainer">
+                		<mx:HBox>
+                			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
+                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
+        		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
+		                	</mx:ComboBox>                			
+                		</mx:HBox>
+                		<mx:HBox width="100%">
+		                	<mx:Label text="Alignment instructions:"/>
+        		        	<mx:TextInput id="alignNotes" width="100%"/>                			
+                		</mx:HBox>                		
+                	</mx:VBox>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:SetProperty target="{label2}" name="text" value="Select a sample preparation method:"/>
         </mx:State>
         <mx:State name="SolexaStateAlreadyPrepped" basedOn="SolexaState">
             <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
 					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Describe the nucleic acid purification/extraction method:" width="340"/>
+					<mx:Label text="Describe how the samples were prepped:" width="340"/>
 					<mx:TextInput id="samplePrepMethodText"/>			
 					<mx:Spacer width="40"/>				
 					<mx:RadioButton id="isFragLib" label="Fragment"/>
@@ -2837,7 +2856,7 @@
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340"/>
+							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
 							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
 								<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
 							</mx:ComboBox>
