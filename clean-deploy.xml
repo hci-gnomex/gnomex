@@ -1,0 +1,90 @@
+<project name="ccr" default="all" basedir="./">
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Initialization                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="init">
+
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />
+        <property file="${basedir}/build.properties" />
+
+        <!-- Directories -->
+        <delete dir="${build.dir}" /> 
+       	<mkdir dir="${build.dir}" />
+       	<mkdir dir="${build.class.dir}" />
+       	<mkdir dir="${dist.dir}" />
+
+		<!-- Paths -->
+        <path id="project.class.path">
+            <fileset dir="${lib.hcienv.dir}" includes="*.jar" />
+    		<fileset dir="${lib.dir}" 				includes="*.jar" />
+        	<fileset dir="${lib.orion.dir}" 		includes="*.jar" />
+        	<fileset dir="${orion.dir}" 			includes="*.jar" />
+        </path>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All                                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all" depends="init">
+		<antcall target="stopOrion" />
+		<antcall target="clean" />
+		<antcall target="deploy" />
+		<echo>*** Now all you have to do is restart Orion.</echo>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Stop Orion                                         -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="stopOrion" >
+		<java classpath="${orion.dir}" jar="${orion.dir}/admin.jar" fork="true">
+			<arg value="ormi://localhost" />
+			<arg value="admin" />
+			<arg value="hci" />
+			<arg value="-shutdown" />
+		</java>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Clean                                          -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="clean">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Cleaning                                             +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+		<delete>
+			<fileset dir="${build.dir}" />
+		</delete>
+		<delete dir="${orion.dir}/applications/${app.name}" />
+		<delete dir="${orion.dir}/application-deployments/${app.name}" />
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- deploy                                         -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="deploy">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Deploying                                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<copy file="${dist.dir}/${ear.name}" todir="${orion.dir}/applications"/>
+	</target>
+
+
+</project>
