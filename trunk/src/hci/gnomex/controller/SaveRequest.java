@@ -9,6 +9,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.Step;
@@ -23,6 +24,7 @@ import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleNumberComparator;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -72,6 +74,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Map              idSampleMap = new HashMap();
   private TreeSet          hybs = new TreeSet(new HybNumberComparator());
   private TreeSet          samples = new TreeSet(new SampleNumberComparator());
+  private TreeSet          sequenceLanes = new TreeSet(new SequenceLaneNumberComparator());
   
 
   private Map              channel1SampleMap = new HashMap();
@@ -181,6 +184,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           if (requestParser.isNewRequest()) {
             requestParser.getRequest().setHybridizations(hybs);        
           }                
+        }
+        
+        // save sequence lanes
+        if (!requestParser.getSequenceLaneInfos().isEmpty()) {
+          int laneCount = 1;
+          for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
+            RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
+            saveSequenceLane(laneInfo, sess, laneCount);
+            laneCount++;
+          }
+          if (requestParser.isNewRequest()) {
+            requestParser.getRequest().setSequenceLanes(sequenceLanes);        
+          }                
+          
         }
         
         
@@ -673,6 +690,47 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     sess.flush();
   }
+  
+  private void saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int laneCount) throws Exception {
+
+    
+    SequenceLane sequenceLane = null;
+    boolean isNewSequenceLane = requestParser.isNewRequest() || sequenceLaneInfo.getIdSequenceLane() == null || sequenceLaneInfo.getIdSequenceLane().startsWith("SequenceLane");
+    
+    
+    if (isNewSequenceLane) {
+      sequenceLane = new SequenceLane();
+      sequenceLane.setIdRequest(requestParser.getRequest().getIdRequest());
+      sequenceLane.setCreateDate(new Date(System.currentTimeMillis()));
+      isNewSequenceLane = true;
+    } else {
+      sequenceLane = (SequenceLane)sess.load(SequenceLane.class, new Integer(sequenceLaneInfo.getIdSequenceLane()));
+    }
+    
+    
+    Integer idSampleReal = null;
+    if (sequenceLaneInfo.getIdSampleString() != null && !sequenceLaneInfo.getIdSampleString().equals("") && !sequenceLaneInfo.getIdSampleString().equals("0")) {
+      idSampleReal = (Integer)idSampleMap.get(sequenceLaneInfo.getIdSampleString());
+    }
+    sequenceLane.setIdSample(idSampleReal); 
+    
+    sequenceLaneInfo.setIdFlowCellType(sequenceLaneInfo.getIdFlowCellType());      
+    sequenceLaneInfo.setIdNumberSequencingCycles(sequenceLaneInfo.getIdNumberSequencingCycles());      
+    sequenceLaneInfo.setNotes(sequenceLaneInfo.getNotes());      
+     
+    sess.save(sequenceLane);
+    
+    if (isNewSequenceLane) {
+      sequenceLane.setNumber(requestParser.getRequest().getIdRequest().toString() + "L" + laneCount);
+      sess.save(sequenceLane);
+      sess.flush();
+      
+      sequenceLanes.add(sequenceLane);
+    }
+    
+    sess.flush();
+  }
+  
   
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
