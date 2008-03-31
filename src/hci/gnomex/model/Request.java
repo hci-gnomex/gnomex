@@ -46,7 +46,9 @@ public class Request extends HibernateDetailObject {
   private Set          samples = new TreeSet();
   private Set          labeledSamples = new TreeSet();
   private Set          hybridizations = new TreeSet();
-  private Set          workItems = new TreeSet();;
+  private Set          workItems = new TreeSet();
+  private Set          sequenceLanes = new TreeSet();
+  
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -519,6 +521,16 @@ public class Request extends HibernateDetailObject {
     } else {
       return "";
     }
+  }
+
+  
+  public Set getSequenceLanes() {
+    return sequenceLanes;
+  }
+
+  
+  public void setSequenceLanes(Set sequenceLanes) {
+    this.sequenceLanes = sequenceLanes;
   }
   
   

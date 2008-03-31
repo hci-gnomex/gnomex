@@ -39,6 +39,7 @@ public class RequestParser implements Serializable {
   private Map             sampleTreatmentMap = new HashMap();
   private Map             sampleAnnotationCodeMap = new TreeMap();
   private List            hybInfos = new ArrayList();
+  private List            sequenceLaneInfos = new ArrayList();
   private boolean        saveReuseOfSlides = false;
   
   
@@ -72,6 +73,14 @@ public class RequestParser implements Serializable {
         initializeHyb(hybNode);
       }            
     }
+    if (requestNode.getChild("sequenceLanes") != null && 
+        !requestNode.getChild("sequenceLanes").getChildren("SequenceLane").isEmpty()) {
+
+      for(Iterator i = requestNode.getChild("sequenceLanes").getChildren("SequenceLane").iterator(); i.hasNext();) {
+        Element sequenceLaneNode = (Element)i.next();
+        initializeSequenceLane(sequenceLaneNode);
+      }            
+    }
     
   }
   
@@ -94,6 +103,14 @@ public class RequestParser implements Serializable {
         initializeHyb(hybNode);
       }            
     }
+    if (requestNode.getChild("sequenceLanes") != null && 
+        !requestNode.getChild("sequenceLanes").getChildren("SequenceLane").isEmpty()) {
+
+      for(Iterator i = requestNode.getChild("sequenceLanes").getChildren("SequenceLane").iterator(); i.hasNext();) {
+        Element sequenceLaneNode = (Element)i.next();
+        initializeSequenceLane(sequenceLaneNode);
+      }            
+    }    
     
   }
 
@@ -529,6 +546,35 @@ public class RequestParser implements Serializable {
       hybInfos.add(hybInfo);
   }
   
+  private void initializeSequenceLane(Element n) {
+    
+    SequenceLaneInfo sequenceLaneInfo = new SequenceLaneInfo();
+    
+    sequenceLaneInfo.setIdSequenceLane(n.getAttributeValue("idSequenceLane"));
+
+    String idSampleString=  n.getAttributeValue("idSample");
+    if (idSampleString != null && !idSampleString.equals("")) {
+      sequenceLaneInfo.setIdSampleString(idSampleString);
+      sequenceLaneInfo.setSample((Sample)sampleMap.get(idSampleString));
+    }
+    
+   
+    if (n.getAttributeValue("idNumberSequencingCycles") != null && !n.getAttributeValue("idNumberSequencingCycles").equals("")) {
+      sequenceLaneInfo.setIdNumberSequencingCycles(new Integer(n.getAttributeValue("idNumberSequencingCycles")));
+    }
+    
+
+    if (n.getAttributeValue("idFlowCellType") != null && !n.getAttributeValue("idFlowCellType").equals("")) {
+      sequenceLaneInfo.setIdFlowCellType(new Integer(n.getAttributeValue("idFlowCellType")));
+    }
+    
+    sequenceLaneInfo.setNotes(unEscape(n.getAttributeValue("notes")));
+    
+    
+    
+    sequenceLaneInfos.add(sequenceLaneInfo);
+}
+
   
   
   public Map getCharacteristicsToApplyMap() {
@@ -944,6 +990,77 @@ public class RequestParser implements Serializable {
     
   }
 
+  
+  public static class SequenceLaneInfo implements Serializable {
+    private String   idSequenceLane;
+    private String   idSampleString;
+    private Sample   sample;
+    private Integer  idFlowCellType;
+    private Integer  idNumberSequencingCycles;
+    private String   notes;
+    
+    
+    public String getNotes() {
+      return notes;
+    }
+
+    
+    public void setNotes(String notes) {
+      this.notes = notes;
+    }
+
+    
+    public Integer getIdFlowCellType() {
+      return idFlowCellType;
+    }
+
+    
+    public void setIdFlowCellType(Integer idFlowCellType) {
+      this.idFlowCellType = idFlowCellType;
+    }
+
+    
+    public Integer getIdNumberSequencingCycles() {
+      return idNumberSequencingCycles;
+    }
+
+    
+    public void setIdNumberSequencingCycles(Integer idNumberSequencingCycles) {
+      this.idNumberSequencingCycles = idNumberSequencingCycles;
+    }
+
+    
+    public String getIdSampleString() {
+      return idSampleString;
+    }
+
+    
+    public void setIdSampleString(String idSampleString) {
+      this.idSampleString = idSampleString;
+    }
+
+    
+    public String getIdSequenceLane() {
+      return idSequenceLane;
+    }
+
+    
+    public void setIdSequenceLane(String idSequenceLane) {
+      this.idSequenceLane = idSequenceLane;
+    }
+
+    
+    public Sample getSample() {
+      return sample;
+    }
+
+    
+    public void setSample(Sample sample) {
+      this.sample = sample;
+    }
+    
+    
+  }
 
 
 
@@ -974,6 +1091,16 @@ public class RequestParser implements Serializable {
     text = text.replaceAll("&lt;",     "<");
     text = text.replaceAll("&#181;",   "µ");
     return text;
+  }
+
+  
+  public List getSequenceLaneInfos() {
+    return sequenceLaneInfos;
+  }
+
+  
+  public void setSequenceLaneInfos(List sequenceLaneInfos) {
+    this.sequenceLaneInfos = sequenceLaneInfos;
   }
 
   
