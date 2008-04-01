@@ -133,13 +133,10 @@
 		
 		private function showEditExperimentWindow():void {
 
-			 var editWindow:views.ExperimentEditWindow = views.ExperimentEditWindow(PopUpManager.createPopUp(this.parentApplication.topArea, views.ExperimentEditWindow, true));
+			 var editWindow:views.SubmitRequestView = views.SubmitRequestView(PopUpManager.createPopUp(this.parentApplication.topArea, views.SubmitRequestView, true));
+			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedExperiment.@number;
 			 PopUpManager.centerPopUp(editWindow);		
-			 callLater(editWindow.detailView.setupEditForm, [parentDocument.selectedExperiment]);
-
-
-			//{theViews.selectedIndex = 1;
-			//editView.setupEditForm(parentDocument.selectedExperiment)}			
+			 callLater(editWindow.setupEditForm, [parentDocument.selectedExperiment]);
 		}
 
 
@@ -152,14 +149,6 @@
 	<mx:ViewStack id="theViews" width="100%" height="100%">
 
 		<mx:VBox width="100%" height="100%" verticalGap="0">
-			<mx:HBox width="100%"  paddingLeft="0">
-			    <mx:LinkButton label="Printable Request form" click="showPrintableRequestForm()"  textDecoration="underline" color="#0000ff"/>
-
-			    <mx:LinkButton label="Edit Experiment" click="showEditExperimentWindow()" textDecoration="underline" color="#0000ff" paddingLeft="0">
-			        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 20 : 0}</mx:height>
-			        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-			    </mx:LinkButton>				
-			</mx:HBox>
 		    <mx:VBox height="100%"  width="100%" verticalGap="0">
 		        <mx:HBox width="100%" paddingTop="4" paddingBottom="10" horizontalGap="6" paddingLeft="6" paddingRight="6">
 		        	<mx:VBox verticalGap="0">
@@ -411,5 +400,14 @@
 	</mx:ViewStack>
 	
 </mx:VBox>
+
+			<mx:ControlBar width="100%">
+			    <mx:Button label="Printable Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')"/>
+
+			    <mx:Button label="Edit Experiment" click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
+			        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+			        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+			    </mx:Button>				
+			</mx:ControlBar>
 	
 </mx:Panel>

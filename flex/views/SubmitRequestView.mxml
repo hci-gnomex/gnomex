@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*"
     creationComplete="initFilters()"
 	label="Submit Request" width="100%" height="100%" 
-	backgroundColor="#ffffff" borderColor="#ffffff" 
-	themeColor="#ffffff">
+	>
     <mx:states>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
@@ -580,20 +579,16 @@
 		
 		private function enableNextButtons():void {
 			if (theTab.selectedIndex < theTab.getChildren().length - 1) {
+				confirmButtonStack.selectedIndex = 0;
 				var nextChild:UIComponent = UIComponent(theTab.getChildAt(theTab.selectedIndex + 1));
-				if (nextChild != null && nextChild.enabled) {
+				if (nextChild.enabled) {
 					nextButton.enabled = true;
-					submitButton.visible = false;
-					confirmButtonStack.selectedIndex = 0;
 				} else {
 					nextButton.enabled = false;
-					submitButton.visible = false;
-					confirmButtonStack.selectedIndex = 1;
 				}
 					
 			} else {
 				nextButton.enabled = false;
-				submitButton.visible = true;
 				confirmButtonStack.selectedIndex = 1;
 			}
 			if (theTab.selectedIndex > 0) {
@@ -1114,12 +1109,6 @@
 			requestCategoryName = requestCategory.@display.toString();
 
 			buttonStack.selectedIndex = 1;
-			showWorkflowLabel.visible = true;
-			showQCFieldsCheckBox.visible = true;
-			showCy3LabelingFieldsCheckBox.visible = true;
-			showCy5LabelingFieldsCheckBox.visible = true;
-			showHybFieldsCheckBox.visible = true;
-			showExtFieldsCheckBox.visible = true;
 			theTab.creationPolicy = 'all';	
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
@@ -1207,6 +1196,19 @@
 			this.slideProductCombo.enabled = canChangeSlide;
 			this.isCatalogRadio.enabled = canChangeSlide;
 			this.isCustomRadio.enabled = canChangeSlide;
+			
+						if (this.isSolexaState()) {
+				
+			} else {
+				showWorkflowLabel.visible = true;
+				showQCFieldsCheckBox.visible = true;
+				showCy3LabelingFieldsCheckBox.visible = true;
+				showCy5LabelingFieldsCheckBox.visible = true;
+				showHybFieldsCheckBox.visible = true;
+				showExtFieldsCheckBox.visible = true;
+					
+			}
+
 			
 			this.addSlideProductFilter();
 			callLater(initializeControls);
@@ -2070,7 +2072,9 @@
         	}
 
         	} else {
-	        	if (this.microarrayCategoryCombo.selectedItem.@value != '' &&
+	        	if (this.microarrayCategoryCombo.selectedItem != null &&
+	        	    this.microarrayCategoryCombo.selectedItem.@value != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null &&
 	        	    this.sampleTypeCombo.selectedItem.@value != '') {
 	        	    compatible = false;
 					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
@@ -2682,7 +2686,9 @@
 				submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
 
 				confirmButtonStack.selectedIndex = 2;
-/* 				nextButton.enabled = false;
+				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted. Please print off the request form and deliver it along with your samples to the Microarray Core Facility.';
+				Alert.show(message); 
+ 				nextButton.enabled = false;
 				backButton.enabled = false;
 				
 				setupView.enabled = false;
@@ -2701,7 +2707,7 @@
 					if (theTab.contains(hybsView)) {
 						hybsView.enabled = false;
 					}					
-				} */
+				} 
 				
 			} else {
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
@@ -2764,39 +2770,6 @@
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
   
  	<mx:VBox  width="100%" height="100%" paddingBottom="6" paddingLeft="6" paddingRight="6" paddingTop="6" verticalGap="0">
- 		<mx:ViewStack id="buttonStack" width="100%">
-	 	    <mx:HBox width="100%" >
-				<mx:Button label="&lt; Back" enabled="false" visible="true" id="backButton" click="previousTab()"/>
-				<mx:Button id="nextButton"  label="Next &gt;" enabled="false" click="nextTab()"/>
-				<mx:ViewStack id="confirmButtonStack" width="100%" height="28">
-							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
-								<mx:Button label="Save"  enabled="true" visible="false"/>
-							</mx:HBox>
-							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
-								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="validateAndSubmitRequest()" visible="true"/>
-							</mx:HBox>
-							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="none" backgroundColor="#ffffff" paddingTop="0" paddingRight="2" paddingLeft="2">
-								<mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed('../assets/page.png')"/>
-								<mx:HBox width="100%" >
-									<mx:Text text="{'Request #  ' + submittedRequestNumber + ' has been submitted. Please print off the request form and deliver it along with your samples to the Microarray Core Facility.'}" width="100%" color="#0000ff" condenseWhite="true" letterSpacing=".1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" leading="0" height="28">
-									</mx:Text>
-									
-								</mx:HBox>
-							</mx:HBox>
-					    	
-				</mx:ViewStack>
-				<mx:HBox horizontalAlign="right">
-					<mx:Button label="Cancel" id="cancelButton0" click="promptToCancelRequest()"/>
-				</mx:HBox>
-	 	    </mx:HBox>
-	 	    <mx:HBox width="100%">
- 				<mx:Button id="saveButton" label="Save" 
-	            	icon="@Embed('../assets/action_save.gif')" click="validateAndSaveRequest()">
-	            </mx:Button>
-
-	 	    </mx:HBox>
- 			
- 		</mx:ViewStack>
  	    	
 		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 			<mx:Canvas  id="setupView" label="Request setup" width="100%" height="100%">
@@ -3473,6 +3446,43 @@
 		</mx:TabNavigator>
 	</mx:VBox>
 	
+ 	   <mx:ControlBar>
+ 		<mx:ViewStack id="buttonStack" width="100%">
+	 	    <mx:HBox width="100%" >
+				<mx:Button label="&lt; Back" enabled="false" visible="true" id="backButton" click="previousTab()"/>
+				<mx:Button id="nextButton"  label="Next &gt;" enabled="false" click="nextTab()"/>
+				<mx:ViewStack id="confirmButtonStack" width="100%" height="28">
+							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
+								<mx:Button visible="false" />
+							</mx:HBox>
+							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
+								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="none"  paddingTop="0" paddingRight="2" paddingLeft="2">
+								<mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed('../assets/page.png')"/>
+								<mx:HBox width="100%" >
+									<mx:Text width="100%" color="#0000ff" condenseWhite="true" letterSpacing=".1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" leading="0" height="28">
+									</mx:Text>
+									
+								</mx:HBox>
+							</mx:HBox>
+					    	
+				</mx:ViewStack>
+				<mx:HBox horizontalAlign="right">
+					<mx:Button label="Cancel" id="cancelButton0" click="promptToCancelRequest()"/>
+				</mx:HBox>
+	 	    </mx:HBox>
+	 	    <mx:HBox width="100%">
+ 				<mx:Button id="saveButton" label="Save" 
+	            	icon="@Embed('../assets/action_save.gif')" click="validateAndSaveRequest()">
+	            </mx:Button>
+				<mx:Button label="Close" enabled="true" visible="true" click="PopUpManager.removePopUp(this)"/>								
+
+	 	    </mx:HBox>
+ 			
+ 		</mx:ViewStack>
+ 	   	
+ 	   </mx:ControlBar>
 	
     
-</mx:Canvas>
+</mx:Panel>

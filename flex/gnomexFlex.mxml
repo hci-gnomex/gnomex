@@ -132,7 +132,8 @@
             
             private function onViewSelection():void {
             	theViews.creationPolicy="all";
-            	if (theViews.selectedChild == submitRequestPanel) {
+            	theViews.visible = true;
+            	if (theViews.selectedChild == submitRequestView) {
             		submitRequestView.checkSecurity();
             		submitRequestView.setupForm();
             	}
@@ -651,7 +652,7 @@
 			      
 			      <mx:LinkBar id="linkButtonBar"
 			      	 dataProvider="{theViews}" width="100%"
-                     enabled="true" visible="true"  
+                     enabled="true" visible="false"  
                      verticalAlign="middle"
                      itemClick="onViewSelection()" horizontalAlign="left">
 			      </mx:LinkBar>
@@ -677,12 +678,9 @@
 			<mx:Canvas>
 			</mx:Canvas>
 
-		    <mx:Panel height="100%" dropShadowEnabled="true" width="100%" label="Submit Request" title="Submit Request" 
-		    	icon="@Embed('assets/tag_blue_edit.png')"   id="submitRequestPanel" alpha="1" roundedBottomCorners="true">
-            	<views:SubmitRequestView id="submitRequestView" width="100%" height="100%" 
-            		label="Submit Request"  >
-            	</views:SubmitRequestView>
-		    </mx:Panel>
+		    <views:SubmitRequestView id="submitRequestView" label="Submit Request" title="Submit Request" 
+		    	icon="@Embed('assets/tag_blue_edit.png')"  width="100%" height="100%">
+            </views:SubmitRequestView>
 		    
 	   
 	        
