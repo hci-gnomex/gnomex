@@ -3,7 +3,7 @@
 	xmlns:UsersView="UsersView.*" label="Users And Groups" 
 	width="100%" height="100%" xmlns:views="views.*" 
 	 creationComplete="checkSecurity()"
-	cornerRadius="8"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" initialize="callInitialServices()">
+	cornerRadius="8"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left">
 
 
 
@@ -155,7 +155,7 @@
            	this.fullLab = null;
             detailViews.selectedChild = this.groupDetailView;
           }
-          private function callInitialServices():void
+          public function callInitialServices():void
           {
           	callGetAppUserList();
           	callGetLabList();

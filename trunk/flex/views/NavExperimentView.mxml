@@ -214,8 +214,7 @@
 			}
 			
 			if (browseTree.selectedItem.name() == 'Request') {
-				bodyPanel.title = "Experiment " + browseTree.selectedItem.@requestNumber;
-				//bodyPanel.titleIcon = parentApplication.iconExperiment;
+				detailView.title = "Experiment " + browseTree.selectedItem.@requestNumber;
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
@@ -227,8 +226,7 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
-					bodyPanel.title = browseTree.selectedItem.@projectName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;
-					//bodyPanel.titleIcon = parentApplication.iconProject;
+					browseView.title = browseTree.selectedItem.@projectName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
 					if (!browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.addChild(browseView.projectDetailView);
@@ -236,8 +234,7 @@
 					getProject.send();
 					
 				} else {
-					bodyPanel.title =  browseTree.selectedItem.@labName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;;
-					//bodyPanel.titleIcon = parentApplication.iconGroup;
+					browseView.title =  browseTree.selectedItem.@labName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;;
 					selectedIdProject = null;
 					if (browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.removeChild(browseView.projectDetailView);
@@ -382,8 +379,8 @@
 				params.showCategory = "N";
 				getProjectRequestList.send(params);
 				
-			    bodyPanel.title = "Experiment " + selectedRequestNumber;
-			    //bodyPanel.titleIcon = parentApplication.iconExperiment;
+			    detailView.title = "Experiment " + selectedRequestNumber;
+			    
 			}
 		    theViews.selectedChild = detailView;
 			detailView.setupForm();
@@ -533,7 +530,6 @@
 	    }
 
 		
-		
        ]]>
     </mx:Script>
    	  <mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
@@ -570,15 +566,16 @@
 							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
 						
 					</mx:VBox>
-					<mx:HBox>
+
+				</mx:VBox>
+					<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 						        <mx:Button id="newProjectButton" click="browseView.showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
-						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..."/>
+						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..." width="58"/>
 						        <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
 						        	click="browseView.projectDetailView.promptToDeleteProject()"
-						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project"/>
+						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project" width="79"/>
 						
-					</mx:HBox>
-				</mx:VBox>
+					</mx:ControlBar>
 			</mx:Panel> 
 
 
@@ -586,7 +583,6 @@
 	   
 
 		
-       <mx:Panel height="100%" dropShadowEnabled="true" width="100%" id="bodyPanel">
 	     <mx:ViewStack id="theViews" creationPolicy="all" visible="false" width="100%" height="100%">
 
 	        <views:ExperimentBrowseView id="browseView"  width="100%" height="100%">
@@ -594,19 +590,10 @@
 
 	        <views:ExperimentDetailView id="detailView" width="100%" height="100%">
 	        </views:ExperimentDetailView>
-
-	        <views:ExperimentDownloadView id="downloadView" width="100%" height="100%">
-	        </views:ExperimentDownloadView>
-	        
-	        <views:TrackRequestsView id="TrackRequestsView" width="100%" height="100%">
-	        </views:TrackRequestsView>
-	        
-	        
 	        
 
 
          </mx:ViewStack>
-		</mx:Panel>
 		
 	</mx:HDividedBox>
 	

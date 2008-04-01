@@ -139,11 +139,6 @@
     <mx:VBox width="100%" height="100%">
     
             <mx:HBox width="100%" horizontalAlign="left" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-            	<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
-            	</mx:Button>
-            	<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
-            		click="refreshWorkList();"/>
-            	<mx:VRule height="20"/>
             	<mx:HBox width="100%" horizontalAlign="right">
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" 
@@ -201,6 +196,12 @@
 	  	
 	  </mx:VBox>
 					
-						
+<mx:ControlBar>
+	            	<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')">
+            	</mx:Button>
+            	<mx:Button label="Refresh" icon="@Embed('../assets/action_refresh.gif')" 
+            		click="refreshWorkList();"/>
+
+</mx:ControlBar>						
 
 </mx:Panel>

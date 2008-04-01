@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
-	xmlns:UsersView="UsersView.*"
+	xmlns:views="views.*" 
 	 height="100%" width="100%" 
 	 label="User Detail" 
 	 title="{'User ' + parentDocument.fullUser.@displayName}">
@@ -37,10 +37,6 @@
     </mx:HTTPService >
     
 	<mx:VBox height="100%" width="100%" borderStyle="none" >
-	<mx:HBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_save.gif')" width="70"/>
-		
-	</mx:HBox>
     
     
 	<mx:VDividedBox  width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" styleName="form">
@@ -143,5 +139,10 @@
 
 	</mx:VDividedBox>
 	</mx:VBox>
+
+	<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
+		<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_save.gif')" width="70"/>
+		
+	</mx:ControlBar>
   
 </mx:Panel>

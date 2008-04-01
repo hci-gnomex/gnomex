@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
-	preinitialize="init()" 
+	preinitialize="init()"  
 	 backgroundGradientColors="[#747474, #9f9f9f]" 
 	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
@@ -139,6 +139,9 @@
             	if (theViews.selectedChild == navExperimentView) {
             		callLater(navExperimentView.initializeExperiments);
             	}
+            	if (theViews.selectedChild == navUsersView) {
+            		navUsersView.callInitialServices();
+            	}
             }
             
             
@@ -241,6 +244,7 @@
             	getLabList.send();
             	getSlideProductList.send();
             	getProjectList.send();
+            	
             	
             }
             private function onManageDictionaries(event:ResultEvent):void {
@@ -647,10 +651,9 @@
 			      
 			      <mx:LinkBar id="linkButtonBar"
 			      	 dataProvider="{theViews}" width="100%"
-					paddingBottom="0" paddingLeft="8" paddingRight="3" paddingTop="0" 
-                     enabled="true" visible="false"  
+                     enabled="true" visible="true"  
                      verticalAlign="middle"
-                     itemClick="onViewSelection()" horizontalGap="0" horizontalAlign="left">
+                     itemClick="onViewSelection()" horizontalAlign="left">
 			      </mx:LinkBar>
 	      	
 		      	
@@ -669,7 +672,7 @@
           
    
 
-        <mx:ViewStack id="theViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0">
+        <mx:ViewStack id="theViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="4">
 
 			<mx:Canvas>
 			</mx:Canvas>
@@ -695,7 +698,7 @@
 	        <views:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 	        </views:NavWorkflowView>
 
-	        <mx:Canvas label="Methods and Materials" icon="@Embed('assets/bullet_wrench.png')"/>
+	        <mx:Canvas label="Protocols" icon="@Embed('assets/bullet_wrench.png')"/>
 
 	        <mx:Canvas label="Slides" id="slideManagementView" icon="@Embed('assets/application_cascade.png')"/>
 	        
