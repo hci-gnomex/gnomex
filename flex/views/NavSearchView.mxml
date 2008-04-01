@@ -77,12 +77,15 @@
 				buttonStack.selectedChild = searchButtonView;
 				buttonStack.visible = true;
 				buttonStack.selectedChild = searchButtonView;
+				buttonStackTop.selectedChild = searchTopButtonView;
 			} else if (searchViews.selectedChild == searchResultsView) {
 				buttonStack.visible = true;
 				buttonStack.selectedChild = resultButtonView;
+				buttonStackTop.selectedChild = resultTopButtonView;
 			} else if (searchViews.selectedChild == searchResultsTreeView) {
 				buttonStack.visible = true;
 				buttonStack.selectedChild = resultTreeButtonView;
+				buttonStackTop.selectedChild = resultTreeTopButtonView;
 			}
 			
 			if (searchViews.selectedChild == searchResultsTreeView) {
@@ -99,19 +102,22 @@
 
 
 <mx:VBox width="100%" verticalGap="0" height="100%">
-				<mx:HBox width="100%" verticalAlign="top">
-	                <mx:ViewStack width="100%" id="buttonStack" >
-	                    <mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
-				        	<mx:Button label="Search" click="searchView.callSearchIndex()"  icon="@Embed('../assets/magnifier.png')">
-				        	</mx:Button>
-				        	<mx:Button label="Clear" >
+			<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="8" horizontalGap="0">
+		        <mx:TabBar dataProvider="{searchViews}" 
+		        	itemClick="onViewSwitch()" 
+		        	useHandCursor="true" styleName="form"  >
+		        </mx:TabBar>
+		        <mx:Spacer width="140"/>
+	                <mx:ViewStack width="100%" id="buttonStackTop" >
+	                    <mx:HBox  horizontalAlign="left" width="100%" id="searchTopButtonView" verticalAlign="top">
+				        	<mx:Button visible="false">
 				        	</mx:Button>
 	                    </mx:HBox>
-	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTopButtonView" horizontalGap="20">
 						    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
 				        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
 	                    </mx:HBox>
-	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeButtonView" >
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeTopButtonView" >
 					          <mx:LinkButton  label="Collapse" click="collapseAllNodes()"  useHandCursor="true"/>
 					          <mx:LinkButton  label="Expand" click="expandAllNodes()" useHandCursor="true"/>
 	    	                <mx:HBox width="100%" horizontalAlign="left"  horizontalGap="20">
@@ -121,14 +127,6 @@
 	                    </mx:HBox>
 	
                 	</mx:ViewStack>
-					
-				</mx:HBox>
-			<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="8" horizontalGap="0">
-		        <mx:TabBar dataProvider="{searchViews}" 
-		        	itemClick="onViewSwitch()" 
-		        	useHandCursor="true" styleName="form"  >
-		        </mx:TabBar>
-		        <mx:Spacer width="140"/>
 
              </mx:HBox>
 	
@@ -193,5 +191,21 @@
 		            	
     </mx:VBox>
 
+				<mx:ControlBar width="100%" >
+	                <mx:ViewStack width="100%" id="buttonStack" >
+	                    <mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
+				        	<mx:Button label="Search" click="searchView.callSearchIndex()"  icon="@Embed('../assets/magnifier.png')">
+				        	</mx:Button>
+				        	<mx:Button label="Clear" >
+				        	</mx:Button>
+	                    </mx:HBox>
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">
+	                    </mx:HBox>
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeButtonView" horizontalGap="20">
+	                    </mx:HBox>
+	
+                	</mx:ViewStack>
+					
+				</mx:ControlBar>
     
 </mx:Panel>

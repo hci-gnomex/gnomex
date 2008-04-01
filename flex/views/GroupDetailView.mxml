@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
 	 height="100%" width="100%" label="Group Detail" 
-	  title="{parentDocument.fullLab.@name}">
+	  title="{parentDocument.fullLab.@name}" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4">
 	  
   <mx:HTTPService  
     id="saveGroup" 
@@ -164,10 +164,7 @@
 	
 	<mx:VBox height="100%" width="100%" verticalGap="0" >
 
-		<mx:HBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-			<mx:Button label="Save" icon="@Embed('../assets/action_save.gif')" width="70" click="save()"/>
-		</mx:HBox>
-	
+		
 		<mx:TabNavigator width="100%" height="100%" >
 			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
 				
@@ -234,7 +231,7 @@
 				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="10">
 				   <mx:Panel title="Members" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="190" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
+					       <mx:ComboBox width="185" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button label="Add" click="addMember()" icon="@Embed('../assets/table_row_insert.png')"/>
 				   	   </mx:HBox>
@@ -249,7 +246,7 @@
 				   </mx:Panel>
 				   <mx:Panel title="Collaborators" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="190" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="185" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button label="Add" click="addCollaborator()" icon="@Embed('../assets/table_row_insert.png')"/>
 				   	   </mx:HBox>
@@ -264,7 +261,7 @@
 				   </mx:Panel>
 				   <mx:Panel title="Managers" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="190" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="185" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button label="Add" click="addManager()" icon="@Embed('../assets/table_row_insert.png')"/>
 				   	   </mx:HBox>
@@ -281,7 +278,7 @@
 	
 				</mx:HBox>
 			</mx:VBox>			
-			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2">
+			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:HBox horizontalGap="3" width="100%" verticalAlign="bottom">
 					<mx:VBox verticalGap="0" width="100%">
 						<mx:Label text="Account name"/>
@@ -358,6 +355,9 @@
 		</mx:TabNavigator>
 	   
     </mx:VBox>
-    
+		<mx:ControlBar width="100%" >
+			<mx:Button label="Save" icon="@Embed('../assets/action_save.gif')" width="70" click="save()"/>
+		</mx:ControlBar>
+	    
   
 </mx:Panel>

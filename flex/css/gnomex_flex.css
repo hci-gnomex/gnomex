@@ -116,16 +116,39 @@ ComboBox {
 	fontWeight: normal;
 }
 
-Panel {
-	fontWeight: normal;
-	titleStyleName: panelTitle;
-	headerHeight: 16;
-	borderThicknessTop: 4;
-	borderThicknessBottom: 4;
-	borderThicknessLeft: 4;
-	borderThicknessRight: 4;
 
-}
+        Panel {
+           borderThicknessLeft: 4;
+           borderThicknessTop: 0;
+           borderThicknessBottom: 4;
+           borderThicknessRight: 4;
+           roundedBottomCorners: false;
+           headerHeight: 23;
+          
+           
+           footerColors: #A1A79D, #A1A79D;
+           titleStyleName: "mypanelTitle";
+		   borderColor: #A1A79D;
+			borderAlpha: 1.0;
+			controlBarStyleName: panelControlBar;
+		   
+	
+        }
+        .mypanelTitle {
+           fontWeight: normal;
+        }
+        .panelControlBar {
+        	roundedBottomCorners: false;
+        }
+        ControlBar {
+        	paddingLeft: 4;
+        	paddingTop: 4;
+        	paddingBottom: 4;
+        	paddingRight: 4;
+        	
+        }
+        
+
 
 .panelTitle {
 	fontWeight: normal;
@@ -156,6 +179,12 @@ TitleWindow {
 		showCloseButton:   true;
       	borderColor: #FFFFFF; 
       	borderThickness: 4;
+}
+.panelStatus
+{
+}
+.panelControlBar
+{
 }
 
 

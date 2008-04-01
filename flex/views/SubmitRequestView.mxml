@@ -7,22 +7,7 @@
 	backgroundColor="#ffffff" borderColor="#ffffff" 
 	themeColor="#ffffff">
     <mx:states>
-        <mx:State name="SolexaState">
-            <mx:AddChild relativeTo="{concentrationContainer}">
-                <mx:HBox width="100%">
-    	            <mx:Label text="Enter approximate volume:"/>
-	                <mx:TextInput id="volume" />
-					<mx:Label text="ng" />
-                </mx:HBox>
-            </mx:AddChild>
-            <mx:AddChild relativeTo="{concentrationContainer}" position="after">
-				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Are the samples already prepped?" width="340" />
-					<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaStateAlreadyPrepped' : 'SolexaState'}" label="Yes, samples have already been prepped" />							
-					<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaState' : 'SolexaStateAlreadyPrepped'}"  label="No, please prep the samples" selected="true"/>							
-				</mx:HBox>            	
-            </mx:AddChild>
+        <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{bioanalyzerContainer}"/>
@@ -45,13 +30,8 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{samplesView}" position="after">
             	<mx:Canvas label="Sequencing Lanes" id="lanesView" enabled="false">
-            		<mx:VBox width="100%" height="100%" verticalGap="6">
-            			<mx:HBox>
-							<mx:Image source="assets/bullet_orange.png"/>
-            				<mx:Label width="230" text="How many sequencing lanes will be run?"/>
-            				<mx:TextInput id="numberOfLanes" width="40" change="initializeLanesGrid()"/>
-            			</mx:HBox>
-            			<mx:HBox>
+            		<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="6">
+            			<mx:HBox id="laneFlowCellContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
             				<mx:Label width="230" text="Select the type of flow cell to be used:"/>
             				<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="initializeLanesGrid();propagateFlowCellType()">
@@ -64,12 +44,6 @@
             						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
             					</mx:ComboBox>
             				</mx:HBox>
-            			</mx:HBox>
-            			<mx:HBox>
-							<mx:Image source="assets/bullet_orange.png"/>
-            				<mx:Label width="230" text="Should a test run be performed?"/>
-            				<mx:RadioButton id="performTestRunRadio" label="Yes, perform test run" click="initializeLanesGrid()"/>
-            				<mx:RadioButton id="dontPerformTestRunRadio" label="No, run all lanes for all samples at once" click="initializeLanesGrid()"/>
             			</mx:HBox>
             			<mx:HDividedBox width="100%" height="100%" paddingTop="10">
 					        <mx:Panel  title="Samples" height="100%" verticalGap="4">
@@ -122,6 +96,23 @@
             		</mx:VBox>
             	</mx:Canvas>
             </mx:AddChild>
+         </mx:State>
+        <mx:State name="SolexaSetupState" basedOn="SolexaBaseState">
+            <mx:AddChild relativeTo="{concentrationContainer}">
+                <mx:HBox width="100%">
+    	            <mx:Label text="Enter approximate volume:"/>
+	                <mx:TextInput id="volume" />
+					<mx:Label text="ng" />
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{concentrationContainer}" position="after">
+				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Are the samples already prepped?" width="340" />
+					<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="Yes, samples have already been prepped" />							
+					<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="No, please prep the samples" selected="true"/>							
+				</mx:HBox>            	
+            </mx:AddChild>
             <mx:RemoveChild target="{label1}"/>
             <mx:AddChild relativeTo="{sampleSetupContainer}" >
                 <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
@@ -142,8 +133,24 @@
                 </mx:HBox>
             </mx:AddChild>
             <mx:SetProperty target="{label2}" name="text" value="Select a sample preparation method:"/>
+            <mx:AddChild relativeTo="{laneFlowCellContainer}"  position="after">
+        	         <mx:HBox id="numberOfLanesContainer">
+						<mx:Image source="assets/bullet_orange.png"/>
+          				<mx:Label width="230" text="How many sequencing lanes will be run?"/>
+        				<mx:TextInput id="numberOfLanes" width="40" change="initializeLanesGrid()"/>
+        			</mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{numberOfLanesContainer}"  position="after">
+        			<mx:HBox id="testRunContainer">
+						<mx:Image source="assets/bullet_orange.png"/>
+        				<mx:Label width="230" text="Should a test run be performed?"/>
+        				<mx:RadioButton id="performTestRunRadio" label="Yes, perform test run" click="initializeLanesGrid()"/>
+        				<mx:RadioButton id="dontPerformTestRunRadio" label="No, run all lanes for all samples at once" click="initializeLanesGrid()"/>
+        			</mx:HBox>
+
+            </mx:AddChild>
         </mx:State>
-        <mx:State name="SolexaStateAlreadyPrepped" basedOn="SolexaState">
+        <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
             <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
 					<mx:Image source="assets/bullet_orange.png"/>
@@ -344,6 +351,16 @@
 			
 		}
 		
+		private function isSolexaState():Boolean {
+			if (currentState == 'SolexaBaseState' ||
+			    currentState == 'SolexaSetupState' ||
+			    currentState == 'SolexaSetupPreppedState') {
+				return true;    	
+			} else {
+				return false;
+			}
+		}
+		
 		public function checkSecurity():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				appUserContainer.visible = true;
@@ -527,7 +544,6 @@
 			}
 			if (theTab.contains(confirmView)) {
 				confirmView.enabled = false;
-				confirmView.enabled = true;
 				if (confirmButtonStack != null) {
 					confirmButtonStack.selectedIndex = 0;
 				}
@@ -620,7 +636,7 @@
 			requestCategoryName = requestCategory.@display.toString();
 
 			if (requestTypeGroup.selectedValue == 'SOLEXA') {
-				this.currentState = 'SolexaState';				
+				this.currentState = 'SolexaSetupState';				
 			} else {
 				this.currentState = '';
 				if (this.requestTypeGroup.selectedValue == "QC") {
@@ -989,7 +1005,7 @@
 		private function onGetRequestToClone(event:ResultEvent):void {
 			
 			var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
-			if (requestTypeGroup.selectedValue == "QC") {
+			if (requestTypeGroup.selectedValue == "QC" || requestTypeGroup.selectedValue == "SOLEXA") {
 				clonedRequest.replace("hybridizations", <hybridizations></hybridizations>); 	
 			} 
 			
@@ -1126,6 +1142,9 @@
 				if (theTab.contains(hybsView)) {
 					theTab.removeChild(hybsView);
 				}
+			} else if (request.@codeRequestCategory == 'SOLEXA') {
+				currentState = 'SolexaBaseState';
+			
 			} else {
 				if (!theTab.contains(hybSetupView)) {
 					theTab.addChildAt(hybSetupView, 2);
@@ -1771,7 +1790,7 @@
     		enableNextButtons();
     		if (theTab.contains(hybSetupView)) {
         		this.hybSetupView.enabled = isComplete;
-    		} if (currentState == 'SolexaState' || currentState == 'SolexaStateAlreadyPrepped') {
+    		} if (this.isSolexaState()) {
     			this.lanesView.enabled = isComplete;
     		} else {
     			if (theTab.contains(confirmView)) {
@@ -1796,7 +1815,7 @@
 		        	this.hybsView.enabled = false;
 	        	} 
 	        	
-	        	if (currentState == 'SolexaState' || currentState == 'SolexaStateAlreadyPrepped') {
+	        	if (this.isSolexaState()) {
 	    			this.lanesView.enabled = false;
 	        	}
 	
@@ -1804,9 +1823,7 @@
     		} else {
     			if (theTab.contains(hybSetupView)) {
 	    			this.checkHybSetupCompleteness();    				
-    			} else if (theTab.contains(lanesView)) {
-    				this.checkLanesCompleteness();
-    			}
+    			} 
     		}
         	
         }
@@ -2035,7 +2052,7 @@
         private function isSampleTypeCompatibile():Boolean {
         	var compatible:Boolean = true;
         	var sampleTypeX:Object = null;
-        	if (currentState == 'SolexaState' || currentState == 'SolexaStateAlreadyPrepped') {
+        	if (this.isSolexaState()) {
         		return compatible;		
         	}
         	
@@ -2287,8 +2304,9 @@
 		}
 		private function deleteLane():void {
 			if (lanesGrid.selectedItems.length > 0) {
-				for each(var lane:Object in lanesGrid.selectedItems) {					
-					lanes.removeItemAt(lanes.getItemIndex(lane));
+				for each(var lane:Object in lanesGrid.selectedItems) {		
+					var index:int = lanes.getItemIndex(lane);			
+					lanes.removeItemAt(index);
 				}
 			}
 		}
@@ -2476,7 +2494,7 @@
 			
 			// Warn if some of the arrays (on a multi-array slide) are not used.	
 			
-			if (currentState != 'SolexaState' && currentState != 'SolexaStateAlreadyPrepped') {
+			if (!this.isSolexaState()) {
 				if (slideProductCombo.selectedItem.@arraysPerSlide != '' && slideProductCombo.selectedItem.@arraysPerSlide != 1) {
 					if (hybs.length % slideProductCombo.selectedItem.@arraysPerSlide != 0) {
 						warningMessage = "There are unused arrays on the multi-array slide  '" + slideProductCombo.selectedItem.@name +
@@ -2556,7 +2574,7 @@
 			request.@idSamplePrepMethodDefault = samplePrepMethodCombo.selectedItem.@value;
 			request.@idOrganismSampleDefault = this.sampleOrganismCombo.selectedItem.@value;
 
-			if (currentState != 'SolexaState' && currentState != 'SolexaStateAlreadyPrepped') {
+			if (!this.isSolexaState()) {
 				request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeMicroarrayCategory = this.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;				
 			}
@@ -2568,7 +2586,7 @@
 				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
-			if (request.@codeRequestCategory != "QC") {
+			if (request.@codeRequestCategory != "QC" && request.@codeRequestCategory != "SOLEXA") {
 				for each(var hyb:Object in hybs) {
 					if (requestCategory.@numberOfChannels != "2") {
 						hyb.@idSampleChannel2 = "0";
@@ -2597,7 +2615,7 @@
 		
 		private function saveRequest():void {
 			
-			if (currentState != 'SolexaState' && currentState != 'SolexaStateAlreadyPrepped') {
+			if (!this.isSolexaState()) {
 				request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeMicroarrayCategory = this.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;
 			} 			
@@ -2674,7 +2692,7 @@
 				}
 				samplesView.enabled = false;
 
-				if (currentState == 'SolexaState' || currentState == 'SolexaStateAlreadyPrepped') {
+				if (this.isSolexaState()) {
 					lanesView.enabled = false;
 				} else {
 					if (theTab.contains(hybSetupView)) {
@@ -2785,7 +2803,7 @@
 				<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
 					<mx:VBox width="100%" verticalGap="1">
 					    <mx:HBox width="100%" horizontalGap="0">
-					    <mx:Image source="assets/bullet_orange.png"/>
+					    <mx:Image source="assets/bullet_orange.png" autoLoad="true"/>
 					    <mx:Label text="Select a request type:" width="240"/>
 							<mx:HBox width="100%" horizontalGap="8">
 								<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
@@ -2810,7 +2828,7 @@
 					    </mx:HBox>
 					</mx:VBox>
 					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
+						<mx:Image source="assets/bullet_orange.png" autoLoad="true"/>
 						<mx:Label text="Select the lab submitting this request:" width="240"/>
 						<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 							selectedIndex="-1" labelField="@name" 

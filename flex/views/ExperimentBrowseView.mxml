@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%" xmlns:views="views.*"
-	  verticalGap="0" paddingTop="0" paddingLeft="6" paddingRight="6" paddingBottom="4">
+<views:ExtendedPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" xmlns:views="views.*"  controlBarPosition="bottom"
+	  verticalGap="0">
 	  
 
 
@@ -161,8 +161,6 @@
 	}
 	
     
-
-	
 	public function refreshButtonStack():void {
 		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
 			parentDocument.newProjectButton.visible = true;
@@ -186,6 +184,9 @@
 		}
 		
 	}
+		
+
+	
 	
 	public function filterList():void {
 		if (theViews.selectedChild == experimentListView ||
@@ -287,49 +288,11 @@
     <mx:XMLListCollection id="browseList" source="{parentDocument.browseTree.selectedItem..Request}"/>
  
 		
-		    
+
+<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
  	<mx:VBox width="100%"  verticalGap="0">
-		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" paddingTop="4" paddingBottom="4" paddingLeft="0" paddingRight="0" horizontalGap="0">
-	        <mx:ViewStack  id="buttonStack"  width="100%" >
-	            <mx:HBox   verticalAlign="middle" horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%">
-	            </mx:HBox>
-	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
-	            </mx:HBox>
-	            <mx:HBox horizontalAlign="left" id="saveProjectButtonView" horizontalGap="2" verticalAlign="middle">
-		            <mx:Button id="saveProjectButton" label="Save" 
-		            	icon="@Embed('../assets/action_save.gif')" 
-		            	click="projectDetailView.save()"  toolTip="Save project">
-		                  </mx:Button>
-		            
-	            </mx:HBox>
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="trackButtonView" horizontalGap="2">
-	                <mx:Button label="Button" visible="false"/>
-	            </mx:HBox>
-	        	<mx:HBox  verticalAlign="middle" horizontalAlign="left" id="saveVisibilityButtonView" height="100%">
-		        	<mx:Button label="Save" id="saveVisibilityButton"
-		        		icon="@Embed('../assets/action_save.gif')" 
-		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for project and experiments">
-		        	      </mx:Button>
-	        	</mx:HBox>
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFoldersButtonView">
-		            <mx:Button id="downloadFoldersButton" 
-		            	click="downloadView.downloadFolders()" 
-		            	icon="@Embed('../assets/icon_download.gif')" 
-		            	toolTip="Download selected folders"
-		            	label="Download" 
-		            	visible="true"/>
-	            </mx:HBox>		                    
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
-		            <mx:Button id="downloadFilesButton" 
-		             	click="downloadView.downloadFiles()" 
-		             	icon="@Embed('../assets/icon_download.gif')" 
-		             	toolTip="Download selected files"
-		             	label="Download"/>
-	            </mx:HBox>		                    
-	            
-	        	
-	        </mx:ViewStack>
-	        
+
+
 	        <mx:HBox id="filterListView"  width="100%" horizontalAlign="right" horizontalGap="0">
 				<mx:ViewStack id="filterStack" width="100%" >
 				    <mx:HBox horizontalAlign="right" width="100%">
@@ -359,7 +322,8 @@
 	        	
 	        </mx:HBox>
 
-		</mx:HBox>
+
+
 
 		<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="2" paddingBottom="0" height="100%" backgroundColor="#ffffff" backgroundAlpha="1">
 	        <mx:TabBar dataProvider="{theViews}" 
@@ -419,8 +383,54 @@
 		</mx:ViewStack>
 			
 	</mx:VBox>	    	 
+	
+</mx:VBox>		    
+		
+	<mx:ControlBar width="100%" >
+		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" horizontalGap="0">
+			<mx:ViewStack  id="buttonStack"  width="100%" >
+	            <mx:HBox   verticalAlign="middle" horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
+ 					<mx:Button  visible="false"/>
+ 	            </mx:HBox>
+	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
+	            </mx:HBox>
+	            <mx:HBox horizontalAlign="left" id="saveProjectButtonView" horizontalGap="2" verticalAlign="middle">
+		            <mx:Button id="saveProjectButton" label="Save" 
+		            	icon="@Embed('../assets/action_save.gif')" 
+		            	click="projectDetailView.save()"  toolTip="Save project">
+		                  </mx:Button>
+		            
+	            </mx:HBox>
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="trackButtonView" horizontalGap="2">
+	                <mx:Button label="Button" visible="false"/>
+	            </mx:HBox>
+	        	<mx:HBox  verticalAlign="middle" horizontalAlign="left" id="saveVisibilityButtonView" height="100%">
+		        	<mx:Button label="Save" id="saveVisibilityButton"
+		        		icon="@Embed('../assets/action_save.gif')" 
+		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for project and experiments">
+		        	      </mx:Button>
+	        	</mx:HBox>
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFoldersButtonView">
+		            <mx:Button id="downloadFoldersButton" 
+		            	click="downloadView.downloadFolders()" 
+		            	icon="@Embed('../assets/icon_download.gif')" 
+		            	toolTip="Download selected folders"
+		            	label="Download" 
+		            	visible="true"/>
+	            </mx:HBox>		                    
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
+		            <mx:Button id="downloadFilesButton" 
+		             	click="downloadView.downloadFiles()" 
+		             	icon="@Embed('../assets/icon_download.gif')" 
+		             	toolTip="Download selected files"
+		             	label="Download"/>
+	            </mx:HBox>		                    
+	        </mx:ViewStack>
+		</mx:HBox>
+	</mx:ControlBar>
+	
 
-</mx:VBox>
+</views:ExtendedPanel>
 
 
 
