@@ -280,6 +280,14 @@
             	Alert.show("Delete user failed. " + deleteAppUser.lastResult..ACTMESSAGE.@TEXT);
             }
           }
+          
+          private function onTabChange():void {
+			if (navBar.selectedChild == usersView) {
+				detailViews.selectedChild = userEmptyView;
+			} else {
+				detailViews.selectedChild = groupEmptyView;          					
+			}
+          }
 
            
          
@@ -292,63 +300,69 @@
  <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
     <mx:ViewStack id="navStack" width="250" height="100%">
-	    <mx:TabNavigator id="navBar" height="100%" width="100%"  styleName="userTabNavigator" >
-	      <mx:change>{navBar.selectedChild == usersView ? detailViews.selectedChild = userEmptyView : detailViews.selectedChild = groupEmptyView}</mx:change>
-	      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
-	        
 
-	        <mx:VBox height="100%" paddingBottom="6" width="100%" 
-	        	paddingLeft="6" paddingRight="6" paddingTop="0">
-	       	      <mx:TextInput id="userSearchText" editable="true" 
-	       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list"/>
-		    
+ 		    <mx:TabNavigator id="navBar" height="100%" width="100%" styleName="userTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D">
+		      <mx:change>onTabChange()</mx:change>
+		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
+		        
 	
-	    	      <mx:DataGrid id="usersGrid" 
-	    	      	visible="true" width="100%" editable="false" enabled="true" 
-	    	      	dataProvider="{appUsers}" height="100%"  
-	    	      	itemClick="userRowSelected()" showHeaders="false">
-					<mx:columns>
-								<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
-				    </mx:columns>
-	      	     </mx:DataGrid>
-	      	     <mx:HBox>
+		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
+		       	      <mx:TextInput id="userSearchText" editable="true" 
+		       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list"/>
+			    
+		
+		    	      <mx:DataGrid id="usersGrid" 
+		    	      	visible="true" width="100%" editable="false" enabled="true" 
+		    	      	dataProvider="{appUsers}" height="100%"  
+		    	      	itemClick="userRowSelected()" showHeaders="false">
+						<mx:columns>
+									<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
+					    </mx:columns>
+		      	     </mx:DataGrid>
+		      	   </mx:VBox>
+	              	
+				<mx:ControlBar width="100%">
 		    	      <mx:Button id="addUserButton" click="prepareToAddUser()" icon="@Embed('../assets/user_add.png')" toolTip="Add user" label="New"/>
 		    	      <mx:Button id="deleteUserButton" click="promptToDeleteAppUser()" icon="@Embed('../assets/user_delete.png')" toolTip="Delete user" label="Delete"/>
 		    	      <mx:Button id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
-	      	     	
-	      	     </mx:HBox>
-              	
+				</mx:ControlBar>
+	
+	
+	    	    </mx:VBox>
+	    	    
+		      </mx:Canvas>
+		      
+		      
+		      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%" >
+		      
+		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
+		       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list."/>
+			    
+			         
+		    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false">
+						<mx:columns>
+									<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
+								
+					    </mx:columns>
+		      	     </mx:DataGrid>
+		    	    </mx:VBox>
+
+					<mx:ControlBar width="100%">
+			    	      <mx:Button id="addGroupButton" icon="@Embed('../assets/group_add.png')" toolTip="Add group" label="New" click="prepareToAddGroup()"/>
+			    	      <mx:Button id="deleteGroupButton"  icon="@Embed('../assets/group_delete.png')" toolTip="Delete group" label="Delete" click="promptToDeleteGroup()"/>
+		    		      <mx:Button id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
+					</mx:ControlBar>
+	
+	    	    </mx:VBox>
 
 
-    	    </mx:VBox>
-    	    
-	      </mx:Canvas>
-	      
-	      
-	      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%" 
-	      	>
-	      
-	        <mx:VBox height="100%" paddingLeft="6" paddingRight="6" paddingTop="0" paddingBottom="6" width="100%">
-       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list."/>
-	    
-	         
-    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false">
-				<mx:columns>
-							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
-						
-			    </mx:columns>
-      	     </mx:DataGrid>
-      	     <mx:HBox>
-	    	      <mx:Button id="addGroupButton" icon="@Embed('../assets/group_add.png')" toolTip="Add group" label="New" click="prepareToAddGroup()"/>
-	    	      <mx:Button id="deleteGroupButton"  icon="@Embed('../assets/group_delete.png')" toolTip="Delete group" label="Delete" click="promptToDeleteGroup()"/>
-	    	      <mx:Button id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../assets/action_refresh.gif')" toolTip="Refresh list"/>
-      	     	
-      	     </mx:HBox>
-    	    </mx:VBox>
-
-	      </mx:Canvas>
-	      
-	    </mx:TabNavigator>
+		      </mx:Canvas>
+		      
+		    </mx:TabNavigator>
+			
+        	
 
 		<mx:Panel title="Manage Groups">
 			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{parentApplication.createSecurityAdvisor.lastResult.groupsToManage.Lab}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
