@@ -181,7 +181,7 @@
         	if (saveProject.lastResult.name() == "SUCCESS") {
 				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
 				if (fromSubmitRequestWindow) {
-					parentApplication.submitRequestView.onProjectAdded(saveProject.lastResult.@idProject);
+					parentApplication.submitRequestView.setupView.onProjectAdded(saveProject.lastResult.@idProject);
 				}else {
 					parentApplication.navExperimentView.getProject.send();
 	        		parentApplication.navExperimentView.refreshExperiments();
