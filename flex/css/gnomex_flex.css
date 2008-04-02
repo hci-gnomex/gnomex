@@ -63,23 +63,25 @@ TabNavigator {
 }
 
 .userTabNavigator {
-        backgroundColor: #FFFFFF;
-	    backgroundAlpha:            .5;
+	    backgroundAlpha:            1;
 	    tabStyleName:      userTabHeader;
-	selectedTabTextStyleName: userTabHeaderTextSelected;
+		selectedTabTextStyleName: tabHeaderTextSelected;
+	    backgroundColor: #A1A79D;
+	    borderColor: #A1A79D;
 }
 
 .userTabHeader {
-	fillColors: #FFFFFF, #FFFFFF; 
- 	    fontWeight: 		normal;		    
-	    backgroundAlpha:            .5;
+	fillColors: #A1A79D, #A1A79D;
+	fillAlphas:  1, 1;
+ 	fontWeight: 		normal;		   
+
 }
 .userTabHeaderTextSelected {
 	    fontWeight:  bold;
 }
 
 .tabHeaderTextSelected {
-	    fontWeight:  normal;
+	    fontWeight:  bold;
 }
 
 ApplicationControlBar {
