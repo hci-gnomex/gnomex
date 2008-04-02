@@ -2,7 +2,6 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:UsersView="UsersView.*" label="Users And Groups" 
 	width="100%" height="100%" xmlns:views="views.*" 
-	 creationComplete="checkSecurity()"
 	cornerRadius="8"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left">
 
 
@@ -111,8 +110,13 @@
           [Bindable]
           public var filteredAppGroupXML:XMLList;
           
+          public function initializeData():void
+          {
+          	callGetAppUserList();
+          	callGetLabList();
+          }
 
-		 private function checkSecurity():void {
+		 public function checkSecurity():void {
  			if (parentApplication.hasPermission("canAdministerUsers")) {
  				navStack.selectedIndex = 0;
  				detailViews.selectedChild = this.userEmptyView;
@@ -154,11 +158,6 @@
            	this.selectedLab = null;
            	this.fullLab = null;
             detailViews.selectedChild = this.groupDetailView;
-          }
-          public function callInitialServices():void
-          {
-          	callGetAppUserList();
-          	callGetLabList();
           }
           
           public function refreshAppUserList():void 
