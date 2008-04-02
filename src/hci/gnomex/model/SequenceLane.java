@@ -15,6 +15,9 @@ public class SequenceLane extends HibernateDetailObject {
   private Integer idSample;
   private Sample  sample;
   private Integer idRequest;
+  private Integer idFlowCellType;
+  private Integer idNumberSequencingCycles;
+  private String  notes;
   
   public Integer getIdSample() {
     return idSample;
@@ -72,6 +75,36 @@ public class SequenceLane extends HibernateDetailObject {
   
   public void setNumber(String number) {
     this.number = number;
+  }
+
+  
+  public Integer getIdNumberSequencingCycles() {
+    return idNumberSequencingCycles;
+  }
+
+  
+  public void setIdNumberSequencingCycles(Integer idNumberSequencingCycles) {
+    this.idNumberSequencingCycles = idNumberSequencingCycles;
+  }
+
+  
+  public Integer getIdFlowCellType() {
+    return idFlowCellType;
+  }
+
+  
+  public void setIdFlowCellType(Integer idFlowCellType) {
+    this.idFlowCellType = idFlowCellType;
+  }
+
+  
+  public String getNotes() {
+    return notes;
+  }
+
+  
+  public void setNotes(String notes) {
+    this.notes = notes;
   }
   
   
