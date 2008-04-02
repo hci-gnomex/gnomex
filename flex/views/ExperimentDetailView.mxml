@@ -136,7 +136,8 @@
 			 var editWindow:views.SubmitRequestView = views.SubmitRequestView(PopUpManager.createPopUp(this.parentApplication.topArea, views.SubmitRequestView, true));
 			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedExperiment.@number;
 			 PopUpManager.centerPopUp(editWindow);		
-			 callLater(editWindow.setupEditForm, [parentDocument.selectedExperiment]);
+             callLater(editWindow.setupEditForm, [parentDocument.selectedExperiment]);
+           	 callLater(editWindow.initializeData);
 		}
 
 

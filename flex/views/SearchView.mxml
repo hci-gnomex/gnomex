@@ -2,7 +2,6 @@
 <mx:Canvas label="Advanced Search"  
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%"  creationPolicy="all"
-	creationComplete="initFilter()"
 >
 
 
@@ -58,8 +57,12 @@
         private var myXMLString:String = "";
 
 
-       private function initFilter():void {
+       public function initializeData():void {
        	parentApplication.filteredSlideProductList.filterFunction = filterSlideProduct;
+       	
+       	microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
+       	organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
+       	sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
        }
        
         private function filterSlideProduct(item:Object):Boolean {
@@ -180,7 +183,6 @@
                     <mx:VBox>
                        <mx:ComboBox 
                        	id="organismCombo"  labelField="@display" 
-                     	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"  
                      	width="220" 
                      	change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
                        </mx:ComboBox>
@@ -197,7 +199,6 @@
                     <mx:HBox>
                      <mx:Label text="Experiment Category" width="130"/>
                      <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
-                     	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}" 
                      	 width="220" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
                      </mx:ComboBox>
                     </mx:HBox>
@@ -219,7 +220,7 @@
                    <mx:HBox >
                     <mx:Label text="Sample Source" width="130"/>
                     <mx:ComboBox id="sampleSourceCombo"  
-                     labelField="@display" dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry}"
+                     labelField="@display"
                     	 width="220">
                     </mx:ComboBox>
                    </mx:HBox>

@@ -2,7 +2,6 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*"
-    creationComplete="initFilters()"
 	label="Submit Request" width="100%" height="100%" 
 	>
     <mx:states>
@@ -344,10 +343,29 @@
 		private var selectedIdSlideProduct:Object;
 		
 		
-		private function initFilters():void {
-	        	parentApplication.filteredProjectListForSubmitRequests.filterFunction = this.filterProject;
-	        	parentApplication.filteredProjectListForSubmitRequests.refresh();
+		public function initializeData():void {
+			if (!this.isSolexaState()) {
+				if (theTab.contains(sampleSetupView)) {
+					sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
+					sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
+					sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
+				}
+				if (theTab.contains(hybSetupView)) {
+					organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
+					microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
+				}
+				
+			}
 			
+			initFilters();
+		}
+		
+		private function initFilters():void {
+	        parentApplication.filteredProjectListForSubmitRequests.filterFunction = this.filterProject;
+	        parentApplication.filteredProjectListForSubmitRequests.refresh();
+			
+			parentApplication.filteredSlideProductListForSubmitRequests.filterFunction = filterSlideProduct;
+			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 		}
 		
 		private function isSolexaState():Boolean {
@@ -810,7 +828,7 @@
 			return keep;
 		}
 		
-		private function addSamplePrepMethodFilter():void {
+		public function addSamplePrepMethodFilter():void {
 			parentApplication.samplePrepMethodList.filterFunction = filterSamplePrepMethod;
 			parentApplication.samplePrepMethodList.refresh();
 		}
@@ -839,10 +857,6 @@
         	return doesMatch;
         }  
         
-		private function addSlideProductFilter():void {
-			parentApplication.filteredSlideProductListForSubmitRequests.filterFunction = filterSlideProduct;
-			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
-		}
        
         private function filterSlideProduct(item:Object):Boolean {
         	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
@@ -1210,7 +1224,6 @@
 			}
 
 			
-			this.addSlideProductFilter();
 			callLater(initializeControls);
 			callLater(assignSlideNumbers);			
 			callLater(checkSamplesCompleteness);
@@ -2887,21 +2900,21 @@
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
 							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();checkForSampleTypeCompatibility()">							
-								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry}</mx:dataProvider>
+								<mx:dataProvider></mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the organism of your samples:" width="340"/>
 							<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
-								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+								<mx:dataProvider></mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the source of your samples:" width="340"/>
 							<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
-								<mx:dataProvider>{parentApplication.sampleSourceList}</mx:dataProvider>
+								<mx:dataProvider></mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
@@ -2914,7 +2927,7 @@
 						<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 							<mx:Image source="assets/bullet_orange.png"/>
 							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
-							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" creationComplete="addSamplePrepMethodFilter()">							
+							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
 								<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
 							</mx:ComboBox>
 						</mx:HBox>
@@ -3099,7 +3112,7 @@
 						<mx:Label text="Select an organism:" width="300" />
 						<mx:ComboBox labelField="@display" width="300" id="organismCombo">							
 							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
-							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+							<mx:dataProvider></mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0">
@@ -3107,7 +3120,7 @@
 						<mx:Label text="Select an experiment category:" width="300" />
 						<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
 							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)</mx:change>
-							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}</mx:dataProvider>
+							<mx:dataProvider></mx:dataProvider>
 						</mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0">
@@ -3128,7 +3141,7 @@
 						</mx:Text>
 						<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 						    <mx:HBox>
-								<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" creationComplete="addSlideProductFilter()">							
+								<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" >							
 									<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 								</mx:ComboBox>
 						    </mx:HBox>

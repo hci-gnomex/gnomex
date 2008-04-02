@@ -94,15 +94,7 @@ LinkBar {
 	    useHandCursor: true;
 }
 
-Accordion {
 
-	headerHeight: 20;
-	headerStyleName: accordionHeader;
-}
-.accordionHeader {
-	fontWeight: normal;
-	textAlign: center;
-}
 
 DataGrid {
 	headerStyleName: header;
