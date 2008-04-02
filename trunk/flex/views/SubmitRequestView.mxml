@@ -8,7 +8,7 @@
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
-            <mx:RemoveChild target="{bioanalyzerContainer}"/>
+            <mx:RemoveChild target="{sampleSetupView.bioanalyzerContainer}"/>
             <mx:RemoveChild target="{hybsConfirmContainer}"/>
             <mx:AddChild relativeTo="{samplesConfirmContainer}" position="after">
 				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
@@ -96,14 +96,14 @@
             </mx:AddChild>
          </mx:State>
         <mx:State name="SolexaSetupState" basedOn="SolexaBaseState">
-            <mx:AddChild relativeTo="{concentrationContainer}">
+            <mx:AddChild relativeTo="{sampleSetupView.concentrationContainer}">
                 <mx:HBox width="100%">
     	            <mx:Label text="Enter approximate volume:"/>
 	                <mx:TextInput id="volume" />
 					<mx:Label text="ng" />
                 </mx:HBox>
             </mx:AddChild>
-            <mx:AddChild relativeTo="{concentrationContainer}" position="after">
+            <mx:AddChild relativeTo="{sampleSetupView.concentrationContainer}" position="after">
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
 					<mx:Image source="assets/bullet_orange.png"/>
 					<mx:Label text="Are the samples already prepped?" width="340" />
@@ -112,14 +112,14 @@
 				</mx:HBox>            	
             </mx:AddChild>
             <mx:RemoveChild target="{label1}"/>
-            <mx:AddChild relativeTo="{sampleSetupContainer}" >
+            <mx:AddChild relativeTo="{sampleSetupView.sampleSetupContainer}" >
                 <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
                 	<mx:Image source="assets/bullet_orange.png"/>
                 	<mx:Label text="Should the sequence be aligned to a genome build?" width="340"/>
                 	<mx:VBox width="100%" id="alignMoreContainer">
                 		<mx:HBox>
                 			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
-                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
+                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleSetupView.sampleOrganismCombo.selectedItem;sampleSetupView.checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
         		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
 		                	</mx:ComboBox>                			
                 		</mx:HBox>
@@ -130,7 +130,7 @@
                 	</mx:VBox>
                 </mx:HBox>
             </mx:AddChild>
-            <mx:SetProperty target="{label2}" name="text" value="Select a sample preparation method:"/>
+            <mx:SetProperty target="{sampleSetupView.label2}" name="text" value="Select a sample preparation method:"/>
             <mx:AddChild relativeTo="{laneFlowCellContainer}"  position="after">
         	         <mx:HBox id="numberOfLanesContainer">
 						<mx:Image source="assets/bullet_orange.png"/>
@@ -164,7 +164,7 @@
 					<mx:TextInput id="sizeSelectedTo" width="30"/>
 				</mx:HBox>            	
             </mx:AddChild>
-            <mx:RemoveChild target="{samplePrepContainer}">            	
+            <mx:RemoveChild target="{sampleSetupView.samplePrepContainer}">            	
             </mx:RemoveChild>
         </mx:State>
     </mx:states>
@@ -286,9 +286,9 @@
 		public function initializeData():void {
 			if (!this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {
-					sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
-					sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
-					sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
+					sampleSetupView.sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
+					sampleSetupView.sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
+					sampleSetupView.sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
 				}
 				if (theTab.contains(hybSetupView)) {
 					organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
@@ -459,12 +459,12 @@
 			
 			
 			if (theTab.contains(sampleSetupView)) {
-				numberOfSamples.text = '';
-				sampleTypeCombo.selectedIndex = -1;
-				samplePrepMethodCombo.selectedIndex = -1;
-				sampleSourceCombo.selectedIndex = -1;
-				this.sampleOrganismCombo.selectedIndex = -1;
-				this.sampleConcentration.text = '';
+				sampleSetupView.numberOfSamples.text = '';
+				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
+				sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
+				sampleSetupView.sampleSourceCombo.selectedIndex = -1;
+				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
+				sampleSetupView.sampleConcentration.text = '';
 				sampleSetupView.enabled = false;
 				if (theTab.contains(annotationView)) {
 					annotationView.enabled = false;								
@@ -566,14 +566,14 @@
 			} else {
 				this.currentState = '';
 				if (setupView.requestTypeGroup.selectedValue == "QC") {
-					if (!sampleSetupContainer.contains(bioanalyzerContainer)) {
-						sampleSetupContainer.addChildAt(bioanalyzerContainer, 6);
+					if (!sampleSetupView.sampleSetupContainer.contains(sampleSetupView.bioanalyzerContainer)) {
+						sampleSetupView.sampleSetupContainer.addChildAt(sampleSetupView.bioanalyzerContainer, 6);
 					}
-					if (sampleSetupContainer.contains(sampleOrganismContainer)) {
-						sampleSetupContainer.removeChild(sampleOrganismContainer);
+					if (sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleOrganismContainer)) {
+						sampleSetupView.sampleSetupContainer.removeChild(sampleSetupView.sampleOrganismContainer);
 					}
-					if (sampleSetupContainer.contains(sampleSourceContainer)) {
-						sampleSetupContainer.removeChild(sampleSourceContainer);
+					if (sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleSourceContainer)) {
+						sampleSetupView.sampleSetupContainer.removeChild(sampleSetupView.sampleSourceContainer);
 					}
 					hybsConfirmContainer.visible = false;
 					hybsConfirmContainer.height = 0;
@@ -596,14 +596,14 @@
 					this.chipTypeConfirmColumn.visible = true;
 				} else {
 					if (theTab.contains(sampleSetupView)) {
-						if (sampleSetupContainer.contains(bioanalyzerContainer)) {
-							sampleSetupContainer.removeChild(bioanalyzerContainer);
+						if (sampleSetupView.sampleSetupContainer.contains(sampleSetupView.bioanalyzerContainer)) {
+							sampleSetupView.sampleSetupContainer.removeChild(sampleSetupView.bioanalyzerContainer);
 						}
-						if (!sampleSetupContainer.contains(sampleOrganismContainer)) {
-							sampleSetupContainer.addChildAt(sampleOrganismContainer, 2);
+						if (!sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleOrganismContainer)) {
+							sampleSetupView.sampleSetupContainer.addChildAt(sampleSetupView.sampleOrganismContainer, 2);
 						}
-						if (!sampleSetupContainer.contains(sampleSourceContainer)) {
-							sampleSetupContainer.addChildAt(sampleSourceContainer, 3);
+						if (!sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleSourceContainer)) {
+							sampleSetupView.sampleSetupContainer.addChildAt(sampleSetupView.sampleSourceContainer, 3);
 						}
 					}
 					hybsConfirmContainer.visible = true;
@@ -755,9 +755,9 @@
         		return false;
         	}
         	var doesMatch:Boolean = true;
-        	if (sampleTypeCombo.selectedItem != null && 
-        	    sampleTypeCombo.selectedItem.@value != null  &&
-        	    sampleTypeCombo.selectedItem.@value != "") {
+        	if (sampleSetupView.sampleTypeCombo.selectedItem != null && 
+        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != null  &&
+        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != "") {
         	   	doesMatch = false;
         	   	var applicableSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSampleType == sampleTypeCombo.selectedItem.@value);
         	   	for each (var xref:Object in applicableSamplePrepMethods) {
@@ -945,7 +945,7 @@
 			callLater(assignSlideNumbers);
 			
 			
-			callLater(checkSampleSetupCompleteness);
+			callLater(sampleSetupView.checkSampleSetupCompleteness);
 			callLater(checkSamplesCompleteness);
 			callLater(checkHybSetupCompleteness);
 			callLater(checkHybsCompleteness);
@@ -1082,10 +1082,10 @@
 		private function initializeControls():void {
 			
 			if (theTab.contains(sampleSetupView)) {
-				numberOfSamples.text = new String(request.samples.Sample.length());
-				sampleConcentration.text = "100";
-				sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
-				samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
+				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
+				sampleSetupView.sampleConcentration.text = "100";
+				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
+				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
 				
 			}
 
@@ -1095,8 +1095,8 @@
 			} else if (setupView.requestTypeGroup.selectedValue == "QC") {
 				
 			}else {
-				sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
-				sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
+				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
+				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
 
 				selectedIdSlideProduct = request.@idSlideProduct;
 				numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
@@ -1300,11 +1300,11 @@
 				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + samples.length + "'" +
 			    " name='' description='' " +
-				" concentration='" + sampleConcentration.text + "'" +
+				" concentration='" + sampleSetupView.sampleConcentration.text + "'" +
 				" codeConcentrationUnit='ng/ul'" + 
-				" codeBioanalyzerChipType='" + getSelectedCodeBioanalyzerChipType() + "'" +
-				" idSampleType='" + sampleTypeCombo.selectedItem.@value + "'" +
-				" idSamplePrepMethod='" + samplePrepMethodCombo.selectedItem.@value + "'" +				
+				" codeBioanalyzerChipType='" + sampleSetupView.getSelectedCodeBioanalyzerChipType() + "'" +
+				" idSampleType='" + sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
+				" idSamplePrepMethod='" + sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 				" treatment='" + treatmentTextInput.text + "'" +				
 				"/>");
 			
@@ -1312,12 +1312,12 @@
 				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + samples.length + "'" +
 			    " name='' description='' " +
-				" concentration='" + sampleConcentration.text + "'" +
+				" concentration='" + sampleSetupView.sampleConcentration.text + "'" +
 				" codeConcentrationUnit='ng/ul'" + 
-				" idSampleType='" + sampleTypeCombo.selectedItem.@value + "'" +
-				" idSamplePrepMethod='" + samplePrepMethodCombo.selectedItem.@value + "'" +				
-				" idOrganism='"  + sampleOrganismCombo.selectedItem.@value + "'" +				
-				" idSampleSource='"  + sampleSourceCombo.selectedItem.@value + "'" +				
+				" idSampleType='" + sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
+				" idSamplePrepMethod='" + sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+				" idOrganism='"  + sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
+				" idSampleSource='"  + sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
 				" treatment='"  + treatmentTextInput.text + "'" +				
 				"/>");
 			}
@@ -1326,16 +1326,7 @@
 	        	
 		}
 		
-		private function getSelectedCodeBioanalyzerChipType():String {
-			var selectedCode:String = '';
-			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-				if (item.@isSelected != null && item.@isSelected == "true") {
-					selectedCode = item.@value;
-					break;
-				}
-			} 
-			return selectedCode;
-		}
+
 		
 		private function deleteSample():void {
 			if (samplesGrid.selectedItems.length > 0) {
@@ -1417,45 +1408,8 @@
             	checkSamplesCompleteness();
             }
         }
-       	private function propagateSampleType():void {
-			for each (var sample:Object in samples) {
-				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
-			}
-			callLater(checkSamplesCompleteness);
-		}
-       	private function propagateSamplePrepMethod():void {
-			for each (var sample:Object in samples) {
-				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
-			}
-			callLater(checkSamplesCompleteness);
-		}
-       	private function propagateSampleSource():void {
-			for each (var sample:Object in samples) {
-				sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@value;
-			}
-			callLater(checkSamplesCompleteness);
-		}
-       	private function propagateSampleConcentration():void {
-			for each (var sample:Object in samples) {
-				sample.@concentration = this.sampleConcentration.text;
-			}
-			callLater(checkSamplesCompleteness);
-		}
-       	private function propagateSampleOrganism():void {
-			for each (var sample:Object in samples) {
-				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
-			}
-			callLater(checkSamplesCompleteness);
-		}
-       	public function propagateChipType():void {
-       		var codeChipType:String = this.getSelectedCodeBioanalyzerChipType();
-			for each (var sample:Object in samples) {
-				sample.@codeBioanalyzerChipType = codeChipType;
-			}
-			callLater(checkSamplesCompleteness);
-		}
        	private function propagateTreatment():void {
-			for each (var sample:Object in samples) {
+			for each (var sample:Object in parentDocument.samples) {
 				sample.@treatment = this.treatmentTextInput.text;
 			}
 			if (this.treatmentTextInput.text != '') {
@@ -1475,11 +1429,11 @@
         	if (requestToClone != null) {
         		return;
         	}
-       		if (!this.checkSampleSetupCompleteness()) {
+       		if (!sampleSetupView.checkSampleSetupCompleteness()) {
        			return;
        		}
         	
-    		var numberOfSamplesToAdd:Number = new Number(numberOfSamples.text);
+    		var numberOfSamplesToAdd:Number = new Number(sampleSetupView.numberOfSamples.text);
     		if(samples.length <= numberOfSamplesToAdd) {
     			numberOfSamplesToAdd = numberOfSamplesToAdd - samples.length;
     		} else {
@@ -1491,63 +1445,6 @@
         }
         
         
-      	public function checkSampleSetupCompleteness():Boolean {
-        	var isComplete:Boolean = false;
-        	if (request != null && request.@idRequest != '0') {
-        		isComplete = true;
-        	}else if (setupView.requestTypeGroup.selectedValue == "QC") {
-	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
-	        	    	
-	        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-	        			if (chipType.@isSelected == "true") {
-	        				isComplete = true;
-	        				break;
-	        			}
-	        		}
-	        	}
-        	} else {
-	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
-	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
-					isComplete = true;	        	    	
-	        	}
-        	}
-
-    		this.samplesView.enabled = isComplete;
-    		enableNextButtons();
-			if (theTab.contains(annotationView)) {
-				this.annotationView.enabled = isComplete;        			
-	    	}
-
-        	callLater(postSampleSetupCompleteness, [isComplete]);
-        	
-    		return isComplete;
-    	    	
-        }
-        
-        private function postSampleSetupCompleteness(isComplete:Boolean):void {
-	    		
-	    	if (!isComplete) {
-	        	if (theTab.contains(hybSetupView)) {
-		        	this.hybSetupView.enabled = false;
-	        	} 
-	
-	        	if (theTab.contains(hybsView)) {
-		        	this.hybsView.enabled = false;
-	        	} 
-	
-	        	this.confirmView.enabled = false;
-    		} else {
-    			this.checkSamplesCompleteness();
-    		}
-        	
-        }
         
         public function checkSamplesCompleteness():void {
         	var completeCount:int = 0;
@@ -1865,12 +1762,12 @@
         	} else {
 	        	if (this.microarrayCategoryCombo.selectedItem != null &&
 	        	    this.microarrayCategoryCombo.selectedItem.@value != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null &&
-	        	    this.sampleTypeCombo.selectedItem.@value != '') {
+	        	    sampleSetupView.sampleTypeCombo.selectedItem != null &&
+	        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != '') {
 	        	    compatible = false;
 					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
 						if (sampleTypeX.@codeMicroarrayCategory == microarrayCategoryCombo.selectedItem.@value &&
-						    sampleTypeX.@idSampleType == sampleTypeCombo.selectedItem.@value) {
+						    sampleTypeX.@idSampleType == sampleSetupView.sampleTypeCombo.selectedItem.@value) {
 							compatible = true;
 							break;
 						}
@@ -1881,7 +1778,7 @@
         	return compatible;
         }
         
-        private function checkForSampleTypeCompatibility():void {
+        public function checkForSampleTypeCompatibility():void {
         	if (!this.isSampleTypeCompatibile()) {
         		if (editMode) {
 					var sampleType:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
@@ -1892,7 +1789,7 @@
 	        		' experiments.  Please change the microarray category.');
         			
         		} else {
-	        		Alert.show('Sample type ' + sampleTypeCombo.selectedItem.@display + 
+	        		Alert.show('Sample type ' + sampleSetupView.sampleTypeCombo.selectedItem.@display + 
 	        		' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
 	        		' experiments.  Please change the sample type or microarray category.');
         			
@@ -2364,13 +2261,13 @@
 			request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 			
-			request.@idSampleTypeDefault = sampleTypeCombo.selectedItem.@value;
+			request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 			
 			if (setupView.requestTypeGroup.selectedValue != "QC") {
-				request.@idSampleSourceDefault = sampleSourceCombo.selectedItem.@value;
-				request.@idOrganismSampleDefault = this.sampleOrganismCombo.selectedItem.@value;
+				request.@idSampleSourceDefault = sampleSetupView.sampleSourceCombo.selectedItem.@value;
+				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 			}
-			request.@idSamplePrepMethodDefault = samplePrepMethodCombo.selectedItem.@value;
+			request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
 
 			if (!this.isSolexaState() && setupView.requestTypeGroup.selectedValue != "QC") {
 				request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
@@ -2521,14 +2418,6 @@
 			navigateToURL(url, '_blank');			
 		}
 		
-		public function toggleOtherChipTypeSelections(codeSelected:String):void {
-			
-			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-				if (item.@value != codeSelected) {
-					item.@isSelected = "false";
-				}
-			}
-		}
 
 		private function showCy3LabelCols(isVisible:Boolean):void {
 			labelCol1.visible = isVisible;
@@ -2569,88 +2458,9 @@
 		    <views:SubmitRequestSetupView id="setupView">		    	
 		    </views:SubmitRequestSetupView>
 		    
-			<mx:Canvas id="sampleSetupView" label="Sample setup" width="100%" height="100%" enabled="false">
-				<mx:VBox width="100%" height="100%" verticalGap="2">
-					<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
-						<mx:HBox width="100%" horizontalGap="0">
-							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="How many samples will you be submitting?" width="340" />
-							<mx:TextInput width="40" id="numberOfSamples" change="initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
-						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0">
-							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();checkForSampleTypeCompatibility()">							
-								<mx:dataProvider></mx:dataProvider>
-							</mx:ComboBox>
-						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
-							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="Select the organism of your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
-								<mx:dataProvider></mx:dataProvider>
-							</mx:ComboBox>
-						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
-							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="Select the source of your samples:" width="340"/>
-							<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
-								<mx:dataProvider></mx:dataProvider>
-							</mx:ComboBox>
-						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
-							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="Enter the approximate sample concentration:" width="340"/>
-							<mx:TextInput width="40" id="sampleConcentration" change="initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
-							<mx:Label text="ng/µL" id="concentrationLabel"/>
-							<mx:Spacer width="40"/>
-						</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
-							<mx:Image source="assets/bullet_orange.png"/>
-							<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
-							<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
-								<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
-							</mx:ComboBox>
-						</mx:HBox>
-						<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
-							<mx:HBox width="100%" horizontalGap="0">
-								<mx:Image source="assets/bullet_orange.png"/>
-								<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
-							</mx:HBox>
-							<mx:HBox width="100%">
-								<mx:Spacer width="8"/>								
-								<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"  >
-									<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '')}</mx:dataProvider>
-									<mx:columns>
-									    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
-									        	width="20" 
-									        	editable="true"                        	
-									        	dataField="@isSelected" 
-									        	editorDataField="selected"
-									        	itemRenderer="views.CheckBoxIsSelectedChipType" />
-										<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
-										<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
-										<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
-										<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
-										<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
-										
-									</mx:columns>
-								</mx:DataGrid>
-							</mx:HBox>
-							<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
-								<mx:HBox borderStyle="inset" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
-									<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
-									</mx:Text>
-								</mx:HBox>
-							</mx:HBox>
-							
-						</mx:VBox>
-						
-					</mx:VBox>
-					
-				</mx:VBox>
-				
-			</mx:Canvas>
+		    <views:SubmitRequestSampleSetupView id="sampleSetupView">		    	
+		    </views:SubmitRequestSampleSetupView>
+		    
 			<mx:Canvas label="Annotations" width="100%" height="100%" enabled="false" id="annotationView">
 				<mx:VBox width="100%" height="100%">
 					<mx:HBox width="100%" height="100%" horizontalGap="24">
