@@ -315,6 +315,9 @@
 		<property name="idSample" column="idSample" type="integer"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
 		<property name="idRequest" column="idRequest" type="integer"/>
+		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
+		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
+		<property name="notes" column="notes" type="string"/>
 	</class>	
 	
 	<!-- hci.gnomex.model.Slide -->
