@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Sample setup" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	 width="100%" height="100%" >
+<mx:Script>
+	<![CDATA[
+		public function getSelectedCodeBioanalyzerChipType():String {
+			var selectedCode:String = '';
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@isSelected != null && item.@isSelected == "true") {
+					selectedCode = item.@value;
+					break;
+				}
+			} 
+			return selectedCode;
+		}
+		public function propagateChipType():void {
+       		var codeChipType:String = this.getSelectedCodeBioanalyzerChipType();
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@codeBioanalyzerChipType = codeChipType;
+			}
+			callLater(parentDocument.checkSamplesCompleteness);
+		}
+       	private function propagateSampleType():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.checkSamplesCompleteness);
+		}
+       	private function propagateSamplePrepMethod():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.checkSamplesCompleteness);
+		}
+       	private function propagateSampleSource():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.checkSamplesCompleteness);
+		}
+       	private function propagateSampleConcentration():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@concentration = this.sampleConcentration.text;
+			}
+			callLater(parentDocument.checkSamplesCompleteness);
+		}
+       	private function propagateSampleOrganism():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.checkSamplesCompleteness);
+		}
+		
+		public function toggleOtherChipTypeSelections(codeSelected:String):void {
+			
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@value != codeSelected) {
+					item.@isSelected = "false";
+				}
+			}
+		}
+
+      	public function checkSampleSetupCompleteness():Boolean {
+        	var isComplete:Boolean = false;
+        	if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
+        		isComplete = true;
+        	}else if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+	        	    	
+	        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+	        			if (chipType.@isSelected == "true") {
+	        				isComplete = true;
+	        				break;
+	        			}
+	        		}
+	        	}
+        	} else {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+					isComplete = true;	        	    	
+	        	}
+        	}
+
+    		parentDocument.samplesView.enabled = isComplete;
+    		parentDocument.enableNextButtons();
+			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+				parentDocument.annotationView.enabled = isComplete;        			
+	    	}
+
+        	callLater(postSampleSetupCompleteness, [isComplete]);
+        	
+    		return isComplete;
+    	    	
+        }
+        
+        private function postSampleSetupCompleteness(isComplete:Boolean):void {
+	    		
+	    	if (!isComplete) {
+	        	if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
+		        	parentDocument.hybSetupView.enabled = false;
+	        	} 
+	
+	        	if (parentDocument.theTab.contains(parentDocument.hybsView)) {
+		        	parentDocument.hybsView.enabled = false;
+	        	} 
+	
+	        	parentDocument.confirmView.enabled = false;
+    		} else {
+    			parentDocument.checkSamplesCompleteness();
+    		}
+        	
+        }
+		
+	]]>
+</mx:Script>
+	<mx:VBox width="100%" height="100%" verticalGap="2">
+		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Label text="How many samples will you be submitting?" width="340" />
+				<mx:TextInput width="40" id="numberOfSamples" change="parentDocument.initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
+				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="parentDocument.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
+					<mx:dataProvider></mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
+				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Label text="Select the organism of your samples:" width="340"/>
+				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.initializeSamplesGrid();parentDocument.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
+					<mx:dataProvider></mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
+				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Label text="Select the source of your samples:" width="340"/>
+				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
+					<mx:dataProvider></mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
+				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Label text="Enter the approximate sample concentration:" width="340"/>
+				<mx:TextInput width="40" id="sampleConcentration" change="parentDocument.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
+				<mx:Label text="ng/µL" id="concentrationLabel"/>
+				<mx:Spacer width="40"/>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
+				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
+					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
+				<mx:HBox width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Spacer width="8"/>								
+					<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"  >
+						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '')}</mx:dataProvider>
+						<mx:columns>
+						    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
+						        	width="20" 
+						        	editable="true"                        	
+						        	dataField="@isSelected" 
+						        	editorDataField="selected"
+						        	itemRenderer="views.CheckBoxIsSelectedChipType" />
+							<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
+							<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
+							<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
+							<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
+							<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
+							
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:HBox>
+				<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
+					<mx:HBox borderStyle="inset" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+						<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
+						</mx:Text>
+					</mx:HBox>
+				</mx:HBox>
+				
+			</mx:VBox>
+			
+		</mx:VBox>
+		
+	</mx:VBox>
+	
+</mx:Canvas>
