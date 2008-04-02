@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="false" >
+<mx:Script>
+	<![CDATA[
+       	private function propagateTreatment():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@treatment = this.treatmentTextInput.text;
+			}
+			if (this.treatmentTextInput.text != '') {
+				parentDocument.treatmentColumn.visible = true;
+				parentDocument.treatmentConfirmColumn.visible = true;
+				parentDocument.request.@treatment = 'Y';
+			} else {
+				parentDocument.treatmentColumn.visible = false;
+				parentDocument.treatmentConfirmColumn.visible = false;
+				parentDocument.request.@treatment = 'N';
+				
+			}
+		}
+		
+		public function showSampleAnnotationColumn(codeSampleCharacteristic:String, show:Boolean):void {
+			if (parentDocument.samplesGrid == null) {
+				return;
+			}
+			for (var x:Number = 0; x < parentDocument.samplesGrid.columnCount; x++) {
+				var dc:DataGridColumn = parentDocument.samplesGrid.columns[x];
+				if ( dc.dataField == "@" + codeSampleCharacteristic) {
+					dc.visible = show;
+					break;					
+				}
+			}
+			for (var x1:Number = 0; x1 < parentDocument.samplesGridConfirm.columnCount; x1++) {
+				var dc1:DataGridColumn =parentDocument.samplesGridConfirm.columns[x1];
+				if ( dc1.dataField == "@" + codeSampleCharacteristic) {
+					dc1.visible = show;
+					break;
+				}
+			}
+		}
+		public function clearOutUncheckedSampleAnnotations():void {
+			for each(var annotation:Object in parentDocument.sampleCharacteristicEntries) {
+				var isSelected:String;
+				var value:String;
+				if (annotation.@isSelected == "false") {
+					isSelected = "N";
+					value = '';
+				} else {
+					isSelected = "Y";
+					value = null;
+				}
+					
+				for each(var sample:XML in parentDocument.samples) {
+					switch (annotation.@codeSampleCharacteristic.toString()) { 
+						case 'AGE' :
+							sample.@AGE = (value == null ? sample.@AGE : value);
+							parentDocument.request.@AGE = isSelected;
+							break;
+						case 'CELLLINE' :
+							sample.@CELLLINE = (value == null ? sample.@CELLLINE : value);
+							parentDocument.request.@CELLLINE = isSelected;
+							break;
+						case 'CELLTYPE' :
+							sample.@CELLTYPE = (value == null ? sample.@CELLTYPE : value);
+							parentDocument.request.@CELLTYPE = isSelected;
+							break;
+						case 'CLININFO' :
+							sample.@CLININFO = (value == null ? sample.@CLININFO : value);
+							parentDocument.request.@CLININFO = isSelected;
+							break;
+						case 'COMPOUND' :
+							sample.@COMPOUND = (value == null ? sample.@COMPOUND : value);
+							parentDocument.request.@COMPOUND = isSelected;
+							break;
+						case 'DOSE' :
+							sample.@DOSE = (value == null ? sample.@DOSE : value);
+							parentDocument.request.@DOSE = isSelected;
+							break;
+						case 'DISSTATE' :
+							sample.@DISSTATE = (value == null ? sample.@DISSTATE : value);
+							parentDocument.request.@DISSTATE = isSelected;
+							break;
+						case 'GENMOD' :
+							sample.@GENMOD = (value == null ? sample.@GENMOD : value);
+							parentDocument.request.@GENMOD = isSelected;
+							break;
+						case 'GROWTHCOND' :
+							sample.@GROWTHCOND = (value == null ? sample.@GROWTHCOND : value);
+							parentDocument.request.@GROWTHCOND = isSelected;
+							break;
+						case 'GENOTYPE' :
+							sample.@GENOTYPE = (value == null ? sample.@GENOTYPE : value);
+							parentDocument.request.@GENOTYPE = isSelected;
+							break;
+						case 'INDIV' :
+							sample.@INDIV = (value == null ? sample.@INDIV : value);
+							parentDocument.request.@INDIV = isSelected;
+							break;
+						case 'ORGPART' :
+							sample.@ORGPART = (value == null ? sample.@ORGPART : value);
+							parentDocument.request.@ORGPART = isSelected;
+							break;
+						case 'OTHER' :
+							sample.@OTHER = (value == null ? sample.@OTHER : value);
+							parentDocument.request.@OTHER = isSelected;
+							break;
+						case 'SEX' :
+							sample.@SEX = (value == null ? sample.@SEX : value);
+							parentDocument.request.@SEX = isSelected;
+							break;
+						case 'TEMP' :
+							sample.@TEMP = (value == null ? sample.@TEMP : value);
+							parentDocument.request.@TEMP = isSelected;
+							break;
+						case 'TIME' :
+							sample.@TIME = (value == null ? sample.@TIME : value);
+							parentDocument.request.@TIME = isSelected;
+							break;
+						default :
+							break;    							 
+					}
+				}
+			}
+		}
+				
+		
+	]]>
+</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%" height="100%" horizontalGap="24">
+			<mx:VBox height="100%">
+			    <mx:HBox>
+				    <mx:Image source="assets/bullet_orange.png"/>
+				    <mx:Text  htmlText="Specify all sample characteristics you wish to &lt;BR&gt; annotate in subsequent columns:"/>
+			    	
+			    </mx:HBox>
+				<mx:DataGrid id="sampleAnnotationGrid" height="100%" 
+					dataProvider="{parentDocument.sampleCharacteristicEntries}" 
+					selectionColor="#FFFFFF" fontSize="9"
+				showHeaders="true" headerHeight="20" variableRowHeight="true" width="280">
+				    <mx:columns>
+				        <mx:DataGridColumn headerText=" " 
+				        	width="17" 
+				        	editable="true"                        	
+				        	dataField="@isSelected" 
+				        	editorDataField="selected"
+				        	itemRenderer="views.CheckBoxIsSelectedSampleCharacteristic" >
+				        </mx:DataGridColumn>
+				        <mx:DataGridColumn  
+				        	headerText="Sample characteristics"
+				        	editable="false" editorDataField="selected" 
+				        	dataField="@sampleCharacteristic">
+				            <mx:itemRenderer>
+				                <mx:Component >
+				                     <mx:HBox>
+				                       <mx:Label text="{data.@sampleCharacteristic}">			                           	
+				                       </mx:Label>
+				                       <mx:TextInput id="scOtherLabel" fontSize="9"
+				                       	text="{data.@otherLabel}"
+				                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
+				                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
+				                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
+				                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
+				                       	editable="{data.@sampleCharacteristic == 'Other' ? true : false}">			                           
+				                       </mx:TextInput>
+				                     	
+				                     </mx:HBox>
+				                </mx:Component>
+				            </mx:itemRenderer>
+				        </mx:DataGridColumn>
+				    </mx:columns>
+				</mx:DataGrid>
+				
+			</mx:VBox>
+			<mx:VBox width="100%" height="100%">
+				<mx:HBox>
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%" height="28"/>
+					
+				</mx:HBox>
+				<mx:TextArea width="100%" height="100" id="treatmentTextInput" focusOut="propagateTreatment()">
+				</mx:TextArea>
+				
+			</mx:VBox>
+			
+			
+		</mx:HBox>
+	
+	</mx:VBox>
+
+</mx:Canvas>
