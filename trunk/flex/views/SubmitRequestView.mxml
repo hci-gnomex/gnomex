@@ -119,7 +119,7 @@
                 	<mx:VBox width="100%" id="alignMoreContainer">
                 		<mx:HBox>
                 			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
-                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="initializeSamplesGrid();organismCombo.selectedItem = sampleSetupView.sampleOrganismCombo.selectedItem;sampleSetupView.checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
+                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="samplesView.initializeSamplesGrid();hybSetupView.organismCombo.selectedItem = sampleSetupView.sampleOrganismCombo.selectedItem;sampleSetupView.checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
         		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
 		                	</mx:ComboBox>                			
                 		</mx:HBox>
@@ -260,7 +260,9 @@
 		private var warningMessage:String = "";
 		        
         
-        
+    	[Bindable]
+		public var selectedIdSlideProduct:Object;
+
         [Bindable]
         private var submittedIdRequest:String;
         [Bindable]
@@ -279,8 +281,6 @@
 		
 		[Bindable]
 		public var slideDesigns:XMLListCollection = new XMLListCollection();
-		[Bindable]
-		private var selectedIdSlideProduct:Object;
 		
 		
 		public function initializeData():void {
@@ -291,8 +291,8 @@
 					sampleSetupView.sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
 				}
 				if (theTab.contains(hybSetupView)) {
-					organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
-					microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
+					hybSetupView.organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
+					hybSetupView.microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
 				}
 				
 			}
@@ -308,7 +308,7 @@
 			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 		}
 		
-		private function isSolexaState():Boolean {
+		public function isSolexaState():Boolean {
 			if (currentState == 'SolexaBaseState' ||
 			    currentState == 'SolexaSetupState' ||
 			    currentState == 'SolexaSetupPreppedState') {
@@ -414,7 +414,7 @@
 
 			theTab.creationPolicy = 'all';
 			showWorkflowLabel.visible = false;
-			showQCFieldsCheckBox.visible = false;
+			samplesView.showQCFieldsCheckBox.visible = false;
 			showCy3LabelingFieldsCheckBox.visible = false;
 			showCy5LabelingFieldsCheckBox.visible = false;
 			showHybFieldsCheckBox.visible = false;
@@ -435,8 +435,8 @@
 				theTab.addChildAt(confirmView, 6);
 			}
 			hybSetupView.label = "Hyb setup";
-			numberOfHybsContainer.visible = true;
-			slideSourceContainer.visible = true;
+			hybSetupView.numberOfHybsContainer.visible = true;
+			hybSetupView.slideSourceContainer.visible = true;
 
 			
 			setupView.enabled = true;
@@ -472,14 +472,14 @@
 			}
 					
 			if (theTab.contains(hybSetupView)) {
-				organismCombo.selectedIndex = -1;
-				microarrayCategoryCombo.selectedIndex = -1;
-				slideProductCombo.selectedIndex = -1;
-				numberOfHybs.text = '';
-				isCatalogRadio.selected = true;
-				coreSlideSourceCheckbox.selected = false;
-			 	this.clientSlideSourceCheckbox.selected = false;
-				this.stripSlideSourceCheckbox.selected = false;
+				hybSetupView.organismCombo.selectedIndex = -1;
+				hybSetupView.microarrayCategoryCombo.selectedIndex = -1;
+				hybSetupView.slideProductCombo.selectedIndex = -1;
+				hybSetupView.numberOfHybs.text = '';
+				hybSetupView.isCatalogRadio.selected = true;
+				hybSetupView.coreSlideSourceCheckbox.selected = false;
+			 	hybSetupView.clientSlideSourceCheckbox.selected = false;
+				hybSetupView.stripSlideSourceCheckbox.selected = false;
 				
 			}	
 			
@@ -501,20 +501,20 @@
 			}
 			
 			
-			addSampleButton.visible = true;
-			copySampleButton.visible = true;
-			deleteSampleButton.visible = true;
-			clearSamplesButton.visible = true;
+			samplesView.addSampleButton.visible = true;
+			samplesView.copySampleButton.visible = true;
+			samplesView.deleteSampleButton.visible = true;
+			samplesView.clearSamplesButton.visible = true;
 			addHybButton.visible = true;
 			copyHybButton.visible = true;
 			deleteHybButton.visible = true;
 			clearHybsButton.visible = true;
 
-			this.organismCombo.enabled = true;
-			this.microarrayCategoryCombo.enabled = true;
-			this.slideProductCombo.enabled = true;
-			this.isCatalogRadio.enabled = true;
-			this.isCustomRadio.enabled = true;
+			hybSetupView.organismCombo.enabled = true;
+			hybSetupView.microarrayCategoryCombo.enabled = true;
+			hybSetupView.slideProductCombo.enabled = true;
+			hybSetupView.isCatalogRadio.enabled = true;
+			hybSetupView.isCustomRadio.enabled = true;
 			
 		}
 		
@@ -586,13 +586,13 @@
 					if (this.theTab.contains(hybsView)) {
 						this.theTab.removeChild(hybsView);				
 					}
-					this.sampleOrganismColumn.visible = false;
+					samplesView.sampleOrganismColumn.visible = false;
 					this.sampleOrganismConfirmColumn.visible = false;
-					this.sampleSourceColumn.visible  = false;
+					samplesView.sampleSourceColumn.visible  = false;
 					this.sampleSourceConfirmColumn.visible  = false;
-					this.concentrationUnitColumn.visible = true;
+					samplesView.concentrationUnitColumn.visible = true;
 					this.concentrationUnitConfirmColumn.visible = true;
-					this.chipTypeColumn.visible = true;
+					samplesView.chipTypeColumn.visible = true;
 					this.chipTypeConfirmColumn.visible = true;
 				} else {
 					if (theTab.contains(sampleSetupView)) {
@@ -617,13 +617,13 @@
 					if (!this.theTab.contains(hybsView)) {
 						this.theTab.addChildAt(hybsView, 5);				
 					}
-					this.sampleOrganismColumn.visible = true;
+					samplesView.sampleOrganismColumn.visible = true;
 					this.sampleOrganismConfirmColumn.visible = true;
-					this.sampleSourceColumn.visible  = true;
+					samplesView.sampleSourceColumn.visible  = true;
 					this.sampleSourceConfirmColumn.visible  = true;
-					this.concentrationUnitColumn.visible = false;
+					samplesView.concentrationUnitColumn.visible = false;
 					this.concentrationUnitConfirmColumn.visible = false;
-					this.chipTypeColumn.visible = false;
+					samplesView.chipTypeColumn.visible = false;
 					this.chipTypeConfirmColumn.visible = false;
 	
 					// Hide/Show the channel 2 sample column
@@ -642,7 +642,7 @@
 			
 		}
 		
-		private function getSamplesGridRowNumber(item:Object,col:int):String
+		public function getSamplesGridRowNumber(item:Object,col:int):String
         {
         	if (samples!= null) {
 	           var x:int = samples.getItemIndex(item) + 1;
@@ -651,7 +651,7 @@
         		return "";
         	}
         }
-		private function getHybsGridRowNumber(item:Object,col:int):String
+		public function getHybsGridRowNumber(item:Object,col:int):String
         {
         	if (hybs!= null) {
 	           var x:int = hybs.getItemIndex(item) + 1;
@@ -797,36 +797,36 @@
         	}       	
         	
         	var doesMatchOrganism:Boolean = true;
-        	if (organismCombo.selectedItem != null && 
-        	    organismCombo.selectedItem.@value != null  &&
-        	    organismCombo.selectedItem.@value != "") {
-        		if (item.@idOrganism == organismCombo.selectedItem.@idOrganism) {
+        	if (hybSetupView.organismCombo.selectedItem != null && 
+        	    hybSetupView.organismCombo.selectedItem.@value != null  &&
+        	    hybSetupView.organismCombo.selectedItem.@value != "") {
+        		if (item.@idOrganism == hybSetupView.organismCombo.selectedItem.@idOrganism) {
         			doesMatchOrganism = true;
         		} else {
         			doesMatchOrganism = false;
         		}
         	}
         	var doesMatchExperimentCategory:Boolean = true;
-        	if (microarrayCategoryCombo.selectedItem != null && 
-        	    microarrayCategoryCombo.selectedItem.@value != null &&
-        	    microarrayCategoryCombo.selectedItem.@value != "") {
+        	if (hybSetupView.microarrayCategoryCombo.selectedItem != null && 
+        	    hybSetupView.microarrayCategoryCombo.selectedItem.@value != null &&
+        	    hybSetupView.microarrayCategoryCombo.selectedItem.@value != "") {
         		doesMatchExperimentCategory = false;
         		var categoriesForSlideProduct:XMLList  = item.microarrayCategories.MicroarrayCategory;
         		for(var x:Number = 0; x < categoriesForSlideProduct.length(); x++) {
-        			if (categoriesForSlideProduct[x].@codeMicroarrayCategory == microarrayCategoryCombo.selectedItem.@value) {
+        			if (categoriesForSlideProduct[x].@codeMicroarrayCategory == hybSetupView.microarrayCategoryCombo.selectedItem.@value) {
         				doesMatchExperimentCategory = true;
         				break;
         			}
         		}
         	}
         	var doesMatchGroup:Boolean = true;
-        	if (setupView.labCombo.selectedItem != null && setupView.labCombo.selectedItem.@idLab != "" && isCustomRadio.selected) {
+        	if (setupView.labCombo.selectedItem != null && setupView.labCombo.selectedItem.@idLab != "" && hybSetupView.isCustomRadio.selected) {
         		if (item.@isCustom == "Y" && item.@idLab == setupView.labCombo.selectedItem.@idLab) {
         			doesMatchGroup = true;
         		} else {
         			doesMatchGroup = false;
         		}
-        	} else if (setupView.labCombo.selectedItem != null && setupView.labCombo.selectedItem.@idLab != "" && isCatalogRadio.selected) {
+        	} else if (setupView.labCombo.selectedItem != null && setupView.labCombo.selectedItem.@idLab != "" && hybSetupView.isCatalogRadio.selected) {
         		if (item.@isCustom != "Y") {
         			doesMatchGroup = true;
         		} else {
@@ -942,12 +942,12 @@
 			}
 						
 			callLater(initializeControls);
-			callLater(assignSlideNumbers);
+			callLater(hybSetupView.assignSlideNumbers);
 			
 			
 			callLater(sampleSetupView.checkSampleSetupCompleteness);
-			callLater(checkSamplesCompleteness);
-			callLater(checkHybSetupCompleteness);
+			callLater(samplesView.checkSamplesCompleteness);
+			callLater(hybSetupView.checkHybSetupCompleteness);
 			callLater(checkHybsCompleteness);
 			
 			
@@ -975,8 +975,8 @@
 			}
 			if (theTab.contains(hybSetupView)) {
 				hybSetupView.label = "Slide";
-				numberOfHybsContainer.visible = false;
-				slideSourceContainer.visible = false;
+				hybSetupView.numberOfHybsContainer.visible = false;
+				hybSetupView.slideSourceContainer.visible = false;
 			}
 			if (request.@codeRequestCategory == 'QC') {
 				if (theTab.contains(hybSetupView)) {
@@ -1015,19 +1015,19 @@
 			
 			
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				addSampleButton.visible = true;
-				copySampleButton.visible = true;
-				deleteSampleButton.visible = true;
-				clearSamplesButton.visible = true;
+				samplesView.addSampleButton.visible = true;
+				samplesView.copySampleButton.visible = true;
+				samplesView.deleteSampleButton.visible = true;
+				samplesView.clearSamplesButton.visible = true;
 				addHybButton.visible = true;
 				copyHybButton.visible = true;
 				deleteHybButton.visible = true;
 				clearHybsButton.visible = true;
 			} else {
-				addSampleButton.visible = false;
-				copySampleButton.visible = false;
-				deleteSampleButton.visible = false;
-				clearSamplesButton.visible = false;
+				samplesView.addSampleButton.visible = false;
+				samplesView.copySampleButton.visible = false;
+				samplesView.deleteSampleButton.visible = false;
+				samplesView.clearSamplesButton.visible = false;
 				addHybButton.visible = false;
 				copyHybButton.visible = false;
 				deleteHybButton.visible = false;
@@ -1045,17 +1045,17 @@
 					}
 				}
 			}
-			this.organismCombo.enabled = canChangeSlide;
-			this.microarrayCategoryCombo.enabled = canChangeSlide;
-			this.slideProductCombo.enabled = canChangeSlide;
-			this.isCatalogRadio.enabled = canChangeSlide;
-			this.isCustomRadio.enabled = canChangeSlide;
+			hybSetupView.organismCombo.enabled = canChangeSlide;
+			hybSetupView.microarrayCategoryCombo.enabled = canChangeSlide;
+			hybSetupView.slideProductCombo.enabled = canChangeSlide;
+			hybSetupView.isCatalogRadio.enabled = canChangeSlide;
+			hybSetupView.isCustomRadio.enabled = canChangeSlide;
 			
 						if (this.isSolexaState()) {
 				
 			} else {
 				showWorkflowLabel.visible = true;
-				showQCFieldsCheckBox.visible = true;
+				samplesView.showQCFieldsCheckBox.visible = true;
 				showCy3LabelingFieldsCheckBox.visible = true;
 				showCy5LabelingFieldsCheckBox.visible = true;
 				showHybFieldsCheckBox.visible = true;
@@ -1065,9 +1065,9 @@
 
 			
 			callLater(initializeControls);
-			callLater(assignSlideNumbers);			
-			callLater(checkSamplesCompleteness);
-			callLater(checkHybSetupCompleteness);
+			callLater(hybSetupView.assignSlideNumbers);			
+			callLater(samplesView.checkSamplesCompleteness);
+			callLater(hybSetupView.checkHybSetupCompleteness);
 			callLater(checkHybsCompleteness);
 			
 		}
@@ -1099,14 +1099,14 @@
 				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
 
 				selectedIdSlideProduct = request.@idSlideProduct;
-				numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
+				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-				microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
-				organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
+				hybSetupView.microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
+				hybSetupView.organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
 				checkForSampleTypeCompatibility();
-				initializeSlideProductCombo();
+				hybSetupView.initializeSlideProductCombo();
 				initializeSlideDesigns();
-				this.coreSlideSourceCheckbox.selected = true;
+				hybSetupView.coreSlideSourceCheckbox.selected = true;
 				
 			}			
 			
@@ -1120,21 +1120,9 @@
 			
 		}
 		
-		private function initializeSlideProductCombo():void {
-				parentApplication.filteredSlideProductListForSubmitRequests.refresh();
-
-				slideProductCombo.selectedIndex = -1;
-				for each(var slideProduct:Object in slideProductCombo.dataProvider) {
-					if (slideProduct.@idSlideProduct == request.@idSlideProduct) {
-						slideProductCombo.selectedItem = slideProduct;
-						break;
-					}
-				}
-				checkForSlideProductWarning();
-		}
 		
-		private function initializeSlideDesigns():void {
-			var slideDesign:Object = this.getDefaultSlideDesign();
+		public function initializeSlideDesigns():void {
+			var slideDesign:Object = hybSetupView.getDefaultSlideDesign();
 			if (slideDesign != null) {
 				for each (var hyb:Object in hybs) {
 					hyb.@idSlideDesign = slideDesign.@idSlideDesign;
@@ -1142,19 +1130,7 @@
 			}
 		}
 		
-		private function clearHybSlideDesigns():void {
-			if (slideProductCombo.selectedItem == null ||
-			    slideProductCombo.selectedItem.@idSlideProduct == '' ||
-			    request.@idSlideProduct == '' ||
-				request.@idSlideProduct != slideProductCombo.selectedItem.@idSlideProduct) {
-			
-				for each (var hyb:Object in hybs) {
-					hyb.@idSlideDesign = '';
-				}
-				checkHybsCompleteness();
-			}
-			
-		}
+
 		
 		
 		
@@ -1191,232 +1167,8 @@
 		
 		
 		
-		private function addSample():void {
-			var emptyNode:XML = null;
-			if (setupView.requestTypeGroup.selectedValue == "QC") {
-				emptyNode = new XML("<Sample " +
-			    " idSample='" + "Sample" + samples.length + "'" +
-			    " name='' description='' " +
-				" concentration='" + sampleSetupView.sampleConcentration.text + "'" +
-				" codeConcentrationUnit='ng/ul'" + 
-				" codeBioanalyzerChipType='" + sampleSetupView.getSelectedCodeBioanalyzerChipType() + "'" +
-				" idSampleType='" + sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-				" idSamplePrepMethod='" + sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-				" treatment='" + annotationView.treatmentTextInput.text + "'" +				
-				"/>");
-			
-			} else {
-				emptyNode = new XML("<Sample " +
-			    " idSample='" + "Sample" + samples.length + "'" +
-			    " name='' description='' " +
-				" concentration='" + sampleSetupView.sampleConcentration.text + "'" +
-				" codeConcentrationUnit='ng/ul'" + 
-				" idSampleType='" + sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-				" idSamplePrepMethod='" + sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-				" idOrganism='"  + sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-				" idSampleSource='"  + sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
-				" treatment='"  + annotationView.treatmentTextInput.text + "'" +				
-				"/>");
-			}
-			
-			samples.addItem(emptyNode);
-	        	
-		}
-		
-
-		
-		private function deleteSample():void {
-			if (samplesGrid.selectedItems.length > 0) {
-				for each(var sample:Object in samplesGrid.selectedItems) {					
-					for each(var hyb:Object in hybs) {
-						if (hyb.@idSampleChannel1 == sample.@idSample) {
-							hyb.@idSampleChannel1 = '0';
-						}
-						if (hyb.@idSampleChannel2 == sample.@idSample) {
-							hyb.@idSampleChannel2 = '0';
-						}
-					}
-
-					samples.removeItemAt(samples.getItemIndex(sample));
-					
-				}
-			}
-			if (setupView.requestTypeGroup.selectedValue == "QC") {
-				
-			} else {
-				hybsGrid.invalidateList();
-				hybsGrid.invalidateDisplayList();
-				
-			}
-		}
-		
-		private function copySample():void {
-			if (samplesGrid.selectedIndex != -1) {
-				for each(var i:int in samplesGrid.selectedIndices) {					
-					var sampleToCopy:Object = samples[i];
-					
-					var emptyNode:XML = new XML("<Sample " +
-					" idSample='" + "Sample" + samples.length + "'" +
-					" name='" +  sampleToCopy.@name + "'" + 
-					" description='" + sampleToCopy.@description + "'" + 
-					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
-					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
-					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
-					" idSampleSource='" + sampleToCopy.@idSampleSource + "'" +				
-					" concentration='" + sampleToCopy.@concentration + "'" +				
-					" treatment='" + sampleToCopy.@treatment + "'" +				
-					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
-					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-					" AGE='" + sampleToCopy.@AGE + "'" +				
-					" CELLLINE='" + sampleToCopy.@CELLLINE + "'" +				
-					" CELLTYPE='" + sampleToCopy.@CELLTYPE + "'" +				
-					" CLININFO='" + sampleToCopy.@CLININFO + "'" +				
-					" COMPOUND='" + sampleToCopy.@COMPOUND + "'" +				
-					" DISSTATE='" + sampleToCopy.@DISSTATE + "'" +				
-					" DOSE='" + sampleToCopy.@DOSE + "'" +				
-					" GENMOD='" + sampleToCopy.@GENMOD + "'" +				
-					" GENOTYPE='" + sampleToCopy.@GENOTYPE + "'" +				
-					" INDIV='" + sampleToCopy.@INDIV + "'" +				
-					" GROWTHCOND='" + sampleToCopy.@GROWTHCOND + "'" +				
-					" ORGPART='" + sampleToCopy.@ORGPART + "'" +				
-					" OTHER='" + sampleToCopy.@OTHER + "'" +				
-					" SEX='" + sampleToCopy.@SEX + "'" +				
-					" TEMP='" + sampleToCopy.@TEMP + "'" +				
-					" TIME='" + sampleToCopy.@TIME + "'" +				
-					"/>");
-			
-					samples.addItem(emptyNode);
-					
-				}
-			}
-		}
-		
-		public function promptToClearAllSamples():void {
-			Alert.show("Remove all samples currently showing in list?",
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToClearAllSamples);
-			
-		}
-		
-		private function onPromptToClearAllSamples(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	samples.removeAll();
-            	checkSamplesCompleteness();
-            }
-        }
-
         
-       	public function initializeSamplesGrid():void {
-        	if (requestToClone != null) {
-        		return;
-        	}
-       		if (!sampleSetupView.checkSampleSetupCompleteness()) {
-       			return;
-       		}
-        	
-    		var numberOfSamplesToAdd:Number = new Number(sampleSetupView.numberOfSamples.text);
-    		if(samples.length <= numberOfSamplesToAdd) {
-    			numberOfSamplesToAdd = numberOfSamplesToAdd - samples.length;
-    		} else {
-    			numberOfSamplesToAdd = 0;
-    		}
-    		for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
-    			addSample();
-    		}
-        }
-        
-        
-        
-        public function checkSamplesCompleteness():void {
-        	var completeCount:int = 0;
-        	for each(var sample:Object in samples) {
-        		if (setupView.requestTypeGroup.selectedValue == "QC") {
-	        		if (sample.@name != null && sample.@name != '' &&
-	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-	        			sample.@concentration != null && sample.@concentration != '' &&
-	        			sample.@codeConcentrationUnit != null && sample.@codeConcentrationUnit != '' &&
-	        			sample.@codeBioanalyzerChipType != null && sample.@codeBioanalyzerChipType != '') {
-	        			completeCount++;       				
-	        		}
-        		} else {
-	        		if (sample.@name != null && sample.@name != '' &&
-	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-	        			sample.@concentration != null && sample.@concentration != '' &&
-	        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-	        			sample.@idOrganism != null && sample.@idOrganism != '') {
-	        			completeCount++;       				
-	        		}
-        			
-        		}
-        	}
-        	
-        	var isComplete:Boolean = false;
-        	if (samples.length > 0 && completeCount == samples.length) {
-        		isComplete = true;
-        	} else if (request != null && request.@idRequest != '0') {
-        		isComplete = true;
-        	}
-    		enableNextButtons();
-    		if (theTab.contains(hybSetupView)) {
-        		this.hybSetupView.enabled = isComplete;
-    		} if (this.isSolexaState()) {
-    			this.lanesView.enabled = isComplete;
-    		} else {
-    			if (theTab.contains(confirmView)) {
-	    			this.confirmView.enabled = isComplete;
-    			}
-    		}
-
-			callLater(postSamplesCompleteness, [isComplete]);
-        	
-        
-        }
-        
-                
-        private function postSamplesCompleteness(isComplete:Boolean):void {
-	    		
-	    	if (!isComplete) {
-	        	if (theTab.contains(hybSetupView)) {
-		        	this.hybSetupView.enabled = false;
-	        	} 
-	
-	        	if (theTab.contains(hybsView)) {
-		        	this.hybsView.enabled = false;
-	        	} 
-	        	
-	        	if (this.isSolexaState()) {
-	    			this.lanesView.enabled = false;
-	        	}
-	
-	        	this.confirmView.enabled = false;
-    		} else {
-    			if (theTab.contains(hybSetupView)) {
-	    			this.checkHybSetupCompleteness();    				
-    			} 
-    		}
-        	
-        }
-        
-        private function postHybSetupCompleteness(isComplete:Boolean):void { 
-
-        	if (!isComplete) {
-	        	if (theTab.contains(hybSetupView)) {
-		        	this.hybSetupView.enabled = false;
-	        	} 
-
-	        	if (theTab.contains(hybsView)) {
-		        	this.hybsView.enabled = false;
-	        	} 
-
-	        	this.confirmView.enabled = false;
-    		} else {
-    			this.checkHybSetupCompleteness();
-    			this.checkHybsCompleteness();
-    		}        	
-        }
+ 
         
         public function checkHybsCompleteness():void {
         	if (request != null && request.codeRequestCategory == "QC") {
@@ -1452,26 +1204,9 @@
         }
 
 
-		private function getDefaultSlideDesign():Object {
-			var slideDesign:Object = null;
-			
-			if (slideProductCombo.selectedItem != null) {
-				selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
-				slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == selectedIdSlideProduct));
-				
-				// If there is only one slide design (besides the blank entry) for the slide product,
-				// set all of the hybs to it.
-				if (slideDesigns.length == 2) {
-					slideDesign = slideDesigns[1];
-				}
-			}
-			
-			return slideDesign;
-
-		}
 
 		private function addHyb():void {
-			var defaultSlideDesign:Object = getDefaultSlideDesign();
+			var defaultSlideDesign:Object = hybSetupView.getDefaultSlideDesign();
 			var idSlideDesign:String = '';
 			if (defaultSlideDesign != null) {
 				idSlideDesign = defaultSlideDesign.@idSlideDesign;
@@ -1482,13 +1217,13 @@
 			    " idHybridization='" + "Hyb" + hybs.length + "'" +
 			    " notes='' " + 
 				" idSlideDesign='" + idSlideDesign + "'" +
-				" codeSlideSource='" + getCheckedCodeSlideSource() + "'" +
+				" codeSlideSource='" + hybSetupView.getCheckedCodeSlideSource() + "'" +
 				" idSampleChannel1='0'" +
 				" idSampleChannel2='0'" +
 				"/>");
 			
 			hybs.addItem(emptyNode);
-	        assignSlideNumbers();	
+	        hybSetupView.assignSlideNumbers();	
 		}
 		
 		private function propagateHybChannel1Samples():void {
@@ -1507,121 +1242,8 @@
 			
 		}
 		
-		private function assignSlideNumbers():void {
-			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
-				return;
-			}
-			if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
-				slideProductCombo.selectedItem.@arraysPerSlide == '1') {
-				slideNumberColumn.visible = false;		
-			} else {
-				slideNumberColumn.visible = true;
-			}
-			var slideNumber:int = 0;
-			var count:int = 0;
-			var firstTime:Boolean = true;
-			var useAltColor:Boolean = true;
-			for each(var hyb:Object in hybs) {
-				if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
-				    slideProductCombo.selectedItem.@arraysPerSlide == '1') {
-					slideNumber++;    
-					hyb.@showSlideIcon = 'Y';	
-					hyb.@altColor = false;
-				} else {
-					if (firstTime || count == slideProductCombo.selectedItem.@arraysPerSlide) {
-						count = 0;
-						slideNumber ++;
-						hyb.@showSlideIcon = 'Y';
-						useAltColor = !useAltColor;
-						hyb.@altColor = useAltColor;
-					} else {
-						hyb.@showSlideIcon = 'N';							
-						hyb.@altColor = useAltColor;
-					}
-				}
-				hyb.@slideNumber = slideNumber;
-				count++;
-				firstTime = false;
-			}
-		}
-		
-		private function getCheckedCodeSlideSource():String {
-			if (this.coreSlideSourceCheckbox.selected == true) {
-				return "CORE";
-			} else if (this.clientSlideSourceCheckbox.selected == true ) {
-				return "CLIENT";
-			} else if (this.stripSlideSourceCheckbox.selected== true) {
-				return "REUSE";
-			} else {
-				return '';
-			}
-		}
-		private function toggleCheckedCodeSlideSource(checkBoxNumber:int):void {
-			if (checkBoxNumber == 1) {
-				this.clientSlideSourceCheckbox.selected = false;
-				this.stripSlideSourceCheckbox.selected  = false;
-			} else if (checkBoxNumber == 2) {
-				this.coreSlideSourceCheckbox.selected = false;
-				this.stripSlideSourceCheckbox.selected  = false;
-			} else if (checkBoxNumber == 3) {
-				this.coreSlideSourceCheckbox.selected  = false;
-				this.clientSlideSourceCheckbox.selected = false;
-			} 
-		}
-		
-		private function propagateCheckCodeSlideSource():void {
-			for each (var hyb:Object in hybs) {
-				hyb.@codeSlideSource = this.getCheckedCodeSlideSource();
-			}
-			callLater(checkHybsCompleteness);
-		}
-		
-		public function propagateSlideSourceToHybsSameSlide(theHyb:Object):void {
-			for each (var hyb:Object in hybs) {
-				if (theHyb.@slideNumber == hyb.@slideNumber) {
-					hyb.@codeSlideSource = theHyb.@codeSlideSource;
-				}
-			}
-			
-		}
-		private function propagateSlideDesign():void {
-			for each (var hyb:Object in hybs) {
-				hyb.@idSideDesign = this.slideProductCombo.selectedItem.@idSlideDesign;
-			}
-			callLater(checkHybsCompleteness);
-		}
-		
-		public function checkHybSetupCompleteness():void {
-			if ((request!= null && request.@codeRequestCategory == "QC") || setupView.requestTypeGroup.selectedValue == "QC" ) {
-				return;
-			}
-			if ((request!= null && request.@codeRequestCategory == "SOLEXA") || setupView.requestTypeGroup.selectedValue == "SOLEXA" ) {
-				return;
-			}
-			
-        	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
-        	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
-        	    this.getCheckedCodeSlideSource() != '' && isSampleTypeCompatibile() ) {
-        	    	
-        		this.hybsView.enabled = true;
-        	    	
-        	} else if (request.@idRequest != '0') {
-        		this.hybsView.enabled = true;
-        	} else {
-        		this.hybsView.enabled = false;
-        	}
-        	enableNextButtons();
-        }
         
-        private function checkForSlideProductWarning():void {
-        	if (this.slideProductCombo.dataProvider.length == 1) {
-        		slideProductStack.selectedIndex = 1;
-        	} else {
-        		slideProductStack.selectedIndex = 0;
-        	}
-        }
-        
-        private function isSampleTypeCompatibile():Boolean {
+        public function isSampleTypeCompatibile():Boolean {
         	var compatible:Boolean = true;
         	var sampleTypeX:Object = null;
         	if (this.isSolexaState()) {
@@ -1642,13 +1264,13 @@
         	}
 
         	} else {
-	        	if (this.microarrayCategoryCombo.selectedItem != null &&
-	        	    this.microarrayCategoryCombo.selectedItem.@value != '' &&
+	        	if (hybSetupView.microarrayCategoryCombo.selectedItem != null &&
+	        	    hybSetupView.microarrayCategoryCombo.selectedItem.@value != '' &&
 	        	    sampleSetupView.sampleTypeCombo.selectedItem != null &&
 	        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != '') {
 	        	    compatible = false;
 					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
-						if (sampleTypeX.@codeMicroarrayCategory == microarrayCategoryCombo.selectedItem.@value &&
+						if (sampleTypeX.@codeMicroarrayCategory == hybSetupView.microarrayCategoryCombo.selectedItem.@value &&
 						    sampleTypeX.@idSampleType == sampleSetupView.sampleTypeCombo.selectedItem.@value) {
 							compatible = true;
 							break;
@@ -1667,17 +1289,17 @@
 					var sampleTypeName:String = sampleType.@display.toString();
         			
 	        		Alert.show('Sample type ' + sampleTypeName + 
-	        		' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
+	        		' cannot be used for ' + hybSetupView.microarrayCategoryCombo.selectedItem.@display + 
 	        		' experiments.  Please change the microarray category.');
         			
         		} else {
 	        		Alert.show('Sample type ' + sampleSetupView.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
+	        		' cannot be used for ' + hybSetupView.microarrayCategoryCombo.selectedItem.@display + 
 	        		' experiments.  Please change the sample type or microarray category.');
         			
         		}
 
-        		slideProductCombo.selectedIndex = 0;
+        		hybSetupView.slideProductCombo.selectedIndex = 0;
         	}
         }
 
@@ -1688,7 +1310,7 @@
 					hybs.removeItemAt(hybs.getItemIndex(hyb));
 				}
 			}
-	        assignSlideNumbers();	
+	        hybSetupView.assignSlideNumbers();	
 		}
 		
 		private function copyHyb():void {
@@ -1709,7 +1331,7 @@
 					
 				}
 			}
-	        assignSlideNumbers();	
+	        hybSetupView.assignSlideNumbers();	
 		}
 		
 		public function promptToClearAllHybs():void {
@@ -1726,23 +1348,23 @@
             	checkHybsCompleteness();
             }
         }
-        private function initializeHybsGrid():void {
+        public function initializeHybsGrid():void {
         	if (requestToClone != null) {
         		return;
         	}
         	
-        	if (numberOfHybs.text == null || numberOfHybs.text == "0" || numberOfHybs.text == '') {
+        	if (hybSetupView.numberOfHybs.text == null || hybSetupView.numberOfHybs.text == "0" || hybSetupView.numberOfHybs.text == '') {
         		return;
         	}
-        	if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@value == '') {
+        	if (hybSetupView.slideProductCombo.selectedItem == null || hybSetupView.slideProductCombo.selectedItem.@value == '') {
         		return;
         	}
-        	if (this.getCheckedCodeSlideSource() == '') {
+        	if (hybSetupView.getCheckedCodeSlideSource() == '') {
         		return;
         	}
         	
         	
-    		var numberOfHybsToAdd:Number = new Number(numberOfHybs.text);
+    		var numberOfHybsToAdd:Number = new Number(hybSetupView.numberOfHybs.text);
     		if(hybs.length <= numberOfHybsToAdd) {
     			numberOfHybsToAdd = numberOfHybsToAdd - hybs.length;
     		} else {
@@ -2069,9 +1691,9 @@
 			// Warn if some of the arrays (on a multi-array slide) are not used.	
 			
 			if (!this.isSolexaState() && setupView.requestTypeGroup.selectedValue != "QC") {
-				if (slideProductCombo.selectedItem.@arraysPerSlide != '' && slideProductCombo.selectedItem.@arraysPerSlide != 1) {
-					if (hybs.length % slideProductCombo.selectedItem.@arraysPerSlide != 0) {
-						warningMessage = "There are unused arrays on the multi-array slide  '" + slideProductCombo.selectedItem.@name +
+				if (hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != '' && hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 1) {
+					if (hybs.length % hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 0) {
+						warningMessage = "There are unused arrays on the multi-array slide  '" + hybSetupView.slideProductCombo.selectedItem.@name +
 						 "'. ";
 					}
 				}
@@ -2152,8 +1774,8 @@
 			request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
 
 			if (!this.isSolexaState() && setupView.requestTypeGroup.selectedValue != "QC") {
-				request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
-				request.@codeMicroarrayCategory = this.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;				
+				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
+				request.@codeMicroarrayCategory = hybSetupView.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;				
 			}
 			
 			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
@@ -2193,8 +1815,8 @@
 		private function saveRequest():void {
 			
 			if (!this.isSolexaState()) {
-				request.@idSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
-				request.@codeMicroarrayCategory = this.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;
+				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
+				request.@codeMicroarrayCategory = hybSetupView.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;
 			} 			
 			
 			request.replace("samples", <samples></samples>); 
@@ -2346,147 +1968,12 @@
 		    <views:SubmitRequestAnnotationView id="annotationView">		    	
 		    </views:SubmitRequestAnnotationView> 
 		    
-			<mx:Canvas label="Samples"  id="samplesView" width="100%" height="100%"  enabled="false">
-				<mx:VBox width="100%" height="100%">
-						<mx:HBox width="100%">
-							<mx:Label text="Samples  (fields in pink are required.)"/>
-						</mx:HBox>
-						<mx:HBox width="100%" verticalAlign="middle">
-							<mx:HBox>
-								<mx:Button label="Add" click="addSample();checkSamplesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addSampleButton"/>
-								<mx:Button label="Copy" click="copySample();checkSamplesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copySampleButton"/>
-								<mx:Button label="Delete" click="deleteSample();checkSamplesCompleteness();checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteSampleButton"/>
-							</mx:HBox>
-							<mx:Button label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../assets/folder_delete.png')" id="clearSamplesButton"/>
-							<mx:HBox width="100%" horizontalAlign="left" paddingLeft="20">
-								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns">
-								</mx:CheckBox>							
-							</mx:HBox>
-							<mx:HBox horizontalAlign="right" width="100%">
-							</mx:HBox>
-								
-						</mx:HBox>
-						<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto">
-							<mx:columns>
-	  					        <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="getSamplesGridRowNumber"/>
-								<mx:DataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" itemRenderer="views.LabelSampleName"  itemEditor="views.renderers.TextInputSampleName" rendererIsEditor="false">
-								</mx:DataGridColumn>
-				 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  itemRenderer="views.LabelConcentration"  itemEditor="views.renderers.TextInputConcentration" rendererIsEditor="false"/>
-				                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelConcentrationUnit" itemEditor="views.renderers.ComboBoxConcentrationUnit" labelFunction="parentApplication.lookupConcentrationUnit" />
-				                 <mx:DataGridColumn headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected}" width="120"   dataField="@idSampleType" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSampleType" itemEditor="views.renderers.ComboBoxSampleType" labelFunction="parentApplication.lookupSampleTypeName" />
-				                <mx:DataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="110" headerText="Organism"  dataField="@idOrganism" 
-				                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelOrganism" itemEditor="views.renderers.ComboBoxOrganism" labelFunction="parentApplication.lookupOrganism" />
-				                <mx:DataGridColumn headerText="Sample Source" visible="{!showQCFieldsCheckBox.selected}" width="95" dataField="@idSampleSource" 
-				                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSampleSource" itemEditor="views.renderers.ComboBoxSampleSource" labelFunction="parentApplication.lookupSampleSource" />
-				                <mx:DataGridColumn headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSamplePrepMethod" labelFunction="parentApplication.lookupSamplePrepMethod" itemEditor="views.renderers.ComboBoxSamplePrepMethod" />
-				                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="70" dataField="@codeBioanalyzerChipType" 
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" labelFunction="parentApplication.lookupChipType" itemEditor="views.renderers.ComboBoxChipType" />
-
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 28s/18s" width="80" dataField="@qual28sTo18sRibosomalRatio"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"
-				                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxQCStatus" itemRenderer="mx.controls.Label" />
-				                   				                   
-								<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
-								<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
-								<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
-								<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
-								<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
-								<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
-								<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
-								<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
-								<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
-								<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-								<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
-								<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="false" width="100" dataField="@treatment"/>
-								<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
-							</mx:columns>
-						</mx:DataGrid>
-
-						
-					
-				</mx:VBox>
-			</mx:Canvas>
-			<mx:Canvas label="Hyb setup" width="100%" height="100%" enabled="false" id="hybSetupView">
-				<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select an organism:" width="300" />
-						<mx:ComboBox labelField="@display" width="300" id="organismCombo">							
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
-							<mx:dataProvider></mx:dataProvider>
-						</mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select an experiment category:" width="300" />
-						<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)</mx:change>
-							<mx:dataProvider></mx:dataProvider>
-						</mx:ComboBox>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Select on of the following:" width="300" />
-						<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
-						<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)">
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
-						</mx:RadioButton>
-						<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(checkForSampleTypeCompatibility)">
-							<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
-						</mx:RadioButton>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Text width="300">
-							<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
-						</mx:Text>
-						<mx:ViewStack id="slideProductStack" width="100%" height="100%">
-						    <mx:HBox>
-								<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" >							
-									<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
-								</mx:ComboBox>
-						    </mx:HBox>
-						    <mx:HBox width="100%" backgroundColor="#ffffff" borderStyle="inset" verticalAlign="middle">
-								<mx:Text width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + this.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + microarrayCategoryCombo.selectedItem.@display + ' slides are listed.  Please contact Brian Dalley about slide stock.'}" color="#0000ff">								
-								</mx:Text>						    	
-						    </mx:HBox>
-							
-							
-						</mx:ViewStack>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0" id="numberOfHybsContainer">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Text width="300" >
-							<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
-						</mx:Text>
-						<mx:TextInput width="40" id="numberOfHybs" change="initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();checkHybSetupCompleteness()">
-							
-						</mx:TextInput>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="0" id="slideSourceContainer">
-						<mx:Image source="assets/bullet_orange.png"/>
-						<mx:Label text="Where will the microarrays come from?" width="300" />
-						<mx:VBox verticalGap="1">
-							<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   click="this.toggleCheckedCodeSlideSource(1);;initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-							<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(2);initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-							<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(3);initializeHybsGrid();clearHybSlideDesigns();initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-						</mx:VBox>
-					</mx:HBox>
-					
-				</mx:VBox>
-			</mx:Canvas>
+		    <views:SubmitRequestSamplesView id="samplesView">		    	
+		    </views:SubmitRequestSamplesView>
+		    
+			<views:SubmitRequestHybSetupView id="hybSetupView">				
+			</views:SubmitRequestHybSetupView>
+			
 			<mx:Canvas label="Hybs" width="100%" height="100%" enabled="false" id="hybsView">
 			    <mx:VBox width="100%" height="100%" verticalGap="0">
 				    <mx:HDividedBox height="100%" width="100%">

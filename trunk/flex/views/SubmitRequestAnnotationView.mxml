@@ -7,11 +7,11 @@
 				sample.@treatment = this.treatmentTextInput.text;
 			}
 			if (this.treatmentTextInput.text != '') {
-				parentDocument.treatmentColumn.visible = true;
+				parentDocument.samplesView.treatmentColumn.visible = true;
 				parentDocument.treatmentConfirmColumn.visible = true;
 				parentDocument.request.@treatment = 'Y';
 			} else {
-				parentDocument.treatmentColumn.visible = false;
+				parentDocument.samplesView.treatmentColumn.visible = false;
 				parentDocument.treatmentConfirmColumn.visible = false;
 				parentDocument.request.@treatment = 'N';
 				
@@ -19,11 +19,11 @@
 		}
 		
 		public function showSampleAnnotationColumn(codeSampleCharacteristic:String, show:Boolean):void {
-			if (parentDocument.samplesGrid == null) {
+			if (parentDocument.samplesView.samplesGrid == null) {
 				return;
 			}
-			for (var x:Number = 0; x < parentDocument.samplesGrid.columnCount; x++) {
-				var dc:DataGridColumn = parentDocument.samplesGrid.columns[x];
+			for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
+				var dc:DataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
 				if ( dc.dataField == "@" + codeSampleCharacteristic) {
 					dc.visible = show;
 					break;					
@@ -156,7 +156,7 @@
 				                       </mx:Label>
 				                       <mx:TextInput id="scOtherLabel" fontSize="9"
 				                       	text="{data.@otherLabel}"
-				                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
+				                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
 				                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
 				                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
 				                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 

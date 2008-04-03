@@ -18,37 +18,37 @@
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@codeBioanalyzerChipType = codeChipType;
 			}
-			callLater(parentDocument.checkSamplesCompleteness);
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateSampleType():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
 			}
-			callLater(parentDocument.checkSamplesCompleteness);
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateSamplePrepMethod():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
 			}
-			callLater(parentDocument.checkSamplesCompleteness);
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateSampleSource():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@value;
 			}
-			callLater(parentDocument.checkSamplesCompleteness);
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateSampleConcentration():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@concentration = this.sampleConcentration.text;
 			}
-			callLater(parentDocument.checkSamplesCompleteness);
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateSampleOrganism():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
 			}
-			callLater(parentDocument.checkSamplesCompleteness);
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
 		
 		public function toggleOtherChipTypeSelections(codeSelected:String):void {
@@ -113,7 +113,7 @@
 	
 	        	parentDocument.confirmView.enabled = false;
     		} else {
-    			parentDocument.checkSamplesCompleteness();
+    			parentDocument.samplesView.checkSamplesCompleteness();
     		}
         	
         }
@@ -125,40 +125,40 @@
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="assets/bullet_orange.png"/>
 				<mx:Label text="How many samples will you be submitting?" width="340" />
-				<mx:TextInput width="40" id="numberOfSamples" change="parentDocument.initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
+				<mx:TextInput width="40" id="numberOfSamples" change="parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="assets/bullet_orange.png"/>
 				<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="parentDocument.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 				<mx:Image source="assets/bullet_orange.png"/>
 				<mx:Label text="Select the organism of your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.initializeSamplesGrid();parentDocument.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
 				<mx:Image source="assets/bullet_orange.png"/>
 				<mx:Label text="Select the source of your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
 				<mx:Image source="assets/bullet_orange.png"/>
 				<mx:Label text="Enter the approximate sample concentration:" width="340"/>
-				<mx:TextInput width="40" id="sampleConcentration" change="parentDocument.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
+				<mx:TextInput width="40" id="sampleConcentration" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
 				<mx:Label text="ng/µL" id="concentrationLabel"/>
 				<mx:Spacer width="40"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 				<mx:Image source="assets/bullet_orange.png"/>
 				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
-				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
 					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
