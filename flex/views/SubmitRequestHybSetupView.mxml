@@ -102,16 +102,19 @@
         }  
         
         public function initializeSlideProductCombo():void {
-				parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+        	if (parentDocument == null) {
+        		return;
+        	}
+			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 
-				slideProductCombo.selectedIndex = -1;
-				for each(var slideProduct:Object in slideProductCombo.dataProvider) {
-					if (slideProduct.@idSlideProduct == parentDocument.request.@idSlideProduct) {
-						slideProductCombo.selectedItem = slideProduct;
-						break;
-					}
+			slideProductCombo.selectedIndex = -1;
+			for each(var slideProduct:Object in slideProductCombo.dataProvider) {
+				if (slideProduct.@idSlideProduct == parentDocument.request.@idSlideProduct) {
+					slideProductCombo.selectedItem = slideProduct;
+					break;
 				}
-				checkForSlideProductWarning();
+			}
+			checkForSlideProductWarning();
 		}
 		private function clearHybSlideDesigns():void {
 			if (slideProductCombo.selectedItem == null ||
@@ -166,6 +169,9 @@
 		
 		public function getDefaultSlideDesign():Object {
 			var slideDesign:Object = null;
+			if (parentDocument == null) {
+				return slideDesign;
+			}
 			
 			if (slideProductCombo.selectedItem != null) {
 				parentDocument.selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
