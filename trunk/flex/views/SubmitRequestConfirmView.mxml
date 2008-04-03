@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Confirm" width="100%" height="100%" enabled="false">
+	<mx:VBox id="confirmHeaderContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
+		<mx:VBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+			<mx:HBox width="100%" horizontalGap="20">
+				<mx:VBox height="100%" verticalGap="0">
+					<mx:Label text="Request Kind" textDecoration="underline" height="16"/>
+					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel"/>
+				</mx:VBox>
+				<mx:VBox height="100%" verticalGap="0">
+					<mx:Label text="Lab" textDecoration="underline" height="16"/>
+					<mx:Text text="{parentDocument.setupView.labCombo.selectedItem.@name}"/>
+				</mx:VBox>
+				<mx:VBox height="100%" verticalGap="0">
+					<mx:Label text="Project" textDecoration="underline" height="16"/>
+					<mx:Text text="{parentDocument.setupView.projectCombo.selectedItem.@name}"/>
+				</mx:VBox>
+				<mx:VBox height="100%" verticalGap="0">
+					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
+					<mx:Text text="{parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}"/>
+				</mx:VBox>
+			</mx:HBox>
+			
+			<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesConfirmContainer">
+				<mx:Label text="{parentDocument.samples.length + ' Samples'}" id="label1"/>
+				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
+					<mx:columns>
+					    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
+		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
+			            <mx:DataGridColumn headerText="Sample Type"  width="130" labelFunction="parentApplication.lookupSampleTypeName"/>
+			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" labelFunction="parentApplication.lookupOrganism"/>
+			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" labelFunction="parentApplication.lookupSampleSource"/>
+			            <mx:DataGridColumn headerText="Sample Prep Method"  width="160" labelFunction="parentApplication.lookupSamplePrepMethod"/>
+		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="80" labelFunction="parentApplication.lookupChipType" />
+						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
+						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
+						<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
+						<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
+						<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
+						<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
+						<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
+						<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
+						<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
+						<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
+						<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
+						<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
+						<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
+						<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
+						<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
+						<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
+						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="false" width="100" dataField="@treatment"/>
+						<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+					</mx:columns>
+				</mx:DataGrid>				
+			</mx:VBox>
+			
+			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}"/>
+				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" editable="false" dataProvider="{parentDocument.hybs}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+					<mx:columns>
+					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="70" labelFunction="parentDocument.getHybsGridRowNumber"/>
+					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>
+					    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="parentDocument.getSampleChannel2Name"/>
+					     <mx:DataGridColumn headerText="Slide"  width="320" labelFunction="parentApplication.lookupSlideDesignName" />
+					     <mx:DataGridColumn headerText="Slide Source"  width="82"  labelFunction="parentApplication.lookupSlideSource" />
+						<mx:DataGridColumn headerText="Notes" width="100" dataField="@notes"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+			</mx:VBox>
+			
+		</mx:VBox>
+	</mx:VBox>
+</mx:Canvas>

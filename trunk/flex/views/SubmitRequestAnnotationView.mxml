@@ -29,8 +29,8 @@
 					break;					
 				}
 			}
-			for (var x1:Number = 0; x1 < parentDocument.samplesGridConfirm.columnCount; x1++) {
-				var dc1:DataGridColumn =parentDocument.samplesGridConfirm.columns[x1];
+			for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
+				var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
 				if ( dc1.dataField == "@" + codeSampleCharacteristic) {
 					dc1.visible = show;
 					break;
@@ -156,7 +156,7 @@
 				                       </mx:Label>
 				                       <mx:TextInput id="scOtherLabel" fontSize="9"
 				                       	text="{data.@otherLabel}"
-				                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
+				                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.confirmView.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
 				                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
 				                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
 				                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
