@@ -8,7 +8,25 @@
 		
 		public function addSample():void {
 			var emptyNode:XML = null;
-			if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
+			if (parentDocument.isSolexaState()) {
+				emptyNode = new XML("<Sample " +
+			    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
+			    " name='' description='' " +
+				" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
+				" totalVolume='" + parentDocument.sampleSetupView.totalVolume.text + "'" +
+				" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
+				" idFlowCellType='" + parentDocument.sampleSetupView.flowCellTypeCombo.selectedItem.@value + "'" +				
+				" numberSequencingLanes=''" +
+				" codeConcentrationUnit='ng/ul'" + 
+				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
+				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+				" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
+				" idSampleSource='"  + parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
+				" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
+				"/>");
+				
+			}
+			else if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
 				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
 			    " name='' description='' " +
@@ -80,6 +98,10 @@
 					" treatment='" + sampleToCopy.@treatment + "'" +				
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
+					" totalVolume='" + sampleToCopy.@totalVolume + "'" +
+					" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
+					" idFlowCellType='" + sampleToCopy.@idFlowCellType + "'" +				
+					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
 					" AGE='" + sampleToCopy.@AGE + "'" +				
 					" CELLLINE='" + sampleToCopy.@CELLLINE + "'" +				
 					" CELLTYPE='" + sampleToCopy.@CELLTYPE + "'" +				
@@ -175,7 +197,7 @@
     		parentDocument.enableNextButtons();
     		if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
         		parentDocument.hybSetupView.enabled = isComplete;
-    		} if (parentDocument.isSolexaState()) {
+    		} if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
@@ -200,7 +222,7 @@
 		        	parentDocument.hybsView.enabled = false;
 	        	} 
 	        	
-	        	if (parentDocument.isSolexaState()) {
+	        	if (parentDocument.isSolexaEditState()) {
 	    			parentDocument.lanesView.enabled = false;
 	        	}
 	
@@ -239,7 +261,10 @@
   			        <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" itemRenderer="views.LabelSampleName"  itemEditor="views.renderers.TextInputSampleName" rendererIsEditor="false">
 					</mx:DataGridColumn>
+	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles"/>
+	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idFlowCellType"/>
 	 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  itemRenderer="views.LabelConcentration"  itemEditor="views.renderers.TextInputConcentration" rendererIsEditor="false"/>
+	 				<mx:DataGridColumn headerText="Vol" id="totalVolumeCole" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@totalVolume"/>
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelConcentrationUnit" itemEditor="views.renderers.ComboBoxConcentrationUnit" labelFunction="parentApplication.lookupConcentrationUnit" />
 	                 <mx:DataGridColumn headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected}" width="120"   dataField="@idSampleType" 
@@ -285,5 +310,12 @@
 			
 		
 	</mx:VBox>
+	
+	<mx:states>
+		<mx:State name="SolexaSamplesState">
+			<mx:SetProperty target="{numberSequencingCyclesCol}"  name="visible" value="true"/>
+		</mx:State>
+		
+	</mx:states>
 	
 </mx:Canvas>

@@ -1,8 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Sample setup" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	 width="100%" height="100%" >
+   <mx:states>
+        <mx:State name="SolexaSetupState">
+            <mx:AddChild relativeTo="{concentrationContainer}">
+                <mx:HBox width="100%" horizontalGap="0">
+    	            <mx:Label text="Enter approximate volume:"/>
+	                <mx:TextInput id="totalVolume"  width="40" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateTotalVolume();checkSampleSetupCompleteness();"/>
+					<mx:Label text="µL" />
+					<mx:HBox id="totalSampleWarning" visible="false" borderStyle="outset" verticalAlign="middle" horizontalAlign="center" width="100%" height="100%" paddingBottom="2">
+						<mx:Text  width="100%" text="Warning:  At least 25 ng of nucleic acid is recommended for Solexa sequencing." color="#AB482A" fontWeight="bold" paddingLeft="10" textDecoration="none" visible="true">									
+						</mx:Text>
+					</mx:HBox>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{concentrationContainer}" position="after">
+				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Should the samples be prepped by the Core facility?" width="340" />
+					<mx:HBox width="100%">
+						<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="Yes, please prep the samples" selected="true"/>							
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="No, the samples are already prepped" />							
+					</mx:HBox>
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" >
+                <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
+                	<mx:Image source="assets/bullet_orange.png"/>
+                	<mx:Label text="Should the sequence be aligned to a genome build?" width="340"/>
+                	<mx:VBox width="100%" id="alignMoreContainer">
+                		<mx:HBox width="100%">
+                			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
+                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
+        		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
+		                	</mx:ComboBox>                			
+                			<mx:HBox width="100%">
+                			   	<mx:Label text="Alignment instructions:" visible="{alignCheckBox.selected}" id="label3"/>
+                				<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}"/>                			
+                			</mx:HBox>
+                		</mx:HBox>
+                	</mx:VBox>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:SetProperty target="{label2}" name="text" value="Select a sample preparation method:"/>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" >
+				<mx:HBox id="flowCellContainer" width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Select the flow cell type to be used:" width="340" />
+					<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateFlowCellType();checkSampleSetupCompleteness();">
+						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" >
+				<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Select the minimum number of sequencing cycles:" width="340" />
+					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
+						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
+            <mx:SetEventHandler target="{sampleConcentration}" name="change">
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness();checkTotalSample()</mx:handler>
+            </mx:SetEventHandler>
+        </mx:State>
+        <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
+            <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Describe how the samples were prepped:" width="340"/>
+					<mx:TextInput id="samplePrepMethodText"/>			
+					<mx:Spacer width="40"/>				
+					<mx:RadioButton id="isFragLib" label="Fragment"/>
+					<mx:RadioButton id="isPairedEndLib" label="Paired Ends"/>
+					<mx:Spacer width="40"/>				
+					<mx:CheckBox id="isSizeSelected" label="Size Selected?"/>
+					<mx:TextInput id="sizeSelectedFrom" width="30"/>	
+					<mx:Label text="-" textAlign="center"/>
+					<mx:TextInput id="sizeSelectedTo" width="30"/>
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:RemoveChild target="{samplePrepContainer}">            	
+            </mx:RemoveChild>
+            <mx:SetProperty target="{label3}" name="text" value="Special instructions:"/>
+            <mx:SetProperty target="{label3}" name="width" value="130"/>
+        </mx:State>
+   	
+   </mx:states>
+   	 
 <mx:Script>
 	<![CDATA[
+		private function checkTotalSample():void {
+			if (sampleConcentration.text != '' && totalVolume.text != '') {
+				var totalSample:Number = Number(sampleConcentration.text) * Number(totalVolume.text);
+				if (totalSample < 25) {
+					totalSampleWarning.visible = true;	
+				}  else {
+					totalSampleWarning.visible = false;
+				}
+			} else {
+				totalSampleWarning.visible = false;
+			}
+		}
+	
 		public function getSelectedCodeBioanalyzerChipType():String {
 			var selectedCode:String = '';
 			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
@@ -47,6 +149,24 @@
        	private function propagateSampleOrganism():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateTotalVolume():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@totalVolume = this.totalVolume.text;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateFlowCellType():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateNumberSequencingCycles():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
@@ -153,7 +273,7 @@
 				<mx:Label text="Enter the approximate sample concentration:" width="340"/>
 				<mx:TextInput width="40" id="sampleConcentration" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
 				<mx:Label text="ng/µL" id="concentrationLabel"/>
-				<mx:Spacer width="40"/>
+				<mx:Spacer width="25"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 				<mx:Image source="assets/bullet_orange.png"/>
