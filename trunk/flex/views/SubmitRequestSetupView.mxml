@@ -253,7 +253,7 @@
     			parentDocument.sampleSetupView.checkSampleSetupCompleteness();
     			parentDocument.samplesView.checkSamplesCompleteness();
     			parentDocument.hybSetupView.checkHybSetupCompleteness();
-    			parentDocument.checkHybsCompleteness();
+    			parentDocument.hybsView.checkHybsCompleteness();
     		}
         	
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	label="Hyb setup" width="100%" height="100%" enabled="false">
-<mx:Script>
+<mx:Script> 
 	<![CDATA[
 		import mx.collections.XMLListCollection;
 
@@ -33,7 +33,7 @@
 			for each (var hyb:Object in parentDocument.hybs) {
 				hyb.@codeSlideSource = this.getCheckedCodeSlideSource();
 			}
-			callLater(parentDocument.checkHybsCompleteness);
+			callLater(parentDocument.hybsView.checkHybsCompleteness);
 		}
 		
 		public function propagateSlideSourceToHybsSameSlide(theHyb:Object):void {
@@ -48,7 +48,7 @@
 			for each (var hyb:Object in parentDocument.hybs) {
 				hyb.@idSideDesign = this.slideProductCombo.selectedItem.@idSlideDesign;
 			}
-			callLater(parentDocument.checkHybsCompleteness);
+			callLater(parentDocument.hybsView.checkHybsCompleteness);
 		}
 		
 		public function checkHybSetupCompleteness():void {
@@ -89,8 +89,7 @@
 
 	        	parentDocument.confirmView.enabled = false;
     		} else {
-    			checkHybSetupCompleteness();
-    			parentDocument.checkHybsCompleteness();
+    			parentDocument.hybsView.checkHybsCompleteness();
     		}        	
         }        
         
@@ -123,7 +122,7 @@
 				for each (var hyb:Object in parentDocument.hybs) {
 					hyb.@idSlideDesign = '';
 				}
-				parentDocument.checkHybsCompleteness();
+				parentDocument.hybsView.checkHybsCompleteness();
 			}
 			
 		}
@@ -133,9 +132,9 @@
 			}
 			if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
 				slideProductCombo.selectedItem.@arraysPerSlide == '1') {
-				parentDocument.slideNumberColumn.visible = false;		
+				parentDocument.hybsView.slideNumberColumn.visible = false;		
 			} else {
-				parentDocument.slideNumberColumn.visible = true;
+				parentDocument.hybsView.slideNumberColumn.visible = true;
 			}
 			var slideNumber:int = 0;
 			var count:int = 0;
@@ -170,12 +169,12 @@
 			
 			if (slideProductCombo.selectedItem != null) {
 				parentDocument.selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
-				parentDocument.slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == parentDocument.selectedIdSlideProduct));
+				parentDocument.hybsView.slideDesigns = new XMLListCollection(parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == parentDocument.selectedIdSlideProduct));
 				
 				// If there is only one slide design (besides the blank entry) for the slide product,
 				// set all of the hybs to it.
-				if (parentDocument.slideDesigns.length == 2) {
-					slideDesign = parentDocument.slideDesigns[1];
+				if (parentDocument.hybsView.slideDesigns.length == 2) {
+					slideDesign = parentDocument.hybsView.slideDesigns[1];
 				}
 			}
 			
@@ -220,7 +219,7 @@
 			</mx:Text>
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 			    <mx:HBox>
-					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" >							
+					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" >							
 						<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 					</mx:ComboBox>
 			    </mx:HBox>
@@ -237,7 +236,7 @@
 			<mx:Text width="300" >
 				<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
 			</mx:Text>
-			<mx:TextInput width="40" id="numberOfHybs" change="parentDocument.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();checkHybSetupCompleteness()">
+			<mx:TextInput width="40" id="numberOfHybs" change="parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();checkHybSetupCompleteness()">
 				
 			</mx:TextInput>
 		</mx:HBox>
@@ -245,9 +244,9 @@
 			<mx:Image source="assets/bullet_orange.png"/>
 			<mx:Label text="Where will the microarrays come from?" width="300" />
 			<mx:VBox verticalGap="1">
-				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   click="this.toggleCheckedCodeSlideSource(1);;parentDocument.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-				<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(2);parentDocument.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-				<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(3);parentDocument.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
+				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   click="this.toggleCheckedCodeSlideSource(1);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
+				<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(2);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
+				<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  click="this.toggleCheckedCodeSlideSource(3);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
 			</mx:VBox>
 		</mx:HBox>
 		

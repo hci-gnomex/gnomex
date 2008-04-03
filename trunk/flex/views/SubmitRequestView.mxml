@@ -279,9 +279,6 @@
 		[Bindable]
 		public var requestToClone:Object;
 		
-		[Bindable]
-		public var slideDesigns:XMLListCollection = new XMLListCollection();
-		
 		
 		public function initializeData():void {
 			if (!this.isSolexaState()) {
@@ -413,12 +410,12 @@
 			editMode = false;
 
 			theTab.creationPolicy = 'all';
-			showWorkflowLabel.visible = false;
+			hybsView.showWorkflowLabel.visible = false;
 			samplesView.showQCFieldsCheckBox.visible = false;
-			showCy3LabelingFieldsCheckBox.visible = false;
-			showCy5LabelingFieldsCheckBox.visible = false;
-			showHybFieldsCheckBox.visible = false;
-			showExtFieldsCheckBox.visible = false;
+			hybsView.showCy3LabelingFieldsCheckBox.visible = false;
+			hybsView.showCy5LabelingFieldsCheckBox.visible = false;
+			hybsView.showHybFieldsCheckBox.visible = false;
+			hybsView.showExtFieldsCheckBox.visible = false;
 			if (setupView == null) {
 				return;
 			}
@@ -505,10 +502,10 @@
 			samplesView.copySampleButton.visible = true;
 			samplesView.deleteSampleButton.visible = true;
 			samplesView.clearSamplesButton.visible = true;
-			addHybButton.visible = true;
-			copyHybButton.visible = true;
-			deleteHybButton.visible = true;
-			clearHybsButton.visible = true;
+			hybsView.addHybButton.visible = true;
+			hybsView.copyHybButton.visible = true;
+			hybsView.deleteHybButton.visible = true;
+			hybsView.clearHybsButton.visible = true;
 
 			hybSetupView.organismCombo.enabled = true;
 			hybSetupView.microarrayCategoryCombo.enabled = true;
@@ -628,10 +625,10 @@
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
-						this.channel2SampleColumn.visible = true;
+						hybsView.channel2SampleColumn.visible = true;
 						this.channel2SampleConfirmColumn.visible = true;
 					} else {
-						this.channel2SampleColumn.visible = false;
+						hybsView.channel2SampleColumn.visible = false;
 						this.channel2SampleConfirmColumn.visible = false;
 					}
 	
@@ -660,19 +657,10 @@
         		return "";
         	}
         }
-		private function getLanesGridRowNumber(item:Object,col:int):String
-        {
-        	if (lanes!= null) {
-	           var x:int = lanes.getItemIndex(item) + 1;
-	           return String(x);     		
-        	} else {
-        		return "";
-        	}
-        }
-		private function getSampleChannel1Name(item:Object,col:int):String
+		public function getSampleChannel1Name(item:Object,col:int):String
         {
         	var sampleName:String = "";
-        	if (hybsGrid!= null) {
+        	if (hybsView.hybsGrid!= null) {
         		for each(var sample:Object in samples) {
         			if (sample.@idSample == item.@idSampleChannel1) {
         				sampleName = sample.@name;
@@ -682,10 +670,10 @@
         	} 
         	return sampleName;
         }
-		private function getSampleChannel2Name(item:Object,col:int):String
+		public function getSampleChannel2Name(item:Object,col:int):String
         {
         	var sampleName:String = "";
-        	if (hybsGrid!= null) {
+        	if (hybsView.hybsGrid!= null) {
         		for each(var sample:Object in samples) {
         			if (sample.@idSample == item.@idSampleChannel2) {
         				sampleName = sample.@name;
@@ -694,6 +682,16 @@
         		}
         	} 
         	return sampleName;
+        }
+        
+		private function getLanesGridRowNumber(item:Object,col:int):String
+        {
+        	if (lanes!= null) {
+	           var x:int = lanes.getItemIndex(item) + 1;
+	           return String(x);     		
+        	} else {
+        		return "";
+        	}
         }
 		private function getLaneSampleName(item:Object,col:int):String
         {
@@ -708,25 +706,6 @@
         	} 
         	return sampleName;
         }
-		private function getChannelCountLabelFunction(item:Object,col:int):String
-        {
-        	var channel1Count:int = 0;
-        	var channel2Count:int = 0;
-        	if (hybs!= null) {
-        		for each(var hyb:Object in hybs) {
-        			if (hyb.@idSampleChannel1 == item.@idSample) {
-        				channel1Count++;
-        			}
-        			if (hyb.@idSampleChannel2 == item.@idSample) {
-        				channel2Count++;
-        			}
-        		}
-        	} 
-			item.@channel1Count = channel1Count;
-			item.@channel2Count = channel2Count;
-			return "";
-        }
-        
 
 
 		public function filterProject(item:Object):Boolean {
@@ -948,7 +927,7 @@
 			callLater(sampleSetupView.checkSampleSetupCompleteness);
 			callLater(samplesView.checkSamplesCompleteness);
 			callLater(hybSetupView.checkHybSetupCompleteness);
-			callLater(checkHybsCompleteness);
+			callLater(hybsView.checkHybsCompleteness);
 			
 			
 		}
@@ -1019,19 +998,19 @@
 				samplesView.copySampleButton.visible = true;
 				samplesView.deleteSampleButton.visible = true;
 				samplesView.clearSamplesButton.visible = true;
-				addHybButton.visible = true;
-				copyHybButton.visible = true;
-				deleteHybButton.visible = true;
-				clearHybsButton.visible = true;
+				hybsView.addHybButton.visible = true;
+				hybsView.copyHybButton.visible = true;
+				hybsView.deleteHybButton.visible = true;
+				hybsView.clearHybsButton.visible = true;
 			} else {
 				samplesView.addSampleButton.visible = false;
 				samplesView.copySampleButton.visible = false;
 				samplesView.deleteSampleButton.visible = false;
 				samplesView.clearSamplesButton.visible = false;
-				addHybButton.visible = false;
-				copyHybButton.visible = false;
-				deleteHybButton.visible = false;
-				clearHybsButton.visible = false;
+				hybsView.addHybButton.visible = false;
+				hybsView.copyHybButton.visible = false;
+				hybsView.deleteHybButton.visible = false;
+				hybsView.clearHybsButton.visible = false;
 			}
 
 			var canChangeSlide:Boolean = false;			
@@ -1054,12 +1033,12 @@
 						if (this.isSolexaState()) {
 				
 			} else {
-				showWorkflowLabel.visible = true;
+				hybsView.showWorkflowLabel.visible = true;
 				samplesView.showQCFieldsCheckBox.visible = true;
-				showCy3LabelingFieldsCheckBox.visible = true;
-				showCy5LabelingFieldsCheckBox.visible = true;
-				showHybFieldsCheckBox.visible = true;
-				showExtFieldsCheckBox.visible = true;
+				hybsView.showCy3LabelingFieldsCheckBox.visible = true;
+				hybsView.showCy5LabelingFieldsCheckBox.visible = true;
+				hybsView.showHybFieldsCheckBox.visible = true;
+				hybsView.showExtFieldsCheckBox.visible = true;
 					
 			}
 
@@ -1068,7 +1047,7 @@
 			callLater(hybSetupView.assignSlideNumbers);			
 			callLater(samplesView.checkSamplesCompleteness);
 			callLater(hybSetupView.checkHybSetupCompleteness);
-			callLater(checkHybsCompleteness);
+			callLater(hybsView.checkHybsCompleteness);
 			
 		}
 		
@@ -1170,78 +1149,10 @@
         
  
         
-        public function checkHybsCompleteness():void {
-        	if (request != null && request.codeRequestCategory == "QC") {
-        		return;
-        	}else if (setupView.requestTypeGroup.selectedValue == "QC") {
-        		return;
-        	}
-        	
-        	var completeCount:int = 0;
-        	for each(var hyb:Object in hybs) {
-        		if (hyb.@idSampleChannel1 != null && hyb.@idSampleChannel1 != '0'  &&
-        			hyb.@idSlideDesign != null && hyb.@idSlideDesign != '' &&
-        			hyb.@codeSlideSource != null && hyb.@codeSlideSource != '') {
-        			completeCount++;       				
-        		}
-        	}
-        	if (hybs.length > 0 && completeCount == hybs.length) {
-        		if (theTab.contains(confirmView)){
-	        		this.confirmView.enabled = true;
-        		}
-        		
-        	} else if (request.@idRequest != '0') {
-        		if (theTab.contains(confirmView)) {
- 		       		this.confirmView.enabled = true;        			
-        		}
-        	} else {
-        		if (theTab.contains(confirmView)) {
-	        		this.confirmView.enabled = false;        			
-        		}
-        	}
-        	enableNextButtons();
-        
-        }
 
 
 
-		private function addHyb():void {
-			var defaultSlideDesign:Object = hybSetupView.getDefaultSlideDesign();
-			var idSlideDesign:String = '';
-			if (defaultSlideDesign != null) {
-				idSlideDesign = defaultSlideDesign.@idSlideDesign;
-			}
-			
-			
-			var emptyNode:XML = new XML("<Hybridization " +
-			    " idHybridization='" + "Hyb" + hybs.length + "'" +
-			    " notes='' " + 
-				" idSlideDesign='" + idSlideDesign + "'" +
-				" codeSlideSource='" + hybSetupView.getCheckedCodeSlideSource() + "'" +
-				" idSampleChannel1='0'" +
-				" idSampleChannel2='0'" +
-				"/>");
-			
-			hybs.addItem(emptyNode);
-	        hybSetupView.assignSlideNumbers();	
-		}
-		
-		private function propagateHybChannel1Samples():void {
-			var requestCategory:Object = setupView.getRequestCategory();
-			if (requestCategory.@numberOfChannels == "1") {
-				var count:int = 0;
-				for each(var sample:Object in samples) {
-					if (hybs.length == count) {
-						break;
-					}
-					var hyb:Object = hybs.getItemAt(count);
-					hyb.@idSampleChannel1 = sample.@idSample;
-					count++;
-				}
-			}
-			
-		}
-		
+
         
         public function isSampleTypeCompatibile():Boolean {
         	var compatible:Boolean = true;
@@ -1304,169 +1215,8 @@
         }
 
 		
-		private function deleteHyb():void {
-			if (hybsGrid.selectedItems.length > 0) {
-				for each(var hyb:Object in hybsGrid.selectedItems) {					
-					hybs.removeItemAt(hybs.getItemIndex(hyb));
-				}
-			}
-	        hybSetupView.assignSlideNumbers();	
-		}
-		
-		private function copyHyb():void {
-			if (hybsGrid.selectedIndex != -1) {
-				for each(var i:int in hybsGrid.selectedIndices) {					
-					var hybToCopy:Object = hybs[i];
-					
-					var emptyNode:XML = new XML("<Hybridization " +
-    			    " idHybridization='" + "Hyb" + hybs.length + "'" +
-					" notes='" + hybToCopy.@notes + "'" + 
-					" idSampleChannel1='" + hybToCopy.@idSampleChannel1 + "'" +
-					" idSampleChannel2='" + hybToCopy.@idSampleChannel2 + "'" +	
-					" codeSlideSource='" + hybToCopy.@codeSlideSource + "'" +			
-					" idSlideDesign='" + hybToCopy.@idSlideDesign + "'" +			
-					"/>");
-			
-					hybs.addItem(emptyNode);
-					
-				}
-			}
-	        hybSetupView.assignSlideNumbers();	
-		}
-		
-		public function promptToClearAllHybs():void {
-			Alert.show("Remove all hybs currently showing in list?",
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToClearAllHybs);
-			
-		}
-		
-		private function onPromptToClearAllHybs(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	hybs.removeAll();
-            	checkHybsCompleteness();
-            }
-        }
-        public function initializeHybsGrid():void {
-        	if (requestToClone != null) {
-        		return;
-        	}
-        	
-        	if (hybSetupView.numberOfHybs.text == null || hybSetupView.numberOfHybs.text == "0" || hybSetupView.numberOfHybs.text == '') {
-        		return;
-        	}
-        	if (hybSetupView.slideProductCombo.selectedItem == null || hybSetupView.slideProductCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (hybSetupView.getCheckedCodeSlideSource() == '') {
-        		return;
-        	}
-        	
-        	
-    		var numberOfHybsToAdd:Number = new Number(hybSetupView.numberOfHybs.text);
-    		if(hybs.length <= numberOfHybsToAdd) {
-    			numberOfHybsToAdd = numberOfHybsToAdd - hybs.length;
-    		} else {
-    			numberOfHybsToAdd = 0;
-    		}
-    		for(var x:int = 0; x < numberOfHybsToAdd; x++) {
-    			addHyb();
-    		}
-    		
-    		this.propagateHybChannel1Samples();
-        }
 
-	  	private function onDragDrop(event:DragEvent) : void
-		{
-		   var isChannel1Drop:Boolean = false;
-		   var isChannel2Drop:Boolean = false;
-			
-	       var ds:DragSource = event.dragSource;
-	       var colXStart:int = 0;
-	       var colXEnd:int = 0;
-	       for each(var col:DataGridColumn in hybsGrid.columns) {
-	       		colXEnd += col.width;
-	       		
-	       		if (event.localX >= colXStart && event.localX <= colXEnd) {
-	       			if (col.headerText == "Cy3 Sample (green)") {
-	       				isChannel1Drop = true;
-	       				break;
-	       			} else if (col.headerText == "Cy5 Sample (red)") {
-	       				isChannel2Drop = true;
-	       				break;
-	       			}
-	       		}
-	       		colXStart = colXEnd;
-	       }
-	      
 
-		   // The user didn't drag over cy3 or cy5 sample column, so disregard 
-		   // operation.	       
-	       if (!isChannel1Drop && !isChannel2Drop) {
-		       	event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);
-		       	checkHybsCompleteness();
-		       	return;
-	       }
-	       
-	       // retrieve the data associated with the "items" format. This will be the data that
-	       // the dragInitiator has copied into the DragSource.
-	       var items:Array = ds.dataForFormat("items") as Array;
-	
-	       // determine where in the grid the drop occurs and select that node by the index; followed by 
-	       // retrieving the node itself. 
-	       var r:int = hybsGrid.calculateDropIndex(event);
-	       hybsGrid.selectedIndex = r;
-	       var node:XML = hybsGrid.selectedItem as XML;
-	       var p:*;
-	
-	
-	       if (node.name()  == "Hybridization") {
-	       		p = node;
-	       } else {
-	       		//ignore drop operations not on existing hyb row
-	       }
-	       
-	        
-	       // Disallow operation if samples cannot be changed on hyb
-	       if (hybsGrid.selectedItem.@canChangeSampleDesignations == "Y" ||
-	           parentApplication.hasPermission("canWriteAnyObject")) {
-	           	
-	       } else {
-	       	  	Alert.show("Cy3 and Cy5 samples cannot be changed.");
-		       	event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);
-				return;	       	  	
-	       }
-	
-	       // taking all of the items in the DragSouce, update the appropriate
-	       // sample id on the hyb node.
-	       if (p != null) {
-		       for(var i:Number=0; i < items.length; i++) {
-		       	if (items[i].name() == "Sample") {
-		       		if (isChannel1Drop) {
-			       		hybsGrid.selectedItem.@idSampleChannel1 = items[i].@idSample;	       			
-		       		} else if (isChannel2Drop) {
-			       		hybsGrid.selectedItem.@idSampleChannel2 = items[i].@idSample;	       			
-		       			
-		       		}
-		       	} 
-		       }
-	       	
-	       }	
-	       
-	       this.sampleDragGrid.invalidateDisplayList();
-	       this.sampleDragGrid.invalidateList();
-	       
-	       // Don't allow flex to do any default moves to the data.  
-	       // We handle it in the code above.
-	       event.preventDefault();
-	       
-	       checkHybsCompleteness();
-		}
 		
 		private function addLane():void {
 			var emptyNode:XML = new XML("<SequenceLane " +
@@ -1923,21 +1673,6 @@
 		}
 		
 
-		private function showCy3LabelCols(isVisible:Boolean):void {
-			labelCol1.visible = isVisible;
-			labelCol2.visible = isVisible;
-			labelCol3.visible = isVisible;
-			labelCol4.visible = isVisible;
-			labelCol5.visible = isVisible;
-		}
-			
-		private function showCy5LabelCols(isVisible:Boolean):void {
-			labelCol6.visible = isVisible;
-			labelCol7.visible = isVisible;
-			labelCol8.visible = isVisible;
-			labelCol9.visible = isVisible;
-			labelCol10.visible = isVisible;
-		}
 
 		]]>
 		
@@ -1974,210 +1709,9 @@
 			<views:SubmitRequestHybSetupView id="hybSetupView">				
 			</views:SubmitRequestHybSetupView>
 			
-			<mx:Canvas label="Hybs" width="100%" height="100%" enabled="false" id="hybsView">
-			    <mx:VBox width="100%" height="100%" verticalGap="0">
-				    <mx:HDividedBox height="100%" width="100%">
-				        <mx:Panel  title="Samples" height="100%" verticalGap="4">
-				        	<views:DataGrid
-				        		dragProxyImage="views.DataGridSampleDragProxy" 
-				        		 height="100%" width="100%" 
-				        		 dataProvider="{samples}" labelField="@name" 
-				        		 dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
-								<views:columns>
-									<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
-						            <mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
-						                <mx:itemRenderer>
-						                    <mx:Component >
-						                        <mx:HBox  horizontalGap="0" >
-						                          <mx:Image source="{data.@channel1Count > 0 ? '../assets/bullet_green.png' : ''}">
-						                    	 </mx:Image> 
-						                          <mx:Image source="{data.@channel2Count > 0 ? '../assets/bullet_red.png' : ''}">
-						                    	 </mx:Image> 
-						                        </mx:HBox>
-						                    </mx:Component>
-						                </mx:itemRenderer>
-						            </mx:DataGridColumn> 
-								</views:columns>
-											        				        		
-				         	</views:DataGrid>
-				        </mx:Panel>
-						<mx:Panel  id="hybsContainer" width="100%" height="100%">
-						   <mx:title><![CDATA[Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)]]></mx:title>
-								<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
-									<mx:HBox>
-										<mx:Button label="Add" click="addHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addHybButton"/>
-										<mx:Button label="Copy" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyHybButton"/>
-										<mx:Button label="Delete" click="deleteHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteHybButton"/>
-										<mx:Button label="Clear all" click="promptToClearAllHybs()" icon="@Embed('../assets/folder_delete.png')" id="clearHybsButton"/>
-									</mx:HBox>
-									
-									<mx:HBox horizontalAlign="right" width="100%">
-										<mx:HBox width="100%" horizontalGap="0"  horizontalAlign="left" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="8" paddingTop="2">
-											<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
-											<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
-											<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
-											<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" paddingLeft="0" paddingRight="0"/>
-											<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE data" paddingLeft="0" paddingRight="0"/>
-										</mx:HBox>
-									</mx:HBox>
-										
-								</mx:HBox>
-							<views:DataGridAlternatingGroup width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
-								<views:columns>
-								    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getHybsGridRowNumber"/>
-						            <mx:DataGridColumn width="50" id="slideNumberColumn" headerText="Slide">
-						                <mx:itemRenderer>
-						                    <mx:Component >
-						                        <mx:HBox  horizontalGap="0" >
-						                          <mx:Image id="experimentImage"  source="{data.@showSlideIcon == 'Y' ? '../assets/color_swatch.png' : ''}">
-						                    	 </mx:Image> 
-						                          <mx:Label  text="{data.@showSlideIcon == 'Y' ? data.@slideNumber : ''}">
-						                    	 </mx:Label>  
-						                        </mx:HBox>
-						                    </mx:Component>
-						                </mx:itemRenderer>
-						            </mx:DataGridColumn> 
-								    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="122" 
-								    	labelFunction="getSampleChannel1Name" 
-                                        editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel1" itemRenderer="views.renderers.LabelSampleChannel1" />								    	
-								    <mx:DataGridColumn id="channel2SampleColumn" headerText="Cy5 Sample (red)"  width="122" 
-								    	labelFunction="getSampleChannel2Name" 
-                                        editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel2" itemRenderer="mx.controls.Label" />								    	
-                                        
-                                        
-								<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1">
-									<mx:headerRenderer >
-									<mx:Component>
-										<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Protocol"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol2"  visible="false" headerText="Channel1 Labeling yield" width="80" dataField="@labelingYieldChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Yield"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Reaction size"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol4"  visible="false" headerText="Channel1 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="# reactions"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Status"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel2" width="80" dataField="@idLabelingProtocolChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Protocol"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol7"   visible="false" headerText="Channel2 Labeling yield" width="80" dataField="@labelingYieldChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Yield"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Reaction size"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol9"  visible="false"  headerText="Channel2 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="# reactions"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Status"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-
-
-
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"/>
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
-
-
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" labelFunction="parentApplication.lookupScanProtocol" dataField="@idScanProtocol"/>
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" labelFunction="parentApplication.lookupFeatureExtractionProtocol" dataField="@idFeatureExtractionProtocol"/>
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
-
-
-                                        
-                                        
-                                        
-                                        
-                                        
-						             <mx:DataGridColumn id="slideDesignColumn" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide"  width="250" dataField="@idSlideDesign" 						             						             
-						                editorDataField="value" sortable="false" labelFunction="parentApplication.lookupSlideDesignName" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSlideDesign" itemEditor="views.renderers.ComboBoxSlideDesign" />
-						             <mx:DataGridColumn visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="78" dataField="@codeSlideSource" 
-						                editorDataField="value" sortable="false" editable="true" labelFunction="parentApplication.lookupSlideSource" rendererIsEditor="false" itemRenderer="views.renderers.LabelSlideSource" itemEditor="views.renderers.ComboBoxSlideSource" />
-									<mx:DataGridColumn headerText="Notes" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="100" dataField="@notes"/>
-								</views:columns>
-							</views:DataGridAlternatingGroup>
-							
-						</mx:Panel>
-				    	
-				    </mx:HDividedBox>
-
-			    </mx:VBox>
-			</mx:Canvas>
+			<views:SubmitRequestHybsView id="hybsView">				
+			</views:SubmitRequestHybsView>
+			
 			<mx:Canvas label="Confirm" width="100%" height="100%" enabled="false" id="confirmView">
 			<mx:VBox id="confirmHeaderContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
 
