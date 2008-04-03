@@ -35,7 +35,7 @@ package views
           		_data.@isSelected = "false";
           	}   
           	// initialize the samples grid
-          	parentDocument.initializeSamplesGrid();
+          	parentDocument.parentDocument.samplesView.initializeSamplesGrid();
           	// propagate selected chip type to samples
           	parentDocument.propagateChipType();       	
           	// check for sampleSetup completeness

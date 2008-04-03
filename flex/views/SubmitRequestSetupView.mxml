@@ -251,8 +251,8 @@
 	        	parentDocument.confirmView.enabled = false;
     		} else {
     			parentDocument.sampleSetupView.checkSampleSetupCompleteness();
-    			parentDocument.checkSamplesCompleteness();
-    			parentDocument.checkHybSetupCompleteness();
+    			parentDocument.samplesView.checkSamplesCompleteness();
+    			parentDocument.hybSetupView.checkHybSetupCompleteness();
     			parentDocument.checkHybsCompleteness();
     		}
         	
