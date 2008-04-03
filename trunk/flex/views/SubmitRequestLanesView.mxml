@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequencing Lanes" enabled="false" width="100%" height="100%">
+<mx:Script>	
+	<![CDATA[
+		import mx.events.DragEvent;
+		import mx.events.DragEvent;
+		import mx.managers.DragManager;
+        import mx.core.DragSource;
+        import mx.events.CloseEvent;
+        import mx.controls.Alert;
+        		
+		private function addLane():void {
+			var emptyNode:XML = new XML("<SequenceLane " +
+			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
+			    " notes='' " + 
+				" idFlowCellType='" + flowCellTypeCombo.selectedItem.@value + "'" +
+				" idNumberSequencingCycles='" + numberSequencingCyclesCombo.selectedItem.@value + "'" +
+				" idSample='0'" +
+				"/>");
+			
+			parentDocument.lanes.addItem(emptyNode);
+		}
+
+		private function copyLane():void {
+			if (lanesGrid.selectedIndex != -1) {
+				for each(var i:int in lanesGrid.selectedIndices) {					
+					var laneToCopy:Object = parentDocument.lanes[i];
+					
+					var emptyNode:XML = new XML("<SequenceLane " +
+    			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
+					" notes='" + laneToCopy.@notes + "'" + 
+					" idSample='" + laneToCopy.@idSample + "'" +
+					" idFlowCellType='" + laneToCopy.@idFlowCellType + "'" +			
+					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
+					"/>");
+			
+					parentDocument.lanes.addItem(emptyNode);
+					
+				}
+			}
+		}
+		private function deleteLane():void {
+			if (lanesGrid.selectedItems.length > 0) {
+				for each(var lane:Object in lanesGrid.selectedItems) {		
+					var index:int = parentDocument.lanes.getItemIndex(lane);			
+					parentDocument.lanes.removeItemAt(index);
+				}
+			}
+		}
+		public function promptToClearAllLanes():void {
+			Alert.show("Remove all sequence lanes currently showing in list?",
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToClearAllLanes);
+			
+		}
+        public function initializeLanesGrid():void {
+        	if (parentDocument == null) {
+        		return;
+        	}
+        	
+        	if (parentDocument.requestToClone != null) {
+        		return;
+        	}
+        	
+        	if (parentDocument.numberOfLanes.text == null || parentDocument.numberOfLanes.text == "0" || parentDocument.numberOfLanes.text == '') {
+        		return;
+        	}
+        	if (flowCellTypeCombo.selectedItem == null || flowCellTypeCombo.selectedItem.@value == '') {
+        		return;
+        	}
+        	if (numberSequencingCyclesCombo.selectedItem == null || numberSequencingCyclesCombo.selectedItem.@value == '') {
+        		return;
+        	}
+      	
+        	
+    		var numberOfLanesToAdd:Number = new Number(parentDocument.numberOfLanes.text);
+    		if(parentDocument.lanes.length <= numberOfLanesToAdd) {
+    			numberOfLanesToAdd = numberOfLanesToAdd - parentDocument.lanes.length;
+    		} else {
+    			numberOfLanesToAdd = 0;
+    		}
+    		for(var x:int = 0; x < numberOfLanesToAdd; x++) {
+    			addLane();
+    		}
+    		
+        }
+		private function propagateFlowCellType():void {
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
+			callLater(checkLanesCompleteness);
+		}
+		private function propagateNumberSequencingCycles():void {
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+			}
+			callLater(checkLanesCompleteness);
+		}
+
+		private function onPromptToClearAllLanes(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	parentDocument.lanes.removeAll();
+            	checkLanesCompleteness();
+            }
+        }
+        public function checkLanesCompleteness():void {
+        	var completeCount:int = 0;
+        	for each(var lane:Object in parentDocument.lanes) {
+        		if (lane.@idSample != null && lane.@idSample!= '0'  &&
+        			lane.@idFlowCellType != null && lane.@idFlowCellType != '' &&
+        			lane.@idNumberSequencingCycles != null && lane.@idNumberSequencingCycles != '') {
+        			completeCount++;       				
+        		}
+        	}
+        	if (parentDocument.lanes.length > 0 && completeCount == parentDocument.lanes.length) {
+        		if (parentDocument.theTab.contains(parentDocument.confirmView)){
+	        		parentDocument.confirmView.enabled = true;
+        		}
+        		
+        	} else if (parentDocument.request.@idRequest != '0') {
+        		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+ 		       		parentDocument.confirmView.enabled = true;        			
+        		}
+        	} else {
+        		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+	        		parentDocument.confirmView.enabled = false;        			
+        		}
+        	}
+        	parentDocument.enableNextButtons();
+        
+        }
+
+	  	private function onDragDropLane(event:DragEvent) : void
+		{
+	       // retrieve the data associated with the "items" format. This will be the data that
+	       // the dragInitiator has copied into the DragSource.
+	       var items:Array = event.dragSource.dataForFormat("items") as Array;
+	
+	       // determine where in the grid the drop occurs and select that node by the index; followed by 
+	       // retrieving the node itself. 
+	       var r:int = lanesGrid.calculateDropIndex(event);
+	       lanesGrid.selectedIndex = r;
+	       var node:XML = lanesGrid.selectedItem as XML;
+	       var p:*;
+	
+	
+	       if (node.name()  == "SequenceLane") {
+	       		p = node;
+	       } else {
+	       		//ignore drop operations not on existing hyb row
+	       }
+	       
+	        
+	       // Disallow operation if samples cannot be changed on hyb
+	       if (lanesGrid.selectedItem.@canChangeSampleDesignations == "Y" ||
+	           parentApplication.hasPermission("canWriteAnyObject")) {
+	           	
+	       } else {
+	       	  	Alert.show("Lane samples cannot be changed.");
+		       	event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);
+				return;	       	  	
+	       }
+	
+	       // taking all of the items in the DragSouce, update the appropriate
+	       // sample id on the hyb node.
+	       if (p != null) {
+		       for(var i:Number=0; i < items.length; i++) {
+		       	if (items[i].name() == "Sample") {
+			    	lanesGrid.selectedItem.@idSample = items[i].@idSample;	       			
+		       	} 
+		       }
+	       	
+	       }	
+	       
+	       this.sampleLaneDragGrid.invalidateDisplayList();
+	       this.sampleLaneDragGrid.invalidateList();
+	       
+	       // Don't allow flex to do any default moves to the data.  
+	       // We handle it in the code above.
+	       event.preventDefault();
+	       
+	       checkLanesCompleteness();
+		}
+		
+	]]>
+</mx:Script>
+	<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="6">
+		<mx:HBox id="laneFlowCellContainer">
+			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Label width="230" text="Select the type of flow cell to be used:"/>
+			<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="initializeLanesGrid();propagateFlowCellType()">
+				<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
+			</mx:ComboBox>
+			<mx:Spacer width="10"/>
+			<mx:HBox> 
+				<mx:Label width="300" text="Select the minimum number of sequencing cycles:"/>
+				<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="initializeLanesGrid();propagateNumberSequencingCycles()">
+					<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:HDividedBox width="100%" height="100%" paddingTop="10">
+	        <mx:Panel  title="Samples" height="100%" verticalGap="4">
+	        	<views:DataGrid
+	        		dragProxyImage="views.DataGridSampleDragProxy" 
+	        		 height="100%" width="100%" 
+	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
+	        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
+					<views:columns>
+						<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
+			            <!--<mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                        <mx:HBox  horizontalGap="0" >
+			                          <mx:Image source="{data.@laneCount > 0 ? '../assets/tick.png' : ''}">
+			                    	 </mx:Image> 
+			                        </mx:HBox>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> -->		
+					</views:columns> 										        				        		
+	         	</views:DataGrid>
+	        </mx:Panel>            	
+
+			<mx:Panel  id="lanesContainer" width="100%" height="100%">
+			   <mx:title><![CDATA[Sequencing Lanes    (Drag sample onto sequencing lane sample cell)]]></mx:title>
+					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
+						<mx:HBox>
+							<mx:Button label="Add" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addLaneButton"/>
+							<mx:Button label="Copy" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyLaneButton"/>
+							<mx:Button label="Delete" click="deleteLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteLaneButton"/>
+							<mx:Button label="Clear all" click="promptToClearAllLanes()" icon="@Embed('../assets/folder_delete.png')" id="clearLaneButton"/>
+						</mx:HBox>
+						
+					</mx:HBox>
+				<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" dataProvider="{parentDocument.lanes}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDropLane(event)" itemFocusOut="checkLanesCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+					<mx:columns>
+					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getLanesGridRowNumber"/>
+					    <mx:DataGridColumn  headerText="Sample"  width="222" 
+					    	labelFunction="parentDocument.getLaneSampleName" 
+                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
+			             <mx:DataGridColumn  width="200" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
+			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+						<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+			</mx:Panel>					        			
+		</mx:HDividedBox>
+	</mx:VBox>
+
+</mx:Canvas>

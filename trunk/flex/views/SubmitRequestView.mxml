@@ -4,190 +4,7 @@
     xmlns:views="views.*"
 	label="Submit Request" width="100%" height="100%" 
 	>
-    <mx:states>
-        <mx:State name="SolexaBaseState">
-            <mx:RemoveChild target="{hybSetupView}"/>
-            <mx:RemoveChild target="{hybsView}"/>
-            <mx:RemoveChild target="{sampleSetupView.bioanalyzerContainer}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
-            <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
-				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
-						<mx:Label text="{lanes.length + ' Sequencing Lanes'}"/>
-						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
-						<mx:columns>
-						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
-						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
-				             <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
-				             <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
-							<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
-						</mx:columns>
-					</mx:DataGrid>
-					
-				</mx:VBox>					        			
-            
-            </mx:AddChild>
-            <mx:AddChild relativeTo="{samplesView}" position="after">
-            	<mx:Canvas label="Sequencing Lanes" id="lanesView" enabled="false">
-            		<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="6">
-            			<mx:HBox id="laneFlowCellContainer">
-							<mx:Image source="assets/bullet_orange.png"/>
-            				<mx:Label width="230" text="Select the type of flow cell to be used:"/>
-            				<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="initializeLanesGrid();propagateFlowCellType()">
-            					<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
-            				</mx:ComboBox>
-            				<mx:Spacer width="10"/>
-            				<mx:HBox>
-            					<mx:Label width="300" text="Select the minimum number of sequencing cycles:"/>
-            					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="initializeLanesGrid();propagateNumberSequencingCycles()">
-            						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
-            					</mx:ComboBox>
-            				</mx:HBox>
-            			</mx:HBox>
-            			<mx:HDividedBox width="100%" height="100%" paddingTop="10">
-					        <mx:Panel  title="Samples" height="100%" verticalGap="4">
-					        	<views:DataGrid
-					        		dragProxyImage="views.DataGridSampleDragProxy" 
-					        		 height="100%" width="100%" 
-					        		 dataProvider="{samples}" labelField="@name" 
-					        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
-									<views:columns>
-										<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
-<!--							            <mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
-							                <mx:itemRenderer>
-							                    <mx:Component >
-							                        <mx:HBox  horizontalGap="0" >
-							                          <mx:Image source="{data.@laneCount > 0 ? '../assets/tick.png' : ''}">
-							                    	 </mx:Image> 
-							                        </mx:HBox>
-							                    </mx:Component>
-							                </mx:itemRenderer>
-							            </mx:DataGridColumn> 
- -->									</views:columns>												        				        		
-					         	</views:DataGrid>
-					        </mx:Panel>            	
 
-							<mx:Panel  id="lanesContainer" width="100%" height="100%">
-							   <mx:title><![CDATA[Sequencing Lanes    (Drag sample onto sequencing lane sample cell)]]></mx:title>
-									<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
-										<mx:HBox>
-											<mx:Button label="Add" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addLaneButton"/>
-											<mx:Button label="Copy" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyLaneButton"/>
-											<mx:Button label="Delete" click="deleteLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteLaneButton"/>
-											<mx:Button label="Clear all" click="promptToClearAllLanes()" icon="@Embed('../assets/folder_delete.png')" id="clearLaneButton"/>
-										</mx:HBox>
-										
-									</mx:HBox>
-								<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" dataProvider="{lanes}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDropLane(event)" itemFocusOut="checkLanesCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
-									<mx:columns>
-									    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
-									    <mx:DataGridColumn  headerText="Sample"  width="222" 
-									    	labelFunction="getLaneSampleName" 
-	                                        editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
-							             <mx:DataGridColumn  width="200" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
-							             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
-										<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
-									</mx:columns>
-								</mx:DataGrid>
-								
-							</mx:Panel>					        			
-            			</mx:HDividedBox>
-            		</mx:VBox>
-            	</mx:Canvas>
-            </mx:AddChild>
-         </mx:State>
-        <mx:State name="SolexaSetupState" basedOn="SolexaBaseState">
-            <mx:AddChild relativeTo="{sampleSetupView.concentrationContainer}">
-                <mx:HBox width="100%">
-    	            <mx:Label text="Enter approximate volume:"/>
-	                <mx:TextInput id="volume" />
-					<mx:Label text="ng" />
-                </mx:HBox>
-            </mx:AddChild>
-            <mx:AddChild relativeTo="{sampleSetupView.concentrationContainer}" position="after">
-				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Are the samples already prepped?" width="340" />
-					<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="Yes, samples have already been prepped" />							
-					<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="No, please prep the samples" selected="true"/>							
-				</mx:HBox>            	
-            </mx:AddChild>
-            <mx:RemoveChild target="{confirmView.label1}"/>
-            <mx:AddChild relativeTo="{sampleSetupView.sampleSetupContainer}" >
-                <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
-                	<mx:Image source="assets/bullet_orange.png"/>
-                	<mx:Label text="Should the sequence be aligned to a genome build?" width="340"/>
-                	<mx:VBox width="100%" id="alignMoreContainer">
-                		<mx:HBox>
-                			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
-                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="samplesView.initializeSamplesGrid();hybSetupView.organismCombo.selectedItem = sampleSetupView.sampleOrganismCombo.selectedItem;sampleSetupView.checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
-        		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
-		                	</mx:ComboBox>                			
-                		</mx:HBox>
-                		<mx:HBox width="100%">
-		                	<mx:Label text="Alignment instructions:" visible="{alignCheckBox.selected}"/>
-        		        	<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}"/>                			
-                		</mx:HBox>                		
-                	</mx:VBox>
-                </mx:HBox>
-            </mx:AddChild>
-            <mx:SetProperty target="{sampleSetupView.label2}" name="text" value="Select a sample preparation method:"/>
-            <mx:AddChild relativeTo="{laneFlowCellContainer}"  position="after">
-        	         <mx:HBox id="numberOfLanesContainer">
-						<mx:Image source="assets/bullet_orange.png"/>
-          				<mx:Label width="230" text="How many sequencing lanes will be run?"/>
-        				<mx:TextInput id="numberOfLanes" width="40" change="initializeLanesGrid()"/>
-        			</mx:HBox>
-            </mx:AddChild>
-            <mx:AddChild relativeTo="{numberOfLanesContainer}"  position="after">
-        			<mx:HBox id="testRunContainer">
-						<mx:Image source="assets/bullet_orange.png"/>
-        				<mx:Label width="230" text="Should a test run be performed?"/>
-        				<mx:RadioButton id="performTestRunRadio" label="Yes, perform test run" click="initializeLanesGrid()"/>
-        				<mx:RadioButton id="dontPerformTestRunRadio" label="No, run all lanes for all samples at once" click="initializeLanesGrid()"/>
-        			</mx:HBox>
-
-            </mx:AddChild>
-        </mx:State>
-        <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
-            <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
-				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
-					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Describe how the samples were prepped:" width="340"/>
-					<mx:TextInput id="samplePrepMethodText"/>			
-					<mx:Spacer width="40"/>				
-					<mx:RadioButton id="isFragLib" label="Fragment"/>
-					<mx:RadioButton id="isPairedEndLib" label="Paired Ends"/>
-					<mx:Spacer width="40"/>				
-					<mx:CheckBox id="isSizeSelected" label="Size Selected?"/>
-					<mx:TextInput id="sizeSelectedFrom" width="30"/>	
-					<mx:Label text="-" textAlign="center"/>
-					<mx:TextInput id="sizeSelectedTo" width="30"/>
-				</mx:HBox>            	
-            </mx:AddChild>
-            <mx:RemoveChild target="{sampleSetupView.samplePrepContainer}">            	
-            </mx:RemoveChild>
-        </mx:State>
-    </mx:states>
-    
-
-  
-  <mx:HTTPService  
-    id="getProjectRequestList" 
-    url="http://localhost/gnomex/GetProjectRequestList.gx"
-    destination="getProjectRequestList"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onGetProjectRequestList(event)"
-    method="POST"
-    useProxy="false">
-    <mx:request>
-            <idLab>{setupView.labCombo.selectedItem.@idLab}</idLab> 
-            <showSamples>N</showSamples>
-            <showCategory>N</showCategory>
-            <showMyLabsAlways>N</showMyLabsAlways>
-            <listKind>ProjectRequestCloneList</listKind>
-    </mx:request>
-   </mx:HTTPService>
    
    <mx:HTTPService  
     id="getNewRequest" 
@@ -274,7 +91,6 @@
 		[Bindable]
 		public var request:Object;
 		
-		private var requestCloneWindow:views.RequestCloneWindow;
 		
 		[Bindable]
 		public var requestToClone:Object;
@@ -684,7 +500,7 @@
         	return sampleName;
         }
         
-		private function getLanesGridRowNumber(item:Object,col:int):String
+		public function getLanesGridRowNumber(item:Object,col:int):String
         {
         	if (lanes!= null) {
 	           var x:int = lanes.getItemIndex(item) + 1;
@@ -693,10 +509,10 @@
         		return "";
         	}
         }
-		private function getLaneSampleName(item:Object,col:int):String
+		public function getLaneSampleName(item:Object,col:int):String
         {
         	var sampleName:String = "";
-        	if (lanesGrid!= null) {
+        	if (lanesView.lanesGrid!= null) {
         		for each(var sample:Object in samples) {
         			if (sample.@idSample == item.@idSample) {
         				sampleName = sample.@name;
@@ -818,12 +634,6 @@
 		
 		
 		
-		private function onGetProjectRequestList(event:ResultEvent):void {
-			
-			this.requestCloneWindow = views.RequestCloneWindow(PopUpManager.createPopUp(this, views.RequestCloneWindow, true));
-			PopUpManager.centerPopUp(requestCloneWindow);
-			requestCloneWindow.expandAllNodes();
-		}
 		
 		public function cloneRequest(requestToClone:Object):void {
 			this.requestToClone = requestToClone;
@@ -1140,19 +950,6 @@
 				
 			}
 		}	
-		
-		
-
-		
-		
-		
-        
- 
-        
-
-
-
-
         
         public function isSampleTypeCompatibile():Boolean {
         	var compatible:Boolean = true;
@@ -1213,185 +1010,6 @@
         		hybSetupView.slideProductCombo.selectedIndex = 0;
         	}
         }
-
-		
-
-
-		
-		private function addLane():void {
-			var emptyNode:XML = new XML("<SequenceLane " +
-			    " idSequenceLane='" + "SequenceLane" + lanes.length + "'" +
-			    " notes='' " + 
-				" idFlowCellType='" + flowCellTypeCombo.selectedItem.@value + "'" +
-				" idNumberSequencingCycles='" + numberSequencingCyclesCombo.selectedItem.@value + "'" +
-				" idSample='0'" +
-				"/>");
-			
-			lanes.addItem(emptyNode);
-		}
-
-		private function copyLane():void {
-			if (lanesGrid.selectedIndex != -1) {
-				for each(var i:int in lanesGrid.selectedIndices) {					
-					var laneToCopy:Object = lanes[i];
-					
-					var emptyNode:XML = new XML("<SequenceLane " +
-    			    " idSequenceLane='" + "SequenceLane" + lanes.length + "'" +
-					" notes='" + laneToCopy.@notes + "'" + 
-					" idSample='" + laneToCopy.@idSample + "'" +
-					" idFlowCellType='" + laneToCopy.@idFlowCellType + "'" +			
-					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
-					"/>");
-			
-					lanes.addItem(emptyNode);
-					
-				}
-			}
-		}
-		private function deleteLane():void {
-			if (lanesGrid.selectedItems.length > 0) {
-				for each(var lane:Object in lanesGrid.selectedItems) {		
-					var index:int = lanes.getItemIndex(lane);			
-					lanes.removeItemAt(index);
-				}
-			}
-		}
-		public function promptToClearAllLanes():void {
-			Alert.show("Remove all sequence lanes currently showing in list?",
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToClearAllLanes);
-			
-		}
-        private function initializeLanesGrid():void {
-        	if (requestToClone != null) {
-        		return;
-        	}
-        	
-        	if (numberOfLanes.text == null || numberOfLanes.text == "0" || numberOfLanes.text == '') {
-        		return;
-        	}
-        	if (flowCellTypeCombo.selectedItem == null || flowCellTypeCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (numberSequencingCyclesCombo.selectedItem == null || numberSequencingCyclesCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (!this.performTestRunRadio.selected && !this.dontPerformTestRunRadio.selected) {
-        		return;
-        	}
-        	
-        	
-    		var numberOfLanesToAdd:Number = new Number(numberOfLanes.text);
-    		if(lanes.length <= numberOfLanesToAdd) {
-    			numberOfLanesToAdd = numberOfLanesToAdd - lanes.length;
-    		} else {
-    			numberOfLanesToAdd = 0;
-    		}
-    		for(var x:int = 0; x < numberOfLanesToAdd; x++) {
-    			addLane();
-    		}
-    		
-        }
-		private function propagateFlowCellType():void {
-			for each (var lane:Object in lanes) {
-				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
-			}
-			callLater(checkLanesCompleteness);
-		}
-		private function propagateNumberSequencingCycles():void {
-			for each (var lane:Object in lanes) {
-				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
-			}
-			callLater(checkLanesCompleteness);
-		}
-
-		private function onPromptToClearAllLanes(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	lanes.removeAll();
-            	checkLanesCompleteness();
-            }
-        }
-        public function checkLanesCompleteness():void {
-        	var completeCount:int = 0;
-        	for each(var lane:Object in lanes) {
-        		if (lane.@idSample != null && lane.@idSample!= '0'  &&
-        			lane.@idFlowCellType != null && lane.@idFlowCellType != '' &&
-        			lane.@idNumberSequencingCycles != null && lane.@idNumberSequencingCycles != '') {
-        			completeCount++;       				
-        		}
-        	}
-        	if (lanes.length > 0 && completeCount == lanes.length) {
-        		if (theTab.contains(confirmView)){
-	        		this.confirmView.enabled = true;
-        		}
-        		
-        	} else if (request.@idRequest != '0') {
-        		if (theTab.contains(confirmView)) {
- 		       		this.confirmView.enabled = true;        			
-        		}
-        	} else {
-        		if (theTab.contains(confirmView)) {
-	        		this.confirmView.enabled = false;        			
-        		}
-        	}
-        	enableNextButtons();
-        
-        }
-
-	  	private function onDragDropLane(event:DragEvent) : void
-		{
-	       // retrieve the data associated with the "items" format. This will be the data that
-	       // the dragInitiator has copied into the DragSource.
-	       var items:Array = event.dragSource.dataForFormat("items") as Array;
-	
-	       // determine where in the grid the drop occurs and select that node by the index; followed by 
-	       // retrieving the node itself. 
-	       var r:int = lanesGrid.calculateDropIndex(event);
-	       lanesGrid.selectedIndex = r;
-	       var node:XML = lanesGrid.selectedItem as XML;
-	       var p:*;
-	
-	
-	       if (node.name()  == "SequenceLane") {
-	       		p = node;
-	       } else {
-	       		//ignore drop operations not on existing hyb row
-	       }
-	       
-	        
-	       // Disallow operation if samples cannot be changed on hyb
-	       if (lanesGrid.selectedItem.@canChangeSampleDesignations == "Y" ||
-	           parentApplication.hasPermission("canWriteAnyObject")) {
-	           	
-	       } else {
-	       	  	Alert.show("Lane samples cannot be changed.");
-		       	event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);
-				return;	       	  	
-	       }
-	
-	       // taking all of the items in the DragSouce, update the appropriate
-	       // sample id on the hyb node.
-	       if (p != null) {
-		       for(var i:Number=0; i < items.length; i++) {
-		       	if (items[i].name() == "Sample") {
-			    	lanesGrid.selectedItem.@idSample = items[i].@idSample;	       			
-		       	} 
-		       }
-	       	
-	       }	
-	       
-	       this.sampleLaneDragGrid.invalidateDisplayList();
-	       this.sampleLaneDragGrid.invalidateList();
-	       
-	       // Don't allow flex to do any default moves to the data.  
-	       // We handle it in the code above.
-	       event.preventDefault();
-	       
-	       checkLanesCompleteness();
-		}
 
 		private function validateRequest():void {
 			errorMessage = '';
@@ -1755,5 +1373,108 @@
  	   	
  	   </mx:ControlBar>
 	
+    <mx:states>
+        <mx:State name="SolexaBaseState">
+            <mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{sampleSetupView.bioanalyzerContainer}"/>
+            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+            <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
+						<mx:Label text="{lanes.length + ' Sequencing Lanes'}"/>
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:columns>
+						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
+						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
+				             <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
+				             <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+							<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
+						</mx:columns>
+					</mx:DataGrid>
+					
+				</mx:VBox>					        			
+            
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{samplesView}" position="after">
+            	<views:SubmitRequestLanesView id="lanesView">            		
+            	</views:SubmitRequestLanesView>
+            </mx:AddChild>
+         </mx:State>
+        <mx:State name="SolexaSetupState" basedOn="SolexaBaseState">
+            <mx:AddChild relativeTo="{sampleSetupView.concentrationContainer}">
+                <mx:HBox width="100%">
+    	            <mx:Label text="Enter approximate volume:"/>
+	                <mx:TextInput id="volume" />
+					<mx:Label text="ng" />
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{sampleSetupView.concentrationContainer}" position="after">
+				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Are the samples already prepped?" width="340" />
+					<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="Yes, samples have already been prepped" />							
+					<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="No, please prep the samples" selected="true"/>							
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:RemoveChild target="{confirmView.label1}"/>
+            <mx:AddChild relativeTo="{sampleSetupView.sampleSetupContainer}" >
+                <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
+                	<mx:Image source="assets/bullet_orange.png"/>
+                	<mx:Label text="Should the sequence be aligned to a genome build?" width="340"/>
+                	<mx:VBox width="100%" id="alignMoreContainer">
+                		<mx:HBox>
+                			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
+                			<mx:ComboBox labelField="@display" width="300" id="genomeBuildCombo" change="samplesView.initializeSamplesGrid();hybSetupView.organismCombo.selectedItem = sampleSetupView.sampleOrganismCombo.selectedItem;sampleSetupView.checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
+        		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
+		                	</mx:ComboBox>                			
+                		</mx:HBox>
+                		<mx:HBox width="100%">
+		                	<mx:Label text="Alignment instructions:" visible="{alignCheckBox.selected}"/>
+        		        	<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}"/>                			
+                		</mx:HBox>                		
+                	</mx:VBox>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:SetProperty target="{sampleSetupView.label2}" name="text" value="Select a sample preparation method:"/>
+            <mx:AddChild relativeTo="{lanesView.laneFlowCellContainer}"  position="after">
+        	         <mx:HBox id="numberOfLanesContainer">
+						<mx:Image source="assets/bullet_orange.png"/>
+          				<mx:Label width="230" text="How many sequencing lanes will be run?"/>
+        				<mx:TextInput id="numberOfLanes" width="40" change="lanesView.initializeLanesGrid()"/>
+        			</mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{numberOfLanesContainer}"  position="after">
+        			<mx:HBox id="testRunContainer">
+						<mx:Image source="assets/bullet_orange.png"/>
+        				<mx:Label width="230" text="Should a test run be performed?"/>
+        				<mx:RadioButton id="performTestRunRadio" label="Yes, perform test run" click="lanesView.initializeLanesGrid()"/>
+        				<mx:RadioButton id="dontPerformTestRunRadio" label="No, run all lanes for all samples at once" click="lanesView.initializeLanesGrid()"/>
+        			</mx:HBox>
+
+            </mx:AddChild>
+        </mx:State>
+        <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
+            <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
+					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Label text="Describe how the samples were prepped:" width="340"/>
+					<mx:TextInput id="samplePrepMethodText"/>			
+					<mx:Spacer width="40"/>				
+					<mx:RadioButton id="isFragLib" label="Fragment"/>
+					<mx:RadioButton id="isPairedEndLib" label="Paired Ends"/>
+					<mx:Spacer width="40"/>				
+					<mx:CheckBox id="isSizeSelected" label="Size Selected?"/>
+					<mx:TextInput id="sizeSelectedFrom" width="30"/>	
+					<mx:Label text="-" textAlign="center"/>
+					<mx:TextInput id="sizeSelectedTo" width="30"/>
+				</mx:HBox>            	
+            </mx:AddChild>
+            <mx:RemoveChild target="{sampleSetupView.samplePrepContainer}">            	
+            </mx:RemoveChild>
+        </mx:State>
+    </mx:states>
+    
+
+  
     
 </mx:Panel>

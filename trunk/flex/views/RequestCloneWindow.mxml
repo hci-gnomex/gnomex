@@ -13,8 +13,8 @@
 		}
 		
 		public function expandAllNodes():void {
-			browseTree.openItems = parentApplication.submitRequestView.getProjectRequestList.lastResult..Lab;
-			browseTree.openItems = parentApplication.submitRequestView.getProjectRequestList.lastResult..Project;
+			browseTree.openItems = parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult..Lab;
+			browseTree.openItems = parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult..Project;
 			browseTree.validateNow();
 		}
 		
@@ -26,7 +26,7 @@
 </mx:Script>
 <mx:VBox width="100%" height="100%">
 		<mx:Tree width="100%" height="100%" 
-			dataProvider="{parentApplication.submitRequestView.getProjectRequestList.lastResult}" 
+			dataProvider="{parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult}" 
 			showRoot="false" 
 			id="browseTree" 
 			labelField="@label"
