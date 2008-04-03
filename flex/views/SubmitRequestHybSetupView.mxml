@@ -69,7 +69,7 @@
         		parentDocument.hybsView.enabled = true;
         	    	
         	} else if (parentDocument.request.@idRequest != '0') {
-        		parentDocument..hybsView.enabled = true;
+        		parentDocument.hybsView.enabled = true;
         	} else {
         		parentDocument.hybsView.enabled = false;
         	}

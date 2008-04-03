@@ -50,7 +50,25 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
-
+  
+  <mx:HTTPService  
+    id="getProjectRequestList" 
+    url="http://localhost/gnomex/GetProjectRequestList.gx"
+    destination="getProjectRequestList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetProjectRequestList(event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+            <idLab>{labCombo.selectedItem.@idLab}</idLab> 
+            <showSamples>N</showSamples>
+            <showCategory>N</showCategory>
+            <showMyLabsAlways>N</showMyLabsAlways>
+            <listKind>ProjectRequestCloneList</listKind>
+    </mx:request>
+   </mx:HTTPService>
+   
 <mx:Script>
 
 	<![CDATA[
@@ -72,7 +90,8 @@
 		public var projectDetailWindow:views.ProjectDetailWindow;
 		public var selectedIdProject:Object;
 		
-	
+		private var requestCloneWindow:views.RequestCloneWindow;
+		
 		public function checkSecurity():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				this.appUserContainer.visible = true;
@@ -165,7 +184,7 @@
 		
 		private function onPickStartingPoint():void {
 			if (this.cloneRequestRadio.selected) {
-				parentDocument.getProjectRequestList.send();
+				getProjectRequestList.send();
 			}
 		}
 		
@@ -257,6 +276,14 @@
     		}
         	
         }
+
+		private function onGetProjectRequestList(event:ResultEvent):void {
+			
+			this.requestCloneWindow = views.RequestCloneWindow(PopUpManager.createPopUp(this, views.RequestCloneWindow, true));
+			PopUpManager.centerPopUp(requestCloneWindow);
+			requestCloneWindow.expandAllNodes();
+		}
+        
 
 	]]>
 </mx:Script>
