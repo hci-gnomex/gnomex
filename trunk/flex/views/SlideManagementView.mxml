@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:hci="hci.components.*"
+	width="100%" height="100%" creationComplete="init()">
+
+	<mx:HTTPService
+		id="getSlideProductList"
+		url="http://localhost/gnomex/GetSlideProductList.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		useProxy="false"
+		result="resultHandler(event)">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="getSlideDesign"
+		url="http://localhost/gnomex/GetSlideDesign.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		useProxy="false"
+		result="resultHandler(event)">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="getSlideProduct"
+		url="http://localhost/gnomex/GetSlideProduct.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		useProxy="false"
+		result="resultHandler(event)">
+		<mx:request>
+			<idSlideProduct>
+				{browseSlides.selectedItem.@id}
+			</idSlideProduct>
+		</mx:request>
+	</mx:HTTPService>
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		
+		[Bindable]
+		public var slideProductList:XMLList;
+		
+		[Bindable]
+		public var fullSlideProduct:XMLList;
+		
+		[Bindable]
+        [Embed(source="assets/image.png")]
+        public var iconSlide:Class;
+		
+		[Bindable]
+        [Embed(source="assets/images.png")]
+        public var iconSlideSet:Class;
+		
+		public function init():void {
+			callGetSlideProductList();
+		}
+		
+		public function resultHandler(event:ResultEvent):void {
+			var call:Object = event.token;
+			if (call.marker == "doneGetSlideProductList") {
+				this.slideProductList = new XMLList(getSlideProductList.lastResult.SlideProduct);
+			} else if (call.marker == "doneGetSlideProduct") {
+				this.fullSlideProduct = new XMLList(getSlideProduct.lastResult);
+				selectSlideView();
+			}
+		}		
+		
+		public function callGetSlideProductList():void {
+			var call:Object = getSlideProductList.send();
+			call.marker = "doneGetSlideProductList";
+		}
+		
+		public function callGetSlideProduct(params:Object):void {
+			var call:Object = getSlideProduct.send(params);
+			call.marker = "doneGetSlideProduct";
+		}
+		
+		public function callSaveSlideProduct():void {
+			
+		}
+		
+		public function callSaveSlideDesign():void {
+			
+		}
+		
+		public function prepareToAddSlide():void {
+			
+		}
+		
+		public function prepareToDeleteSlideProduct():void {
+			
+		}
+		
+		public function prepareToDeleteSlideDesign():void {
+			
+		}
+		
+		public function getTreeIcon(item:Object):Class {
+			if (item.@isSlideSet == "Y") {
+				return this.iconSlideSet;
+			}else {
+				return this.iconSlide;
+			}
+		}
+		
+		public function onBrowseSlides(event:MouseEvent):void {
+			if (browseSlides.selectedItem != null) {
+				var params:Object = new Object();
+				params.idSlideProduct = browseSlides.selectedItem.@id;
+				callGetSlideProduct(params);
+				deleteSlideButton.enabled=true;
+				saveSlideButton.enabled=true;
+			}
+		}
+		
+		public function selectSlideView():void {
+			if (fullSlideProduct != null && fullSlideProduct.@isSlideSet=="Y") {
+				slideViews.selectedChild = slideProductView;
+				slideViewPanel.title = "Slide Set: "+fullSlideProduct.@name;
+			} else if (fullSlideProduct != null && fullSlideProduct.@isSlideSet=="N") {
+				slideViews.selectedChild = slideDesignView;
+				slideViewPanel.title = "Slide: "+fullSlideProduct.slideDesigns.SlideDesign.@name;
+			} else {
+				slideViews.selectedChild = blankSlide;
+			}
+		}
+		
+	]]>
+</mx:Script>
+	
+	
+	<mx:XMLListCollection id="slideList" source="{slideProductList}"/>
+	<mx:XMLListCollection id="slideProduct" source="{fullSlideProduct}"/>
+	
+	<mx:HDividedBox right="0" left="0" top="0" bottom="0">
+		<mx:Panel width="400" height="100%" layout="absolute" title="Slide Browser" id="slideBrowserPanel">
+			<mx:Tree left="0" right="0" top="0" bottom="0" 
+				id="browseSlides"
+				labelField="@name"
+				iconFunction="getTreeIcon"
+				click="onBrowseSlides(event);"
+				dataProvider="{slideList}">
+			</mx:Tree>
+			<mx:ControlBar>
+				<mx:Button id="addSlideButton" click="prepareToAddSlide()" icon="@Embed('../assets/page_add.png')" toolTip="Add protocol" label="New" width="64" enabled="false" disabledIcon="@Embed(source='../assets/page_add_disable.png')"/>
+				<mx:Button id="deleteSlideButton" click="prepareToDeleteSlideProduct()" icon="@Embed('../assets/page_delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false">
+					<mx:disabledIcon>@Embed(source='../assets/page_delete_disable.png')</mx:disabledIcon>
+				</mx:Button>
+				<mx:Button id="refreshButton" click="callGetSlideProductList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
+			</mx:ControlBar>
+		</mx:Panel>
+		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" layout="absolute">
+			<mx:ViewStack id="slideViews" right="0" left="0" top="0" bottom="0">
+				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+					<mx:Label text="No slide design or product selected" fontSize="20" color="#A8B3BD" textAlign="right" right="10" top="10" height="31" left="10"/>
+				</mx:Canvas>
+				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
+					<mx:TextArea text="{slideProduct.getItemAt(0).toXMLString()}" left="10" bottom="10" top="418" width="294"/>
+					<mx:List left="312" right="10" top="159" height="155"></mx:List>
+					<mx:ComboBox top="159" left="10" height="22" width="261"></mx:ComboBox>
+					<mx:Button icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" id="removeCategory" y="189" x="279"/>
+					<mx:Button icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" id="removeArrayCoord" top="388" left="279"/>
+					<mx:Button icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" id="addArrayCoord" left="279" top="358"/>
+					<mx:Button icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" id="addCategory" x="279" y="159"/>
+					<mx:Label text="Category List:" right="188" left="312" top="142" height="18"/>
+					<mx:Label text="Category:" left="10" right="513" top="142" bottom="468"/>
+					<mx:TextInput right="75" top="27" left="10" height="22"/>
+					<hci:CheckBoxYN id="designIsActive" label="Active" data="{slideProduct.getItemAt(0).@isActive}" right="10" top="27" height="22" width="57"/>
+					<hci:CheckBoxYN id="designIsCustom" label="Custom slide" data="{slideProduct.getItemAt(0).@isCustum}" top="57" left="10" right="473"/>
+					<hci:DictionaryComboBox top="57" left="188" right="75"></hci:DictionaryComboBox>
+					<mx:Label text="For Group:" top="59" left="121" right="396"/>
+					<mx:Label text="Vendor" top="85" left="10" right="527"/>
+					<mx:Label text="Organism:" top="85" left="188" right="329"/>
+					<hci:DictionaryComboBox top="102" left="10" width="170"></hci:DictionaryComboBox>
+					<hci:DictionaryComboBox top="102" left="188" right="196"></hci:DictionaryComboBox>
+					<mx:Label text="Design Protocol:" top="85" right="72" width="116"/>
+					<mx:TextInput top="102" right="10" width="177"/>
+					<mx:Label text="Slide Name:" left="10" right="500" top="10" bottom="600"/>
+					<mx:HRule right="10" left="10" top="132" height="1"/>
+					<mx:HRule right="10" left="10" top="323" height="1"/>
+					<mx:DataGrid left="312" right="10" bottom="10" top="358" id="dgArrayCoords" editable="false">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Column 1" dataField="col1"/>
+							<mx:DataGridColumn headerText="Column 2" dataField="col2"/>
+							<mx:DataGridColumn headerText="Column 3" dataField="col3"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:Text textAlign="right" fontWeight="bold" right="10" height="22" top="335" width="29" text="5"/>
+					<mx:Label text="Number of Arrays on Slide:" width="161" textAlign="right" top="335" right="39"/>
+					<mx:Label text="Multi-plex microarray setup" top="326" left="9" right="415"/>
+					<mx:TextInput width="60" id="newArrayRow" top="375" left="10"/>
+					<mx:Label text="Row:" left="10" top="358"/>
+					<mx:TextInput width="60" id="newArrayCol" left="78" top="375"/>
+					<mx:TextInput x="146" y="375" width="125" id="newArrayName"/>
+					<mx:Label text="Name:" top="358" left="146"/>
+					<mx:Label text="Col:" top="358" left="78"/>
+				</mx:Canvas>
+				<mx:Canvas id="slideProductView" width="100%" height="100%" styleName="form" x="11" y="160">
+					<mx:Label text="Slide Name:" left="10" right="500" top="10" bottom="600"/>
+					<mx:TextInput top="27" left="10" height="22" right="75" id="slideName" text="{slideProduct.getItemAt(0).@name}"/>
+					<hci:CheckBoxYN id="prodIsActive" label="Active" data="{slideProduct.getItemAt(0).@isActive}" right="10" top="27" height="22" width="57"/>
+					<hci:CheckBoxYN id="prodIsCustom" label="Custom slide" data="{slideProduct.getItemAt(0).@isCustum}" top="57" left="10" right="473"/>
+					<mx:Label text="For Group:" top="59" left="121" right="539"/>
+					<mx:ComboBox top="57" left="188" right="75" id="idLab"></mx:ComboBox>
+					<mx:Label text="Vendor" top="85" right="670" left="10"/>
+					<mx:ComboBox top="102" left="10" id="idVendor" width="170"></mx:ComboBox>
+					<mx:Label text="Organism:" top="85" left="188" right="496"/>
+					<mx:ComboBox left="188" right="75" top="102" id="idOrganism"></mx:ComboBox>
+					<mx:HRule y="132" left="10" right="10"/>
+					<mx:Label text="Category:" left="10" right="513" top="142" bottom="468"/>
+					<mx:ComboBox top="159" left="10" height="22" width="261" id="cbCategory"></mx:ComboBox>
+					<mx:Button x="279" y="189" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" id="removeCategory2"/>
+					<mx:Button x="279" y="159" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" id="addCategory2"/>
+					<mx:Label text="Category List:" right="188" left="312" top="142" bottom="468"/>
+					<mx:List left="312" right="10" top="159" id="maCatList" height="155"></mx:List>
+					<mx:TextArea text="{slideProduct.getItemAt(0)}" left="10" right="10" bottom="10" top="358"/>
+				</mx:Canvas>
+			</mx:ViewStack>
+			<mx:ControlBar horizontalAlign="right">
+				<mx:Button id="saveSlideButton" label="Save" click="callSaveSlideDesign();" icon="@Embed(source='../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../assets/save_disable.png')"/>
+			</mx:ControlBar>
+		</mx:Panel>
+	</mx:HDividedBox>
+	
+</mx:Canvas>

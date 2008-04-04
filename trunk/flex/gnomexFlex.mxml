@@ -705,11 +705,11 @@
 	        <views:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 	        </views:NavWorkflowView>
 
-	        <mx:Canvas label="Protocols" icon="@Embed('assets/bullet_wrench.png')"/>
+	        <views:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
+	        </views:ProtocolsView>
 
-	        <mx:Canvas label="Slides" id="slideManagementView" icon="@Embed('assets/application_cascade.png')"/>
-	        
-
+	        <views:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
+	        </views:SlideManagementView>
 	        
 	        <views:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 	        </views:NavUsersView>
