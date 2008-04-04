@@ -9,11 +9,10 @@
         <principals path="principals.xml" />
 
 
-       <user-manager class="hci.gnomex.security.SecurityManager">
+       <user-manager class="hci.gnomex.security.SecurityManagerLocal">
           <property name="application" value="GNomEx" />
 	     </user-manager>
      
-         
         <log>
                 <file path="application.log" />
         </log>
