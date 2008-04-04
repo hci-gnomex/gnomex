@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.SlideProductFilter;
 import hci.gnomex.utility.HibernateSession;
@@ -53,15 +54,25 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     List slideDesigns = (List)sess.createQuery(buf.toString()).list();
     
     Document doc = new Document(new Element("SlideProductList"));
+    Element spNode = null;
     for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
       SlideProduct sp = (SlideProduct)i.next();
       Hibernate.initialize(sp.getSlideDesigns());
-      Hibernate.initialize(sp.getMicroarrayCategories());
-      
-      Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-      
+      spNode = new Element("SlideProduct");
+      spNode.setAttribute("name",sp.getName());
+      spNode.setAttribute("id", sp.getIdSlideProduct().toString());
+      spNode.setAttribute("isSlideSet",sp.getIsSlideSet());
+      if (sp.getIsSlideSet().equals("Y")) {
+        Iterator sdIter = sp.getSlideDesigns().iterator();
+        while (sdIter.hasNext()) {
+          SlideDesign sd = (SlideDesign) sdIter.next();
+          Element sdNode = new Element("SlideDesign");
+          sdNode.setAttribute("name", sd.getName());
+          sdNode.setAttribute("id", sd.getIdSlideDesign().toString());
+          spNode.addContent(sdNode);
+        }
+      }
       doc.getRootElement().addContent(spNode);
-      
     }
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();

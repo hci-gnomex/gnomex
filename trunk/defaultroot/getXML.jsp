@@ -1,4 +1,4 @@
-<%@ page import="java.io.*" %>
+<%@ page import="java.io.*" contentType="application/xml" %>
 <jsp:useBean id="xmlResult" type="String" scope="request" />
 <%
   if (response != null) {
