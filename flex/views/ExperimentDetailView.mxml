@@ -12,34 +12,33 @@
 		private var billingAccountName:String;
 	
 		public function setupForm():void {
-						
+			this.currentState = '';						
 			this.theViews.selectedIndex = 0;
 			if (parentDocument.selectedExperiment.@codeRequestCategory == "QC") {
-				this.hybsConfirmContainer.visible = false;
-				this.hybsConfirmContainer.percentHeight = 0;
-				this.hybsConfirmContainer.height = 0;
+				currentState = 'QCState';
+			} else if (parentDocument.selectedExperiment.@codeRequestCategory == 'SOLEXA') {
+				currentState = 'SolexaState';
 			} else {
+				currentState = 'MicroarrayState';
 				this.hybsConfirmContainer.visible = true;
 				this.hybsConfirmContainer.percentHeight = 100;
+				
+				showCy3LabelCols(true);
+				showCy5LabelCols(true);
+				showCy3LabelingFieldsCheckBox.selected = false;
+				showCy5LabelingFieldsCheckBox.selected = false;
+				showHybFieldsCheckBox.selected = false;
+				showExtFieldsCheckBox.selected = false;
+				callLater(showCy3LabelCols, [false]);
+				callLater(showCy5LabelCols, [false]);
 			}
+
+			showQCFieldsCheckBox.selected = false;
+
+
 			getRequestCategoryName();
 			getExperimentCategoryName();
 			getBillingAccountName();
-			
-			
-			showCy3LabelCols(true);
-			showCy5LabelCols(true);
-			
-			showQCFieldsCheckBox.selected = false;
-			showCy3LabelingFieldsCheckBox.selected = false;
-			showCy5LabelingFieldsCheckBox.selected = false;
-			showHybFieldsCheckBox.selected = false;
-			showExtFieldsCheckBox.selected = false;
-			
-			callLater(showCy3LabelCols, [false]);
-			callLater(showCy5LabelCols, [false]);
-
-
 		}
 		
 		private function showCy3LabelCols(isVisible:Boolean):void {
@@ -140,6 +139,22 @@
            	 callLater(editWindow.initializeData);
 		}
 
+		public function getLanesGridRowNumber(item:Object,col:int):String
+        {
+           var x:int = this.lanesConfirmGrid.dataProvider.getItemIndex(item) + 1;
+           return String(x);     		
+        }
+		public function getLaneSampleName(item:Object,col:int):String
+        {
+        	var sampleName:String = "";
+    		for each(var sample:Object in this.samplesGridConfirm.dataProvider) {
+    			if (sample.@idSample == item.@idSample) {
+    				sampleName = sample.@name;
+    				break;
+    			}
+    		}
+        	return sampleName;
+        }
 
 	]]>
 </mx:Script>
@@ -402,13 +417,40 @@
 	
 </mx:VBox>
 
-			<mx:ControlBar width="100%">
-			    <mx:Button label="Printable Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')"/>
+<mx:ControlBar width="100%">
+    <mx:Button label="Printable Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')"/>
 
-			    <mx:Button label="Edit Experiment" click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
-			        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-			        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-			    </mx:Button>				
-			</mx:ControlBar>
+    <mx:Button label="Edit Experiment" click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
+        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+    </mx:Button>				
+</mx:ControlBar>
+
+<mx:states>
+	<mx:State name="MicroarrayState">		
+	</mx:State>
+	<mx:State name="QCState">		
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+	</mx:State>
+	<mx:State name="SolexaState">
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+		<mx:AddChild relativeTo="{this.confirmContainer}">
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
+						<mx:Label text="{lanesConfirmGrid.dataProvider.length + ' Sequencing Lanes'}"/>
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{parentDocument.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:columns>
+						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
+						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
+				             <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
+				             <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+							<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
+						</mx:columns>
+					</mx:DataGrid>
+					
+				</mx:VBox>					        			
+		
+		</mx:AddChild>
+	</mx:State>
+</mx:states>
 	
 </mx:Panel>

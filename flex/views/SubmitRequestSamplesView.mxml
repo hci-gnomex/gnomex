@@ -166,7 +166,7 @@
         public function checkSamplesCompleteness():void {
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
-        		if (parentDocument.isSolexaState()) {
+        		if (currentState == 'SolexaSamplesState') {
 	        		if (sample.@name != null && sample.@name != '' &&
 	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
 	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
@@ -174,13 +174,14 @@
 	        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
 	        			sample.@idOrganism != null && sample.@idOrganism != '' &&
 	        			sample.@totalVolume != null && sample.@totalVolume != '' &&
+	        			sample.@numberSequencingLanes != null && sample.@numberSequencingLanes != '' &&
 	        			sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
 	        			sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
 	        			completeCount++;       				
 	        		}
         			
         		}
-        		else if (parentDocument.currentState == 'QCState') {
+        		else if (currentState == 'QCSamplesState') {
 	        		if (sample.@name != null && sample.@name != '' &&
 	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
 	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
@@ -202,12 +203,36 @@
         		}
         	}
         	
+        	
         	var isComplete:Boolean = false;
         	if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
         		isComplete = true;
         	} else if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
         		isComplete = true;
         	}
+        	
+        	// If this is a Solexa request and the sample setup is complete,
+        	// create the sequencing lanes based on the number of lanes 
+        	// entered for each sample.
+        	if (isComplete && currentState == 'SolexaSamplesState' && parentDocument.currentState != 'SolexaEditState') {
+        		for each (var theSample:Object in parentDocument.samples) {
+        			var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
+        			if (numberLanesForSample < theSample.@numberSequencingLanes) {
+	        			var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
+	        			for (var x:Number = 0; x < numberLanesToAdd; x++) {
+	        				addSequencingLaneForSample(theSample);
+	        			}
+        			} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
+        				var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
+						for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
+							parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
+						}
+        			}
+        		}
+        	}
+
+        	
+        	
 			if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
         		parentDocument.hybSetupView.enabled = isComplete;
     		} if (parentDocument.isSolexaEditState()) {
@@ -249,6 +274,18 @@
     		}
         	
         }
+		
+		private function addSequencingLaneForSample(sample:Object):void {
+			var emptyNode:XML = new XML("<SequenceLane " +
+			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
+			    " notes='' " + 
+				" idFlowCellType='" + sample.@idFlowCellType + "'" +
+				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
+				" idSample='" + sample.@idSample + "'" +
+				"/>");
+			
+			parentDocument.lanes.addItem(emptyNode);
+		}
         
         public function showHideColumns():void {
         	if (showQCFieldsCheckBox.selected) {
