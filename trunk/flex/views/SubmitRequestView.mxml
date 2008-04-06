@@ -58,6 +58,7 @@
   
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		import mx.core.UIComponent;
 		import mx.core.Container;
@@ -66,7 +67,6 @@
 		import mx.managers.PopUpManager;
 
         
-        private var editMode:Boolean = false;
         
 		[Bindable]
 		private var errorMessage:String = "";
@@ -123,6 +123,16 @@
 				currentState == 'SolexaEditState' ||
 			    currentState == 'SolexaSetupState' ||
 			    currentState == 'SolexaSetupPreppedState') {
+				return true;    	
+			} else {
+				return false;
+			}
+		}
+		
+		public function isEditState():Boolean {
+			if (currentState == 'SolexaEditState' ||
+			    currentState == 'QCEditState' ||
+			    currentState == 'MicroarrayEditState') {
 				return true;    	
 			} else {
 				return false;
@@ -222,8 +232,6 @@
 		
 		
 		public function initializeForm():void {	
-			editMode = false;
-
 			theTab.creationPolicy = 'all';
 			hybsView.showWorkflowLabel.visible = false;
 			samplesView.showQCFieldsCheckBox.visible = false;
@@ -453,14 +461,12 @@
 		public function getLaneSampleName(item:Object,col:int):String
         {
         	var sampleName:String = "";
-        	if (lanesView.lanesGrid!= null) {
-        		for each(var sample:Object in samples) {
-        			if (sample.@idSample == item.@idSample) {
-        				sampleName = sample.@name;
-        				break;
-        			}
-        		}
-        	} 
+    		for each(var sample:Object in samples) {
+    			if (sample.@idSample == item.@idSample) {
+    				sampleName = sample.@name;
+    				break;
+    			}
+    		}
         	return sampleName;
         }
 
@@ -684,7 +690,6 @@
 		}
 
 		public function setupEditForm(theRequest:Object):void {
-			editMode = true;
 			request = theRequest;
 			currentState = '';
 			samplesView.currentState = '';
@@ -885,7 +890,7 @@
         		return compatible;		
         	}
         	
-        	if (editMode) {
+        	if (isEditState()) {
         		if (request.@codeMicroarrayCategory!= '' &&
 	        	    request.@idSampleTypeDefault != '') {
     	    	    compatible = false;
@@ -919,7 +924,7 @@
         
         public function checkForSampleTypeCompatibility():void {
         	if (!this.isSampleTypeCompatibile()) {
-        		if (editMode) {
+        		if (isEditState()) {
 					var sampleType:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
 					var sampleTypeName:String = sampleType.@display.toString();
         			
@@ -1008,7 +1013,7 @@
         	} 								
         	return count;
 		}
-		private function getLaneCount(sample:Object):int {
+		public function getLaneCount(sample:Object):int {
 			var count:int = 0;
         	if (lanes!= null) {
         		for each(var sequenceLane:Object in lanes) {
@@ -1018,6 +1023,20 @@
         		}
         	} 								
         	return count;
+		}
+		public function getLanes(sample:Object, numberOfLanes:int):ArrayCollection {
+			var theLanes:ArrayCollection = new ArrayCollection();
+        	if (theLanes!= null) {
+        		for each(var sequenceLane:Object in lanes) {
+        			if (sequenceLane.@idSample == sample.@idSample) {
+        				theLanes.addItem(sequenceLane);
+        				if (theLanes.length == numberOfLanes) {
+        					break;
+        				}
+        			}
+        		}
+        	} 								
+        	return theLanes;
 		}
 		
 		private function validateAndSubmitRequest():void {
