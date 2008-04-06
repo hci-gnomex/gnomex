@@ -166,7 +166,21 @@
         public function checkSamplesCompleteness():void {
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
-        		if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
+        		if (parentDocument.isSolexaState()) {
+	        		if (sample.@name != null && sample.@name != '' &&
+	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
+	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
+	        			sample.@concentration != null && sample.@concentration != '' &&
+	        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
+	        			sample.@idOrganism != null && sample.@idOrganism != '' &&
+	        			sample.@totalVolume != null && sample.@totalVolume != '' &&
+	        			sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
+	        			sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
+	        			completeCount++;       				
+	        		}
+        			
+        		}
+        		else if (parentDocument.currentState == 'QCState') {
 	        		if (sample.@name != null && sample.@name != '' &&
 	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
 	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
@@ -194,8 +208,7 @@
         	} else if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
         		isComplete = true;
         	}
-    		parentDocument.enableNextButtons();
-    		if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
+			if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
         		parentDocument.hybSetupView.enabled = isComplete;
     		} if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
@@ -203,7 +216,9 @@
     			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 	    			parentDocument.confirmView.enabled = isComplete;
     			}
-    		}
+    		}        	
+    		parentDocument.enableNextButtons();
+    		
 
 			callLater(postSamplesCompleteness, [isComplete]);
         	
@@ -235,6 +250,50 @@
         	
         }
         
+        public function showHideColumns():void {
+        	if (showQCFieldsCheckBox.selected) {
+        		numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				idFlowCellTypeCol.visible = false; 
+				totalVolumeCol.visible = false;
+				concentrationUnitColumn.visible = false;
+				sampleSourceColumn.visible = true;
+				sampleOrganismColumn.visible = false;
+				samplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+        	} else if (currentState == 'SolexaSamplesState' ) {
+        		numberSequencingLanesCol.visible = true;
+				numberSequencingCyclesCol.visible = true;
+				idFlowCellTypeCol.visible = true; 
+				totalVolumeCol.visible = true;
+				concentrationUnitColumn.visible = false;
+				sampleOrganismColumn.visible = false;
+				samplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+			} else if (currentState == 'QCSamplesState') {
+        		numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				idFlowCellTypeCol.visible = false; 
+				totalVolumeCol.visible = false;
+				concentrationUnitColumn.visible = true;
+				sampleSourceColumn.visible = false;
+				sampleOrganismColumn.visible = false;
+				samplePrepMethodCol.visible = true;
+				chipTypeColumn.visible = true; 
+			} else {
+        		numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				idFlowCellTypeCol.visible = false; 
+				totalVolumeCol.visible = false;
+				concentrationUnitColumn.visible = false;
+				sampleSourceColumn.visible = true;
+				sampleOrganismColumn.visible = true;
+				samplePrepMethodCol.visible = true;
+				chipTypeColumn.visible = false; 
+			}
+  						
+        }
+        
 	]]>
 </mx:Script>	
 	<mx:VBox width="100%" height="100%">
@@ -259,12 +318,15 @@
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto">
 				<mx:columns>
   			        <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-					<mx:DataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" itemRenderer="views.LabelSampleName"  itemEditor="views.renderers.TextInputSampleName" rendererIsEditor="false">
+					<mx:DataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" itemRenderer="views.renderers.LabelSampleName"  itemEditor="views.renderers.TextInputSampleName" rendererIsEditor="false">
 					</mx:DataGridColumn>
-	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles"/>
-	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idFlowCellType"/>
-	 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  itemRenderer="views.LabelConcentration"  itemEditor="views.renderers.TextInputConcentration" rendererIsEditor="false"/>
-	 				<mx:DataGridColumn headerText="Vol" id="totalVolumeCole" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@totalVolume"/>
+	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" labelFunction="parentApplication.lookupFlowCellType" dataField="@idFlowCellType"/>
+	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"
+	 					 rendererIsEditor="false" editorDataField="value" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/>
+					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Sequencing Lanes" width="130" editorDataField="text" dataField="@numberSequencingLanes" itemRenderer="views.renderers.LabelNumberSequencingLanes"  itemEditor="views.renderers.TextInputNumberSequencingLanes" rendererIsEditor="false">
+					</mx:DataGridColumn>
+	 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  itemRenderer="views.renderers.LabelConcentration"  itemEditor="views.renderers.TextInputConcentration" rendererIsEditor="false"/>
+	 				<mx:DataGridColumn headerText="Vol" id="totalVolumeCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@totalVolume"/>
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelConcentrationUnit" itemEditor="views.renderers.ComboBoxConcentrationUnit" labelFunction="parentApplication.lookupConcentrationUnit" />
 	                 <mx:DataGridColumn headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected}" width="120"   dataField="@idSampleType" 
@@ -273,9 +335,9 @@
 	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelOrganism" itemEditor="views.renderers.ComboBoxOrganism" labelFunction="parentApplication.lookupOrganism" />
 	                <mx:DataGridColumn headerText="Sample Source" visible="{!showQCFieldsCheckBox.selected}" width="95" dataField="@idSampleSource" 
 	                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSampleSource" itemEditor="views.renderers.ComboBoxSampleSource" labelFunction="parentApplication.lookupSampleSource" />
-	                <mx:DataGridColumn headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
+	                <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSamplePrepMethod" labelFunction="parentApplication.lookupSamplePrepMethod" itemEditor="views.renderers.ComboBoxSamplePrepMethod" />
-	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="70" dataField="@codeBioanalyzerChipType" 
+	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" labelFunction="parentApplication.lookupChipType" itemEditor="views.renderers.ComboBoxChipType" />
 
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
@@ -312,8 +374,11 @@
 	</mx:VBox>
 	
 	<mx:states>
-		<mx:State name="SolexaSamplesState">
-			<mx:SetProperty target="{numberSequencingCyclesCol}"  name="visible" value="true"/>
+		<mx:State name="SolexaSamplesState" >
+		</mx:State>
+		<mx:State name="QCSamplesState" >
+		</mx:State>
+		<mx:State name="MicroarraySamplesState" >
 		</mx:State>
 		
 	</mx:states>

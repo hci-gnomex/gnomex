@@ -2,11 +2,56 @@
 <mx:Canvas label="Sample setup" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	 width="100%" height="100%" >
    <mx:states>
+        <mx:State name="QCSetupState">
+        	<mx:RemoveChild target="{sampleOrganismContainer}"/>
+        	<mx:RemoveChild target="{sampleSourceContainer}"/>
+        	<mx:RemoveChild target="{concentrationLabel}"/>
+        	<mx:AddChild  relativeTo="{sampleSetupContainer}">
+				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
+					<mx:HBox width="100%" horizontalGap="0">
+						<mx:Image source="assets/bullet_orange.png"/>
+						<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Spacer width="8"/>								
+						<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"  >
+							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '')}</mx:dataProvider>
+							<mx:columns>
+							    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
+							        	width="20" 
+							        	editable="true"                        	
+							        	dataField="@isSelected" 
+							        	editorDataField="selected"
+							        	itemRenderer="views.CheckBoxIsSelectedChipType" />
+								<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
+								<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
+								<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
+								<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
+								<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
+								
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
+						<mx:HBox borderStyle="inset" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+							<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
+							</mx:Text>
+						</mx:HBox>
+					</mx:HBox>
+					
+				</mx:VBox>
+        		
+        	</mx:AddChild>
+        	
+        	
+        </mx:State>
         <mx:State name="SolexaSetupState">
             <mx:AddChild relativeTo="{concentrationContainer}">
                 <mx:HBox width="100%" horizontalGap="0">
     	            <mx:Label text="Enter approximate volume:"/>
-	                <mx:TextInput id="totalVolume"  width="40" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateTotalVolume();checkSampleSetupCompleteness();"/>
+	                <mx:TextInput id="totalVolume"  width="40">
+	                	<mx:focusOut>checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateTotalVolume();checkSampleSetupCompleteness();</mx:focusOut>
+	                </mx:TextInput>
 					<mx:Label text="µL" />
 					<mx:HBox id="totalSampleWarning" visible="false" borderStyle="outset" verticalAlign="middle" horizontalAlign="center" width="100%" height="100%" paddingBottom="2">
 						<mx:Text  width="100%" text="Warning:  At least 25 ng of nucleic acid is recommended for Solexa sequencing." color="#AB482A" fontWeight="bold" paddingLeft="10" textDecoration="none" visible="true">									
@@ -19,26 +64,26 @@
 					<mx:Image source="assets/bullet_orange.png"/>
 					<mx:Label text="Should the samples be prepped by the Core facility?" width="340" />
 					<mx:HBox width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="Yes, please prep the samples" selected="true"/>							
-						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="No, the samples are already prepped" />							
+						<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="Yes, please prep the samples" selected="true" click="checkSampleSetupCompleteness();"/>							
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="No, the samples are already prepped"  click="checkSampleSetupCompleteness();"/>							
 					</mx:HBox>
 				</mx:HBox>            	
             </mx:AddChild>
-            <mx:AddChild relativeTo="{sampleSetupContainer}" >
+            <mx:AddChild relativeTo="{sampleOrganismContainer}" >
                 <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
-                	<mx:Image source="assets/bullet_orange.png"/>
-                	<mx:Label text="Should the sequence be aligned to a genome build?" width="340"/>
-                	<mx:VBox width="100%" id="alignMoreContainer">
-                		<mx:HBox width="100%">
-                			<mx:CheckBox id="alignCheckBox" label="Yes, align to build"/>
-                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;checkSampleSetupCompleteness()" visible="{alignCheckBox.selected}">							
+                		    <mx:Spacer width="15"/>
+                	<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
+                		<mx:HBox width="100%" horizontalGap="2">
+                			<mx:CheckBox id="alignCheckBox" label="Align sequence to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;alignNotes.text = ''};checkSampleSetupCompleteness();}"/>
+                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="checkSampleSetupCompleteness();" visible="{alignCheckBox.selected}" width="200">							
         		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
 		                	</mx:ComboBox>                			
-                			<mx:HBox width="100%">
-                			   	<mx:Label text="Alignment instructions:" visible="{alignCheckBox.selected}" id="label3"/>
+                		</mx:HBox>
+                			<mx:HBox width="100%" horizontalGap="0">
+                			    <mx:Spacer width="20"/>
+                			   	<mx:Label text="Special instructions:" visible="{alignCheckBox.selected}" id="label3"/>
                 				<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}"/>                			
                 			</mx:HBox>
-                		</mx:HBox>
                 	</mx:VBox>
                 </mx:HBox>
             </mx:AddChild>
@@ -63,6 +108,9 @@
             </mx:AddChild>
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
             <mx:SetEventHandler target="{sampleConcentration}" name="change">
+            </mx:SetEventHandler>
+            <mx:SetProperty target="{sampleOrganismCombo}" name="width" value="170"/>
+            <mx:SetEventHandler target="{sampleConcentration}" name="focusOut">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness();checkTotalSample()</mx:handler>
             </mx:SetEventHandler>
         </mx:State>
@@ -71,21 +119,29 @@
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
 					<mx:Image source="assets/bullet_orange.png"/>
 					<mx:Label text="Describe how the samples were prepped:" width="340"/>
-					<mx:TextInput id="samplePrepMethodText"/>			
+					<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();"/>			
 					<mx:Spacer width="40"/>				
-					<mx:RadioButton id="isFragLib" label="Fragment"/>
-					<mx:RadioButton id="isPairedEndLib" label="Paired Ends"/>
+					<mx:RadioButton id="isFragLib" label="Fragment" click="checkSampleSetupCompleteness();"/>
+					<mx:RadioButton id="isPairedEndLib" label="Paired Ends" click="checkSampleSetupCompleteness();"/>
 					<mx:Spacer width="40"/>				
-					<mx:CheckBox id="isSizeSelected" label="Size Selected?"/>
-					<mx:TextInput id="sizeSelectedFrom" width="30"/>	
+					<mx:CheckBox id="isSizeSelected" label="Size Selected?" click="checkSampleSetupCompleteness();"/>
+					<mx:TextInput id="sizeSelectedFrom" width="30" change="checkSampleSetupCompleteness();"/>	
 					<mx:Label text="-" textAlign="center"/>
-					<mx:TextInput id="sizeSelectedTo" width="30"/>
+					<mx:TextInput id="sizeSelectedTo" width="30" change="checkSampleSetupCompleteness();"/>
 				</mx:HBox>            	
             </mx:AddChild>
             <mx:RemoveChild target="{samplePrepContainer}">            	
             </mx:RemoveChild>
             <mx:SetProperty target="{label3}" name="text" value="Special instructions:"/>
-            <mx:SetProperty target="{label3}" name="width" value="130"/>
+            <mx:SetEventHandler target="{alignCheckBox}" name="click">
+                <mx:handler>genomeBuildCombo.selectedIndex = 0;alignNotes.text='';checkSampleSetupCompleteness();</mx:handler>
+            </mx:SetEventHandler>
+            <mx:SetEventHandler target="{samplesToBePreppedCheckbox}" name="click">
+                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;sizeSelectedFrom.text = '';sizeSelectedTo.text = '';this.isFragLib.selected = false;this.isPairedEndLib.selected = false;checkSampleSetupCompleteness();</mx:handler>
+            </mx:SetEventHandler>
+            <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="click">
+                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;sizeSelectedFrom.text = '';sizeSelectedTo.text = '';this.isFragLib.selected = false;this.isPairedEndLib.selected = false;checkSampleSetupCompleteness();</mx:handler>
+            </mx:SetEventHandler>
         </mx:State>
    	
    </mx:states>
@@ -184,7 +240,27 @@
         	var isComplete:Boolean = false;
         	if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
         		isComplete = true;
-        	}else if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
+        	} else if (parentDocument.isSolexaState()) {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.totalVolume.text != null && this.totalVolume.text != '' &&
+	        	    this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '' && 
+	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
+					trace("align cb" + this.alignCheckBox.selected);
+					trace("genomebuildcombo" + this.genomeBuildCombo.selectedIndex);
+        	    	if (!this.alignCheckBox.selected || this.genomeBuildCombo.selectedIndex > 0) {
+        	    		if (this.samplesAlreadyPreppedCheckbox.selected && this.samplePrepMethodText.text != '') {
+							isComplete = true;		        	    			
+        	    		} else if (this.samplesToBePreppedCheckbox.selected && samplePrepMethodCombo.selectedItem != null && samplePrepMethodCombo.selectedItem.@value != '') {
+        	    			isComplete = true;
+        	    		}
+        	    	}
+	        	 }
+        	
+        	} else if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
@@ -209,10 +285,10 @@
         	}
 
     		parentDocument.samplesView.enabled = isComplete;
-    		parentDocument.enableNextButtons();
 			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 				parentDocument.annotationView.enabled = isComplete;        			
 	    	}
+    		parentDocument.enableNextButtons();
 
         	callLater(postSampleSetupCompleteness, [isComplete]);
         	
@@ -282,39 +358,6 @@
 					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
-			<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
-				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Spacer width="8"/>								
-					<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"  >
-						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '')}</mx:dataProvider>
-						<mx:columns>
-						    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
-						        	width="20" 
-						        	editable="true"                        	
-						        	dataField="@isSelected" 
-						        	editorDataField="selected"
-						        	itemRenderer="views.CheckBoxIsSelectedChipType" />
-							<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
-							<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
-							<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
-							<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
-							<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
-							
-						</mx:columns>
-					</mx:DataGrid>
-				</mx:HBox>
-				<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
-					<mx:HBox borderStyle="inset" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
-						<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
-						</mx:Text>
-					</mx:HBox>
-				</mx:HBox>
-				
-			</mx:VBox>
 			
 		</mx:VBox>
 		
