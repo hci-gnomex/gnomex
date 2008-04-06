@@ -207,19 +207,13 @@
 		
 		
 		private function setupForm1():void {
-			currentState = '';
-			if (!theTab.contains(setupView)) {
-				theTab.addChildAt(setupView, 0);
-			}
+/* 			currentState = '';
 			setupView.enabled = true;
 			theTab.selectedIndex = 0;
 
-			if (!theTab.contains(confirmView)) {
-				theTab.addChildAt(confirmView, 6);
-			}
 			confirmView.enabled = true;
 			theTab.selectedChild = confirmView;
-		}
+ */		}
 		private function setupForm2():void {
 			getNewRequest.send();
 			buttonStack.selectedIndex = 0;
@@ -240,18 +234,7 @@
 			if (setupView == null) {
 				return;
 			}
-			if (!theTab.contains(setupView)) {
-				theTab.addChildAt(setupView, 0);
-			}
-			if (!theTab.contains(sampleSetupView)) {
-				theTab.addChildAt(sampleSetupView, 1);
-			}
-			if (!theTab.contains(hybSetupView)) {
-				theTab.addChildAt(hybSetupView, 4);
-			}
-			if (!theTab.contains(confirmView)) {
-				theTab.addChildAt(confirmView, 6);
-			}
+
 			hybSetupView.label = "Hyb setup";
 			hybSetupView.numberOfHybsContainer.visible = true;
 			hybSetupView.slideSourceContainer.visible = true;
@@ -382,71 +365,20 @@
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
-				this.samplesView.currentState = 'SolexaSamplesState';				
-			} else {
-				this.currentState = '';
-				this.sampleSetupView.currentState = '';
-				this.samplesView.currentState = '';				
+				this.samplesView.currentState = 'SolexaSamplesState';	
+				this.samplesView.showHideColumns();			
+			} else {						
 				if (setupView.requestTypeGroup.selectedValue == "QC") {
-					if (!sampleSetupView.sampleSetupContainer.contains(sampleSetupView.bioanalyzerContainer)) {
-						sampleSetupView.sampleSetupContainer.addChildAt(sampleSetupView.bioanalyzerContainer, 6);
-					}
-					if (sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleOrganismContainer)) {
-						sampleSetupView.sampleSetupContainer.removeChild(sampleSetupView.sampleOrganismContainer);
-					}
-					if (sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleSourceContainer)) {
-						sampleSetupView.sampleSetupContainer.removeChild(sampleSetupView.sampleSourceContainer);
-					}
-					confirmView.hybsConfirmContainer.visible = false;
-					confirmView.hybsConfirmContainer.height = 0;
-					if (this.theTab.contains(annotationView)) {
-						this.theTab.removeChild(annotationView);				
-					}
-					if (this.theTab.contains(hybSetupView)) {
-						this.theTab.removeChild(hybSetupView);				
-					}
-					if (this.theTab.contains(hybsView)) {
-						this.theTab.removeChild(hybsView);				
-					}
-					samplesView.sampleOrganismColumn.visible = false;
-					confirmView.sampleOrganismConfirmColumn.visible = false;
-					samplesView.sampleSourceColumn.visible  = false;
-					confirmView.sampleSourceConfirmColumn.visible  = false;
-					samplesView.concentrationUnitColumn.visible = true;
-					confirmView.concentrationUnitConfirmColumn.visible = true;
-					samplesView.chipTypeColumn.visible = true;
-					confirmView.chipTypeConfirmColumn.visible = true;
+					this.currentState = 'QCState';
+					this.sampleSetupView.currentState = 'QCSetupState';
+					this.samplesView.currentState = 'QCSamplesState';				
+					this.samplesView.showHideColumns();						
+
 				} else {
-					if (theTab.contains(sampleSetupView)) {
-						if (sampleSetupView.sampleSetupContainer.contains(sampleSetupView.bioanalyzerContainer)) {
-							sampleSetupView.sampleSetupContainer.removeChild(sampleSetupView.bioanalyzerContainer);
-						}
-						if (!sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleOrganismContainer)) {
-							sampleSetupView.sampleSetupContainer.addChildAt(sampleSetupView.sampleOrganismContainer, 2);
-						}
-						if (!sampleSetupView.sampleSetupContainer.contains(sampleSetupView.sampleSourceContainer)) {
-							sampleSetupView.sampleSetupContainer.addChildAt(sampleSetupView.sampleSourceContainer, 3);
-						}
-					}
-					confirmView.hybsConfirmContainer.visible = true;
-					confirmView.hybsConfirmContainer.percentHeight = 100;
-					if (!this.theTab.contains(annotationView)) {
-						this.theTab.addChildAt(annotationView, 3);				
-					}
-					if (!this.theTab.contains(hybSetupView)) {
-						this.theTab.addChildAt(hybSetupView, 4);				
-					}
-					if (!this.theTab.contains(hybsView)) {
-						this.theTab.addChildAt(hybsView, 5);				
-					}
-					samplesView.sampleOrganismColumn.visible = true;
-					confirmView.sampleOrganismConfirmColumn.visible = true;
-					samplesView.sampleSourceColumn.visible  = true;
-					confirmView.sampleSourceConfirmColumn.visible  = true;
-					samplesView.concentrationUnitColumn.visible = false;
-					confirmView.concentrationUnitConfirmColumn.visible = false;
-					samplesView.chipTypeColumn.visible = false;
-					confirmView.chipTypeConfirmColumn.visible = false;
+					this.currentState = 'MicroarrayState';
+					this.sampleSetupView.currentState = '';
+					this.samplesView.currentState = 'MicroarraySamplesState';
+					this.samplesView.showHideColumns();						
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
@@ -752,10 +684,10 @@
 		}
 
 		public function setupEditForm(theRequest:Object):void {
-			currentState = '';
 			editMode = true;
-
 			request = theRequest;
+			currentState = '';
+			samplesView.currentState = '';
 
 			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
@@ -765,41 +697,6 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 			
-			if (theTab.contains(setupView)) {
-				theTab.removeChild(setupView);
-			}
-			if (theTab.contains(sampleSetupView)) {
-				theTab.removeChild(sampleSetupView);
-			}
-			if (theTab.contains(hybSetupView)) {
-				hybSetupView.label = "Slide";
-				hybSetupView.numberOfHybsContainer.visible = false;
-				hybSetupView.slideSourceContainer.visible = false;
-			}
-			if (request.@codeRequestCategory == 'QC') {
-				if (theTab.contains(hybSetupView)) {
-					theTab.removeChild(hybSetupView);
-				}
-				if (theTab.contains(hybsView)) {
-					theTab.removeChild(hybsView);
-				}
-			} else if (request.@codeRequestCategory == 'SOLEXA') {
-				currentState = 'SolexaEditState';
-			
-			} else {
-				if (!theTab.contains(hybSetupView)) {
-					theTab.addChildAt(hybSetupView, 2);
-				}
-				if (!theTab.contains(hybsView)) {
-					theTab.addChildAt(hybsView, 3);
-				}
-				if (theTab.contains(hybsView)) {
-					hybsView.enabled = true;
-				}
-			}
-			if (theTab.contains(confirmView)) {
-				theTab.removeChild(confirmView);
-			}
 			annotationView.enabled = true;			
 			samplesView.enabled = true;			
 
@@ -810,27 +707,6 @@
 			if (theTab.contains(annotationView)) {
 				theTab.selectedChild = this.annotationView;
 			} 
-			
-			
-			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				samplesView.addSampleButton.visible = true;
-				samplesView.copySampleButton.visible = true;
-				samplesView.deleteSampleButton.visible = true;
-				samplesView.clearSamplesButton.visible = true;
-				hybsView.addHybButton.visible = true;
-				hybsView.copyHybButton.visible = true;
-				hybsView.deleteHybButton.visible = true;
-				hybsView.clearHybsButton.visible = true;
-			} else {
-				samplesView.addSampleButton.visible = false;
-				samplesView.copySampleButton.visible = false;
-				samplesView.deleteSampleButton.visible = false;
-				samplesView.clearSamplesButton.visible = false;
-				hybsView.addHybButton.visible = false;
-				hybsView.copyHybButton.visible = false;
-				hybsView.deleteHybButton.visible = false;
-				hybsView.clearHybsButton.visible = false;
-			}
 
 			var canChangeSlide:Boolean = false;			
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
@@ -843,22 +719,64 @@
 					}
 				}
 			}
-			hybSetupView.organismCombo.enabled = canChangeSlide;
-			hybSetupView.microarrayCategoryCombo.enabled = canChangeSlide;
-			hybSetupView.slideProductCombo.enabled = canChangeSlide;
-			hybSetupView.isCatalogRadio.enabled = canChangeSlide;
-			hybSetupView.isCustomRadio.enabled = canChangeSlide;
-			
-						if (this.isSolexaState()) {
-				
+
+			if (parentApplication.hasPermission("canWriteAnyObject")) {
+				samplesView.addSampleButton.visible = true;
+				samplesView.copySampleButton.visible = true;
+				samplesView.deleteSampleButton.visible = true;
+				samplesView.clearSamplesButton.visible = true;
 			} else {
+				samplesView.addSampleButton.visible = false;
+				samplesView.copySampleButton.visible = false;
+				samplesView.deleteSampleButton.visible = false;
+				samplesView.clearSamplesButton.visible = false;
+			}
+			
+
+			if (request.@codeRequestCategory == 'SOLEXA') {
+				currentState = 'SolexaEditState';
+				samplesView.currentState = 'SolexaSamplesState';
+				samplesView.showHideColumns();
+			} else if (request.@codeRequestCategory == 'QC') {
+				currentState = 'QCEditState';
+				samplesView.currentState = 'QCSamplesState';
+				samplesView.showHideColumns(); 
+				samplesView.showQCFieldsCheckBox.visible = true;
+
+			} else {
+				currentState = 'MicroarrayEditState';
+				samplesView.currentState = 'MicroarraySamplesState';
+				samplesView.showHideColumns();
+
 				hybsView.showWorkflowLabel.visible = true;
 				samplesView.showQCFieldsCheckBox.visible = true;
+
 				hybsView.showCy3LabelingFieldsCheckBox.visible = true;
 				hybsView.showCy5LabelingFieldsCheckBox.visible = true;
 				hybsView.showHybFieldsCheckBox.visible = true;
 				hybsView.showExtFieldsCheckBox.visible = true;
-					
+
+				hybSetupView.organismCombo.enabled = canChangeSlide;
+				hybSetupView.microarrayCategoryCombo.enabled = canChangeSlide;
+				hybSetupView.slideProductCombo.enabled = canChangeSlide;
+				hybSetupView.isCatalogRadio.enabled = canChangeSlide;
+				hybSetupView.isCustomRadio.enabled = canChangeSlide;
+				
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					hybsView.addHybButton.visible = true;
+					hybsView.copyHybButton.visible = true;
+					hybsView.deleteHybButton.visible = true;
+					hybsView.clearHybsButton.visible = true;
+				} else {
+					hybsView.addHybButton.visible = false;
+					hybsView.copyHybButton.visible = false;
+					hybsView.deleteHybButton.visible = false;
+					hybsView.clearHybsButton.visible = false;
+				}
+				hybSetupView.label = "Slide";
+				hybSetupView.numberOfHybsContainer.visible = false;
+				hybSetupView.slideSourceContainer.visible = false;
+				
 			}
 
 			
@@ -1383,10 +1301,17 @@
  	   </mx:ControlBar>
 	
     <mx:states>
+        <mx:State name="MicroarrayState"/>
+        <mx:State name="QCState">
+            <mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{annotationView}"/>
+            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+            <mx:RemoveChild target="{confirmView.label1}"/>
+        </mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
-            <mx:RemoveChild target="{sampleSetupView.bioanalyzerContainer}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
             <mx:RemoveChild target="{confirmView.label1}"/>
             <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
@@ -1406,10 +1331,27 @@
             </mx:AddChild>
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="SolexaBaseState">
+            <mx:RemoveChild target="{setupView}"/>
+            <mx:RemoveChild target="{confirmView}"/>
             <mx:AddChild relativeTo="{samplesView}" position="after">
             	<views:SubmitRequestLanesView id="lanesView">            		
             	</views:SubmitRequestLanesView>
             </mx:AddChild>
+         </mx:State>
+        <mx:State name="QCEditState">
+            <mx:RemoveChild target="{setupView}"/>
+            <mx:RemoveChild target="{annotationView}"/>
+            <mx:RemoveChild target="{sampleSetupView}"/>
+            <mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{confirmView}"/>
+         </mx:State>
+        <mx:State name="MicroarrayEditState">
+            <mx:RemoveChild target="{setupView}"/>
+            <mx:RemoveChild target="{sampleSetupView}"/>
+            <mx:RemoveChild target="{confirmView}"/>
+            <mx:RemoveChild target="{hybSetupView.numberOfHybsContainer}"/>
+            <mx:RemoveChild target="{hybSetupView.slideSourceContainer}"/>
          </mx:State>
     </mx:states>
     
