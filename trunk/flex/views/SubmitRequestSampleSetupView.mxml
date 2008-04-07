@@ -122,16 +122,16 @@
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
 					<mx:Image source="assets/bullet_orange.png"/>
 					<mx:Label text="Describe how the samples were prepped:" width="340"/>
-					<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();"/>			
+					<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();" width="100%"/>			
 					<mx:Spacer width="40"/>				
-					<mx:ComboBox labelField="@display" id="solexaLibraryTypeCombo" change="checkSampleSetupCompleteness();" visible="true" width="200">							
+					<mx:ComboBox labelField="@display" id="solexaLibraryTypeCombo" change="checkSampleSetupCompleteness();" visible="true">							
 								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:Spacer width="40"/>									
 					<mx:CheckBox id="isSizeSelected" label="Size Selected?" click="checkSampleSetupCompleteness();"/>
-					<mx:TextInput id="fragmentSizeFrom" width="30" change="checkSampleSetupCompleteness();"/>	
+					<mx:TextInput id="fragmentSizeFrom" width="50" change="checkSampleSetupCompleteness();"/>	
 					<mx:Label text="-" textAlign="center"/>
-					<mx:TextInput id="fragmentSizeTo" width="30" change="checkSampleSetupCompleteness();"/>
+					<mx:TextInput id="fragmentSizeTo" width="50" change="checkSampleSetupCompleteness();"/>
 				</mx:HBox>            	
             </mx:AddChild>
             <mx:RemoveChild target="{samplePrepContainer}">            	
