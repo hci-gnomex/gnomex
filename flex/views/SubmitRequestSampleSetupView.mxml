@@ -75,14 +75,14 @@
                 	<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
                 		<mx:HBox width="100%" horizontalGap="2">
                 			<mx:CheckBox id="alignCheckBox" label="Align sequence to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;alignNotes.text = ''};checkSampleSetupCompleteness();}"/>
-                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="checkSampleSetupCompleteness();" visible="{alignCheckBox.selected}" width="200">							
+                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="propagateGenomeBuild();checkSampleSetupCompleteness();" visible="{alignCheckBox.selected}" width="200">							
         		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
 		                	</mx:ComboBox>                			
                 		</mx:HBox>
                 			<mx:HBox width="100%" horizontalGap="0">
                 			    <mx:Spacer width="20"/>
                 			   	<mx:Label text="Special instructions:" visible="{alignCheckBox.selected}" id="label3"/>
-                				<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}"/>                			
+                				<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}" focusOut="propagateAlignNotes()"/>                			
                 			</mx:HBox>
                 	</mx:VBox>
                 </mx:HBox>
@@ -221,6 +221,24 @@
 			}
 			for each (var lane:Object in parentDocument.lanes) {
 				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateGenomeBuild():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateAlignNotes():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@alignNotes = this.alignNotes.text;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@alignNotes = this.alignNotes.text;
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
