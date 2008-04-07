@@ -500,6 +500,14 @@
         		return "";
         	}
         }
+        public function lookupSolexaLibraryType(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry.(@value == item.@idSolexaLibraryType);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
 	        
             
             

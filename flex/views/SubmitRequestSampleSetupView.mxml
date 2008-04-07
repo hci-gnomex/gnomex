@@ -64,8 +64,8 @@
 					<mx:Image source="assets/bullet_orange.png"/>
 					<mx:Label text="Should the samples be prepped by the Core facility?" width="340" />
 					<mx:HBox width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState'}"  label="Yes, please prep the samples" selected="true" click="checkSampleSetupCompleteness();"/>							
-						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState'}" label="No, the samples are already prepped"  click="checkSampleSetupCompleteness();"/>							
+						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}"  label="Yes, please prep the samples" selected="true" />							
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" label="No, the samples are already prepped"  />							
 					</mx:HBox>
 				</mx:HBox>            	
             </mx:AddChild>
@@ -121,13 +121,14 @@
 					<mx:Label text="Describe how the samples were prepped:" width="340"/>
 					<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();"/>			
 					<mx:Spacer width="40"/>				
-					<mx:RadioButton id="isFragLib" label="Fragment" click="checkSampleSetupCompleteness();"/>
-					<mx:RadioButton id="isPairedEndLib" label="Paired Ends" click="checkSampleSetupCompleteness();"/>
-					<mx:Spacer width="40"/>				
+					<mx:ComboBox labelField="@display" id="solexaLibraryTypeCombo" change="checkSampleSetupCompleteness();" visible="true" width="200">							
+								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry}</mx:dataProvider>
+					</mx:ComboBox>
+					<mx:Spacer width="40"/>									
 					<mx:CheckBox id="isSizeSelected" label="Size Selected?" click="checkSampleSetupCompleteness();"/>
-					<mx:TextInput id="sizeSelectedFrom" width="30" change="checkSampleSetupCompleteness();"/>	
+					<mx:TextInput id="fragmentSizeFrom" width="30" change="checkSampleSetupCompleteness();"/>	
 					<mx:Label text="-" textAlign="center"/>
-					<mx:TextInput id="sizeSelectedTo" width="30" change="checkSampleSetupCompleteness();"/>
+					<mx:TextInput id="fragmentSizeTo" width="30" change="checkSampleSetupCompleteness();"/>
 				</mx:HBox>            	
             </mx:AddChild>
             <mx:RemoveChild target="{samplePrepContainer}">            	
@@ -137,10 +138,10 @@
                 <mx:handler>genomeBuildCombo.selectedIndex = 0;alignNotes.text='';checkSampleSetupCompleteness();</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{samplesToBePreppedCheckbox}" name="click">
-                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;sizeSelectedFrom.text = '';sizeSelectedTo.text = '';this.isFragLib.selected = false;this.isPairedEndLib.selected = false;checkSampleSetupCompleteness();</mx:handler>
+                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="click">
-                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;sizeSelectedFrom.text = '';sizeSelectedTo.text = '';this.isFragLib.selected = false;this.isPairedEndLib.selected = false;checkSampleSetupCompleteness();</mx:handler>
+                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
             </mx:SetEventHandler>
         </mx:State>
    	
@@ -218,11 +219,17 @@
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
 			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
@@ -249,8 +256,6 @@
 	        	    this.totalVolume.text != null && this.totalVolume.text != '' &&
 	        	    this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '' && 
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
-					trace("align cb" + this.alignCheckBox.selected);
-					trace("genomebuildcombo" + this.genomeBuildCombo.selectedIndex);
         	    	if (!this.alignCheckBox.selected || this.genomeBuildCombo.selectedIndex > 0) {
         	    		if (this.samplesAlreadyPreppedCheckbox.selected && this.samplePrepMethodText.text != '') {
 							isComplete = true;		        	    			

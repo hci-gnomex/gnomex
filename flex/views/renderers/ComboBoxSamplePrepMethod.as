@@ -14,6 +14,7 @@ package views.renderers
 		    protected override function change(event:ListEvent):void {
 		     	if (_data.@canChangeSamplePrepMethod == "Y" || parentApplication.hasPermission("canWriteAnyObject")) {
 	            	_data[cellAttributeName] = this.selectedItem[this.choiceValueAttributeName];
+	            	parentDocument.propagateSamplePrepMethod(_data[cellAttributeName]);
     	        	_data.@isDirty = "Y";		     		
 		     	} else {
 		     		selectItem();
