@@ -129,6 +129,7 @@
 			}
 		}
 		
+		
 		public function isEditState():Boolean {
 			if (currentState == 'SolexaEditState' ||
 			    currentState == 'QCEditState' ||
@@ -1326,13 +1327,11 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
-            <mx:RemoveChild target="{confirmView.label1}"/>
         </mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
-            <mx:RemoveChild target="{confirmView.label1}"/>
             <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
 				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
 						<mx:Label text="{lanes.length + ' Sequencing Lanes'}"/>
@@ -1351,6 +1350,7 @@
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="SolexaBaseState">
             <mx:RemoveChild target="{setupView}"/>
+            <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{confirmView}"/>
             <mx:AddChild relativeTo="{samplesView}" position="after">
             	<views:SubmitRequestLanesView id="lanesView">            		
