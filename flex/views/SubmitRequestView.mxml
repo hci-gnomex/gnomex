@@ -822,11 +822,7 @@
 			}
 
 			
-			if (request != null && request.@idRequest != '0' && request.@codeRequestCategory == "QC") {
-				
-			} else if (setupView.requestTypeGroup.selectedValue == "QC") {
-				
-			}else {
+			if (currentState == "MicroarrayEditState" || currentState == "MicroarrayState") {
 				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
 				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
 
@@ -1218,7 +1214,7 @@
 				}
 				samplesView.enabled = false;
 
-				if (this.isSolexaState()) {
+				if (this.isSolexaEditState()) {
 					lanesView.enabled = false;
 				} else {
 					if (theTab.contains(hybSetupView)) {

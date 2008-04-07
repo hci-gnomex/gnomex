@@ -25,7 +25,7 @@
 					" idSamplePrepMethod=''" +				
 					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
 					" alignNotes='" + parentDocument.sampleSetupView.alignNotes.text + "'" +				
-					" samplePrepMethodUsed='" + parentDocument.sampleSetupView.samplePrepMethodText.text + "'" +				
+					" samplePrepMethodUsedByLab='" + parentDocument.sampleSetupView.samplePrepMethodText.text + "'" +				
 					" idSolexaLibraryType='" + parentDocument.sampleSetupView.solexaLibraryTypeCombo.selectedItem.@value + "'" +				
 					" isSizeSelected='" + (parentDocument.sampleSetupView.isSizeSelected.selected ? 'Y' : 'N') + "'" +				
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
@@ -50,7 +50,7 @@
 					" alignNotes='" + parentDocument.sampleSetupView.alignNotes.text + "'" +				
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 					" isAlreadyPrepped = 'N'" +
-					" samplePrepMethodUsed=''" +				
+					" samplePrepMethodUsedByLab=''" +				
 					" idSolexaLibraryType=''" +				
 					" isSizeSelected='N'" +				
 					" fragmentSizeFrom=''" +				
@@ -129,7 +129,7 @@
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
 					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
-					" samplePrepMethodUsed='" + sampleToCopy.@samplePrepMethodUsed + "'" +				
+					" samplePrepMethodUsedByLab='" + sampleToCopy.@samplePrepMethodUsedByLab + "'" +				
 					" idSolexaLibraryType='" + sampleToCopy.@idSolexaLibraryType + "'" +				
 					" isSizeSelected='" + sampleToCopy.@isSizeSelected + "'" +				
 					" fragmentSizeFrom='" + sampleToCopy.@fragmentSizeFrom + "'" +				
@@ -226,7 +226,7 @@
 		        	} else {
 		        			if (sample.@name != null && sample.@name != '' &&
 		        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-		        			sample.@samplePrepMethodUsed != null && sample.@samplePrepMethodUsed != '' &&
+		        			sample.@samplePrepMethodUsedByLab != null && sample.@samplePrepMethodUsedByLab != '' &&
 		        			sample.@idSolexaLibraryType != null && sample.@idSolexaLibraryType != '' &&
 		        			sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
 		        			sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
@@ -496,7 +496,7 @@
 					</mx:DataGridColumn>
 	                <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSamplePrepMethod" labelFunction="parentApplication.lookupSamplePrepMethod" itemEditor="views.renderers.ComboBoxSamplePrepMethod" />
-	 				<mx:DataGridColumn headerText="Prep Method Used" id="samplePrepMethodUsedCol" visible="{currentState == 'SolexaSamplesState'}"  editable="true" width="120" dataField="@samplePrepMethodUsed"/>
+	 				<mx:DataGridColumn headerText="Prep Method Used" id="samplePrepMethodUsedCol" visible="{currentState == 'SolexaSamplesState'}"  editable="true" width="120" dataField="@samplePrepMethodUsedByLab"/>
 					<mx:DataGridColumn id="solexaLibraryTypeCol" headerText="Lib Type" width="84" editorDataField="value" dataField="@idSolexaLibraryType" itemRenderer="views.renderers.LabelSolexaLibraryType"  itemEditor="views.renderers.ComboBoxSolexaLibraryType" labelFunction="parentApplication.lookupSolexaLibraryType"  rendererIsEditor="false">
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" itemRenderer="views.renderers.LabelFragmentSizeFrom"  itemEditor="views.renderers.TextInputFragmentSizeFrom" rendererIsEditor="false">
