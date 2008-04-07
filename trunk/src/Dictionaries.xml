@@ -9,13 +9,14 @@
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
     </Dictionary>
     <Dictionary displayName="Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
-    <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
+  <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
 	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" />
 	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" />
 	<Dictionary displayName="Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-    <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
+  <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
+   <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
       <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
 	</Dictionary>
 	<Dictionary displayName="Hyb Protocol" className="hci.gnomex.model.HybProtocol" editable="N" >
@@ -60,6 +61,7 @@
 	<Dictionary displayName="Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
+  <Dictionary displayName="Solexa Library Type" className="hci.gnomex.model.SolexaLibraryType" />
 	<Dictionary displayName="State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Slide Source" className="hci.gnomex.model.SlideSource" />
 	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" />
