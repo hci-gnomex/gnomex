@@ -113,6 +113,9 @@
             <mx:SetEventHandler target="{sampleConcentration}" name="focusOut">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness();checkTotalSample()</mx:handler>
             </mx:SetEventHandler>
+            <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentApplication.samplePrepMethodList.refresh()</mx:handler>
+            </mx:SetEventHandler>
         </mx:State>
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
             <mx:AddChild relativeTo="{isPreppedContainer}" position="after">

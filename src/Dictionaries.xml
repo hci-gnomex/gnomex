@@ -43,6 +43,7 @@
 	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
 	</Dictionary>
 	<Dictionary displayName="Sample Prep Methods associated with Sample Types" className="hci.gnomex.model.SamplePrepMethodSampleType" >
+  	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
       <Filter className="YN" filterField="isDefaultForSampleType"/>
