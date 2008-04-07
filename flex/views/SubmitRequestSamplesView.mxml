@@ -23,6 +23,8 @@
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" isAlreadyPrepped = 'Y'" +
 					" idSamplePrepMethod=''" +				
+					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
+					" alignNotes='" + parentDocument.sampleSetupView.alignNotes.text + "'" +				
 					" samplePrepMethodUsed='" + parentDocument.sampleSetupView.samplePrepMethodText.text + "'" +				
 					" idSolexaLibraryType='" + parentDocument.sampleSetupView.solexaLibraryTypeCombo.selectedItem.@value + "'" +				
 					" isSizeSelected='" + (parentDocument.sampleSetupView.isSizeSelected.selected ? 'Y' : 'N') + "'" +				
@@ -44,6 +46,8 @@
 					" numberSequencingLanes=''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
+					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
+					" alignNotes='" + parentDocument.sampleSetupView.alignNotes.text + "'" +				
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 					" isAlreadyPrepped = 'N'" +
 					" samplePrepMethodUsed=''" +				
@@ -137,6 +141,7 @@
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" totalVolume='" + sampleToCopy.@totalVolume + "'" +
+					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
 					" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
 					" idFlowCellType='" + sampleToCopy.@idFlowCellType + "'" +				
 					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
@@ -340,6 +345,8 @@
 				" idFlowCellType='" + sample.@idFlowCellType + "'" +
 				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
 				" idSample='" + sample.@idSample + "'" +
+				" idGenomeBuildAlignTo='" + sample.@idGenomeBuildAlignTo + "'" +
+				" alignNotes='" + sample.@alignNotes + "'" +
 				"/>");
 			
 			parentDocument.lanes.addItem(emptyNode);

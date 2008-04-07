@@ -508,6 +508,14 @@
         		return "";
         	}
         }
+        public function lookupGenomeBuild(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == item.@idGenomeBuildAlignTo);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
 	        
             
             
@@ -669,7 +677,7 @@
 			      
 			      <mx:LinkBar id="linkButtonBar"
 			      	 dataProvider="{theViews}" width="100%"
-                     enabled="true" visible="false"  
+                     enabled="true" visible="true"  
                      verticalAlign="middle"
                      itemClick="onViewSelection()" horizontalAlign="left">
 			      </mx:LinkBar>
