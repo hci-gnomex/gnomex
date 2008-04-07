@@ -17,7 +17,8 @@ public class SequenceLane extends HibernateDetailObject {
   private Integer idRequest;
   private Integer idFlowCellType;
   private Integer idNumberSequencingCycles;
-  private String  notes;
+  private Integer idGenomeBuildAlignTo;
+  private String  alignNotes;
   
   public Integer getIdSample() {
     return idSample;
@@ -98,14 +99,26 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
   
-  public String getNotes() {
-    return notes;
+  public Integer getIdGenomeBuildAlignTo() {
+    return idGenomeBuildAlignTo;
   }
 
   
-  public void setNotes(String notes) {
-    this.notes = notes;
+  public void setIdGenomeBuildAlignTo(Integer idGenomeBuildAlignTo) {
+    this.idGenomeBuildAlignTo = idGenomeBuildAlignTo;
   }
+
+  
+  public String getAlignNotes() {
+    return alignNotes;
+  }
+
+  
+  public void setAlignNotes(String alignNotes) {
+    this.alignNotes = alignNotes;
+  }
+
+  
   
   
     

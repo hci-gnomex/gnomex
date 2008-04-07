@@ -271,7 +271,37 @@ public class RequestParser implements Serializable {
     } else {
       sample.setCodeBioanalyzerChipType(null);
     }
-
+    if (n.getAttributeValue("totalVolume") != null && !n.getAttributeValue("totalVolume").equals("")) {
+      sample.setTotalVolume(new BigDecimal(n.getAttributeValue("totalVolume")));
+    } else {
+      sample.setTotalVolume(null);
+    }
+    if (n.getAttributeValue("samplePrepMethodUsedByLab") != null && !n.getAttributeValue("samplePrepMethodUsedByLab").equals("")) {
+      sample.setSamplePrepMethodUsedByLab(n.getAttributeValue("samplePrepMethodUsedByLab"));
+    } else {
+      sample.setSamplePrepMethodUsedByLab(null);
+    }
+    if (n.getAttributeValue("idSolexaLibraryType") != null && !n.getAttributeValue("idSolexaLibraryType").equals("")) {
+      sample.setIdSolexaLibraryType(new Integer(n.getAttributeValue("idSolexaLibraryType")));
+    } else {
+      sample.setIdSolexaLibraryType(null);
+    }
+    if (n.getAttributeValue("fragmentSizeFrom") != null && !n.getAttributeValue("fragmentSizeFrom").equals("")) {
+      sample.setFragmentSizeFrom(new Integer(n.getAttributeValue("fragmentSizeFrom")));
+    } else {
+      sample.setFragmentSizeFrom(null);
+    }
+    if (n.getAttributeValue("fragmentSizeTo") != null && !n.getAttributeValue("fragmentSizeTo").equals("")) {
+      sample.setFragmentSizeTo(new Integer(n.getAttributeValue("fragmentSizeTo")));
+    } else {
+      sample.setFragmentSizeTo(null);
+    }
+    
+    
+    
+    
+    
+    
     sampleMap.put(idSampleString, sample);
     sampleIds.add(idSampleString);
     
@@ -395,6 +425,7 @@ public class RequestParser implements Serializable {
       if (n.getAttributeValue("idSlideDesign") != null && !n.getAttributeValue("idSlideDesign").equals("")) {
         hybInfo.setIdSlideDesign(new Integer(n.getAttributeValue("idSlideDesign")));
       }
+      
       
       hybInfo.setNotes(unEscape(n.getAttributeValue("notes")));
       
@@ -567,8 +598,12 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("idFlowCellType") != null && !n.getAttributeValue("idFlowCellType").equals("")) {
       sequenceLaneInfo.setIdFlowCellType(new Integer(n.getAttributeValue("idFlowCellType")));
     }
+
+    if (n.getAttributeValue("idGenomeBuildAlignTo") != null && !n.getAttributeValue("idGenomeBuildAlignTo").equals("")) {
+      sequenceLaneInfo.setIdGenomeBuildAlignTo(new Integer(n.getAttributeValue("idGenomeBuildAlignTo")));
+    }
     
-    sequenceLaneInfo.setNotes(unEscape(n.getAttributeValue("notes")));
+    sequenceLaneInfo.setAlignNotes(unEscape(n.getAttributeValue("alignNotes")));
     
     
     
@@ -997,17 +1032,10 @@ public class RequestParser implements Serializable {
     private Sample   sample;
     private Integer  idFlowCellType;
     private Integer  idNumberSequencingCycles;
-    private String   notes;
+    private Integer  idGenomeBuildAlignTo;
+    private String   alignNotes;
     
     
-    public String getNotes() {
-      return notes;
-    }
-
-    
-    public void setNotes(String notes) {
-      this.notes = notes;
-    }
 
     
     public Integer getIdFlowCellType() {
@@ -1058,6 +1086,29 @@ public class RequestParser implements Serializable {
     public void setSample(Sample sample) {
       this.sample = sample;
     }
+
+    
+    public String getAlignNotes() {
+      return alignNotes;
+    }
+
+
+    
+    public void setAlignNotes(String alignNotes) {
+      this.alignNotes = alignNotes;
+    }
+
+
+    
+    public Integer getIdGenomeBuildAlignTo() {
+      return idGenomeBuildAlignTo;
+    }
+
+
+    
+    public void setIdGenomeBuildAlignTo(Integer idGenomeBuildAlignTo) {
+      this.idGenomeBuildAlignTo = idGenomeBuildAlignTo;
+    }
     
     
   }
@@ -1089,7 +1140,7 @@ public class RequestParser implements Serializable {
     text = text.replaceAll("&apos;",   "'");
     text = text.replaceAll("&gt;",     ">");
     text = text.replaceAll("&lt;",     "<");
-    text = text.replaceAll("&#181;",   "µ");
+    text = text.replaceAll("&#181;",   "ï¿½");
     return text;
   }
 
