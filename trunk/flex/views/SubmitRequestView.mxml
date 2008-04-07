@@ -116,6 +116,9 @@
 			
 			parentApplication.filteredSlideProductListForSubmitRequests.filterFunction = filterSlideProduct;
 			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+			
+			parentApplication.samplePrepMethodList.filterFunction = filterSamplePrepMethod;
+			parentApplication.samplePrepMethodList.refresh();
 		}
 		
 		public function isSolexaState():Boolean {
@@ -400,6 +403,7 @@
 	
 				}
 			}
+			parentApplication.samplePrepMethodList.refresh();
 			
 			
 			
@@ -493,20 +497,26 @@
         	if (item.@value == "") {
         		return true;
         	}
+        	if (isEditState()) {
+        		return true;
+        	}
         	
         	if (item.@isActive == 'N') {
         		return false;
         	}
+        	
         	var doesMatch:Boolean = true;
         	if (sampleSetupView.sampleTypeCombo.selectedItem != null && 
         	    sampleSetupView.sampleTypeCombo.selectedItem.@value != null  &&
         	    sampleSetupView.sampleTypeCombo.selectedItem.@value != "") {
         	   	doesMatch = false;
-        	   	var applicableSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSampleType == sampleTypeCombo.selectedItem.@value);
+        	   	var applicableSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
         	   	for each (var xref:Object in applicableSamplePrepMethods) {
-        	   		if (xref.@idSamplePrepMethod == item.@value) {
-        	   		    doesMatch = true;
-        	   		    break;
+        	   		if (xref.@idSampleType.toString() == sampleSetupView.sampleTypeCombo.selectedItem.@value.toString()) {
+    	   				if (xref.@codeRequestCategory.toString() == '' || xref.@codeRequestCategory.toString() == setupView.requestTypeGroup.selectedValue) {
+        	   		    	doesMatch = true;
+	    	   		    	break;
+	    	   		 	}        	   				
         	   		}
         	   	}
         	}
