@@ -46,6 +46,9 @@
 			
 			var emptyNode:XML = new XML("<Hybridization " +
 			    " idHybridization='" + "Hyb" + parentDocument.hybs.length + "'" +
+			    " canChangeSampleDesignations='Y'" +
+			    " canChangeSlideSource='Y'" +
+			    " canChangeSlideDesign='Y'" +
 			    " notes='' " + 
 				" idSlideDesign='" + idSlideDesign + "'" +
 				" codeSlideSource='" + parentDocument.hybSetupView.getCheckedCodeSlideSource() + "'" +
@@ -86,6 +89,15 @@
 			}
 	        parentDocument.hybSetupView.assignSlideNumbers();	
 		}
+		public function propagateSlideSourceToHybsSameSlide(theHyb:Object):void {
+			for each (var hyb:Object in parentDocument.hybs) {
+				if (theHyb.@slideNumber == hyb.@slideNumber) {
+					hyb.@codeSlideSource = theHyb.@codeSlideSource;
+				}
+			}
+			
+		}
+		
 		
 		public function promptToClearAllHybs():void {
 			Alert.show("Remove all hybs currently showing in list?",
@@ -321,7 +333,7 @@
 			<mx:Panel  id="hybsContainer" width="100%" height="100%">
 			   <mx:title><![CDATA[Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)]]></mx:title>
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
-						<mx:HBox>
+						<mx:HBox id="buttonContainer">
 							<mx:Button label="Add" click="addHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addHybButton"/>
 							<mx:Button label="Copy" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyHybButton"/>
 							<mx:Button label="Delete" click="deleteHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteHybButton"/>
@@ -329,7 +341,7 @@
 						</mx:HBox>
 						
 						<mx:HBox horizontalAlign="right" width="100%">
-							<mx:HBox width="100%" horizontalGap="0"  horizontalAlign="left" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="8" paddingTop="2">
+							<mx:HBox width="100%" horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="8" paddingTop="2" id="workflowCheckBoxContainer">
 								<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
 								<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
 								<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
@@ -494,5 +506,19 @@
 	    </mx:HDividedBox>
 
     </mx:VBox>
+    
+    <mx:states>
+    	<mx:State name="HybsState">
+    	    <mx:RemoveChild target="{workflowCheckBoxContainer}"/>
+    	</mx:State>
+    	<mx:State name="HybsEditState">
+    		<mx:RemoveChild target="{buttonContainer}"/>
+    		<mx:SetStyle target="{workflowCheckBoxContainer}" name="horizontalAlign" value="right"/>
+    	</mx:State>
+    	<mx:State name="HybsAdminState">
+    		<mx:SetStyle target="{workflowCheckBoxContainer}" name="horizontalAlign" value="right"/>
+    	</mx:State>
+    	
+    </mx:states>
 
 </mx:Canvas>

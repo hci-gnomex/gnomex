@@ -392,6 +392,7 @@
 					this.sampleSetupView.currentState = '';
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
+					this.hybsView.currentState = '';
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
@@ -779,19 +780,14 @@
 			} else {
 				currentState = 'MicroarrayEditState';
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					samplesView.currentState = 'MicroarraySamplesAdminState';						
+					samplesView.currentState = 'MicroarraySamplesAdminState';		
+					hybsView.currentState = 'HybsAdminState';				
 				} else {
 					samplesView.currentState = 'MicroarraySamplesEditState';					
+					hybsView.currentState = 'HybsEditState';				
 				}
 				samplesView.showHideColumns();
 
-				hybsView.showWorkflowLabel.visible = true;
-				samplesView.showQCFieldsCheckBox.visible = true;
-
-				hybsView.showCy3LabelingFieldsCheckBox.visible = true;
-				hybsView.showCy5LabelingFieldsCheckBox.visible = true;
-				hybsView.showHybFieldsCheckBox.visible = true;
-				hybsView.showExtFieldsCheckBox.visible = true;
 
 				hybSetupView.organismCombo.enabled = canChangeSlide;
 				hybSetupView.microarrayCategoryCombo.enabled = canChangeSlide;
@@ -799,17 +795,7 @@
 				hybSetupView.isCatalogRadio.enabled = canChangeSlide;
 				hybSetupView.isCustomRadio.enabled = canChangeSlide;
 				
-				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					hybsView.addHybButton.visible = true;
-					hybsView.copyHybButton.visible = true;
-					hybsView.deleteHybButton.visible = true;
-					hybsView.clearHybsButton.visible = true;
-				} else {
-					hybsView.addHybButton.visible = false;
-					hybsView.copyHybButton.visible = false;
-					hybsView.deleteHybButton.visible = false;
-					hybsView.clearHybsButton.visible = false;
-				}
+
 				hybSetupView.label = "Slide";
 				hybSetupView.numberOfHybsContainer.visible = false;
 				hybSetupView.slideSourceContainer.visible = false;
@@ -1108,13 +1094,16 @@
 			
 			request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 			
-			if (setupView.requestTypeGroup.selectedValue != "QC") {
+			if (currentState != 'QCState') {
 				request.@idSampleSourceDefault = sampleSetupView.sampleSourceCombo.selectedItem.@value;
 				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 			}
-			request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
+			if (currentState != 'QCState' && sampleSetupView.currentState != 'SampleSetupPreppedState') {
+				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
+				
+			}
 
-			if (!this.isSolexaState() && setupView.requestTypeGroup.selectedValue != "QC") {
+			if (currentState == 'MicroarrayState') {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeMicroarrayCategory = hybSetupView.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;				
 			}
@@ -1126,7 +1115,7 @@
 				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
-			if (request.@codeRequestCategory != "QC" && request.@codeRequestCategory != "SOLEXA") {
+			if (currentState == 'MicroarrayState') {
 				for each(var hyb:Object in hybs) {
 					if (requestCategory.@numberOfChannels != "2") {
 						hyb.@idSampleChannel2 = "0";
@@ -1138,7 +1127,7 @@
 				request.@idSlideProduct = '';
 			}
 			request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 
-			if (request.@codeRequestCategory == "SOLEXA") {
+			if (isSolexaState()) {
 				for each(var lane:Object in lanes) {
 					request.sequenceLanes.appendChild(lane);
 				}

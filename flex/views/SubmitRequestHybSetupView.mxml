@@ -36,14 +36,6 @@
 			callLater(parentDocument.hybsView.checkHybsCompleteness);
 		}
 		
-		public function propagateSlideSourceToHybsSameSlide(theHyb:Object):void {
-			for each (var hyb:Object in parentDocument.hybs) {
-				if (theHyb.@slideNumber == hyb.@slideNumber) {
-					hyb.@codeSlideSource = theHyb.@codeSlideSource;
-				}
-			}
-			
-		}
 		private function propagateSlideDesign():void {
 			for each (var hyb:Object in parentDocument.hybs) {
 				hyb.@idSideDesign = this.slideProductCombo.selectedItem.@idSlideDesign;
