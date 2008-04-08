@@ -50,7 +50,7 @@ package views
             if (len == 1)
             {
                 var src:IListItemRenderer = dg.indexToItemRenderer(items[0]);
-                y = src.y;
+                y = src.y - 20;
             }
             
             //x = this.mouseX - (labelWidth * 6);

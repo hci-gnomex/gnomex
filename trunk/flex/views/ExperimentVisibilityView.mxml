@@ -111,8 +111,9 @@
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0" >
-	                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
-	                    	 </mx:Image> 
+			                    <mx:Image id="experimentImage"  
+			                     	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment))}" >
+								</mx:Image>
 	                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
 	                           </mx:Label>
 	                        </mx:HBox>

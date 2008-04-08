@@ -13,8 +13,8 @@
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
 			    " notes='' " + 
-				" idFlowCellType='" + flowCellTypeCombo.selectedItem.@value + "'" +
-				" idNumberSequencingCycles='" + numberSequencingCyclesCombo.selectedItem.@value + "'" +
+				" idFlowCellType=''" + 
+				" idNumberSequencingCycles=''" +
 				" idGenomeBuildAlignTo=''" +
 				" idSample='0'" +
 				"/>");
@@ -68,12 +68,6 @@
         	if (parentDocument.numberOfLanes.text == null || parentDocument.numberOfLanes.text == "0" || parentDocument.numberOfLanes.text == '') {
         		return;
         	}
-        	if (flowCellTypeCombo.selectedItem == null || flowCellTypeCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (numberSequencingCyclesCombo.selectedItem == null || numberSequencingCyclesCombo.selectedItem.@value == '') {
-        		return;
-        	}
       	
         	
     		var numberOfLanesToAdd:Number = new Number(parentDocument.numberOfLanes.text);
@@ -87,15 +81,21 @@
     		}
     		
         }
-		private function propagateFlowCellType():void {
+		public function propagateFlowCellType(idFlowCellType:String):void {
 			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+				lane.@idFlowCellType = idFlowCellType;
 			}
 			callLater(checkLanesCompleteness);
 		}
-		private function propagateNumberSequencingCycles():void {
+		public function propagateNumberSequencingCycles(idNumberSequencingReactions:String):void {
 			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+				lane.@idNumberSequencingCycles = idNumberSequencingReactions;
+			}
+			callLater(checkLanesCompleteness);
+		}
+		public function propagateGenomeBuild(idGenomeBuildAlignTo:String):void {
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idGenomeBuildAlignTo = idGenomeBuildAlignTo;
 			}
 			callLater(checkLanesCompleteness);
 		}
@@ -189,69 +189,73 @@
 		
 	]]>
 </mx:Script>
-	<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="6">
-		<mx:HBox id="laneFlowCellContainer">
-			<mx:Image source="assets/bullet_orange.png"/>
-			<mx:Label width="230" text="Select the type of flow cell to be used:"/>
-			<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="initializeLanesGrid();propagateFlowCellType()">
-				<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
-			</mx:ComboBox>
-			<mx:Spacer width="10"/>
-			<mx:HBox> 
-				<mx:Label width="300" text="Select the minimum number of sequencing cycles:"/>
-				<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="initializeLanesGrid();propagateNumberSequencingCycles()">
-					<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
-				</mx:ComboBox>
-			</mx:HBox>
-		</mx:HBox>
-		<mx:HDividedBox width="100%" height="100%" paddingTop="10">
-	        <mx:Panel  title="Samples" height="100%" verticalGap="4">
-	        	<views:DataGrid
-	        		dragProxyImage="views.DataGridSampleDragProxy" 
-	        		 height="100%" width="100%" 
-	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
-	        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
-					<views:columns>
-						<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
-			            <!--<mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
-			                <mx:itemRenderer>
-			                    <mx:Component >
-			                        <mx:HBox  horizontalGap="0" >
-			                          <mx:Image source="{data.@laneCount > 0 ? '../assets/tick.png' : ''}">
-			                    	 </mx:Image> 
-			                        </mx:HBox>
-			                    </mx:Component>
-			                </mx:itemRenderer>
-			            </mx:DataGridColumn> -->		
-					</views:columns> 										        				        		
-	         	</views:DataGrid>
-	        </mx:Panel>            	
-
-			<mx:Panel  id="lanesContainer" width="100%" height="100%">
-			   <mx:title><![CDATA[Sequencing Lanes    (Drag sample onto sequencing lane sample cell)]]></mx:title>
-					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
+	<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="0">
+	
+		<mx:HDividedBox width="100%" height="100%" paddingTop="0" id="mainContainer">
+			<mx:VBox  id="lanesContainer" width="100%" height="100%" >
+				<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" dataProvider="{parentDocument.lanes}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDropLane(event)" itemFocusOut="checkLanesCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+					<mx:columns>
+					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getLanesGridRowNumber"/>
+					    <mx:DataGridColumn  headerText="Sample"  width="120" 
+					    	labelFunction="parentDocument.getLaneSampleName" 
+                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
+			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="true" dataField="@idFlowCellType"
+			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelFlowCellType" itemEditor="views.renderers.ComboBoxFlowCellType"/> 						             						             
+			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="true" dataField="@idNumberSequencingCycles" 						             						             
+			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/> 						             						             
+			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
+			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelGenomeBuild" itemEditor="views.renderers.ComboBoxGenomeBuild"/> 						             						             
+						<mx:DataGridColumn width="150" headerText="Align notes"   dataField="@alignNotes"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+			</mx:VBox>					        			
+		</mx:HDividedBox>
+	</mx:VBox>
+	
+	<mx:states>
+		<mx:State name="LanesAdminState">
+		    <mx:AddChild relativeTo="{lanesContainer}" position="before">
+		        <mx:VBox  height="100%" verticalGap="4">
+		            <mx:Label text="Samples"/>
+		        	<views:DataGrid
+		        		dragProxyImage="views.DataGridSampleDragProxy" 
+		        		 height="100%" width="100%" 
+		        		 dataProvider="{parentDocument.samples}" labelField="@name" 
+		        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
+						<views:columns>
+							<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
+				            <!--<mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+				                <mx:itemRenderer>
+				                    <mx:Component >
+				                        <mx:HBox  horizontalGap="0" >
+				                          <mx:Image source="{data.@laneCount > 0 ? '../assets/tick.png' : ''}">
+				                    	 </mx:Image> 
+				                        </mx:HBox>
+				                    </mx:Component>
+				                </mx:itemRenderer>
+				            </mx:DataGridColumn> -->		
+						</views:columns> 										        				        		
+		         	</views:DataGrid>
+		        </mx:VBox>            	
+		    </mx:AddChild>
+		    	
+			<mx:AddChild relativeTo="{lanesGrid}"  position="before">
+					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" id="buttonContainer">
 						<mx:HBox>
 							<mx:Button label="Add" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addLaneButton"/>
 							<mx:Button label="Copy" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyLaneButton"/>
 							<mx:Button label="Delete" click="deleteLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteLaneButton"/>
-							<mx:Button label="Clear all" click="promptToClearAllLanes()" icon="@Embed('../assets/folder_delete.png')" id="clearLaneButton"/>
+							<mx:Button label="Clear all" click="promptToClearAllLanes()" icon="@Embed('../assets/folder_delete.png')" id="clearLanesButton"/>
 						</mx:HBox>
 						
 					</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" dataProvider="{parentDocument.lanes}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDropLane(event)" itemFocusOut="checkLanesCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
-					<mx:columns>
-					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getLanesGridRowNumber"/>
-					    <mx:DataGridColumn  headerText="Sample"  width="222" 
-					    	labelFunction="parentDocument.getLaneSampleName" 
-                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
-			             <mx:DataGridColumn  width="200" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
-			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
-						<mx:DataGridColumn width="150" headerText="Notes"   dataField="@notes"/>
-					</mx:columns>
-				</mx:DataGrid>
-				
-			</mx:Panel>					        			
-		</mx:HDividedBox>
-	</mx:VBox>
+			</mx:AddChild>
+
+			<mx:AddChild relativeTo="{buttonContainer}" position="before">
+			    <mx:Label id="lanesTitle" text="Sequencing Lanes (to assign sample to lane, drag sample onto lane)"/>				
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
 
 </mx:Canvas>

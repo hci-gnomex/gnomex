@@ -152,6 +152,14 @@
  		}
     }
     
+    private function getFolderName(item:Object, col:int):String {
+    	if (item.@hybNumber != null && item.@hybNumber != '') {
+	    	return item.@hybNumber + ' - ' + item.@results;		
+    	} else {
+    		return item.@results;
+    	}
+    }
+    
 
 	public function setFileCount():void {
 		fileCountMessage = expandedFileList.length + " files found.";
@@ -225,20 +233,20 @@
 		                <mx:itemRenderer>
 		                    <mx:Component >
 		                        <mx:HBox  horizontalGap="0" >
-		                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
-		                    	 </mx:Image> 
+				                   <mx:Image id="experimentImage"  
+			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment)) : '')}" >
+ 								   </mx:Image>
 		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
 		                           </mx:Label>
 		                        </mx:HBox>
 		                    </mx:Component>
 		                </mx:itemRenderer>
 		            </mx:DataGridColumn> 
+			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="130" dataField="@hybNumber"/>
 			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
 			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
 			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
-			       	<mx:DataGridColumn headerText="Results" width="100" dataField="@results"/>
-			       	<mx:DataGridColumn headerText="Hyb #" width="30" dataField="@hybNumber"/>
 			       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
 			       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
 		         </views:columns>
@@ -268,7 +276,8 @@
 		                <mx:itemRenderer>
 		                    <mx:Component >
 		                        <mx:HBox  horizontalGap="0" >
-		                          <mx:Image id="experimentImage"  source="{data.@showRequestNumber == 'Y' ? '../assets/color_swatch.png' : ''}">
+		                          <mx:Image id="experimentImage"  
+			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment)) : '')}" >
 		                    	 </mx:Image> 
 		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
 		                           </mx:Label>

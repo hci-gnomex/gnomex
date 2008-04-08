@@ -280,6 +280,21 @@
 			filterLinkButton.label = "More filters";	
 		}
 	}
+	
+	public function getExperimentIcon(codeRequestCategory:String):Class {
+		var theIcon:Class = parentApplication.iconExperiment;
+		switch(codeRequestCategory){  
+			case 'QC': 
+				theIcon = parentApplication.iconQC; 
+				break; 
+			case 'SOLEXA': 
+				theIcon = parentApplication.iconSolexa; 
+				break; 
+			default: 
+				theIcon = parentApplication.iconExperiment;	
+		}
+		return theIcon;
+	}
 
 
  	]]>
@@ -350,7 +365,8 @@
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0"  >
-			                          <mx:Image id="experimentImage"  source="../assets/color_swatch.png">
+			                          <mx:Image id="experimentImage"  
+			                          	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment))}" >
 			                    	 </mx:Image> 
 			                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
 			                           </mx:Label>

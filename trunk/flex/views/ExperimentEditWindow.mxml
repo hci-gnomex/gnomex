@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="1000" height="480" title="Edit Experiment" 
+	layout="vertical" width="100%" height="100%" title="Edit Experiment" 
 	xmlns:views="views.*" creationPolicy="all" borderColor="#c0c0c0" 
 	close="closeWindow()"
 	backgroundColor="#ffffff" showCloseButton="true">
