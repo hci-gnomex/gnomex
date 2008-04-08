@@ -133,6 +133,9 @@
 		private function showEditExperimentWindow():void {
 
 			 var editWindow:views.SubmitRequestView = views.SubmitRequestView(PopUpManager.createPopUp(this.parentApplication.topArea, views.SubmitRequestView, true));
+			 editWindow.width= 1000;
+			 editWindow.height= 500;
+			 editWindow.showCloseButton = true;
 			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedExperiment.@number;
 			 PopUpManager.centerPopUp(editWindow);		
              callLater(editWindow.setupEditForm, [parentDocument.selectedExperiment]);

@@ -409,9 +409,10 @@
 					return parentApplication.iconProject;
 				} else if (item.name() == "RequestCategory") {
 					return parentApplication.iconCategory;
-				} else if (item.name() == "Request" &&
-				           item.@codeRequestCategory == "QC") {
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
 					return parentApplication.iconQC;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
+					return parentApplication.iconSolexa;
 				}else {
 					return parentApplication.iconExperiment;
 				}
@@ -556,7 +557,7 @@
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
 							id="browseTree" click="onBrowseTree();" 
-							borderStyle="solid"
+							borderStyle="none"
 							labelField="@label"
 							labelFunction="getTreeLabel"
 					        dragEnabled="true" 

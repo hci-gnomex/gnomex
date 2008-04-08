@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*"
+    close="{PopUpManager.removePopUp(this)}"
 	label="Submit Request" width="100%" height="100%" 
 	>
 
@@ -737,6 +738,7 @@
 			}
 
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
+				samplesView.currentState
 				samplesView.addSampleButton.visible = true;
 				samplesView.copySampleButton.visible = true;
 				samplesView.deleteSampleButton.visible = true;
@@ -751,17 +753,36 @@
 
 			if (request.@codeRequestCategory == 'SOLEXA') {
 				currentState = 'SolexaEditState';
-				samplesView.currentState = 'SolexaSamplesState';
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					samplesView.currentState = 'SolexaSamplesAdminState';						
+				} else {
+					samplesView.currentState = 'SolexaSamplesEditState';					
+				}
 				samplesView.showHideColumns();
+					
+ 				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					lanesView.currentState = 'LanesAdminState';
+				} else {
+					lanesView.currentState = '';
+				} 
+
 			} else if (request.@codeRequestCategory == 'QC') {
 				currentState = 'QCEditState';
-				samplesView.currentState = 'QCSamplesState';
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					samplesView.currentState = 'QCSamplesAdminState';						
+				} else {
+					samplesView.currentState = 'QCSamplesEditState';					
+				}
 				samplesView.showHideColumns(); 
 				samplesView.showQCFieldsCheckBox.visible = true;
 
 			} else {
 				currentState = 'MicroarrayEditState';
-				samplesView.currentState = 'MicroarraySamplesState';
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					samplesView.currentState = 'MicroarraySamplesAdminState';						
+				} else {
+					samplesView.currentState = 'MicroarraySamplesEditState';					
+				}
 				samplesView.showHideColumns();
 
 				hybsView.showWorkflowLabel.visible = true;
@@ -794,15 +815,14 @@
 				hybSetupView.slideSourceContainer.visible = false;
 				
 			}
-
 			
 			callLater(initializeControls);
 			callLater(hybSetupView.assignSlideNumbers);			
 			callLater(samplesView.checkSamplesCompleteness);
 			callLater(hybSetupView.checkHybSetupCompleteness);
 			callLater(hybsView.checkHybsCompleteness);
-			
 		}
+		
 		
 		
 		private function onGetNewRequest(event:ResultEvent):void {
@@ -1314,7 +1334,7 @@
 					<mx:Button label="Cancel" id="cancelButton0" click="promptToCancelRequest()"/>
 				</mx:HBox>
 	 	    </mx:HBox>
-	 	    <mx:HBox width="100%">
+	 	    <mx:HBox width="100%" horizontalAlign="right">
  				<mx:Button id="saveButton" label="Save" 
 	            	icon="@Embed('../assets/action_save.gif')" click="validateAndSaveRequest()">
 	            </mx:Button>
@@ -1384,4 +1404,4 @@
 
   
     
-</mx:Panel>
+</mx:TitleWindow>

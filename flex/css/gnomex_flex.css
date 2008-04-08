@@ -111,42 +111,53 @@ ComboBox {
 }
 
 
-        Panel {
-           borderThicknessLeft: 4;
-           borderThicknessTop: 0;
-           borderThicknessBottom: 4;
-           borderThicknessRight: 4;
-           roundedBottomCorners: false;
-           headerHeight: 23;
-          
-           
-           footerColors: #A1A79D, #A1A79D;
-           titleStyleName: "mypanelTitle";
-		   borderColor: #A1A79D;
-			borderAlpha: 1.0;
-			controlBarStyleName: panelControlBar;
-		   
-	
-        }
-        .mypanelTitle {
-           fontWeight: normal;
-        }
-        .panelControlBar {
-        	roundedBottomCorners: false;
-        }
-        ControlBar {
-        	paddingLeft: 4;
-        	paddingTop: 4;
-        	paddingBottom: 4;
-        	paddingRight: 4;
-        	
-        }
-        
-
-
+Panel {
+   borderThicknessLeft: 4;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: false;
+   headerHeight: 23;
+   footerColors: #A1A79D, #A1A79D;
+   titleStyleName: panelTitle;
+   borderColor: #A1A79D;
+   borderAlpha: 1.0;
+   controlBarStyleName: panelControlBar;
+}
+.panelControlBar {
+	roundedBottomCorners: false;
+}
 .panelTitle {
 	fontWeight: normal;
 }
+
+TitleWindow {
+   borderThicknessLeft: 4;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: false;
+   headerHeight: 28;
+   footerColors: #A1A79D, #A1A79D;
+   titleStyleName: titleBarTitle;
+   borderColor: #A1A79D;
+   borderAlpha: 1.0;
+   controlBarStyleName: panelControlBar;
+}
+.titleBarTitle {
+	fontWeight: bold;
+}
+
+ControlBar {
+	paddingLeft: 4;
+	paddingTop: 4;
+	paddingBottom: 4;
+	paddingRight: 4;
+	
+}
+        
+
+
 
 RadioButton {
 	disabledColor: #5f5f5f;
@@ -158,28 +169,7 @@ TextArea {
 	disabledColor: #5f5f5f;
 }
 
-TitleWindow {
-		panelAlpha: .5;
-		dropShadowEnabled: false;
-        borderAlpha: 1.0;
-        borderColor: #fee789;
-        backgroundColor: haloSilver;
-        cornerRadius: 14;
-        roundedBottomCorners: true;
-        borderThicknessBottom: 4;
-        borderThicknessTop: 4;
-        borderThicknessLeft: 4;
-        borderThicknessRight: 4;
-		showCloseButton:   true;
-      	borderColor: #FFFFFF; 
-      	borderThickness: 4;
-}
-.panelStatus
-{
-}
-.panelControlBar
-{
-}
+
 
 
 

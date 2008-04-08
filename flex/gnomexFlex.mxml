@@ -42,9 +42,16 @@
 	        
 	        
 	        [Bindable]
-	        [Embed(source="assets/chart_curve_error.png")]
+	        [Embed(source="assets/chart_curve.png")]
 	        public var iconQC:Class;
 	        
+	       	[Bindable]
+	        [Embed(source="assets/bullet_orange.png")]
+	        public var iconBullet:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/map.png")]
+	        public var iconSolexa:Class;
 	        
 	        [Bindable]
 	        [Embed(source="assets/sitemap.png")]
@@ -677,9 +684,9 @@
 			      
 			      <mx:LinkBar id="linkButtonBar"
 			      	 dataProvider="{theViews}" width="100%"
-                     enabled="true" visible="true"  
+                     enabled="true" visible="false"  
                      verticalAlign="middle"
-                     itemClick="onViewSelection()" horizontalAlign="left">
+                     itemClick="onViewSelection()" horizontalAlign="left" horizontalGap="20">
 			      </mx:LinkBar>
 	      	
 		      	
@@ -714,7 +721,7 @@
 	        </views:NavExperimentView>
 
 	        
-	        <!--<views:NavAnalysisView label="Analysis" icon="@Embed('assets/map_edit.png')"/>-->
+	        <!--<views:NavAnalysisView label="Analysis" icon="@Embed('assets/plugin_edit.png')"/>-->
 
  
 
