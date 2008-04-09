@@ -412,6 +412,9 @@
 			}
 		}		
         public function showHideColumns():void {
+        	sampleNumberCol.visible = parentDocument.isEditState();
+        	sampleRowNumberCol.visible = !parentDocument.isEditState();
+        	
         	if (showQCFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
@@ -488,10 +491,12 @@
 	<mx:VBox width="100%" height="100%">
 			<mx:HBox id="headerContainer" width="100%">
 				<mx:Label id="samplesTitle" text="Samples  (fields in pink are required.)"/>
-				<mx:CheckBox id="alreadyPreppedCheckBox" label="Already Prepped by Lab?"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &gt;= 0}" click="showHideColumns()">
-				</mx:CheckBox>
-				<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &lt; 0}" click="showHideColumns()">
-				</mx:CheckBox>							
+				<mx:HBox width="100%" horizontalAlign="right">
+					<mx:CheckBox id="alreadyPreppedCheckBox" label="Already Prepped by Lab?"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &gt;= 0}" click="showHideColumns()">
+					</mx:CheckBox>
+					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &lt; 0}" click="showHideColumns()">
+					</mx:CheckBox>							
+				</mx:HBox>
 			</mx:HBox>
 			<mx:HBox id="buttonsContainer">
 				<mx:Button label="Add" click="addSample();checkSamplesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addSampleButton"/>
@@ -502,8 +507,9 @@
 					
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto">
 				<mx:columns>
-  			        <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-					<mx:DataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name"  editable="true" itemRenderer="views.renderers.LabelSampleName"  itemEditor="views.renderers.TextInputSampleName" rendererIsEditor="false">
+  			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
+					<mx:DataGridColumn headerText="Name" width="100" editorDataField="text" dataField="@name"  editable="true" itemRenderer="views.renderers.LabelSampleName"  itemEditor="views.renderers.TextInputSampleName" rendererIsEditor="false">
 					</mx:DataGridColumn>
 	 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  itemRenderer="views.renderers.LabelConcentration"  itemEditor="views.renderers.TextInputConcentration" rendererIsEditor="false"/>
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
@@ -540,23 +546,23 @@
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxQCStatus" itemRenderer="mx.controls.Label" />
 	                   				                   
-					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
-					<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
-					<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
-					<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
-					<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
-					<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
-					<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
-					<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
-					<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
-					<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
-					<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
-					<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
-					<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
-					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
-					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
-					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="false" width="100" dataField="@treatment"/>
+					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"/>
+					<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="{parentDocument.request.@CELLLINE == 'Y'}"/>
+					<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="{parentDocument.request.@CELLTYPE == 'Y'}"/>
+					<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="{parentDocument.request.@CLININFO == 'Y'}"/>
+					<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="{parentDocument.request.@COMPOUND == 'Y'}"/>
+					<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="{parentDocument.request.@DISSTATE == 'Y'}"/>
+					<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y'}"/>
+					<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="{parentDocument.request.@GENMOD == 'Y'}"/>
+					<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="{parentDocument.request.@GENOTYPE == 'Y'}"/>
+					<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="{parentDocument.request.@GROWTHCOND == 'Y'}"/>
+					<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="{parentDocument.request.@INDIV == 'Y'}"/>
+					<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="{parentDocument.request.@ORGPART == 'Y'}"/>
+					<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="{parentDocument.request.@SEX == 'Y'}"/>
+					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"/>
+					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"/>
+					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"/>
+					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="false" width="100" dataField="{parentDocument.request.@treatement == 'Y'}"/>
 					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 				</mx:columns>
 			</mx:DataGrid>

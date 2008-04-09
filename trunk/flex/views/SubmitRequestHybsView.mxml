@@ -353,7 +353,8 @@
 					</mx:HBox>
 				<views:DataGridAlternatingGroup width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{parentDocument.hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
 					<views:columns>
-					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getHybsGridRowNumber"/>
+					    <mx:DataGridColumn id="hybRowNumberCol" editable="false" visible="{currentState != 'HybsEditState'}" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getHybsGridRowNumber"/>
+  					    <mx:DataGridColumn id="hybNumberCol"  headerText="ID" visible="{currentState == 'HybsEditState'}" width="60"   dataField="@number"  editable="false"/>
 			            <mx:DataGridColumn width="50" id="slideNumberColumn" headerText="Slide">
 			                <mx:itemRenderer>
 			                    <mx:Component >
@@ -369,9 +370,11 @@
 					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="122" 
 					    	labelFunction="parentDocument.getSampleChannel1Name" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel1" itemRenderer="views.renderers.LabelSampleChannel1" />								    	
+  					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel1Number" editable="false"/>
 					    <mx:DataGridColumn id="channel2SampleColumn" headerText="Cy5 Sample (red)"  width="122" 
 					    	labelFunction="parentDocument.getSampleChannel2Name" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel2" itemRenderer="mx.controls.Label" />								    	
+  					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel2Number" editable="false"/>
                             
                             
 					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1">

@@ -8,11 +8,15 @@
 			}
 			if (this.treatmentTextInput.text != '') {
 				parentDocument.samplesView.treatmentColumn.visible = true;
-				parentDocument.treatmentConfirmColumn.visible = true;
+				if (!parentDocument.isEditState()) {
+					parentDocument.treatmentConfirmColumn.visible = true;				
+				}
 				parentDocument.request.@treatment = 'Y';
 			} else {
 				parentDocument.samplesView.treatmentColumn.visible = false;
-				parentDocument.treatmentConfirmColumn.visible = false;
+				if (!parentDocument.isEditState()) {
+					parentDocument.treatmentConfirmColumn.visible = false;				
+				}
 				parentDocument.request.@treatment = 'N';
 				
 			}
