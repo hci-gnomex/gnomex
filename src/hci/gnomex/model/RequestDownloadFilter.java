@@ -53,7 +53,8 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        '', req.idRequest,  ");
     queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        '', '',");
-    queryBuf.append("        reqOwner.firstName, reqOwner.lastName");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
+    queryBuf.append("        ''");
     getQualityControlResultQueryBody(queryBuf);
     
     
@@ -80,7 +81,8 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        hyb.idSlideDesign, req.idRequest, ");
     queryBuf.append("        s1.qualFailed, s2.qualFailed, ls1.labelingFailed, ls2.labelingFailed, ");
     queryBuf.append("        hyb.extractionFailed, hyb.extractionBypassed, ");
-    queryBuf.append("        reqOwner.firstName, reqOwner.lastName");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
+    queryBuf.append("        ''");
     getMicroarrayResultQueryBody(queryBuf);
     
     return queryBuf;
@@ -119,6 +121,45 @@ public class RequestDownloadFilter extends DetailObject {
     addQualityControlCriteria();
     addSecurityCriteria();
 
+    
+  
+  }
+  public StringBuffer getSolexaResultQuery(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    addWhere = true;
+    
+    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
+    queryBuf.append("        req.codeMicroarrayCategory, req.idAppUser, ");
+    queryBuf.append("        s.number, '', ");
+    queryBuf.append("        '', '', ");
+    queryBuf.append("        '', '', s.number, s.name, ");
+    queryBuf.append("        '', '', '', '', ");
+    queryBuf.append("        req.idLab, ");
+    queryBuf.append("        '', '', ");
+    queryBuf.append("        '', req.idRequest, ");
+    queryBuf.append("        '', '', '', '', ");
+    queryBuf.append("        '', '', ");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
+    queryBuf.append("        ''");
+    getSolexaResultQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  public void getSolexaResultQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" JOIN           req.samples as s ");
+    queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+
+
+    addRequestCriteria();
+    addLaneCriteria();
+    addSecurityCriteria();
+    
+    
+    
     
   
   }
@@ -248,7 +289,14 @@ public class RequestDownloadFilter extends DetailObject {
       queryBuf.append(" hyb.extractionDate is null");
     }   
   }
-  
+
+  private void addLaneCriteria() {
+    this.addWhereOrAnd();
+    queryBuf.append(" req.codeRequestCategory = 'SOLEXA'");
+
+    //TODO - need to filter by lane complete date
+  }
+
   private void addQualityControlCriteria() {
     
     //  Search by isComplete

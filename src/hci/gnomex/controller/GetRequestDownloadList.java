@@ -1,5 +1,7 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.FlowCellType;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.utility.HibernateSession;
@@ -31,6 +33,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   
   private RequestDownloadFilter          filter;
   private HashMap                        slideDesignMap = new HashMap();
+  private HashMap                        flowCellTypeMap = new HashMap();
   private static final String          QUALITY_CONTROL_DIRECTORY = "bioanalysis";
 
   public void validate() {
@@ -73,7 +76,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         slideDesignMap.put(sd.getIdSlideDesign(), sd.getName());
       }
       
-      
+      List flowCellTypes = sess.createQuery("SELECT fct from FlowCellType fct ").list();
+      for(Iterator i = flowCellTypes.iterator(); i.hasNext();) {
+        FlowCellType fct = (FlowCellType)i.next();
+        flowCellTypeMap.put(fct.getIdFlowCellType(), fct.getFlowCellType());
+      }
       
     
       StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor());
@@ -97,11 +104,33 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         
         rowMap.put(key, row);
       }
-      
-      buf = filter.getQualityControlResultQuery(this.getSecAdvisor());
+
+      buf = filter.getSolexaResultQuery(this.getSecAdvisor());
       log.debug("Query for GetRequestDownloadList (2): " + buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        
+        String requestNumber = (String)row[1];
+        String laneNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
+        
+        String createDate    = this.formatDate((java.sql.Date)row[0]);
+        String tokens[] = createDate.split("/");
+        String createMonth = tokens[0];
+        String createDay   = tokens[1];
+        String createYear  = tokens[2];
+        String sortDate = createYear + createMonth + createDay;
+        
+        String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + laneNumber;
+        
+        rowMap.put(key, row);
+      }
+      
+      
+      buf = filter.getQualityControlResultQuery(this.getSecAdvisor());
+      log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
+      List rows3 = (List)sess.createQuery(buf.toString()).list();
+      for(Iterator i = rows3.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
         
         String requestNumber = (String)row[1];
@@ -134,6 +163,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         if (!requestNumber.equals(prevRequestNumber)) {
           alt = !alt;         
         }
+        String codeRequestCategory = (String)row[2];
+        String hybNumber =  (String)row[5];
         
 
         
@@ -174,13 +205,19 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
         n.setAttribute("ownerFirstName", row[28] == null ? "" :  (String)row[28]);
         n.setAttribute("ownerLastName",  row[29] == null ? "" :  (String)row[29]);
-        
-        if (idSlideDesign == null) {
-          n.setAttribute("results", "bioanalyzer");
-        } else {
-          n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));
-        }
 
+        Integer idFlowCellType = row[30] == null || row[30].equals("") ? null : (Integer)row[30];
+        
+        if (idSlideDesign == null && (hybNumber == null || hybNumber.equals(""))) {
+            n.setAttribute("results", "bioanalyzer");
+        } else {
+          if (idSlideDesign != null) {
+            n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
+          } else {
+            n.setAttribute("results", "sequencing");
+          }
+        }
+        
         if (n.getAttributeValue("results").equals("bioanalyzer")) {
           boolean hasMaxQualDate = false;
           if (row[19] != null && !row[19].equals("")) {
@@ -277,7 +314,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         number1 = "0";
          
       } else {
-        String[] hybNumberTokens1 = hybNumber1.split("E");
+        String splitLetter = "";
+        if (hybNumber1.indexOf("E") >= 0) {
+          splitLetter = "E";
+        } else {
+          splitLetter = "X";
+        }
+        String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
         number1 = hybNumberTokens1[hybNumberTokens1.length - 1];        
       }
       
@@ -289,7 +332,14 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         number2 = "0";
           
       } else {
-        String[] hybNumberTokens2 = hybNumber2.split("E");
+        String splitLetter = "";
+        if (hybNumber2.indexOf("E") >= 0) {
+          splitLetter = "E";
+        } else {
+          splitLetter = "X";
+        }
+
+        String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
         number2 = hybNumberTokens2[hybNumberTokens2.length - 1];        
       }
 
