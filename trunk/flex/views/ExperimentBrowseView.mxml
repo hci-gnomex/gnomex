@@ -7,7 +7,7 @@
 
    <mx:HTTPService  
     id="getRequest" 
-    url="http://localhost/gnomex/GetRequest.gx"
+    url="GetRequest.gx"
     destination="getRequest"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -19,7 +19,7 @@
 
    <mx:HTTPService  
     id="getNewProject" 
-    url="http://localhost/gnomex/GetProject.gx"
+    url="GetProject.gx"
     destination="getProject"
     resultFormat="e4x"
     showBusyCursor="true"

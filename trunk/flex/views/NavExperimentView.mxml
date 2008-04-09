@@ -8,7 +8,7 @@
 
   <mx:HTTPService  
     id="getProjectRequestList" 
-    url="http://localhost/gnomex/GetProjectRequestList.gx"
+    url="GetProjectRequestList.gx"
     destination="getProjectRequestList"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -25,7 +25,7 @@
    
    <mx:HTTPService  
     id="getRequest" 
-    url="http://localhost/gnomex/GetRequest.gx"
+    url="GetRequest.gx"
     destination="getRequest"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -37,7 +37,7 @@
    
    <mx:HTTPService  
     id="getProject" 
-    url="http://localhost/gnomex/GetProject.gx"
+    url="GetProject.gx"
     destination="getProject"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -51,7 +51,7 @@
   
   <mx:HTTPService  
     id="saveRequestProject" 
-    url="http://localhost/gnomex/SaveRequestProject.gx"
+    url="SaveRequestProject.gx"
     destination="saveRequestProject"
     resultFormat="e4x"
     showBusyCursor="true"
