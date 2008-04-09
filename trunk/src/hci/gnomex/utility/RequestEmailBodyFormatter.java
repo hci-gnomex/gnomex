@@ -18,6 +18,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
   private Request          request;
   private Set              samples;
   private Set              hybs;
+  private Set              lanes;
   private String           introNote;
   
   private AppUser          appUser;
@@ -26,10 +27,11 @@ public class RequestEmailBodyFormatter extends DetailObject{
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public RequestEmailBodyFormatter(Session sess, DictionaryHelper dictionaryHelper, Request request, Set samples, Set hybs, String introNote) {
+  public RequestEmailBodyFormatter(Session sess, DictionaryHelper dictionaryHelper, Request request, Set samples, Set hybs, Set lanes, String introNote) {
     this.request = request;
     this.samples = samples;
     this.hybs = hybs;
+    this.lanes = lanes;
     this.introNote = introNote;
     
     
@@ -68,11 +70,14 @@ public class RequestEmailBodyFormatter extends DetailObject{
       center1.addContent(formatter.makeHybTable(hybs));          
     }
     
+    if (!lanes.isEmpty()) {
+      center1.addContent(formatter.makeLaneTable(lanes));          
+    }
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     String buf = out.outputString(doc);
     buf = buf.replaceAll("&amp;",    "&");
-    buf = buf.replaceAll("µ",        "&micro");
+    buf = buf.replaceAll("ï¿½",        "&micro");
     buf = buf.replaceAll("&gt;",     ">");
     buf = buf.replaceAll("&lt;",     "<");
     
@@ -96,7 +101,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     String buf = out.outputString(doc);
     buf = buf.replaceAll("&amp;",    "&");
-    buf = buf.replaceAll("µ",        "&micro");
+    buf = buf.replaceAll("ï¿½",        "&micro");
     buf = buf.replaceAll("&gt;",     ">");
     buf = buf.replaceAll("&lt;",     "<");
     

@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
@@ -34,6 +35,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequest.class);
   
+  public String SUCCESS_JSP = "/getHTML.jsp";
+  
   private Integer          idRequest;
   private Request          request;
   
@@ -43,6 +46,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
   private Lab              lab;
   
   private DictionaryHelper dictionaryHelper;
+  
+  
 
   
   public void validate() {
@@ -147,14 +152,18 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (!request.getHybridizations().isEmpty()) {
               center1.addContent(formatter.makeHybTable(request.getHybridizations()));          
             }
-            
+
+            if (!request.getSequenceLanes().isEmpty()) {
+              center1.addContent(formatter.makeLaneTable(request.getSequenceLanes()));          
+            }
+
             
           
             XMLOutputter out = new org.jdom.output.XMLOutputter();
             out.setOmitEncoding(true);
             this.xmlResult = out.outputString(doc);
             this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
-            this.xmlResult = this.xmlResult.replaceAll("µ",     "&micro");
+            this.xmlResult = this.xmlResult.replaceAll("ï¿½",     "&micro");
           } else {
             this.addInvalidField("Insufficient Permission", "Insufficient permission to access this request");      
           }
@@ -201,7 +210,18 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     return this;
   }
   
-  
+
+  /**
+   *  The callback method called after the loadCommand, and execute methods,
+   *  this method allows you to manipulate the HttpServletResponse object prior
+   *  to forwarding to the result JSP (add a cookie, etc.)
+   *
+   *@param  request  The HttpServletResponse for the command
+   *@return          The processed response
+   */
+  public HttpServletResponse setResponseState(HttpServletResponse response) {
+    return response;
+  } 
  
 
   
