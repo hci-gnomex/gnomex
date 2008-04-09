@@ -247,8 +247,8 @@
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
 			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
 			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
-			       	<mx:DataGridColumn headerText="Cy3 Sample" width="50" dataField="@nameSample1"/>
-			       	<mx:DataGridColumn headerText="Cy5 Sample" width="50" dataField="@nameSample2"/>
+			       	<mx:DataGridColumn headerText="Sample 1" width="50" dataField="@nameSample1"/>
+			       	<mx:DataGridColumn headerText="Sample 2" width="50" dataField="@nameSample2"/>
 		         </views:columns>
 		       </views:DataGridAlternatingGroup>
 			</mx:VBox>

@@ -390,6 +390,20 @@
 				}
 			}
 		}
+		public function propagateFlowCellType(idFlowCellType:String):void {
+			if (currentState.indexOf('SolexaSamples') >= 0) {
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@idFlowCellType = idFlowCellType;
+				}
+			}
+		}
+		public function propagateNumberSequencingCycles(idNumberSequencingCycles:String):void {
+			if (currentState.indexOf('SolexaSamples') >= 0) {
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@idNumberSequencingCycles = idNumberSequencingCycles;
+				}
+			}
+		}		
  		public function propagateSolexaLibraryType(idSolexaLibraryType:String):void {
 			if (currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
@@ -518,7 +532,7 @@
 	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" labelFunction="parentApplication.lookupFlowCellType" dataField="@idFlowCellType"/>
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"
 	 					 rendererIsEditor="false" editorDataField="value" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/>
-					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Seq Lanes" width="84" editorDataField="text" dataField="@numberSequencingLanes" itemRenderer="views.renderers.LabelNumberSequencingLanes"  itemEditor="views.renderers.TextInputNumberSequencingLanes" rendererIsEditor="false">
+					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" itemRenderer="views.renderers.LabelNumberSequencingLanes"  itemEditor="views.renderers.TextInputNumberSequencingLanes" rendererIsEditor="false">
 					</mx:DataGridColumn>
 	                <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSamplePrepMethod" labelFunction="parentApplication.lookupSamplePrepMethod" itemEditor="views.renderers.ComboBoxSamplePrepMethod" />

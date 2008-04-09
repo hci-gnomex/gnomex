@@ -62,10 +62,10 @@
             <mx:AddChild relativeTo="{concentrationContainer}" position="after">
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
 					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Should the samples be prepped by the Core facility?" width="340" />
+					<mx:Text text="Should the samples be sequence prepped by the Core facility?" width="340" />
 					<mx:HBox width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}"  label="Yes, please prep the samples" selected="true" />							
-						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" label="No, the samples are already prepped"  />							
+						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}"  label="Yes, please sequence prep the samples" selected="true" />							
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" label="No, the samples are ready for cluster generation"  />							
 					</mx:HBox>
 				</mx:HBox>            	
             </mx:AddChild>
@@ -106,7 +106,7 @@
 					</mx:ComboBox>
 				</mx:HBox>            	
             </mx:AddChild>
-            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
+            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="6"/>
             <mx:SetEventHandler target="{sampleConcentration}" name="change">
             </mx:SetEventHandler>
             <mx:SetProperty target="{sampleOrganismCombo}" name="width" value="170"/>
@@ -121,17 +121,27 @@
             <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
 					<mx:Image source="assets/bullet_orange.png"/>
-					<mx:Label text="Describe how the samples were prepped:" width="340"/>
-					<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();" width="100%"/>			
-					<mx:Spacer width="40"/>				
-					<mx:ComboBox labelField="@display" id="solexaLibraryTypeCombo" change="checkSampleSetupCompleteness();" visible="true">							
-								<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry}</mx:dataProvider>
-					</mx:ComboBox>
-					<mx:Spacer width="40"/>									
-					<mx:CheckBox id="isSizeSelected" label="Size Selected?" click="checkSampleSetupCompleteness();"/>
-					<mx:TextInput id="fragmentSizeFrom" width="50" change="checkSampleSetupCompleteness();"/>	
-					<mx:Label text="-" textAlign="center"/>
-					<mx:TextInput id="fragmentSizeTo" width="50" change="checkSampleSetupCompleteness();"/>
+					<mx:Text text="Describe how the samples were prepared for cluster generation:" width="340"/>
+					<mx:VBox width="100%" verticalGap="2">
+						<mx:HBox width="100%">
+							<mx:Label text="Prep method used:" width="130"/>
+							<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();" width="100%"/>			
+							<mx:Spacer width="10"/>									
+							<mx:Label text="Library type:"/>
+							<mx:ComboBox labelField="@display" id="solexaLibraryTypeCombo" change="checkSampleSetupCompleteness();" visible="true">							
+										<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry}</mx:dataProvider>
+							</mx:ComboBox>
+							
+						</mx:HBox>
+						<mx:HBox>
+							<mx:Label id="isSizeSelected" text="Fragment Size Range:" width="130"/>
+							<mx:TextInput id="fragmentSizeFrom" width="50" change="checkSampleSetupCompleteness();"/>	
+							<mx:Label text="-" textAlign="center"/>
+							<mx:TextInput id="fragmentSizeTo" width="50" change="checkSampleSetupCompleteness();"/>
+							
+						</mx:HBox>
+						
+					</mx:VBox>
 				</mx:HBox>            	
             </mx:AddChild>
             <mx:RemoveChild target="{samplePrepContainer}">            	
@@ -141,11 +151,12 @@
                 <mx:handler>genomeBuildCombo.selectedIndex = 0;alignNotes.text='';checkSampleSetupCompleteness();</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{samplesToBePreppedCheckbox}" name="click">
-                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
+                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="click">
-                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';isSizeSelected.selected = false;solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
+                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
             </mx:SetEventHandler>
+            <mx:SetStyle target="{alignMoreContainer}" name="verticalGap" value="0"/>
         </mx:State>
    	
    </mx:states>
@@ -155,8 +166,9 @@
 		private function checkTotalSample():void {
 			if (sampleConcentration.text != '' && totalVolume.text != '') {
 				var totalSample:Number = Number(sampleConcentration.text) * Number(totalVolume.text);
-				if (totalSample < 25) {
-					totalSampleWarning.visible = true;	
+				if (totalSample < 10) {
+					//totalSampleWarning.visible = true;
+					totalSampleWarning.visible = false;	
 				}  else {
 					totalSampleWarning.visible = false;
 				}
