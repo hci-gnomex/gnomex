@@ -195,7 +195,7 @@
 			<mx:VBox  id="lanesContainer" width="100%" height="100%" >
 				<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" dataProvider="{parentDocument.lanes}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDropLane(event)" itemFocusOut="checkLanesCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
 					<mx:columns>
-					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getLanesGridRowNumber"/>
+					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="false" width="60" dataField="@number"/>
 					    <mx:DataGridColumn  headerText="Sample"  width="120" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
@@ -218,12 +218,11 @@
 		    <mx:AddChild relativeTo="{lanesContainer}" position="before">
 		        <mx:VBox  height="100%" verticalGap="4">
 		            <mx:Label text="Samples"/>
-		        	<views:DataGrid
-		        		dragProxyImage="views.DataGridSampleDragProxy" 
+		        	<mx:DataGrid
 		        		 height="100%" width="100%" 
 		        		 dataProvider="{parentDocument.samples}" labelField="@name" 
 		        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
-						<views:columns>
+						<mx:columns>
 							<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
 				            <!--<mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
 				                <mx:itemRenderer>
@@ -235,8 +234,8 @@
 				                    </mx:Component>
 				                </mx:itemRenderer>
 				            </mx:DataGridColumn> -->		
-						</views:columns> 										        				        		
-		         	</views:DataGrid>
+						</mx:columns> 										        				        		
+		         	</mx:DataGrid>
 		        </mx:VBox>            	
 		    </mx:AddChild>
 		    	

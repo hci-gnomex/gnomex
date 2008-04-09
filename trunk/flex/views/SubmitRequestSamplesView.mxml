@@ -13,12 +13,12 @@
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState') {
 					emptyNode = new XML("<Sample " +
 				    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
+				    " name='' description='' " +
 				    " canChangeSampleName='Y'" +
 				    " canChangeSampleType='Y'" +
 				    " canChangeConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
 				    " canChangeSamplePrepMethod='Y'" +
-				    " name='' description='' " +
    					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" totalVolume='" + parentDocument.sampleSetupView.totalVolume.text + "'" +

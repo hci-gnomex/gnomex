@@ -204,7 +204,12 @@
 	       var colXStart:int = 0;
 	       var colXEnd:int = 0;
 	       for each(var col:DataGridColumn in hybsGrid.columns) {
+	       		if (!col.visible) {
+	       			continue;
+	       		}
 	       		colXEnd += col.width;
+	       		
+	       		
 	       		
 	       		if (event.localX >= colXStart && event.localX <= colXEnd) {
 	       			if (col.headerText == "Cy3 Sample (green)") {
@@ -222,6 +227,7 @@
 		   // The user didn't drag over cy3 or cy5 sample column, so disregard 
 		   // operation.	       
 	       if (!isChannel1Drop && !isChannel2Drop) {
+	       		Alert.show("Please drag sample onto either Cy3 or Cy5 cell of hybs grid");
 		       	event.preventDefault();
 		       	event.target.hideDropFeedback(event);
 		       	DragManager.showFeedback(DragManager.NONE);
@@ -307,12 +313,11 @@
     <mx:VBox width="100%" height="100%" verticalGap="0">
 	    <mx:HDividedBox height="100%" width="100%">
 	        <mx:Panel  title="Samples" height="100%" verticalGap="4">
-	        	<views:DataGrid
-	        		dragProxyImage="views.DataGridSampleDragProxy" 
+	        	<mx:DataGrid
 	        		 height="100%" width="100%" 
 	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
 	        		 dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
-					<views:columns>
+					<mx:columns>
 						<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
 			            <mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
 			                <mx:itemRenderer>
@@ -326,9 +331,9 @@
 			                    </mx:Component>
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
-					</views:columns>
+					</mx:columns>
 								        				        		
-	         	</views:DataGrid>
+	         	</mx:DataGrid>
 	        </mx:Panel>
 			<mx:Panel  id="hybsContainer" width="100%" height="100%">
 			   <mx:title><![CDATA[Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)]]></mx:title>
