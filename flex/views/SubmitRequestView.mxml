@@ -629,8 +629,11 @@
 		private function onGetRequestToClone(event:ResultEvent):void {
 			
 			var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
-			if (setupView.requestTypeGroup.selectedValue == "QC" || setupView.requestTypeGroup.selectedValue == "SOLEXA") {
+			if (isSolexaState() || currentState == 'QCState') {
 				clonedRequest.replace("hybridizations", <hybridizations></hybridizations>); 	
+			} 
+			if (!isSolexaState()) {
+				clonedRequest.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 	
 			} 
 			
 			request = clonedRequest;
@@ -656,6 +659,13 @@
 				sample.@qualCalcConcentration="";
 				sample.@qualStatus = "";
 				sample.@treatment = "";
+				sample.@canChangeSampleName='Y';
+				sample.@canChangeSampleType='Y';
+				sample.@canChangeConcentration='Y';
+				sample.@canChangeSampleSource='Y';
+				sample.@canChangeSamplePrepMethod='Y';
+   				sample.@canChangeNumberSequencingLanes='Y'; 
+   				sample.@numberSequencingLanes = '';
 			}
 			for each(var hyb:Object in hybs) {
 				 // If this is a 1 channel kind if request, clear out channel2 of the cloned request
@@ -697,6 +707,9 @@
 				 hyb.@arrayCoordinateName=""; 
 				 hyb.@hybStatus=""; 
 				 hyb.@extractionStatus="";
+			     hyb.@canChangeSampleDesignations='Y';
+			     hyb.@canChangeSlideSource='Y';
+			     hyb.@canChangeSlideDesign='Y';
 			}
 			
 
