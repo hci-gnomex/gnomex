@@ -228,7 +228,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     }
     
     if (send) {
-      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), introNote.toString());
+      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
       
       
       MailUtil.send(request.getAppUser().getEmail(), 

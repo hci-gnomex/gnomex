@@ -745,7 +745,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the Microarray Core Facility.  You will receive email notification when the experiment is complete.");
     introNote.append("<br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, requestParser.getRequest(), samples, hybs, introNote.toString());
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, requestParser.getRequest(), samples, hybs, sequenceLanes, introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;

@@ -1,7 +1,10 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.FlowCellType;
+import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -34,6 +37,9 @@ public class DictionaryHelper implements Serializable {
   private Map              slideSourceMap = new HashMap();
   private Map              sampleSourceMap = new HashMap();
   private Map              organismMap = new HashMap();
+  private Map              flowCellTypeMap = new HashMap();
+  private Map              numberSequencingCyclesMap = new HashMap();
+  private Map              genomeBuildMap = new HashMap();
   
   
   public DictionaryHelper() {    
@@ -97,6 +103,21 @@ public class DictionaryHelper implements Serializable {
       Organism org = (Organism)i.next();
       organismMap.put(org.getIdOrganism(), org.getOrganism());
     }
+    List flowCells = sess.createQuery("SELECT fc from FlowCellType as fc").list();
+    for(Iterator i = flowCells.iterator(); i.hasNext();) {
+      FlowCellType fc = (FlowCellType)i.next();
+      flowCellTypeMap.put(fc.getIdFlowCellType(), fc.getFlowCellType());
+    }    
+    List numberSequencingCycles = sess.createQuery("SELECT sc from NumberSequencingCycles as sc").list();
+    for(Iterator i = numberSequencingCycles.iterator(); i.hasNext();) {
+      NumberSequencingCycles sc = (NumberSequencingCycles)i.next();
+      this.numberSequencingCyclesMap.put(sc.getIdNumberSequencingCycles(), sc.getNumberSequencingCycles());
+    }    
+    List genomeBuilds = sess.createQuery("SELECT gb from GenomeBuild as gb").list();
+    for(Iterator i = genomeBuilds.iterator(); i.hasNext();) {
+      GenomeBuild gb = (GenomeBuild)i.next();
+      genomeBuildMap.put(gb.getIdGenomeBuild(), gb.getGenomeBuildName());
+    }    
   }
   
   public String getSampleType(Sample sample) {
@@ -203,7 +224,28 @@ public class DictionaryHelper implements Serializable {
   public RequestCategory getRequestCategoryObject(String code) {
     return (RequestCategory)requestCategoryMap.get(code);
   }
+  public String getFlowCellType(Integer id) {
+    String name = "";
+    if (id != null) {
+      name = (String)flowCellTypeMap.get(id);
+    }
+    return name;
+  }
+  public String getNumberSequencingCycles(Integer id) {
+    String name = "";
+    if (id != null) {
+      name = (String)numberSequencingCyclesMap.get(id).toString();
+    }
+    return name;
+  }
   
+  public String getGenomeBuild(Integer id) {
+    String name = "";
+    if (id != null) {
+      name = (String)genomeBuildMap.get(id);
+    }
+    return name;
+  }
   public Map getChipMap() {
     return chipMap;
   }
