@@ -455,6 +455,32 @@
         	} 
         	return sampleName;
         }
+		public function getSampleChannel1Number(item:Object,col:int):String
+        {
+        	var sampleNumber:String = "";
+        	if (hybsView.hybsGrid!= null) {
+        		for each(var sample:Object in samples) {
+        			if (sample.@idSample == item.@idSampleChannel1) {
+        				sampleNumber = sample.@number;
+        				break;
+        			}
+        		}
+        	} 
+        	return sampleNumber;
+        }
+		public function getSampleChannel2Number(item:Object,col:int):String
+        {
+        	var sampleNumber:String = "";
+        	if (hybsView.hybsGrid!= null) {
+        		for each(var sample:Object in samples) {
+        			if (sample.@idSample == item.@idSampleChannel2) {
+        				sampleNumber = sample.@number;
+        				break;
+        			}
+        		}
+        	} 
+        	return sampleNumber;
+        }        
         
 		public function getLanesGridRowNumber(item:Object,col:int):String
         {
@@ -715,7 +741,7 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 			
-			annotationView.enabled = true;			
+			annotationView.enabled = true;
 			samplesView.enabled = true;			
 
 			// Make sure we render the annotation tab because
