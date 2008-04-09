@@ -202,7 +202,7 @@
             
             public function hasPermission(permission:String):Boolean {
             	var hasPermission:Boolean = false;
-				var thePermission:Object = createSecurityAdvisor.lastResult..Permission.(@name == permission);
+				var thePermission:Object = createSecurityAdvisor.lastResult.globalPermissions.Permission.(@name == permission);
 				if (thePermission.length() > 0) { 
 					hasPermission = true;
 				}
@@ -210,7 +210,7 @@
             }
             
             public function hasGroupsToManage():Boolean {
-            	var groupsToManage:XMLList = createSecurityAdvisor.lastResult..groupsToManage.Lab;
+            	var groupsToManage:XMLList = createSecurityAdvisor.lastResult.groupsToManage.Lab;
             	if (groupsToManage.length() > 0) {
             		return true;
             	} else {
@@ -219,7 +219,7 @@
             }
             
             public function canSubmitRequests(idLab:int):Boolean {
-            	var theLab:Object = getLabList.lastResult..Lab.(@idLab == idLab);
+            	var theLab:Object = getLabList.lastResult.groupsToManage.Lab.(@idLab == idLab);
             	if (theLab != null && theLab.@canSubmitRequests == 'Y') {
             		return true;
             	} else {
@@ -234,7 +234,7 @@
 				} 
 				if (!hasPermission("canSubmitRequests")) {
 					theViews.removeChild(submitRequestView);
-				}
+				} 
 				if (!hasPermission("canManageWorkflow")) {
 					theViews.removeChild(navWorkflowView);
 					theViews.removeChild(slideManagementView);
@@ -532,7 +532,7 @@
     	
 	<mx:HTTPService 
     id="createSecurityAdvisor" 
-    url="http://localhost/gnomex/CreateSecurityAdvisor.gx"
+    url="CreateSecurityAdvisor.gx"
     resultFormat="e4x"
     result="onCreateSecurityAdvisor(event)"
     destination="createSecurityAdvisor"
@@ -545,7 +545,7 @@
     
     <mx:HTTPService 
     id="getAppUserList" 
-    url="http://localhost/gnomex/GetAppUserList.gx"
+    url="GetAppUserList.gx"
     resultFormat="e4x"
     result="onGetAppUserList(event)"
     destination="getAppUserList"
@@ -558,7 +558,7 @@
         
     <mx:HTTPService 
     id="manageDictionaries" 
-    url="http://localhost/gnomex/ManageDictionaries.gx"
+    url="ManageDictionaries.gx"
     resultFormat="e4x"
         result="onManageDictionaries(event)"
     destination="manageDictionaries"
@@ -571,7 +571,7 @@
     
     <mx:HTTPService 
     id="getExperimentDesignList" 
-    url="http://localhost/gnomex/GetExperimentDesignList.gx"
+    url="GetExperimentDesignList.gx"
     resultFormat="e4x"
     showBusyCursor="false"
     destination="getExperimentDesignList"
@@ -583,7 +583,7 @@
     
     <mx:HTTPService 
     id="getExperimentFactorList" 
-    url="http://localhost/gnomex/GetExperimentFactorList.gx"
+    url="GetExperimentFactorList.gx"
     resultFormat="e4x"
     showBusyCursor="false"
     result="onGetExperimentFactorList(event)"
@@ -596,7 +596,7 @@
          
     <mx:HTTPService 
     id="getLabList" 
-    url="http://localhost/gnomex/GetLabList.gx"
+    url="GetLabList.gx"
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetLabList(event)"
@@ -609,7 +609,7 @@
     
     <mx:HTTPService 
     id="getSlideProductList" 
-    url="http://localhost/gnomex/GetSlideProductList.gx"
+    url="GetSlideProductList.gx"
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetSlideProductList(event)"
@@ -622,7 +622,7 @@
         
     <mx:HTTPService 
     id="getSlideDesignList" 
-    url="http://localhost/gnomex/GetSlideDesignList.gx"
+    url="GetSlideDesignList.gx"
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetSlideDesignList(event)"
@@ -634,7 +634,7 @@
     
     <mx:HTTPService 
     id="getProjectList" 
-    url="http://localhost/gnomex/GetProjectList.gx"
+    url="GetProjectList.gx"
     resultFormat="e4x"
     result="onGetProjectList(event)"
     destination="getProjectList"
