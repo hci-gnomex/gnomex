@@ -7,7 +7,6 @@ import java.io.Serializable;
 
 public class SamplePrepMethodSampleType extends DictionaryEntry implements Serializable {
   private Integer  idSamplePrepMethodSampleType;
-  private String   codeRequestCategory;
   private Integer  idSamplePrepMethod;
   private Integer  idSampleType;
   private String   isDefaultForSampleType;
@@ -74,15 +73,6 @@ public class SamplePrepMethodSampleType extends DictionaryEntry implements Seria
     this.isDefaultForSampleType = isDefaultForSampleType;
   }
 
-  
-  public String getCodeRequestCategory() {
-    return codeRequestCategory;
-  }
-
-  
-  public void setCodeRequestCategory(String codeRequestCategory) {
-    this.codeRequestCategory = codeRequestCategory;
-  }
   
 
 }

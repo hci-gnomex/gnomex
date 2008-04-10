@@ -630,7 +630,6 @@
 		<id name="idSamplePrepMethodSampleType" column="idSamplePrepMethodSampleType" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="isDefaultForSampleType" column="isDefaultForSampleType" type="string"/>
