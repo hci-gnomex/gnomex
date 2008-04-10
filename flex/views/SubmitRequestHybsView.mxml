@@ -318,14 +318,14 @@
 	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
 	        		 dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
 					<mx:columns>
-						<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
-			            <mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+						<mx:DataGridColumn headerText = "Samples" width="90" dataField="@name"/>
+			            <mx:DataGridColumn width="30"  labelFunction="getChannelCountLabelFunction" headerText="">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
-			                          <mx:Image source="{data.@channel1Count > 0 ? '../assets/bullet_green.png' : ''}">
+			                          <mx:Image source="{data.@channel1Count > 0 ? parentApplication.iconGreenBullet : ''}">
 			                    	 </mx:Image> 
-			                          <mx:Image source="{data.@channel2Count > 0 ? '../assets/bullet_red.png' : ''}">
+			                          <mx:Image source="{data.@channel2Count > 0 ? parentApplication.iconRedBullet : ''}">
 			                    	 </mx:Image> 
 			                        </mx:HBox>
 			                    </mx:Component>
@@ -364,7 +364,7 @@
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
-			                          <mx:Image id="experimentImage"  source="{data.@showSlideIcon == 'Y' ? '../assets/color_swatch.png' : ''}">
+			                          <mx:Image id="experimentImage"  source="{data.@showSlideIcon == 'Y' ? parentApplication.iconExperiment : ''}">
 			                    	 </mx:Image> 
 			                          <mx:Label  text="{data.@showSlideIcon == 'Y' ? data.@slideNumber : ''}">
 			                    	 </mx:Label>  

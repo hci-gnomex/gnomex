@@ -53,6 +53,14 @@
 	       	[Bindable]
 	        [Embed(source="assets/bullet_orange.png")]
 	        public var iconBullet:Class;
+	    
+	       	[Bindable]
+	        [Embed(source="assets/bullet_green.png")]
+	        public var iconGreenBullet:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/bullet_red.png")]
+	        public var iconRedBullet:Class;
 	        
 	        [Bindable]
 	        [Embed(source="assets/map.png")]

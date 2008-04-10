@@ -238,21 +238,10 @@
 		
 		public function initializeForm():void {	
 			theTab.creationPolicy = 'all';
-			hybsView.showWorkflowLabel.visible = false;
-			samplesView.showQCFieldsCheckBox.visible = false;
-			hybsView.showCy3LabelingFieldsCheckBox.visible = false;
-			hybsView.showCy5LabelingFieldsCheckBox.visible = false;
-			hybsView.showHybFieldsCheckBox.visible = false;
-			hybsView.showExtFieldsCheckBox.visible = false;
+
 			if (setupView == null) {
 				return;
 			}
-
-			hybSetupView.label = "Hyb setup";
-			hybSetupView.numberOfHybsContainer.visible = true;
-			hybSetupView.slideSourceContainer.visible = true;
-
-			
 			setupView.enabled = true;
 			theTab.selectedChild = setupView;
 			
@@ -270,8 +259,14 @@
 			setupView.requestRadioQC.selected = false;
 			setupView.requestRadioSolexa.selected = false;
 			setupView.submitNewRequestRadio.selected = true;
+
+			samplesView.showQCFieldsCheckBox.visible = false;
+			samplesView.enabled = false;			
 			
-			
+			if (theTab.contains(hybsView)) {
+				hybsView.enabled = false;
+			}
+
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = '';
 				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
@@ -286,6 +281,10 @@
 			}
 					
 			if (theTab.contains(hybSetupView)) {
+				hybSetupView.label = "Hyb setup";
+				hybSetupView.numberOfHybsContainer.visible = true;
+				hybSetupView.slideSourceContainer.visible = true;
+
 				hybSetupView.organismCombo.selectedIndex = -1;
 				hybSetupView.microarrayCategoryCombo.selectedIndex = -1;
 				hybSetupView.slideProductCombo.selectedIndex = -1;
@@ -294,42 +293,24 @@
 				hybSetupView.coreSlideSourceCheckbox.selected = false;
 			 	hybSetupView.clientSlideSourceCheckbox.selected = false;
 				hybSetupView.stripSlideSourceCheckbox.selected = false;
+
+				hybSetupView.organismCombo.enabled = true;
+				hybSetupView.microarrayCategoryCombo.enabled = true;
+				hybSetupView.slideProductCombo.enabled = true;
+				hybSetupView.isCatalogRadio.enabled = true;
+				hybSetupView.isCustomRadio.enabled = true;
+				
+				hybSetupView.enabled = false;
 				
 			}	
 			
 			
-			if (theTab.contains(samplesView)) {
-				samplesView.enabled = false;			
-			}
-			if (theTab.contains(hybSetupView)) {
-				hybSetupView.enabled = false;
-			}
-			if (theTab.contains(hybsView)) {
-				hybsView.enabled = false;
-			}
 			if (theTab.contains(confirmView)) {
 				confirmView.enabled = false;
 				if (confirmButtonStack != null) {
 					confirmButtonStack.selectedIndex = 0;
 				}
 			}
-			
-			
-			samplesView.addSampleButton.visible = true;
-			samplesView.copySampleButton.visible = true;
-			samplesView.deleteSampleButton.visible = true;
-			samplesView.clearSamplesButton.visible = true;
-			hybsView.addHybButton.visible = true;
-			hybsView.copyHybButton.visible = true;
-			hybsView.deleteHybButton.visible = true;
-			hybsView.clearHybsButton.visible = true;
-
-			hybSetupView.organismCombo.enabled = true;
-			hybSetupView.microarrayCategoryCombo.enabled = true;
-			hybSetupView.slideProductCombo.enabled = true;
-			hybSetupView.isCatalogRadio.enabled = true;
-			hybSetupView.isCustomRadio.enabled = true;
-			
 		}
 		
 		
@@ -392,7 +373,7 @@
 					this.sampleSetupView.currentState = '';
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
-					this.hybsView.currentState = '';
+					this.hybsView.currentState = 'HybsState';
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
@@ -541,10 +522,8 @@
         	   	var applicableSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
         	   	for each (var xref:Object in applicableSamplePrepMethods) {
         	   		if (xref.@idSampleType.toString() == sampleSetupView.sampleTypeCombo.selectedItem.@value.toString()) {
-    	   				if (xref.@codeRequestCategory.toString() == '' || xref.@codeRequestCategory.toString() == setupView.requestTypeGroup.selectedValue) {
-        	   		    	doesMatch = true;
-	    	   		    	break;
-	    	   		 	}        	   				
+    	   				doesMatch = true;
+	    	   		    break;
         	   		}
         	   	}
         	}
