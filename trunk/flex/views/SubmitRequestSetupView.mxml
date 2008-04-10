@@ -351,10 +351,10 @@
 				<mx:HBox width="100%">
 				    <mx:Spacer width="240"/>
 					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff">
-						<mx:click>navigateToURL(new URLRequest('https://hci-as1.hci.utah.edu/gnomex/microarray_work_authorization_form_0906.pdf'), '_blank');</mx:click>
+						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_0906.pdf'), '_blank');</mx:click>
 					</mx:LinkButton>
 					<mx:LinkButton label="Work authorization form (Microsoft work doc)" textDecoration="underline" useHandCursor="true" color="#0000ff">
-						<mx:click>navigateToURL(new URLRequest('https://hci-as1.hci.utah.edu/gnomex/microarray_work_authorization_form_0906.doc'), '_blank');</mx:click>
+						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_0906.doc'), '_blank');</mx:click>
 					</mx:LinkButton>
 				</mx:HBox>
 				

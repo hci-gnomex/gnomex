@@ -1250,8 +1250,6 @@
 				submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
 
 				confirmButtonStack.selectedIndex = 2;
-				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted. Please print off the request form and deliver it along with your samples to the Microarray Core Facility.';
-				Alert.show(message); 
  				nextButton.enabled = false;
 				backButton.enabled = false;
 				
@@ -1272,10 +1270,22 @@
 						hybsView.enabled = false;
 					}					
 				} 
+
+				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the Microarray Core Facility.';
+				Alert.show(message, "Request Submitted", 0, this, onNotifySubmitRequest);
 				
 			} else {
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
+		}
+		
+		private function onNotifySubmitRequest(event:CloseEvent):void {
+			if (event.detail==Alert.OK) {
+				showPrintableRequestForm();
+			} else {
+				
+			}
+
 		}
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {
@@ -1349,7 +1359,6 @@
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="none"  paddingTop="0" paddingRight="2" paddingLeft="2">
-								<mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed('../assets/page.png')"/>
 								<mx:HBox width="100%" >
 									<mx:Text width="100%" color="#0000ff" condenseWhite="true" letterSpacing=".1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" leading="0" height="28">
 									</mx:Text>
