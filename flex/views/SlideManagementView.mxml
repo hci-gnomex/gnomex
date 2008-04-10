@@ -6,7 +6,7 @@
 
 	<mx:HTTPService
 		id="getSlideProductList"
-		url="http://localhost/gnomex/GetSlideProductList.gx"
+		url="GetSlideProductList.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
@@ -17,7 +17,7 @@
 	
 	<mx:HTTPService
 		id="getSlideDesign"
-		url="http://localhost/gnomex/GetSlideDesign.gx"
+		url="GetSlideDesign.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
@@ -28,7 +28,7 @@
 	
 	<mx:HTTPService
 		id="getSlideProduct"
-		url="http://localhost/gnomex/GetSlideProduct.gx"
+		url="GetSlideProduct.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"

@@ -1,0 +1,180 @@
+/* CSS file */
+.tab {
+    background-color: #e1e1e1
+}
+
+.panel {
+    background-color: #e1e1e1
+}
+
+
+.catalogPanel
+{
+    highlightAlphas:        .7, .6, .5, .25;
+    headerColors:           #456F84, #9ABBC9;
+    borderAlpha:            1;
+    borderColor:            #FFFFFF;
+    borderThicknessRight:   1;
+    borderThicknessBottom:  1;
+    paddingRight:           0;
+    paddingBottom:          0;
+}
+
+
+.cy3 {
+    color: #008000;
+    fontSize: 10;
+    fontWeight: bold;
+}
+
+.cy5 {
+    color: #800000;
+    fontSize: 10;
+    fontWeight: bold;
+}
+
+
+
+
+
+.form {
+	  backgroundColor: #e3ecf4;
+}
+
+ Button {
+        fillAlphas: 1, 1;
+        fontWeight: normal;
+}
+
+
+
+TabNavigator {
+        backgroundColor: #2e63a5;
+	    backgroundAlpha:            .1;
+	    tabStyleName:      tabHeader;
+		selectedTabTextStyleName: tabHeaderTextSelected;
+}
+
+.tabHeader {
+	fillColors: #FFFFFF, #FFFFFF; 
+	fillAlphas:  .2, .2;
+ 	    fontWeight: 		normal;		    
+	    backgroundAlpha:            .1;
+}
+
+.userTabNavigator {
+	    backgroundAlpha:            1;
+	    tabStyleName:      userTabHeader;
+		selectedTabTextStyleName: tabHeaderTextSelected;
+	    backgroundColor: #A1A79D;
+	    borderColor: #A1A79D;
+}
+
+.userTabHeader {
+	fillColors: #A1A79D, #A1A79D;
+	fillAlphas:  1, 1;
+ 	fontWeight: 		normal;		   
+
+}
+.userTabHeaderTextSelected {
+	    fontWeight:  bold;
+}
+
+.tabHeaderTextSelected {
+	    fontWeight:  bold;
+}
+
+ApplicationControlBar {
+	fillColors: #548db8, #97b8d2; 
+}
+
+LinkBar {
+	    fontWeight: normal;
+	    disabledColor: #FFFFFF; 
+	    rollOverColor: #FFFFFF; 
+	    selectionColor: #FFFFFF;
+	    useHandCursor: true;
+}
+
+
+
+DataGrid {
+	headerStyleName: header;
+}
+.header {
+	    fontWeight: normal;
+
+}
+
+ComboBox {
+	fontWeight: normal;
+}
+
+
+Panel {
+   borderThicknessLeft: 4;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: false;
+   headerHeight: 23;
+   footerColors: #A1A79D, #A1A79D;
+   titleStyleName: panelTitle;
+   borderColor: #A1A79D;
+   borderAlpha: 1.0;
+   controlBarStyleName: panelControlBar;
+}
+.panelControlBar {
+	roundedBottomCorners: false;
+}
+.panelTitle {
+	fontWeight: normal;
+}
+
+TitleWindow {
+   borderThicknessLeft: 4;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: false;
+   headerHeight: 28;
+   footerColors: #A1A79D, #A1A79D;
+   titleStyleName: titleBarTitle;
+   borderColor: #A1A79D;
+   borderAlpha: 1.0;
+   controlBarStyleName: panelControlBar;
+}
+.titleBarTitle {
+	fontWeight: bold;
+}
+
+ControlBar {
+	paddingLeft: 4;
+	paddingTop: 4;
+	paddingBottom: 4;
+	paddingRight: 4;
+	
+}
+        
+
+
+
+RadioButton {
+	disabledColor: #5f5f5f;
+}
+TextInput {
+	disabledColor: #5f5f5f;
+}
+TextArea {
+	disabledColor: #5f5f5f;
+}
+
+
+
+
+
+
+
+
+
+

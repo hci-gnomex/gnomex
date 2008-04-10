@@ -5,7 +5,7 @@
 	  
   <mx:HTTPService  
     id="saveGroup" 
-    url="http://localhost/gnomex/SaveLab.gx"
+    url="SaveLab.gx"
     destination="saveGroup" 
     resultFormat="e4x"
     showBusyCursor="true"

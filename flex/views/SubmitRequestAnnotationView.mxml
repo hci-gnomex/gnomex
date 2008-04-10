@@ -133,7 +133,7 @@
 		<mx:HBox width="100%" height="100%" horizontalGap="24">
 			<mx:VBox height="100%">
 			    <mx:HBox>
-				    <mx:Image source="assets/bullet_orange.png"/>
+				    <mx:Image source="{parentApplication.iconBullet}"/>
 				    <mx:Text  htmlText="Specify all sample characteristics you wish to &lt;BR&gt; annotate in subsequent columns:"/>
 			    	
 			    </mx:HBox>
@@ -177,7 +177,7 @@
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%">
 				<mx:HBox>
-					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%" height="28"/>
 					
 				</mx:HBox>

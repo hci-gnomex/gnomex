@@ -5,7 +5,7 @@
 	
 	<mx:HTTPService 
     id="getWorkList" 
-    url="http://localhost/gnomex/GetWorkItemList.gx"
+    url="GetWorkItemList.gx"
     resultFormat="e4x"
     destination="getWorkList"
     showBusyCursor="true"
@@ -19,7 +19,7 @@
     
     <mx:HTTPService 
     id="saveWorkItem" 
-    url="http://localhost/gnomex/SaveWorkItemExtraction.gx"
+    url="SaveWorkItemExtraction.gx"
     resultFormat="e4x"
     destination="saveWorkItem"
     showBusyCursor="true"

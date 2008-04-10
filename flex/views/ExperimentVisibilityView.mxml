@@ -5,7 +5,7 @@
 
    <mx:HTTPService  
     id="saveVisibility" 
-    url="http://localhost/gnomex/SaveVisibility.gx"
+    url="SaveVisibility.gx"
     destination="saveVisibility"
     resultFormat="e4x"
     showBusyCursor="true"

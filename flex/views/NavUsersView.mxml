@@ -8,7 +8,7 @@
 
      <mx:HTTPService 
     id="getAppUserList" 
-    url="http://localhost/gnomex/GetAppUserList.gx"
+    url="GetAppUserList.gx"
     resultFormat="e4x"
     result="resultHandler(event)"
     destination="getAppUserList"
@@ -19,7 +19,7 @@
     
     <mx:HTTPService 
     id="getAppUser" 
-    url="http://localhost/gnomex/GetAppUser.gx"
+    url="GetAppUser.gx"
     destination="getAppUser"
     showBusyCursor="true"
     resultFormat="e4x"
@@ -32,7 +32,7 @@
     
     <mx:HTTPService 
     id="deleteAppUser" 
-    url="http://localhost/gnomex/DeleteAppUser.gx"
+    url="DeleteAppUser.gx"
     destination="deleteAppUser"
     showBusyCursor="true"
     resultFormat="e4x"
@@ -45,7 +45,7 @@
     
      <mx:HTTPService 
     id="getLabList" 
-    url="http://localhost/gnomex/GetLabList.gx"
+    url="GetLabList.gx"
     showBusyCursor="true"
     resultFormat="e4x"
     result="resultHandler(event)"
@@ -58,7 +58,7 @@
     
     <mx:HTTPService 
     id="getLab" 
-    url="http://localhost/gnomex/GetLab.gx"
+    url="GetLab.gx"
     destination="getLab"
     showBusyCursor="true"
     resultFormat="e4x"
@@ -72,7 +72,7 @@
     
     <mx:HTTPService 
     id="deleteLab" 
-    url="http://localhost/gnomex/DeleteLab.gx"
+    url="DeleteLab.gx"
     destination="deleteLab"
     showBusyCursor="true"
     resultFormat="e4x"

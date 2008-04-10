@@ -15,7 +15,7 @@
 
     <mx:HTTPService 
     id="saveAppUser" 
-    url="http://localhost/gnomex/SaveAppUser.gx"
+    url="SaveAppUser.gx"
     showBusyCursor="true"
     resultFormat="e4x"
     useProxy="false">

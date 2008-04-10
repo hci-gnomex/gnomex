@@ -9,7 +9,7 @@
         	<mx:AddChild  relativeTo="{sampleSetupContainer}">
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
 					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="assets/bullet_orange.png"/>
+						<mx:Image source="{parentApplication.iconBullet}"/>
 						<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
 					</mx:HBox>
 					<mx:HBox width="100%">
@@ -61,7 +61,7 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{concentrationContainer}" position="after">
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Text text="Should the samples be sequence prepped by the Core facility?" width="340" />
 					<mx:HBox width="100%">
 						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}"  label="Yes, please sequence prep the samples" selected="true" />							
@@ -90,7 +90,7 @@
             <mx:SetProperty target="{label2}" name="text" value="Select a sample preparation method:"/>
             <mx:AddChild relativeTo="{sampleSetupContainer}" >
 				<mx:HBox id="flowCellContainer" width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the flow cell type to be used:" width="340" />
 					<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateFlowCellType();checkSampleSetupCompleteness();">
 						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
@@ -99,7 +99,7 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{sampleSetupContainer}" >
 				<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the minimum number of sequencing cycles:" width="340" />
 					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
 						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
@@ -120,7 +120,7 @@
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
             <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
-					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Text text="Describe how the samples were prepared for cluster generation:" width="340"/>
 					<mx:VBox width="100%" verticalGap="2">
 						<mx:HBox width="100%">
@@ -357,40 +357,40 @@
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="How many samples will you be submitting?" width="340" />
 				<mx:TextInput width="40" id="numberOfSamples" change="parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the organism of your samples:" width="340"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the source of your samples:" width="340"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Enter the approximate sample concentration:" width="340"/>
 				<mx:TextInput width="40" id="sampleConcentration" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
 				<mx:Label text="ng/µL" id="concentrationLabel"/>
 				<mx:Spacer width="25"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
 				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
 					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
