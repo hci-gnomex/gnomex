@@ -5,7 +5,7 @@
 
    <mx:HTTPService  
     id="getExpandedFileList" 
-    url="http://localhost/gnomex/GetExpandedFileList.gx"
+    url="GetExpandedFileList.gx"
     destination="getExpandedFileList"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -19,7 +19,7 @@
 
    <mx:HTTPService  
     id="cacheFileDownloadList" 
-    url="http://localhost/gnomex/CacheFileDownloadList.gx"
+    url="CacheFileDownloadList.gx"
     destination="cacheFileDownloadList"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -34,7 +34,7 @@
     
     <mx:HTTPService  
     id="getRequestDownloadList" 
-    url="http://localhost/gnomex/GetRequestDownloadList.gx"
+    url="GetRequestDownloadList.gx"
     destination="getRequestDownloadList"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -45,7 +45,7 @@
     
     <mx:HTTPService  
     id="getDownloadEstimatedSize" 
-    url="http://localhost/gnomex/GetDownloadEstimatedSize.gx"
+    url="GetDownloadEstimatedSize.gx"
     destination="getDownloadEstimatedSize"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -80,8 +80,8 @@
     
     private var estimatedDownloadSize:Number;
     
-    private const DOWNLOAD_FOLDERS_URL:String = "http://localhost/gnomex/DownloadResultsServlet.gx"; 
-    private const DOWNLOAD_FILES_URL:String   = "http://localhost/gnomex/DownloadFileServlet.gx"; 
+    private const DOWNLOAD_FOLDERS_URL:String = "DownloadResultsServlet.gx"; 
+    private const DOWNLOAD_FILES_URL:String   = "DownloadFileServlet.gx"; 
     
     [Bindable]
     public var resultKeys:String;  

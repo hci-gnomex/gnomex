@@ -5,7 +5,7 @@
    	
    <mx:HTTPService  
     id="getLab" 
-    url="http://localhost/gnomex/GetLab.gx"
+    url="GetLab.gx"
     destination="getLab"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -19,7 +19,7 @@
   
    <mx:HTTPService  
     id="getNewProject" 
-    url="http://localhost/gnomex/GetProject.gx"
+    url="GetProject.gx"
     destination="getProject"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -33,7 +33,7 @@
 
   <mx:HTTPService  
     id="getProject" 
-    url="http://localhost/gnomex/GetProject.gx"
+    url="GetProject.gx"
     destination="getProject"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -44,7 +44,7 @@
   
     <mx:HTTPService  
     id="getProjectForEdit" 
-    url="http://localhost/gnomex/GetProject.gx"
+    url="GetProject.gx"
     destination="getProjectForEdit"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -55,7 +55,7 @@
   
   <mx:HTTPService  
     id="getProjectRequestList" 
-    url="http://localhost/gnomex/GetProjectRequestList.gx"
+    url="GetProjectRequestList.gx"
     destination="getProjectRequestList"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -292,7 +292,7 @@
 		<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
 			<mx:VBox width="100%" verticalGap="1">
 			    <mx:HBox width="100%" horizontalGap="0">
-			    <mx:Image source="assets/bullet_orange.png" autoLoad="true"/>
+			    <mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
 			    <mx:Label text="Select a request type:" width="240"/>
 					<mx:HBox width="100%" horizontalGap="8">
 						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
@@ -317,7 +317,7 @@
 			    </mx:HBox>
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="assets/bullet_orange.png" autoLoad="true"/>
+				<mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
 				<mx:Label text="Select the lab submitting this request:" width="240"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
@@ -335,7 +335,7 @@
 			</mx:HBox>
 			<mx:VBox width="100%" verticalGap="0">
 				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Image source="assets/bullet_orange.png"/>
+					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the account to be billed:" width="240"/>
 					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" change="checkSetupCompleteness()">
 						<mx:dataProvider>{labCombo.selectedItem.billingAccounts.BillingAccount}</mx:dataProvider>
@@ -360,7 +360,7 @@
 				
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="assets/bullet_orange.png"/>
+				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text width="240" height="50">
 					<mx:htmlText>Select a project or create a new project which describes the overall experimental purpose and design:</mx:htmlText>
 				</mx:Text>
@@ -375,7 +375,7 @@
 			</mx:HBox>
 			<mx:VBox width="100%" verticalGap="1">
 			    <mx:HBox horizontalGap="0">
-			    <mx:Image source="assets/bullet_orange.png"/>
+			    <mx:Image source="{parentApplication.iconBullet}"/>
 			    <mx:Label text="Pick a starting point:" width="240"/>
 			    	<mx:VBox verticalGap="2" width="100%">
 						<mx:RadioButton groupName="requestTemplateGroup" label="Submit a new request from scratch" selected="true" id="submitNewRequestRadio"/>							

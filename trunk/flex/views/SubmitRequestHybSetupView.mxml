@@ -184,7 +184,7 @@
 </mx:Script>
 	<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Image source="{parentApplication.iconBullet}"/>
 			<mx:Label text="Select an organism:" width="300" />
 			<mx:ComboBox labelField="@display" width="300" id="organismCombo">							
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
@@ -192,7 +192,7 @@
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Image source="{parentApplication.iconBullet}"/>
 			<mx:Label text="Select an experiment category:" width="300" />
 			<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(parentDocument.checkForSampleTypeCompatibility)</mx:change>
@@ -200,7 +200,7 @@
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Image source="{parentApplication.iconBullet}"/>
 			<mx:Label text="Select on of the following:" width="300" />
 			<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
 			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(parentDocument.checkForSampleTypeCompatibility)">
@@ -211,7 +211,7 @@
 			</mx:RadioButton>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Image source="{parentApplication.iconBullet}"/>
 			<mx:Text width="300">
 				<mx:htmlText><![CDATA[Select the microarray slide or slide set to be used <BR> for these hybridizations:]]></mx:htmlText>
 			</mx:Text>
@@ -230,7 +230,7 @@
 			</mx:ViewStack>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="numberOfHybsContainer">
-			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Image source="{parentApplication.iconBullet}"/>
 			<mx:Text width="300" >
 				<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
 			</mx:Text>
@@ -239,7 +239,7 @@
 			</mx:TextInput>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="slideSourceContainer">
-			<mx:Image source="assets/bullet_orange.png"/>
+			<mx:Image source="{parentApplication.iconBullet}"/>
 			<mx:Label text="Where will the microarrays come from?" width="300" />
 			<mx:VBox verticalGap="1">
 				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   click="this.toggleCheckedCodeSlideSource(1);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>

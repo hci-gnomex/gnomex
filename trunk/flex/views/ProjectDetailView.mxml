@@ -3,7 +3,7 @@
 
 <mx:HTTPService  
     id="saveProject" 
-    url="http://localhost/gnomex/SaveProject.gx"
+    url="SaveProject.gx"
     destination="saveProject"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -15,7 +15,7 @@
 
 <mx:HTTPService  
     id="deleteProject" 
-    url="http://localhost/gnomex/DeleteProject.gx"
+    url="DeleteProject.gx"
     destination="deleteProject"
     resultFormat="e4x"
     showBusyCursor="true"

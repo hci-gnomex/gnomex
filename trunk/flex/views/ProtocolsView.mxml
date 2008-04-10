@@ -7,7 +7,7 @@
 
 	<mx:HTTPService
 		id="getProtocolList"
-		url="http://localhost/gnomex/GetProtocolList.gx"
+		url="GetProtocolList.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
@@ -18,7 +18,7 @@
 	
 	<mx:HTTPService
 		id="getProtocol"
-		url="http://localhost/gnomex/GetProtocol.gx"
+		url="GetProtocol.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
@@ -30,7 +30,7 @@
 	
 	<mx:HTTPService
 		id="saveProtocol"
-		url="http://localhost/gnomex/SaveProtocol.gx"
+		url="SaveProtocol.gx"
 		showBusyCursor="true"
 		method="POST"
 		resultFormat="e4x"
@@ -63,7 +63,7 @@
 	
 	<mx:HTTPService
 		id="deleteProtocol"
-		url="http://localhost/gnomex/DeleteProtocol.gx"
+		url="DeleteProtocol.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"

@@ -3,7 +3,7 @@
 	
 	<mx:HTTPService 
     id="getWorkListQC" 
-    url="http://localhost/gnomex/GetWorkItemList.gx"
+    url="GetWorkItemList.gx"
     resultFormat="e4x"
     destination="getWorkListQC"
     showBusyCursor="true"
@@ -17,7 +17,7 @@
     
     <mx:HTTPService 
     id="saveWorkItemQC" 
-    url="http://localhost/gnomex/SaveWorkItemQualityControl.gx"
+    url="SaveWorkItemQualityControl.gx"
     resultFormat="e4x"
     destination="saveWorkItemQualityControl"
     showBusyCursor="true"

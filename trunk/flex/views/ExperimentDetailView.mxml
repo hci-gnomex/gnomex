@@ -127,7 +127,7 @@
 		}
 		
 		private function showPrintableRequestForm():void {
-			var url:URLRequest = new URLRequest('http://localhost/gnomex/ShowRequestForm.gx?idRequest=' + parentDocument.selectedExperiment.@idRequest);
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + parentDocument.selectedExperiment.@idRequest);
 			navigateToURL(url, '_blank');			
 		}
 		

@@ -23,6 +23,11 @@
             import mx.managers.PopUpManager;
             import mx.events.CloseEvent;
 	
+	        
+	        [Bindable]
+	        [Embed(source="assets/tick.png")]
+	        public var iconCheck:Class;
+	        	
 	        [Bindable]
 	        [Embed(source="assets/group.png")]
 	        public var iconGroup:Class;

@@ -3,7 +3,7 @@
 
 <mx:HTTPService  
     id="saveProject" 
-    url="http://localhost/gnomex/SaveProject.gx"
+    url="SaveProject.gx"
     destination="saveProject"
     resultFormat="e4x"
     showBusyCursor="true"

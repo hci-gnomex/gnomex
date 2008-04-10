@@ -9,7 +9,7 @@
    
    <mx:HTTPService  
     id="getNewRequest" 
-    url="http://localhost/gnomex/GetRequest.gx"
+    url="GetRequest.gx"
     destination="getRequest"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -23,7 +23,7 @@
 
    <mx:HTTPService  
     id="getRequestToClone" 
-    url="http://localhost/gnomex/GetRequest.gx"
+    url="GetRequest.gx"
     destination="getRequest"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -37,7 +37,7 @@
   
   <mx:HTTPService  
     id="saveNewRequest" 
-    url="http://localhost/gnomex/SaveRequest.gx"
+    url="SaveRequest.gx"
     destination="saveNewRequest"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -48,7 +48,7 @@
 
   <mx:HTTPService  
     id="saveExistingRequest" 
-    url="http://localhost/gnomex/SaveRequest.gx"
+    url="SaveRequest.gx"
     destination="saveExistingRequest"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -1287,7 +1287,7 @@
 		}
 
 		private function showPrintableRequestForm():void {
-			var url:URLRequest = new URLRequest('http://localhost/gnomex/ShowRequestForm.gx?idRequest=' + submittedIdRequest);
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest);
 			navigateToURL(url, '_blank');			
 		}
 		

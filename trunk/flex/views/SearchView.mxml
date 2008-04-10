@@ -7,7 +7,7 @@
 
   <mx:HTTPService  
     id="searchGNomEx" 
-    url="http://localhost/gnomex/SearchIndex.gx"
+    url="SearchIndex.gx"
     destination="searchGNomEx"
     resultFormat="e4x"
     result="onSearchIndex(event)"

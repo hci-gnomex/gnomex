@@ -10,7 +10,7 @@
 		
 		<mx:HTTPService
 		id="createProtocol"
-		url="http://localhost/gnomex/SaveProtocol.gx"
+		url="SaveProtocol.gx"
 		showBusyCursor="true"
 		method="POST"
 		resultFormat="e4x"
