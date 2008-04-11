@@ -22,6 +22,7 @@
             import mx.managers.CursorManager;
             import mx.managers.PopUpManager;
             import mx.events.CloseEvent;
+            import mx.rpc.events.FaultEvent;
 	
 	        
 	        [Bindable]
@@ -39,7 +40,7 @@
 	
 	        [Bindable]
 	        [Embed(source="assets/color_swatch.png")]
-	        public var iconExperiment:Class;
+	        public var iconExperiment:Class; 
 	        
 	        [Bindable]
 	        [Embed(source="assets/basket.png")]
@@ -171,14 +172,26 @@
             		navUsersView.initializeData();
             	}
             }
+                        
             
-            
+            public function isGuestMode():Boolean {
+            	if (Application.application.parameters.isGuest != null) {
+       				return Application.application.parameters.isGuest == 'Y';
+            	} else {
+            		return false;
+            	}
+            }
             
             private function init():void {
-            	XML.ignoreWhitespace = true;
-				XML.prettyPrinting = false;
+            	//XML.ignoreWhitespace = true;
+				//XML.prettyPrinting = false;
 				
-            	createSecurityAdvisor.send();
+				if (isGuestMode() ) { 
+					createSecurityAdvisorForGuest.send();				
+				} else {
+	            	createSecurityAdvisor.send();
+					
+				}
             } 
             public  function formatDate(date:Date):String {
 			    return date.getFullYear().toString() + 
@@ -213,17 +226,44 @@
        	
             }
             
+            public function getIdAppUser():Object {
+            	if (isGuestMode()) {
+            		return createSecurityAdvisorForGuest.lastResult.@idAppUser;
+            	} else {
+            		return createSecurityAdvisor.lastResult.@idAppUser;
+            	}
+            }
+            
             public function hasPermission(permission:String):Boolean {
             	var hasPermission:Boolean = false;
-				var thePermission:Object = createSecurityAdvisor.lastResult.globalPermissions.Permission.(@name == permission);
-				if (thePermission.length() > 0) { 
-					hasPermission = true;
-				}
+            	var thePermission:Object = null;
+            	if (isGuestMode()) {
+					hasPermission = false;
+            	} else {
+					thePermission = createSecurityAdvisor.lastResult.globalPermissions.Permission.(@name == permission);     
+					if (thePermission.length() > 0) { 
+						hasPermission = true;
+					}       		
+            	}
+				
 				return hasPermission;
             }
             
+            public function getGroupsToManaage():Object {
+            	if (isGuestMode()) {
+            		return new XMLList();
+            	} else {
+            		return createSecurityAdvisor.lastResult.groupsToManage.Lab;
+            	}
+            }
+            
             public function hasGroupsToManage():Boolean {
-            	var groupsToManage:XMLList = createSecurityAdvisor.lastResult.groupsToManage.Lab;
+            	var groupsToManage:XMLList = null;
+            	if (isGuestMode()) {
+					groupsToManage = new XMLList();
+            	} else {
+					groupsToManage = createSecurityAdvisor.lastResult.groupsToManage.Lab;    		
+            	}
             	if (groupsToManage.length() > 0) {
             		return true;
             	} else {
@@ -255,15 +295,27 @@
 				if (!hasPermission("canWriteDictionaries")) {
 					theViews.removeChild(dictionariesView);
 				}            	
+				this.navExperimentView.checkSecurity();
+				this.navExperimentView.detailView.checkSecurity();
+            }
+
+            private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
+            	Alert.show("Authentication to application has failed.  Please try launching app again.");
             }
             
             private function onCreateSecurityAdvisor(event:ResultEvent):void {
-
-				checkSecurity();
-
+            	if (!(createSecurityAdvisor.lastResult is XML) ||
+            	    createSecurityAdvisor.lastResult.name() != 'SecurityAdvisor') {
+            		Alert.show("Authentication failed.");  
+            		return;	
+            	}
 			    appProgressBar = new views.AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 			    PopUpManager.centerPopUp(appProgressBar);
+
+
+				checkSecurity();
+
 
             	manageDictionaries.send();
             	getAppUserList.send();
@@ -272,10 +324,30 @@
             	getLabList.send();
             	getSlideProductList.send();
             	getProjectList.send();
-            	
-            	
             }
             
+            private function onCreateSecurityAdvisorForGuest(event:ResultEvent):void {
+            	if (!(createSecurityAdvisorForGuest.lastResult is XML) ||
+            	    createSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
+            		Alert.show("You must launch GNomEx from guest page.");  
+            		return;	
+            	}
+			    appProgressBar = new views.AppProgressView();
+			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
+			    PopUpManager.centerPopUp(appProgressBar);
+
+				checkSecurity();
+
+			    
+
+            	manageDictionaries.send();
+            	getAppUserList.send();
+            	getExperimentDesignList.send();
+            	getExperimentFactorList.send();
+            	getLabList.send();
+            	getSlideProductList.send();
+            	getProjectList.send();
+            }
 
             private function onManageDictionaries(event:ResultEvent):void {
             	var emptyNode:XML = <DictionaryEntry value='' display=''/>;
@@ -548,7 +620,20 @@
     url="CreateSecurityAdvisor.gx"
     resultFormat="e4x"
     result="onCreateSecurityAdvisor(event)"
+    fault="onFailCreateSecurityAdvisor(event)"
     destination="createSecurityAdvisor"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService > 
+        	
+	<mx:HTTPService 
+    id="createSecurityAdvisorForGuest" 
+    url="getSecurityAdvisorInfo.jsp"
+    resultFormat="e4x"
+    result="onCreateSecurityAdvisorForGuest(event)"
+    destination="createSecurityAdvisorForGuest"
     showBusyCursor="false"
     useProxy="false">
     <mx:request>

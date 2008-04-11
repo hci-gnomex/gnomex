@@ -10,6 +10,18 @@
 		private var experimentCategoryName:String;
 		[Bindable]
 		private var billingAccountName:String;
+		
+		public function checkSecurity():void {
+			if (parentApplication.isGuestMode()) {
+				this.showCy3LabelingFieldsCheckBox.visible = false;
+				this.showCy5LabelingFieldsCheckBox.visible = false;
+				this.showExtFieldsCheckBox.visible = false;
+				this.showHybFieldsCheckBox.visible = false;
+				this.showQCFieldsCheckBox.visible = false;
+				this.showWorkflowLabel.visible = false;
+				this.requestFormButton.visible = false;
+			}
+		}
 	
 		public function setupForm():void {
 			this.currentState = '';						
@@ -551,7 +563,7 @@
 </mx:VBox>
 
 <mx:ControlBar width="100%">
-    <mx:Button label="Printable Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')"/>
+    <mx:Button label="Printable Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')" id="requestFormButton"/>
 
     <mx:Button label="Edit Experiment" click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
         <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>

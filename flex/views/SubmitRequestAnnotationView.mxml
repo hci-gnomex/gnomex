@@ -42,6 +42,9 @@
 			}
 		}
 		public function clearOutUncheckedSampleAnnotations():void {
+			if (parentDocument == null) {
+				return;
+			}
 			for each(var annotation:Object in parentDocument.sampleCharacteristicEntries) {
 				var isSelected:String;
 				var value:String;

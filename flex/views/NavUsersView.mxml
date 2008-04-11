@@ -365,7 +365,7 @@
         	
 
 		<mx:Panel title="Manage Groups">
-			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{parentApplication.createSecurityAdvisor.lastResult.groupsToManage.Lab}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
+			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{parentApplication.getGroupsToManage()}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
 			<mx:columns>
 						<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
 					
