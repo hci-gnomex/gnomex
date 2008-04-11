@@ -639,6 +639,25 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
+	<!-- hci.gnomex.model.SamplePrepMethodFlowCellType -->
+	<class name="hci.gnomex.model.SamplePrepMethodFlowCellType" table="SamplePrepMethodFlowCellType">
+		<id name="idSamplePrepMethodFlowCellType" column="idSamplePrepMethodFlowCellType" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
+		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
+	</class>
+
+
+	<!-- hci.gnomex.model.SamplePrepMethodRequestCategory -->
+	<class name="hci.gnomex.model.SamplePrepMethodRequestCategory" table="SamplePrepMethodRequestCategory">
+		<id name="idSamplePrepMethodRequestCategory" column="idSamplePrepMethodRequestCategory" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+	</class>
+
 	<!-- hci.gnomex.model.ScanProtocol -->
 	<class name="hci.gnomex.model.ScanProtocol" table="ScanProtocol">
 		<id name="idScanProtocol" column="idScanProtocol" type="integer">
