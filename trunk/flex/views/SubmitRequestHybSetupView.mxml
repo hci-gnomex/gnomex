@@ -47,10 +47,7 @@
 			if (parentDocument == null) {
 				return;
 			}
-			if ((parentDocument.request!= null && parentDocument.request.@codeRequestCategory == "QC") || parentDocument.setupView.requestTypeGroup.selectedValue == "QC" ) {
-				return;
-			}
-			if ((parentDocument.request!= null && parentDocument.request.@codeRequestCategory == "SOLEXA") || parentDocument.setupView.requestTypeGroup.selectedValue == "SOLEXA" ) {
+			if (!parentDocument.isMicroarrayState()) {
 				return;
 			}
 			

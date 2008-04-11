@@ -104,6 +104,10 @@
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
 
 
+		public function checkSecurity():void {
+			this.browseView.checkSecurity();
+		}
+
         private function getBrowseTreeLabel(item:Object):String {
         	var label:String = item.@label;
         	
@@ -326,7 +330,7 @@
         	if (keep) {
 	        	if (browseView.myExperimentsCheckbox.selected == true) {
 	        		keep = false;
-	        		if (item.@idAppUser == parentApplication.createSecurityAdvisor.lastResult.@idAppUser) {
+	        		if (item.@idAppUser == parentApplication.getIdAppUser()) {
 	        			keep = true;
 	        		}
 	        	}
@@ -431,8 +435,7 @@
 		}
 		
 		public function initializeExperiments():void {
-			var canAccessAnyObject:Object = parentApplication.createSecurityAdvisor.lastResult..Permission.(@name == 'canAccessAnyObject');
-			if (canAccessAnyObject.length() > 0) {
+			if (parentApplication.hasPermission('canAccessAnyObject')) {
 				browseLabCombo.height = 20;
 				browseLabCombo.visible = true;
 				groupLabel.height = 20;

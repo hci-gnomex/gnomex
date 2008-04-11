@@ -49,6 +49,15 @@
 
     private var projectDetailWindow:views.ProjectDetailWindow;
         
+        
+	public function checkSecurity():void { 
+		if (parentApplication.isGuestMode()) {
+			theViews.removeChild(this.trackView);
+			theViews.removeChild(this.visibilityView);
+		}
+	}
+
+        
     public function getFullName(item:Object, col:int):String {
     	return item.@ownerLastName + ", " + item.@ownerFirstName;
     }
@@ -77,7 +86,7 @@
    
     
   	public function refreshDownloadList():void {
-		if (theViews.selectedIndex == 1) {
+		if (theViews.selectedChild == downloadView) {
 			var params:Object = new Object();
 			if (parentDocument.selectedIdLab != null) {
 				params.idLab = parentDocument.selectedIdLab;				
@@ -90,7 +99,7 @@
 	}
 	
 	public function refreshTrackList():void {
-		if (theViews.selectedIndex == 2) {
+		if (theViews.selectedChild == trackView) {
 			var params:Object = new Object();
 			if (parentDocument.selectedIdLab != null) {
 				params.idLab = parentDocument.selectedIdLab;				
@@ -108,7 +117,7 @@
 	}
 	
 	public function refreshVisibilityList():void {
-		if (theViews.selectedIndex == 3) {
+		if (theViews.selectedChild == visibilityView) {
 			visibilityView.checkSecurity();
 			visibilityView.setVisibilityCombo();
 		}
@@ -227,7 +236,7 @@
 	private function onGetNewProject(event:ResultEvent):void {
 		if (getNewProject.lastResult.name() == "OpenProjectList") {
 			 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
-			 parentDocument.selectedProject.@idAppUser = parentApplication.createSecurityAdvisor.lastResult.@idAppUser;
+			 parentDocument.selectedProject.@idAppUser = parentApplication.getIdAppUser();
 			 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
 			 this.projectDetailWindow = views.ProjectDetailWindow(PopUpManager.createPopUp(this, views.ProjectDetailWindow, true));
 			 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();

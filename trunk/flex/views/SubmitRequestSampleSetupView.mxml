@@ -278,9 +278,9 @@
 
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
-        	if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
+        	if (parentDocument.isEditState()) {
         		isComplete = true;
-        	} else if (parentDocument.isSolexaState()) {
+        	}else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
@@ -298,7 +298,7 @@
         	    	}
 	        	 }
         	
-        	} else if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
+        	} else if (parentDocument.isQCState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&

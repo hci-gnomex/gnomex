@@ -133,6 +133,24 @@
 			}
 		}
 		
+		public function isQCState():Boolean {
+			if (currentState == 'QCState' ||
+				currentState == 'QCEditState') {
+				return true;    	
+			} else {
+				return false;
+			}
+		}
+		
+				
+		public function isMicroarrayState():Boolean {
+			if (currentState == 'MicroarrayState' ||
+				currentState == 'MicroarrayEditState') {
+				return true;    	
+			} else {
+				return false;
+			}
+		}
 		
 		public function isEditState():Boolean {
 			if (currentState == 'SolexaEditState' ||
@@ -608,7 +626,7 @@
 		private function onGetRequestToClone(event:ResultEvent):void {
 			
 			var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
-			if (isSolexaState() || currentState == 'QCState') {
+			if (!isMicroarrayState()) {
 				clonedRequest.replace("hybridizations", <hybridizations></hybridizations>); 	
 			} 
 			if (!isSolexaState()) {
@@ -621,6 +639,7 @@
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
 			request.@idAppUser = setupView.idAppUser;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
+			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
 
 			var requestCategory:Object = setupView.getRequestCategory();
 			
@@ -645,6 +664,34 @@
 				sample.@canChangeSamplePrepMethod='Y';
    				sample.@canChangeNumberSequencingLanes='Y'; 
    				sample.@numberSequencingLanes = '';
+   				sample.@concentration = '';
+   				sample.@totalVolume = '';
+   				
+   				
+   				if (isQCState()) {
+   					sample.@idSampleSource  = '';
+   					sample.@idOrganism = '';
+   				}
+   				
+   				if (!isQCState()) {
+   					sample.@codeBioanalyzerChipType = '';
+   					sample.@codeConcentrationUnit = '';
+   				}
+   				
+   				if (sampleSetupView.currentState == 'SolexaSetupPreppedState') {
+   					sample.@isAlreadyPrepped = 'Y';
+	 				sample.@idSamplePrepMethod = '';
+   					
+   				} else  {
+   					sample.@isAlreadyPrepped = 'N';
+   					sample.@samplePrepMethodUsedByLab = '';
+   					sample.@idSolexaLibraryType = '';
+   					sample.@fragmentSizeFrom = '';
+   					sample.@fragmentSizeTo = '';
+   				}
+   				
+   				
+   			
 			}
 			for each(var hyb:Object in hybs) {
 				 // If this is a 1 channel kind if request, clear out channel2 of the cloned request
@@ -693,7 +740,7 @@
 			
 
 			// Clear out sample annotations for QC request cloned from another request
-			if (setupView.requestTypeGroup.selectedValue == "QC") {
+			if (isQCState()) {
 				for each(var annotation:Object in sampleCharacteristicEntries) {
 					annotation.@isSelected = "false";
 				}
