@@ -84,6 +84,10 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     } else {
       billingAccount.setExpirationDate(null);
     }
+    if (n.getAttributeValue("isSelectedPeerReviewedFunding") != null && !n.getAttributeValue("isSelectedPeerReviewedFunding").equals("")) {
+      String isSelected = n.getAttributeValue("isSelectedPeerReviewedFunding");
+      billingAccount.setIsPeerReviewedFunding(isSelected.equals("true") ? "Y" : "N");
+    } 
   }
 
   

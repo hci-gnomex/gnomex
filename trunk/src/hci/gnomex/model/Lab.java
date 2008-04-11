@@ -17,6 +17,7 @@ public class Lab extends HibernateDetailObject {
   private String  contactZip;
   private String  contactEmail;
   private String  contactPhone;
+  private String  isCcsgMember;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -213,6 +214,16 @@ public class Lab extends HibernateDetailObject {
   
   public void setHasPublicData(boolean hasPublicData) {
     this.hasPublicData = hasPublicData;
+  }
+
+  
+  public String getIsCcsgMember() {
+    return isCcsgMember;
+  }
+
+  
+  public void setIsCcsgMember(String isCcsgMember) {
+    this.isCcsgMember = isCcsgMember;
   }
 
   
