@@ -457,6 +457,13 @@
 	  
 	  	private function onDragDrop( event:DragEvent ) : void
 		{
+		   // Disallow drop operation if user is guest
+		   if (parentApplication.isGuestMode()) {
+				event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);		   	
+		       	return;
+		   }
 	       var ds:DragSource = event.dragSource;
 	       var dropTarget:Tree = Tree(event.currentTarget);
 	
@@ -478,6 +485,10 @@
 	       		p = node.parent();
 	       }else {
 	       		//ignore drop operations on lab.
+	       		event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);		 
+		       	return;
 	       }
 	
 	       // taking all of the items in the DragSouce, insert them into the 
