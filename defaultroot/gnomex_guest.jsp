@@ -65,7 +65,7 @@ String parm2 = request.getParameter("parm2");
             </tr>
            </table>
            <br>
-           <input type="hidden" name="launchAction" value="/guest_launcher.jsp">
+           <input type="hidden" name="launchAction" value="/gnomexFlex.jsp?isGuest=Y">
            <input type="hidden" name="errorAction" value="/gnomex_guest.jsp">
            <input type="hidden" name="launchParm1" value="<%= parm1 %>">
            <input type="hidden" name="launchParm2" value="<%= parm2 %>">
