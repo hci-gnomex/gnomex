@@ -3,6 +3,8 @@
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
+		import mx.events.CloseEvent;
+		import mx.controls.Alert;
 	
 		[Bindable]
 		private var requestCategoryName:String;
@@ -136,6 +138,24 @@
 			if (billingAccount != null) {
 				billingAccountName = billingAccount.@accountName;
 			}
+		}
+		
+
+	  	public function promptToDeleteExperiment():void {
+			Alert.show("Delete experiment " + parentDocument.selectedExperiment.@number + "?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDeleteExperiment);
+			
+	  	}
+		
+	  	private function onPromptToDeleteExperiment(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	deleteExperiment();
+            }
+      	}
+		private function deleteExperiment():void {
+			parentDocument.deleteExperiment();
 		}
 		
 		private function showPrintableRequestForm():void {
@@ -563,12 +583,16 @@
 </mx:VBox>
 
 <mx:ControlBar width="100%">
-    <mx:Button label="Printable Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')" id="requestFormButton"/>
+    <mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')" id="requestFormButton"/>
 
-    <mx:Button label="Edit Experiment" click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
+    <mx:Button label="Edit..." click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
         <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
         <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
     </mx:Button>				
+    <mx:Button label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../assets/delete.png')">
+        <mx:height>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
+        <mx:visible>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
+    </mx:Button>
 </mx:ControlBar>
 
 <mx:states>

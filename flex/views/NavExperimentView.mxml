@@ -33,6 +33,17 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+   
+   <mx:HTTPService  
+    id="deleteRequest" 
+    url="DeleteRequest.gx"
+    destination="deleteRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onDeleteRequest(event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
 
    
    <mx:HTTPService  
@@ -542,6 +553,20 @@
         	} else {
         		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
         	}	    	
+	    }
+	    
+	    public function deleteExperiment():void {
+	    	var params:Object = new Object();
+	    	params.idRequest = selectedExperiment.@idRequest;
+	    	deleteRequest.send(params);
+	    }
+	    
+	    private function onDeleteRequest(event:ResultEvent): void {
+	    	if (deleteRequest.lastResult.name() == "SUCCESS") {
+	    		this.refreshExperiments();
+	    	} else {
+	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
+	    	}
 	    }
 
 		

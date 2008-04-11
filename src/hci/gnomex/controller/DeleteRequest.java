@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.HibernateSession;
 
@@ -73,6 +74,13 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         for(Iterator i = req.getLabeledSamples().iterator(); i.hasNext();) {
           LabeledSample ls  = (LabeledSample)i.next();
           sess.delete(ls);
+        }
+        sess.flush();
+        
+        // Delete sequence lanes
+        for(Iterator i = req.getSequenceLanes().iterator(); i.hasNext();) {
+          SequenceLane lane = (SequenceLane)i.next();
+          sess.delete(lane);
         }
         sess.flush();
         
