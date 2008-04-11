@@ -64,8 +64,12 @@
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Text text="Should the samples be sequence prepped by the Core facility?" width="340" />
 					<mx:HBox width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup" change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}"  label="Yes, please sequence prep the samples" selected="true" />							
-						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" label="No, the samples are ready for cluster generation"  />							
+						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please sequence prep the samples" selected="true"
+							change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}">
+						</mx:RadioButton>							
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, the samples are ready for cluster generation"
+							change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}">
+						</mx:RadioButton>							
 					</mx:HBox>
 				</mx:HBox>            	
             </mx:AddChild>
@@ -76,7 +80,7 @@
                 		<mx:HBox width="100%" horizontalGap="2">
                 			<mx:CheckBox id="alignCheckBox" label="Align sequence to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;alignNotes.text = ''};checkSampleSetupCompleteness();}"/>
                 			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="propagateGenomeBuild();checkSampleSetupCompleteness();" visible="{alignCheckBox.selected}" width="200">							
-        		        		<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
+                				<mx:dataProvider>{parentApplication.filteredGenomeBuildList}</mx:dataProvider>
 		                	</mx:ComboBox>                			
                 		</mx:HBox>
                 			<mx:HBox width="100%" horizontalGap="0">
@@ -93,7 +97,7 @@
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the flow cell type to be used:" width="340" />
 					<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateFlowCellType();checkSampleSetupCompleteness();">
-						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry}</mx:dataProvider>
+						<mx:dataProvider>{parentApplication.filteredFlowCellTypeList}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>            	
             </mx:AddChild>
@@ -115,6 +119,9 @@
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentApplication.samplePrepMethodList.refresh()</mx:handler>
+            </mx:SetEventHandler>
+            <mx:SetEventHandler target="{samplePrepMethodCombo}" name="change">
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh();parentApplication.filteredFlowCellTypeList.refresh()</mx:handler>
             </mx:SetEventHandler>
         </mx:State>
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
@@ -147,16 +154,10 @@
             <mx:RemoveChild target="{samplePrepContainer}">            	
             </mx:RemoveChild>
             <mx:SetProperty target="{label3}" name="text" value="Special instructions:"/>
-            <mx:SetEventHandler target="{alignCheckBox}" name="click">
-                <mx:handler>genomeBuildCombo.selectedIndex = 0;alignNotes.text='';checkSampleSetupCompleteness();</mx:handler>
-            </mx:SetEventHandler>
-            <mx:SetEventHandler target="{samplesToBePreppedCheckbox}" name="click">
-                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
-            </mx:SetEventHandler>
-            <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="click">
-                <mx:handler>samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();</mx:handler>
-            </mx:SetEventHandler>
             <mx:SetStyle target="{alignMoreContainer}" name="verticalGap" value="0"/>
+            <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="change">
+                <mx:handler>{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}</mx:handler>
+            </mx:SetEventHandler>
         </mx:State>
    	
    </mx:states>
@@ -371,7 +372,7 @@
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the organism of your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentApplication.filteredGenomeBuildList.refresh()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
@@ -392,8 +393,8 @@
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
-				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness()" >							
-					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()" >							
+					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>					
 				</mx:ComboBox>
 			</mx:HBox>
 			

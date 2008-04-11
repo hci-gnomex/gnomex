@@ -108,6 +108,10 @@
 			[Bindable]
 			public var filteredSlideProductListForSubmitRequests:XMLListCollection;
 			[Bindable]
+			public var filteredFlowCellTypeList:XMLListCollection;
+			[Bindable]
+			public var filteredGenomeBuildList:XMLListCollection;
+			[Bindable]
 			public var slideDesignList:XMLListCollection;
 			private var dictionarySorter:Sort;
 
@@ -366,6 +370,9 @@
 	        	sampleSourceList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry);
 	        	sampleSourceList.sort = dictionarySorter;
 	        	sampleSourceList.refresh();
+	        	
+	        	filteredFlowCellTypeList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry);
+	        	filteredGenomeBuildList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry);
 	        	
 	        	enableApp();
             }

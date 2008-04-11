@@ -47,6 +47,14 @@
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
       <Filter className="YN" filterField="isDefaultForSampleType"/>
 	</Dictionary>
+	<Dictionary displayName="Sample Prep Method for Request Categories" className="hci.gnomex.model.SamplePrepMethodRequestCategory" >
+  	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
+  	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
+	</Dictionary>
+	<Dictionary displayName="Flow Cell Types for a given Sample Prep Method" className="hci.gnomex.model.SamplePrepMethodFlowCellType" >
+  	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
+  	  <Filter className="hci.gnomex.model.FlowCellType"         filterField="idFlowCellType"/>
+	</Dictionary>
 	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
 	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType">
   	</Dictionary>
