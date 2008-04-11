@@ -5,7 +5,7 @@ public class Constants {
   
   public static final String              APP_NAME                        = "GNomEx";
   
-  public static final String              LAUNCH_APP_JSP                  = "/go.jsp";
+  public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
   
   public static final String              MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayDataShare\\";
   public static final String              TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\";

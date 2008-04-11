@@ -202,6 +202,11 @@
 			lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 			appUsers = new XMLListCollection(lab.members.AppUser);
+			for each (var mgr:Object in lab.managers.AppUser) {
+				if (!appUsers.contains(mgr)) {
+					appUsers.addItem(mgr);				
+				}
+			}
 			appUsers.addItemAt(emptyNode, 0);
 			
 			appUserSort = new Sort();
