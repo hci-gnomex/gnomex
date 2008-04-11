@@ -5,10 +5,52 @@
 	 label="User Detail" 
 	 title="{'User ' + parentDocument.fullUser.@displayName}">
 
-
+    <mx:HTTPService 
+    id="getAppUser" 
+    url="GetAppUser.gx"
+    destination="getAppUser"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetAppUser(event)"
+    useProxy="false">    
+    </mx:HTTPService >
+    
     <mx:Script>
         <![CDATA[
             import mx.controls.Alert;
+            import mx.rpc.events.FaultEvent;
+            import mx.rpc.events.ResultEvent;
+            
+            private var savedIdAppUser:Object = '';
+            
+            private function save():void {
+				saveAppUser.send();
+				parentDocument.refreshAppUserList();
+            	
+            }
+            
+            private function onSaveAppUser(event:ResultEvent):void {
+				if (saveAppUser.lastResult.name() == "SUCCESS") {
+					savedIdAppUser = saveAppUser.lastResult.@idAppUser;
+					var params:Object = new Object();
+					params.idAppUser = savedIdAppUser;
+		 			getAppUser.send(params);
+				} else {
+					Alert.show("An error occurred while saving the user record.");
+				}
+
+            	
+            }
+            
+            private function onFailSaveAppUser(event:FaultEvent):void {
+            	Alert.show("An error occurred.  The user record did not save.");
+            }
+            
+            private function onGetAppUser(event:ResultEvent):void {
+              parentDocument.fullUser = getAppUser.lastResult.AppUser.(@idAppUser = savedIdAppUser);
+              this.isActive.selected =  parentDocument.fullUser.@isActive == 'Y' ? true : false;
+            }
+            
         ]]>
     </mx:Script>
 
@@ -18,6 +60,8 @@
     url="SaveAppUser.gx"
     showBusyCursor="true"
     resultFormat="e4x"
+    result="onSaveAppUser(event)"
+    fault="onFailSaveAppUser(event)"
     useProxy="false">
     <mx:request>
             <idAppUser>{parentDocument.fullUser != null ? parentDocument.fullUser.@idAppUser : "0"}</idAppUser>
@@ -140,9 +184,11 @@
 	</mx:VDividedBox>
 	</mx:VBox>
 
-	<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
-		<mx:Button label="Save" click="saveAppUser.send();parentDocument.refreshAppUserList()" icon="@Embed('../assets/action_save.gif')" width="70"/>
-		
+	<mx:ControlBar   width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
+	  <mx:VBox width="100%" horizontalAlign="right">
+	  
+		<mx:Button label="Save" click="save()" icon="@Embed('../assets/action_save.gif')" width="70"/>
+	  </mx:VBox>	
 	</mx:ControlBar>
   
 </mx:Panel>

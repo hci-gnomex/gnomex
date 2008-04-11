@@ -16,13 +16,25 @@
     <mx:request>    
     </mx:request>
   </mx:HTTPService>
-
+    
+    <mx:HTTPService 
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetLab(event)"
+    useProxy="false">
+    </mx:HTTPService >
+  
 	  
 <mx:Script>
 	<![CDATA[
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
+		
+		private var savedIdLab:Object = '';
 	
 		private function addBillingAccount():void {
 			var node:XML = new XML("<BillingAccount " +
@@ -141,6 +153,12 @@
 		
 		private function onSaveGroup(event:ResultEvent):void {
 			if (saveGroup.lastResult.name() == "SUCCESS") {
+				savedIdLab = saveGroup.lastResult.@idLab;
+
+				var params:Object = new Object();
+				params.idLab = savedIdLab;
+	 			getLab.send(params);
+				
 				parentDocument.refreshGroupList();
 			} else {
 				Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
@@ -152,6 +170,11 @@
         	Alert.show("failed to save Group " + event.message);
         }
 
+ 
+        
+        private function onGetLab(event:ResultEvent):void {
+          parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+        }
 
 
 	]]>
