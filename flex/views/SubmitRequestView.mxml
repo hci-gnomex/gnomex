@@ -689,10 +689,13 @@
    					sample.@fragmentSizeFrom = '';
    					sample.@fragmentSizeTo = '';
    				}
-   				
-   				
-   			
 			}
+			
+			// If QC request, clear out sample annotations
+			if (isQCState()) {
+				this.clearOutSampleAnnotations();
+			}
+			
 			for each(var hyb:Object in hybs) {
 				 // If this is a 1 channel kind if request, clear out channel2 of the cloned request
 				 if (requestCategory.@numberOfChannels != "2") {
@@ -737,15 +740,7 @@
 			     hyb.@canChangeSlideSource='Y';
 			     hyb.@canChangeSlideDesign='Y';
 			}
-			
 
-			// Clear out sample annotations for QC request cloned from another request
-			if (isQCState()) {
-				for each(var annotation:Object in sampleCharacteristicEntries) {
-					annotation.@isSelected = "false";
-				}
-				annotationView.clearOutUncheckedSampleAnnotations();
-			}
 			
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
@@ -765,6 +760,45 @@
 			callLater(hybsView.checkHybsCompleteness);
 			
 			
+		}
+		
+		public function clearOutSampleAnnotations():void {
+			for each(var annotation:Object in sampleCharacteristicEntries) {
+				for each(var sample:XML in samples) {
+					sample.@AGE = '';
+					this.request.@AGE = 'N';
+					sample.@CELLLINE = '';
+					this.request.@CELLLINE = 'N';
+					sample.@CELLTYPE = '';
+					this.request.@CELLTYPE = 'N';
+					sample.@CLININFO =  '';
+					this.request.@CLININFO = 'N';
+					sample.@COMPOUND =  '';
+					this.request.@COMPOUND = 'N';
+					sample.@DOSE =  '';
+					this.request.@DOSE = 'N';
+					sample.@DISSTATE =  '';
+					this.request.@DISSTATE = 'N';
+					sample.@GENMOD =  '';
+					this.request.@GENMOD = 'N';
+					sample.@GROWTHCOND =  '';
+					this.request.@GROWTHCOND = 'N';
+					sample.@GENOTYPE =  '';
+					this.request.@GENOTYPE = 'N';
+					sample.@INDIV =  '';
+					this.request.@INDIV = 'N';
+					sample.@ORGPART = '';
+					this.request.@ORGPART = 'N';
+					sample.@OTHER =  '';
+					this.request.@OTHER = 'N';
+					sample.@SEX =  '';
+					this.request.@SEX = 'N';
+					sample.@TEMP =  '';
+					this.request.@TEMP = 'N';
+					sample.@TIME =  '';
+					this.request.@TIME = 'N';
+				}
+			}
 		}
 
 		public function setupEditForm(theRequest:Object):void {
