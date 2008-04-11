@@ -57,6 +57,8 @@
 		<property name="accountNumberAu" column="accountNumberAu" type="string"/>
 		<property name="accountNumberYear" column="accountNumberYear" type="string"/>
 		<property name="expirationDate" column="expirationDate" type="date"/>
+		<property name="isPeerReviewedFunding" column="isPeerReviewedFunding" type="string"/>
+		
 	</class>
 	
 	<!-- hci.gnomex.model.ExperimentDesignEntry -->
@@ -126,6 +128,7 @@
 		<property name="contactZip" column="contactZip" type="string"/>
 		<property name="contactPhone" column="contactPhone" type="string"/>
 		<property name="contactEmail" column="contactEmail" type="string"/>
+		<property name="isCcsgMember" column="isCCSGMember" type="string"/>
         <set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>

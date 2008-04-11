@@ -37,6 +37,7 @@
 			    " accountNumberAccount='" + accountNumberAccount.text + "'" +
 			    " accountNumberAu='" + accountNumberAu.text + "'" +
 			    " accountNumberYear='" + accountNumberYear.text + "'" +
+			    " isSelectedPeerReviewedFunding='" + (this.isPeerReviewedFundingCheckBox.selected ? 'true' : 'false') + "'" +
 				"/>");
 			billingAccounts.addItem(node);
 			
@@ -123,6 +124,7 @@
 			params.contactZip = this.contactZip.text;
 			params.contactPhone = this.contactPhone.text;
 			params.contactEmail = this.contactEmail.text;
+			params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
 			
 			for each(var ba:Object in billingAccounts) {
 				ba.@expirationDate = ba.@expirationDateOther;
@@ -170,7 +172,7 @@
 				
 				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="5" horizontalAlign="left" width="100%">
 				   <mx:VBox   height="100%" verticalGap="1" width="100%">
-					   	<mx:HBox>
+					   	<mx:HBox verticalAlign="middle">
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Name"/>
 								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="150"/>
@@ -179,6 +181,7 @@
 								<mx:Label text="Department" />
 								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="150"/>
 							</mx:VBox>
+							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?"/>
 					   		
 					   	</mx:HBox>
 						<mx:VBox  verticalGap="0" width="100%" height="100%">
@@ -279,6 +282,7 @@
 				</mx:HBox>
 			</mx:VBox>			
 			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			    <mx:VBox width="100%">
 				<mx:HBox horizontalGap="3" width="100%" verticalAlign="bottom">
 					<mx:VBox verticalGap="0" width="100%">
 						<mx:Label text="Account name"/>
@@ -320,10 +324,15 @@
 						<mx:Label text="Year"/>
 						<mx:TextInput width="40" id="accountNumberYear"/>
 					</mx:VBox>
-					<mx:Button label="Add" icon="@Embed('../assets/table_row_insert.png')" click="addBillingAccount()"/>
+					<mx:CheckBox label="Peer reviewed funding?" id="isPeerReviewedFundingCheckBox" textAlign="center">
+					</mx:CheckBox>
 				</mx:HBox>
+				<mx:HBox width="100%" horizontalAlign="right">
+					<mx:Button label="Add Billing Account" icon="@Embed('../assets/table_row_insert.png')" click="addBillingAccount()"/>
+				</mx:HBox>
+				</mx:VBox>
 				<mx:HBox horizontalAlign="left" width="100%">
-					<mx:HBox width="100%" horizontalAlign="left" paddingTop="10" paddingBottom="4" paddingLeft="4" paddingRight="4">
+					<mx:HBox width="100%" horizontalAlign="left" paddingTop="20" paddingBottom="4" paddingLeft="4" paddingRight="4">
 						<mx:Button label="Remove" icon="@Embed('../assets/table_row_delete.png')" click="removeBillingAccount()"/>						
 					</mx:HBox>
 				</mx:HBox>
@@ -331,7 +340,7 @@
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="200"/>
-						<mx:DataGridColumn dataField="@expirationDate" 
+						<mx:DataGridColumn dataField="@expirationDate" width="90"
 			                headerText="Expires"  
 			          		itemEditor="views.renderers.DateFieldExpiration" 
 			          		itemRenderer="mx.controls.Label" 
@@ -346,6 +355,7 @@
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="20"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="40"/>
+						<mx:DataGridColumn headerText="Peer reviewed funding" dataField="@isSelectedPeerReviewedFunding" editorDataField="selected" itemRenderer="views.renderers.CheckBoxIsPeerReviewedFunding"  rendererIsEditor="true" width="40"/>
 					</mx:columns>
 				</mx:DataGrid>
 				<mx:HBox horizontalAlign="right" width="100%">
