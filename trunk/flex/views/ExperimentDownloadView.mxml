@@ -289,7 +289,7 @@
 		                <mx:itemRenderer>
 		                    <mx:Component >
 		                        <mx:HBox  horizontalGap="0" >
-		                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? '../assets/folder.png' : ''}">
+		                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? parentApplication.iconFolder : ''}">
 		                    	 </mx:Image> 
 		                           <mx:Label id="directoryName" text="{data.@showDirectoryName == 'Y' ? data.@directoryName : ''}">
 		                           </mx:Label>

@@ -109,6 +109,9 @@
           public var fullLab:Object;
           [Bindable]
           public var filteredAppGroupXML:XMLList;
+          [Bindable]
+		  private var groupsToManage:XMLListCollection;
+
           
           public function initializeData():void
           {
@@ -121,6 +124,7 @@
  				navStack.selectedIndex = 0;
  				detailViews.selectedChild = this.userEmptyView;
 			} else {
+				groupsToManage = parentApplication.getGroupsToManage();
 				navStack.selectedIndex = 1;
 				detailViews.selectedChild = this.groupEmptyView;
 			}
@@ -365,7 +369,7 @@
         	
 
 		<mx:Panel title="Manage Groups">
-			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{parentApplication.getGroupsToManage()}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
+			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{groupsToManage}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
 			<mx:columns>
 						<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
 					

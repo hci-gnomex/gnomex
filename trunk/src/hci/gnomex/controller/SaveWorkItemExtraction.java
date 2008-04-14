@@ -176,7 +176,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     }
     
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = appURL + "?parm1=" + request.getNumber() + "&parm2=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
     introNote.append("Request " + request.getNumber() + " has been completed by the Microarray Core Facility.");
     introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     

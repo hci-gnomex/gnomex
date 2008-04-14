@@ -204,7 +204,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = appURL + "?parm1=" + request.getNumber() + "&parm2=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
     if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";
       introNote.append("Request " + request.getNumber() + " has been completed by the Microarray Core Facility.");

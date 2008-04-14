@@ -741,7 +741,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     StringBuffer introNote = new StringBuffer();
-    String trackRequestURL = appURL + "?parm1=" + requestParser.getRequest().getNumber() + "&parm2=" + Constants.WINDOW_TRACK_REQUESTS;
+    String trackRequestURL = appURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
     introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the Microarray Core Facility.  You will receive email notification when the experiment is complete.");
     introNote.append("<br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     

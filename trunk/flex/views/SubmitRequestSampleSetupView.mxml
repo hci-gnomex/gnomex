@@ -365,7 +365,7 @@
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="samplePrepMethodCombo.selectedIndex=0;parentApplication.samplePrepMethodList.refresh();parentDocument.samplesView.initializeSamplesGrid();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
 					<mx:dataProvider></mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
