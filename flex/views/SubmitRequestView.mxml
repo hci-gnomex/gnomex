@@ -200,6 +200,8 @@
 						(Alert.YES | Alert.NO), this, 
 						onPromptToCancelRequest,						
 						parentApplication.iconWarning);
+			} else {
+				cancelRequest();
 			}
 			
 		}
@@ -232,7 +234,7 @@
         public function cancelRequest():void {
         	getNewRequest.send();
 			initializeForm();
-        	parentApplication.theViews.selectedIndex = -1;
+        	parentApplication.theViews.selectedIndex = 0;
         	parentApplication.theViews.visible = false;
         }
         
@@ -275,6 +277,7 @@
 
 			setupView.labCombo.selectedIndex = -1;
 			setupView.billingAccountCombo.selectedIndex = -1;
+			setupView.appUserCombo.selectedIndex = -1;
 			setupView.projectCombo.selectedIndex = -1;
 			setupView.requestTypeGroup.selectedValue = '';
 			setupView.requestRadioAffy.selected = false;
