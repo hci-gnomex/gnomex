@@ -265,6 +265,23 @@ public class RequestEmailBodyFormatter extends DetailObject{
     buf.append("width: 70;");
     buf.append("} ");
 
+    
+    buf.append("td.gridreverse { ");
+
+    buf.append("  font-family: Trebuchet MS; ");
+    buf.append("  font-size: 9pt; ");
+    buf.append("border-top: thin solid; ");
+    buf.append("border-left: thin solid; ");
+    buf.append("border-color: #CDCDC1; ");
+    buf.append("padding-top: 4; ");
+    buf.append(" padding-bottom: 4; ");
+    buf.append(" padding-right: 4; ");
+    buf.append(" padding-left: 4; ");
+    buf.append(" color: white; ");
+    buf.append(" font-weight: bold; ");
+    buf.append("  background-color: gray; ");
+    buf.append(" } ");
+    
     buf.append("th {");
     buf.append("background-color: #6CA6CD;");
     buf.append("font-family: Trebuchet MS;");
