@@ -3,7 +3,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:hci = "hci.components.*"
 	xmlns:views = "views.*"
-	width="100%" height="100%" creationComplete="init();">
+	width="100%" height="100%">
 
 	<mx:HTTPService
 		id="getProtocolList"
@@ -11,7 +11,8 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
-		result="resultHandler(event)">
+		result="resultHandler(event)"
+		fault="faultHandler(event)">
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>
@@ -22,9 +23,9 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
-		result="resultHandler(event)">
+		result="resultHandler(event)"
+		fault="faultHandler(event)">
 		<mx:request>
-			
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -35,29 +36,9 @@
 		method="POST"
 		resultFormat="e4x"
 		useProxy="false"
-		result="resultHandler(event)">
+		result="resultHandler(event)"
+		fault="faultHandler(event)">
 		<mx:request>
-			<idProtocol>
-				{protocol.getItemAt(0).id}
-			</idProtocol>
-			<protocolName>
-				{protocolName.text}
-			</protocolName>
-			<codeRequestCategory>
-				{codeRequestCategory.selectedItem.@value}
-			</codeRequestCategory>
-			<protocolDescription>
-				{description.text}
-			</protocolDescription>
-			<protocolUrl>
-				{url.text}
-			</protocolUrl>
-			<isActive>
-				{isActive.data}
-			</isActive>
-			<protocolClassName>
-				{browseProtocols.selectedItem.@protocolClassName}
-			</protocolClassName>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -87,6 +68,7 @@
 			import mx.utils.URLUtil;
 			import flash.net.navigateToURL;
 			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			
@@ -134,7 +116,7 @@
 			[Bindable]
 			public var refreshData:Boolean = false;
 			
-			public function init():void {
+			public function initializeData():void {
 				callGetProtocolList();
 			}
 			
@@ -149,7 +131,15 @@
 			}
 			
 			public function callSaveProtocol():void {
-				var call:Object = saveProtocol.send();
+				var params:Object = new Object();
+				params.idProtocol = idProtocol.text;
+				params.protocolName = protocolName.text;
+				params.codeRequestCategory = codeRequestCategory.selectedItem.@value;
+				params.protocolDescription = description.text;
+				params.protocolUrl = url.text;
+				params.isActive = isActive.data;
+				params.protocolClassName =  protocolClassName.text;
+				var call:Object = saveProtocol.send(params);
 				call.marker = "doneSaveProtocol";
 				open = browseProtocols.openItems;
 				refreshData = true;
@@ -185,8 +175,11 @@
 					protocolViews.selectedChild = blankProtocol;
 					bodyPanel.title = "Protocol: ";
 				}
-				
 			}
+			
+			public function faultHandler(event:FaultEvent):void {
+	           Alert.show(event.fault.faultString, "Error");
+	        }
 			
 			public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Protocol") {
@@ -196,19 +189,23 @@
 				}
 			}
 			
-			public function onBrowseProtocols(event:MouseEvent):void {
+			public function onBrowseProtocols(event:Event):void {
 				if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.name() == 'Protocol') {
 					selectedIdx = browseProtocols.selectedIndex;
-					bodyPanel.title = "Protocol: " + browseProtocols.selectedItem.@label;
+					bodyPanel.title = protocolList.(@protocolClassName == browseProtocols.selectedItem.@protocolClassName).@label+": " + browseProtocols.selectedItem.@label;
 					var params:Object = new Object();
 					params.id = browseProtocols.selectedItem.@id;
 					params.protocolClassName = browseProtocols.selectedItem.@protocolClassName;
 					callGetProtocol(params);
 					lastSelectedProtocolClass =  browseProtocols.selectedItem.@protocolClassName;
-					deleteProtocolButton.enabled=true;
-					saveProtocolButton.enabled=true;
+					if (parentApplication.hasPermission("canWriteDictionaries")) {
+						deleteProtocolButton.enabled=true;
+						saveProtocolButton.enabled=true;
+					}
 				} else if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.name() == "Protocols") {
-					addProtocolButton.enabled=true;
+					if (parentApplication.hasPermission("canWriteDictionaries")) {
+						addProtocolButton.enabled=true;
+					}
 					deleteProtocolButton.enabled=false;
 					saveProtocolButton.enabled=false;
 					bodyPanel.title = "Protocol: ";
@@ -232,14 +229,22 @@
 					testForURL();
 				} else {
 					protocolViews.selectedChild = viewProtocol;
+					testForURL();
+					addProtocolButton.enabled=false;
+					deleteProtocolButton.enabled=false;
+					saveProtocolButton.enabled=false;
 				}
 			}
 			
 			public function testForURL():void {
+				var showurl:Boolean = false;
 				if (fullProtocol.url != null && fullProtocol.url != "") {
-					viewUrlButton.enabled=true;
-				} else {
-					viewUrlButton.enabled=false;
+					showurl = true;
+				}
+				if (protocolViews.selectedChild == editProtocol) {
+					viewUrlButton.enabled = showurl;
+				} else if (protocolViews.selectedChild == viewProtocol) {
+					viewUrlButton2.enabled = showurl;
 				}
 			}
 			
@@ -304,10 +309,9 @@
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
 		<mx:Panel width="220" height="100%" title="Protocol List" layout="absolute">
-			<!--mx:Canvas label="Protocols" width="100%" height="100%"-->
 				<mx:Tree 
 					id="browseProtocols" 
-					right="0" left="0" bottom="10" top="20"
+					right="0" left="0" bottom="10" top="10"
 					iconFunction="getTreeIcon"
 					borderThickness="0" 
 					labelField="@label" 
@@ -316,15 +320,10 @@
 					selectionColor="#FBF5B5" 
 					rollOverColor="#CECECE" 
 					backgroundAlpha="1"
-					click="onBrowseProtocols(event);"
+					change="onBrowseProtocols(event);"
 					render="renderTree()"
 					>
 				</mx:Tree>
-				<mx:CheckBox right="0" top="1" bottom="607" textAlign="center" downIcon="@Embed(source='../assets/bullet_toggle_minus.png')">
-						<mx:icon>@Embed(source='../assets/bullet_toggle_plus.png')</mx:icon>
-				</mx:CheckBox>
-				<mx:Label x="135" y="2" text="toggle view" fontSize="9" textAlign="center"/>
-			<!--/mx:Canvas-->
 			<mx:ControlBar horizontalAlign="left" verticalAlign="middle" x="0" y="924" width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:Button id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../assets/brick_add.png')" toolTip="Add protocol" label="New" width="64" enabled="false" disabledIcon="@Embed(source='../assets/page_add_disable.png')"/>
 				<mx:Button id="deleteProtocolButton" click="onDelete()" icon="@Embed('../assets/brick_delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false">
@@ -336,16 +335,7 @@
 		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" title="Protocol:" paddingTop="0">
 		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0">
 		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:Label text="No protocol selected" fontSize="20" color="#A8B3BD" textAlign="right" right="10" top="10" width="308"/>
-			<!--mx:PieChart id="piechart1" left="10" top="61" right="10" bottom="10" dataProvider="{protocolList}" >
-				<mx:series>
-					<mx:PieSeries displayName="Scan Protocols" field="{protocolList.Protocols.(@label='Scan Protocol').children().length}"/>
-					<mx:PieSeries displayName="Hyb Protocols" field="{protocolList.Protocols.(@label='Hyb Protocol').children().length}"/>
-					<mx:PieSeries displayName="Feature Extraction Protocols" field="{protocolList.Protocols.(@label='Featur Extraction Protocol').children().length}"/>
-					<mx:PieSeries displayName="Labeling Protocols" field="{protocolList.Protocols.(@label='Labeling Protocol').children().length}"/>
-				</mx:series>
-			</mx:PieChart>
-			<mx:Legend dataProvider="{piechart1}" x="10" y="61" height="57"/-->
+			<mx:Label text="No protocol selected" fontSize="20" color="#CCCCCC" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 			<mx:HBox left="10" top="10" right="394" styleName="formDisplay">
@@ -374,7 +364,7 @@
 				<mx:Label text="{protocol.getItemAt(0).url}" width="100%"/>
 			</mx:HBox>
 			<mx:HBox width="103" height="26" horizontalAlign="center" verticalAlign="middle" right="10" top="44">
-				<mx:Button enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
+				<mx:Button id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
 			</mx:HBox>
 			<mx:VBox top="78" bottom="10" left="10" right="10">
 				<mx:Label text="Protocol Description:" fontWeight="bold"/>
@@ -400,7 +390,7 @@
 					width="100%">
 					</hci:DictionaryComboBox>
 			</mx:VBox>
-			<mx:VBox height="46" right="10" top="10" width="103" horizontalAlign="left" verticalAlign="bottom">
+			<mx:VBox right="10" top="10" width="103" horizontalAlign="left" verticalAlign="bottom" bottom="603">
 				<hci:CheckBoxYN  id="isActive" data="{protocol.getItemAt(0).isActive.toString()}" label="Active"/>
 			</mx:VBox>
 			<mx:VBox height="46" left="10" top="64" right="121">
@@ -410,10 +400,12 @@
 			<mx:VBox width="103" height="46" horizontalAlign="center" verticalAlign="bottom" right="10" top="64">
 				<mx:Button id="viewUrlButton" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
 			</mx:VBox>
-			<mx:VBox top="118" bottom="10" left="10" right="10">
+			<mx:VBox top="118" left="10" right="10" bottom="10">
 				<mx:Label text="Protocol Description:"/>
 				<mx:TextArea id="description" text="{protocol.getItemAt(0).description}" height="100%" width="100%"/>
 			</mx:VBox>	
+			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{protocol.getItemAt(0).id}" left="0" top="0"/>
+			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{protocol.getItemAt(0).protocolClassName}" left="0" top="0"/>
 		</mx:Canvas>
 		</mx:ViewStack>
 			<mx:ControlBar width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" horizontalAlign="right" paddingTop="4" x="0" y="655">
