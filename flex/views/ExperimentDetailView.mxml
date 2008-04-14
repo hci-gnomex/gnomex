@@ -140,6 +140,9 @@
 			}
 		}
 		
+		private function showDownloads():void {
+			parentDocument.showExperimentDownloads();
+		}
 
 	  	public function promptToDeleteExperiment():void {
 			Alert.show("Delete experiment " + parentDocument.selectedExperiment.@number + "?", 
@@ -583,16 +586,22 @@
 </mx:VBox>
 
 <mx:ControlBar width="100%">
-    <mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')" id="requestFormButton"/>
-
-    <mx:Button label="Edit..." click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
-        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-    </mx:Button>				
-    <mx:Button label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../assets/delete.png')">
-        <mx:height>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
-        <mx:visible>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
-    </mx:Button>
+    <mx:HBox width="100%" horizontalAlign="left">
+	    <mx:Button label="Downloads" click="showDownloads()" icon="@Embed(source='../assets/icon_download.gif')" id="downloadExperimentButton"/>
+	    <mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed(source='../assets/page.png')" id="requestFormButton"/>
+	    <mx:Button label="Edit..." click="showEditExperimentWindow()" icon="@Embed(source='../assets/tag_blue_edit.png')">
+	        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+	    </mx:Button>				
+	
+    </mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="right">
+	    <mx:Button label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../assets/delete.png')">
+	        <mx:height>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
+	    </mx:Button>
+    	
+    </mx:HBox>
 </mx:ControlBar>
 
 <mx:states>

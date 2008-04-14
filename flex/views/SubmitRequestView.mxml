@@ -1246,7 +1246,7 @@
 		
 		
 		private function submitRequest():void {
-			
+		 	
 			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
 			request.@idAppUser = setupView.idAppUser;

@@ -19,11 +19,11 @@ public class Constants {
   public static final String              EMAIL_BIOINFORMATICS_MICROARRAY = "bioinformaticscore@utah.edu";
   public static final String              EMAIL_MICROARRAY_CORE_FACILITY  = "brian.dalley@hci.utah.edu";
   
-  public static final String              WINDOW_TRACK_REQUESTS           = "requestTrackingWindow";
-  public static final String              WINDOW_FETCH_RESULTS            = "requestDownloadWindow";
+  public static final String              WINDOW_TRACK_REQUESTS           = "ExperimentDetail";
+  public static final String              WINDOW_FETCH_RESULTS            = "ExperimentDownload";
 
-  public static final String              WINDOW_NAME_TRACK_REQUESTS      = "Track";
-  public static final String              WINDOW_NAME_FETCH_RESULTS       = "Fetch";
+  public static final String              WINDOW_NAME_TRACK_REQUESTS      = "Experiment Detail";
+  public static final String              WINDOW_NAME_FETCH_RESULTS       = "Experiment Download";
 
   public static final  String             STATUS_COMPLETED                = "Completed";
   public static final  String             STATUS_TERMINATED               = "Terminated";

@@ -62,7 +62,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 
 	AC_FL_RunContent(
 		"src", "playerProductInstall",
-		"FlashVars", "isGuest=<%=request.getParameter("isGuest")%>&MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+		"FlashVars", "isGuest=<%=request.getParameter("isGuest")%>&launchWindow=<%=request.getParameter("launchWindow")%>&requestNumber=<%=request.getParameter("requestNumber")%>&MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
 		"width", "100%",
 		"height", "100%",
 		"align", "middle",
@@ -79,7 +79,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	// embed the Flash Content SWF when all tests are passed
 	AC_FL_RunContent(
 			"src", "gnomexFlex",
-			"FlashVars", "isGuest=<%=request.getParameter("isGuest")%>",
+			"FlashVars", "isGuest=<%=request.getParameter("isGuest")%>&launchWindow=<%=request.getParameter("launchWindow")%>&requestNumber=<%=request.getParameter("requestNumber")%>",
 			"width", "100%",
 			"height", "100%",
 			"align", "middle",

@@ -33,6 +33,18 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+
+   
+   <mx:HTTPService  
+    id="getRequestForDownload" 
+    url="GetRequest.gx"
+    destination="getRequestForDownload"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequestForDownload(event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
    
    <mx:HTTPService  
     id="deleteRequest" 
@@ -107,6 +119,9 @@
         
         [Bindable]
     	public var rowCountMessage:String = new String();
+    	
+
+    	private var showDownloads:Boolean = false;
     
 
 	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
@@ -140,14 +155,21 @@
         	} else {
         		browseTree.visible = true;
         	}
-        	if (selectedRequestNumber != null) {
-	        	expandAllNodes();          		
+        	
+        	var call:Object = event.token;
+        	if (call.marker == "showDownloads") {
+        		showDownloads = true;
         	} else {
-        		expandLabNodes();
+        		showDownloads = false;
         	}
+
         	callLater(reselectTreeItem);    	
+        	if (selectedRequestNumber != null) {
+	        	callLater(expandAllNodes);          		
+        	} else {
+        		callLater(expandLabNodes);
+        	}
 	    }
-	    
 
 	    
 	    
@@ -177,7 +199,6 @@
 	    
 	    private function selectTreeNode():void {
 	    	browseTree.selectedItem = selectedNode;
-	    	//browseTree.firstVisibleItem = selectedRequestNode;
 	    	onBrowseTree();
 	    }
 	    
@@ -185,15 +206,23 @@
         
 	    private function expandLabNodes():void
   		{
-  			browseTree.openItems = getProjectRequestList.lastResult..Lab;
+  			browseTree.expandItem(getProjectRequestList.lastResult, true);
+  			for each(var lab:Object in getProjectRequestList.lastResult..Lab) {
+  				browseTree.expandItem(lab, true);
+  			}
   			browseTree.validateNow();
   			treeContainer.validateNow();
   		}
 
-	    private function expandAllNodes():void
+	    public function expandAllNodes():void
   		{
-  			browseTree.openItems = getProjectRequestList.lastResult..Lab;
-  			browseTree.openItems = getProjectRequestList.lastResult..Project;
+  			browseTree.expandItem(getProjectRequestList.lastResult, true);
+  			for each(var lab:Object in getProjectRequestList.lastResult..Lab) {
+  				browseTree.expandItem(lab, true);
+  			}
+  			for each(var project:Object in getProjectRequestList.lastResult..Project) {
+  				browseTree.expandItem(project, true);
+  			}
   			browseTree.validateNow();
   			treeContainer.validateNow();
   		}
@@ -223,6 +252,7 @@
 			selectedIdLab = null;
 			
 			deleteProjectButton.visible = false;
+			newProjectButton.visible = false;
 			
 			if (browseTree.selectedItem == null) {
 				return;
@@ -269,6 +299,26 @@
 			theViews.visible = true;
 			
 			
+		}
+		
+		public function showExperimentDownloads():void {
+			
+			selectedNode = browseTree.selectedItem.parent();
+			selectTreeNode();
+			
+			for each (var item:Object in requestNumbers) {
+				if (item.data == selectedExperiment.@number) {
+					browseView.requestNumberCombo.selectedItem = item;
+					break;
+				}
+			}
+			
+			
+			theViews.selectedChild = browseView;
+			browseView.theViews.selectedChild = browseView.downloadView;
+			browseView.refreshButtonStack();
+			
+
 		}
 		
 		public function refreshRequestNumbers(experimentList:XMLListCollection):void {
@@ -383,6 +433,13 @@
 
 		
 		private function onGetRequest(event:ResultEvent):void {
+		    if (this.showDownloads) {
+		    	this.showExperimentDownloads();
+		    	theViews.visible = true;
+		    	this.showDownloads = false;
+		    	return;
+		    }
+
 			if (selectedIdRequest != null) {
 				selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);			
 			} else {
@@ -396,10 +453,23 @@
 				
 			    detailView.title = "Experiment " + selectedRequestNumber;
 			    
+			    
 			}
 		    theViews.selectedChild = detailView;
 			detailView.setupForm();
 
+		    theViews.visible = true;
+		}
+
+		private function onGetRequestForDownload(event:ResultEvent):void {
+			selectedExperiment = getRequestForDownload.lastResult.Request.(@number == selectedRequestNumber);
+			
+			var params:Object = new Object();
+			params.idProject = selectedExperiment.@idProject;
+			params.showSamples = "N";
+			params.showCategory = "N";
+			var call:Object = getProjectRequestList.send(params);
+			call.marker = "showDownloads";
 		    theViews.visible = true;
 		}
 		
@@ -610,10 +680,10 @@
 				</mx:VBox>
 					<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 						        <mx:Button id="newProjectButton" click="browseView.showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
-						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..." width="58"/>
+						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..." width="58" visible="false"/>
 						        <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
 						        	click="browseView.projectDetailView.promptToDeleteProject()"
-						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project" width="79"/>
+						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project" width="79" visible="false"/>
 						
 					</mx:ControlBar>
 			</mx:Panel> 

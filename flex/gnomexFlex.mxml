@@ -37,6 +37,10 @@
 	        [Bindable]
 	        [Embed(source="assets/folder.png")]
 	        public var iconProject:Class;
+
+	        [Bindable]
+	        [Embed(source="assets/folder.png")]
+	        public var iconFolder:Class;
 	
 	        [Bindable]
 	        [Embed(source="assets/color_swatch.png")]
@@ -132,9 +136,26 @@
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 
+
 				var parms:Object = new Object();
 				parms.requestNumber = requestNumber;
 				navExperimentView.getRequest.send(parms);
+
+				theViews.visible = true;
+				theViews.selectedChild = navExperimentView;
+				
+			}
+			
+			public function showExperimentDownload(requestNumber:String):void {
+				navExperimentView.selectedRequestNumber = requestNumber;
+				navExperimentView.selectedIdRequest = null;
+				navExperimentView.selectedIdLab = null;
+				navExperimentView.selectedIdProject = null;
+
+
+				var parms:Object = new Object();
+				parms.requestNumber = requestNumber;
+				navExperimentView.getRequestForDownload.send(parms);
 
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
@@ -183,6 +204,32 @@
        				return Application.application.parameters.isGuest == 'Y';
             	} else {
             		return false;
+            	}
+            }
+            public function launchExperimentDownloads():Boolean {
+            	if (Application.application.parameters.launchWindow != null &&
+            	    Application.application.parameters.launchWindow == "ExperimentDownload" &&
+            	    Application.application.parameters.requestNumber != null ) {
+       				return true;
+            	} else {
+            		return false;
+            	}
+            }
+            public function launchExperimentDetail():Boolean {
+            	if (Application.application.parameters.launchWindow != null &&
+            	    Application.application.parameters.launchWindow == "ExperimentDetail" &&
+            	    Application.application.parameters.requestNumber != null ) {
+       				return true;
+            	} else {
+            		return false;
+            	}
+            }
+            
+            public function getLaunchRequestNumber():String {
+            	if (Application.application.parameters.requestNumber != null) {
+       				return Application.application.parameters.requestNumber;
+            	} else {
+            		return "";
             	}
             }
             
@@ -253,11 +300,11 @@
 				return hasPermission;
             }
             
-            public function getGroupsToManaage():Object {
+            public function getGroupsToManage():Object {
             	if (isGuestMode()) {
-            		return new XMLList();
+            		return new XMLListCollection();
             	} else {
-            		return createSecurityAdvisor.lastResult.groupsToManage.Lab;
+            		return new XMLListCollection(createSecurityAdvisor.lastResult.groupsToManage.Lab);
             	}
             }
             
@@ -276,7 +323,7 @@
             }
             
             public function canSubmitRequests(idLab:int):Boolean {
-            	var theLab:Object = getLabList.lastResult.groupsToManage.Lab.(@idLab == idLab);
+            	var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
             	if (theLab != null && theLab.@canSubmitRequests == 'Y') {
             		return true;
             	} else {
@@ -431,7 +478,9 @@
 	        } 
 	        
 	        private function enableApp():void {
-	        	if (promptedProjectList != null &&
+	        	if (manageLabList != null &&
+	        	    filteredGenomeBuildList != null &&
+	        	    promptedProjectList != null &&
 	        	    filteredProjectList != null &&
 	        	    promptedAppUserList != null &&
 	        	    promptedLabList != null &&
@@ -448,7 +497,28 @@
 	        	    lookupButton.visible = true;
 	        	    searchLabel.visible = true;
 	        	    	
+		        	callLater(launchStartWindow);
 	        	}
+	        	
+	        }
+	        
+	        private function launchStartWindow():void {
+	        	if (launchExperimentDownloads()) {
+
+					theViews.visible = true;
+					theViews.selectedChild = navExperimentView;
+
+
+	        		this.showExperimentDownload(getLaunchRequestNumber());
+	        	} else if (launchExperimentDetail()) {
+	        		
+	        		
+					theViews.visible = true;
+					theViews.selectedChild = navExperimentView;
+
+	        		this.showExperiment(getLaunchRequestNumber());
+	        	}
+	        	
 	        }
 	        
 	        private function sortDictionaryEntries(obj1:Object, obj2:Object, fields:Array=null):int {
