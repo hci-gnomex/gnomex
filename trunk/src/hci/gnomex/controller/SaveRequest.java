@@ -176,13 +176,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // save hybs
         if (!requestParser.getHybInfos().isEmpty()) {
           int hybCount = 1;
+          int newHybCount = 0;
           for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
             RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
+            boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
+            if (isNewHyb) {
+              newHybCount++;
+            }
             saveHyb(hybInfo, sess, hybCount);
             hybCount++;
           }
-          if (requestParser.isNewRequest()) {
-            requestParser.getRequest().setHybridizations(hybs);        
+          if (requestParser.isNewRequest() || newHybCount > 0) {
+            requestParser.getRequest().getHybridizations().addAll(hybs);        
           }                
         }
         
@@ -681,8 +686,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       if (hyb.getLabeledSampleChannel2() != null) {
         sess.refresh(hyb.getLabeledSampleChannel2());        
       }
-      
       hybs.add(hyb);
+      
     }
     
     

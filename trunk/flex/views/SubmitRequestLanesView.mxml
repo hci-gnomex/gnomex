@@ -12,7 +12,7 @@
 		private function addLane():void {
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-			    " notes='' " + 
+			    " alignNotes='' " + 
 				" idFlowCellType=''" + 
 				" idNumberSequencingCycles=''" +
 				" idGenomeBuildAlignTo=''" +
@@ -29,7 +29,7 @@
 					
 					var emptyNode:XML = new XML("<SequenceLane " +
     			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" notes='" + laneToCopy.@notes + "'" + 
+					" alignNotes='" + laneToCopy.@alignNotes + "'" + 
 					" idSample='" + laneToCopy.@idSample + "'" +
 					" idFlowCellType='" + laneToCopy.@idFlowCellType + "'" +			
 					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
@@ -43,7 +43,11 @@
 		}
 		private function deleteLane():void {
 			if (lanesGrid.selectedItems.length > 0) {
-				for each(var lane:Object in lanesGrid.selectedItems) {		
+				for each(var lane:Object in lanesGrid.selectedItems) {
+					if (lane.@idSequenceLane.indexOf("SequenceLane") < 0) {
+						Alert.show("Existing lane " + lane.@number + " cannot be deleted.");
+						continue;
+					}		
 					var index:int = parentDocument.lanes.getItemIndex(lane);			
 					parentDocument.lanes.removeItemAt(index);
 				}
@@ -242,10 +246,8 @@
 			<mx:AddChild relativeTo="{lanesGrid}"  position="before">
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" id="buttonContainer">
 						<mx:HBox>
-							<mx:Button label="Add" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addLaneButton"/>
-							<mx:Button label="Copy" click="addLane();checkLanesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyLaneButton"/>
+							<mx:Button label="Copy" click="copyLane();checkLanesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyLaneButton"/>
 							<mx:Button label="Delete" click="deleteLane();checkLanesCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteLaneButton"/>
-							<mx:Button label="Clear all" click="promptToClearAllLanes()" icon="@Embed('../assets/folder_delete.png')" id="clearLanesButton"/>
 						</mx:HBox>
 						
 					</mx:HBox>

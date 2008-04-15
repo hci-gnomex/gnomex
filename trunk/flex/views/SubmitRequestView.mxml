@@ -34,6 +34,7 @@
    		<idRequest>{requestToClone.@idRequest}</idRequest>    	
     </mx:request>
   </mx:HTTPService>
+
   
   <mx:HTTPService  
     id="saveNewRequest" 
@@ -624,14 +625,13 @@
         	}
         	
 			var doesMatchRequestCategoryVendor:Boolean = true;
-        	if (setupView.requestTypeGroup.selectedValue != null && 
-        	    setupView.requestTypeGroup.selectedValue != "") {
+        	if (!isEditState()) {
 				var requestCategory:Object = setupView.getRequestCategory();
         		doesMatchRequestCategoryVendor = false;
         		if (item.@idVendor == requestCategory.@idVendor) {
         			doesMatchRequestCategoryVendor = true;
         		}
-        	} else if(request != null && request.@idRequest != '0') {
+        	} else {
         		doesMatchRequestCategoryVendor = false;
 				var rCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
         		if (item.@idVendor == rCategory.@idVendor) {
@@ -1129,13 +1129,13 @@
 			var unusedSampleList:String = '';
 			var unusedSampleCount:int = 0;
 			var target:String = "";
-			if (setupView.requestTypeGroup.selectedValue != "QC") {
+			if (!isQCState()) {
 				for each(var sample:Object in samples) {
 					var useCount:int = 0;
-					if (setupView.requestTypeGroup.selectedValue == "SOLEXA") {
+					if (isSolexaState()) {
 						useCount = getLaneCount(sample);
 						target = "sequence lane";
-					} else {
+					} else if (isMicroarrayState()) {
 						useCount = getChannelCount(sample);
 						target = "hybridization";
 					}
@@ -1167,7 +1167,7 @@
 			
 			// Warn if some of the arrays (on a multi-array slide) are not used.	
 			
-			if (!this.isSolexaState() && setupView.requestTypeGroup.selectedValue != "QC") {
+			if (isMicroarrayState()) {
 				if (hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != '' && hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 1) {
 					if (hybs.length % hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 0) {
 						warningMessage = "There are unused arrays on the multi-array slide  '" + hybSetupView.slideProductCombo.selectedItem.@name +
@@ -1308,7 +1308,7 @@
 		
 		private function saveRequest():void {
 			
-			if (!this.isSolexaState()) {
+			if (this.isMicroarrayState()) {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeMicroarrayCategory = hybSetupView.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;
 			} 			
@@ -1318,13 +1318,13 @@
 				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
-			if (request.@codeRequestCategory != "QC") {
+			if (isMicroarrayState()) {
 				for each(var hyb:Object in hybs) {
 					request.hybridizations.appendChild(hyb);
 				 }
 			}
 			request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 
-			if (request.@codeRequestCategory == "SOLEXA") {
+			if (isSolexaState()) {
 				for each(var lane:Object in lanes) {
 					request.sequenceLanes.appendChild(lane);
 				}
@@ -1415,7 +1415,7 @@
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
-				
+				parentApplication.navExperimentView.detailView.refreshSavedExperiment();
 			} else {
 				Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
