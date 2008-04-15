@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
@@ -9,6 +10,7 @@ import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -60,7 +62,7 @@ public class DeleteSlideSet extends GNomExCommand implements Serializable {
       // Check permissions
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         SlideProduct slideProduct = (SlideProduct)sess.load(SlideProduct.class, idSlideProduct);
-        
+        /*
         //
         // Check to see if there are any slide designs attached.  If so, disallow
         // the delete.
@@ -76,12 +78,27 @@ public class DeleteSlideSet extends GNomExCommand implements Serializable {
           }
           this.addInvalidField("slideDesigns", "Slide(s) " + buf.toString() + " must be unassigned from the slide set before the slide set can be deleted." );
         }
-
+         */
         
         //
-        // Delete lab
+        // Delete slide
         //
         if (this.isValid()) {
+          // first iterate through the slide designs and delete the array coords because the cannot not be mapped
+          // because of some odd bug in dictionary manager
+          Iterator sdIter = slideProduct.getSlideDesigns().iterator();
+          while (sdIter.hasNext()) {
+            SlideDesign sd = (SlideDesign) sdIter.next();
+            //
+            // Delete array coordinates
+            //
+            List arrayCoords = sess.createQuery("SELECT ac from ArrayCoordinate ac where ac.idSlideDesign = " + sd.getIdSlideDesign()).list();
+            for(Iterator i = arrayCoords.iterator(); i.hasNext();) {
+              ArrayCoordinate ac  = (ArrayCoordinate)i.next();
+              sess.delete(ac);
+            }
+            
+          }
           sess.delete(slideProduct);
           sess.flush();
         }

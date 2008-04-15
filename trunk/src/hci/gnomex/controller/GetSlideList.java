@@ -53,26 +53,40 @@ public class GetSlideList extends GNomExCommand implements Serializable {
     log.info("Query for GetSlideProductList: " + buf.toString());
     List slideDesigns = (List)sess.createQuery(buf.toString()).list();
     
-    Document doc = new Document(new Element("SlideProductList"));
-    Element spNode = null;
+    Document doc = new Document(new Element("SlideList"));
+    Element slideNode = null;
     for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
       SlideProduct sp = (SlideProduct)i.next();
       Hibernate.initialize(sp.getSlideDesigns());
-      spNode = new Element("SlideProduct");
-      spNode.setAttribute("name",sp.getName());
-      spNode.setAttribute("id", sp.getIdSlideProduct().toString());
-      spNode.setAttribute("isSlideSet",sp.getIsSlideSet());
+      Iterator sdIter = sp.getSlideDesigns().iterator();
       if (sp.getIsSlideSet().equals("Y")) {
-        Iterator sdIter = sp.getSlideDesigns().iterator();
+        slideNode = new Element("SlideProduct");
+        slideNode.setAttribute("name",sp.getName());
+        slideNode.setAttribute("id", sp.getIdSlideProduct().toString());
+        slideNode.setAttribute("isSlideSet",sp.getIsSlideSet());
+        slideNode.setAttribute("isActive", sp.getIsActive());
         while (sdIter.hasNext()) {
           SlideDesign sd = (SlideDesign) sdIter.next();
           Element sdNode = new Element("SlideDesign");
           sdNode.setAttribute("name", sd.getName());
           sdNode.setAttribute("id", sd.getIdSlideDesign().toString());
-          spNode.addContent(sdNode);
+          sdNode.setAttribute("isActive", sd.getIsActive());
+          sdNode.setAttribute("isInSlideSet", sp.getIsSlideSet());
+          sdNode.setAttribute("slideSetName", sp.getName());
+          sdNode.setAttribute("idSlideProduct", sp.getIdSlideProduct().toString());
+          slideNode.addContent(sdNode);
+        }
+      } else {
+        while (sdIter.hasNext()) {
+          SlideDesign sd = (SlideDesign) sdIter.next();
+          slideNode = new Element("SlideDesign");
+          slideNode.setAttribute("name", sd.getName());
+          slideNode.setAttribute("id", sd.getIdSlideDesign().toString());
+          slideNode.setAttribute("isActive", sd.getIsActive());
+          slideNode.setAttribute("isInSlideSet", "N");
         }
       }
-      doc.getRootElement().addContent(spNode);
+      doc.getRootElement().addContent(slideNode);
     }
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -80,19 +94,19 @@ public class GetSlideList extends GNomExCommand implements Serializable {
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetSlideProductList ", e);
+      log.error("An exception has occurred in GetSlideList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetSlideProductList ", e);
+      log.error("An exception has occurred in GetSlideList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetSlideProductList ", e);
+      log.error("An exception has occurred in GetSlideList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetSlideProductList ", e);
+      log.error("An exception has occurred in GetSlideList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

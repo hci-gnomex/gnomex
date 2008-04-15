@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas name="dictionary" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:hci="hci.*" 
+	width="100%" height="100%" >
+	
+	<mx:HTTPService
+		id="callManageDictionaries"
+		url="ManageDictionaries.gx"
+		useProxy="false"
+		resultFormat="e4x"
+		result="handleDictXml(currentDictAction,event)"
+		showBusyCursor="true"
+		fault="handleFault(event)"
+		method="POST"
+		>
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.containers.HDividedBox;
+			import mx.containers.VDividedBox;
+			import mx.collections.SortField;
+			import mx.collections.Sort;
+			import flash.net.navigateToURL;
+			import mx.managers.CursorManager;
+			import mx.binding.utils.BindingUtils;
+			import mx.containers.VBox;
+			import mx.core.EdgeMetrics;
+			import mx.controls.Label;
+			import mx.controls.TextInput;
+			import mx.messaging.management.Attribute;
+			import mx.controls.DataGrid;
+			import mx.events.ListEvent;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.charts.series.ColumnSet;
+			import mx.collections.XMLListCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.controls.Alert;
+			import hci.dictionary.ComboBoxDict;
+			import hci.dictionary.ComboBoxYN;
+			
+			[Bindable]
+			public var fullDictXml:XMLList = null;
+			
+			[Bindable]
+			public var dictMetaData:XMLList = null;
+			
+			public var selectedDict:String = null;
+			public var selectedDictIndex:int = -1;			
+			
+			[Bindable]
+			public var dgDictListCol:XMLListCollection = null;
+			
+			[Bindable]
+			public var secAdvisor:XMLList = null;
+			
+			public var currentDictAction:String = null;
+			
+			public function initializeData():void {
+				loadDictionaries();
+			}
+			
+			public function loadDictionaries():void {
+				currentDictAction = "load";
+				callManageDictionaries.cancel();
+				callManageDictionaries.request.action = currentDictAction;
+				callManageDictionaries.request.className = "";
+				callManageDictionaries.send();
+				parentApplication.manageDictionaries.send();
+			}
+			
+			public function reloadDictionaries():void {
+				currentDictAction = "reload";
+				callManageDictionaries.cancel();
+				callManageDictionaries.request.action = currentDictAction;
+				callManageDictionaries.request.className = "";
+				callManageDictionaries.send();
+				loadDictionaries();
+			}
+			
+			public function handleDictXml(action:String,event:ResultEvent):void {
+            	if (event.message.body.toString().indexOf("ERROR") != -1) {
+            		var errXml:XML = new XML(event.message.body.toString());
+            		Alert.show(errXml.ERROR.@message.toString(),"Error");
+            		updateModeDisplay(null);
+            	} else {
+            		if (action == "load" || action == "reload") {
+						fullDictXml = this.callManageDictionaries.lastResult.Dictionary.(@canWrite=="Y");
+						initCbDict();
+						if (selectedDict != null) {
+							dgDictListCol.refresh();
+            				getDataForSelectedDict();
+						}
+						updateModeDisplay(null);
+            		} else if (action == "metadata") {
+            			dictMetaData = this.callManageDictionaries.lastResult.Dictionary;
+            			getDataForSelectedDict();
+            			updateModeDisplay(null);
+            		} else if (action == "save" || action == "add") {
+            			updateModeDisplay("saveSuccess");
+            			loadDictionaries();
+            		} else if (action == "delete") {
+            			updateModeDisplay("deleteSuccess");
+						reloadDictionaries();
+            			parentApplication.manageDictionaries.send();
+            		}
+            	}
+            	cbDict.selectedIndex = selectedDictIndex;
+            }
+
+	        public function handleFault(event:FaultEvent):void {
+	           Alert.show(event.fault.faultString, "Error");
+	        }
+	       
+	       public function handleError(error:Error):void {
+	           Alert.show(error.message,error.name);               
+	        }
+	       
+	       	        
+	        private function updateModeDisplay(currentMode:String):void {
+	        	if (currentMode == null || currentMode == "") {
+	        		mode.text = "";
+	        	} else if (currentMode == "edit") {
+	        		mode.text = "Editing current selection...";
+	        	} else if (currentMode == "add") {
+	        		mode.text = "Adding new entry...";
+	        	} else if (currentMode == "save") {
+	        		mode.text = "Saving data...";
+	        	} else if (currentMode == "delete") {
+	        		mode.text = "Deleting current selection...";
+	        	} else if (currentMode == "metadata") {
+	        		mode.text = "Retrieving dictionary entries...";
+	        	} else if (currentMode == "saveSuccess") {
+	        		mode.text = "Save successful...";
+	        	}else if (currentMode == "deleteSuccess") {
+	        		mode.text = "Entry successfully delete...";
+	        	}else {
+	        		mode.text = "";
+	        	}
+	        }
+	       
+	      	public function initCbDict():void {
+	        	var cbDictListCol:XMLListCollection = new XMLListCollection(fullDictXml);
+	        	var item:Object = null;
+	        	
+	        	// sort by displayName
+	        	var sortDisplay:Sort = new Sort();
+	       		sortDisplay.fields=[new SortField("@displayName")];
+	       		cbDictListCol.sort = sortDisplay;
+	       		cbDictListCol.refresh(); 
+	        	
+	        	cbDict.dataProvider = cbDictListCol;
+	        	cbDict.labelField = "@displayName";
+				cbDict.prompt = "Select a dictionary...";
+				cbDict.selectedIndex = selectedDictIndex;
+	      	}
+	       
+	       private function initGetDataForSelectedDict(event:Event):void {
+	       		clearEditor();
+	       		clearDictGrid();
+	       		if (event.currentTarget.selectedItem.@className == " ") {
+	       			selectedDict = null;
+	       			add.enabled = false;
+	       			del.enabled = false;
+	       			return;
+	       		} else {
+		       		selectedDict = cbDict.selectedItem.@className;
+		       		selectedDictIndex = cbDict.selectedIndex;
+		       		callManageDictionaries.request.action = currentDictAction;
+		       		callManageDictionaries.request.className = selectedDict;
+		       		callManageDictionaries.send();
+		       		add.enabled = true;
+		       		save.visible = true;
+		       		save.enabled = false;
+		       		insert.visible = false;
+		       		insert.enabled = false;
+	       		}
+	       }
+	       
+	       // Looks up the data for the grid based on the combobox selection
+	        public function getDataForSelectedDict():void {
+	        	
+	        	// enable add button
+	        	add.enabled = true;
+	        	
+	        	dgDictListCol = new XMLListCollection(fullDictXml.(@className==selectedDict).DictionaryEntry.(@canWrite=='Y'));
+				
+	        	// look up and assign columns
+	        	var unOrderedCols:Array = null;
+	        	var dgc:DataGridColumn = null;
+	        	
+	        	unOrderedCols = new Array();
+	        	var spliceAt:int = 0;
+	        	for each(var field:XML in dictMetaData.Field) {
+	        		var isFilter:Boolean = false;
+        			dgc = new DataGridColumn(field.@id);
+        			dgc.dataField = "@"+field.@id;
+        			dgc.headerText = field.@caption;
+        			
+					// set the label function
+					if (field.@isFilter == "Y") {
+						dgc.labelFunction = getDisplayForValue;
+					}
+	        		
+	        		if (field.@visible == "N") {
+	        			dgc.visible = false;
+	        		}
+	        		if (isFilter == true) {
+	        			unOrderedCols.splice(spliceAt,0,dgc);
+	        			spliceAt++;
+	        		} else {
+	        			unOrderedCols.push(dgc);
+	        		}
+	        	}
+	        	
+	        	var orderedCols:Array = new Array();
+	        	var isActiveCol:DataGridColumn = null;
+	        	
+	        	for (var c:int=0;c<unOrderedCols.length;c++) {
+	        		if (unOrderedCols[c].headerText != "Active ?") {
+	        			orderedCols.push(unOrderedCols[c]);
+	        		} else {
+	        			isActiveCol = unOrderedCols[c];
+	        		}
+	        	}
+	        	if (isActiveCol != null) {
+	        		orderedCols.push(isActiveCol);
+	        	}
+	        	
+	        	dgDict.columns = orderedCols;
+				dgDict.dataProvider = dgDictListCol;
+	        }
+	        
+	        public function getDisplayForValue(item:Object, column:DataGridColumn):String {
+	        	var filter:XMLList = fullDictXml.(@className==selectedDict).Filters.filter.(@filterField==column.dataField.replace("@",""));
+	        	var attrs:XMLList = item.attributes();
+	        	var display:String = fullDictXml.(@className==filter.@filterClass.toString()).DictionaryEntry.(@value==item[column.dataField].valueOf()).@display.toString();
+	        	return display;
+	        }
+	        
+	        public function clearEditor():void{
+	        	dgEditor.removeAllChildren();
+	        	save.enabled = false;
+	        	save.visible = true;
+	        	insert.enabled = false;
+	        	insert.visible = false;
+	        }
+	        
+	        public function clearDictGrid():void {
+	        	var clearCols:Array = new Array();
+	        	dgDict.columns = new Array();
+	        }
+	        
+	        public function buildEditorWindow(event:MouseEvent):void {
+	        	
+	        	// don't continue if no dcitionary selected
+	        	if (selectedDict == null || selectedDict == " " ) {
+	        		return;
+	        	}
+
+				// don't continue if there is not row to edit 
+				if (currentDictAction == "edit" && event.currentTarget.selectedItem == null) {
+					return;
+				}
+	        	
+	        	// update the UI
+	        	clearEditor();
+	        	if (currentDictAction == "add") {
+	        		save.enabled = false;
+	        		save.visible = false;
+	        		insert.enabled = true;
+	        		insert.visible = true;
+	        		del.enabled = false;
+	        		updateModeDisplay(currentDictAction);
+	        	} else {
+	        		save.enabled = true;
+	        		updateModeDisplay(currentDictAction);
+	        	}
+	        	
+	        	var xml:XML = new XML();
+	        	if (currentDictAction == 'edit') {
+	        		xml = new XML(dgDict.selectedItem);
+	        	}
+	        	
+	        	var fields:XMLList = new XMLList(dictMetaData.(@className==selectedDict).Field);
+	        	var attrs:XMLList = xml.attributes();
+	        	
+	        	var children:Array = dgEditor.getChildren();
+	        	var fCount:int = 0;
+	        	var isActiveVb:VBox = null;
+	        	for each(var item:Object in fields) {
+	        		var vb:VBox = null;
+	        			
+        			if (item.@isFilter == "Y" && item.@visible == "Y" && item.@dataType != "isActive") {
+		        			vb = buildComponent(item,xml);
+		        			children.splice(fCount,0,vb);
+	        		} else if(item.@isFilter == "N") {
+						if(item.@visible == "Y" && item.@dataType != "isActive") {
+		        			vb = buildComponent(item,xml);
+		        			children.push(vb);
+		        		} else if (item.@visible == "Y" && item.@dataType == "isActive"){
+		        			isActiveVb = buildComponent(item,xml);
+		        		} else if (item.@visible == "N"){
+		        			vb = buildComponent(item,xml);
+		        			vb.visible = false;
+		        			vb.includeInLayout = false;
+		        			children.push(vb);
+		        		}
+	        		}
+	        		fCount++;
+	        	}
+	        	
+	        	// add the isActive control to the end
+	        	if (isActiveVb != null) {
+	        		children.push(isActiveVb);
+	        	}
+	        	for each (var vbox1:VBox in children) {
+	        		dgEditor.addChild(vbox1);
+	        	}
+	        	
+	        }
+	        
+	        public function buildComponent(item:Object,selection:XML):VBox {
+	        	var l:Label = null;
+	        	var vb:VBox = new VBox();
+        		vb.setStyle("verticalGap",1);
+        		vb.id = "vb_"+item.@id;
+        		vb.name = vb.id;
+        		l = new Label();
+        		l.text = item.@caption;
+        		l.id = "label_"+item.@id;
+        		vb.addChild(l);
+        		
+        		var dataTemp:String = "";
+        		if (selection.name() == "DictionaryEntry") {
+        			dataTemp = selection.attribute(item.@id).valueOf();
+        		}
+        		
+        		if (item.@dataType == "text") {
+	        		var ti:TextInput = new TextInput();
+	        		ti.id = item.@id;
+	        		ti.name = ti.id
+	        		ti.data = dataTemp;
+	        		vb.addChild(ti);
+        		} else if (item.@dataType == "comboBox") {
+					var cb:ComboBoxDict = new ComboBoxDict();
+					cb.id = item.@id;
+					cb.name = cb.id;
+					cb.setStyle("cornerRadius",2);
+					cb.labelField = "@display";
+					if (item.@isFilter == 'Y') {
+						cb.dataProvider = fullDictXml.(@className==item.@className).DictionaryEntry.(@canWrite == 'Y');
+					} else {
+						cb.dataProvider = fullDictXml.(@className==item.@className).DictionaryEntry;
+					}
+					cb.data = dataTemp;
+					vb.addChild(cb);
+        		} else if (item.@dataType == "isActive") {
+        			var yn:ComboBoxYN = new ComboBoxYN();
+        			yn.id = item.@id;
+        			yn.name = yn.id;
+					yn.labelField = "display";
+					yn.setStyle("cornerRadius",2);
+					yn.data = dataTemp;
+					vb.addChild(yn);
+        		}
+        		return vb;
+	        }
+	        
+	        private function saveDictionaryForm(event:Event, formData:Object):void {
+	        	// dynamically process form and save it.
+	        	if (formData != null) {
+	        		formData["action"] = currentDictAction;
+	        		formData["className"] = selectedDict;
+	        		clearEditor();
+	        		callManageDictionaries.send(formData);
+	        	}
+	        }
+	        
+	        private function deleteDictionaryEntry(event:Event):void {
+	        	if (dgDict.selectedItem == null) {
+	        		Alert.show("Please select a dictionary item from the grid before pressing the delete button","Item not selected");
+	        		return;
+	        	} else {
+	        		var entryData:Object = new Object();
+	        		
+	        		var fields:XMLList = new XMLList(dictMetaData.(@className==selectedDict).Field);
+	        		var item:XML = new XML(dgDict.selectedItem);
+	        		for each (var field:XML in fields) {
+	        			entryData[field.@id.valueOf()] = item.attribute(field.@id);
+	        		}
+	        		entryData["action"] = currentDictAction;
+	        		entryData["className"] = selectedDict;
+	        		callManageDictionaries.send(entryData);
+	        	}
+	        }
+	        
+	        private function collectFormData():Object {
+	        	var formData:Object = new Object();
+	        	
+	        	// work the the dict meta data and the data in dgEditor and build an ArrayCollection to saved
+	        	var fields:XMLList = new XMLList(dictMetaData.(@className==selectedDict).Field);
+	        	var value:Object = null;
+	        	var vbName:String = null;
+	        	var editor:Array = dgEditor.getChildren();
+	        	for each (var field:XML in fields) {
+	        		var vb:Object = dgEditor.getChildByName("vb_"+field.@id);
+	        		var item:Object = vb.getChildByName(field.@id);
+	        		if (item is hci.dictionary.ComboBoxDict) {
+	        			if (item.selectedIndex == -1) {
+	        				formData[field.@id.valueOf()] = "";
+	        			} else {
+	        				formData[field.@id.valueOf()] = item.selectedItem.@value;
+	        			}
+	        		} else if (item is hci.dictionary.ComboBoxYN) {
+	        			if (item.selectedIndex == -1) {
+	        				formData[field.@id.valueOf()] = "Y";
+	        			} else {
+	        				formData[field.@id.valueOf()] = item.selectedItem.value;
+	        			}
+	        		}else {
+	        			formData[field.@id.valueOf()] = item.text;
+	        		}
+	        	}
+	        	
+	        	return formData;
+	        }
+	        
+	        private function enableDelete():Boolean {
+	        	var enable:Boolean = false;
+	        	if (cbDict.selectedIndex != -1 && dgDict.selectedItem != null) {
+	        		enable = true;
+	        	}
+	        	return enable;
+	        }
+	        
+	       private function onCancel():void {
+	       		clearEditor();
+	       		save.enabled=false;
+	       		if (insert.visible == true) {
+	       			insert.visible = false;
+	       		}
+	       		updateModeDisplay(null);
+	       }
+	       
+		]]>
+	</mx:Script>
+	
+		<mx:Panel layout="absolute" title="Dictionary Editor" id="dictPanel" left="0" right="0" bottom="0" top="0" creationPolicy="all" headerHeight="20" styleName="form">
+				<mx:ComboBox id="cbDict" right="103" left="10" top="10" cornerRadius="2" change="currentDictAction='metadata';updateModeDisplay(currentDictAction);initGetDataForSelectedDict(event);"></mx:ComboBox>
+				<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="10" right="72" enabled="false" click="currentDictAction='add';buildEditorWindow(event);"/>
+				<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="10" right="41" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);"/>
+				<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="10" right="10" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();"/>
+				<mx:HDividedBox id="mainBox" top="42" left="10" right="10" bottom="40" cornerRadius="2">
+						<mx:DataGrid id="dgDict" cornerRadius="2" width="70%" height="100%" doubleClickEnabled="true" doubleClick="currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);"> 
+						</mx:DataGrid>
+						<mx:Tile id="dgEditor" 
+							width="30%" 
+							height="100%" 
+							borderStyle="solid" 
+							borderColor="#b7babc" 
+							backgroundColor="#f4f4f4" 
+							direction="horizontal" 
+					        paddingTop="10" 
+					        paddingBottom="10" 
+					        paddingRight="10" 
+					        paddingLeft="10" 
+					        verticalGap="15" 
+					        horizontalGap="10"
+					        cornerRadius="2" styleName="form">
+						</mx:Tile>
+				</mx:HDividedBox>
+				<mx:Button id="insert" label="Save" bottom="10" right="10" cornerRadius="2" enabled="false" visible="false" click="currentDictAction='add';updateModeDisplay(currentDictAction);saveDictionaryForm(event,collectFormData())"/>
+				<mx:Button id="save" label="Save" bottom="10" right="10" cornerRadius="2" enabled="false" click="currentDictAction='save';updateModeDisplay(currentDictAction);saveDictionaryForm(event,collectFormData())"/>
+				<mx:Button id="cancel" label="Cancel" bottom="10" right="10" cornerRadius="2" enabled="true" click="onCancel()" width="63" visible="false"/>
+				<mx:Text id="mode" bottom="10" width="323" color="#808080"  height="18" right="71" textAlign="right"/>
+		</mx:Panel>
+		
+</mx:Canvas>

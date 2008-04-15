@@ -43,6 +43,8 @@ public class SlideDesignFilter extends DetailObject {
     
     queryBuf.append(" FROM        SlideDesign as sd, SlideProduct as sp ");
     queryBuf.append(" WHERE       sd.idSlideProduct = sp.idSlideProduct");
+    // already have a "where"
+    addWhere = false;
     
     
     addCriteria();

@@ -2,11 +2,12 @@
 <mx:Canvas 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:hci="hci.components.*"
-	width="100%" height="100%" creationComplete="init()">
+	xmlns:views="views.*"
+	width="100%" height="100%">
 
 	<mx:HTTPService
-		id="getSlideProductList"
-		url="GetSlideProductList.gx"
+		id="getSlideList"
+		url="GetSlideList.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
@@ -39,16 +40,73 @@
 			</idSlideProduct>
 		</mx:request>
 	</mx:HTTPService>
-
+	
+	<mx:HTTPService
+		id="saveSlideDesign"
+		url="SaveSlideDesign.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		useProxy="false"
+		result="resultHandler(event)">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="saveSlideProduct"
+		url="SaveSlideProduct.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		useProxy="false"
+		result="resultHandler(event)">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="deleteSlideDesign"
+		url="DeleteSlideDesign.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="resultHandler(event)">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="deleteSlideSet"
+		url="DeleteSlideSet.gx"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="resultHandler(event)">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
 <mx:Script>
 	<![CDATA[
+		import mx.events.CloseEvent;
+		import mx.controls.Alert;
+		import mx.events.IndexChangedEvent;
 		import mx.rpc.events.ResultEvent;
 		
 		[Bindable]
-		public var slideProductList:XMLList;
+		public var fullSlideList:XMLList;
 		
 		[Bindable]
 		public var fullSlideProduct:XMLList;
+		
+		[Bindable]
+		public var fullSlideDesign:XMLList;
+		
+		[Bindable]
+		public var fullSlideDesignMicroarrayCategories:XMLList;
+		
+		[Bindable]
+		public var fullSlideDesignArrayCoordinates:XMLList;
+		
+		[Bindable]
+		public var fullSlideProductMicroarrayCategories:XMLList;
 		
 		[Bindable]
         [Embed(source="assets/image.png")]
@@ -58,173 +116,539 @@
         [Embed(source="assets/images.png")]
         public var iconSlideSet:Class;
 		
-		public function init():void {
-			callGetSlideProductList();
-		}
+		[Bindable]
+        [Embed(source="assets/image_disable.png")]
+        public var iconSlideInActive:Class;
+		
+		[Bindable]
+        [Embed(source="assets/images_disable.png")]
+        public var iconSlideSetInActive:Class;
+		
+		public function initializeData():void {
+          	callGetSlideList();
+          }
 		
 		public function resultHandler(event:ResultEvent):void {
 			var call:Object = event.token;
-			if (call.marker == "doneGetSlideProductList") {
-				this.slideProductList = new XMLList(getSlideProductList.lastResult.SlideProduct);
+			if (call.marker == "doneGetSlideList") {
+				this.fullSlideList = new XMLList(getSlideList.lastResult);
 			} else if (call.marker == "doneGetSlideProduct") {
 				this.fullSlideProduct = new XMLList(getSlideProduct.lastResult);
+				this.fullSlideProductMicroarrayCategories = new XMLList(getSlideProduct.lastResult.microarrayCategories.MicroarrayCategory)
 				selectSlideView();
-			}
+			} else if (call.marker == "doneGetSlideDesign") {
+				this.fullSlideDesign = new XMLList(getSlideDesign.lastResult);
+				this.fullSlideDesignMicroarrayCategories = new XMLList(getSlideDesign.lastResult.SlideProduct.microarrayCategories.MicroarrayCategory);
+				this.fullSlideDesignArrayCoordinates = new XMLList(getSlideDesign.lastResult.arrayCoordinates.ArrayCoordinate);
+				selectSlideView();
+			} else if (call.marker == "doneDeleteSlideDesign" || call.marker == "doneDeleteSlideProduct") {
+				callGetSlideList();
+				browseSlides.selectedIndex = -1;
+				selectSlideView();
+			} 
 		}		
 		
-		public function callGetSlideProductList():void {
-			var call:Object = getSlideProductList.send();
-			call.marker = "doneGetSlideProductList";
+		public function callGetSlideList():void {
+			var call:Object = getSlideList.send();
+			call.marker = "doneGetSlideList";
 		}
 		
 		public function callGetSlideProduct(params:Object):void {
+			this.fullSlideProduct = null;
+			this.slideProduct.refresh();
 			var call:Object = getSlideProduct.send(params);
 			call.marker = "doneGetSlideProduct";
 		}
 		
-		public function callSaveSlideProduct():void {
-			
+		public function callGetSlideDesign(params:Object):void {
+			this.fullSlideDesign = null;
+			this.slideDesign.refresh();
+			var call:Object = getSlideDesign.send(params);
+			call.marker = "doneGetSlideDesign";
 		}
 		
-		public function callSaveSlideDesign():void {
-			
-		}
 		
-		public function prepareToAddSlide():void {
-			
-		}
-		
-		public function prepareToDeleteSlideProduct():void {
-			
-		}
-		
-		public function prepareToDeleteSlideDesign():void {
-			
-		}
-		
-		public function getTreeIcon(item:Object):Class {
-			if (item.@isSlideSet == "Y") {
-				return this.iconSlideSet;
-			}else {
-				return this.iconSlide;
+		public function onSaveSlide():void {
+			if (slideViews.selectedChild == slideDesignView) {
+				callSaveSlideDesign();
+			} else if (slideViews.selectedChild == slideProductView) {
+				callSaveSlideProduct();
 			}
 		}
 		
-		public function onBrowseSlides(event:MouseEvent):void {
-			if (browseSlides.selectedItem != null) {
-				var params:Object = new Object();
+		public function callSaveSlideProduct():void {
+			// gather the params to post
+			var params:Object = new Object();
+			params.idSlideProduct = idSlideProduct.text;
+			params.slideSet = idSlideProduct.text;
+			params.idVendor = spVendorId.selectedItem.@value;
+			params.idOrganism = spOrganismId.selectedItem.@value;
+			params.name = spName.text;
+			params.catalogNumber = spCatalogNumber.text;
+			params.microarrayCategoryXMLString = "<microarrayCategories>"+sdMicroarrayCategories.toXMLString()+"</microarrayCategories>";
+			params.accessionNumberArrayExpress = "";
+			params.isSlideSet = "Y";
+			params.isInSlideSet = "Y";
+			if (sdIdLab.selectedIndex > -1) {
+				params.idLab = spIdLab.selectedItem.@idLab;
+			}
+			if (spIsCustom.selected == true) {
+				params.isCustom = "Y";
+			} else {
+				params.isCustom = "N";
+			}
+			if (spIsActive.selected == true) {
+				params.isActive = "Y";
+			} else {
+				params.isActive = "N";
+			}
+			var call:Object = saveSlideProduct.send(params)
+			call.marker = "doneSaveSlideProduct";
+		}
+		
+		public function callSaveSlideDesign():void {
+			// gather the params to post
+			var params:Object = new Object();
+			params.idSlideDesign = idSlideDesign.text;
+			params.idVendor = sdIdVendor.selectedItem.@value;
+			params.idOrganism = sdIdOrganism.selectedItem.@value;
+			params.slideDesignProtocolName = sdDesignProtocol.text;
+			params.name = sdName.text;
+			params.catalogNumber = sdCatalogNumber.text;
+			params.arraysPerSlide = arraysPerSlide.text;
+			params.arrayCoordinateXMLString ="<arrayCoordinates>"+ sdArrayCoordiantes.toXMLString()+"</arrayCoordinates>";
+			params.microarrayCategoryXMLString = "<microarrayCategories>"+sdMicroarrayCategories.toXMLString()+"</microarrayCategories>";
+			params.accessionNumberArrayExpress = "";
+			params.isInSlideSet = isInSlideSet.text;
+			params.slideSet = sdIdSlideProduct.text;
+			if (sdIdLab.selectedIndex > -1) {
+				params.idLab = sdIdLab.selectedItem.@idLab;
+			}
+			if (sdIsCustom.selected == true) {
+				params.isCustom = "Y";
+			} else {
+				params.isCustom = "N";
+			}
+			if (sdIsActive.selected == true) {
+				params.isActive = "Y";
+			} else {
+				params.isActive = "N";
+			}
+			var call:Object = saveSlideDesign.send(params)
+			call.marker = "doneSaveSlideDesign";
+		}
+		
+		public function prepareToDeleteSlide():void {
+			if (browseSlides.selectedItem.name() == "SlideProduct") {
+				Alert.show("Are you sure you want to delete the "+browseSlides.selectedItem.@name+" slide set; all slides within this set will also be deleted?","Are you sure?",Alert.YES|Alert.NO,null,callDeleteSlideProduct,null,Alert.YES);
+			} else if (browseSlides.selectedItem.name() == "SlideDesign") {
+				Alert.show("Are you sure you want to delete the "+browseSlides.selectedItem.@name+" slide?","Are you sure?",Alert.YES|Alert.NO,null,callDeleteSlideDesign,null,Alert.YES);
+			}
+		}
+		
+		public function callDeleteSlideDesign(event:CloseEvent):void {
+			var params:Object = new Object();
+			params.idSlideDesign = browseSlides.selectedItem.@id;
+			var call:Object = deleteSlideDesign.send(params);
+			call.marker = "doneDeleteSlideDesign";
+		}
+		
+		public function callDeleteSlideProduct(event:CloseEvent):void {
+			var params:Object = new Object();
+			params.idSlideProduct = browseSlides.selectedItem.@id;
+			var call:Object = deleteSlideSet.send(params);
+			call.marker = "doneDeleteSlideProduct";
+		}
+		
+		public function onAddNewSlideDesign():void {
+			if (browseSlides.selectedItem.@isInSlideSet == "Y" || browseSlides.selectedItem.@isSlideSet == "Y") {
+				var setName:String = "";
+				if (browseSlides.selectedItem.name() == "SlideProduct") {
+					setName = browseSlides.selectedItem.@name;
+				} else {
+					setName =browseSlides.selectedItem.@slideSetName; 
+				}
+				Alert.show("Are you sure you want to add a new slide to the "+setName+" slide set?","Are you sure?",Alert.YES|Alert.NO,null,prepareToAddSlideDesign,null,Alert.YES);
+			} else {
+				prepareToAddSlideDesign(new CloseEvent("empty",false,false,0));
+			}
+		}
+		
+		public function prepareToAddSlideDesign(event:CloseEvent):void {
+			this.fullSlideDesign = null;
+			this.fullSlideDesignArrayCoordinates = null;
+			this.fullSlideDesignMicroarrayCategories = null;
+			slideViews.selectedChild = slideDesignView;
+			if (event.detail == Alert.YES) {
+				var setName:String = "";
+				if (browseSlides.selectedItem.name() == "SlideProduct") {
+					setName = browseSlides.selectedItem.@name;
+					sdIdSlideProduct.text = browseSlides.selectedItem.@id;
+				} else {
+					setName = browseSlides.selectedItem.@slideSetName;
+					sdIdSlideProduct.text = browseSlides.selectedItem.@idSlideProduct;
+				}
+				isInSlideSet.text = "Y";
+				slideViewPanel.title = "New slide on the "+ setName+ " slide set";
+			} else {
+				slideViewPanel.title = "New slide";
+			}
+			// set the idSlideDesign field to "0" (zero) to that the backend knows it is a new one.
+			idSlideDesign.text = "0";
+		}
+		
+		public function prepareToAddSlideProduct():void {
+			this.fullSlideProduct = null;
+			this.fullSlideProductMicroarrayCategories = null;
+			slideViews.selectedChild = slideProductView;
+			slideViewPanel.title = "New Slide Set";
+		}
+		
+		public function addMicroarrayCategory(event:MouseEvent):void {
+			var code:String;
+			var category:String;
+			var node:XML = null;
+			if (slideViews.selectedChild == slideDesignView) {
+				code = sdMicroarrayCategory.selectedItem.@value;
+				category = sdMicroarrayCategory.selectedItem.@display;
+				if (validateMicroarrayCategory(code)) {
+					node = new XML("<MicroarrayCategory value='"+code+"' display='"+category+"' codeMicroarrayCategory='"+code+"' isActive='Y' microarrayCategory='"+category+"' canWrite='Y' datakey='"+code+"'/>");
+					sdMicroarrayCategories.addItem(node);
+				} else {
+					Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
+				}
+			} else if (slideViews.selectedChild == slideProductView){
+				code = spMicroarrayCategory.selectedItem.@value;
+				category = spMicroarrayCategory.selectedItem.@display;
+				if (validateMicroarrayCategory(code)) {
+					node = new XML("<MicroarrayCategory value='"+code+"' display='"+category+"' codeMicroarrayCategory='"+code+"' isActive='Y' microarrayCategory='"+category+"' canWrite='Y' datakey='"+code+"'/>");
+					spMicroarrayCategories.addItem(node);
+				} else {
+					Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
+				}
+			}
+				
+			
+		}
+		
+		public function removeMicroarrayCategory(event:MouseEvent):void {
+			
+		}
+		
+		public function validateMicroarrayCategory(codeCat:String):Boolean {
+			if (slideViews.selectedChild == slideDesignView) {
+				for(var i:int = 0; i < sdMicroarrayCategories.length;i++) {
+					if (sdMicroarrayCategories.getItemAt(i).@codeMicroarrayCategory == codeCat) {
+						return false;
+					}
+				}
+			} else if (slideViews.selectedChild == slideProductView) {
+				for(var i2:int = 0; i < spMicroarrayCategories.length;i2++) {
+					if (spMicroarrayCategories.getItemAt(i2).@codeMicroarrayCategory == codeCat) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		
+		public function addArrayCoord(event:MouseEvent):void {
+			var x:String = newArrayRow.text;
+			var y:String = newArrayCol.text;
+			if (x != null && x != "" && y != null && y != "") {
+				var name:String = newArrayName.text;
+				if (validateArrayCoord(name)) {
+					var ac_idSlideDesign:String = "0";
+					if (idSlideDesign.data != null && idSlideDesign.data != "") {
+						ac_idSlideDesign = slideDesign.getItemAt(0).@idSlideDesign;
+					}
+					var node:XML = new XML("<ArrayCoordinate name='"+name+"' value='0' x='"+x+"' y='"+y+"' display='"+name+"' idArrayCoordinate='ArrayCoordinate_"+name+" ' idSlideDesign='"+ac_idSlideDesign+"' canWrite='Y' datakey='0' />");
+					sdArrayCoordiantes.addItem(node);
+					var aps:int = 0;
+					if (arraysPerSlide.data != null && arraysPerSlide.data != "") {
+						aps = int(slideDesign.getItemAt(0).SlideProduct.@arraysPerSlide);
+					}
+					arraysPerSlide.text = String(aps +1);
+				} else {
+					Alert.show("This array coordinate already exists, please choose another.","Duplicate Array Coordinate Entry");
+				}
+			} else {
+				Alert.show("Please enter both a row and column when adding a new array coordinate","Array coordinate row or column missing");
+			}
+		}
+		
+		public function removeArrayCoord(event:MouseEvent):void {
+			
+		}
+		
+		public function validateArrayCoord(newCoordName:String):Boolean {
+			for (var i:int=0;i < sdArrayCoordiantes.length;i++) {
+				if (sdArrayCoordiantes.getItemAt(i).@name == newCoordName) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		public function buildArrayCoordName():void {
+			if (newArrayRow.text != null && newArrayCol.text != null) {
+				newArrayName.text = newArrayRow.text + "_" + newArrayCol.text;
+			}
+		}
+		
+		public function getTreeIcon(item:Object):Class {
+			var icon:Class = iconSlide;
+			if (item.name() == "SlideProduct") {
+				if (item.@isActive == "N") {
+					icon = this.iconSlideSetInActive;
+				} else {
+					icon = this.iconSlideSet;
+				}
+			}else if (item.name() == "SlideDesign") {
+				if (item.@isActive == "N") {
+					icon = this.iconSlideInActive;
+				} else {
+					icon = this.iconSlide;
+				}
+			}
+			return icon;
+		}
+		
+		public function onBrowseSlides(event:Event):void {
+			var params:Object = null;
+			if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct") {
+				params = new Object();
 				params.idSlideProduct = browseSlides.selectedItem.@id;
 				callGetSlideProduct(params);
 				deleteSlideButton.enabled=true;
-				saveSlideButton.enabled=true;
+			} else if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideDesign") {
+				params = new Object();
+				params.idSlideDesign= browseSlides.selectedItem.@id;
+				callGetSlideDesign(params);
+				deleteSlideButton.enabled=true;
+			} else if (browseSlides.selectedItem == null) {
+				selectSlideView();
 			}
 		}
 		
 		public function selectSlideView():void {
-			if (fullSlideProduct != null && fullSlideProduct.@isSlideSet=="Y") {
+			if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct" && fullSlideProduct != null) {
 				slideViews.selectedChild = slideProductView;
 				slideViewPanel.title = "Slide Set: "+fullSlideProduct.@name;
-			} else if (fullSlideProduct != null && fullSlideProduct.@isSlideSet=="N") {
+				saveSlideButton.enabled=true;
+			} else if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideDesign" && fullSlideDesign != null) {
 				slideViews.selectedChild = slideDesignView;
-				slideViewPanel.title = "Slide: "+fullSlideProduct.slideDesigns.SlideDesign.@name;
+				slideViewPanel.title = "Slide: "+fullSlideDesign.@name;
+				saveSlideButton.enabled=true;
 			} else {
 				slideViews.selectedChild = blankSlide;
+				deleteSlideButton.enabled = false;
+				saveSlideButton.enabled = false;
 			}
 		}
+		
+		/* TODO: not working exactly need to fix
+		private function filterSlides(item:Object):Boolean {
+			return item.@name.toString().match(new RegExp("^" + slideSearchText.text + ".*", "i"));
+		}
+		*/
 		
 	]]>
 </mx:Script>
 	
 	
-	<mx:XMLListCollection id="slideList" source="{slideProductList}"/>
+	<mx:XMLListCollection id="slideList" source="{fullSlideList}"/>
+	<mx:XMLListCollection id="slideDesign" source="{fullSlideDesign}"/>
 	<mx:XMLListCollection id="slideProduct" source="{fullSlideProduct}"/>
+	<mx:XMLListCollection id="sdMicroarrayCategories" source="{fullSlideDesignMicroarrayCategories}"/>
+	<mx:XMLListCollection id="sdArrayCoordiantes" source="{fullSlideDesignArrayCoordinates}"/>
+	<mx:XMLListCollection id="spMicroarrayCategories" source="{fullSlideProductMicroarrayCategories}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0">
-		<mx:Panel width="400" height="100%" layout="absolute" title="Slide Browser" id="slideBrowserPanel">
-			<mx:Tree left="0" right="0" top="0" bottom="0" 
+		<mx:Panel width="300" height="100%" layout="absolute" title="Slide Browser" id="slideBrowserPanel">
+		<!-- filtering not finished -->
+		<!--mx:Label x="0" y="0" text="Type slide name here to find in list." fontSize="9" width="292" textAlign="right" height="17" visible="false"/>
+		<mx:TextInput id="slideSearchText" editable="true" 
+		       	      	change="slideList.refresh()" width="100%" toolTip="Type slide name here to find in list" y="16" visible="false"/-->
+			<mx:Tree left="0" right="0" top="0" bottom="0"
 				id="browseSlides"
 				labelField="@name"
 				iconFunction="getTreeIcon"
-				click="onBrowseSlides(event);"
-				dataProvider="{slideList}">
+				change="onBrowseSlides(event);"
+				showRoot="false"
+				dataProvider="{slideList.getItemAt(0)}">
 			</mx:Tree>
+			
 			<mx:ControlBar>
-				<mx:Button id="addSlideButton" click="prepareToAddSlide()" icon="@Embed('../assets/page_add.png')" toolTip="Add protocol" label="New" width="64" enabled="false" disabledIcon="@Embed(source='../assets/page_add_disable.png')"/>
-				<mx:Button id="deleteSlideButton" click="prepareToDeleteSlideProduct()" icon="@Embed('../assets/page_delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false">
-					<mx:disabledIcon>@Embed(source='../assets/page_delete_disable.png')</mx:disabledIcon>
-				</mx:Button>
-				<mx:Button id="refreshButton" click="callGetSlideProductList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
+				<mx:Button id="addSlideButton" click="onAddNewSlideDesign()" icon="@Embed('../assets/image_add.png')" toolTip="Add new slide" label="New" width="64" enabled="true" disabledIcon="@Embed(source='../assets/image_add_disable.png')"/>
+				<mx:Button id="addSlideSetButton" click="prepareToAddSlideProduct()" icon="@Embed('../assets/images_add.png')" toolTip="Add new slide set" label="New Set" width="86" enabled="true" disabledIcon="@Embed(source='../assets/images_add_disable.png')"/>
+				<mx:Button id="deleteSlideButton" click="prepareToDeleteSlide()" icon="@Embed('../assets/delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false" disabledIcon="@Embed(source='../assets/delete_disable.png')"/>
+				<mx:Button id="refreshButton" click="callGetSlideList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>
 		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" layout="absolute">
 			<mx:ViewStack id="slideViews" right="0" left="0" top="0" bottom="0">
-				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-					<mx:Label text="No slide design or product selected" fontSize="20" color="#A8B3BD" textAlign="right" right="10" top="10" height="31" left="10"/>
+				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%" backgroundColor="#CCCCCE">
+					<mx:Label text="No slide design or product selected" fontSize="20" color="#A1A1A2" textAlign="right" right="10" top="10" height="31" left="10"/>
 				</mx:Canvas>
 				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
-					<mx:TextArea text="{slideProduct.getItemAt(0).toXMLString()}" left="10" bottom="10" top="418" width="294"/>
-					<mx:List left="312" right="10" top="159" height="155"></mx:List>
-					<mx:ComboBox top="159" left="10" height="22" width="261"></mx:ComboBox>
-					<mx:Button icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" id="removeCategory" y="189" x="279"/>
-					<mx:Button icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" id="removeArrayCoord" top="388" left="279"/>
-					<mx:Button icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" id="addArrayCoord" left="279" top="358"/>
-					<mx:Button icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" id="addCategory" x="279" y="159"/>
-					<mx:Label text="Category List:" right="188" left="312" top="142" height="18"/>
-					<mx:Label text="Category:" left="10" right="513" top="142" bottom="468"/>
-					<mx:TextInput right="75" top="27" left="10" height="22"/>
-					<hci:CheckBoxYN id="designIsActive" label="Active" data="{slideProduct.getItemAt(0).@isActive}" right="10" top="27" height="22" width="57"/>
-					<hci:CheckBoxYN id="designIsCustom" label="Custom slide" data="{slideProduct.getItemAt(0).@isCustum}" top="57" left="10" right="473"/>
-					<hci:DictionaryComboBox top="57" left="188" right="75"></hci:DictionaryComboBox>
-					<mx:Label text="For Group:" top="59" left="121" right="396"/>
-					<mx:Label text="Vendor" top="85" left="10" right="527"/>
-					<mx:Label text="Organism:" top="85" left="188" right="329"/>
-					<hci:DictionaryComboBox top="102" left="10" width="170"></hci:DictionaryComboBox>
-					<hci:DictionaryComboBox top="102" left="188" right="196"></hci:DictionaryComboBox>
+					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="170"/>
+					<mx:TextInput right="75" top="27" left="10" height="22" id="sdName" text="{slideDesign.getItemAt(0).@name}"/>
+					<hci:CheckBoxYN id="sdIsActive" label="Active" data="{slideDesign.getItemAt(0).@isActive}" right="10" top="27" height="22" width="57"/>
+					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{slideDesign.getItemAt(0).SlideProduct.@isCustum}" top="57" left="10" width="103"/>
+					<mx:Label text="For Group:" top="59" left="121" width="67"/>
+					<views:ComboBoxLabList top="57" left="188" right="75" 
+						id="sdIdLab"
+						dataProvider="{parentApplication.promptedLabList}"
+						labelField="@name"
+						data="{slideDesign.getItemAt(0).SlideProduct.@idLab}">
+					</views:ComboBoxLabList>
+					<mx:Label text="Vendor:" top="85" left="10" width="170"/>
+					<hci:DictionaryComboBox top="102" left="10" width="170" 
+						id="sdIdVendor"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.Vendor"
+						labelField="@display"
+						data="{slideDesign.getItemAt(0).SlideProduct.@idVendor}"
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						>
+						</hci:DictionaryComboBox>
+					<mx:Label text="Organism:" top="85" left="188" width="227"/>
+					<hci:DictionaryComboBox top="102" left="188"
+						id="sdIdOrganism"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.Organism"
+						labelField="@display"
+						data="{slideDesign.getItemAt(0).SlideProduct.@idOrganism}"
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						 right="326">
+						</hci:DictionaryComboBox>
 					<mx:Label text="Design Protocol:" top="85" right="72" width="116"/>
-					<mx:TextInput top="102" right="10" width="177"/>
-					<mx:Label text="Slide Name:" left="10" right="500" top="10" bottom="600"/>
-					<mx:HRule right="10" left="10" top="132" height="1"/>
-					<mx:HRule right="10" left="10" top="323" height="1"/>
-					<mx:DataGrid left="312" right="10" bottom="10" top="358" id="dgArrayCoords" editable="false">
+					<mx:TextInput top="102" right="10" width="178" id="sdDesignProtocol" text="{slideDesign.getItemAt(0).@slideDesignProtocolName}"/>
+
+					<mx:HRule right="10" left="10" top="132" height="1" strokeColor="#A1A79D" styleName="formrule"/>					
+					<mx:Label text="Category:" left="10" top="142" height="18" width="261"/>
+					<hci:DictionaryComboBox top="159" left="10" height="22" width="261"
+						 id="sdMicroarrayCategory"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.MicroarrayCategory"
+						labelField="@display"
+						prompt="Select a catagory to add..."
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						></hci:DictionaryComboBox>
+					<mx:Button id="sdAddCategory" click="addMicroarrayCategory(event)" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" x="279" y="159"/>
+					<mx:Button id="sdRemoveCategory" click="removeMicroarrayCategory(event)" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" y="189" x="279"/>
+					<mx:Label text="Category List:" left="312" top="142" height="18" width="303"/>
+					<mx:List left="312" right="10" top="159" height="155" 
+						id="sdMicroarrayCategoriesList"
+						dataProvider="{sdMicroarrayCategories}"
+						labelField="@microarrayCategory"
+						>
+					</mx:List>
+					<mx:HRule right="11" left="9" top="333" height="1" styleName="formrule"/>
+					<mx:Label text="Multi-plex microarray setup" top="316" left="8" width="157"/>
+					<mx:Label text="Row:" left="10" top="341"/>
+					<mx:TextInput width="60" id="newArrayRow" top="358" left="10" change="buildArrayCoordName()"/>
+					<mx:Label text="Col:" top="341" left="78"/>
+					<mx:TextInput width="60" id="newArrayCol" left="78" top="358" change="buildArrayCoordName()"/>
+					<mx:Label text="Name:" top="341" left="146"/>
+					<mx:TextInput x="146" y="358" width="125" id="newArrayName"/>
+					<mx:Label text="Number of Arrays on Slide:" width="161" textAlign="right" top="341" right="39"/>
+					<mx:Text id="arraysPerSlide" textAlign="right" fontWeight="bold" right="10" height="22" top="341" width="29" text="{slideDesign.getItemAt(0).SlideProduct.@arraysPerSlide}"/>
+					<mx:Button id="sdAddArrayCoord" click="addArrayCoord(event)" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" left="279" top="358"/>
+					<mx:Button id="sdRemoveArrayCoord" click="removeArrayCoord(event)" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" top="388" left="279"/>
+					<mx:DataGrid left="312" right="10" bottom="10" top="358" id="dgArrayCoords" 
+						dataProvider="{sdArrayCoordiantes}"
+						editable="false">
 						<mx:columns>
-							<mx:DataGridColumn headerText="Column 1" dataField="col1"/>
-							<mx:DataGridColumn headerText="Column 2" dataField="col2"/>
-							<mx:DataGridColumn headerText="Column 3" dataField="col3"/>
+							<mx:DataGridColumn headerText="Row" dataField="@x" width="35"/>
+							<mx:DataGridColumn headerText="Col" dataField="@y" width="35"/>
+							<mx:DataGridColumn headerText="Name" dataField="@name"/>
 						</mx:columns>
 					</mx:DataGrid>
-					<mx:Text textAlign="right" fontWeight="bold" right="10" height="22" top="335" width="29" text="5"/>
-					<mx:Label text="Number of Arrays on Slide:" width="161" textAlign="right" top="335" right="39"/>
-					<mx:Label text="Multi-plex microarray setup" top="326" left="9" right="415"/>
-					<mx:TextInput width="60" id="newArrayRow" top="375" left="10"/>
-					<mx:Label text="Row:" left="10" top="358"/>
-					<mx:TextInput width="60" id="newArrayCol" left="78" top="375"/>
-					<mx:TextInput x="146" y="375" width="125" id="newArrayName"/>
-					<mx:Label text="Name:" top="358" left="146"/>
-					<mx:Label text="Col:" top="358" left="78"/>
+					<mx:TextInput id="idSlideDesign" text="{slideDesign.getItemAt(0).@idSlideDesign}" editable="false" enabled="false" visible="true" left="10" y="189"/>
+					<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{slideDesign.getItemAt(0).SlideProduct.@isSlideSet}" visible="true" top="219" left="10" width="254"/>
+					<mx:TextInput id="sdIdSlideProduct" text="{slideDesign.getItemAt(0).@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="254"/>
+					<mx:TextInput id="sdCatalogNumber" right="196" top="102" width="122">
+						<mx:text>{slideDesign.getItemAt(0).SlideProduct.@catalogNumber}</mx:text>
+					</mx:TextInput>
+					<mx:Label text="Catalog Number:" top="85" right="211" width="107"/>
 				</mx:Canvas>
+				
 				<mx:Canvas id="slideProductView" width="100%" height="100%" styleName="form" x="11" y="160">
-					<mx:Label text="Slide Name:" left="10" right="500" top="10" bottom="600"/>
-					<mx:TextInput top="27" left="10" height="22" right="75" id="slideName" text="{slideProduct.getItemAt(0).@name}"/>
-					<hci:CheckBoxYN id="prodIsActive" label="Active" data="{slideProduct.getItemAt(0).@isActive}" right="10" top="27" height="22" width="57"/>
-					<hci:CheckBoxYN id="prodIsCustom" label="Custom slide" data="{slideProduct.getItemAt(0).@isCustum}" top="57" left="10" right="473"/>
-					<mx:Label text="For Group:" top="59" left="121" right="539"/>
-					<mx:ComboBox top="57" left="188" right="75" id="idLab"></mx:ComboBox>
-					<mx:Label text="Vendor" top="85" right="670" left="10"/>
-					<mx:ComboBox top="102" left="10" id="idVendor" width="170"></mx:ComboBox>
-					<mx:Label text="Organism:" top="85" left="188" right="496"/>
-					<mx:ComboBox left="188" right="75" top="102" id="idOrganism"></mx:ComboBox>
-					<mx:HRule y="132" left="10" right="10"/>
-					<mx:Label text="Category:" left="10" right="513" top="142" bottom="468"/>
-					<mx:ComboBox top="159" left="10" height="22" width="261" id="cbCategory"></mx:ComboBox>
-					<mx:Button x="279" y="189" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" id="removeCategory2"/>
-					<mx:Button x="279" y="159" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true" id="addCategory2"/>
-					<mx:Label text="Category List:" right="188" left="312" top="142" bottom="468"/>
-					<mx:List left="312" right="10" top="159" id="maCatList" height="155"></mx:List>
-					<mx:TextArea text="{slideProduct.getItemAt(0)}" left="10" right="10" bottom="10" top="358"/>
+					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="170"/>
+					<mx:TextInput top="27" left="10" height="22" right="75" id="spName" text="{slideProduct.getItemAt(0).@name}"/>
+					<hci:CheckBoxYN id="spIsActive" label="Active" data="{slideProduct.getItemAt(0).@isActive}" right="10" top="27" height="22" width="57"/>
+					<hci:CheckBoxYN id="spIsCustom" label="Custom slide" data="{slideProduct.getItemAt(0).@isCustum}" top="57" left="10" width="103"/>
+					<mx:Label text="For Group:" top="59" left="121" width="64"/>
+					<views:ComboBoxLabList top="57" left="188" right="75" 
+						id="spIdLab"
+						dataProvider="{parentApplication.promptedLabList}"
+						labelField="@name"
+						data="{slideProduct.getItemAt(0).@idLab}">
+					</views:ComboBoxLabList>
+					<mx:Label text="Vendor:" top="85" left="10" width="123"/>
+					<hci:DictionaryComboBox top="102" left="10" width="170" 
+						id="spVendorId"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.Vendor"
+						labelField="@display"
+						data="{slideProduct.getItemAt(0).@idVendor}"
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						>
+						</hci:DictionaryComboBox>
+					<mx:Label text="Organism:" top="85" left="188" width="119"/>
+					<hci:DictionaryComboBox  left="188" right="150" top="102"
+						id="spOrganismId"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.Organism"
+						labelField="@display"
+						data="{slideProduct.getItemAt(0).@idOrganism}"
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						>
+						</hci:DictionaryComboBox>
+					<mx:Label text="Catalog Number:" top="85" right="26" width="116"/>
+					<mx:TextInput top="102" id="spCatalogNumber" right="10" width="132">
+						<mx:text>{slideProduct.getItemAt(0).@catalogNumber}</mx:text>
+					</mx:TextInput>
+					<mx:HRule y="132" left="10" right="10" height="1" styleName="formrule"/>
+					<mx:Label text="Category:" left="10" top="142" height="18" width="261"/>
+					<hci:DictionaryComboBox top="159" left="10" height="22" width="261"
+						 id="spMicroarrayCategory"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.MicroarrayCategory"
+						labelField="@display"
+						prompt="Select a catagory to add..."
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						></hci:DictionaryComboBox>
+					<mx:Button  id="addCategory2" click="addMicroarrayCategory(event)" x="279" y="159" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true"/>					
+					<mx:Button  id="removeCategory2" click="removeMicroarrayCategory(event)" x="279" y="189" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false"/>
+					<mx:Label text="Category List:" left="312" top="142" height="18" width="94"/>
+					<mx:List left="312" right="10" top="159" height="155" 
+						id="spMicroarrayCategoriesList"
+						dataProvider="{spMicroarrayCategories}"
+						labelField="@microarrayCategory"
+						>
+					</mx:List>
+					<mx:TextInput id="idSlideProduct" text="{slideProduct.getItemAt(0).@idSlideProduct}" editable="false" enabled="false" visible="true" width="236" left="10" top="189"/>
+					<mx:TextInput id="isSlideSet" text="{slideProduct.getItemAt(0).@isSlideSet}" editable="false" enabled="false" visible="true" top="219" left="10"/>
 				</mx:Canvas>
+				
 			</mx:ViewStack>
 			<mx:ControlBar horizontalAlign="right">
-				<mx:Button id="saveSlideButton" label="Save" click="callSaveSlideDesign();" icon="@Embed(source='../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../assets/save_disable.png')"/>
+				<mx:Button id="saveSlideButton" label="Save" click="onSaveSlide();" icon="@Embed(source='../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../assets/save_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>
 	</mx:HDividedBox>
