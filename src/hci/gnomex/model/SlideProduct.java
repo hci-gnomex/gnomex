@@ -22,6 +22,16 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
   private Set      slideDesigns;
   private Set      microarrayCategories;
   
+  public void copyEditableDataFrom(SlideProduct sp) {
+    this.setName(sp.getName());
+    this.setIdOrganism(sp.getIdOrganism());
+    this.setIdVendor(sp.getIdVendor());
+    this.setIsCustom(sp.getIsCustom());
+    this.setIsActive(sp.getIsActive());
+    this.setIdLab(sp.getIdLab());
+    this.setCatalogNumber(this.getCatalogNumber());
+  }
+  
   public String getDisplay() {
     String display = this.getNonNullString(getName());
     return display;

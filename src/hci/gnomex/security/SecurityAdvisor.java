@@ -306,7 +306,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public boolean canUpdate(Class theClass) throws UnknownPermissionException {
-    throw new UnknownPermissionException("Unimplemented method");
+    boolean canUpdate = false;
+    if (DictionaryEntry.class.isAssignableFrom(theClass)) {
+      if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
+        canUpdate = true;
+      }
+    } else {
+      throw new UnknownPermissionException("Unimplemented method");
+    }
+    return canUpdate;
   }
   
   public boolean canUpdate(DetailObject object, int dataProfile) throws UnknownPermissionException {

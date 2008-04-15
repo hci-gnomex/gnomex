@@ -34,9 +34,6 @@ public class GetSlideProduct extends GNomExCommand implements Serializable {
       SlideProduct sp = (SlideProduct) sess.createQuery(buf.toString()).uniqueResult();
       
       if (sp != null) {
-        if (sp.getIsSlideSet().equals("N")) {
-         Hibernate.initialize(sp.getSlideDesigns());
-        }
         this.xmlResult = sp.toXMLString(null, DetailObject.DATE_OUTPUT_SQL);
         setResponsePage(this.SUCCESS_JSP);
       } else {
