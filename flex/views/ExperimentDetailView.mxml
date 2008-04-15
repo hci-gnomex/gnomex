@@ -167,6 +167,13 @@
 		}
 		
 		private function showEditExperimentWindow():void {
+			 // add this get request code b/c the edit window was freezing the second time 
+			 // the edit window was pressed.  by putting this extra call in, it seems to clear
+			 // out some weird state.
+			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+			 var parms:Object = new Object();
+			 parms.idRequest = parentDocument.selectedIdRequest;
+			 parentDocument.getRequest.send(parms);
 
 			 var editWindow:views.SubmitRequestView = views.SubmitRequestView(PopUpManager.createPopUp(this.parentApplication.topArea, views.SubmitRequestView, true));
 			 editWindow.width= 1000;
@@ -174,8 +181,16 @@
 			 editWindow.showCloseButton = true;
 			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedExperiment.@number;
 			 PopUpManager.centerPopUp(editWindow);		
-             callLater(editWindow.setupEditForm, [parentDocument.selectedExperiment]);
-           	 callLater(editWindow.initializeData);
+             editWindow.setupEditForm(parentDocument.selectedExperiment);
+           	 editWindow.initializeData();
+		}
+		
+		public function refreshSavedExperiment():void {
+			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+			 var parms:Object = new Object();
+			 parms.idRequest = parentDocument.selectedIdRequest;
+			 parentDocument.getRequest.send(parms);
+			
 		}
 
 		public function getLanesGridRowNumber(item:Object,col:int):String

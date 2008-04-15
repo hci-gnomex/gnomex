@@ -9,7 +9,6 @@
 		public function addSample():void {
 			var emptyNode:XML = null;
 			if (parentDocument.isSolexaState()) {
-				
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState') {
 					emptyNode = new XML("<Sample " +
 				    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
@@ -120,6 +119,11 @@
 		private function deleteSample():void {
 			if (samplesGrid.selectedItems.length > 0) {
 				for each(var sample:Object in samplesGrid.selectedItems) {					
+					if (sample.@idSample.indexOf("Sample") < 0) {
+						Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
+						continue;
+					}		
+		
 					for each(var hyb:Object in parentDocument.hybs) {
 						if (hyb.@idSampleChannel1 == sample.@idSample) {
 							hyb.@idSampleChannel1 = '0';
@@ -133,12 +137,9 @@
 					
 				}
 			}
-			if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
-				
-			} else {
-				parentDocument.hybsGrid.invalidateList();
-				parentDocument.hybsGrid.invalidateDisplayList();
-				
+			if (parentDocument.isMicroarrayState()) {
+				parentDocument.hybsView.hybsGrid.invalidateList();
+				parentDocument.hybsView.hybsGrid.invalidateDisplayList();
 			}
 		}
 		
@@ -515,7 +516,7 @@
 			<mx:HBox id="buttonsContainer">
 				<mx:Button label="Add" click="addSample();checkSamplesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addSampleButton"/>
 				<mx:Button label="Copy" click="copySample();checkSamplesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copySampleButton"/>
-				<mx:Button label="Delete" click="deleteSample();checkSamplesCompleteness();parentDocument.checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteSampleButton"/>
+				<mx:Button label="Delete" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteSampleButton"/>
 				<mx:Button label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../assets/folder_delete.png')" id="clearSamplesButton"/>
 			</mx:HBox>
 					
@@ -599,6 +600,8 @@
 		<mx:State name="SolexaSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
 		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
+			<mx:RemoveChild target="{addSampleButton}"/>
+			<mx:RemoveChild target="{clearSamplesButton}"/>
 		</mx:State>
 
 		<mx:State name="QCSamplesState" >
@@ -606,6 +609,8 @@
 		<mx:State name="QCSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
 		<mx:State name="QCSamplesAdminState" basedOn="SamplesAdminState" >
+			<mx:RemoveChild target="{clearSamplesButton}"/>
+			<mx:RemoveChild target="{addSampleButton}"/>
 		</mx:State>
 
 		<mx:State name="MicroarraySamplesState" >
@@ -613,6 +618,8 @@
 		<mx:State name="MicroarraySamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
 		<mx:State name="MicroarraySamplesAdminState" basedOn="SamplesAdminState" >
+			<mx:RemoveChild target="{addSampleButton}"/>
+			<mx:RemoveChild target="{clearSamplesButton}"/>
 		</mx:State>
 
 

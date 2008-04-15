@@ -63,6 +63,10 @@
 		private function deleteHyb():void {
 			if (hybsGrid.selectedItems.length > 0) {
 				for each(var hyb:Object in hybsGrid.selectedItems) {					
+					if (hyb.@idHybridization.indexOf("Hyb") < 0) {
+						Alert.show("Existing hyb " + hyb.@number + " cannot be deleted from the experiment.");
+						continue;
+					}		
 					parentDocument.hybs.removeItemAt(parentDocument.hybs.getItemIndex(hyb));
 				}
 			}
@@ -525,6 +529,8 @@
     	</mx:State>
     	<mx:State name="HybsAdminState">
     		<mx:SetStyle target="{workflowCheckBoxContainer}" name="horizontalAlign" value="right"/>
+    		<mx:RemoveChild target="{addHybButton}"/>
+    		<mx:RemoveChild target="{clearHybsButton}"/>
     	</mx:State>
     	
     </mx:states>
