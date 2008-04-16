@@ -193,7 +193,7 @@
 			<mx:Label text="Select an experiment category:" width="300" />
 			<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(parentDocument.checkForSampleTypeCompatibility)</mx:change>
-				<mx:dataProvider></mx:dataProvider>
+				<mx:dataProvider>{parentApplication.filteredMicroarrayCategoryListForSubmitRequests}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
