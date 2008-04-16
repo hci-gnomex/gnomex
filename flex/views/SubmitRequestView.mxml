@@ -402,6 +402,9 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
 					this.hybsView.currentState = 'HybsState';
+					this.hybSetupView.slideProductCombo.selectedIndex = 0;
+					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+					this.hybSetupView.checkForSlideProductWarning();
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
@@ -415,7 +418,6 @@
 				}
 			}
 			parentApplication.samplePrepMethodList.refresh();
-			
 			
 			
 		}
