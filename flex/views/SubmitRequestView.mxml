@@ -104,7 +104,6 @@
 				}
 				if (theTab.contains(hybSetupView)) {
 					hybSetupView.organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
-					hybSetupView.microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
 				}
 				
 			}
@@ -127,6 +126,9 @@
 
 			parentApplication.filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			parentApplication.filteredGenomeBuildList.refresh();
+			
+			parentApplication.filteredMicroarrayCategoryListForSubmitRequests.filterFunction = filterMicroarrayCategory;
+			parentApplication.filteredMicroarrayCategoryListForSubmitRequests.refresh();
 		}
 		
 		public function isSolexaState():Boolean {
@@ -381,7 +383,7 @@
 		
 		
 		public function setRequestCategoryName():void {
-			var requestCategory:Object = setupView.getRequestCategory();
+			var requestCategory:Object = getRequestCategory();
 			requestCategoryName = requestCategory.@display.toString();
 
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
@@ -402,6 +404,10 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
 					this.hybsView.currentState = 'HybsState';
+					
+					this.hybSetupView.microarrayCategoryCombo.selectedIndex = 0;
+					parentApplication.filteredMicroarrayCategoryListForSubmitRequests.refresh();
+					
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
 					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 					this.hybSetupView.checkForSlideProductWarning();
@@ -532,6 +538,16 @@
 			parentApplication.samplePrepMethodList.refresh();
 		}
 		
+		public function getRequestCategory():Object {
+			var requestCategory:Object = null;
+			if (!isEditState()) {
+				requestCategory = setupView.getRequestCategory();
+        	} else {
+				requestCategory = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+        	}
+        	return requestCategory;			
+		}
+		
 		private function filterSamplePrepMethod(item:Object):Boolean {
         	if (item.@value == "") {
         		return true;
@@ -566,6 +582,27 @@
         	   	}
         	}
         	return doesMatchRequestCategory && doesMatchSampleType;
+        }  
+
+		private function filterMicroarrayCategory(item:Object):Boolean {
+        	if (item.@value == "") {
+        		return true;
+        	}
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	var doesMatchRequestCategory:Boolean = false;
+        	var theMicroarrayCategories:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryMicroarrayCategory').DictionaryEntry.(@value != '' && @codeMicroarrayCategory == item.@value.toString());
+    	   	for each (var xref:Object in theMicroarrayCategories) {
+    	   		if (xref.@codeRequestCategory.toString() == getRequestCategory().@codeRequestCategory.toString()) {
+	   				doesMatchRequestCategory = true;
+    	   		    break;
+    	   		}
+    	   	}
+        	
+        	
+        	return doesMatchRequestCategory;
         }  
         
         private function filterGenomeBuild(item:Object):Boolean {
@@ -708,7 +745,7 @@
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
 
-			var requestCategory:Object = setupView.getRequestCategory();
+			var requestCategory:Object = getRequestCategory();
 			
 			// Clear out workflow fields from sample and hyb
 			for each(var sample:Object in samples) {

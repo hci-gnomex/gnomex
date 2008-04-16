@@ -112,6 +112,8 @@
 			[Bindable]
 			public var filteredSlideProductListForSubmitRequests:XMLListCollection;
 			[Bindable]
+			public var filteredMicroarrayCategoryListForSubmitRequests:XMLListCollection;
+			[Bindable]
 			public var filteredFlowCellTypeList:XMLListCollection;
 			[Bindable]
 			public var filteredGenomeBuildList:XMLListCollection;
@@ -430,6 +432,7 @@
 	        	
 	        	filteredFlowCellTypeList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry);
 	        	filteredGenomeBuildList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry);
+	        	filteredMicroarrayCategoryListForSubmitRequests = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry);
 	        	
 	        	enableApp();
             }
