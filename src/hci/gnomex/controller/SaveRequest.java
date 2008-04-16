@@ -186,9 +186,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             saveHyb(hybInfo, sess, hybCount);
             hybCount++;
           }
-          if (requestParser.isNewRequest() || newHybCount > 0) {
-            requestParser.getRequest().getHybridizations().addAll(hybs);        
-          }                
+          if (requestParser.isNewRequest()) {
+            requestParser.getRequest().setHybridizations(hybs);        
+          } else if (newHybCount > 0) {
+            requestParser.getRequest().getHybridizations().addAll(hybs);
+            
+          }
         }
         
         // save sequence lanes
