@@ -659,7 +659,7 @@
         		return true;
         	}
         	
-        	if (item.@isActive == 'N') {
+        	if (!isEditState() && item.@isActive == 'N') {
         		return false;	
         	}
         	
@@ -1031,7 +1031,7 @@
 			}
 
 			
-			if (currentState == "MicroarrayEditState" || currentState == "MicroarrayState") {
+			if (isMicroarrayState()) {
 				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
 				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
 
@@ -1163,6 +1163,34 @@
 			errorMessage = '';
 			warningMessage = '';
 			
+			// Check for duplicate sampleNames
+			var sampleNames:Dictionary = new Dictionary();
+			for each(var s:Object in samples) {
+				var sampleCount:int = 0;
+				for each(var s1:Object in samples) {
+					if (s.@name == s1.@name) {
+						sampleCount++;
+					}
+				}
+				sampleNames[s.@name.toString()] = sampleCount;
+			}
+			var dupSampleNames:String = '';
+			for (var key:Object in sampleNames) {
+				if (sampleNames[key] > 1) {
+					if (dupSampleNames != '') {
+						dupSampleNames += ',';
+					}
+					dupSampleNames += key;
+				}
+			}
+			if (dupSampleNames != '') {
+				errorMessage += 'Some of the samples (' + dupSampleNames + ') are named the same.  ';
+				if (!isEditState()) {
+					errorMessage += 'Please provide unique sample names.';
+				}
+				errorMessage += '\n\n';					
+			}
+
 			// All samples must be used on at least one hyb
 			var allSamplesUsed:Boolean = true;
 			var unusedSampleList:String = '';
@@ -1191,26 +1219,31 @@
 				}
 				if (unusedSampleCount > 0) {
 					if (unusedSampleCount == 1) {
-						errorMessage = 'The sample ' + unusedSampleList + 
-						' is not used on any ' + target + 's.\n' +
-						'The request cannot be submitted until the unused sample is removed from the list or assigned to a ' + target + '.';
-						
+						errorMessage += 'The sample ' + unusedSampleList + 
+						' is not used on any ' + target + 's.  ';
+						if (!isEditState()) {
+							errorMessage += 'The request cannot be submitted until the unused sample is removed from the list or assigned to a ' + target + '.  ';	
+						}
+						errorMessage += '\n\n';					
 					} else {
-						errorMessage = 'The samples  (' + unusedSampleList + 
-						')  are not used on any ' + target + 's.\n' +
-						'The request cannot be submitted until the unused samples are removed from the list or assigned to ' + target + 's.';
-						
+						errorMessage += 'The samples  (' + unusedSampleList + 
+						')  are not used on any ' + target + 's.  ';
+						if (!isEditState()) {
+							errorMessage += 	'The request cannot be submitted until the unused samples are removed from the list or assigned to ' + target + 's.  ';
+						}
+						errorMessage += '\n\n';					
 					}
 				}
 			}	
 			
 			// Warn if some of the arrays (on a multi-array slide) are not used.	
-			
 			if (isMicroarrayState()) {
-				if (hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != '' && hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 1) {
+				if (hybSetupView.slideProductCombo.selectedItem == null) {
+					warningMessage += "No slide selected.\n";
+				} else if (hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != '' && hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 1) {
 					if (hybs.length % hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 0) {
 						warningMessage = "There are unused arrays on the multi-array slide  '" + hybSetupView.slideProductCombo.selectedItem.@name +
-						 "'. ";
+						 "'.\n ";
 					}
 				}
 				
@@ -1271,12 +1304,10 @@
 		}
 		
 		private function validateAndSaveRequest():void {
-			
-			// Only save request if it is valid
 			validateRequest();
+			
 			if (errorMessage != '') {
-				Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
-				return;
+				warningMessage = errorMessage + warningMessage;
 			}
 			if (warningMessage != '') {
 				promptToSaveRequest();
