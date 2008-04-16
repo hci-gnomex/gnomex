@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" width="508" height="486" 
-	title="Pick an existing request as a template"
+	title="Double-click on an existing request to pick as a template for your new request"
 	 backgroundAlpha="1" borderColor="#ffffff" close="closeWindow()"
 	 showCloseButton="true">
 <mx:Script>
@@ -13,8 +13,15 @@
 		}
 		
 		public function expandAllNodes():void {
-			browseTree.openItems = parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult..Lab;
-			browseTree.openItems = parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult..Project;
+			browseTree.expandItem(parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult, true);
+			for each(var lab:Object in parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult..Lab) {
+  				browseTree.expandItem(lab, true);
+  			}
+			for each(var project:Object in parentApplication.submitRequestView.setupView.getProjectRequestList.lastResult..Project) {
+  				browseTree.expandItem(project, true);
+  			}
+
+			
 			browseTree.validateNow();
 		}
 		
