@@ -33,6 +33,10 @@
 	        [Embed(source="assets/group.png")]
 	        public var iconGroup:Class;
 	        
+	        	
+	        [Bindable]
+	        [Embed(source="assets/brick.png")]
+	        public var iconProtocol:Class;
 	        
 	        [Bindable]
 	        [Embed(source="assets/folder.png")]

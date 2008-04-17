@@ -271,7 +271,7 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
-					browseView.title = browseTree.selectedItem.@projectName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;
+					browseView.title = browseTree.selectedItem.@projectName + "\t" + rowCountMessage;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
 					if (!browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.addChild(browseView.projectDetailView);
@@ -279,7 +279,7 @@
 					getProject.send();
 					
 				} else {
-					browseView.title =  browseTree.selectedItem.@labName + "\t\t\t\t\t\t\t\t\t\t\t\t" + rowCountMessage;;
+					browseView.title =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;;
 					selectedIdProject = null;
 					if (browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.removeChild(browseView.projectDetailView);
@@ -652,7 +652,7 @@
 	
 	
 			
-			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 				<mx:VBox width="100%" height="100%" verticalGap="4" label="Experiments">
 				        <mx:Label id="groupLabel" visible="false" height="0" text="Select group to show experiments:"/>
 						<mx:ComboBox id="browseLabCombo" 
@@ -678,7 +678,7 @@
 					</mx:VBox>
 
 				</mx:VBox>
-					<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+					<mx:ControlBar width="100%">
 						        <mx:Button id="newProjectButton" click="browseView.showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
 						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..." width="58" visible="false"/>
 						        <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 

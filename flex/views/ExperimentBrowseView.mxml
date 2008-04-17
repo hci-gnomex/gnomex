@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <views:ExtendedPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" xmlns:views="views.*"  controlBarPosition="bottom"
-	  verticalGap="0">
+	  verticalGap="0" borderThicknessTop="0">
 	  
 
 
@@ -320,7 +320,7 @@
  
 		
 
-<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
  	<mx:VBox width="100%"  verticalGap="0">
 
 
@@ -356,18 +356,15 @@
 
 
 
-		<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="2" paddingBottom="0" height="100%" backgroundColor="#ffffff" backgroundAlpha="1">
 	        <mx:TabBar dataProvider="{theViews}" 
 	        	itemClick="onViewSwitch()" 
-	        	useHandCursor="true" styleName="form" paddingBottom="0">
+	        	useHandCursor="true" styleName="form" paddingBottom="0" paddingTop="2">
 	        </mx:TabBar>
-	        <mx:Spacer width="50"/>
-	    </mx:HBox>
  					    
 	</mx:VBox>
 
 		        
-	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" borderStyle="solid" verticalGap="0">
+	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" borderStyle="solid" verticalGap="0">
 		<mx:ViewStack id="theViews"  paddingTop="0" width="100%" height="100%"  paddingLeft="0">
 		       <mx:VBox id="experimentListView" width="100%" height="100%" 
 		       	label="Experiments" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
@@ -421,7 +418,7 @@
 	<mx:ControlBar width="100%" >
 		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" horizontalGap="0">
 			<mx:ViewStack  id="buttonStack"  width="100%" >
-	            <mx:HBox   verticalAlign="middle" horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
+	            <mx:HBox horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
  					<mx:Button  visible="false"/>
  	            </mx:HBox>
 	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">

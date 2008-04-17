@@ -131,6 +131,7 @@
         	parentDocument.searchViews.selectedChild = parentDocument.searchResultsView;
         	parentDocument.onViewSwitch();
         	parentDocument.setResultsCount();
+        	callLater(parentDocument.expandAllNodes);
         }
         
         private function onSearchIndexFailed(event:FaultEvent):void {
@@ -151,7 +152,7 @@
     </mx:Script>
     
    
-    <mx:VBox width="100%" height="100%" top="4" bottom="4" left="4" right="4"  backgroundAlpha="1.0">
+    <mx:VBox width="100%" height="100%" top="8" bottom="8" left="8" right="8"  backgroundAlpha="1.0">
     
         <mx:VBox width="100%" height="100%" verticalGap="1">
             <mx:HBox width="100%" paddingBottom="10">

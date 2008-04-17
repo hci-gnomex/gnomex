@@ -6,7 +6,7 @@
 	close="closeWindow()" 
 	title="New Project" 
 	titleIcon="@Embed('../assets/folder_add.png')" 
-	borderColor="#FFFFFF" borderThickness="4">
+>
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
