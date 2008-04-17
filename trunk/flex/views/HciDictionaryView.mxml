@@ -208,7 +208,7 @@
         			dgc.headerText = field.@caption;
         			
 					// set the label function
-					if (field.@isFilter == "Y") {
+					if (field.@isFilter == "Y" && field.@className != "YN") {
 						dgc.labelFunction = getDisplayForValue;
 					}
 	        		
@@ -358,16 +358,24 @@
 					cb.data = dataTemp;
 					vb.addChild(cb);
         		} else if (item.@dataType == "isActive") {
+        			var isActive:ComboBoxYN = new ComboBoxYN();
+        			isActive.id = item.@id;
+        			isActive.name = isActive.id;
+					isActive.labelField = "display";
+					isActive.setStyle("cornerRadius",2);
+					if (currentDictAction=="add") {
+        				isActive.data = "Y";
+        			} else {
+        				isActive.data = dataTemp;
+        			}
+					vb.addChild(isActive);
+        		} else if (item.@dataType == "YN") {
         			var yn:ComboBoxYN = new ComboBoxYN();
         			yn.id = item.@id;
         			yn.name = yn.id;
 					yn.labelField = "display";
 					yn.setStyle("cornerRadius",2);
-					if (currentDictAction=="add") {
-        				yn.data = "Y";
-        			} else {
-        				yn.data = dataTemp;
-        			}
+        			yn.data = dataTemp;
 					vb.addChild(yn);
         		}
         		return vb;
