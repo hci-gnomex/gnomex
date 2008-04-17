@@ -68,6 +68,7 @@
 			
 			public function loadDictionaries():void {
 				currentDictAction = "load";
+				updateModeDisplay(currentDictAction);
 				callManageDictionaries.cancel();
 				callManageDictionaries.request.action = currentDictAction;
 				callManageDictionaries.request.className = "";
@@ -77,6 +78,7 @@
 			
 			public function reloadDictionaries():void {
 				currentDictAction = "reload";
+				updateModeDisplay(currentDictAction);
 				callManageDictionaries.cancel();
 				callManageDictionaries.request.action = currentDictAction;
 				callManageDictionaries.request.className = "";
@@ -138,9 +140,13 @@
 	        		mode.text = "Retrieving dictionary entries...";
 	        	} else if (currentMode == "saveSuccess") {
 	        		mode.text = "Save successful...";
-	        	}else if (currentMode == "deleteSuccess") {
+	        	} else if (currentMode == "deleteSuccess") {
 	        		mode.text = "Entry successfully delete...";
-	        	}else {
+	        	} else if (currentMode == "load") {
+	        		mode.text = "Loading dictionary data...";
+	        	} else if (currentMode == "reload") {
+	        		mode.text = "Reloading dictionary data...";
+	        	} else {
 	        		mode.text = "";
 	        	}
 	        }
@@ -404,6 +410,7 @@
 	        		entryData["className"] = selectedDict;
 	        		callManageDictionaries.send(entryData);
 	        	}
+	        	clearEditor();
 	        }
 	        
 	        private function collectFormData():Object {
