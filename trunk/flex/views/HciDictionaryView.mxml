@@ -93,7 +93,7 @@
             		updateModeDisplay(null);
             	} else {
             		if (action == "load" || action == "reload") {
-						fullDictXml = this.callManageDictionaries.lastResult.Dictionary.(@canWrite=="Y");
+						fullDictXml = this.callManageDictionaries.lastResult.Dictionary;
 						initCbDict();
 						if (selectedDict != null) {
 							dgDictListCol.refresh();
@@ -152,7 +152,7 @@
 	        }
 	       
 	      	public function initCbDict():void {
-	        	var cbDictListCol:XMLListCollection = new XMLListCollection(fullDictXml);
+	        	var cbDictListCol:XMLListCollection = new XMLListCollection(fullDictXml.(@canWrite=="Y"));
 	        	var item:Object = null;
 	        	
 	        	// sort by displayName
