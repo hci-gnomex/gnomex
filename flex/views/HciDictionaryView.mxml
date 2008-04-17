@@ -51,7 +51,8 @@
 			public var dictMetaData:XMLList = null;
 			
 			public var selectedDict:String = null;
-			public var selectedDictIndex:int = -1;			
+			public var selectedDictIndex:int = -1;
+			public var refreshView:String = "no";
 			
 			[Bindable]
 			public var dgDictListCol:XMLListCollection = null;
@@ -64,6 +65,11 @@
 			
 			public function initializeData():void {
 				loadDictionaries();
+				if (selectedDictIndex != -1) {
+					selectedDictIndex = -1;
+					refreshView = "yes";
+					initGetDataForSelectedDict();
+				}
 			}
 			
 			public function loadDictionaries():void {
@@ -167,10 +173,10 @@
 				cbDict.selectedIndex = selectedDictIndex;
 	      	}
 	       
-	       private function initGetDataForSelectedDict(event:Event):void {
+	       private function initGetDataForSelectedDict():void {
 	       		clearEditor();
 	       		clearDictGrid();
-	       		if (event.currentTarget.selectedItem.@className == " ") {
+	       		if (refreshView == "yes" || (cbDict.selectedItem.@className == null || cbDict.selectedItem.@className == "")) {
 	       			selectedDict = null;
 	       			add.enabled = false;
 	       			del.enabled = false;
@@ -470,7 +476,7 @@
 	</mx:Script>
 	
 		<mx:Panel layout="absolute" title="Dictionary Editor" id="dictPanel" left="0" right="0" bottom="0" top="0" creationPolicy="all" headerHeight="20" styleName="form">
-				<mx:ComboBox id="cbDict" right="103" left="10" top="10" cornerRadius="2" change="currentDictAction='metadata';updateModeDisplay(currentDictAction);initGetDataForSelectedDict(event);"></mx:ComboBox>
+				<mx:ComboBox id="cbDict" right="103" left="10" top="10" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
 				<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="10" right="72" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);"/>
 				<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="10" right="41" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);"/>
 				<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="10" right="10" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();"/>
