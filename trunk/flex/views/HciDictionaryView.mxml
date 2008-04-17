@@ -475,34 +475,33 @@
 		]]>
 	</mx:Script>
 	
-		<mx:Panel layout="absolute" title="Dictionary Editor" id="dictPanel" left="0" right="0" bottom="0" top="0" creationPolicy="all" headerHeight="20" styleName="form">
-				<mx:ComboBox id="cbDict" right="103" left="10" top="10" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
-				<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="10" right="72" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);"/>
-				<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="10" right="41" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);"/>
-				<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="10" right="10" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();"/>
-				<mx:HDividedBox id="mainBox" top="42" left="10" right="10" bottom="10" cornerRadius="2">
-						<mx:DataGrid id="dgDict" cornerRadius="2" width="70%" height="100%" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);"> 
-						</mx:DataGrid>
-						<mx:Tile id="dgEditor" 
-							width="30%" 
-							height="100%" 
-							borderStyle="solid" 
-							borderColor="#b7babc" 
-							backgroundColor="#f4f4f4" 
-							direction="horizontal" 
-					        paddingTop="10" 
-					        paddingBottom="10" 
-					        paddingRight="10" 
-					        paddingLeft="10" 
-					        verticalGap="15" 
-					        horizontalGap="10"
-					        cornerRadius="2" styleName="form">
-						</mx:Tile>
+		<mx:Panel layout="absolute" title="Dictionary Editor" id="dictPanel" left="0" right="0" bottom="0" top="0" creationPolicy="all" headerHeight="20" styleName="form" borderThicknessBottom="8">
+				
+				<mx:HDividedBox id="mainBox" top="10" left="10" right="10" bottom="10" cornerRadius="2">
+						<mx:Canvas height="100%" width="100%">
+						<mx:ComboBox id="cbDict" right="93" left="0" top="0" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
+							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="0" right="62" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);"/>
+							<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="31" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);"/>
+							<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="0" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();"/>
+							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);" bottom="0" top="30" left="0" width="100%"> 
+							</mx:DataGrid>
+						</mx:Canvas>
+						<mx:Canvas width="40%" height="100%" borderStyle="solid">
+							<mx:Tile id="dgEditor" 
+								borderStyle="none" 
+								direction="horizontal" 
+						        paddingTop="10" 
+						        paddingBottom="10" 
+						        paddingRight="10" 
+						        paddingLeft="10" 
+						        verticalGap="15" 
+						        horizontalGap="10"
+						        cornerRadius="2" styleName="form" backgroundAlpha="0.0" left="0" top="0" bottom="33" width="100%">
+							</mx:Tile>
+						<mx:Text id="mode" color="#808080"  height="18" textAlign="right" right="65" bottom="7" left="5"/>
+							<mx:Button id="save" label="Save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())" right="5" bottom="5"/>
+						</mx:Canvas>
 				</mx:HDividedBox>
-				<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="6" horizontalAlign="right" paddingTop="4" x="0" y="655">
-					<mx:Text id="mode"  width="323" color="#808080"  height="18" textAlign="right"/>
-					<mx:Button id="save" label="Save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())"/>
-				</mx:ControlBar>
 		</mx:Panel>
 		
 </mx:Canvas>
