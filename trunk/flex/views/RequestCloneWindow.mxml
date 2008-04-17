@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" width="508" height="486" 
 	title="Double-click on an existing request to pick as a template for your new request"
-	 backgroundAlpha="1" borderColor="#ffffff" close="closeWindow()"
+	 close="closeWindow()"
 	 showCloseButton="true">
 <mx:Script>
 	<![CDATA[

@@ -47,10 +47,12 @@ HCI Cream = F2EFD9
 }
 
 .form {
+	backgroundColor: #EAEBDE;
+	/*backgroundColor: #D2E0E9;*/
 	  /*backgroundColor: #CFDCE9;*/
 	  /*background-color: #A1A79D;*/
 	  /*background-color: #D0D3CE;*/
-	  background-color: #ccccce;
+	 /* background-color: #ccccce; */
 	  /*backgroundColor: #C9D2DC;*/
 	/*backgroundColor: #e3ecf4;*/
 }
@@ -63,29 +65,30 @@ HCI Cream = F2EFD9
 
 
 TabNavigator {
-        backgroundColor: #2e63a5;
-	    backgroundAlpha:            .1;
+        backgroundColor: #EAEBDE;
+	    backgroundAlpha:            1.0;
 	    tabStyleName:      tabHeader;
 		selectedTabTextStyleName: tabHeaderTextSelected;
+	borderColor: #BCBDB4;
 }
 
 .tabHeader {
-	fillColors: #FFFFFF, #FFFFFF; 
+	fillColors: #EAEBDE, #EAEBDE; 
 	fillAlphas:  .2, .2;
  	    fontWeight: 		normal;		    
-	    backgroundAlpha:            .1;
+	    backgroundAlpha:            1;
 }
 
 .userTabNavigator {
 	    backgroundAlpha:            1;
 	    tabStyleName:      userTabHeader;
 		selectedTabTextStyleName: tabHeaderTextSelected;
-	    backgroundColor: #A1A79D;
-	    borderColor: #A1A79D;
+	    backgroundColor: #CBCAC1;
+	    borderColor: #CBCAC1;
 }
 
 .userTabHeader {
-	fillColors: #A1A79D, #A1A79D;
+	fillColors: #CBCAC1, #CBCAC1;
 	fillAlphas:  1, 1;
  	fontWeight: 		normal;		   
 
@@ -103,13 +106,25 @@ ApplicationControlBar {
 }
 
 LinkBar {
-	    fontWeight: normal;
+
 	    disabledColor: #FFFFFF; 
 	    rollOverColor: #FFFFFF; 
 	    selectionColor: #FFFFFF;
 	    useHandCursor: true;
+	     
 }
 
+.formLinkBar {
+
+	    disabledColor: #0F24E6; 
+	    rollOverColor: #FFFFFF; 
+	    selectionColor: #FFFFFF;
+	    useHandCursor: true;
+	color: #656C6E;
+	fontWeight: normal;
+	textDecoration: underline;
+	     
+}
 
 
 DataGrid {
@@ -126,18 +141,20 @@ ComboBox {
 
 
 Panel {
-   borderThicknessLeft: 4;
-   borderThicknessTop: 0;
-   borderThicknessBottom: 4;
-   borderThicknessRight: 4;
+   borderThicknessLeft: 8;
+   borderThicknessTop: 4;
+   borderThicknessBottom: 0;
+   borderThicknessRight: 8;
    roundedBottomCorners: false;
-   headerHeight: 23;
-   footerColors: #A1A79D, #A1A79D;
+   headerHeight: 20;
+   /*footerColors: #AEAEB2, #AEAEB2;*/
    titleStyleName: panelTitle;
    /*borderColor: #A1A79D;*/
-   border-color: #a1a1a2;
+   border-color: #CBCAC1;
    borderAlpha: 1.0;
    controlBarStyleName: panelControlBar;
+	backgroundColor: #CBCAC1;
+	statusStyleName: panelStatus;
 }
 .panelControlBar {
 	roundedBottomCorners: false;
@@ -153,10 +170,11 @@ TitleWindow {
    borderThicknessRight: 4;
    roundedBottomCorners: false;
    headerHeight: 28;
-   footerColors: #A1A79D, #A1A79D;
+   footerColors: #CBCAC1, #CBCAC1;
    titleStyleName: titleBarTitle;
-   borderColor: #A1A79D;
+   borderColor: #CBCAC1;
    borderAlpha: 1.0;
+   backgroundColor: #CBCAC1;
    controlBarStyleName: panelControlBar;
 }
 .titleBarTitle {
@@ -164,10 +182,10 @@ TitleWindow {
 }
 
 ControlBar {
-	paddingLeft: 4;
+	paddingLeft: 8;
 	paddingTop: 4;
-	paddingBottom: 4;
-	paddingRight: 4;
+	paddingBottom: 3;
+	paddingRight: 8;
 	
 }
         
@@ -182,6 +200,9 @@ TextInput {
 }
 TextArea {
 	disabledColor: #5f5f5f;
+}
+.panelStatus
+{
 }
 
 

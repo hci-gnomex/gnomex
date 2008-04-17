@@ -208,7 +208,8 @@
     <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult.RequestDirectory.Directory.FileDescriptor}"/>
 
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:TabNavigator id="theTab"  
+	    <mx:LinkBar id="linkBar" styleName="formLinkBar" dataProvider="{theTab}"/>
+		<mx:ViewStack id="theTab"  
 			width="100%" height="100%" 
 			change="onTabSwitch()" 
 			borderStyle="solid">
@@ -306,7 +307,7 @@
 			    </mx:DataGrid>
 			</mx:VBox>
 			
-	</mx:TabNavigator>
+	</mx:ViewStack>
 		
 	</mx:VBox>
 	
