@@ -47,7 +47,7 @@ HCI Cream = F2EFD9
 }
 
 .form {
-	backgroundColor: #EAEBDE;
+	backgroundColor: #EFF0E3;
 	/*backgroundColor: #D2E0E9;*/
 	  /*backgroundColor: #CFDCE9;*/
 	  /*background-color: #A1A79D;*/
@@ -88,7 +88,7 @@ TabNavigator {
 }
 
 .userTabHeader {
-	fillColors: #CBCAC1, #CBCAC1;
+	fillColors: #b7b8b0, #b7b8b0;
 	fillAlphas:  1, 1;
  	fontWeight: 		normal;		   
 
@@ -141,20 +141,25 @@ ComboBox {
 
 
 Panel {
-   borderThicknessLeft: 8;
+   borderThicknessLeft: 4;
    borderThicknessTop: 4;
    borderThicknessBottom: 0;
-   borderThicknessRight: 8;
-   roundedBottomCorners: false;
+   borderThicknessRight: 4;
+   roundedBottomCorners: true;
    headerHeight: 20;
+   /*headerColors: #72aedc, #97b8d2;*/
+   /*headerColors: #548db8, #97b8d2;*/
+   headerColors: #c8c9bf, #97b8d2;
    /*footerColors: #AEAEB2, #AEAEB2;*/
    titleStyleName: panelTitle;
    /*borderColor: #A1A79D;*/
-   border-color: #CBCAC1;
-   borderAlpha: 1.0;
+   border-color: #B7B8B0;
    controlBarStyleName: panelControlBar;
-	backgroundColor: #CBCAC1;
+	backgroundColor: #B7B8B0;
 	statusStyleName: panelStatus;
+	borderAlpha: 1;
+	dropShadowEnabled: true;
+
 }
 .panelControlBar {
 	roundedBottomCorners: false;
@@ -165,20 +170,20 @@ Panel {
 
 TitleWindow {
    borderThicknessLeft: 4;
-   borderThicknessTop: 0;
-   borderThicknessBottom: 4;
+   borderThicknessTop: 4;
+   borderThicknessBottom: 0;
    borderThicknessRight: 4;
    roundedBottomCorners: false;
-   headerHeight: 28;
-   footerColors: #CBCAC1, #CBCAC1;
+   headerHeight: 25;
+   footerColors: #B7B8B0, #B7B8B0;
    titleStyleName: titleBarTitle;
-   borderColor: #CBCAC1;
+   borderColor: #B7B8B0;
    borderAlpha: 1.0;
-   backgroundColor: #CBCAC1;
+   backgroundColor: #B7B8B0;
    controlBarStyleName: panelControlBar;
 }
 .titleBarTitle {
-	fontWeight: bold;
+	fontWeight: normal;
 }
 
 ControlBar {

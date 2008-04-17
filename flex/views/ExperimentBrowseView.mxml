@@ -358,7 +358,7 @@
 
 	        <mx:TabBar dataProvider="{theViews}" 
 	        	itemClick="onViewSwitch()" 
-	        	useHandCursor="true" styleName="form" paddingBottom="0" paddingTop="2">
+	        	useHandCursor="true" styleName="form" paddingBottom="0" paddingTop="2" height="25">
 	        </mx:TabBar>
  					    
 	</mx:VBox>

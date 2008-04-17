@@ -4,7 +4,7 @@
     xmlns:views="views.*"
     close="{PopUpManager.removePopUp(this)}"
 	label="Submit Request" width="100%" height="100%" 
-	>
+	 headerHeight="20">
 
    
    <mx:HTTPService  
@@ -1515,7 +1515,7 @@
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
   
- 	<mx:VBox  width="100%" height="100%" paddingBottom="6" paddingLeft="6" paddingRight="6" paddingTop="6" verticalGap="0">
+ 	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
  	    	
 		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 		    <views:SubmitRequestSetupView id="setupView">		    	
@@ -1546,19 +1546,14 @@
 	 	    <mx:HBox width="100%" >
 				<mx:Button label="&lt; Back" enabled="false" visible="true" id="backButton" click="previousTab()"/>
 				<mx:Button id="nextButton"  label="Next &gt;" enabled="false" click="nextTab()"/>
-				<mx:ViewStack id="confirmButtonStack" width="100%" height="28">
+				<mx:ViewStack id="confirmButtonStack" width="100%" >
 							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
 								<mx:Button visible="false" />
 							</mx:HBox>
 							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
 							</mx:HBox>
-							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" borderStyle="none"  paddingTop="0" paddingRight="2" paddingLeft="2">
-								<mx:HBox width="100%" >
-									<mx:Text width="100%" color="#0000ff" condenseWhite="true" letterSpacing=".1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" leading="0" height="28">
-									</mx:Text>
-									
-								</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
 							</mx:HBox>
 					    	
 				</mx:ViewStack>
