@@ -40,29 +40,22 @@
 			var node:XML = new XML("<BillingAccount " +
 			    " idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
 			    " accountName='" + accountName.text + "'" +
-			    " expirationDateOther='" + expirationDate.text + "'" +
-			    " accountNumberBus='" + accountNumberBus.text + "'" +
-			    " accountNumberOrg='" + accountNumberOrg.text + "'" +
-			    " accountNumberFund='" + accountNumberFund.text + "'" +
-			    " accountNumberActivity='" + accountNumberActivity.text + "'" +
-			    " accountNumberProject='" + accountNumberProject.text + "'" +
-			    " accountNumberAccount='" + accountNumberAccount.text + "'" +
-			    " accountNumberAu='" + accountNumberAu.text + "'" +
-			    " accountNumberYear='" + accountNumberYear.text + "'" +
-			    " isSelectedPeerReviewedFunding='" + (this.isPeerReviewedFundingCheckBox.selected ? 'true' : 'false') + "'" +
+ 			    " expirationDateOther=''" + 
+			    " accountNumberBus=''" + 
+			    " accountNumberOrg=''" + 
+			    " accountNumberFund=''" + 
+			    " accountNumberActivity=''" + 
+			    " accountNumberProject=''" + 
+			    " accountNumberAccount=''" + 
+			    " accountNumberAu=''" + 
+			    " accountNumberYear=''" +  
+			    " isSelectedPeerReviewedFunding='false'" + 
 				"/>");
 			billingAccounts.addItem(node);
 			
 			accountName.text = '';
-			expirationDate.text = '';
-			accountNumberBus.text = '';
-			accountNumberOrg.text = '';
-			accountNumberFund.text = '';
-			accountNumberActivity.text = '';
-			accountNumberProject.text = '';
-			accountNumberAccount.text = '';
-			accountNumberAu.text = '';
-			accountNumberYear.text = '';
+
+
 			
 		}
 		
@@ -255,115 +248,72 @@
 				   </mx:HBox>
 				</mx:HBox>
 				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="10">
-				   <mx:Panel title="Members" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   <mx:VBox  width="100%" verticalGap="4" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
+				       <mx:Label text="Members"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="185" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
+					       <mx:ComboBox width="160" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
 					       </mx:ComboBox>
-				   	   	   <mx:Button label="Add" click="addMember()" icon="@Embed('../assets/table_row_insert.png')"/>
-				   	   </mx:HBox>
-				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
-				   	   	   <mx:Button label="Remove" click="removeMember()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   	   <mx:Button click="addMember()" icon="@Embed(source='../assets/add.png')" disabledIcon="@Embed(source='../assets/add_disable.png')">
+				   	   	   	   <mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				   	   	   </mx:Button>
+				   	   	   <mx:Button click="removeMember()" icon="@Embed(source='../assets/delete.png')" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}"/>
 				   	   </mx:HBox>
 		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
 				       </mx:DataGrid>			   	
-				   </mx:Panel>
-				   <mx:Panel title="Collaborators" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   </mx:VBox>
+				   <mx:VBox width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
+				       <mx:Label text="Collaborators"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="185" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="160" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
-				   	   	   <mx:Button label="Add" click="addCollaborator()" icon="@Embed('../assets/table_row_insert.png')"/>
-				   	   </mx:HBox>
-				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
-				   	   	   <mx:Button label="Remove" click="removeCollaborator()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   	   <mx:Button click="addCollaborator()" icon="@Embed(source='../assets/add.png')" disabledIcon="@Embed(source='../assets/add_disable.png')">
+				   	   	   	   <mx:enabled>{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				   	   	   </mx:Button>
+				   	   	   <mx:Button click="removeCollaborator()" icon="@Embed(source='../assets/delete.png')" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}"/>
 				   	   </mx:HBox>
 		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
 				       </mx:DataGrid>			   	
-				   </mx:Panel>
-				   <mx:Panel title="Managers" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   </mx:VBox>
+				   <mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
+				       <mx:Label text="Managers"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="185" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="160" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
-				   	   	   <mx:Button label="Add" click="addManager()" icon="@Embed('../assets/table_row_insert.png')"/>
-				   	   </mx:HBox>
-				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
-				   	   	   <mx:Button label="Remove" click="removeManager()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   	   <mx:Button click="addManager()" icon="@Embed(source='../assets/add.png')" disabledIcon="@Embed(source='../assets/add_disable.png')">
+				   	   	   	   <mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				   	   	   </mx:Button>
+				   	   	   <mx:Button click="removeManager()" icon="@Embed(source='../assets/delete.png')" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}"/>
 				   	   </mx:HBox>
 					    <mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
 				       </mx:DataGrid>			   	
-				   </mx:Panel>
+				   </mx:VBox>
 				    			    
 	
 				</mx:HBox>
 			</mx:VBox>			
 			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-			    <mx:VBox width="100%">
-				<mx:HBox horizontalGap="3" width="100%" verticalAlign="bottom">
-					<mx:VBox verticalGap="0" width="100%">
+				<mx:HBox horizontalAlign="left" width="100%">
+					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
 						<mx:Label text="Account name"/>
 						<mx:TextInput id="accountName" width="100%"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Expires"/>
-						<mx:DateField id="expirationDate"  editable="true"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Bus"/>
-						<mx:TextInput id="accountNumberBus" width="30"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Org"/>
-						<mx:TextInput id="accountNumberOrg" width="50"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Fund"/>
-						<mx:TextInput id="accountNumberFund" width="50"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Activity"/>
-						<mx:TextInput id="accountNumberActivity" width="100"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Project"/>
-						<mx:TextInput id="accountNumberProject" width="100"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="Account"/>
-						<mx:TextInput width="50" id="accountNumberAccount"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:Label text="AU"/>
-						<mx:TextInput width="20" id="accountNumberAu"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="0" >
-						<mx:Label text="Year"/>
-						<mx:TextInput width="40" id="accountNumberYear"/>
-					</mx:VBox>
-					<mx:CheckBox label="Peer reviewed funding?" id="isPeerReviewedFundingCheckBox" textAlign="center">
-					</mx:CheckBox>
-				</mx:HBox>
-				<mx:HBox width="100%" horizontalAlign="right">
-					<mx:Button label="Add Billing Account" icon="@Embed('../assets/table_row_insert.png')" click="addBillingAccount()"/>
-				</mx:HBox>
-				</mx:VBox>
-				<mx:HBox horizontalAlign="left" width="100%">
-					<mx:HBox width="100%" horizontalAlign="left" paddingTop="20" paddingBottom="4" paddingLeft="4" paddingRight="4">
-						<mx:Button label="Remove" icon="@Embed('../assets/table_row_delete.png')" click="removeBillingAccount()"/>						
+						<mx:Button icon="@Embed(source='../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="{accountName.text != ''}"/>
+						<mx:Button icon="@Embed('../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}"/>						
 					</mx:HBox>
 				</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true">
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="200"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="90"
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="170"/>
+						<mx:DataGridColumn dataField="@expirationDate" width="80"
 			                headerText="Expires"  
 			          		itemEditor="views.renderers.DateFieldExpiration" 
 			          		itemRenderer="mx.controls.Label" 
@@ -376,7 +326,7 @@
 						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="90"/>
 						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="90"/>
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
-						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="20"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="40"/>
 						<mx:DataGridColumn headerText="Peer reviewed funding" dataField="@isSelectedPeerReviewedFunding" editorDataField="selected" itemRenderer="views.renderers.CheckBoxIsPeerReviewedFunding"  rendererIsEditor="true" width="40"/>
 					</mx:columns>

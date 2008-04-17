@@ -2,7 +2,9 @@ package views.renderers
 {
 	import mx.controls.CheckBox;
 	import flash.events.Event;
-
+	import flash.display.DisplayObject;
+	import flash.text.TextField;
+	
 	public class CheckBoxIsPeerReviewedFunding extends CheckBox
 	{
 		  private var _data:Object;
@@ -31,5 +33,33 @@ package views.renderers
           		_data.@isSelectedPeerReviewedFunding = "false";
           	}
           }
+          
+          /**
+		   * center the checkbox and refresh the checkbox based on changed data
+		   * values due to toggling off other selections.
+		   */
+			override protected function updateDisplayList(w:Number, h:Number):void
+			{
+				super.updateDisplayList(w, h);
+		
+				var n:int = numChildren;
+				for (var i:int = 0; i < n; i++)
+				{
+					var c:DisplayObject = getChildAt(i);
+					if (!(c is TextField))
+					{
+						c.x = (w - c.width) / 2;
+						c.y = 0;
+					}
+				}
+				
+				// Select or de-select checkbox based on @isSelected value
+ 				if (_data != null && _data.hasOwnProperty("@isSelectedPeerReviewedFunding") && _data.@isSelectedPeerReviewedFunding == "true") {
+          			this.selected = true;
+	          	} else {
+    	      		this.selected = false;
+        	  	}
+ 
+			}
 	}
 }
