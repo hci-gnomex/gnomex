@@ -43,16 +43,16 @@
 			<mx:Canvas label="Microarray Workflow" width="100%" height="100%" >
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			  		
-			  		<mx:ToggleButtonBar dataProvider="microarrayViews" direction="vertical"  toggleOnClick="true" itemClick="onMicroarrayWorklistChange()">
-			  		</mx:ToggleButtonBar>
+			  		<mx:LinkBar dataProvider="microarrayViews" direction="vertical"   itemClick="onMicroarrayWorklistChange()" textDecoration="underline" styleName="formLinkBar">
+			  		</mx:LinkBar>
 				
 				</mx:VBox>
 			</mx:Canvas >
 			<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 					
-			  		<mx:ToggleButtonBar dataProvider="solexaViews" direction="vertical"  toggleOnClick="true" itemClick="onSolexaWorklistChange()">
-			  		</mx:ToggleButtonBar>
+			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="formLinkBar">
+			  		</mx:LinkBar>
 				</mx:VBox>
 			</mx:Canvas>
 			

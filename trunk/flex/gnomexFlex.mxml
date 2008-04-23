@@ -3,7 +3,7 @@
 	xmlns:views="views.*"  
 	preinitialize="init()"  
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
-	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" 
+	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
 	
 
@@ -840,11 +840,11 @@
     <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}"/>
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}"/>
 
-	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="7">
+	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="0" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
 	    
 		   <mx:ApplicationControlBar  width="100%" 
 		   	fillAlphas="[1, 1]" dock="true"  
-		   	paddingBottom="0" paddingLeft="1" paddingRight="1" paddingTop="1">
+		   	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 		      <mx:VBox width="100%" verticalGap="0">
 			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" backgroundAlpha=".5" styleName="catalogPanel" paddingBottom="5">
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2">
@@ -892,8 +892,8 @@
         
         
 	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="0" paddingBottom="4" paddingLeft="2" 
-	    	paddingRight="2" horizontalCenter="0">
+	    	height="100%" paddingTop="4" paddingBottom="0" paddingLeft="0" 
+	    	paddingRight="0" horizontalCenter="0">
           
    
 
