@@ -32,7 +32,7 @@ Panel {
 }
 
 TitleWindow {
-	borderColor: #CBCAC1;
+	borderColor: #CBCAC0;
 	backgroundColor: #CBCAC1;
 	cornerRadius: 4;
 	borderThicknessTop: 4;
@@ -41,12 +41,24 @@ TitleWindow {
 	borderThicknessRight: 4;
 	titleStyleName: titleWindowTitle;
 	headerHeight: 28;
+	controlBarStyleName: titleWindowControlBar;
 }
 .titleWindowTitle
 {
 	fontWeight: normal;
 	color: #FFFFFF;
 }
+
+Alert {
+	
+	headerColors: #888a97, #888a97;
+	backgroundColor: #888a97;
+	borderColor: #888a97;
+	cornerRadius: 4;
+
+}
+
+
 
 TabNavigator {
 }
@@ -194,6 +206,17 @@ TextArea {
 	color: #FFFFFF;
 	fontWeight: normal;
 }
+
+.navLinkBar {
+	disabledColor: #1728CF; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #000000;
+	fontWeight: normal;
+	textDecoration: underline;
+}
+
 
 
 

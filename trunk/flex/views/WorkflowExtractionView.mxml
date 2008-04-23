@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Panel label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"
 	width="100%" height="100%" title="Scan / Feature Extraction"
 	titleIcon="@Embed('../assets/color_swatch.png')"  borderThicknessTop="2">
 	
@@ -42,6 +42,9 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        
+        [Bindable]
+        private var requestNumberCount:String;
         
         [Bindable]
         private var dirtyWorkItems:XMLListCollection;
@@ -92,15 +95,21 @@
         }
         
         private function onSaveWorkItem(event:ResultEvent):void {
-        	if (saveWorkItem.lastResult.name() == "WorkItemList") {
-        		
+        	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
+        		this.getWorkList.send();
         	} else {
         		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
         	}
         }
         
         private function onFailSaveWorkItem(event:FaultEvent):void {
-        	Alert.show("failed to save work list " + event.message);
+        	var startPos:int = event.message.body.indexOf("TEXT=");
+        	var endPos:int   = event.message.body.indexOf("TYPE=");
+        	if (startPos != -1 && endPos != -1) {
+	        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), "Failed to save work list");    		
+        	} else {
+        		Alert.show(event.message.body.toString(), "Failed to save work list");
+        	}
         }
         
         private function refreshRequestNumbers():void {
@@ -128,6 +137,8 @@
         			requestNumbers.addItem(newItem);
         		}
         	}
+        	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
+        	
         }
         
         private function filterWorkList(item:Object):Boolean {
@@ -153,13 +164,14 @@
     
     
 
-            <mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
-            	<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+            <mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalAlign="bottom">
+                <mx:Label text="{requestNumberCount}"/>
+            	<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" 
 	            		dataProvider="{requestNumbers}" 
 	            		change="workList.filterFunction = filterWorkList;workList.refresh()"  
-	            		width="70">
+	            		width="90">
 	            	</mx:ComboBox>
             		
             	</mx:HBox>
@@ -169,10 +181,10 @@
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<mx:DataGrid height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
-				<mx:columns>
-					<mx:DataGridColumn editable="false" headerText=""  width="3" labelFunction="getGridRowNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Request #"  width="10" dataField="@requestNumber"/>
+			<views:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
+				<views:columns>
+					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Req #"  width="7" dataField="@requestNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Ready Date" width="10" dataField="@workItemCreateDate"/>
 					<mx:DataGridColumn editable="false" headerText="Requester"  width="14" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="7" dataField="@hybNumber"/>
@@ -182,7 +194,7 @@
 	                   editable="true"
 	                   rendererIsEditor="true"  
 	                   itemRenderer="views.renderers.ComboBoxScanProtocol" />
-					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="29" dataField="@idFeatureExtractionProtocol" 
+					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="28" dataField="@idFeatureExtractionProtocol" 
 	                	editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
@@ -194,8 +206,8 @@
 	                   editable="true"
 	                   rendererIsEditor="true"  
 	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusExtraction" />
-				</mx:columns>
-		</mx:DataGrid>
+				</views:columns>
+		</views:DataGridAlternatingGroup>
 			
 		</mx:VBox>
 	  	

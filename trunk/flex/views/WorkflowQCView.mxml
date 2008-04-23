@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel label="Quality Control"  
-	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:views="views.*"
 	width="100%" height="100%" title="Quality Control" titleIcon="@Embed('../assets/chart_curve.png')]"
 	 borderThicknessTop="2">
 	
@@ -36,13 +36,22 @@
     <mx:XMLListCollection id="workList" source="{getWorkListQC.lastResult.WorkItem}"/>
     
 
+
     <mx:Script>
         <![CDATA[
+        import mx.validators.NumberValidator;
+        import mx.events.ValidationResultEvent;
         import mx.collections.ArrayCollection;
         import mx.collections.XMLListCollection;
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        
+        [Bindable]
+        private var requestNumberCount:String;
+        
+        [Bindable]
+        private var inputNumber:String;
         
         [Bindable]
         private var dirtyWorkItems:XMLListCollection;
@@ -64,12 +73,88 @@
         	}
         }
                 
-        private function onEdit(event:Event):void {
+        private function onEdit(event:mx.events.DataGridEvent ):void {
         	workList.filterFunction = null;
 	    	workListGrid.selectedItem.@isDirty = "Y";
+	    	
+
+        }
+        
+        private function validate():Boolean {
+        	var message:String = "";
+        	var dirtyItems:XMLList = getWorkListQC.lastResult.WorkItem.(@isDirty == 'Y');        	
+    		
+    		var nv:NumberValidator = new NumberValidator();
+	    	nv.domain = "real";
+	    	nv.required = false;
+	    	nv.minValue = "0";
+	    	nv.maxValue = "99999";
+	    	nv.precision = 3;
+	    	nv.allowNegative = false;
+	    	nv.exceedsMaxError = "exceeds max.";
+	    	nv.invalidCharError = "contains invalid characters.";
+	    	nv.negativeError = "cannot be negative.";
+	    	nv.precisionError = "has too many digits beyond the decimal point";
+        	
+        	var item:Object = null;
+        	var vr:ValidationResultEvent  = null;
+        	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@qualCalcConcentration);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\nConcentration " + item.@qualCalcConcentration + " " + vr.message;
+		    		break;
+		    	}
+	    	} 
+	    	
+	    	nv.maxValue = "9";
+	    	nv.precision = 2;
+	    	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@qual260nmTo230nmRatio);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\n260/230 " + item.@qual260nmTo230nmRatio + " " + vr.message;
+		    		break;
+		    	}
+	    	} 
+	    	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@qual260nmTo280nmRatio);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\n260/280 " + item.@qual260nmTo280nmRatio + " " + vr.message;
+		    		break;
+		    	}
+	    	} 
+	    	nv.maxValue = "99";
+	    	nv.precision = 2;
+	    	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@qualRINNumber);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\nRIN# " + item.@qualRINNumber + " " + vr.message;
+		    		break;
+		    	}
+	    	} 	  
+
+	    	nv.maxValue = "9";
+	    	nv.precision = 1;
+	    	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@qual28sTo18sRibosomalRatio);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\n28s/18s " + item.@qual28sTo18sRibosomalRatio + " " + vr.message;
+		    		break;
+		    	}
+	    	} 	  
+	    	
+	    	  	
+	    	if (message != "") {
+	    		Alert.show(message);
+	    		return false;
+	    	} else {
+	    		return true;
+	    	}
         }
         
         private function save():void {
+        	if (validate() == false) {
+        		return;
+        	}
         	var dirtyItems:XMLList = getWorkListQC.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItemQC.send();
@@ -84,15 +169,21 @@
         }
         
         private function onSaveWorkItemQualityControl(event:ResultEvent):void {
-        	if (saveWorkItemQC.lastResult.name() == "WorkItemList") {
-        		
+        	if (saveWorkItemQC.lastResult.name() == "WorkItemList" || saveWorkItemQC.lastResult.name() == "SUCCESS" ) {
+        		this.getWorkListQC.send();
         	} else {
         		Alert.show(saveWorkItemQC.lastResult..ACTMESSAGE.@TEXT);
         	}
         }
         
         private function onFailSaveWorkItemQualityControl(event:FaultEvent):void {
-        	Alert.show("failed to save work list " + event.message);
+        	var startPos:int = event.message.body.indexOf("TEXT=");
+        	var endPos:int   = event.message.body.indexOf("TYPE=");
+        	if (startPos != -1 && endPos != -1) {
+	        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), "Failed to save work list");    		
+        	} else {
+        		Alert.show(event.message.body.toString(), "Failed to save work list");
+        	}
         }
         
         private function refreshRequestNumbers():void {
@@ -120,6 +211,7 @@
         			requestNumbers.addItem(newItem);
         		}
         	}
+        	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
         }
         
         private function filterWorkList(item:Object):Boolean {
@@ -140,10 +232,11 @@
     
    
     <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
-            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
-            	<mx:HBox width="100%" horizontalAlign="right" >
+            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalAlign="bottom">
+                <mx:Label text="{requestNumberCount}"/>
+            	<mx:HBox width="100%" horizontalAlign="right"  verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
-	            	<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()"  width="70"></mx:ComboBox>
+	            	<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()"  width="90"></mx:ComboBox>
             		
             	</mx:HBox>
             	
@@ -152,10 +245,10 @@
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<mx:DataGrid height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
-				<mx:columns>
-					<mx:DataGridColumn editable="false" headerText=""  width="3" labelFunction="getGridRowNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Request #"  width="12" dataField="@requestNumber"/>
+			<views:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
+				<views:columns>
+					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Ready Date" width="15" dataField="@workItemCreateDate"/>
 					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
@@ -164,12 +257,12 @@
 					<mx:DataGridColumn headerText="260/280" width="15" dataField="@qual260nmTo280nmRatio"/>
 					<mx:DataGridColumn headerText="28S/18S" width="15" dataField="@qual28sTo18sRibosomalRatio"/>
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
-	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@qualStatus" 
+	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@qualStatus" 
 	                	editorDataField="value"
 	                   rendererIsEditor="true"  
 	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusQC" />
-				</mx:columns>
-		</mx:DataGrid>
+				</views:columns>
+		</views:DataGridAlternatingGroup>
 			
 		</mx:VBox>
 	  	
