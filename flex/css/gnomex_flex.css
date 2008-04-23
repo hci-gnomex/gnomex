@@ -7,13 +7,13 @@ HCI Cream = F2EFD9
 */
 
 Panel {
-   borderThicknessLeft: 6;
-   borderThicknessTop: 8;
+   borderThicknessLeft: 4;
+   borderThicknessTop: 2;
    borderThicknessBottom: 4;
-   borderThicknessRight: 6;
+   borderThicknessRight: 4;
    roundedBottomCorners: true;
-   headerHeight: 24;
-   headerColors:#548db8, #97b8d2; 
+   headerHeight: 22;
+   headerColors: #548db8, #97b8d2;
    titleStyleName: panelTitle;
    border-color: #CBCAC1;
    controlBarStyleName: panelControlBar;
@@ -50,23 +50,38 @@ TitleWindow {
 
 TabNavigator {
 }
-
+ 
+HDividedBox {
+	horizontalGap: 6;
+}
 
 
 ApplicationControlBar {
 	fillColors: #548db8, #97b8d2; 
+	dropShadowEnabled: true;
 }
 Accordion {
 
 	headerStyleName: accordionHeader;
-	headerHeight: 24; 
+	headerHeight: 24;
+	dropShadowEnabled: true;
+	cornerRadius: 6;
+	focusAlpha: .5; 
+	backgroundColor: #CBCAC1;
+	
+
 }
 .accordionHeader
 {
-	fillAlphas: 1.0, 1.0;
-	fillColors: #548db8, #97b8d2;
-	color: #FCFEFF;
+	fillColors: #87999D, #E3E8EB;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	selectedFillColors: #548db8, #97b8d2;
 	fontWeight: normal;
+	cornerRadius: 6;
+	borderColor: #B7BABC;
+	color: #FFFFFF;
+	textRollOverColor: #FFFFFF;
+	disabledColor: #FFFFFF;
 }
 
 

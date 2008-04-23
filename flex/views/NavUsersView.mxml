@@ -305,7 +305,7 @@
 	
     <mx:ViewStack id="navStack" width="250" height="100%">
 
- 		    <mx:TabNavigator id="navBar" height="100%" width="100%" styleName="userTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D">
+ 		    <mx:TabNavigator id="navBar" height="100%" width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D">
 		      <mx:change>onTabChange()</mx:change>
 		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
 		        
