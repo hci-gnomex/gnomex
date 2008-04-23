@@ -310,10 +310,10 @@
 		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
 		        
 	
-		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
-			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
+		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000">
+			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
 		       	      <mx:TextInput id="userSearchText" editable="true" 
-		       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list"/>
+		       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list" backgroundColor="#FFFFFF"/>
 			    
 		
 		    	      <mx:DataGrid id="usersGrid" 
@@ -338,11 +338,11 @@
 		      </mx:Canvas>
 		      
 		      
-		      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%" >
+		      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%"  color="#000405">
 		      
 		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
-		       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list."/>
+		       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
 			    
 			         
 		    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false">

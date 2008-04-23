@@ -39,24 +39,24 @@
 
 	<mx:HDividedBox width="100%" height="100%">
 
-		<mx:Panel label="Workflow" title="Workflow" height="100%">
+		<mx:Accordion height="100%">
 			<mx:Canvas label="Microarray Workflow" width="100%" height="100%" >
-				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
-			  		<mx:Label text="Microarray" fontWeight="bold"/>
+				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
+			  		
 			  		<mx:ToggleButtonBar dataProvider="microarrayViews" direction="vertical"  toggleOnClick="true" itemClick="onMicroarrayWorklistChange()">
 			  		</mx:ToggleButtonBar>
 				
 				</mx:VBox>
 			</mx:Canvas >
 			<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
-				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
-					<mx:Label text="Solexa" fontWeight="bold"/>
+				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
+					
 			  		<mx:ToggleButtonBar dataProvider="solexaViews" direction="vertical"  toggleOnClick="true" itemClick="onSolexaWorklistChange()">
 			  		</mx:ToggleButtonBar>
 				</mx:VBox>
 			</mx:Canvas>
 			
-		</mx:Panel>
+		</mx:Accordion>
 		    
 			
 	

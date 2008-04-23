@@ -212,13 +212,13 @@
 		<mx:ViewStack id="theTab"  
 			width="100%" height="100%" 
 			change="onTabSwitch()" 
-			borderStyle="solid">
+			>
 			<mx:VBox id="folderView" 
 				label="Folders" width="100%" height="100%" 
-				paddingLeft="4" paddingRight="4" 
-				paddingTop="0" paddingBottom="4" verticalGap="0">
+				paddingLeft="0" paddingRight="0" 
+				paddingTop="0" paddingBottom="0" verticalGap="0">
 		       <views:DataGridAlternatingGroup  
-		       	
+		       	 sortableColumns="false"
 		       	dataProvider="{downloadList}"  
 		       	width="100%" height="100%"
 		       	 >
@@ -227,7 +227,7 @@
 		            	width="10" 
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
-		            	editorDataField="selected"
+		            	editorDataField="selected" sortable="false"
 		            	itemRenderer="views.renderers.CheckBoxIsSelectedDownload">
 		            </mx:DataGridColumn>
 		            <mx:DataGridColumn width="35" headerText="#">
@@ -257,19 +257,19 @@
 			
 			<mx:VBox id="exploreView" label="Explore Files" width="100%" height="100%" 
 				enabled="true"
-				verticalGap="0" paddingLeft="4" paddingRight="4">
+				verticalGap="0" paddingLeft="0" paddingRight="0">
 			    <mx:HBox horizontalAlign="right" width="100%">
 			      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
 			    </mx:HBox>
 			    <mx:DataGrid 
 			    	 width="100%" height="100%" 
-	
+	   	 			sortableColumns="false"	
 			    	 dataProvider="{expandedFileList}" 
 			    	 >
 			       <mx:columns>
 		            <mx:DataGridColumn headerText=" " 
 		            	width="3" 
-		            	editable="true"                        	
+		            	editable="true"           sortable="false"              	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
 		            	itemRenderer="views.renderers.CheckBoxIsSelectedDownload"/>

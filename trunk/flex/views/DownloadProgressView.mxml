@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel 
+<mx:TitleWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	title="Downloading File" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
-	 backgroundAlpha="1.0" creationComplete="centerPopup()">
+	 creationComplete="centerPopup()" modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7" backgroundColor="#FFFFFF" borderColor="#FFFFFF">
     <mx:ProgressBar id="downloadProgress" label="" mode="manual" />
     <mx:ControlBar horizontalAlign="right">
-        <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"  fontFamily="Arial"/>
-        <mx:Button label="Close" click="PopUpManager.removePopUp(this)" fontFamily="Arial"/>
+        <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"/>
+        <mx:Button label="Close" click="PopUpManager.removePopUp(this)"/>
     </mx:ControlBar>
     
     <mx:Script>
@@ -135,4 +135,4 @@
     
     	]]>
     </mx:Script>
-</mx:Panel>
+</mx:TitleWindow>

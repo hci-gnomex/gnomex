@@ -652,7 +652,7 @@
 	
 	
 			
-			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" >
 				<mx:VBox width="100%" height="100%" verticalGap="4" label="Experiments">
 				        <mx:Label id="groupLabel" visible="false" height="0" text="Select group to show experiments:"/>
 						<mx:ComboBox id="browseLabCombo" 

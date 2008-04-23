@@ -6,107 +6,71 @@ HCI Teal = 00A9B9
 HCI Cream = F2EFD9
 */
 
-.tab {
-    background-color: #e1e1e1
+Panel {
+   borderThicknessLeft: 6;
+   borderThicknessTop: 8;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 6;
+   roundedBottomCorners: true;
+   headerHeight: 24;
+   headerColors:#548db8, #97b8d2; 
+   titleStyleName: panelTitle;
+   border-color: #CBCAC1;
+   controlBarStyleName: panelControlBar;
+   backgroundColor: #CBCAC1;
+   statusStyleName: panelStatus;
+   borderAlpha: 1;
+   dropShadowEnabled: true;
+}
+.panelControlBar {
+	roundedBottomCorners: false;
+}
+.panelTitle {
+	fontWeight: normal;
+	color: #FFFFFF;
+	fontStyle: normal;
 }
 
-.panel {
-    background-color: #e1e1e1
+TitleWindow {
+	borderColor: #CBCAC1;
+	backgroundColor: #CBCAC1;
+	cornerRadius: 4;
+	borderThicknessTop: 4;
+	borderThicknessBottom: 4;
+	borderThicknessLeft: 4;
+	borderThicknessRight: 4;
+	titleStyleName: titleWindowTitle;
+	headerHeight: 28;
 }
-
-
-.catalogPanel
+.titleWindowTitle
 {
-    highlightAlphas:        .7, .6, .5, .25;
-    headerColors:           #456F84, #9ABBC9;
-    borderAlpha:            1;
-    borderColor:            #FFFFFF;
-    borderThicknessRight:   1;
-    borderThicknessBottom:  1;
-    paddingRight:           0;
-    paddingBottom:          0;
+	fontWeight: normal;
+	color: #FFFFFF;
 }
-
-
-.cy3 {
-    color: #008000;
-    fontSize: 10;
-    fontWeight: bold;
-}
-
-.cy5 {
-    color: #800000;
-    fontSize: 10;
-    fontWeight: bold;
-}
-
-
-.formrule
-{
-	strokeColor: #a1a1a2;
-}
-
-.form {
-	backgroundColor: #EFF0E3;
-	/*backgroundColor: #D2E0E9;*/
-	  /*backgroundColor: #CFDCE9;*/
-	  /*background-color: #A1A79D;*/
-	  /*background-color: #D0D3CE;*/
-	 /* background-color: #ccccce; */
-	  /*backgroundColor: #C9D2DC;*/
-	/*backgroundColor: #e3ecf4;*/
-}
-
- Button {
-        fillAlphas: 1, 1;
-        fontWeight: normal;
-}
-
-
 
 TabNavigator {
-        backgroundColor: #EAEBDE;
-	    backgroundAlpha:            1.0;
-	    tabStyleName:      tabHeader;
-		selectedTabTextStyleName: tabHeaderTextSelected;
-	borderColor: #BCBDB4;
 }
 
-.tabHeader {
-	fillColors: #EAEBDE, #EAEBDE; 
-	fillAlphas:  .2, .2;
- 	    fontWeight: 		normal;		    
-	    backgroundAlpha:            1;
-}
 
-.userTabNavigator {
-	    backgroundAlpha:            1;
-	    tabStyleName:      userTabHeader;
-		selectedTabTextStyleName: tabHeaderTextSelected;
-	    backgroundColor: #CBCAC1;
-	    borderColor: #CBCAC1;
-}
-
-.userTabHeader {
-	fillColors: #b7b8b0, #b7b8b0;
-	fillAlphas:  1, 1;
- 	fontWeight: 		normal;		   
-
-}
-.userTabHeaderTextSelected {
-	    fontWeight:  bold;
-}
-
-.tabHeaderTextSelected {
-	    fontWeight:  bold;
-}
 
 ApplicationControlBar {
 	fillColors: #548db8, #97b8d2; 
 }
+Accordion {
+
+	headerStyleName: accordionHeader;
+	headerHeight: 24; 
+}
+.accordionHeader
+{
+	fillAlphas: 1.0, 1.0;
+	fillColors: #548db8, #97b8d2;
+	color: #FCFEFF;
+	fontWeight: normal;
+}
+
 
 LinkBar {
-
 	    disabledColor: #FFFFFF; 
 	    rollOverColor: #FFFFFF; 
 	    selectionColor: #FFFFFF;
@@ -114,105 +78,107 @@ LinkBar {
 	     
 }
 
-.formLinkBar {
-
-	    disabledColor: #0F24E6; 
-	    rollOverColor: #FFFFFF; 
-	    selectionColor: #FFFFFF;
-	    useHandCursor: true;
-	color: #656C6E;
-	fontWeight: normal;
-	textDecoration: underline;
-	     
+Button {
+        fillAlphas: 1, 1;
+        fontWeight: normal;
 }
 
 
 DataGrid {
-	headerStyleName: header;
+	headerStyleName: dataGridHeader;
 }
-.header {
+.dataGridHeader {
 	    fontWeight: normal;
-
 }
 
 ComboBox {
 	fontWeight: normal;
 }
 
-
-Panel {
-   borderThicknessLeft: 4;
-   borderThicknessTop: 4;
-   borderThicknessBottom: 0;
-   borderThicknessRight: 4;
-   roundedBottomCorners: true;
-   headerHeight: 20;
-   /*headerColors: #72aedc, #97b8d2;*/
-   /*headerColors: #548db8, #97b8d2;*/
-   headerColors: #c8c9bf, #97b8d2;
-   /*footerColors: #AEAEB2, #AEAEB2;*/
-   titleStyleName: panelTitle;
-   /*borderColor: #A1A79D;*/
-   border-color: #B7B8B0;
-   controlBarStyleName: panelControlBar;
-	backgroundColor: #B7B8B0;
-	statusStyleName: panelStatus;
-	borderAlpha: 1;
-	dropShadowEnabled: true;
-
-}
-.panelControlBar {
-	roundedBottomCorners: false;
-}
-.panelTitle {
-	fontWeight: normal;
-}
-
-TitleWindow {
-   borderThicknessLeft: 4;
-   borderThicknessTop: 4;
-   borderThicknessBottom: 0;
-   borderThicknessRight: 4;
-   roundedBottomCorners: false;
-   headerHeight: 25;
-   footerColors: #B7B8B0, #B7B8B0;
-   titleStyleName: titleBarTitle;
-   borderColor: #B7B8B0;
-   borderAlpha: 1.0;
-   backgroundColor: #B7B8B0;
-   controlBarStyleName: panelControlBar;
-}
-.titleBarTitle {
-	fontWeight: normal;
-}
-
 ControlBar {
 	paddingLeft: 8;
-	paddingTop: 4;
+	paddingTop: 0;
 	paddingBottom: 3;
 	paddingRight: 8;
-	
 }
         
-
-
-
 RadioButton {
 	disabledColor: #5f5f5f;
 }
 TextInput {
 	disabledColor: #5f5f5f;
+	backgroundColor: #E4E0E0;
 }
 TextArea {
 	disabledColor: #5f5f5f;
+		backgroundColor: #E4E0E0;
 }
-.panelStatus
+
+
+
+
+.form {
+	backgroundColor: #FFFFFF;
+	cornerRadius: 4;
+	borderStyle: solid;
+	dropShadowEnabled: true;
+}
+
+.formrule
 {
+	strokeColor: #a1a1a2;
 }
 
 
+.formTabBody {
+	backgroundColor: #FFFFFF;
+	borderStyle: none;
+	dropShadowEnabled: false;
+}
+.formTabBar {
+	backgroundColor: #FFFFFF;
+	borderStyle: none;
+	dropShadowEnabled: false;
+}
+
+.formLinkBar {
+	disabledColor: #0F24E6; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #656C6E;
+	fontWeight: normal;
+	textDecoration: underline;
+}
 
 
+.navTabNavigator {
+	 backgroundAlpha:            1.0;
+	 backgroundColor: #CBCAC1;
+	 borderColor: #CBCAC1;
+	 borderStyle: solid;
+	 color: #74878B;
+	 tabStyleName:      navTabHeader;
+	 tabStyleName: navTabHeader;
+	 firstTabStyleName: navTabHeader;
+	 middleTabStyleName: navTabHeader;
+	 lastTabStyleName: navTabHeader;
+	 selectedTabTextStyleName: navTabHeaderTextSelected;
+}
+
+.navTabHeader {
+	fill-colors :#548db8, #97b8d2;	
+	color: #5D5252;
+	backgroundColor: #97b8d2;
+	fillAlphas:  1, 1;
+ 	fontWeight: 		normal;		
+
+}
+
+.navTabHeaderTextSelected {
+	color: #FFFFFF;
+	fontWeight: normal;
+}
 
 
 

@@ -467,13 +467,13 @@
 	<mx:XMLListCollection id="spMicroarrayCategories" source="{fullSlideProductMicroarrayCategories}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0">
-		<mx:Panel width="300" height="100%" layout="absolute" title="Slide Browser" id="slideBrowserPanel">
+		<mx:Panel width="300" height="100%" title="Slide Browser" id="slideBrowserPanel">
 		<!-- filtering not finished -->
 		<!--mx:Label x="0" y="0" text="Type slide name here to find in list." fontSize="9" width="292" textAlign="right" height="17" visible="false"/>
 		<mx:TextInput id="slideSearchText" editable="true" 
 		       	      	change="slideList.refresh()" width="100%" toolTip="Type slide name here to find in list" y="16" visible="false"/-->
 			<mx:Tree left="0" right="0" top="0" bottom="0"
-				id="browseSlides"
+				id="browseSlides" width="100%" height="100%"
 				labelField="@name"
 				iconFunction="getTreeIcon"
 				change="onBrowseSlides(event);"
@@ -488,10 +488,10 @@
 				<mx:Button id="refreshButton" click="callGetSlideList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>
-		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" layout="absolute">
-			<mx:ViewStack id="slideViews" right="0" left="0" top="0" bottom="0">
-				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-					<mx:Label text="No slide design or product selected" fontSize="20" color="#A1A1A2" textAlign="right" right="10" top="10" height="31" left="10"/>
+		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" >
+			<mx:ViewStack id="slideViews" width="100%"  height="100%" right="0" left="0" top="0" bottom="0">
+				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0"  width="100%" height="100%">
+					<mx:Label text="No slide design or product selected" fontSize="12" color="#ffffff" textAlign="right" width="100%"/>
 				</mx:Canvas>
 				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
 					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="170"/>

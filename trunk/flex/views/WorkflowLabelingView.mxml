@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Labeling"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" title="Labeling" titleIcon="@Embed('../assets/asterisk_yellow.png')">
+<mx:Panel label="Labeling"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+	title="Labeling" titleIcon="@Embed('../assets/asterisk_yellow.png')"
+	 borderThicknessTop="2">
 	
 	<mx:HTTPService 
     id="getWorkList" 
@@ -136,9 +138,9 @@
     </mx:Script> 
     
    
-    <mx:VBox width="100%" height="100%">
+    <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
     
-            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
             	<mx:HBox width="100%" horizontalAlign="right">
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" 

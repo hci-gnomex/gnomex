@@ -4,7 +4,7 @@
     xmlns:views="views.*"
     close="{PopUpManager.removePopUp(this)}"
 	label="Submit Request" width="100%" height="100%" 
-	 headerHeight="20">
+	  headerHeight="24">
 
    
    <mx:HTTPService  
@@ -1517,7 +1517,7 @@
   
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
  	    	
-		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
+		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab"  styleName="form" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 		    <views:SubmitRequestSetupView id="setupView">		    	
 		    </views:SubmitRequestSetupView>
 		    
