@@ -16,6 +16,7 @@ package views
 		      	if( dataIndex < dataProvider.length ) {
 			      	item = dataProvider[dataIndex];
 			      	if( item != null && item.@altColor != null && item.@altColor == "true" ) {
+			      	} else {
 				      	color = 0xEEEEE0;
 			      	}
 		      	}

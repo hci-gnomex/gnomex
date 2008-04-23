@@ -8,13 +8,13 @@
         import mx.controls.Alert;
         
         private function onMicroarrayWorklistChange():void {
-        	if (microarrayViews.selectedIndex == 0) {
+        	if (microarrayViews.selectedChild == workflowQCView) {
         		workflowQCView.getWorkListQC.send();
-        	} else if (microarrayViews.selectedIndex == 1) {
+        	} else if (microarrayViews.selectedChild == workflowLabelingView) {
         		workflowLabelingView.getWorkList.send();
-        	} else if (microarrayViews.selectedIndex == 2) {
+        	} else if (microarrayViews.selectedChild  == workflowHybView) {
         		workflowHybView.getWorkList.send();
-        	} else if (microarrayViews.selectedIndex == 3) {
+        	} else if (microarrayViews.selectedChild == workflowExtractionView) {
         		workflowExtractionView.getWorkList.send();
         	}
 			detailViews.selectedIndex = 0;
@@ -43,7 +43,7 @@
 			<mx:Canvas label="Microarray Workflow" width="100%" height="100%" >
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			  		
-			  		<mx:LinkBar dataProvider="microarrayViews" direction="vertical"   itemClick="onMicroarrayWorklistChange()" textDecoration="underline" styleName="formLinkBar">
+			  		<mx:LinkBar dataProvider="microarrayViews" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()" textDecoration="underline" styleName="navLinkBar" >
 			  		</mx:LinkBar>
 				
 				</mx:VBox>
@@ -51,7 +51,7 @@
 			<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 					
-			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="formLinkBar">
+			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="navLinkBar">
 			  		</mx:LinkBar>
 				</mx:VBox>
 			</mx:Canvas>
@@ -62,7 +62,8 @@
 	
 		<mx:ViewStack id="detailViews" width="100%" height="100%">
 			<mx:ViewStack id="microarrayViews"  visible="true" height="100%" width="100%"  >
-	
+
+
 	           <views:WorkflowQCView label="Quality Control" id="workflowQCView" icon="@Embed('../assets/chart_curve.png')"/> 
 	           
 	           <views:WorkflowLabelingView label="Labeling" id="workflowLabelingView" icon="@Embed('../assets/asterisk_yellow.png')"/>
@@ -70,13 +71,17 @@
 	           <views:WorkflowHybView label="Hybridization" id="workflowHybView" icon="@Embed('../assets/basket_put.png')"/>
 	
 	           <views:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="@Embed('../assets/color_swatch.png')"/>
-			</mx:ViewStack>
-			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%"  >
+               
+               <mx:Canvas label="">
+               </mx:Canvas>
+               
+            </mx:ViewStack>
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
 	
 			   <mx:Canvas id="samplePrepView" label="Sample Prep"  icon="@Embed(source='../assets/bullet_wrench.png')"/>
 			   <mx:Canvas id="assembleRunView" label="Assemble Run"  icon="@Embed(source='../assets/sitemap.png')"/>
 			   <mx:Canvas id="sequencingView" label="Sequencing"  icon="@Embed(source='../assets/text_linespacing.png')"/>
-	
+	           <mx:Canvas label=""/>
 		</mx:ViewStack>
 			
 		</mx:ViewStack>

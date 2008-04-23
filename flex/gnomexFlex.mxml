@@ -566,6 +566,14 @@
 				}
 			}			
 
+        public function lookupLabel(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Label').DictionaryEntry.(@value == item.@idLabel);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
         public function lookupSampleTypeName(item:Object,col:int):String {
         	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == item.@idSampleType);
         	if (dict != null) {
