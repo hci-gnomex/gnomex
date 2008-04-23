@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     xmlns:BrowseRequestsView="BrowseRequestsView.*" label="Browse Requests" width="100%" height="100%">
-	<mx:Label x="40" y="10" text="Browse Requests"/>
-	
-    
-</mx:Canvas>

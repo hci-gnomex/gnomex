@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Quality Control"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" title="Quality Control" titleIcon="@Embed('../assets/chart_curve.png')">
+<mx:Panel label="Quality Control"  
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" title="Quality Control" titleIcon="@Embed('../assets/chart_curve.png')]"
+	 borderThicknessTop="2">
 	
 	<mx:HTTPService 
     id="getWorkListQC" 
@@ -136,9 +139,9 @@
     </mx:Script> 
     
    
-    <mx:VBox width="100%" height="100%">
-            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-            	<mx:HBox width="100%" horizontalAlign="right">
+    <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+            	<mx:HBox width="100%" horizontalAlign="right" >
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()"  width="70"></mx:ComboBox>
             		

@@ -121,7 +121,7 @@
 	<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="0">
         <mx:TabBar dataProvider="{searchViews}" 
         	itemClick="onViewSwitch()" 
-        	useHandCursor="true"  styleName="form">
+        	useHandCursor="true"  styleName="formTabBar">
         </mx:TabBar>
         <mx:Spacer width="140"/>
         <mx:HBox width="100%" horizontalAlign="right">
@@ -149,7 +149,7 @@
 	
 
 	<mx:ViewStack  id="searchViews" width="100%" height="100%" 
-			 creationPolicy="all" borderStyle="solid"  styleName="form">
+			 creationPolicy="all"  styleName="formTabBody" cornerRadius="0">
 	
 		<views:SearchView id="searchView" 
 			label="New search" 

@@ -308,10 +308,11 @@
 	<mx:XMLListCollection id="protocol" source="{fullProtocol}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-		<mx:Panel width="220" height="100%" title="Protocol List" layout="absolute">
+		<mx:Panel width="220" height="100%" title="Protocol List" >
 				<mx:Tree 
 					id="browseProtocols" 
-					right="0" left="0" bottom="10" top="10"
+					width="100%" height="100%"
+				
 					iconFunction="getTreeIcon"
 					borderThickness="0" 
 					labelField="@label" 
@@ -332,10 +333,10 @@
 				<mx:Button id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>
-		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" title="Protocol:" paddingTop="0">
-		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0">
-		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:Label text="No protocol selected" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
+		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" title="Protocol:" >
+		<mx:ViewStack id="protocolViews" width="100%" height="100%" right="0" left="0" top="0" bottom="0">
+		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" width="100%" height="100%">
+			<mx:Label text="No protocol selected" fontSize="12" color="#FFFFFF" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 			<mx:HBox left="10" top="10" right="394" styleName="formDisplay">

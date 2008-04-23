@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<views:ExtendedPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%" xmlns:views="views.*"  controlBarPosition="bottom"
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" xmlns:views="views.*"  
 	  verticalGap="0" borderThicknessTop="0">
 	  
 
@@ -321,7 +321,7 @@
 		
 
 <mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
- 	<mx:VBox width="100%"  verticalGap="0">
+ 	<mx:VBox width="100%"  verticalGap="0" paddingTop="2">
 
 
 	        <mx:HBox id="filterListView"  width="100%" horizontalAlign="right" horizontalGap="0">
@@ -358,13 +358,13 @@
 
 	        <mx:TabBar dataProvider="{theViews}" 
 	        	itemClick="onViewSwitch()" 
-	        	useHandCursor="true" styleName="form" paddingBottom="0" paddingTop="2" height="25">
+	        	useHandCursor="true" paddingBottom="0" paddingTop="2" height="25" styleName="formTabBar">
 	        </mx:TabBar>
  					    
 	</mx:VBox>
 
 		        
-	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" borderStyle="solid" verticalGap="0">
+	<mx:VBox width="100%" height="100%" styleName="formTabBody"  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 		<mx:ViewStack id="theViews"  paddingTop="0" width="100%" height="100%"  paddingLeft="0">
 		       <mx:VBox id="experimentListView" width="100%" height="100%" 
 		       	label="Experiments" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
@@ -459,7 +459,7 @@
 	</mx:ControlBar>
 	
 
-</views:ExtendedPanel>
+</mx:Panel>
 
 
 
