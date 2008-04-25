@@ -217,7 +217,14 @@ TextArea {
 	textDecoration: underline;
 }
 
+.popupWindow {
+	headerColors: #CBCAC1, #CBCAC1;
+	backgroundColor: #CBCAC1;
+	borderColor: #CBCAC1;
+	cornerRadius: 4;
+	borderStyle: none;
 
+}
 
 
 

@@ -4,6 +4,8 @@
 <mx:Script> 
 	<![CDATA[
 		import mx.collections.XMLListCollection;
+		
+		public var validNumberOfHybs:Boolean = true;
 
 		public function getCheckedCodeSlideSource():String {
 			if (this.coreSlideSourceCheckbox.selected == true) {
@@ -51,17 +53,22 @@
 				return;
 			}
 			
+		 	var isComplete:Boolean = false;
+			
         	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
         	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
         	    this.getCheckedCodeSlideSource() != '' && parentDocument.isSampleTypeCompatibile() ) {
         	    	
-        		parentDocument.hybsView.enabled = true;
+        		isComplete = true;
         	    	
         	} else if (parentDocument.request.@idRequest != '0') {
-        		parentDocument.hybsView.enabled = true;
+        		isComplete = true;
         	} else {
-        		parentDocument.hybsView.enabled = false;
+        		isComplete = false;
         	}
+        	
+        	parentDocument.hybsView.enabled = isComplete && validNumberOfHybs;
+        	
         	parentDocument.enableNextButtons();
         }
        
@@ -176,9 +183,21 @@
 			return slideDesign;
 
 		}
+		        
+        private function handleInvalidNumberOfHybs(eventObject:Event):void {
+        	this.validNumberOfHybs = false;
+        	this.checkHybSetupCompleteness();
+        }
+        private function handleValidNumberOfHybs(eventObject:Event):void {
+        	this.validNumberOfHybs = true;
+        	this.checkHybSetupCompleteness();
+        }
       
 	]]>
 </mx:Script>
+    <mx:NumberValidator id="numberOfHybsValidator" source="{numberOfHybs}" property="text" 
+        allowNegative="false" domain="int" maxValue="100" />
+
 	<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Image source="{parentApplication.iconBullet}"/>
@@ -231,7 +250,9 @@
 			<mx:Text width="300" >
 				<mx:htmlText><![CDATA[How many hybridizations will be performed on this <BR>experiment request?]]></mx:htmlText>
 			</mx:Text>
-			<mx:TextInput width="40" id="numberOfHybs" change="parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();checkHybSetupCompleteness()">
+			<mx:TextInput width="40" id="numberOfHybs"  
+				valid="handleValidNumberOfHybs(event)" invalid="handleInvalidNumberOfHybs(event)">
+				<mx:focusOut>clearHybSlideDesigns();parentDocument.initializeSlideDesigns();checkHybSetupCompleteness();parentDocument.hybsView.initializeHybsGrid();</mx:focusOut>
 				
 			</mx:TextInput>
 		</mx:HBox>

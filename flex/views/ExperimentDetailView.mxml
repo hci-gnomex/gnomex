@@ -210,36 +210,8 @@
         	return sampleName;
         }
         
-        private function lookupPrepMethod(item:Object, col:int):String {
-        	var buf:String = '';
-        	if (currentState == 'SolexaState') {
-				if (item.@samplePrepMethodUsedByLab != '') {
-					buf = item.@samplePrepMethodUsedByLab + ' (' + parentApplication.lookupSolexaLibraryType(item, col) + ' library, sized ' + item.@fragmentSizeFrom + '-' + item.@fragmentSizeTo + ')';
-				} else {
-					buf = parentApplication.lookupSamplePrepMethod(item, col);					
-				}
-        		
-        	} else {
-        		buf = parentApplication.lookupSamplePrepMethod(item, col);
-        	}
-			return buf;      	
-        	
-        }
+
         
-        private function lookupPreppedByLab(item:Object, col:int):String {
-        	var buf:String = '';
-        	if (currentState == 'SolexaState') {
-				if (item.@samplePrepMethodUsedByLab != '') {
-					buf = 'Y';
-				} else {
-					buf = 'N'
-				}
-        	} else {
-        		buf = 'N';
-        	}
-			return buf;      	
-        }
-       
        
 		public function getLaneSampleNumber(item:Object,col:int):String
         {
@@ -411,8 +383,8 @@
 					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  labelFunction="parentApplication.lookupSampleTypeName"/>
 					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" labelFunction="parentApplication.lookupOrganism"/>
 					            <mx:DataGridColumn id="sampleSourceCol" headerText="Sample Source" visible="{true}"  width="50" labelFunction="parentApplication.lookupSampleSource"/>
-					            <mx:DataGridColumn id="preppedByLabCol" headerText="Prepped by lab?"   visible="{true}" width="100" labelFunction="lookupPreppedByLab"/>
-					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="320" labelFunction="lookupPrepMethod"/>
+					            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
+					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" labelFunction="parentApplication.lookupSamplePrepMethod"/>
 				                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" labelFunction="parentApplication.lookupChipType" />
 								
 

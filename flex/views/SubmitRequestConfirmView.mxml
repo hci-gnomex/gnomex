@@ -4,46 +4,32 @@
 	<![CDATA[
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
-				totalVolumeConfirmColumn.visible = true;
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				sampleSourceConfirmColumn.visible = true;
-				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState') {
-					samplePrepMethodConfirmCol.visible = false;
-					samplePrepMethodUsedConfirmCol.visible = true;
-					solexaLibraryTypeConfirmCol.visible = true;
-					fragmentSizeFromConfirmCol.visible = true;
-					fragmentSizeToConfirmCol.visible = true;
-				} else {
-					samplePrepMethodConfirmCol.visible = true;
-					samplePrepMethodUsedConfirmCol.visible = false;
-					solexaLibraryTypeConfirmCol.visible = false;
-					fragmentSizeFromConfirmCol.visible = false;
-					fragmentSizeToConfirmCol.visible = false;
-				}
+				samplePrepMethodConfirmCol.visible = true;
+				fragmentSizeFromConfirmCol.visible = true;
+				fragmentSizeFromConfirmCol.visible = true;
+				preppedByCoreCol.visible = true;
 			} else if (parentDocument.currentState == 'QCState') {
-				totalVolumeConfirmColumn.visible = false;
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = false;
 				chipTypeConfirmColumn.visible = true; 
 				samplePrepMethodConfirmCol.visible = true;
-				samplePrepMethodUsedConfirmCol.visible = false;
-				solexaLibraryTypeConfirmCol.visible = false;
 				fragmentSizeFromConfirmCol.visible = false;
 				fragmentSizeToConfirmCol.visible = false;
 				sampleSourceConfirmColumn.visible = false;
+				preppedByCoreCol.visible = false;
 			} else {
-				totalVolumeConfirmColumn.visible = false;
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = true;
 				sampleSourceConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				samplePrepMethodConfirmCol.visible = true;
-				samplePrepMethodUsedConfirmCol.visible = false;
-				solexaLibraryTypeConfirmCol.visible = false;
 				fragmentSizeFromConfirmCol.visible = false;
 				fragmentSizeToConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
 			}
   						
         }
@@ -79,15 +65,12 @@
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
-						<mx:DataGridColumn headerText="Vol."  id="totalVolumeConfirmColumn" width="65" dataField="@totalVolume"/>
-			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" labelFunction="parentApplication.lookupSamplePrepMethod"/>
-		 				<mx:DataGridColumn headerText="Prep Method Used" id="samplePrepMethodUsedConfirmCol"  width="120" dataField="@samplePrepMethodUsed"/>
-						<mx:DataGridColumn id="solexaLibraryTypeConfirmCol" headerText="Lib Type" width="84" labelFunction="parentApplication.lookupSolexaLibraryType">
-						</mx:DataGridColumn>
 						<mx:DataGridColumn id="fragmentSizeFromConfirmCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom">
 						</mx:DataGridColumn>
 						<mx:DataGridColumn id="fragmentSizeToConfirmCol" headerText="Size To" width="54"  dataField="@fragmentSizeTo">
 						</mx:DataGridColumn>
+  					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
+			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" labelFunction="parentApplication.lookupSamplePrepMethod"/>
 			            <mx:DataGridColumn headerText="Sample Type"  width="130" labelFunction="parentApplication.lookupSampleTypeName"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" labelFunction="parentApplication.lookupOrganism"/>
 			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" labelFunction="parentApplication.lookupSampleSource"/>

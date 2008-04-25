@@ -122,7 +122,10 @@
         		return;
         	}
         	
-        	if (parentDocument.hybSetupView.numberOfHybs.text == null || parentDocument.hybSetupView.numberOfHybs.text == "0" || parentDocument.hybSetupView.numberOfHybs.text == '') {
+        	if (parentDocument.hybSetupView.numberOfHybs.text == null || 
+        	parentDocument.hybSetupView.numberOfHybs.text == "0" || 
+        	parentDocument.hybSetupView.numberOfHybs.text == '' ||
+        	!parentDocument.hybSetupView.validNumberOfHybs) {
         		return;
         	}
         	if (parentDocument.hybSetupView.slideProductCombo.selectedItem == null || parentDocument.hybSetupView.slideProductCombo.selectedItem.@value == '') {
@@ -316,7 +319,8 @@
 </mx:Script>
     <mx:VBox width="100%" height="100%" verticalGap="0">
 	    <mx:HDividedBox height="100%" width="100%">
-	        <mx:Panel  title="Samples" height="100%" verticalGap="4">
+	        <mx:VBox  height="100%" verticalGap="4"  borderStyle="outset">
+	            <mx:Label text="Samples"/>
 	        	<mx:DataGrid
 	        		 height="100%" width="100%" 
 	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
@@ -338,9 +342,9 @@
 					</mx:columns>
 								        				        		
 	         	</mx:DataGrid>
-	        </mx:Panel>
-			<mx:Panel  id="hybsContainer" width="100%" height="100%">
-			   <mx:title><![CDATA[Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)]]></mx:title>
+	        </mx:VBox>
+			<mx:VBox  id="hybsContainer" width="100%" height="100%" borderStyle="outset">
+			   <mx:Label text="Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)"></mx:Label>
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
 						<mx:HBox id="buttonContainer">
 							<mx:Button label="Add" click="addHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addHybButton"/>
@@ -513,7 +517,7 @@
 					</views:columns>
 				</views:DataGridAlternatingGroup>
 				
-			</mx:Panel>
+			</mx:VBox>
 	    	
 	    </mx:HDividedBox>
 

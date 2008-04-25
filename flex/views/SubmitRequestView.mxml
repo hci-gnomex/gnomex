@@ -99,7 +99,6 @@
 			if (!this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
-					sampleSetupView.sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
 					sampleSetupView.sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
 				}
 				if (theTab.contains(hybSetupView)) {
@@ -559,6 +558,18 @@
         	if (item.@isActive == 'N') {
         		return false;
         	}
+        	
+        	// Exclude "other sample prep method" from solexa requests
+        	// where the core facility will be performing the sample prep
+        	if (isSolexaState()) {
+        		if (sampleSetupView.currentState == "SolexaSetupState") {
+        			if (item.@display.toString().indexOf("Other") > -1) {
+        				return false;
+        			}
+        		}
+        	}
+        	
+        
         	var doesMatchRequestCategory:Boolean = false;
         	var theSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
     	   	for each (var xref1:Object in theSamplePrepMethods) {
@@ -641,7 +652,8 @@
         	var doesMatch:Boolean = true;
         	if (sampleSetupView.samplePrepMethodCombo.selectedItem != null && 
         	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != null  &&
-        	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != "") {
+        	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != "" && 
+        	    sampleSetupView.samplePrepMethodCombo.selectedItem.@display.toString().indexOf("Other") < 0) {
         	    doesMatch = false;
 	        	var theFlowCellTypes:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idFlowCellType == item.@value.toString());
 	    	   	for each (var xref1:Object in theFlowCellTypes) {
@@ -769,7 +781,8 @@
    				sample.@canChangeNumberSequencingLanes='Y'; 
    				sample.@numberSequencingLanes = '';
    				sample.@concentration = '';
-   				sample.@totalVolume = '';
+   				sample.@fragmentSizeFrom = '';
+   				sample.@fragmentSizeTo = '';
    				
    				
    				if (isQCState()) {
@@ -784,14 +797,8 @@
    				
    				if (sampleSetupView.currentState == 'SolexaSetupPreppedState') {
    					sample.@isAlreadyPrepped = 'Y';
-	 				sample.@idSamplePrepMethod = '';
-   					
    				} else  {
    					sample.@isAlreadyPrepped = 'N';
-   					sample.@samplePrepMethodUsedByLab = '';
-   					sample.@idSolexaLibraryType = '';
-   					sample.@fragmentSizeFrom = '';
-   					sample.@fragmentSizeTo = '';
    				}
 			}
 			
@@ -1595,7 +1602,7 @@
 				            <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
 				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" labelFunction="parentApplication.lookupGenomeBuild"/>
-							<mx:DataGridColumn width="150" headerText="Alignment special instructions"   dataField="@alignNotes"/>
+							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						</mx:columns>
 					</mx:DataGrid>
 					

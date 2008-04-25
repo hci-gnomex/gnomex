@@ -20,19 +20,15 @@
 				    " canChangeSamplePrepMethod='Y'" +
    					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
-					" totalVolume='" + parentDocument.sampleSetupView.totalVolume.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
 					" idFlowCellType='" + parentDocument.sampleSetupView.flowCellTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes=''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-					" isAlreadyPrepped = 'Y'" +
-					" idSamplePrepMethod=''" +				
+					" seqPrepByCore = 'N'" +
+					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
-					" alignNotes='" + parentDocument.sampleSetupView.alignNotes.text + "'" +				
-					" samplePrepMethodUsedByLab='" + parentDocument.sampleSetupView.samplePrepMethodText.text + "'" +				
-					" idSolexaLibraryType='" + parentDocument.sampleSetupView.solexaLibraryTypeCombo.selectedItem.@value + "'" +				
-					" isSizeSelected='" + (parentDocument.sampleSetupView.isSizeSelected.selected ? 'Y' : 'N') + "'" +				
+					" analysisInstructions='" + parentDocument.sampleSetupView.analysisInstructions.text + "'" +				
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
 					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
@@ -51,21 +47,17 @@
 				    " canChangeSamplePrepMethod='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
-					" totalVolume='" + parentDocument.sampleSetupView.totalVolume.text + "'" +
-					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
-					" idFlowCellType='" + parentDocument.sampleSetupView.flowCellTypeCombo.selectedItem.@value + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
+					" idFlowCellType='" +	parentDocument.sampleSetupView.getDefaultIdFlowCellType() + "'" +			
 					" numberSequencingLanes=''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
-					" alignNotes='" + parentDocument.sampleSetupView.alignNotes.text + "'" +				
+					" analysisInstructions='" + parentDocument.sampleSetupView.analysisInstructions.text + "'" +				
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-					" isAlreadyPrepped = 'N'" +
-					" samplePrepMethodUsedByLab=''" +				
-					" idSolexaLibraryType=''" +				
-					" isSizeSelected='N'" +				
-					" fragmentSizeFrom=''" +				
-					" fragmentSizeTo=''" +				
+					" seqPrepByCore = 'Y'" +
+					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
+					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 					" idSampleSource='"  + parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
@@ -154,18 +146,15 @@
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
 					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
-					" samplePrepMethodUsedByLab='" + sampleToCopy.@samplePrepMethodUsedByLab + "'" +				
-					" idSolexaLibraryType='" + sampleToCopy.@idSolexaLibraryType + "'" +				
-					" isSizeSelected='" + sampleToCopy.@isSizeSelected + "'" +				
 					" fragmentSizeFrom='" + sampleToCopy.@fragmentSizeFrom + "'" +				
 					" fragmentSizeTo='" + sampleToCopy.@fragmentSizeTo + "'" +				
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
 					" idSampleSource='" + sampleToCopy.@idSampleSource + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
-					" treatment='" + sampleToCopy.@treatment + "'" +				
+					" treatment='" + sampleToCopy.@treatment + "'" +		
+					" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-					" totalVolume='" + sampleToCopy.@totalVolume + "'" +
 					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
 					" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
 					" idFlowCellType='" + sampleToCopy.@idFlowCellType + "'" +				
@@ -242,7 +231,6 @@
 		        			sample.@concentration != null && sample.@concentration != '' &&
 		        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
 		        			sample.@idOrganism != null && sample.@idOrganism != '' &&
-		        			sample.@totalVolume != null && sample.@totalVolume != '' &&
 		        			sample.@numberSequencingLanes != null && sample.@numberSequencingLanes != '' &&
 		        			sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
 		        			sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
@@ -251,8 +239,6 @@
 		        	} else {
 		        			if (sample.@name != null && sample.@name != '' &&
 		        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-		        			sample.@samplePrepMethodUsedByLab != null && sample.@samplePrepMethodUsedByLab != '' &&
-		        			sample.@idSolexaLibraryType != null && sample.@idSolexaLibraryType != '' &&
 		        			sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
 		        			sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
 		        			sample.@concentration != null && sample.@concentration != '' &&
@@ -371,12 +357,13 @@
 				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
 				" idSample='" + sample.@idSample + "'" +
 				" idGenomeBuildAlignTo='" + sample.@idGenomeBuildAlignTo + "'" +
-				" alignNotes='" + sample.@alignNotes + "'" +
+				" analysisInstructions='" + sample.@analysisInstructions + "'" +
 				"/>");
 			
 			parentDocument.lanes.addItem(emptyNode);
 		}
 		
+
 		public function propagateSamplePrepMethod(idSamplePrepMethod:String):void {
 			if (currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
@@ -434,63 +421,50 @@
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				idFlowCellTypeCol.visible = false; 
-				totalVolumeCol.visible = false;
 				concentrationUnitColumn.visible = false;
 				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = false;
+				preppedByCoreCol.visible = false;
         	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
 				showQCFieldsCheckBox.visible = false;
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
+				preppedByCoreCol.visible = true;
 				idFlowCellTypeCol.visible = !parentDocument.isEditState(); 
-				totalVolumeCol.visible = true;
 				concentrationUnitColumn.visible = false;
 				sampleOrganismColumn.visible = true;
 				sampleSourceColumn.visible = true;
 				chipTypeColumn.visible = false; 
-				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || alreadyPreppedCheckBox.selected) {
-					samplePrepMethodCol.visible = false;
-					samplePrepMethodUsedCol.visible = true;
-					solexaLibraryTypeCol.visible = true;
-					fragmentSizeFromCol.visible = true;
-					fragmentSizeToCol.visible = true;
-				} else {
-					samplePrepMethodCol.visible = true;
-					samplePrepMethodUsedCol.visible = false;
-					solexaLibraryTypeCol.visible = false;
-					fragmentSizeFromCol.visible = false;
-					fragmentSizeToCol.visible = false;
-				}
+				samplePrepMethodCol.visible = true;
+				fragmentSizeFromCol.visible = true;
+				fragmentSizeToCol.visible = true;
+
 			} else if (currentState.indexOf('QCSamples') >= 0) {
 				showQCFieldsCheckBox.visible = true;
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
 				idFlowCellTypeCol.visible = false; 
-				totalVolumeCol.visible = false;
 				concentrationUnitColumn.visible = true;
 				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = true; 
-				samplePrepMethodUsedCol.visible = false;
-				solexaLibraryTypeCol.visible = false;
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
 			} else {
 				showQCFieldsCheckBox.visible = true;
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
 				idFlowCellTypeCol.visible = false; 
-				totalVolumeCol.visible = false;
 				concentrationUnitColumn.visible = false;
 				sampleSourceColumn.visible = true;
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
-				samplePrepMethodUsedCol.visible = false;
-				solexaLibraryTypeCol.visible = false;
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
 			}
@@ -507,8 +481,6 @@
 			<mx:HBox id="headerContainer" width="100%">
 				<mx:Label id="samplesTitle" text="Samples  (fields in pink are required.)"/>
 				<mx:HBox width="100%" horizontalAlign="right">
-					<mx:CheckBox id="alreadyPreppedCheckBox" label="Already Prepped by Lab?"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &gt;= 0}" click="showHideColumns()">
-					</mx:CheckBox>
 					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &lt; 0}" click="showHideColumns()">
 					</mx:CheckBox>							
 				</mx:HBox>
@@ -529,21 +501,18 @@
 	 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  itemRenderer="views.renderers.LabelConcentration"  itemEditor="views.renderers.TextInputConcentration" rendererIsEditor="false"/>
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelConcentrationUnit" itemEditor="views.renderers.ComboBoxConcentrationUnit" labelFunction="parentApplication.lookupConcentrationUnit" />
-	 				<mx:DataGridColumn headerText="Vol" id="totalVolumeCol" visible="{currentState == 'SolexaSamplesState'}"  width="40" dataField="@totalVolume"/>
+					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" itemRenderer="views.renderers.LabelFragmentSizeFrom"  itemEditor="views.renderers.TextInputFragmentSizeFrom" rendererIsEditor="false">
+					</mx:DataGridColumn>
+					<mx:DataGridColumn id="fragmentSizeToCol" headerText="Size To" width="54" editorDataField="text" dataField="@fragmentSizeTo" itemRenderer="views.renderers.LabelFragmentSizeTo"  itemEditor="views.renderers.TextInputFragmentSizeTo" rendererIsEditor="false">
+					</mx:DataGridColumn>
 	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" labelFunction="parentApplication.lookupFlowCellType" dataField="@idFlowCellType"/>
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"
 	 					 rendererIsEditor="false" editorDataField="value" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/>
 					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" itemRenderer="views.renderers.LabelNumberSequencingLanes"  itemEditor="views.renderers.TextInputNumberSequencingLanes" rendererIsEditor="false">
 					</mx:DataGridColumn>
-	                <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
+					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
+                    <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSamplePrepMethod" labelFunction="parentApplication.lookupSamplePrepMethod" itemEditor="views.renderers.ComboBoxSamplePrepMethod" />
-	 				<mx:DataGridColumn headerText="Prep Method Used" id="samplePrepMethodUsedCol" visible="{currentState == 'SolexaSamplesState'}"  editable="true" width="120" dataField="@samplePrepMethodUsedByLab"/>
-					<mx:DataGridColumn id="solexaLibraryTypeCol" headerText="Lib Type" width="84" editorDataField="value" dataField="@idSolexaLibraryType" itemRenderer="views.renderers.LabelSolexaLibraryType"  itemEditor="views.renderers.ComboBoxSolexaLibraryType" labelFunction="parentApplication.lookupSolexaLibraryType"  rendererIsEditor="false">
-					</mx:DataGridColumn>
-					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" itemRenderer="views.renderers.LabelFragmentSizeFrom"  itemEditor="views.renderers.TextInputFragmentSizeFrom" rendererIsEditor="false">
-					</mx:DataGridColumn>
-					<mx:DataGridColumn id="fragmentSizeToCol" headerText="Size To" width="54" editorDataField="text" dataField="@fragmentSizeTo" itemRenderer="views.renderers.LabelFragmentSizeTo"  itemEditor="views.renderers.TextInputFragmentSizeTo" rendererIsEditor="false">
-					</mx:DataGridColumn>
 	                 <mx:DataGridColumn headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected}" width="120"   dataField="@idSampleType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="views.renderers.LabelSampleType" itemEditor="views.renderers.ComboBoxSampleType" labelFunction="parentApplication.lookupSampleTypeName" />
 	                <mx:DataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="110" headerText="Organism"  dataField="@idOrganism" 
