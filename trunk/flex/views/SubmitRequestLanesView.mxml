@@ -12,7 +12,7 @@
 		private function addLane():void {
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-			    " alignNotes='' " + 
+			    " analysisInstructions='' " + 
 				" idFlowCellType=''" + 
 				" idNumberSequencingCycles=''" +
 				" idGenomeBuildAlignTo=''" +
@@ -29,7 +29,7 @@
 					
 					var emptyNode:XML = new XML("<SequenceLane " +
     			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" alignNotes='" + laneToCopy.@alignNotes + "'" + 
+					" analysisInstructions='" + laneToCopy.@analysisInstructions + "'" + 
 					" idSample='" + laneToCopy.@idSample + "'" +
 					" idFlowCellType='" + laneToCopy.@idFlowCellType + "'" +			
 					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
@@ -209,7 +209,7 @@
 			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/> 						             						             
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelGenomeBuild" itemEditor="views.renderers.ComboBoxGenomeBuild"/> 						             						             
-						<mx:DataGridColumn width="150" headerText="Align notes"   dataField="@alignNotes"/>
+						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>
 				</mx:DataGrid>
 				

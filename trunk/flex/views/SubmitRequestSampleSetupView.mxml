@@ -1,6 +1,367 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Sample setup" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	 width="100%" height="100%" >
+<mx:Script>
+	<![CDATA[
+	
+		private var validNumberOfSamples:Boolean = true;
+		private var validFragmentSizeFrom:Boolean = true;
+		private var validFragmentSizeTo:Boolean = true;
+		private var validConcentration:Boolean = true;
+
+	
+		public function getSelectedCodeBioanalyzerChipType():String {
+			var selectedCode:String = '';
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@isSelected != null && item.@isSelected == "true") {
+					selectedCode = item.@value;
+					break;
+				}
+			} 
+			return selectedCode;
+		}
+		public function propagateChipType():void {
+       		var codeChipType:String = this.getSelectedCodeBioanalyzerChipType();
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@codeBioanalyzerChipType = codeChipType;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+		public function propagateSeqPrepByCore():void {
+       		for each (var sample:Object in parentDocument.samples) {
+				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' ? 'Y' : 'N');
+			}
+
+		}
+       	private function propagateSampleType():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
+			}
+			propagateSamplePrepMethod();
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateSamplePrepMethod():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
+			}
+			if (currentState == 'SolexaSetupState') {
+				propagateDefaultFlowCellType();
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+		private function propagateDefaultFlowCellType():void {
+			var idFlowCellType:String = this.getDefaultIdFlowCellType();
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idFlowCellType = idFlowCellType;
+			}			
+		}
+       	private function propagateSampleSource():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateSampleConcentration():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@concentration = this.sampleConcentration.text;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateSampleOrganism():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	
+       	private function propagateFlowCellType():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateGenomeBuild():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateAnalysisInstructions():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@analysisInstructions = this.analysisInstructions.text;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@analysisInstructions = this.analysisInstructions.text;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateNumberSequencingCycles():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+		
+		public function toggleOtherChipTypeSelections(codeSelected:String):void {
+			
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@value != codeSelected) {
+					item.@isSelected = "false";
+				}
+			}
+		}
+		
+		private function selectDefaultGenomeBuild():void {
+			if (genomeBuildCombo.dataProvider.length > 1) {
+				for each(var genomeBuild:Object in genomeBuildCombo.dataProvider) {
+					if (genomeBuild.@isLatestBuild != null && genomeBuild.@isLatestBuild == 'Y') {
+						genomeBuildCombo.selectedItem = genomeBuild;
+						propagateGenomeBuild();
+						break;
+					}
+				}
+			}
+		}
+		
+		private function selectDefaultSamplePrepMethod():void {
+			if (samplePrepMethodCombo.dataProvider.length > 1) {
+				for each(var item:Object in samplePrepMethodCombo.dataProvider) {
+
+					var applicableSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
+	        	   	for each (var xref:Object in applicableSamplePrepMethods) {
+	        	   		if (xref.@idSampleType.toString() == sampleTypeCombo.selectedItem.@value.toString()) {
+	    	   				if (xref.@isDefaultForSampleType == 'Y') {
+	    	   					samplePrepMethodCombo.selectedItem = item;
+	    	   					parentApplication.filteredFlowCellTypeList.refresh();
+	    	   					if (currentState == "SolexaSetupPreppedState") {
+		    	   					selectDefaultFlowCellType();
+	    	   					}
+	    	   					this.propagateSamplePrepMethod();
+	    	   					this.checkSampleSetupCompleteness();
+	    	   					break;
+	    	   				}
+	        	   		}
+	        	   	}
+
+				}
+			}
+		}
+
+		private function selectDefaultFlowCellType():void {
+			if (flowCellTypeCombo.dataProvider.length == 2) {
+				flowCellTypeCombo.selectedIndex = 1;
+			} else {
+				flowCellTypeCombo.selectedIndex = 0;
+			}
+			this.propagateFlowCellType();
+			this.checkSampleSetupCompleteness();
+		}
+		
+		public function getDefaultIdFlowCellType():String {
+			var idFlowCellType:String = "";
+			if (samplePrepMethodCombo.selectedItem != null && samplePrepMethodCombo.selectedItem.@value != '') {
+				var applicableFlowCellTypes:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == this.samplePrepMethodCombo.selectedItem.@value.toString());
+				if (applicableFlowCellTypes.length() == 1) {
+					idFlowCellType =  applicableFlowCellTypes.@idFlowCellType;
+				} 
+			}
+			return idFlowCellType;
+		}
+		
+		
+
+      	public function checkSampleSetupCompleteness():Boolean {
+        	var isComplete:Boolean = false;
+        	if (parentDocument.isEditState()) {
+        		isComplete = true;
+        	}else if (parentDocument.isSolexaState()) {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' &&
+	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' &&
+	        	    this.fragmentSizeFrom.text != "" && this.fragmentSizeTo.text != "" &&
+	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
+	        	    if (currentState == "SolexaAlreadyPreppedState") {
+	        	    	if (this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '') {
+	        	    		isComplete = true;
+	        	    	}
+	        	    } else {
+	        	    	isComplete = true;
+	        	    }
+
+	        	 }
+        	
+        	} else if (parentDocument.isQCState()) {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+	        	    	
+	        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+	        			if (chipType.@isSelected == "true") {
+	        				isComplete = true;
+	        				break;
+	        			}
+	        		}
+	        	}
+        	} else {
+	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
+	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+					isComplete = true;	        	    	
+	        	}
+        	}
+        	
+    		parentDocument.samplesView.enabled = isComplete && 
+    			this.validNumberOfSamples && 
+    			this.validConcentration &&
+    			this.validFragmentSizeTo && 
+    			this.validFragmentSizeFrom;
+    			
+			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+				parentDocument.annotationView.enabled = isComplete;        			
+	    	}
+    		parentDocument.enableNextButtons();
+
+        	callLater(postSampleSetupCompleteness, [isComplete]);
+        	
+    		return isComplete;
+    	    	
+        }
+        
+        private function postSampleSetupCompleteness(isComplete:Boolean):void {
+	    		
+	    	if (!isComplete) {
+	        	if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
+		        	parentDocument.hybSetupView.enabled = false;
+	        	} 
+	
+	        	if (parentDocument.theTab.contains(parentDocument.hybsView)) {
+		        	parentDocument.hybsView.enabled = false;
+	        	} 
+	
+	        	parentDocument.confirmView.enabled = false;
+    		} else {
+    			parentDocument.samplesView.checkSamplesCompleteness();
+    		}
+        	
+        }
+        
+        private function handleInvalidNumberOfSamples(eventObject:Event):void {
+        	this.validNumberOfSamples = false;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleValidNumberOfSamples(eventObject:Event):void {
+        	this.validNumberOfSamples = true;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleInvalidFragmentSizeFrom(eventObject:Event):void {
+        	this.validFragmentSizeFrom = false;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleValidFragmentSizeFrom(eventObject:Event):void {
+        	this.validFragmentSizeFrom = true;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleInvalidFragmentSizeTo(eventObject:Event):void {
+        	this.validFragmentSizeTo = false;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleValidFragmentSizeTo(eventObject:Event):void {
+        	this.validFragmentSizeTo = true;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleInvalidConcentration(eventObject:Event):void {
+        	this.validConcentration = false;
+        	this.checkSampleSetupCompleteness();
+        }
+        private function handleValidConcentration(eventObject:Event):void {
+        	this.validConcentration = true;
+        	this.checkSampleSetupCompleteness();
+        }
+
+		
+	]]>
+</mx:Script>
+    <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
+        allowNegative="false" domain="int" maxValue="100" />
+    <mx:NumberValidator id="fragmentSizeFromValidator" source="{fragmentSizeFrom}" property="text" 
+        allowNegative="false" domain="int" />
+    <mx:NumberValidator id="fragmentSizeToValidator" source="{fragmentSizeTo}" property="text" 
+        allowNegative="false" domain="int"/>
+    <mx:NumberValidator id="concentrationValidator" source="{this.sampleConcentration}" property="text" 
+        allowNegative="false" domain="int" maxValue="9999"/>
+        
+	<mx:VBox width="100%" height="100%" verticalGap="2">
+		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Label text="How many samples will you be submitting?" width="340" />
+				<mx:TextInput width="40" id="numberOfSamples" 
+					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
+>
+					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()</mx:focusOut>
+				</mx:TextInput>							
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Label text="Select the term that best describes your samples:" width="340"/>
+				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
+					change="samplePrepMethodCombo.selectedIndex=0;parentApplication.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();propagateSampleType();parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();">							
+					<mx:dataProvider></mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Label text="Select the organism that your samples are derived from:" width="340"/>
+				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentApplication.filteredGenomeBuildList.refresh()">							
+					<mx:dataProvider></mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Label text="Select the term that best describes the sample source:" width="340"/>
+				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
+					<mx:dataProvider>{parentApplication.sampleSourceList}</mx:dataProvider>
+				</mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Label text="Enter an approximate sample concentration:" width="340" id="label4"/>
+				<mx:TextInput width="40" id="sampleConcentration"
+					 valid="handleValidConcentration(event)" invalid="handleInvalidConcentration(event)" 
+>
+					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()</mx:focusOut>
+				</mx:TextInput>							
+				<mx:Label text="ng/µL" id="concentrationLabel"/>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentApplication.filteredFlowCellTypeList.refresh();selectDefaultFlowCellType();parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();" >							
+					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>					
+				</mx:ComboBox>
+			</mx:HBox>
+			
+		</mx:VBox>
+		
+	</mx:VBox>
+
    <mx:states>
         <mx:State name="QCSetupState">
         	<mx:RemoveChild target="{sampleOrganismContainer}"/>
@@ -42,17 +403,13 @@
 				</mx:VBox>
         		
         	</mx:AddChild>
+        	<mx:SetProperty target="{label4}" name="text" value="Enter an approximate sample concentration:"/>
         	
         	
         </mx:State>
         <mx:State name="SolexaSetupState">
             <mx:AddChild relativeTo="{concentrationContainer}">
                 <mx:HBox width="100%" horizontalGap="0">
-    	            <mx:Label text="Enter approximate volume:"/>
-	                <mx:TextInput id="totalVolume"  width="40">
-	                	<mx:focusOut>checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateTotalVolume();checkSampleSetupCompleteness();</mx:focusOut>
-	                </mx:TextInput>
-					<mx:Label text="µL" />
 					<mx:HBox id="totalSampleWarning" visible="false" borderStyle="outset" verticalAlign="middle" horizontalAlign="center" width="100%" height="100%" paddingBottom="2">
 						<mx:Text  width="100%" text="Warning:  At least 25 ng of nucleic acid is recommended for Solexa sequencing." color="#AB482A" fontWeight="bold" paddingLeft="10" textDecoration="none" visible="true">									
 						</mx:Text>
@@ -62,13 +419,13 @@
             <mx:AddChild relativeTo="{concentrationContainer}" position="after">
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
 					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text text="Should the samples be sequence prepped by the Core facility?" width="340" />
+					<mx:Text text="Do you want the Core Facility to perform library preparation on the samples?" width="340" />
 					<mx:HBox width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please sequence prep the samples" selected="true"
-							change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}">
+						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes" selected="true"
+							change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentApplication.samplePrepMethodList.refresh();parentApplication.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore()">
 						</mx:RadioButton>							
-						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, the samples are ready for cluster generation"
-							change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}">
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, library preparation has been completed"
+							change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentApplication.samplePrepMethodList.refresh();parentApplication.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore()">
 						</mx:RadioButton>							
 					</mx:HBox>
 				</mx:HBox>            	
@@ -76,330 +433,93 @@
             <mx:AddChild relativeTo="{sampleOrganismContainer}" >
                 <mx:HBox width="100%" horizontalGap="0" id="alignContainer">
                 		    <mx:Spacer width="15"/>
-                	<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
-                		<mx:HBox width="100%" horizontalGap="2">
-                			<mx:CheckBox id="alignCheckBox" label="Align sequence to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;alignNotes.text = ''};checkSampleSetupCompleteness();}"/>
-                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="propagateGenomeBuild();checkSampleSetupCompleteness();" visible="{alignCheckBox.selected}" width="200">							
-                				<mx:dataProvider>{parentApplication.filteredGenomeBuildList}</mx:dataProvider>
-		                	</mx:ComboBox>                			
-                		</mx:HBox>
-                			<mx:HBox width="100%" horizontalGap="0">
-                			    <mx:Spacer width="20"/>
-                			   	<mx:Label text="Special instructions:" visible="{alignCheckBox.selected}" id="label3"/>
-                				<mx:TextInput id="alignNotes" width="100%" visible="{alignCheckBox.selected}" focusOut="propagateAlignNotes()"/>                			
-                			</mx:HBox>
-                	</mx:VBox>
                 </mx:HBox>
             </mx:AddChild>
-            <mx:SetProperty target="{label2}" name="text" value="Select a sample preparation method:"/>
-            <mx:AddChild relativeTo="{sampleSetupContainer}" >
-				<mx:HBox id="flowCellContainer" width="100%" horizontalGap="0">
-					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Label text="Select the flow cell type to be used:" width="340" />
-					<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateFlowCellType();checkSampleSetupCompleteness();">
-						<mx:dataProvider>{parentApplication.filteredFlowCellTypeList}</mx:dataProvider>
-					</mx:ComboBox>
-				</mx:HBox>            	
-            </mx:AddChild>
+            <mx:SetProperty target="{label2}" name="text" value="Select a prep kit to be used by the Core Facility:"/>
             <mx:AddChild relativeTo="{sampleSetupContainer}" >
 				<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the minimum number of sequencing cycles:" width="340" />
-					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="checkTotalSample();parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
+					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
 						<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>            	
             </mx:AddChild>
-            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="6"/>
+            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="12"/>
             <mx:SetEventHandler target="{sampleConcentration}" name="change">
             </mx:SetEventHandler>
             <mx:SetProperty target="{sampleOrganismCombo}" name="width" value="170"/>
             <mx:SetEventHandler target="{sampleConcentration}" name="focusOut">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness();checkTotalSample()</mx:handler>
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentApplication.samplePrepMethodList.refresh()</mx:handler>
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentApplication.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentApplication.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod()</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{samplePrepMethodCombo}" name="change">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh();parentApplication.filteredFlowCellTypeList.refresh()</mx:handler>
             </mx:SetEventHandler>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+                <mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0">
+                	<mx:Image source="{parentApplication.iconBullet}"/>
+                	<mx:Label text="Do you want the sequence data to be aligned?" width="340" />
+                	<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
+                		<mx:HBox width="100%" horizontalGap="2">
+                			<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;};checkSampleSetupCompleteness();}" selected="true"/>
+                			<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="propagateGenomeBuild();checkSampleSetupCompleteness();" width="300">							
+                				<mx:dataProvider>{parentApplication.filteredGenomeBuildList}</mx:dataProvider>
+                			  	</mx:ComboBox>                			
+                		</mx:HBox>
+                			<mx:HBox width="100%" horizontalGap="0">
+                			    <mx:Spacer width="20"/>
+                			</mx:HBox>
+                	</mx:VBox>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+                <mx:HBox id="numberOfCyclesContainer1" width="100%" horizontalGap="0">
+                	<mx:Image source="{parentApplication.iconBullet}"/>
+                	<mx:Label text="Provide any special analysis instructions:" width="340" />
+                	<mx:TextArea id="analysisInstructions" width="100%" focusOut="propagateAnalysisInstructions()"/>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:AddChild relativeTo="{isPreppedContainer}" position="before">
+                <mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer0">
+                	<mx:Image source="{parentApplication.iconBullet}"/>
+                	<mx:Label text="Enter an approximate fragment size of your samples:" width="340" id="label0"/>
+                	<mx:TextInput id="fragmentSizeFrom" width="50" 
+                		valid="handleValidFragmentSizeFrom(event)" invalid="handleInvalidFragmentSizeFrom(event)"
+                		change="checkSampleSetupCompleteness();"/>
+                	<mx:Label text="-" textAlign="center"/>
+                	<mx:TextInput id="fragmentSizeTo" width="50" 
+                		valid="handleValidFragmentSizeTo(event)" invalid="handleInvalidFragmentSizeTo(event)"
+                		change="checkSampleSetupCompleteness();"/>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
+            <mx:SetEventHandler target="{sampleOrganismCombo}" name="change">
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentApplication.filteredGenomeBuildList.refresh();selectDefaultGenomeBuild()</mx:handler>
+            </mx:SetEventHandler>
         </mx:State>
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
-            <mx:AddChild relativeTo="{isPreppedContainer}" position="after">
-				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="sampleAlreadyPreppedContainer">
-					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text text="Describe how the samples were prepared for cluster generation:" width="340"/>
-					<mx:VBox width="100%" verticalGap="2">
-						<mx:HBox width="100%">
-							<mx:Label text="Prep method used:" width="130"/>
-							<mx:TextInput id="samplePrepMethodText" change="checkSampleSetupCompleteness();" width="100%"/>			
-							<mx:Spacer width="10"/>									
-							<mx:Label text="Library type:"/>
-							<mx:ComboBox labelField="@display" id="solexaLibraryTypeCombo" change="checkSampleSetupCompleteness();" visible="true">							
-										<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry}</mx:dataProvider>
-							</mx:ComboBox>
-							
-						</mx:HBox>
-						<mx:HBox>
-							<mx:Label id="isSizeSelected" text="Fragment Size Range:" width="130"/>
-							<mx:TextInput id="fragmentSizeFrom" width="50" change="checkSampleSetupCompleteness();"/>	
-							<mx:Label text="-" textAlign="center"/>
-							<mx:TextInput id="fragmentSizeTo" width="50" change="checkSampleSetupCompleteness();"/>
-							
-						</mx:HBox>
-						
-					</mx:VBox>
-				</mx:HBox>            	
-            </mx:AddChild>
-            <mx:RemoveChild target="{samplePrepContainer}">            	
-            </mx:RemoveChild>
-            <mx:SetProperty target="{label3}" name="text" value="Special instructions:"/>
             <mx:SetStyle target="{alignMoreContainer}" name="verticalGap" value="0"/>
             <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="change">
-                <mx:handler>{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;samplePrepMethodText.text = '';solexaLibraryTypeCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}</mx:handler>
+                <mx:handler>{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()}</mx:handler>
             </mx:SetEventHandler>
+            <mx:SetProperty target="{label2}" name="text" value="Select a prep kit that was used:"/>
+            <mx:AddChild relativeTo="{numberOfCyclesContainer}" position="before">
+                <mx:HBox id="flowCellContainer" width="100%" horizontalGap="0">
+                	<mx:Image source="{parentApplication.iconBullet}"/>
+                	<mx:Label text="Select the flow cell type to be used:" width="340" />
+                	<mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="parentDocument.samplesView.initializeSamplesGrid();propagateFlowCellType();checkSampleSetupCompleteness();" width="300">
+                		<mx:dataProvider>{parentApplication.filteredFlowCellTypeList}</mx:dataProvider>
+                	</mx:ComboBox>
+                </mx:HBox>
+            </mx:AddChild>
+            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
         </mx:State>
    	
    </mx:states>
    	 
-<mx:Script>
-	<![CDATA[
-		private function checkTotalSample():void {
-			if (sampleConcentration.text != '' && totalVolume.text != '') {
-				var totalSample:Number = Number(sampleConcentration.text) * Number(totalVolume.text);
-				if (totalSample < 10) {
-					//totalSampleWarning.visible = true;
-					totalSampleWarning.visible = false;	
-				}  else {
-					totalSampleWarning.visible = false;
-				}
-			} else {
-				totalSampleWarning.visible = false;
-			}
-		}
-	
-		public function getSelectedCodeBioanalyzerChipType():String {
-			var selectedCode:String = '';
-			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-				if (item.@isSelected != null && item.@isSelected == "true") {
-					selectedCode = item.@value;
-					break;
-				}
-			} 
-			return selectedCode;
-		}
-		public function propagateChipType():void {
-       		var codeChipType:String = this.getSelectedCodeBioanalyzerChipType();
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@codeBioanalyzerChipType = codeChipType;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateSampleType():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateSamplePrepMethod():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateSampleSource():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateSampleConcentration():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@concentration = this.sampleConcentration.text;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateSampleOrganism():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateTotalVolume():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@totalVolume = this.totalVolume.text;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateFlowCellType():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
-			}
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateGenomeBuild():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
-			}
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateAlignNotes():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@alignNotes = this.alignNotes.text;
-			}
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@alignNotes = this.alignNotes.text;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-       	private function propagateNumberSequencingCycles():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
-			}
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
-		
-		public function toggleOtherChipTypeSelections(codeSelected:String):void {
-			
-			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-				if (item.@value != codeSelected) {
-					item.@isSelected = "false";
-				}
-			}
-		}
 
-      	public function checkSampleSetupCompleteness():Boolean {
-        	var isComplete:Boolean = false;
-        	if (parentDocument.isEditState()) {
-        		isComplete = true;
-        	}else if (parentDocument.isSolexaState()) {
-	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
-	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.totalVolume.text != null && this.totalVolume.text != '' &&
-	        	    this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '' && 
-	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
-        	    	if (!this.alignCheckBox.selected || this.genomeBuildCombo.selectedIndex > 0) {
-        	    		if (this.samplesAlreadyPreppedCheckbox.selected && this.samplePrepMethodText.text != '') {
-							isComplete = true;		        	    			
-        	    		} else if (this.samplesToBePreppedCheckbox.selected && samplePrepMethodCombo.selectedItem != null && samplePrepMethodCombo.selectedItem.@value != '') {
-        	    			isComplete = true;
-        	    		}
-        	    	}
-	        	 }
-        	
-        	} else if (parentDocument.isQCState()) {
-	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
-	        	    	
-	        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-	        			if (chipType.@isSelected == "true") {
-	        				isComplete = true;
-	        				break;
-	        			}
-	        		}
-	        	}
-        	} else {
-	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
-	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
-					isComplete = true;	        	    	
-	        	}
-        	}
-
-    		parentDocument.samplesView.enabled = isComplete;
-			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-				parentDocument.annotationView.enabled = isComplete;        			
-	    	}
-    		parentDocument.enableNextButtons();
-
-        	callLater(postSampleSetupCompleteness, [isComplete]);
-        	
-    		return isComplete;
-    	    	
-        }
-        
-        private function postSampleSetupCompleteness(isComplete:Boolean):void {
-	    		
-	    	if (!isComplete) {
-	        	if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
-		        	parentDocument.hybSetupView.enabled = false;
-	        	} 
-	
-	        	if (parentDocument.theTab.contains(parentDocument.hybsView)) {
-		        	parentDocument.hybsView.enabled = false;
-	        	} 
-	
-	        	parentDocument.confirmView.enabled = false;
-    		} else {
-    			parentDocument.samplesView.checkSamplesCompleteness();
-    		}
-        	
-        }
-		
-	]]>
-</mx:Script>
-	<mx:VBox width="100%" height="100%" verticalGap="2">
-		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
-			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="How many samples will you be submitting?" width="340" />
-				<mx:TextInput width="40" id="numberOfSamples" change="parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()" backgroundColor="#ffffff"/>							
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Select the sample type that best describes your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" change="samplePrepMethodCombo.selectedIndex=0;parentApplication.samplePrepMethodList.refresh();parentDocument.samplesView.initializeSamplesGrid();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility()">							
-					<mx:dataProvider></mx:dataProvider>
-				</mx:ComboBox>
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Select the organism of your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentApplication.filteredGenomeBuildList.refresh()">							
-					<mx:dataProvider></mx:dataProvider>
-				</mx:ComboBox>
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Select the source of your samples:" width="340"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()">							
-					<mx:dataProvider></mx:dataProvider>
-				</mx:ComboBox>
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Enter the approximate sample concentration:" width="340"/>
-				<mx:TextInput width="40" id="sampleConcentration" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()"/>							
-				<mx:Label text="ng/µL" id="concentrationLabel"/>
-				<mx:Spacer width="25"/>
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
-				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentApplication.filteredFlowCellTypeList.refresh()" >							
-					<mx:dataProvider>{parentApplication.samplePrepMethodList}</mx:dataProvider>					
-				</mx:ComboBox>
-			</mx:HBox>
-			
-		</mx:VBox>
-		
-	</mx:VBox>
 	
 </mx:Canvas>
