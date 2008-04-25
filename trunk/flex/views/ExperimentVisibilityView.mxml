@@ -100,7 +100,7 @@
 					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@projectName}"/>
 	                <mx:ComboBox id="projectVisibilityCombo" labelField="@display"  
                      	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
-                     	  width="250" fontFamily="Arial"/>
+                     	  width="250" />
 	       </mx:HBox>
 	       <mx:DataGrid  id="visibilityGrid" 
 	       	dataProvider="{parentDocument.browseList}" 
