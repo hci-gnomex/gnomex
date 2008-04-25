@@ -1,177 +1,230 @@
 /* CSS file */
-.tab {
-    background-color: #e1e1e1
-}
 
-.panel {
-    background-color: #e1e1e1
-}
-
-
-.catalogPanel
-{
-    highlightAlphas:        .7, .6, .5, .25;
-    headerColors:           #456F84, #9ABBC9;
-    borderAlpha:            1;
-    borderColor:            #FFFFFF;
-    borderThicknessRight:   1;
-    borderThicknessBottom:  1;
-    paddingRight:           0;
-    paddingBottom:          0;
-}
-
-
-.cy3 {
-    color: #008000;
-    fontSize: 10;
-    fontWeight: bold;
-}
-
-.cy5 {
-    color: #800000;
-    fontSize: 10;
-    fontWeight: bold;
-}
-
-
-
-
-
-.form {
-	  backgroundColor: #e3ecf4;
-}
-
- Button {
-        fillAlphas: 1, 1;
-        fontWeight: normal;
-}
-
-
-
-TabNavigator {
-        backgroundColor: #2e63a5;
-	    backgroundAlpha:            .1;
-	    tabStyleName:      tabHeader;
-		selectedTabTextStyleName: tabHeaderTextSelected;
-}
-
-.tabHeader {
-	fillColors: #FFFFFF, #FFFFFF; 
-	fillAlphas:  .2, .2;
- 	    fontWeight: 		normal;		    
-	    backgroundAlpha:            .1;
-}
-
-.userTabNavigator {
-	    backgroundAlpha:            1;
-	    tabStyleName:      userTabHeader;
-		selectedTabTextStyleName: tabHeaderTextSelected;
-	    backgroundColor: #A1A79D;
-	    borderColor: #A1A79D;
-}
-
-.userTabHeader {
-	fillColors: #A1A79D, #A1A79D;
-	fillAlphas:  1, 1;
- 	fontWeight: 		normal;		   
-
-}
-.userTabHeaderTextSelected {
-	    fontWeight:  bold;
-}
-
-.tabHeaderTextSelected {
-	    fontWeight:  bold;
-}
-
-ApplicationControlBar {
-	fillColors: #548db8, #97b8d2; 
-}
-
-LinkBar {
-	    fontWeight: normal;
-	    disabledColor: #FFFFFF; 
-	    rollOverColor: #FFFFFF; 
-	    selectionColor: #FFFFFF;
-	    useHandCursor: true;
-}
-
-
-
-DataGrid {
-	headerStyleName: header;
-}
-.header {
-	    fontWeight: normal;
-
-}
-
-ComboBox {
-	fontWeight: normal;
-}
-
+/*
+HCI Blue = 00529F
+HCI Teal = 00A9B9
+HCI Cream = F2EFD9
+*/
 
 Panel {
    borderThicknessLeft: 4;
-   borderThicknessTop: 0;
+   borderThicknessTop: 2;
    borderThicknessBottom: 4;
    borderThicknessRight: 4;
-   roundedBottomCorners: false;
-   headerHeight: 23;
-   footerColors: #A1A79D, #A1A79D;
+   roundedBottomCorners: true;
+   headerHeight: 22;
+   headerColors: #548db8, #97b8d2;
    titleStyleName: panelTitle;
-   borderColor: #A1A79D;
-   borderAlpha: 1.0;
+   border-color: #CBCAC1;
    controlBarStyleName: panelControlBar;
+   backgroundColor: #CBCAC1;
+   statusStyleName: panelStatus;
+   borderAlpha: 1;
+   dropShadowEnabled: true;
 }
 .panelControlBar {
 	roundedBottomCorners: false;
 }
 .panelTitle {
 	fontWeight: normal;
+	color: #FFFFFF;
+	fontStyle: normal;
 }
 
 TitleWindow {
-   borderThicknessLeft: 4;
-   borderThicknessTop: 0;
-   borderThicknessBottom: 4;
-   borderThicknessRight: 4;
-   roundedBottomCorners: false;
-   headerHeight: 28;
-   footerColors: #A1A79D, #A1A79D;
-   titleStyleName: titleBarTitle;
-   borderColor: #A1A79D;
-   borderAlpha: 1.0;
-   controlBarStyleName: panelControlBar;
+	borderColor: #CBCAC0;
+	backgroundColor: #CBCAC1;
+	cornerRadius: 4;
+	borderThicknessTop: 4;
+	borderThicknessBottom: 4;
+	borderThicknessLeft: 4;
+	borderThicknessRight: 4;
+	titleStyleName: titleWindowTitle;
+	headerHeight: 28;
+	controlBarStyleName: titleWindowControlBar;
 }
-.titleBarTitle {
-	fontWeight: bold;
+.titleWindowTitle
+{
+	fontWeight: normal;
+	color: #FFFFFF;
+}
+
+Alert {
+	
+	headerColors: #888a97, #888a97;
+	backgroundColor: #888a97;
+	borderColor: #888a97;
+	cornerRadius: 4;
+
+}
+
+
+
+TabNavigator {
+}
+ 
+HDividedBox {
+	horizontalGap: 6;
+}
+
+
+ApplicationControlBar {
+	fillColors: #548db8, #97b8d2; 
+	dropShadowEnabled: true;
+}
+Accordion {
+
+	headerStyleName: accordionHeader;
+	headerHeight: 24;
+	dropShadowEnabled: true;
+	cornerRadius: 6;
+	focusAlpha: .5; 
+	backgroundColor: #CBCAC1;
+	
+
+}
+.accordionHeader
+{
+	fillColors: #87999D, #E3E8EB;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	selectedFillColors: #548db8, #97b8d2;
+	fontWeight: normal;
+	cornerRadius: 6;
+	borderColor: #B7BABC;
+	color: #FFFFFF;
+	textRollOverColor: #FFFFFF;
+	disabledColor: #FFFFFF;
+}
+
+
+LinkBar {
+	    disabledColor: #FFFFFF; 
+	    rollOverColor: #FFFFFF; 
+	    selectionColor: #FFFFFF;
+	    useHandCursor: true;
+	     
+}
+
+Button {
+        fillAlphas: 1, 1;
+        fontWeight: normal;
+}
+
+
+DataGrid {
+	headerStyleName: dataGridHeader;
+}
+.dataGridHeader {
+	    fontWeight: normal;
+}
+
+ComboBox {
+	fontWeight: normal;
 }
 
 ControlBar {
-	paddingLeft: 4;
-	paddingTop: 4;
-	paddingBottom: 4;
-	paddingRight: 4;
-	
+	paddingLeft: 8;
+	paddingTop: 0;
+	paddingBottom: 3;
+	paddingRight: 8;
 }
         
-
-
-
 RadioButton {
 	disabledColor: #5f5f5f;
 }
 TextInput {
 	disabledColor: #5f5f5f;
+	backgroundColor: #E4E0E0;
 }
 TextArea {
 	disabledColor: #5f5f5f;
+		backgroundColor: #E4E0E0;
 }
 
 
 
 
+.form {
+	backgroundColor: #FFFFFF;
+	cornerRadius: 4;
+	borderStyle: solid;
+	dropShadowEnabled: true;
+}
+
+.formrule
+{
+	strokeColor: #a1a1a2;
+}
+
+
+.formTabBody {
+	backgroundColor: #FFFFFF;
+	borderStyle: none;
+	dropShadowEnabled: false;
+}
+.formTabBar {
+	backgroundColor: #FFFFFF;
+	borderStyle: none;
+	dropShadowEnabled: false;
+}
+
+.formLinkBar {
+	disabledColor: #0F24E6; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #656C6E;
+	fontWeight: normal;
+	textDecoration: underline;
+}
+
+
+.navTabNavigator {
+	 backgroundAlpha:            1.0;
+	 backgroundColor: #CBCAC1;
+	 borderColor: #CBCAC1;
+	 borderStyle: solid;
+	 color: #74878B;
+	 tabStyleName:      navTabHeader;
+	 tabStyleName: navTabHeader;
+	 firstTabStyleName: navTabHeader;
+	 middleTabStyleName: navTabHeader;
+	 lastTabStyleName: navTabHeader;
+	 selectedTabTextStyleName: navTabHeaderTextSelected;
+}
+
+.navTabHeader {
+	fill-colors :#548db8, #97b8d2;	
+	color: #5D5252;
+	backgroundColor: #97b8d2;
+	fillAlphas:  1, 1;
+ 	fontWeight: 		normal;		
+
+}
+
+.navTabHeaderTextSelected {
+	color: #FFFFFF;
+	fontWeight: normal;
+}
+
+.navLinkBar {
+	disabledColor: #1728CF; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #000000;
+	fontWeight: normal;
+	textDecoration: underline;
+}
+
+.popupWindow {
+	headerColors: #CBCAC1, #CBCAC1;
+	backgroundColor: #CBCAC1;
+	borderColor: #CBCAC1;
+	cornerRadius: 4;
+	borderStyle: none;
+
+}
 
 
 
