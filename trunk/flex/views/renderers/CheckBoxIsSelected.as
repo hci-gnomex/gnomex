@@ -4,8 +4,9 @@ package views.renderers
 	import flash.events.Event;
 	import flash.display.DisplayObject;
 	import flash.text.TextField;
+	
 
-	public class CheckBoxIsSelectedDownload extends CheckBox
+	public class CheckBoxIsSelected extends CheckBox
 	{
 		  private var _data:Object;
 		  
@@ -27,13 +28,13 @@ package views.renderers
           }   
           
           private function change(event:Event):void {
-          	parentDocument.parentDocument.clearFilter();
           	if (this.selected) {
           		_data.@isSelected = "true";
           	} else {
           		_data.@isSelected = "false";
           	}
           }
+          
           /**
 		   * center the checkbox and refresh the checkbox based on changed data
 		   * values due to toggling off other selections.
@@ -60,6 +61,6 @@ package views.renderers
     	      		this.selected = false;
         	  	}
  
-			}              
+			}          
 	}
 }

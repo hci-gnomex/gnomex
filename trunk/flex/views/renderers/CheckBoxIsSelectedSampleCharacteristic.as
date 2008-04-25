@@ -1,9 +1,9 @@
-package views
+package views.renderers
 {
 	import mx.controls.CheckBox;
 	import flash.events.Event;
 
-	public class CheckBoxIsSelected extends CheckBox
+	public class CheckBoxIsSelectedSampleCharacteristic extends CheckBox
 	{
 		  private var _data:Object;
 		  
@@ -14,7 +14,7 @@ package views
           }
           override public function set data(o:Object):void {
           	_data = o;
-          	if (o != null && o.hasOwnProperty("@isSelected") && o.@isSelected == "true") {
+          	if (o != null && o.hasOwnProperty("@isSelected") && o.@isSelected != null && o.@isSelected == "true") {
           		this.selected = true;
           	} else {
           		this.selected = false;
@@ -25,10 +25,17 @@ package views
           }   
           
           private function change(event:Event):void {
+          	if (_data == null || _data.@isSelected == null) {
+          		return;
+          	}
           	if (this.selected) {
           		_data.@isSelected = "true";
+          		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, true);
+          		parentDocument.clearOutUncheckedSampleAnnotations();
           	} else {
           		_data.@isSelected = "false";
+          		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, false);
+          		parentDocument.clearOutUncheckedSampleAnnotations();
           	}
           }
 	}

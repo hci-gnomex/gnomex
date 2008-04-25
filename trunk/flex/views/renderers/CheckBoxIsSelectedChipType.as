@@ -1,4 +1,4 @@
-package views
+package views.renderers
 {
 	import mx.controls.CheckBox;
 	import flash.events.Event;
