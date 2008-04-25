@@ -199,7 +199,22 @@
     		parentDocument.buttonStack.selectedChild = parentDocument.downloadFoldersButtonView;    		
     	}
     }
+    
+   	private function toggleFolderCheck():void {
+		if (folderGrid.selectedItem.@isSelected == "true") {
+			folderGrid.selectedItem.@isSelected = "false";
+		} else {
+			folderGrid.selectedItem.@isSelected = "true";
+		}
+	}
 
+   	private function toggleFileCheck():void {
+		if (fileGrid.selectedItem.@isSelected == "true") {
+			fileGrid.selectedItem.@isSelected = "false";
+		} else {
+			fileGrid.selectedItem.@isSelected = "true";
+		}
+	}
     
  ]]>
  </mx:Script>
@@ -218,10 +233,10 @@
 				paddingLeft="0" paddingRight="0" 
 				paddingTop="0" paddingBottom="0" verticalGap="0">
 		       <views:DataGridAlternatingGroup  
-		       	 sortableColumns="false"
+		       	 sortableColumns="false" id="folderGrid"
 		       	dataProvider="{downloadList}"  
 		       	width="100%" height="100%"
-		       	 >
+		       	  itemClick="toggleFolderCheck()">
 		         <views:columns>
 		            <mx:DataGridColumn headerText=" " 
 		            	width="10" 
@@ -265,7 +280,7 @@
 			    	 width="100%" height="100%" 
 	   	 			sortableColumns="false"	
 			    	 dataProvider="{expandedFileList}" 
-			    	 >
+			    	  itemClick="toggleFileCheck()" id="fileGrid">
 			       <mx:columns>
 		            <mx:DataGridColumn headerText=" " 
 		            	width="3" 

@@ -383,7 +383,7 @@
 							        	editable="true"                        	
 							        	dataField="@isSelected" 
 							        	editorDataField="selected"
-							        	itemRenderer="views.CheckBoxIsSelectedChipType" />
+							        	itemRenderer="views.renderers.CheckBoxIsSelectedChipType" />
 								<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
 								<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
 								<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>

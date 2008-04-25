@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Advanced Search"  
-	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%"  creationPolicy="all"
->
+<mx:VBox label="Advanced Search"  
+	xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"
+	paddingBottom="6" paddingTop="8" paddingLeft="8" paddingRight="8"
+	width="100%" height="100%"  creationPolicy="all">
 
 
   <mx:HTTPService  
@@ -55,6 +55,15 @@
         
         [Bindable]
         private var myXMLString:String = "";
+        
+       public function checkSecurity():void {
+       	if (parentApplication.hasPermission("canAccessAnyObject") ||
+       	    parentApplication.isGuestMode()) {
+       		this.includePublicProjectsCheckBox.visible = false;    	
+       	} else {
+       		this.includePublicProjectsCheckBox.visible = true;
+       	}
+       }
 
 
        public function initializeData():void {
@@ -144,7 +153,44 @@
         			
         }
 
-
+		public function clearForm():void {
+			this.text1.text = "";
+			this.text2.text = "";
+			this.text3.text = "";
+			this.text4.text = "";
+			this.labCombo.selectedIndex = 0;
+			this.sampleSourceCombo.selectedIndex = 0;
+			this.organismCombo.selectedIndex = 0;
+			this.microarrayCategoryCombo.selectedIndex = 0;
+			this.microarrayCombo.selectedIndex = 0;
+			
+			for each (var item:Object in parentApplication.experimentDesignList) {
+				item.@isSelected = "false";
+			}
+			this.experimentDesignGrid.invalidateDisplayList();
+			this.experimentDesignGrid.invalidateList();
+			
+			for each (var item1:Object in parentApplication.experimentFactorList) {
+				item1.@isSelected = "false";
+			}
+			this.experimentFactorGrid.invalidateDisplayList();
+			this.experimentFactorGrid.invalidateList();
+		}
+		
+		private function toggleExperimentDesignCheck():void {
+			if (experimentDesignGrid.selectedItem.@isSelected == "true") {
+				experimentDesignGrid.selectedItem.@isSelected = "false";
+			} else {
+				experimentDesignGrid.selectedItem.@isSelected = "true";
+			}
+		}
+		private function toggleExperimentFactorCheck():void {
+			if (experimentFactorGrid.selectedItem.@isSelected == "true") {
+				experimentFactorGrid.selectedItem.@isSelected = "false";
+			} else {
+				experimentFactorGrid.selectedItem.@isSelected = "true";
+			}
+		}
                 
            
 
@@ -152,123 +198,119 @@
     </mx:Script>
     
    
-    <mx:VBox width="100%" height="100%" top="8" bottom="8" left="8" right="8"  backgroundAlpha="1.0">
+<mx:HDividedBox width="100%" height="100%">
     
-        <mx:VBox width="100%" height="100%" verticalGap="1">
-            <mx:HBox width="100%" paddingBottom="10">
-                <mx:RadioButtonGroup id="radiogroup1"/>
-                <mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
-                <mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
-                <mx:HBox width="100%" height="100%" horizontalAlign="right">
-                    <mx:CheckBox label="Include public projects in search" id="includePublicProjectsCheckBox" selected="true"/>
-                </mx:HBox>
-            </mx:HBox>
+        <mx:VBox height="100%" verticalGap="20" paddingRight="4">
             <mx:HBox width="100%">
-              <mx:VBox width="100%">
-                <mx:HBox width="100%">
-                	<mx:Label text="Keywords:"/>
-                	<mx:TextInput id="text1" width="25%">
+              <mx:VBox width="100%" verticalGap="8">
+                <mx:HBox>
+                	<mx:Label text="Keywords:" textAlign="left" width="120"/>
+                	<mx:TextInput id="text1" width="80">
                     </mx:TextInput>
-                    <mx:TextInput id="text2" width="25%">
+                    <mx:TextInput id="text2" width="80">
                     </mx:TextInput>
-                    <mx:TextInput id="text3" width="25%">
+                    <mx:TextInput id="text3" width="80">
                     </mx:TextInput>
-                    <mx:TextInput id="text4" width="25%">
+                    <mx:TextInput id="text4" width="80">
                     </mx:TextInput>
 
                 </mx:HBox>
-                <mx:VBox width="100%" height="100%">
-                   <mx:HBox width="100%" horizontalGap="20">
-                    <mx:HBox paddingBottom="10">
-                     <mx:Label text="Organism" width="130"/>
-                    <mx:VBox>
-                       <mx:ComboBox 
-                       	id="organismCombo"  labelField="@display" 
-                     	width="220" 
-                     	change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
-                       </mx:ComboBox>
-                       <mx:HBox>
-                          <mx:RadioButtonGroup id="radiogroup2"/>
-                          <mx:RadioButton id="searchOrganismOnSlideProductRadio" label="Microarray" groupName="radiogroup2" selected="true"/>
-                          <mx:RadioButton id="searchOrganismOnSampleRadio" label="Sample" groupName="radiogroup2" />
-                       </mx:HBox>
-                    </mx:VBox>
-                  </mx:HBox>
-                  
-                  <mx:HBox>
-                  	
-                    <mx:HBox>
-                     <mx:Label text="Experiment Category" width="130"/>
-                     <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
-                     	 width="220" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
-                     </mx:ComboBox>
-                    </mx:HBox>
-                  	
-                  </mx:HBox>
-                  	
-                   	
-                   </mx:HBox>
-                  <mx:HBox width="100%" horizontalGap="20">
-                   <mx:HBox>
-                   <mx:Label text="Group" width="130"/>
-                   <mx:ComboBox id="labCombo"  
-                   	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
-                    width="220"
-                    change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
-                   	</mx:ComboBox>
-                   	
-                   </mx:HBox>
-                   <mx:HBox >
-                    <mx:Label text="Sample Source" width="130"/>
-                    <mx:ComboBox id="sampleSourceCombo"  
-                     labelField="@display"
-                    	 width="220">
-                    </mx:ComboBox>
-                   </mx:HBox>
-                  </mx:HBox>
-                  <mx:HBox width="100%">
-                   <mx:Label text="Microarray" width="130"/>
-                   <mx:ComboBox id="microarrayCombo"  
-                   	labelField="@name" 
-                   	dataProvider="{parentApplication.filteredSlideProductList}" 
-                   	 width="100%">
-                  </mx:ComboBox>
-                  </mx:HBox>
-                </mx:VBox> 
               	
               </mx:VBox>
             </mx:HBox>
-            <mx:HBox width="100%" height="100%" paddingTop="6">
-                <mx:DataGrid width="50%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" fontSize="9">
-                    <mx:columns>
-                        <mx:DataGridColumn headerText=" " 
-                        	width="30" 
-                        	editable="true"                        	
-                        	dataField="@isSelected" 
-                        	editorDataField="selected"
-                        	itemRenderer="views.CheckBoxIsSelected" >
-                        </mx:DataGridColumn>
-                        <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
-                    </mx:columns>
-                </mx:DataGrid>
-                <mx:DataGrid width="50%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" fontSize="9">
-                    <mx:columns>
-                        <mx:DataGridColumn headerText=" " 
-                        	width="30" 
-                        	editable="true"                        	
-                        	dataField="@isSelected" 
-                        	editorDataField="selected" 
-                        	itemRenderer="views.CheckBoxIsSelected">
-                        </mx:DataGridColumn>
-                        <mx:DataGridColumn headerText="Experimental Factor (differences between samples)" editable="false" dataField="@experimentFactor"/>
-                    </mx:columns>
-                </mx:DataGrid>
+            <mx:HBox paddingBottom="0" width="100%">
+             <mx:Label text="Organism:" textAlign="left" width="120"/>
+            <mx:VBox verticalGap="0">
+               <mx:ComboBox 
+               	id="organismCombo"  labelField="@display" 
+               width="200" 
+               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+               </mx:ComboBox>
+               <mx:HBox>
+                  <mx:RadioButtonGroup id="radiogroup2"/>
+                  <mx:RadioButton id="searchOrganismOnSlideProductRadio" label="Microarray" groupName="radiogroup2" selected="true"/>
+                  <mx:RadioButton id="searchOrganismOnSampleRadio" label="Sample" groupName="radiogroup2" />
+               </mx:HBox>
+            </mx:VBox>
             </mx:HBox>
+            <mx:HBox>
+               <mx:Label text="Sample Source:" textAlign="left" width="120"/>
+               <mx:ComboBox id="sampleSourceCombo"  
+                labelField="@display"
+               	 width="200">
+               </mx:ComboBox>
+            </mx:HBox>
+            <mx:HBox>
+              <mx:Label text="Group:" textAlign="left" width="120"/>
+              <mx:ComboBox id="labCombo"  
+              	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
+               width="200"
+               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+              	</mx:ComboBox>
+              	
+            </mx:HBox>
+            <mx:HBox>
+             <mx:Label text="Microarray Category:" textAlign="left" width="120"/>
+             <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
+             	 width="200" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+             </mx:ComboBox>
+            </mx:HBox>
+            <mx:HBox width="100%">
+             <mx:Label text="Microarray:" textAlign="left" width="120"/>
+             <mx:ComboBox id="microarrayCombo"  
+             	labelField="@name" 
+             	dataProvider="{parentApplication.filteredSlideProductList}" 
+             	 width="340">
+             </mx:ComboBox>
+            </mx:HBox>
+    	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
+    	    <mx:HBox width="100%">
+    	         <mx:VBox verticalGap="0">
+		        	<mx:RadioButtonGroup id="radiogroup1"/>
+		        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
+		        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
+    	         </mx:VBox>
+	        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
+	        		<mx:CheckBox label="Include public projects" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
+	        		</mx:CheckBox>
+	        	</mx:HBox>
+    	    </mx:HBox>
+         </mx:VBox>
+            
         </mx:VBox>
+        <mx:HBox width="250" height="100%"  paddingLeft="4">
+            <mx:DataGrid  width="100%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentDesignGrid">
+                <mx:itemClick>toggleExperimentDesignCheck()</mx:itemClick>
+                <mx:columns>
+                    <mx:DataGridColumn headerText=" " 
+                    	width="18" 
+                    	editable="true"                        	
+                    	dataField="@isSelected" 
+                    	editorDataField="selected"
+                    	itemRenderer="views.renderers.CheckBoxIsSelected" >
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
+                </mx:columns>
+            </mx:DataGrid>
+            <mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentFactorGrid" itemClick="toggleExperimentFactorCheck()">
+                <mx:columns>
+                    <mx:DataGridColumn headerText=" " 
+                    	width="18" 
+                    	editable="true"                        	
+                    	dataField="@isSelected" 
+                    	editorDataField="selected" 
+                    	itemRenderer="views.renderers.CheckBoxIsSelected">
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="Experimental Factors (differences)" editable="false" dataField="@experimentFactor"/>
+                </mx:columns>
+            </mx:DataGrid>
+        </mx:HBox>
+
+
 
        
-	</mx:VBox>
 						
 						
 
-</mx:Canvas>
+</mx:HDividedBox>
+</mx:VBox>

@@ -150,7 +150,7 @@
 				        	editable="true"                        	
 				        	dataField="@isSelected" 
 				        	editorDataField="selected"
-				        	itemRenderer="views.CheckBoxIsSelectedSampleCharacteristic" >
+				        	itemRenderer="views.renderers.CheckBoxIsSelectedSampleCharacteristic" >
 				        </mx:DataGridColumn>
 				        <mx:DataGridColumn  
 				        	headerText="Sample characteristics"
