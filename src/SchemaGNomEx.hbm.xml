@@ -617,6 +617,15 @@
 		<property name="idFeatureExtractionProtocolDefault" column="idFeatureExtractionProtocolDefault" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
+
+	<!-- hci.gnomex.model.SampleTypeRequestCategory -->
+	<class name="hci.gnomex.model.SampleTypeRequestCategory" table="SampleTypeRequestCategory">
+		<id name="idSampleTypeRequestCategory" column="idSampleTypeRequestCategory" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<property name="idSampleType" column="idSampleType" type="integer"/>
+	</class>
 	
 	<!-- hci.gnomex.model.SamplePrepMethod -->
 	<class name="hci.gnomex.model.SamplePrepMethod" table="SamplePrepMethod">

@@ -323,7 +323,7 @@
 				<mx:Label text="Select the term that best describes your samples:" width="340"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
 					change="samplePrepMethodCombo.selectedIndex=0;parentApplication.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();propagateSampleType();parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();">							
-					<mx:dataProvider></mx:dataProvider>
+					<mx:dataProvider>{parentApplication.filteredSampleTypeList}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">

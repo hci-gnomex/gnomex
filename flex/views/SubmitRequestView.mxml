@@ -98,7 +98,6 @@
 		public function initializeData():void {
 			if (!this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {
-					sampleSetupView.sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
 					sampleSetupView.sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
 				}
 				if (theTab.contains(hybSetupView)) {
@@ -128,6 +127,9 @@
 			
 			parentApplication.filteredMicroarrayCategoryListForSubmitRequests.filterFunction = filterMicroarrayCategory;
 			parentApplication.filteredMicroarrayCategoryListForSubmitRequests.refresh();
+			
+			parentApplication.filteredSampleTypeList.filterFunction = filterSampleType;
+			parentApplication.filteredSampleTypeList.refresh();
 		}
 		
 		public function isSolexaState():Boolean {
@@ -422,6 +424,7 @@
 	
 				}
 			}
+			parentApplication.filteredSampleTypeList.refresh();
 			parentApplication.samplePrepMethodList.refresh();
 			
 			
@@ -593,6 +596,28 @@
         	   	}
         	}
         	return doesMatchRequestCategory && doesMatchSampleType;
+        }  
+        
+        private function filterSampleType(item:Object):Boolean {
+        	if (item.@value == "") {
+        		return true;
+        	}
+
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+
+        	var doesMatchRequestCategory:Boolean = false;
+        	var requestCategory:Object = this.getRequestCategory();
+        	var theSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
+    	   	for each (var xref1:Object in theSamplePrepMethods) {
+    	   		if (xref1.@codeRequestCategory.toString() == requestCategory.@codeRequestCategory.toString()) {
+	   				doesMatchRequestCategory = true;
+    	   		    break;
+    	   		}
+    	   	}
+        	return doesMatchRequestCategory;
         }  
 
 		private function filterMicroarrayCategory(item:Object):Boolean {
