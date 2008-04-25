@@ -109,6 +109,12 @@
 		public var fullSlideProductMicroarrayCategories:XMLList;
 		
 		[Bindable]
+		public var lastSavedSlideProductId:String;
+		
+		[Bindable]
+		public var lastSavedSlideDesignId:String;
+		
+		[Bindable]
         [Embed(source="assets/image.png")]
         public var iconSlide:Class;
 		
@@ -130,22 +136,43 @@
 		
 		public function resultHandler(event:ResultEvent):void {
 			var call:Object = event.token;
+			var params:Object;
 			if (call.marker == "doneGetSlideList") {
 				this.fullSlideList = new XMLList(getSlideList.lastResult);
 			} else if (call.marker == "doneGetSlideProduct") {
 				this.fullSlideProduct = new XMLList(getSlideProduct.lastResult);
-				this.fullSlideProductMicroarrayCategories = new XMLList(getSlideProduct.lastResult.microarrayCategories.MicroarrayCategory)
-				selectSlideView();
+				this.fullSlideProductMicroarrayCategories = new XMLList(getSlideProduct.lastResult.microarrayCategories.MicroarrayCategory);
+				if (lastSavedSlideProductId != null) {
+					selectSlideView("SlideProduct");
+				} else {
+					selectSlideView(null);
+				}
 			} else if (call.marker == "doneGetSlideDesign") {
 				this.fullSlideDesign = new XMLList(getSlideDesign.lastResult);
 				this.fullSlideDesignMicroarrayCategories = new XMLList(getSlideDesign.lastResult.SlideProduct.microarrayCategories.MicroarrayCategory);
 				this.fullSlideDesignArrayCoordinates = new XMLList(getSlideDesign.lastResult.arrayCoordinates.ArrayCoordinate);
-				selectSlideView();
+				if (lastSavedSlideDesignId != null) {
+					selectSlideView("SlideDesign");
+				} else {
+					selectSlideView(null);
+				}
 			} else if (call.marker == "doneDeleteSlideDesign" || call.marker == "doneDeleteSlideProduct") {
 				callGetSlideList();
 				browseSlides.selectedIndex = -1;
-				selectSlideView();
-			} 
+				selectSlideView(null);
+			}  else if (call.marker == "doneSaveSlideProduct") {
+				lastSavedSlideProductId = saveSlideProduct.lastResult.@idSlideProduct.toString();
+				callGetSlideList();
+				params = new Object();
+				params.idSlideProduct = lastSavedSlideProductId;
+				callGetSlideProduct(params);
+			} else if (call.marker == "doneSaveSlideDesign") {
+				lastSavedSlideDesignId = saveSlideDesign.lastResult.@idSlideDesign.toString();
+				callGetSlideList();
+				params = new Object();
+				params.idSlideDesign = lastSavedSlideDesignId;
+				callGetSlideDesign(params);
+			}
 		}		
 		
 		public function callGetSlideList():void {
@@ -185,11 +212,11 @@
 			params.idOrganism = spOrganismId.selectedItem.@value;
 			params.name = spName.text;
 			params.catalogNumber = spCatalogNumber.text;
-			params.microarrayCategoryXMLString = "<microarrayCategories>"+sdMicroarrayCategories.toXMLString()+"</microarrayCategories>";
+			params.microarrayCategoryXMLString = "<microarrayCategories>"+spMicroarrayCategories.toXMLString()+"</microarrayCategories>";
 			params.accessionNumberArrayExpress = "";
 			params.isSlideSet = "Y";
 			params.isInSlideSet = "Y";
-			if (sdIdLab.selectedIndex > -1) {
+			if (spIdLab.data != null && spIdLab.data != "") {
 				params.idLab = spIdLab.selectedItem.@idLab;
 			}
 			if (spIsCustom.selected == true) {
@@ -204,6 +231,7 @@
 			}
 			var call:Object = saveSlideProduct.send(params)
 			call.marker = "doneSaveSlideProduct";
+			lastSavedSlideProductId = null;
 		}
 		
 		public function callSaveSlideDesign():void {
@@ -221,7 +249,7 @@
 			params.accessionNumberArrayExpress = "";
 			params.isInSlideSet = isInSlideSet.text;
 			params.slideSet = sdIdSlideProduct.text;
-			if (sdIdLab.selectedIndex > -1) {
+			if (sdIdLab.data != null && sdIdLab.data != "") {
 				params.idLab = sdIdLab.selectedItem.@idLab;
 			}
 			if (sdIsCustom.selected == true) {
@@ -236,6 +264,7 @@
 			}
 			var call:Object = saveSlideDesign.send(params)
 			call.marker = "doneSaveSlideDesign";
+			lastSavedSlideDesignId = null;
 		}
 		
 		public function prepareToDeleteSlide():void {
@@ -276,9 +305,11 @@
 		
 		public function prepareToAddSlideDesign(event:CloseEvent):void {
 			this.fullSlideDesign = null;
+			slideDesign.removeAll();
 			this.fullSlideDesignArrayCoordinates = null;
 			this.fullSlideDesignMicroarrayCategories = null;
 			slideViews.selectedChild = slideDesignView;
+			saveSlideButton.enabled = true;
 			if (event.detail == Alert.YES) {
 				var setName:String = "";
 				if (browseSlides.selectedItem.name() == "SlideProduct") {
@@ -291,19 +322,29 @@
 				isInSlideSet.text = "Y";
 				slideViewPanel.title = "New slide on the "+ setName+ " slide set";
 			} else {
+				isInSlideSet.text = "N";
+				sdIsActive.selected = true;
 				slideViewPanel.title = "New slide";
 			}
-			// set the idSlideDesign field to "0" (zero) to that the backend knows it is a new one.
+			sdRemoveArrayCoord.enabled = false;
+			sdRemoveCategory.enabled = false;
+			newArrayRow.text = null;
+			newArrayCol.text = null;
+			newArrayName.text = null;
+			// set the idSlideDesign field to "0" (zero) so that the backend knows it is a new one.
 			idSlideDesign.text = "0";
 		}
 		
 		public function prepareToAddSlideProduct():void {
 			this.fullSlideProduct = null;
+			slideProduct.removeAll();
+			saveSlideButton.enabled = true;
 			this.fullSlideProductMicroarrayCategories = null;
-			this.slideProduct.refresh();
 			this.spMicroarrayCategories.refresh();
 			slideViews.selectedChild = slideProductView;
 			slideViewPanel.title = "New Slide Set";
+			spIsActive.selected = true;
+			spRemoveCategory.enabled = false;
 		}
 		
 		public function addMicroarrayCategory(event:MouseEvent):void {
@@ -311,22 +352,26 @@
 			var category:String;
 			var node:XML = null;
 			if (slideViews.selectedChild == slideDesignView) {
-				code = sdMicroarrayCategory.selectedItem.@value;
-				category = sdMicroarrayCategory.selectedItem.@display;
-				if (validateMicroarrayCategory(code)) {
-					node = new XML("<MicroarrayCategory value='"+code+"' display='"+category+"' codeMicroarrayCategory='"+code+"' isActive='Y' microarrayCategory='"+category+"' canWrite='Y' datakey='"+code+"'/>");
-					sdMicroarrayCategories.addItem(node);
-				} else {
-					Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
+				if (sdMicroarrayCategory.selectedItem != null) {
+					code = sdMicroarrayCategory.selectedItem.@value;
+					category = sdMicroarrayCategory.selectedItem.@display;
+					if (validateMicroarrayCategory(code)) {
+						node = new XML("<MicroarrayCategory value='"+code+"' display='"+category+"' codeMicroarrayCategory='"+code+"' isActive='Y' microarrayCategory='"+category+"' canWrite='Y' datakey='"+code+"'/>");
+						sdMicroarrayCategories.addItem(node);
+					} else {
+						Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
+					}
 				}
 			} else if (slideViews.selectedChild == slideProductView){
-				code = spMicroarrayCategory.selectedItem.@value;
-				category = spMicroarrayCategory.selectedItem.@display;
-				if (validateMicroarrayCategory(code)) {
-					node = new XML("<MicroarrayCategory value='"+code+"' display='"+category+"' codeMicroarrayCategory='"+code+"' isActive='Y' microarrayCategory='"+category+"' canWrite='Y' datakey='"+code+"'/>");
-					spMicroarrayCategories.addItem(node);
-				} else {
-					Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
+				if (spMicroarrayCategory.selectedItem != null) {
+					code = spMicroarrayCategory.selectedItem.@value;
+					category = spMicroarrayCategory.selectedItem.@display;
+					if (validateMicroarrayCategory(code)) {
+						node = new XML("<MicroarrayCategory value='"+code+"' display='"+category+"' codeMicroarrayCategory='"+code+"' isActive='Y' microarrayCategory='"+category+"' canWrite='Y' datakey='"+code+"'/>");
+						spMicroarrayCategories.addItem(node);
+					} else {
+						Alert.show("This category has already been selected, please choose another.","Duplicate Microarray Category Entry");
+					}
 				}
 			}
 				
@@ -334,7 +379,23 @@
 		}
 		
 		public function removeMicroarrayCategory(event:MouseEvent):void {
-			
+			if (slideViews.selectedChild == slideDesignView) {
+				if (sdMicroarrayCategoriesList.selectedItem != null 
+					&& sdMicroarrayCategories.contains(sdMicroarrayCategoriesList.selectedItem)) {
+					sdMicroarrayCategories.removeItemAt(sdMicroarrayCategoriesList.selectedIndex);
+					sdRemoveCategory.enabled = false;
+				} else {
+					Alert.show("Please select a category before clicking the remove button.","Microarray category not selected");
+				}
+			} else if (slideViews.selectedChild == slideProductView){
+				if (spMicroarrayCategoriesList.selectedItem != null 
+					&& spMicroarrayCategories.contains(spMicroarrayCategoriesList.selectedItem)) {
+					spMicroarrayCategories.removeItemAt(spMicroarrayCategoriesList.selectedIndex);
+					spRemoveCategory.enabled = false;
+				} else {
+					Alert.show("Please select a category before clicking the remove button.","Microarray category not selected");
+				}
+			}
 		}
 		
 		public function validateMicroarrayCategory(codeCat:String):Boolean {
@@ -345,7 +406,7 @@
 					}
 				}
 			} else if (slideViews.selectedChild == slideProductView) {
-				for(var i2:int = 0; i < spMicroarrayCategories.length;i2++) {
+				for(var i2:int = 0; i2 < spMicroarrayCategories.length;i2++) {
 					if (spMicroarrayCategories.getItemAt(i2).@codeMicroarrayCategory == codeCat) {
 						return false;
 					}
@@ -380,7 +441,14 @@
 		}
 		
 		public function removeArrayCoord(event:MouseEvent):void {
-			
+			if (dgArrayCoords.selectedItem != null) {
+				if (sdArrayCoordiantes.length > 0) {
+					sdArrayCoordiantes.removeItemAt(dgArrayCoords.selectedIndex);
+					sdRemoveArrayCoord.enabled = false;
+				}
+			} else {
+				Alert.show("Please select an Array Coordinate to romove before clicking the delete button.","No Array Coordinate Selected");
+			}
 		}
 		
 		public function validateArrayCoord(newCoordName:String):Boolean {
@@ -429,19 +497,25 @@
 				callGetSlideDesign(params);
 				deleteSlideButton.enabled=true;
 			} else if (browseSlides.selectedItem == null) {
-				selectSlideView();
+				selectSlideView(null);
 			}
 		}
 		
-		public function selectSlideView():void {
-			if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct" && fullSlideProduct != null) {
+		public function selectSlideView(view:String):void {
+			if ((view != null && view == "SlideProduct") || (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct" && fullSlideProduct != null)) {
 				slideViews.selectedChild = slideProductView;
 				slideViewPanel.title = "Slide Set: "+fullSlideProduct.@name;
 				saveSlideButton.enabled=true;
-			} else if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideDesign" && fullSlideDesign != null) {
+				spRemoveCategory.enabled = false;
+			} else if ((view != null && view == "SlideDesign") || (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideDesign" && fullSlideDesign != null)) {
 				slideViews.selectedChild = slideDesignView;
 				slideViewPanel.title = "Slide: "+fullSlideDesign.@name;
 				saveSlideButton.enabled=true;
+				newArrayRow.text = null;
+				newArrayCol.text = null;
+				newArrayName.text = null;
+				sdRemoveCategory.enabled = false;
+				sdRemoveArrayCoord.enabled = false;
 			} else {
 				slideViews.selectedChild = blankSlide;
 				deleteSlideButton.enabled = false;
@@ -467,16 +541,17 @@
 	<mx:XMLListCollection id="spMicroarrayCategories" source="{fullSlideProductMicroarrayCategories}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0">
-		<mx:Panel width="300" height="100%" title="Slide Browser" id="slideBrowserPanel">
+		<mx:Panel width="300" height="100%" layout="absolute" title="Slide Browser" id="slideBrowserPanel">
 		<!-- filtering not finished -->
 		<!--mx:Label x="0" y="0" text="Type slide name here to find in list." fontSize="9" width="292" textAlign="right" height="17" visible="false"/>
 		<mx:TextInput id="slideSearchText" editable="true" 
 		       	      	change="slideList.refresh()" width="100%" toolTip="Type slide name here to find in list" y="16" visible="false"/-->
 			<mx:Tree left="0" right="0" top="0" bottom="0"
-				id="browseSlides" width="100%" height="100%"
+				id="browseSlides"
 				labelField="@name"
 				iconFunction="getTreeIcon"
 				change="onBrowseSlides(event);"
+				click="onBrowseSlides(event);"
 				showRoot="false"
 				dataProvider="{slideList.getItemAt(0)}">
 			</mx:Tree>
@@ -488,10 +563,10 @@
 				<mx:Button id="refreshButton" click="callGetSlideList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>
-		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" >
-			<mx:ViewStack id="slideViews" width="100%"  height="100%" right="0" left="0" top="0" bottom="0">
-				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0"  width="100%" height="100%">
-					<mx:Label text="No slide design or product selected" fontSize="12" color="#ffffff" textAlign="right" width="100%"/>
+		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" layout="absolute">
+			<mx:ViewStack id="slideViews" right="0" left="0" top="0" bottom="0">
+				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+					<mx:Label text="No slide design or product selected" fontSize="20" color="#A1A1A2" textAlign="right" right="10" top="10" height="31" left="10"/>
 				</mx:Canvas>
 				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
 					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="170"/>
@@ -503,6 +578,7 @@
 						id="sdIdLab"
 						dataProvider="{parentApplication.promptedLabList}"
 						labelField="@name"
+						prompt=""
 						data="{slideDesign.getItemAt(0).SlideProduct.@idLab}">
 					</views:ComboBoxLabList>
 					<mx:Label text="Vendor:" top="85" left="10" width="170"/>
@@ -513,6 +589,7 @@
 						dictDisplay="@display"
 						dictName="hci.gnomex.model.Vendor"
 						labelField="@display"
+						prompt=" "
 						data="{slideDesign.getItemAt(0).SlideProduct.@idVendor}"
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						>
@@ -525,9 +602,10 @@
 						dictDisplay="@display"
 						dictName="hci.gnomex.model.Organism"
 						labelField="@display"
+						prompt=" "
 						data="{slideDesign.getItemAt(0).SlideProduct.@idOrganism}"
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-						 right="326">
+						right="326">
 						</hci:DictionaryComboBox>
 					<mx:Label text="Design Protocol:" top="85" right="72" width="116"/>
 					<mx:TextInput top="102" right="10" width="178" id="sdDesignProtocol" text="{slideDesign.getItemAt(0).@slideDesignProtocolName}"/>
@@ -551,7 +629,7 @@
 						id="sdMicroarrayCategoriesList"
 						dataProvider="{sdMicroarrayCategories}"
 						labelField="@microarrayCategory"
-						>
+						click="sdRemoveCategory.enabled = true">
 					</mx:List>
 					<mx:HRule right="11" left="9" top="333" height="1" styleName="formrule"/>
 					<mx:Label text="Multi-plex microarray setup" top="316" left="8" width="157"/>
@@ -567,16 +645,17 @@
 					<mx:Button id="sdRemoveArrayCoord" click="removeArrayCoord(event)" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false" top="388" left="279"/>
 					<mx:DataGrid left="312" right="10" bottom="10" top="358" id="dgArrayCoords" 
 						dataProvider="{sdArrayCoordiantes}"
-						editable="false">
+						editable="false"
+						click="sdRemoveArrayCoord.enabled = true">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Row" dataField="@x" width="35"/>
 							<mx:DataGridColumn headerText="Col" dataField="@y" width="35"/>
 							<mx:DataGridColumn headerText="Name" dataField="@name"/>
 						</mx:columns>
 					</mx:DataGrid>
-					<mx:TextInput id="idSlideDesign" text="{slideDesign.getItemAt(0).@idSlideDesign}" editable="false" enabled="false" visible="true" left="10" y="189"/>
-					<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{slideDesign.getItemAt(0).SlideProduct.@isSlideSet}" visible="true" top="219" left="10" width="254"/>
-					<mx:TextInput id="sdIdSlideProduct" text="{slideDesign.getItemAt(0).@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="254"/>
+					<mx:TextInput id="idSlideDesign" text="{slideDesign.getItemAt(0).@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189"/>
+					<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{slideDesign.getItemAt(0).SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="254"/>
+					<mx:TextInput id="sdIdSlideProduct" text="{slideDesign.getItemAt(0).@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="254" visible="false"/>
 					<mx:TextInput id="sdCatalogNumber" right="196" top="102" width="122">
 						<mx:text>{slideDesign.getItemAt(0).SlideProduct.@catalogNumber}</mx:text>
 					</mx:TextInput>
@@ -593,6 +672,7 @@
 						id="spIdLab"
 						dataProvider="{parentApplication.promptedLabList}"
 						labelField="@name"
+						prompt=" "
 						data="{slideProduct.getItemAt(0).@idLab}">
 					</views:ComboBoxLabList>
 					<mx:Label text="Vendor:" top="85" left="10" width="123"/>
@@ -603,6 +683,7 @@
 						dictDisplay="@display"
 						dictName="hci.gnomex.model.Vendor"
 						labelField="@display"
+						prompt=" "
 						data="{slideProduct.getItemAt(0).@idVendor}"
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						>
@@ -615,6 +696,7 @@
 						dictDisplay="@display"
 						dictName="hci.gnomex.model.Organism"
 						labelField="@display"
+						prompt=" "
 						data="{slideProduct.getItemAt(0).@idOrganism}"
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						>
@@ -635,17 +717,17 @@
 						prompt="Select a catagory to add..."
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						></hci:DictionaryComboBox>
-					<mx:Button  id="addCategory2" click="addMicroarrayCategory(event)" x="279" y="159" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true"/>					
-					<mx:Button  id="removeCategory2" click="removeMicroarrayCategory(event)" x="279" y="189" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false"/>
+					<mx:Button  id="spAddCategory" click="addMicroarrayCategory(event)" x="279" y="159" icon="@Embed(source='../assets/add.png')" width="25" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="true"/>					
+					<mx:Button  id="spRemoveCategory" click="removeMicroarrayCategory(event)" x="279" y="189" icon="@Embed(source='../assets/delete.png')" width="25" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="false"/>
 					<mx:Label text="Category List:" left="312" top="142" height="18" width="94"/>
 					<mx:List left="312" right="10" top="159" height="155" 
 						id="spMicroarrayCategoriesList"
 						dataProvider="{spMicroarrayCategories}"
 						labelField="@microarrayCategory"
-						>
+						click="spRemoveCategory.enabled = true">
 					</mx:List>
-					<mx:TextInput id="idSlideProduct" text="{slideProduct.getItemAt(0).@idSlideProduct}" editable="false" enabled="false" visible="true" width="236" left="10" top="189"/>
-					<mx:TextInput id="isSlideSet" text="{slideProduct.getItemAt(0).@isSlideSet}" editable="false" enabled="false" visible="true" top="219" left="10"/>
+					<mx:TextInput id="idSlideProduct" text="{slideProduct.getItemAt(0).@idSlideProduct}" editable="false" enabled="false" visible="false" width="236" left="10" top="189"/>
+					<mx:TextInput id="isSlideSet" text="{slideProduct.getItemAt(0).@isSlideSet}" editable="false" enabled="false" visible="false" top="219" left="10"/>
 				</mx:Canvas>
 				
 			</mx:ViewStack>

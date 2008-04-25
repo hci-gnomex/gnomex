@@ -23,7 +23,7 @@
             import mx.managers.PopUpManager;
             import mx.events.CloseEvent;
             import mx.rpc.events.FaultEvent;
-	
+			
 	        
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -53,7 +53,6 @@
 	        [Bindable]
 	        [Embed(source="assets/basket.png")]
 	        public var iconCategory:Class;
-	        
 	        
 	        [Bindable]
 	        [Embed(source="assets/chart_curve.png")]
@@ -211,9 +210,9 @@
             	if (theViews.selectedChild == protocolsView) {
             		protocolsView.initializeData();
             	}
-            	if (theViews.selectedChild == dictionariesView) {
+            	/*if (theViews.selectedChild == dictionariesView) {
             		dictionariesView.initializeData();
-            	}
+            	}*/
             	
             }
                         
@@ -260,7 +259,6 @@
 					createSecurityAdvisorForGuest.send();				
 				} else {
 	            	createSecurityAdvisor.send();
-					
 				}
             } 
             public  function formatDate(date:Date):String {
@@ -363,7 +361,8 @@
 					theViews.removeChild(slideManagementView);
 				}
 				if (!hasPermission("canWriteDictionaries")) {
-					theViews.removeChild(dictionariesView);
+					dictionaryButton.visible = false;
+					dictionaryButton.enabled = false;
 				}            	
 				this.navExperimentView.checkSecurity();
 				this.navExperimentView.detailView.checkSecurity();
@@ -891,7 +890,8 @@
 		   	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 		      <mx:VBox width="100%" verticalGap="0">
 			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" backgroundAlpha=".5" styleName="catalogPanel" paddingBottom="5">
-			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2">
+			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2" verticalAlign="middle">
+			          <mx:Image source="assets/hciLogo_hOnly.png"/>
 			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="16" color="#ffffff" fontWeight="bold"/>
 			          <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="10">
 			            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="10">
@@ -913,8 +913,9 @@
 			          </mx:HBox>
 			        </mx:HBox>
 			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
-			    	    <mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest('http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm'), '_blank');"/>
-			    	    <mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.AboutView, true));"/>
+			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.HciDictionaryView, true));"/>
+			        	<mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest('http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm'), '_blank');"/>
+			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.AboutView, true));"/>
 			        </mx:HBox>
 			      </mx:HBox>
 			      
@@ -973,8 +974,8 @@
 	        <views:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 	        </views:NavUsersView>
 
-	        <views:HciDictionaryView label="Dictionaries"  id="dictionariesView" icon="@Embed('assets/book.png')" width="100%" height="100%" backgroundAlpha="1.0">
-	        </views:HciDictionaryView>
+	        <!--views:HciDictionaryView visible="false" enabled="false" label="Dictionaries"  id="dictionariesView" icon="@Embed('assets/book.png')" width="100%" height="100%" backgroundAlpha="1.0">
+	        </views:HciDictionaryView-->
 	        
            <views:NavSearchView id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 	        </views:NavSearchView>
