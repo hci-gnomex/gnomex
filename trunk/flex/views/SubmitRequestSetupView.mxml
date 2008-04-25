@@ -294,26 +294,29 @@
 
 	]]>
 </mx:Script>
-		<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
+		<mx:VBox width="100%" height="100%" verticalGap="22" paddingTop="10">
 			<mx:VBox width="100%" verticalGap="1">
 			    <mx:HBox width="100%" horizontalGap="0">
 			    <mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
-			    <mx:Label text="Select a request type:" width="240"/>
-					<mx:HBox width="100%" horizontalGap="8">
+			    <mx:Label text="Select a service request category:" width="220"/>
+					<mx:HBox width="100%" horizontalGap="12">
 						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
 						    <mx:RadioButtonGroup id="requestTypeGroup" />
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Oligo Microarray Platform" value="AGIL" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
 						    </mx:HBox>
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray Platform" value="AFFY" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
 							</mx:HBox>
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray Platform" value="NIMBLE" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioNimbleGen"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray" value="NIMBLE" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioNimbleGen"/>							
 							</mx:HBox>
 						</mx:VBox>
-						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
-						    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC"/>														
+						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
+						    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality (Bioanalyzer)" value="QC" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
+						    <mx:HBox paddingTop="0">
+						    	<mx:Spacer width="10"/>												
+						    </mx:HBox>						
 						</mx:VBox>
 						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">
 							<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
@@ -323,7 +326,7 @@
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
-				<mx:Label text="Select the lab submitting this request:" width="240"/>
+				<mx:Label text="Verify your lab affiliation:" width="220"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
 					width="300"
@@ -341,20 +344,20 @@
 			<mx:VBox width="100%" verticalGap="0"> 
 				<mx:HBox width="100%" horizontalGap="0">
 					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Label text="Select the account to be billed:" width="240"/>
+					<mx:Label text="Select the account to be billed:" width="220"/>
 					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" change="checkSetupCompleteness()">
 						<mx:dataProvider>{labCombo.selectedItem.billingAccounts.BillingAccount}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>
 				<mx:HBox width="100%">
-				    <mx:Spacer width="240"/>
+				    <mx:Spacer width="220"/>
 				    <mx:Text width="100%">
-				        <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3350; Fax 585-0900)]]></mx:htmlText>
+				        <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3363; Fax 585-0900)]]></mx:htmlText>
 					</mx:Text>
 					
 				</mx:HBox>
 				<mx:HBox width="100%">
-				    <mx:Spacer width="240"/>
+				    <mx:Spacer width="220"/>
 					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff">
 						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_0906.pdf'), '_blank');</mx:click>
 					</mx:LinkButton>
@@ -366,26 +369,31 @@
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text width="240" height="50">
-					<mx:htmlText>Select a project or create a new project which describes the overall experimental purpose and design:</mx:htmlText>
+				<mx:Text width="220" height="50">
+					<mx:htmlText>Designate a project folder for organizing this request along with other experiments:</mx:htmlText>
 				</mx:Text>
-				<mx:VBox verticalGap="2">
-					<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="370" id="projectCombo" change="{checkSetupCompleteness()}">
+				<mx:HBox verticalGap="2">
+				    <mx:VBox verticalGap="2" paddingRight="20">
+					<mx:RadioButtonGroup id="projectRadioGroup"/>
+					<mx:RadioButton label="New project" groupName="projectRadioGroup" click="{showNewProjectWindow()}"/>
+					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true"/>
+				    	
+				    </mx:VBox>
+					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle">
+					<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="300" id="projectCombo" change="{checkSetupCompleteness()}">
 					</mx:ComboBox>
-					<mx:HBox width="100%" horizontalAlign="right">
-						<mx:Button id="editProjectButton" label="Edit project..." icon="@Embed('../assets/folder.png')" click="showEditProjectWindow()"/>
-						<mx:Button id="newProjectButton" label="New project..." icon="@Embed('../assets/folder_add.png')" click="{showNewProjectWindow()}"/>
+						<mx:Button id="editProjectButton" label="Edit..." icon="@Embed('../assets/folder.png')" click="showEditProjectWindow()"/>
 					</mx:HBox>					
-				</mx:VBox>
+				</mx:HBox>
 			</mx:HBox>
 			<mx:VBox width="100%" verticalGap="1">
 			    <mx:HBox horizontalGap="0">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
-			    <mx:Label text="Pick a starting point:" width="240"/>
+			    <mx:Text text="Select a starting point for your request:" width="220"/>
 			    	<mx:VBox verticalGap="2" width="100%">
-						<mx:RadioButton groupName="requestTemplateGroup" label="Submit a new request from scratch" selected="true" id="submitNewRequestRadio"/>							
+						<mx:RadioButton groupName="requestTemplateGroup" label="Initiate a new experiment" selected="true" id="submitNewRequestRadio"/>							
 						<mx:HBox width="100%">
-							<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous request as a template" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
+							<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous experiment as a template for this request" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
 							<mx:Label text="{parentDocument.requestToClone.@label}" color="#0000ff" width="100%"/>
 							
 						</mx:HBox>
