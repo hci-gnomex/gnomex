@@ -44,11 +44,9 @@ public class Sample extends HibernateDetailObject {
   private BigDecimal  qualCalcConcentration;
   private BigDecimal  qual28sTo18sRibosomalRatio;
   private BigDecimal  qualRINNumber;
-  private BigDecimal  totalVolume;
-  private String      samplePrepMethodUsedByLab;
-  private Integer     idSolexaLibraryType;
   private Integer     fragmentSizeFrom;
   private Integer     fragmentSizeTo;
+  private String      seqPrepByCore;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -349,25 +347,6 @@ public class Sample extends HibernateDetailObject {
     }
   }
 
-  
-  public String getSamplePrepMethodUsedByLab() {
-    return samplePrepMethodUsedByLab;
-  }
-
-  
-  public void setSamplePrepMethodUsedByLab(String samplePrepMethodUsedByLab) {
-    this.samplePrepMethodUsedByLab = samplePrepMethodUsedByLab;
-  }
-
-  
-  public Integer getIdSolexaLibraryType() {
-    return idSolexaLibraryType;
-  }
-
-  
-  public void setIdSolexaLibraryType(Integer idSolexaLibraryType) {
-    this.idSolexaLibraryType = idSolexaLibraryType;
-  }
 
   
   public Integer getFragmentSizeFrom() {
@@ -390,13 +369,15 @@ public class Sample extends HibernateDetailObject {
   }
 
   
-  public BigDecimal getTotalVolume() {
-    return totalVolume;
+  public String getSeqPrepByCore() {
+    return seqPrepByCore;
   }
 
   
-  public void setTotalVolume(BigDecimal totalVolume) {
-    this.totalVolume = totalVolume;
+  public void setSeqPrepByCore(String seqPrepByCore) {
+    this.seqPrepByCore = seqPrepByCore;
   }
+
+
 
 }
