@@ -271,20 +271,10 @@ public class RequestParser implements Serializable {
     } else {
       sample.setCodeBioanalyzerChipType(null);
     }
-    if (n.getAttributeValue("totalVolume") != null && !n.getAttributeValue("totalVolume").equals("")) {
-      sample.setTotalVolume(new BigDecimal(n.getAttributeValue("totalVolume")));
+    if (n.getAttributeValue("seqPrepByCore") != null && !n.getAttributeValue("seqPrepByCore").equals("")) {
+      sample.setSeqPrepByCore(n.getAttributeValue("seqPrepByCore"));
     } else {
-      sample.setTotalVolume(null);
-    }
-    if (n.getAttributeValue("samplePrepMethodUsedByLab") != null && !n.getAttributeValue("samplePrepMethodUsedByLab").equals("")) {
-      sample.setSamplePrepMethodUsedByLab(n.getAttributeValue("samplePrepMethodUsedByLab"));
-    } else {
-      sample.setSamplePrepMethodUsedByLab(null);
-    }
-    if (n.getAttributeValue("idSolexaLibraryType") != null && !n.getAttributeValue("idSolexaLibraryType").equals("")) {
-      sample.setIdSolexaLibraryType(new Integer(n.getAttributeValue("idSolexaLibraryType")));
-    } else {
-      sample.setIdSolexaLibraryType(null);
+      sample.setSeqPrepByCore("N");
     }
     if (n.getAttributeValue("fragmentSizeFrom") != null && !n.getAttributeValue("fragmentSizeFrom").equals("")) {
       sample.setFragmentSizeFrom(new Integer(n.getAttributeValue("fragmentSizeFrom")));
@@ -603,7 +593,7 @@ public class RequestParser implements Serializable {
       sequenceLaneInfo.setIdGenomeBuildAlignTo(new Integer(n.getAttributeValue("idGenomeBuildAlignTo")));
     }
     
-    sequenceLaneInfo.setAlignNotes(unEscape(n.getAttributeValue("alignNotes")));
+    sequenceLaneInfo.setAnalysisInstructions(unEscape(n.getAttributeValue("analysisInstructions")));
     
     
     
@@ -1033,7 +1023,7 @@ public class RequestParser implements Serializable {
     private Integer  idFlowCellType;
     private Integer  idNumberSequencingCycles;
     private Integer  idGenomeBuildAlignTo;
-    private String   alignNotes;
+    private String   analysisInstructions;
     
     
 
@@ -1087,17 +1077,6 @@ public class RequestParser implements Serializable {
       this.sample = sample;
     }
 
-    
-    public String getAlignNotes() {
-      return alignNotes;
-    }
-
-
-    
-    public void setAlignNotes(String alignNotes) {
-      this.alignNotes = alignNotes;
-    }
-
 
     
     public Integer getIdGenomeBuildAlignTo() {
@@ -1108,6 +1087,18 @@ public class RequestParser implements Serializable {
     
     public void setIdGenomeBuildAlignTo(Integer idGenomeBuildAlignTo) {
       this.idGenomeBuildAlignTo = idGenomeBuildAlignTo;
+    }
+
+
+    
+    public String getAnalysisInstructions() {
+      return analysisInstructions;
+    }
+
+
+    
+    public void setAnalysisInstructions(String analysisInstructions) {
+      this.analysisInstructions = analysisInstructions;
     }
     
     

@@ -10,6 +10,7 @@ public class GenomeBuild extends DictionaryEntry implements Serializable {
   private String   genomeBuildName;
   private Integer  idOrganism;
   private String   isActive;
+  private String   isLatestBuild;
   
   public String getDisplay() {
     String display = this.getNonNullString(getGenomeBuildName());
@@ -60,6 +61,16 @@ public class GenomeBuild extends DictionaryEntry implements Serializable {
   
   public void setIdOrganism(Integer idOrganism) {
     this.idOrganism = idOrganism;
+  }
+
+  
+  public String getIsLatestBuild() {
+    return isLatestBuild;
+  }
+
+  
+  public void setIsLatestBuild(String isLatestBuild) {
+    this.isLatestBuild = isLatestBuild;
   }
 
 }

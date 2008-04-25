@@ -725,7 +725,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sequenceLane.setIdFlowCellType(sequenceLaneInfo.getIdFlowCellType());      
     sequenceLane.setIdNumberSequencingCycles(sequenceLaneInfo.getIdNumberSequencingCycles());      
     sequenceLane.setIdGenomeBuildAlignTo(sequenceLaneInfo.getIdGenomeBuildAlignTo());      
-    sequenceLane.setAlignNotes(sequenceLaneInfo.getAlignNotes());      
+    sequenceLane.setAnalysisInstructions(sequenceLaneInfo.getAnalysisInstructions());      
      
     sess.save(sequenceLane);
     

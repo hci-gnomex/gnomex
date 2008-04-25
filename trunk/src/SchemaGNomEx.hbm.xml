@@ -283,11 +283,9 @@
 		<property name="qualCalcConcentration" column="qualCalcConcentration" type="big_decimal"/>
 		<property name="qual28sTo18sRibosomalRatio" column="qual28sTo18sRibosomalRatio" type="big_decimal"/>
 		<property name="qualRINNumber" column="qualRINNumber" type="big_decimal"/>
-		<property name="totalVolume" column="totalVolume" type="big_decimal"/>
-		<property name="samplePrepMethodUsedByLab" column="samplePrepMethodUsedByLab" type="string"/>
-		<property name="idSolexaLibraryType" column="idSolexaLibraryType" type="integer"/>
 		<property name="fragmentSizeFrom" column="fragmentSizeFrom" type="integer"/>
 		<property name="fragmentSizeTo" column="fragmentSizeTo" type="integer"/>
+		<property name="seqPrepByCore" column="seqPrepByCore" type="string"/>
 		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />
@@ -326,7 +324,7 @@
 		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
 		<property name="idGenomeBuildAlignTo" column="idGenomeBuildAlignTo" type="integer"/>
-		<property name="alignNotes" column="alignNotes" type="string"/>
+		<property name="analysisInstructions" column="analysisInstructions" type="string"/>
 	</class>	
 	
 	<!-- hci.gnomex.model.Slide -->
@@ -462,6 +460,7 @@
 		<property name="genomeBuildName" column="genomeBuildName" type="string"/>
 		<property name="idOrganism" column="idOrganism" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="isLatestBuild" column="isLatestBuild" type="string"/>
 	</class>
 
 	<!-- hci.gnomex.model.HybProtocol -->
