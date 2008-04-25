@@ -126,6 +126,7 @@
 			[Bindable]
 			public var slideDesignList:XMLListCollection;
 			private var dictionarySorter:Sort;
+			private var sampleTypeSorter:Sort;
 
 			
 			
@@ -437,6 +438,9 @@
 	        	sampleSourceList.refresh();
 	        	
 	        	filteredSampleTypeList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry);
+	        	sampleTypeSorter = new Sort();
+	        	sampleTypeSorter.compareFunction = this.sortSampleTypes;	   
+	        	filteredSampleTypeList.sort = sampleTypeSorter;     	
 	        	filteredSampleTypeList.refresh();
 	        	
 	        	filteredFlowCellTypeList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry);
@@ -543,7 +547,7 @@
 	        	
 	        }
 	        
-	        private function sortDictionaryEntries(obj1:Object, obj2:Object, fields:Array=null):int {
+	       	private function sortDictionaryEntries(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
 				} else if (obj1 == null) {
@@ -569,6 +573,33 @@
 					}			
 					
 				}
+			}
+	        
+	        private function sortSampleTypes(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
+					return 1;
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var order1:int = obj1.@sortOrder;
+					var order2:int = obj2.@sortOrder;
+					
+					if (obj1.@value == '') {
+						return -1;
+					} else if (obj2.@value == '') {
+						return 1;
+					} else {
+						if (order1 < order2) {
+							return -1;
+						} else if (order1 > order2) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}
+				}			
 			}			
 
         public function lookupLabel(item:Object,col:int):String {
