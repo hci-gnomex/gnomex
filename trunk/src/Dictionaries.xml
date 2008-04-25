@@ -18,6 +18,7 @@
   <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
    <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
       <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
+      <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
 	<Dictionary displayName="Hyb Protocol" className="hci.gnomex.model.HybProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
@@ -66,6 +67,11 @@
   	  <Filter className="hci.gnomex.model.ScanProtocol"              filterField="idScanProtocolDefault"/>
   	  <Filter className="hci.gnomex.model.FeatureExtractionProtocol" filterField="idFeatureExtractionProtocolDefault"/>
 	</Dictionary>
+	<Dictionary displayName="Sample Types for Request Categories" className="hci.gnomex.model.SampleTypeRequestCategory" >
+  	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
+  	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
+	</Dictionary>
+	
 	<Dictionary displayName="Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>

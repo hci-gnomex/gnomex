@@ -114,6 +114,8 @@
 			[Bindable]
 			public var sampleSourceList:XMLListCollection;
 			[Bindable]
+			public var filteredSampleTypeList:XMLListCollection;
+			[Bindable]
 			public var filteredSlideProductListForSubmitRequests:XMLListCollection;
 			[Bindable]
 			public var filteredMicroarrayCategoryListForSubmitRequests:XMLListCollection;
@@ -433,6 +435,9 @@
 	        	sampleSourceList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry);
 	        	sampleSourceList.sort = dictionarySorter;
 	        	sampleSourceList.refresh();
+	        	
+	        	filteredSampleTypeList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry);
+	        	filteredSampleTypeList.refresh();
 	        	
 	        	filteredFlowCellTypeList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry);
 	        	filteredGenomeBuildList = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry);

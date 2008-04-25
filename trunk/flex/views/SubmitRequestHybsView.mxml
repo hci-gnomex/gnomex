@@ -401,7 +401,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol2"  visible="false" headerText="Channel1 Labeling yield" width="80" dataField="@labelingYieldChannel1">
+					<mx:DataGridColumn id="labelCol2"  visible="false" headerText="Channel1 Labeling yield" width="80" editable="{parentApplication.hasPermission('canWriteAnyObject')}" dataField="@labelingYieldChannel1">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -422,7 +422,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol4"  visible="false" headerText="Channel1 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel1">
+					<mx:DataGridColumn id="labelCol4"  visible="false" headerText="Channel1 Labeling # Reactions" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="80" dataField="@numberOfReactionsChannel1">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -454,7 +454,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol7"   visible="false" headerText="Channel2 Labeling yield" width="80" dataField="@labelingYieldChannel2">
+					<mx:DataGridColumn id="labelCol7"   visible="false" headerText="Channel2 Labeling yield" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="80" dataField="@labelingYieldChannel2">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -475,7 +475,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol9"  visible="false"  headerText="Channel2 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel2">
+					<mx:DataGridColumn id="labelCol9"  visible="false"  headerText="Channel2 Labeling # Reactions" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="80" dataField="@numberOfReactionsChannel2">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -499,8 +499,8 @@
 
 
 
-					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
-					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
+					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="70" dataField="@slideBarcode"/>
+					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="70" dataField="@arrayCoordinateName"/>
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxHybProtocolForEdit" itemRenderer="mx.controls.Label" />					
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"
