@@ -246,7 +246,7 @@
 	                    <mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
 				        	<mx:Button label="Search" click="searchView.callSearchIndex()"  icon="@Embed('../assets/magnifier.png')" id="searchButton">
 				        	</mx:Button>
-				        	<mx:Button label="Clear" >
+				        	<mx:Button label="Clear"  click="searchView.clearForm()">
 				        	</mx:Button>
 	                    </mx:HBox>
 	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">

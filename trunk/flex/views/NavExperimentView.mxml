@@ -20,6 +20,7 @@
             <showSamples>N</showSamples>
             <showCategory>N</showCategory>
             <showMyLabsAlways>Y</showMyLabsAlways>
+            <searchPublicProjects>{searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
     </mx:request>
    </mx:HTTPService>
    
@@ -132,6 +133,13 @@
 
 		public function checkSecurity():void {
 			this.browseView.checkSecurity();
+			if (parentApplication.hasPermission("canAccessAnyObject")) {
+				currentState = "AdminState";
+			} else if (parentApplication.isGuestMode()) {
+				currentState = "GuestState";
+			} else {
+				currentState = "";
+			}
 		}
 
         private function getBrowseTreeLabel(item:Object):String {
@@ -449,6 +457,7 @@
 				params.idProject = selectedExperiment.@idProject;
 				params.showSamples = "N";
 				params.showCategory = "N";
+				params.searchPublicProjects = 'N';
 				getProjectRequestList.send(params);
 				
 			    detailView.title = "Experiment " + selectedRequestNumber;
@@ -517,14 +526,7 @@
 		
 		public function initializeExperiments():void {
 			if (parentApplication.hasPermission('canAccessAnyObject')) {
-				browseLabCombo.height = 20;
-				browseLabCombo.visible = true;
-				groupLabel.height = 20;
-				groupLabel.visible = true;
-				
 			} else {
-				browseLabCombo.visible = false;
-				
 				if (getProjectRequestList.lastResult == null ||
 				    selectedRequestNumber != null) {
 				    collapseAllBrowseNodes();
@@ -653,15 +655,9 @@
 	
 			
 			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" >
-				<mx:VBox width="100%" height="100%" verticalGap="4" label="Experiments">
-				        <mx:Label id="groupLabel" visible="false" height="0" text="Select group to show experiments:"/>
-						<mx:ComboBox id="browseLabCombo" 
-							labelField="@name"
-							dataProvider="{parentApplication.promptedLabList}"
-							 change="getProjectRequestList.send()"  
-							 visible="false" height="0" width="200">
-						</mx:ComboBox>
-					<mx:VBox id="treeContainer" width="100%" height="100%" >
+				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
+
+					<mx:VBox id="treeContainer" width="100%" height="100%" verticalGap="0" >
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
@@ -674,17 +670,19 @@
 					        dragMoveEnabled="true"
 							dragDrop="onDragDrop(event);" 
 							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
+						<mx:CheckBox label="Show public experiments" id="searchPublicProjectsCheckbox"/>
 						
 					</mx:VBox>
 
 				</mx:VBox>
 					<mx:ControlBar width="100%">
+						        <mx:Button icon="@Embed(source='../assets/action_refresh.gif')" click="refreshExperiments()"/>
 						        <mx:Button id="newProjectButton" click="browseView.showNewProjectWindow()" icon="@Embed('../assets/folder_add.png')" 
 						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..." width="58" visible="false"/>
 						        <mx:Button id="deleteProjectButton" icon="@Embed('../assets/folder_delete.png')" 
 						        	click="browseView.projectDetailView.promptToDeleteProject()"
 						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project" width="79" visible="false"/>
-						
+								
 					</mx:ControlBar>
 			</mx:Panel> 
 
@@ -707,7 +705,30 @@
 		
 	</mx:HDividedBox>
 	
-	
+	<mx:states>
+		<mx:State name="GuestState">
+			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+		</mx:State>
+		
+		<mx:State name="AdminState">
+			<mx:AddChild position="firstChild"  relativeTo="{navContainer}">
+					<mx:VBox verticalGap="0" width="100%">
+				        <mx:Label id="groupLabel" visible="true" text="Select group to show experiments:" paddingBottom="0"/>
+						<mx:ComboBox id="browseLabCombo" 
+							labelField="@name"
+							dataProvider="{parentApplication.promptedLabList}"
+							 change="getProjectRequestList.send()"  
+							 visible="true"  width="200">
+						</mx:ComboBox>				
+				        <mx:Spacer height="6"/>
+						
+					</mx:VBox>
+			</mx:AddChild>
+			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+		</mx:State>
+
+		
+	</mx:states>
 	
 
     
