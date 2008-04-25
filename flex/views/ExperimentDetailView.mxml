@@ -610,7 +610,7 @@
 				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
 				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="false" dataField="@idGenomeBuildAlignTo"/> 						             						             
-							<mx:DataGridColumn width="150" headerText="Align notes"   dataField="@alignNotes"/>
+							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 						</mx:columns>
 					</mx:DataGrid>
 					

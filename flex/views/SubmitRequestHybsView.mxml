@@ -390,7 +390,8 @@
   					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel2Number" editable="false"/>
                             
                             
-					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1">
+					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxLabelingProtocolChannel1" itemRenderer="mx.controls.Label" >
 						<mx:headerRenderer >
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -410,7 +411,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1">
+					<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxLabelingReactionSizeChannel1" itemRenderer="mx.controls.Label" >
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -430,7 +432,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1">
+					<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1"
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxLabelingStatusChannel1" itemRenderer="mx.controls.Label" >
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -440,7 +443,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel2" width="80" dataField="@idLabelingProtocolChannel2">
+					<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel2" width="80" dataField="@idLabelingProtocolChannel2"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxLabelingProtocolChannel2" itemRenderer="mx.controls.Label" >
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -460,7 +464,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2">
+					<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxLabelingReactionSizeChannel2" itemRenderer="mx.controls.Label" >
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -480,7 +485,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2">
+					<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2"
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxLabelingStatusChannel2" itemRenderer="mx.controls.Label" >
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -495,13 +501,20 @@
 
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
-					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"/>
-					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
+					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxHybProtocolForEdit" itemRenderer="mx.controls.Label" />					
+					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxHybStatus" itemRenderer="mx.controls.Label" />
+					
 
 
-					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" labelFunction="parentApplication.lookupScanProtocol" dataField="@idScanProtocol"/>
-					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" labelFunction="parentApplication.lookupFeatureExtractionProtocol" dataField="@idFeatureExtractionProtocol"/>
-					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
+					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" labelFunction="parentApplication.lookupScanProtocol" dataField="@idScanProtocol"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxScanProtocolForEdit" itemRenderer="mx.controls.Label" />
+					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" labelFunction="parentApplication.lookupFeatureExtractionProtocol" dataField="@idFeatureExtractionProtocol"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxFeatureExtractionProtocolForEdit" itemRenderer="mx.controls.Label" />
+					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.ComboBoxExtractionStatus" itemRenderer="mx.controls.Label" />
+					
 
 
                             
