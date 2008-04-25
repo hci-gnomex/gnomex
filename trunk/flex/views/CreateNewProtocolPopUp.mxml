@@ -56,7 +56,10 @@
 				if (call.marker == "doneSaveProtocol") {
 					parentApplication.protocolsView.callGetProtocolList();
 					PopUpManager.removePopUp(this);
-					//parentApplication.protocolsView.expandProtocols(createProtocol.lastResult.@idProtocol.toString())
+					var params:Object = new Object();
+					params.id = createProtocol.lastResult.@idProtocolSaved;
+					params.protocolClassName = createProtocol.lastResult.@savedProtocolClassName;
+					parentApplication.protocolsView.callGetProtocol(params);
 				}
 			}
 		]]>
@@ -80,7 +83,7 @@
 					</hci:DictionaryComboBox>
 			</mx:VBox>
 			<mx:VBox height="46" width="77" horizontalAlign="left" verticalAlign="bottom" x="305" y="54">
-				<hci:CheckBoxYN  id="isActive"  label="Active" color="#FFFFFF"/>
+				<hci:CheckBoxYN  id="isActive"  label="Active" color="#FFFFFF" selected="true"/>
 			</mx:VBox>
 		</mx:Canvas>
 			<mx:ControlBar horizontalAlign="right" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">

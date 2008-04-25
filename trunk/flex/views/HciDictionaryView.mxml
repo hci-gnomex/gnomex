@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas name="dictionary" xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:hci = "hci.components.*"
+	layout="absolute" 
+	left="0" right="0" top="0" bottom="0" 
+	backgroundAlpha="1.0" 
+	cornerRadius="4"
+	showCloseButton="true"
+	close="PopUpManager.removePopUp(this)" 
+	borderColor="#9F9F9F" 
+	backgroundColor="#747474"
+	creationComplete="initializeData()" 
+	styleName="form" 
+	width="800" 
+	height="500" 
+	title="GNomEx Dictionary Editor" 
+	borderThicknessBottom="4">
+<!--<mx:Canvas name="dictionary" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:hci="hci.*" 
-	width="100%" height="100%" >
+	width="100%" height="100%" creationComplete="initializeData()">-->
 	
 	<mx:HTTPService
 		id="callManageDictionaries"
@@ -19,6 +36,9 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+		
 			import mx.containers.HDividedBox;
 			import mx.containers.VDividedBox;
 			import mx.collections.SortField;
@@ -475,9 +495,9 @@
 		]]>
 	</mx:Script>
 	
-		<mx:Panel layout="absolute" title="Dictionary Editor" id="dictPanel" left="0" right="0" bottom="0" top="0" creationPolicy="all" headerHeight="20" styleName="form" borderThicknessBottom="8">
+		<!--mx:Panel layout="absolute" title="Dictionary Editor" id="dictPanel" left="0" right="0" bottom="0" top="0" creationPolicy="all" headerHeight="20" styleName="form" borderThicknessBottom="8" width="100%" height="100%"-->
 				
-				<mx:HDividedBox id="mainBox" top="10" left="10" right="10" bottom="10" cornerRadius="2">
+				<mx:HDividedBox id="mainBox" top="0" left="0" right="0" bottom="0" styleName="form">
 						<mx:Canvas height="100%" width="100%">
 						<mx:ComboBox id="cbDict" right="93" left="0" top="0" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
 							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="0" right="62" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);"/>
@@ -486,7 +506,7 @@
 							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);" bottom="0" top="30" left="0" width="100%"> 
 							</mx:DataGrid>
 						</mx:Canvas>
-						<mx:Canvas width="40%" height="100%" borderStyle="solid">
+						<mx:Canvas width="40%" height="100%" borderStyle="none" backgroundColor="#000000" backgroundAlpha="0.05">
 							<mx:Tile id="dgEditor" 
 								borderStyle="none" 
 								direction="horizontal" 
@@ -502,6 +522,7 @@
 							<mx:Button id="save" label="Save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())" right="5" bottom="5"/>
 						</mx:Canvas>
 				</mx:HDividedBox>
-		</mx:Panel>
+		<!--/mx:Panel-->
 		
-</mx:Canvas>
+<!--</mx:Canvas>-->
+</mx:TitleWindow>

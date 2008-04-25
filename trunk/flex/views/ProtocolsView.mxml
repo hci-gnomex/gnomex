@@ -167,7 +167,7 @@
 					fullProtocol = new XMLList(getProtocol.lastResult);
 					showProtocol();
 				} else if (call.marker == "doneSaveProtocol") {
-					lastSavedProtocolId = saveProtocol.lastResult.@idProtocol;
+					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
 				} else if (call.marker == "doneDeleteProtocol") {
 					callGetProtocolList();
@@ -180,6 +180,14 @@
 			public function faultHandler(event:FaultEvent):void {
 	           Alert.show(event.fault.faultString, "Error");
 	        }
+			
+			public function initTree():void {
+				// iteratively expand the tree
+				var protocolTypeCount:int = protocols.length - 1;
+				for (var i:int = 0;i <= protocolTypeCount;i++) {
+					browseProtocols.expandItem(protocols.getItemAt(i),true);
+				}
+			}
 			
 			public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Protocol") {
@@ -199,6 +207,7 @@
 					callGetProtocol(params);
 					lastSelectedProtocolClass =  browseProtocols.selectedItem.@protocolClassName;
 					if (parentApplication.hasPermission("canWriteDictionaries")) {
+						addProtocolButton.enabled = true;
 						deleteProtocolButton.enabled=true;
 						saveProtocolButton.enabled=true;
 					}
@@ -220,7 +229,13 @@
 			}
 			
 			public function openProtocolUrl(event:MouseEvent):void {
-				navigateToURL(new URLRequest(url.text),fullProtocol.id.toString());
+				var target:String;
+				if (url.text.indexOf("http://") != -1) {
+					target = url.text;
+				} else {
+					target = "http://"+url.text;
+				}
+				navigateToURL(new URLRequest(target),fullProtocol.id.toString());
 			}
 			
 			public function showProtocol():void {
@@ -262,30 +277,6 @@
 				PopUpManager.removePopUp(createNewProtocol);
 			}
 			
-			public function expandProtocols():void {
-				browseProtocols.openItems = open;
-				browseProtocols.selectedIndex = selectedIdx;
-				browseProtocols.validateNow();
-			}
-			
-			public function initTree():void {
-				// iteratively expand the tree
-				var protocolTypeCount:int = protocols.length - 1;
-				for (var i:int = 0;i <= protocolTypeCount;i++) {
-					browseProtocols.expandItem(protocols.getItemAt(i),true);
-				}
-				
-				// try to open the tree to a specific node
-				if (lastSavedProtocolId != null) {
-					var params:Object = new Object();
-					params.id = lastSavedProtocolId;
-					params.protocolClassName = lastSelectedProtocolClass;
-					callGetProtocol(params);
-					expandProtocols();
-					lastSavedProtocolId = null;
-				}
-			}
-			
 			public function renderTree():void{
 				/*
                 if(refreshData){
@@ -308,11 +299,10 @@
 	<mx:XMLListCollection id="protocol" source="{fullProtocol}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-		<mx:Panel width="220" height="100%" title="Protocol List" >
+		<mx:Panel width="220" height="100%" title="Protocol List" layout="absolute">
 				<mx:Tree 
 					id="browseProtocols" 
-					width="100%" height="100%"
-				
+					right="0" left="0" bottom="10" top="10"
 					iconFunction="getTreeIcon"
 					borderThickness="0" 
 					labelField="@label" 
@@ -326,17 +316,17 @@
 					>
 				</mx:Tree>
 			<mx:ControlBar horizontalAlign="left" verticalAlign="middle" x="0" y="924" width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:Button id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../assets/brick_add.png')" toolTip="Add protocol" label="New" width="64" enabled="false" disabledIcon="@Embed(source='../assets/page_add_disable.png')"/>
-				<mx:Button id="deleteProtocolButton" click="onDelete()" icon="@Embed('../assets/brick_delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false">
-					<mx:disabledIcon>@Embed(source='../assets/page_delete_disable.png')</mx:disabledIcon>
+				<mx:Button id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../assets/add.png')" toolTip="Add protocol" label="New" width="64" enabled="false" disabledIcon="@Embed(source='../assets/add_disable.png')"/>
+				<mx:Button id="deleteProtocolButton" click="onDelete()" icon="@Embed('../assets/delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false">
+					<mx:disabledIcon>@Embed(source='../assets/delete_disable.png')</mx:disabledIcon>
 				</mx:Button>
 				<mx:Button id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../assets/refresh_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>
-		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" title="Protocol:" >
-		<mx:ViewStack id="protocolViews" width="100%" height="100%" right="0" left="0" top="0" bottom="0">
-		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" width="100%" height="100%">
-			<mx:Label text="No protocol selected" fontSize="12" color="#FFFFFF" textAlign="right" right="10" top="10" width="308"/>
+		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" title="Protocol:" paddingTop="0">
+		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0">
+		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+			<mx:Label text="No protocol selected" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 			<mx:HBox left="10" top="10" right="394" styleName="formDisplay">
