@@ -50,7 +50,6 @@ public class GetSlideDesign extends GNomExCommand implements Serializable {
           SlideProduct sp = (SlideProduct) row[1];
           if (sp != null) {
             design.addContent(sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
-            /*
             // now get the arraycoords
             Element acRootNode = new Element("arrayCoordinates");
             design.addContent(acRootNode);
@@ -61,7 +60,6 @@ public class GetSlideDesign extends GNomExCommand implements Serializable {
                 acRootNode.addContent(ac.toXMLDocument(null).getRootElement());
               }
             }
-            */
           }
         }
         XMLOutputter out = new XMLOutputter();

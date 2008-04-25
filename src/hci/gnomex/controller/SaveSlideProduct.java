@@ -66,17 +66,20 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
         } else { 
           // make a new slide product and add a new slide design to it
           this.slideProductScreen.setIsSlideSet("Y");
+          this.slideProductScreen.setSlidesInSet(new Integer(1));
           sess.save(slideProductScreen);
+          sess.flush();
           // save microarray categories
           saveMicroarrayCategories(this.slideProductScreen, mcParser);
           this.slideProductScreen.getIdSlideProduct();
           // now make the new slide design
           SlideDesign newSlide = new SlideDesign();
           newSlide.setIdSlideProduct(this.slideProductScreen.getIdSlideProduct());
-          newSlide.setName("Slide 1");
+          newSlide.setName(this.slideProductScreen.getName()+" Slide 1");
           newSlide.setIsActive("Y");
           sess.save(newSlide);
         }
+        successId = this.slideProductScreen.getIdSlideProduct();
         
         sess.flush();
         

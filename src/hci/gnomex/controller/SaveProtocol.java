@@ -36,6 +36,7 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
   
   private Integer   idProtocolSaved;
   
+  private boolean newProtocol = false;
   
   public void validate() {
   }
@@ -83,7 +84,7 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
         
         DictionaryEntry protocol = null;
         if (idProtocol == null || idProtocol.intValue() == 0) {
-          
+          newProtocol = true;
           if (protocolClassName.equals(HybProtocol.class.getName())) {
             protocol = new HybProtocol();
             ((HybProtocol)protocol).setHybProtocol(protocolName);
@@ -153,7 +154,7 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
 
           idProtocolSaved = new Integer(protocol.getValue());
           
-          this.xmlResult = "<SUCCESS idProtocol=\"" + idProtocolSaved + "\"/>";
+          this.xmlResult = "<SUCCESS idProtocolSaved=\"" + idProtocolSaved + "\" savedProtocolClassName=\""+protocolClassName+"\" newProtocol=\""+newProtocol+"\"/>";
         }
 
         if (this.isValid()) {

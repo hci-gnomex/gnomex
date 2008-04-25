@@ -251,6 +251,8 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         sess.flush();
         
         // If we have reassigned the slide product, delete the old one if it is now orphaned
+        /*
+         * Not reassigning slides
         if (slideProduct != null &&
             slideProductOldAssigned != null && 
             slideProductOldAssigned.getIdSlideProduct().intValue() != slideProduct.getIdSlideProduct().intValue() &&
@@ -261,7 +263,8 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
             sess.flush();
           }
         }
-
+        */
+        
         this.xmlResult = "<SUCCESS idSlideDesign=\"" + slideDesign.getIdSlideDesign() + "\"/>";
       
         setResponsePage(this.SUCCESS_JSP);
@@ -294,6 +297,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
     slideProduct.setIsCustom(slideProductScreen.getIsCustom());
     slideProduct.setIdLab(slideProductScreen.getIdLab());
     slideProduct.setIsActive(slideProductScreen.getIsActive());
+    slideProduct.setCatalogNumber(slideProductScreen.getCatalogNumber());
     
     if(slideProductScreen.getArraysPerSlide() == null || 
        slideProductScreen.getArraysPerSlide().intValue() == 0) {
@@ -301,7 +305,6 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
     }
 
   }
-  
 
   private void initializeSlideDesign() {
     
@@ -319,9 +322,5 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
     slideDesign.setAccessionNumberArrayExpress(slideDesignScreen.getAccessionNumberArrayExpress());
     slideDesign.setIsActive(slideDesignScreen.getIsActive());
   }
-
-  
-  
-  
 
 }
