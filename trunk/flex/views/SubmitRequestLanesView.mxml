@@ -98,10 +98,13 @@
 			callLater(checkLanesCompleteness);
 		}
 		public function propagateGenomeBuild(idGenomeBuildAlignTo:String):void {
+			// For now, don't propagate
+			/*
 			for each (var lane:Object in parentDocument.lanes) {
 				lane.@idGenomeBuildAlignTo = idGenomeBuildAlignTo;
 			}
 			callLater(checkLanesCompleteness);
+			*/
 		}
 
 		private function onPromptToClearAllLanes(event:CloseEvent):void {
@@ -203,10 +206,19 @@
 					    <mx:DataGridColumn  headerText="Sample"  width="120" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
-			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="true" dataField="@idFlowCellType"
-			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelFlowCellType" itemEditor="views.renderers.ComboBoxFlowCellType"/> 						             						             
+			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"
+			             	  editorDataField="value"  
+			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelFlowCellType" itemEditor="views.renderers.ComboBoxFlowCellType"/> 						             						             
+			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles" 						             						             
+			             	  editorDataField="value"  
+			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/> 						             						             
+<!--			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="true" dataField="@idFlowCellType"
+			             	  editorDataField="value"  
+			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelFlowCellType" itemEditor="views.renderers.ComboBoxFlowCellType"/> 						             						             
 			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="true" dataField="@idNumberSequencingCycles" 						             						             
-			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/> 						             						             
+			             	  editorDataField="value"  
+			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/>
+-->			             	   						             						             
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelGenomeBuild" itemEditor="views.renderers.ComboBoxGenomeBuild"/> 						             						             
 						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
