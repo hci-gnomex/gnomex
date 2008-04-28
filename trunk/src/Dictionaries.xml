@@ -16,6 +16,9 @@
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
   <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
+	<Dictionary displayName="Funding Agency" className="hci.gnomex.model.FundingAgency"  >
+  	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
+	</Dictionary>
    <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
       <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
       <Filter className="YN" filterField="isLatestBuild"/>
