@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*">
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
@@ -34,18 +34,15 @@
 				currentState = 'SolexaState';
 			} else {
 				currentState = 'MicroarrayState';
-				this.hybsConfirmContainer.visible = true;
-				this.hybsConfirmContainer.percentHeight = 100;
+
 				
-				showCy3LabelCols(true);
-				showCy5LabelCols(true);
 				showCy3LabelingFieldsCheckBox.selected = false;
 				showCy5LabelingFieldsCheckBox.selected = false;
 				showHybFieldsCheckBox.selected = false;
 				showExtFieldsCheckBox.selected = false;
-				callLater(showCy3LabelCols, [false]);
-				callLater(showCy5LabelCols, [false]);
+
 			}
+
 
 			showQCFieldsCheckBox.selected = false;
 
@@ -53,7 +50,8 @@
 			getRequestCategoryName();
 			getExperimentCategoryName();
 			getBillingAccountName();
-			showHideColumns();
+			callLater(showHideColumns);
+			
 		}
 		
 		private function showCy3LabelCols(isVisible:Boolean):void {
@@ -304,7 +302,7 @@
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
-        	}
+        		}
         	} 
         }
 

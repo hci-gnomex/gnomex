@@ -6,7 +6,8 @@
 	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
 	
-
+    <mx:Fade id="fadeOut" duration="300"/>
+    <mx:Fade id="fadeIn" duration="300"/>
 	     
         <mx:Style source="css/gnomex_flex.css" />
         
@@ -201,7 +202,7 @@
             		navSearchView.searchView.initializeData();
             	}
             	if (theViews.selectedChild == navExperimentView) {
-            		callLater(navExperimentView.initializeExperiments);
+            		navExperimentView.initializeExperiments();
             	}
             	if (theViews.selectedChild == navUsersView) {
             		navUsersView.checkSecurity();
@@ -255,10 +256,7 @@
             }
             
             private function init():void {
-            	//XML.ignoreWhitespace = true;
-				//XML.prettyPrinting = false;
-				
-				if (isGuestMode() ) { 
+            	if (isGuestMode() ) { 
 					createSecurityAdvisorForGuest.send();				
 				} else {
 	            	createSecurityAdvisor.send();
@@ -668,6 +666,14 @@
         }
         public function lookupSampleTypeName(item:Object,col:int):String {
         	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == item.@idSampleType);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupFundingAgency(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FundingAgency').DictionaryEntry.(@value == item.@idFundingAgency);
         	if (dict != null) {
         		return dict.@display;
         	} else {

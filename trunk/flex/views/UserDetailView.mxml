@@ -72,7 +72,6 @@
             <department>{department.text}</department>
             <phone>{phone.text}</phone>
             <email>{email.text}</email>
-            <jobTitle>{jobTitle.text}</jobTitle>
             <userNameExternal>{externalUserName.text}</userNameExternal>
             <passwordExternal>{externalUserPassword.text}</passwordExternal>
             <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
@@ -89,34 +88,30 @@
 			<mx:HBox>
 				<mx:VBox verticalGap="1" width="100%">
 					<mx:Label text="Last name"/>
-					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}"/>
+					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="200"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%">
 					<mx:Label text="First name"/>
-					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}"/>
+					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}" width="200"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%" >
 					<mx:Label text="Email" id="Label"/>
-					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}"/>
+					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%" >
 					<mx:Label text="Phone" id="Label0"/>
-					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}"/>
+					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="200"/>
 				</mx:VBox>
 				
 			</mx:HBox>
 			<mx:HBox>
 				<mx:VBox verticalGap="1"   width="100%" >
 					<mx:Label text="Department" id="Label1"/>
-					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}"/>
+					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}" width="200"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"   width="100%" >
 					<mx:Label text="Institution" id="Label2"/>
-					<mx:TextInput width="159" id="institute" text="{parentDocument.fullUser.@institute}"/>
-				</mx:VBox>
-				<mx:VBox verticalGap="1"   width="100%">
-					<mx:Label text="Job Title" id="Label3"/>
-					<mx:TextInput id="jobTitle" text="{parentDocument.fullUser.@jobTitle}"/>
+					<mx:TextInput width="200" id="institute" text="{parentDocument.fullUser.@institute}"/>
 				</mx:VBox>
 				<mx:CheckBox id="isActive" label="Active" >
 				</mx:CheckBox>

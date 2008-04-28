@@ -313,7 +313,7 @@
 							</mx:HBox>
 						</mx:VBox>
 						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
-						    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality (Bioanalyzer)" value="QC" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
+						    <mx:RadioButton groupName="requestTypeGroup" label="Bioanalyzer (QC)" value="QC" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
 						    <mx:HBox paddingTop="0">
 						    	<mx:Spacer width="10"/>												
 						    </mx:HBox>						
@@ -370,7 +370,7 @@
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text width="220" height="50">
-					<mx:htmlText>Designate a project folder for organizing this request along with other experiments:</mx:htmlText>
+					<mx:htmlText>Select a project folder for organizing this request:</mx:htmlText>
 				</mx:Text>
 				<mx:HBox verticalGap="2">
 				    <mx:VBox verticalGap="2" paddingRight="20">
