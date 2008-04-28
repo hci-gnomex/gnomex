@@ -7,7 +7,7 @@
 	backgroundAlpha="1.0" 
 	cornerRadius="4"
 	showCloseButton="true"
-	close="PopUpManager.removePopUp(this)" 
+	close="onClose()" 
 	borderColor="#9F9F9F" 
 	backgroundColor="#747474"
 	creationComplete="initializeData()" 
@@ -36,6 +36,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.CloseEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 		
@@ -492,6 +493,18 @@
 	       		updateModeDisplay(null);
 	       }
 	       
+	       private function onClose():void {
+	       		Alert.show("Are you sure you want to close the Dictionary Editor?","Close the Dictionary Editor?",Alert.YES|Alert.NO,null,onCloseProcessor,null,Alert.YES);
+	       }
+	       
+	       private function onCloseProcessor(event:CloseEvent):void {
+	       	    if (event.detail == Alert.YES) {
+	       			PopUpManager.removePopUp(this);
+	       		} else {
+	       			return;
+	       		}
+	       }
+	       
 		]]>
 	</mx:Script>
 	
@@ -500,9 +513,9 @@
 				<mx:HDividedBox id="mainBox" top="0" left="0" right="0" bottom="0" styleName="form">
 						<mx:Canvas height="100%" width="100%">
 						<mx:ComboBox id="cbDict" right="93" left="0" top="0" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
-							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="0" right="62" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);"/>
-							<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="31" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);"/>
-							<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="0" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();"/>
+							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="0" right="62" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);" toolTip="Add"/>
+							<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="31" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);" toolTip="Delete"/>
+							<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="0" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();" toolTip="Reload"/>
 							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);" bottom="0" top="30" left="0" width="100%"> 
 							</mx:DataGrid>
 						</mx:Canvas>
@@ -518,8 +531,9 @@
 						        horizontalGap="10"
 						        cornerRadius="2" styleName="form" backgroundAlpha="0.0" left="0" top="0" bottom="33" width="100%">
 							</mx:Tile>
-						<mx:Text id="mode" color="#808080"  height="18" textAlign="right" right="65" bottom="7" left="5"/>
-							<mx:Button id="save" label="Save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())" right="5" bottom="5"/>
+						<mx:Text id="mode" color="#808080"  height="18" textAlign="right" right="60" bottom="7" left="5"/>
+							<mx:Button id="save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())" right="33" bottom="5" icon="@Embed(source='../assets/save.png')" width="25" disabledIcon="@Embed(source='../assets/save_disable.png')" toolTip="Save"/>
+							<mx:Button id="close" icon="@Embed(source='../assets/cross.png')" width="25" right="5" bottom="5" toolTip="Close" click="onClose()"/>
 						</mx:Canvas>
 				</mx:HDividedBox>
 		<!--/mx:Panel-->
