@@ -21,7 +21,7 @@ public class BillingAccount extends HibernateDetailObject {
   private String  accountNumberAccount;
   private String  accountNumberAu;
   private String  accountNumberYear;
-  private String  isPeerReviewedFunding;
+  private Integer idFundingAgency;
   
   
   public String getAccountNumber() {
@@ -166,22 +166,14 @@ public class BillingAccount extends HibernateDetailObject {
     return this.formatDate(this.expirationDate, this.DATE_OUTPUT_SLASH); 
   }
 
-  
-  public String getIsPeerReviewedFunding() {
-    return isPeerReviewedFunding;
+
+  public Integer getIdFundingAgency() {
+    return idFundingAgency;
   }
 
   
-  public void setIsPeerReviewedFunding(String isPeerReviewedFunding) {
-    this.isPeerReviewedFunding = isPeerReviewedFunding;
-  }
-  
-  public String getIsSelectedPeerReviewedFunding() {
-    if (isPeerReviewedFunding != null && isPeerReviewedFunding.equals("Y")) {
-      return "true";
-    } else {
-      return "false";
-    }
+  public void setIdFundingAgency(Integer idFundingAgency) {
+    this.idFundingAgency = idFundingAgency;
   }
 
  

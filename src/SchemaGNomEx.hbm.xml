@@ -57,7 +57,7 @@
 		<property name="accountNumberAu" column="accountNumberAu" type="string"/>
 		<property name="accountNumberYear" column="accountNumberYear" type="string"/>
 		<property name="expirationDate" column="expirationDate" type="date"/>
-		<property name="isPeerReviewedFunding" column="isPeerReviewedFunding" type="string"/>
+		<property name="idFundingAgency" column="idFundingAgency" type="integer"/>
 		
 	</class>
 	
@@ -450,6 +450,16 @@
 		</id>
 		<property name="flowCellType" column="flowCellType" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.FundingAgency -->
+	<class name="hci.gnomex.model.FundingAgency" table="FundingAgency">
+		<id name="idFundingAgency" column="idFundingAgency" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="fundingAgency" column="fundingAgency" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="isPeerReviewedFunding" column="isPeerReviewedFunding" type="string"/>
 	</class>
 		
 	<!-- hci.gnomex.model.GenomeBuild -->
