@@ -8,7 +8,7 @@ HCI Cream = F2EFD9
 
 Panel {
    borderThicknessLeft: 4;
-   borderThicknessTop: 2;
+   borderThicknessTop: 4;
    borderThicknessBottom: 4;
    borderThicknessRight: 4;
    roundedBottomCorners: true;
@@ -35,7 +35,7 @@ TitleWindow {
 	borderColor: #CBCAC0;
 	backgroundColor: #CBCAC1;
 	cornerRadius: 4;
-	borderThicknessTop: 4;
+	borderThicknessTop: 0;
 	borderThicknessBottom: 4;
 	borderThicknessLeft: 4;
 	borderThicknessRight: 4;
@@ -50,17 +50,19 @@ TitleWindow {
 }
 
 Alert {
-	
+	borderAlpha: 0;
 	headerColors: #888a97, #888a97;
 	backgroundColor: #888a97;
 	borderColor: #888a97;
 	cornerRadius: 4;
+	borderStyle: solid;
 
 }
 
 
 
 TabNavigator {
+	 dropShadowEnabled: true;
 }
  
 HDividedBox {
@@ -159,8 +161,10 @@ TextArea {
 
 .formTabBody {
 	backgroundColor: #FFFFFF;
-	borderStyle: none;
-	dropShadowEnabled: false;
+	
+	dropShadowEnabled: true;
+	borderStyle: solid;
+	cornerRadius: 4;
 }
 .formTabBar {
 	backgroundColor: #FFFFFF;
@@ -224,6 +228,27 @@ TextArea {
 	cornerRadius: 4;
 	borderStyle: none;
 
+}
+
+.appProgress {
+	headerColors: #548db8, #97b8d2; 
+   borderThicknessLeft: 4;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: true;
+   headerHeight: 27;
+   titleStyleName: appProgressTitle;
+   backgroundColor: #97b8d2;
+   borderAlpha: 1;
+   dropShadowEnabled: true;
+	borderColor: #97b8d2;
+	/*borderColor: #DDDCD0;*/
+}
+
+.appProgressTitle {
+	fontWeight: normal;
+	fontColor: black;
 }
 
 

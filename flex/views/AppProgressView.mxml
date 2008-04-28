@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<mx:ProgressBar xmlns:mx="http://www.adobe.com/2006/mxml" x="0" y="50" indeterminate="true" labelPlacement="top" label="Loading application properties" textAlign="center" />
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" title="Loading application settings"  titleIcon="@Embed(source='../assets/hciLogo_hOnly.png')" width="250" height="60" horizontalAlign="center" verticalAlign="middle"  
+	  styleName="appProgress" color="#000000" modalTransparency=".7"  paddingTop="10">
+	 
+	<mx:ProgressBar xmlns:mx="http://www.adobe.com/2006/mxml"  labelPlacement="bottom" fontWeight="normal"  label="" height="10"   textAlign="center"   indeterminate="true" maximum="10" minimum="100"/>
+</mx:TitleWindow>

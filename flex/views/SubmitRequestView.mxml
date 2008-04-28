@@ -3,6 +3,7 @@
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*"
     close="{PopUpManager.removePopUp(this)}"
+    showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	label="Submit Request" width="100%" height="100%" 
 	  headerHeight="24">
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
-	 height="100%" width="100%" label="Group Detail" 
+	 height="100%" width="100%" label="Group Detail"
 	  title="{parentDocument.fullLab.@name}">
 	  
   <mx:HTTPService  
@@ -98,45 +98,41 @@
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
 	
-	<mx:VBox height="100%" width="100%" verticalGap="0" >
+	<mx:VBox height="100%" width="100%" verticalGap="0" styleName="form">
 
-		<mx:HBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-			<mx:Button label="Save" icon="@Embed('../assets/action_save.gif')" width="70" click="save()"/>
-		</mx:HBox>
+
 	
 			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
 				
-				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="10" styleName="form">
-				   <mx:Panel title="Members" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="14" paddingBottom="4" paddingRight="4" paddingTop="4">
+				   <mx:VBox width="100%" verticalGap="4"  height="100%">
+				       <mx:Label text="Members"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="190" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
+					       <mx:ComboBox width="100%" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
 					       </mx:ComboBox>
-				   	   	   <mx:Button label="Add" click="addMember()" icon="@Embed('../assets/table_row_insert.png')"/>
-				   	   </mx:HBox>
-				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
-				   	   	   <mx:Button label="Remove" click="removeMember()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   	   <mx:Button click="addMember()" icon="@Embed(source='../assets/add.png')" width="24" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="{memberCombo.selectedIndex &gt; 0}"/>
+				   	   	   <mx:Button click="removeMember()" icon="@Embed(source='../assets/delete.png')" width="24" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}"/>
 				   	   </mx:HBox>
 		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
 				       </mx:DataGrid>			   	
-				   </mx:Panel>
-				   <mx:Panel title="Collaborators" layout="vertical" width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%">
+				   </mx:VBox>
+				   <mx:VBox width="100%" verticalGap="4" height="100%">
+				       <mx:Label text="Collaborators"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="190" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="100%" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
-				   	   	   <mx:Button label="Add" click="addCollaborator()" icon="@Embed('../assets/table_row_insert.png')"/>
-				   	   </mx:HBox>
-				   	   <mx:HBox width="100%" horizontalAlign="left" paddingTop="6">
-				   	   	   <mx:Button label="Remove" click="removeCollaborator()" icon="@Embed('../assets/table_row_delete.png')"/>
+				   	   	   <mx:Button click="addCollaborator()" icon="@Embed(source='../assets/add.png')" width="24" disabledIcon="@Embed(source='../assets/add_disable.png')" enabled="{collaboratorCombo.selectedIndex &gt; 0}"/>
+				   	   	   <mx:Button click="removeCollaborator()" icon="@Embed(source='../assets/delete.png')" width="24" disabledIcon="@Embed(source='../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}"/>
 				   	   </mx:HBox>
 		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
 				       </mx:DataGrid>			   	
-				   </mx:Panel>
+				   </mx:VBox>
 				    			    
 	
 				</mx:HBox>
@@ -144,5 +140,7 @@
 	   
     </mx:VBox>
     
-  
+  		<mx:ControlBar width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" horizontalAlign="right">
+			<mx:Button label="Save" icon="@Embed('../assets/action_save.gif')" width="70" click="save()"/>
+		</mx:ControlBar>
 </mx:Panel>
