@@ -72,7 +72,7 @@
 	        public var iconRedBullet:Class;
 	        
 	        [Bindable]
-	        [Embed(source="assets/map.png")]
+	        [Embed(source="assets/solexa.png")]
 	        public var iconSolexa:Class;
 	        
 	        [Bindable]
