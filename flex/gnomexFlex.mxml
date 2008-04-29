@@ -6,8 +6,8 @@
 	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]">
 	
-    <mx:Fade id="fadeOut" duration="300"/>
-    <mx:Fade id="fadeIn" duration="300"/>
+    <mx:Fade id="fadeOut" duration="100"/>
+    <mx:Fade id="fadeIn" duration="100"/>
 	     
         <mx:Style source="css/gnomex_flex.css" />
         
@@ -48,7 +48,7 @@
 	        public var iconFolder:Class;
 	
 	        [Bindable]
-	        [Embed(source="assets/color_swatch.png")]
+	        [Embed(source="assets/experiment.png")]
 	        public var iconExperiment:Class; 
 	        
 	        [Bindable]
@@ -361,9 +361,9 @@
 					theViews.removeChild(navWorkflowView);
 					theViews.removeChild(slideManagementView);
 				}
-				if (!hasPermission("canWriteDictionaries")) {
-					dictionaryButton.visible = false;
-					dictionaryButton.enabled = false;
+				if (hasPermission("canWriteDictionaries")) {
+					dictionaryButton.visible = true;
+					dictionaryButton.enabled = true;
 				}            	
 				this.navExperimentView.checkSecurity();
 				this.navExperimentView.detailView.checkSecurity();
@@ -980,7 +980,7 @@
 			          </mx:HBox>
 			        </mx:HBox>
 			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
-			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.HciDictionaryView, true));"/>
+			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.HciDictionaryView, true));" visible="false" enabled="false"/>
 			        	<mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest('http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm'), '_blank');"/>
 			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.AboutView, true));"/>
 			        </mx:HBox>
@@ -1021,7 +1021,7 @@
 	   
 	        
 	        <views:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
-	        	icon="@Embed('assets/color_swatch.png')">
+	        	icon="@Embed('assets/experiment.png')">
 	        </views:NavExperimentView>
 
 	        
