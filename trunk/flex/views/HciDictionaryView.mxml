@@ -15,7 +15,7 @@
 	width="800" 
 	height="500" 
 	title="GNomEx Dictionary Editor" 
-	borderThicknessBottom="4">
+	borderThicknessBottom="4" borderThicknessTop="4">
 <!--<mx:Canvas name="dictionary" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:hci="hci.*" 
 	width="100%" height="100%" creationComplete="initializeData()">-->
@@ -512,11 +512,11 @@
 				
 				<mx:HDividedBox id="mainBox" top="0" left="0" right="0" bottom="0" styleName="form">
 						<mx:Canvas height="100%" width="100%">
-						<mx:ComboBox id="cbDict" right="93" left="0" top="0" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
-							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="0" right="62" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);" toolTip="Add"/>
-							<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="31" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);" toolTip="Delete"/>
-							<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="0" right="0" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();" toolTip="Reload"/>
-							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);" bottom="0" top="30" left="0" width="100%"> 
+						<mx:ComboBox id="cbDict" right="89" left="4" top="4" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
+							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="4" right="58" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);" toolTip="Add"/>
+							<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="4" right="31" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);" toolTip="Delete"/>
+							<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="4" right="4" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();" toolTip="Reload"/>
+							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);" bottom="4" top="30" left="4" right="4"> 
 							</mx:DataGrid>
 						</mx:Canvas>
 						<mx:Canvas width="40%" height="100%" borderStyle="none" backgroundColor="#000000" backgroundAlpha="0.05">

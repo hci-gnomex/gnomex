@@ -330,11 +330,11 @@
 			<mx:Label text="No protocol selected" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:HBox left="10" top="10" right="394" styleName="formDisplay">
+			<mx:HBox left="10" top="10" right="10" styleName="formDisplay">
 				<mx:Label text="Name:" fontWeight="bold"/>
 				<mx:Label text="{protocol.getItemAt(0).name}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox top="10" width="205" right="181" bottom="595" styleName="formDisplay">
+			<mx:HBox top="36" width="845" styleName="formDisplay" left="10" height="18">
 				<mx:Label text="Kind of Request:" fontWeight="bold"/>
 				<hci:DictionaryLabel
 					id="kindDisplay"
@@ -347,18 +347,18 @@
 					width="100%">
 					</hci:DictionaryLabel>
 			</mx:HBox>
-			<mx:HBox height="26" right="10" top="10" width="163" styleName="formDisplay">
+			<mx:HBox height="18" top="62" width="163" styleName="formDisplay" left="10">
 				<mx:Label text="Active:" fontWeight="bold" width="55"/>
 				<mx:Label text="{protocol.getItemAt(0).isActive.toString()}" width="51"/>
 			</mx:HBox>
-			<mx:HBox left="10" top="44" right="121" styleName="formDisplay">
+			<mx:HBox left="10" top="88" right="121" styleName="formDisplay">
 				<mx:Label text="URL:" fontWeight="bold"/>
 				<mx:Label text="{protocol.getItemAt(0).url}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox width="103" height="26" horizontalAlign="center" verticalAlign="middle" right="10" top="44">
+			<mx:HBox width="103" height="26" horizontalAlign="center" verticalAlign="middle" right="10" top="83">
 				<mx:Button id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
 			</mx:HBox>
-			<mx:VBox top="78" bottom="10" left="10" right="10">
+			<mx:VBox top="114" bottom="10" left="10" right="10">
 				<mx:Label text="Protocol Description:" fontWeight="bold"/>
 				<mx:Text text="{protocol.getItemAt(0).description}" height="100%" width="100%"/>
 			</mx:VBox>	
@@ -382,7 +382,7 @@
 					width="100%">
 					</hci:DictionaryComboBox>
 			</mx:VBox>
-			<mx:VBox right="10" top="10" width="103" horizontalAlign="left" verticalAlign="bottom" bottom="603">
+			<mx:VBox right="10" top="10" width="103" horizontalAlign="left" verticalAlign="bottom" bottom="637">
 				<hci:CheckBoxYN  id="isActive" data="{protocol.getItemAt(0).isActive.toString()}" label="Active"/>
 			</mx:VBox>
 			<mx:VBox height="46" left="10" top="64" right="121">
