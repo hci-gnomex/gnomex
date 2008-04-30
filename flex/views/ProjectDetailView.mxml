@@ -56,15 +56,15 @@
 				projectDescription.enabled = true;
 			}
 			if (parentApplication.navExperimentView.selectedProject.@canUpdate == "Y") {
-				parentDocument.saveProjectButton.visible = true;
+				parentDocument.saveProjectButton.enabled = true;
 			} else{
-				parentDocument.saveProjectButton.visible = false;
+				parentDocument.saveProjectButton.enabled = false;
 			}
 			
 			if (parentApplication.navExperimentView.selectedProject.@canDelete == "Y") {
-				parentApplication.navExperimentView.deleteProjectButton.visible = true;
+				parentApplication.navExperimentView.deleteProjectButton.enabled = true;
 			} else{
-				parentApplication.navExperimentView.deleteProjectButton.visible = false;
+				parentApplication.navExperimentView.deleteProjectButton.enabled = false;
 			}
 		}
 		

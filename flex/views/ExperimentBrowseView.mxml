@@ -179,9 +179,9 @@
     
 	public function refreshButtonStack():void {
 		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
-			parentDocument.newProjectButton.visible = true;
+			parentDocument.newProjectButton.enabled = true;
 		} else {
-			parentDocument.newProjectButton.visible = false;
+			parentDocument.newProjectButton.enabled = false;
 		}
 		if (theViews.selectedChild == experimentListView ) {
 			buttonStack.selectedChild = browseButtonView;				
@@ -425,7 +425,7 @@
 	            </mx:HBox>
 	            <mx:HBox horizontalAlign="right" id="saveProjectButtonView" horizontalGap="2" verticalAlign="middle">
 		            <mx:Button id="saveProjectButton" label="Save" 
-		            	icon="@Embed('../assets/action_save.gif')" 
+		            	icon="@Embed('../assets/action_save.gif')" disabledIcon="@Embed(source='../assets/save_disable.png')" 
 		            	click="projectDetailView.save()"  toolTip="Save project">
 		                  </mx:Button>
 		            
@@ -435,7 +435,7 @@
 	            </mx:HBox>
 	        	<mx:HBox  verticalAlign="middle" horizontalAlign="right" id="saveVisibilityButtonView" height="100%">
 		        	<mx:Button label="Save" id="saveVisibilityButton"
-		        		icon="@Embed('../assets/action_save.gif')" 
+		        		icon="@Embed('../assets/action_save.gif')" disabledIcon="@Embed(source='../assets/save_disable.png')" 
 		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for project and experiments">
 		        	      </mx:Button>
 	        	</mx:HBox>
