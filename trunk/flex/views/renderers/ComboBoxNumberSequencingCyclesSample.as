@@ -3,7 +3,7 @@ package views.renderers
 	import mx.events.ListEvent;
 	import mx.controls.Alert;
 	
-	public class ComboBoxNumberSequencingCycles  extends ComboBoxBase
+	public class ComboBoxNumberSequencingCyclesSample  extends ComboBoxBase
 	{
 			protected override function initializeFields():void {
 		    	dictionaryClassName          = "hci.gnomex.model.NumberSequencingCycles";
@@ -17,6 +17,7 @@ package views.renderers
 		     	     || parentApplication.hasPermission("canWriteAnyObject")) {
 	            	_data[cellAttributeName] = this.selectedItem[this.choiceValueAttributeName];
     	        	_data.@isDirty = "Y";		    
+    	        	parentDocument.propagateNumberSequencingCycles(_data);	     		    	        	 		
 		     	} else {
 		     		selectItem();
 		     		Alert.show("Number sequencing cycles cannot be changed.");

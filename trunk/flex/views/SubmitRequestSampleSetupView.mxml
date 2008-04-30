@@ -3,6 +3,7 @@
 	 width="100%" height="100%" >
 <mx:Script>
 	<![CDATA[
+		import mx.events.ListEvent;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validFragmentSizeFrom:Boolean = true;
@@ -42,7 +43,7 @@
 		}
        	private function propagateSamplePrepMethod():void {
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem.@value;
+				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem != null ? this.samplePrepMethodCombo.selectedItem.@value : '';
 			}
 			if (currentState == 'SolexaSetupState') {
 				propagateDefaultFlowCellType();
@@ -67,6 +68,18 @@
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
+       	private function propagateFragmentSizeFrom():void {       		
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@fragmentSizeFrom = parentDocument.isSolexaState() ? this.fragmentSizeFrom.text : '';
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateFragmentSizeTo():void {       		
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@fragmentSizeTo = parentDocument.isSolexaState() ? this.fragmentSizeTo.text : '';
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
        	private function propagateSampleOrganism():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
@@ -75,11 +88,18 @@
 		}
        	
        	private function propagateFlowCellType():void {
+
+			var idFlowCellType:String = '';
+       		if (currentState == 'SolexaSetupPreppedState') {
+       			idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+       		} else {
+       			idFlowCellType = this.getDefaultIdFlowCellType();
+       		}
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+				sample.@idFlowCellType = idFlowCellType;
 			}
 			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+				lane.@idFlowCellType = idFlowCellType;
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
@@ -142,10 +162,9 @@
 	    	   				if (xref.@isDefaultForSampleType == 'Y') {
 	    	   					samplePrepMethodCombo.selectedItem = item;
 	    	   					parentApplication.filteredFlowCellTypeList.refresh();
-	    	   					if (currentState == "SolexaSetupPreppedState") {
-		    	   					selectDefaultFlowCellType();
-	    	   					}
+	    	   					selectDefaultFlowCellType();
 	    	   					this.propagateSamplePrepMethod();
+	    	   					this.propagateFlowCellType();
 	    	   					this.checkSampleSetupCompleteness();
 	    	   					break;
 	    	   				}
@@ -157,6 +176,9 @@
 		}
 
 		private function selectDefaultFlowCellType():void {
+			if (currentState != "SolexaSetupPreppedState") {
+				return;
+			}
 			if (flowCellTypeCombo.dataProvider.length == 2) {
 				flowCellTypeCombo.selectedIndex = 1;
 			} else {
@@ -177,7 +199,17 @@
 			return idFlowCellType;
 		}
 		
-		
+		private function toggleChipTypeCheck(event:ListEvent):void {
+   			if (event.columnIndex == 0) {
+	   			return;
+   			}
+   			if (bioanalyzerChipTypeGrid.selectedItem.@isSelected == "true") {
+				bioanalyzerChipTypeGrid.selectedItem.@isSelected = "false";
+			} else {
+				bioanalyzerChipTypeGrid.selectedItem.@isSelected = "true";
+			}
+			toggleOtherChipTypeSelections(bioanalyzerChipTypeGrid.selectedItem.@value);
+		}
 
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
@@ -191,16 +223,17 @@
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
 	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' &&
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' &&
-	        	    this.fragmentSizeFrom.text != "" && this.fragmentSizeTo.text != "" &&
+	        	    this.fragmentSizeFrom.text != "" && this.fragmentSizeTo.text != "" && 
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
-	        	    if (currentState == "SolexaAlreadyPreppedState") {
-	        	    	if (this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '') {
-	        	    		isComplete = true;
-	        	    	}
+	        	    	
+	        	    if (currentState == 'SolexaSetupPreppedState') {
+ 						if (this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '') {
+ 							isComplete = true;
+ 						}	        	    	
 	        	    } else {
-	        	    	isComplete = true;
+		        	    isComplete = true;
 	        	    }
-
+	        	    
 	        	 }
         	
         	} else if (parentDocument.isQCState()) {
@@ -299,13 +332,13 @@
 	]]>
 </mx:Script>
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
-        allowNegative="false" domain="int" maxValue="100" />
+         required="false" allowNegative="false" domain="int" maxValue="100" />
     <mx:NumberValidator id="fragmentSizeFromValidator" source="{fragmentSizeFrom}" property="text" 
-        allowNegative="false" domain="int" />
+        required="false" allowNegative="false" domain="int" />
     <mx:NumberValidator id="fragmentSizeToValidator" source="{fragmentSizeTo}" property="text" 
-        allowNegative="false" domain="int"/>
+        required="false" allowNegative="false" domain="int"/>
     <mx:NumberValidator id="concentrationValidator" source="{this.sampleConcentration}" property="text" 
-        allowNegative="false" domain="int" maxValue="9999"/>
+        required="false" allowNegative="false" domain="int" maxValue="9999"/>
         
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
@@ -375,7 +408,7 @@
 					</mx:HBox>
 					<mx:HBox width="100%">
 						<mx:Spacer width="8"/>								
-						<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"  >
+						<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
 							<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '')}</mx:dataProvider>
 							<mx:columns>
 							    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
@@ -422,11 +455,11 @@
 					<mx:Text text="Do you want the Core Facility to perform library preparation on the samples?" width="330" />
 					<mx:HBox width="100%">
 						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes" selected="true"
-							change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentApplication.samplePrepMethodList.refresh();parentApplication.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore()">
+							change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentApplication.samplePrepMethodList.refresh();parentApplication.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
 						</mx:RadioButton>			
 						<mx:VBox id="vbox1">
 							<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, library preparation has been completed"
-								change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentApplication.samplePrepMethodList.refresh();parentApplication.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore()">
+								change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentApplication.samplePrepMethodList.refresh();parentApplication.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
 							</mx:RadioButton>							
 								
 						</mx:VBox>				
@@ -491,11 +524,11 @@
                 	<mx:Label text="Enter the approximate size range of your samples:" width="330" id="label0"/>
                 	<mx:TextInput id="fragmentSizeFrom" width="50" 
                 		valid="handleValidFragmentSizeFrom(event)" invalid="handleInvalidFragmentSizeFrom(event)"
-                		change="checkSampleSetupCompleteness();"/>
+                		change="propagateFragmentSizeFrom();checkSampleSetupCompleteness();"/>
                 	<mx:Label text="-" textAlign="center"/>
                 	<mx:TextInput id="fragmentSizeTo" width="50" 
                 		valid="handleValidFragmentSizeTo(event)" invalid="handleInvalidFragmentSizeTo(event)"
-                		change="checkSampleSetupCompleteness();"/>
+                		change="propagateFragmentSizeTo();checkSampleSetupCompleteness();"/>
                 </mx:HBox>
             </mx:AddChild>
             <mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>

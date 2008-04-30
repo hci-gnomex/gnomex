@@ -810,6 +810,16 @@
         }
 	        
             
+        public function onFailHttpRequest(title:String, event:FaultEvent):void {
+        	var startPos:int = event.message.body.indexOf("TEXT=");
+        	var endPos:int   = event.message.body.indexOf("TYPE=");
+        	if (startPos != -1 && endPos != -1) {
+	        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), title);    		
+        	} else {
+        		Alert.show(event.message.body.toString(), title);
+        	}        
+        }
+            
             
         ]]>
     </mx:Script>

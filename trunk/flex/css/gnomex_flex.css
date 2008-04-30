@@ -231,7 +231,7 @@ TextArea {
 }
 
 .appProgress {
-	headerColors: #548db8, #97b8d2; 
+	headerColors: #548db8, #a3bbcd; 
    borderThicknessLeft: 4;
    borderThicknessTop: 0;
    borderThicknessBottom: 4;
@@ -239,10 +239,10 @@ TextArea {
    roundedBottomCorners: true;
    headerHeight: 27;
    titleStyleName: appProgressTitle;
-   backgroundColor: #97b8d2;
+   backgroundColor: #A3BBCD;
    borderAlpha: 1;
    dropShadowEnabled: true;
-	borderColor: #97b8d2;
+	borderColor: #A3BBCD;
 	/*borderColor: #DDDCD0;*/
 }
 

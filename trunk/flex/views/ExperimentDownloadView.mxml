@@ -68,6 +68,7 @@
     import flash.net.URLRequestMethod;
     import flash.net.URLVariables;
     import mx.managers.PopUpManager;
+    import mx.events.ListEvent;
    
 	
  	[Bindable]
@@ -200,15 +201,21 @@
     	}
     }
     
-   	private function toggleFolderCheck():void {
-		if (folderGrid.selectedItem.@isSelected == "true") {
+   	private function toggleFolderCheck(event:ListEvent):void {
+   		if (event.columnIndex == 0) {
+   			return;
+   		}
+   		if (folderGrid.selectedItem.@isSelected == "true") {
 			folderGrid.selectedItem.@isSelected = "false";
 		} else {
 			folderGrid.selectedItem.@isSelected = "true";
 		}
 	}
 
-   	private function toggleFileCheck():void {
+   	private function toggleFileCheck(event:ListEvent):void {
+   		if (event.columnIndex == 0) {
+   			return;
+   		}
 		if (fileGrid.selectedItem.@isSelected == "true") {
 			fileGrid.selectedItem.@isSelected = "false";
 		} else {
@@ -221,7 +228,7 @@
  
     <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.RequestDownload}"/>
     <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult.RequestDirectory.Directory.FileDescriptor}"/>
-
+	
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 	    <mx:LinkBar id="linkBar" styleName="formLinkBar" dataProvider="{theTab}"/>
 		<mx:ViewStack id="theTab"  
@@ -236,7 +243,7 @@
 		       	 sortableColumns="false" id="folderGrid"
 		       	dataProvider="{downloadList}"  
 		       	width="100%" height="100%"
-		       	  itemClick="toggleFolderCheck()">
+		       	  itemClick="toggleFolderCheck(event)">
 		         <views:columns>
 		            <mx:DataGridColumn headerText=" " 
 		            	width="10" 
@@ -280,7 +287,7 @@
 			    	 width="100%" height="100%" 
 	   	 			sortableColumns="false"	
 			    	 dataProvider="{expandedFileList}" 
-			    	  itemClick="toggleFileCheck()" id="fileGrid">
+			    	  itemClick="toggleFileCheck(event)" id="fileGrid">
 			       <mx:columns>
 		            <mx:DataGridColumn headerText=" " 
 		            	width="3" 

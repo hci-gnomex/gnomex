@@ -196,7 +196,7 @@
 	]]>
 </mx:Script>
     <mx:NumberValidator id="numberOfHybsValidator" source="{numberOfHybs}" property="text" 
-        allowNegative="false" domain="int" maxValue="100" />
+        required="false" allowNegative="false" domain="int" maxValue="100" />
 
 	<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="10">
 		<mx:HBox width="100%" horizontalGap="0">

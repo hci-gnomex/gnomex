@@ -7,6 +7,7 @@ package views.renderers
 
 	public class TextInputSampleName extends TextInput
 	{
+        
     	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
      	{
           super.updateDisplayList(unscaledWidth,unscaledHeight);

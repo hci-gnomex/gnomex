@@ -44,6 +44,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveNewRequest(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to submit request', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -61,11 +62,12 @@
   
 	<mx:Script>
 		<![CDATA[
-			import mx.collections.ArrayCollection;
+		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		import mx.core.UIComponent;
 		import mx.core.Container;
 		import mx.rpc.events.ResultEvent;
+		import mx.rpc.events.FaultEvent;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 
@@ -188,7 +190,7 @@
 			if (this.setupView == null || request == null) {
 				return false;
 			} else if (request.@idRequest == '0'  && submittedIdRequest == null) {
-				if (nextButton.enabled) {
+				if (nextButton.enabled || this.submitButton.enabled) {
 					return true;
 				} else {
 					return false;
@@ -310,6 +312,13 @@
 				if (theTab.contains(annotationView)) {
 					annotationView.enabled = false;								
 				}
+				if (isSolexaState()) {
+					sampleSetupView.fragmentSizeFrom.text = '';
+					sampleSetupView.fragmentSizeTo.text = '';
+					sampleSetupView.numberSequencingCyclesCombo.selectedIndex = 0;
+					sampleSetupView.genomeBuildCombo.selectedIndex = 0;
+					sampleSetupView.analysisInstructions.text = '';
+				}
 			}
 					
 			if (theTab.contains(hybSetupView)) {
@@ -392,19 +401,28 @@
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 				this.samplesView.currentState = 'SolexaSamplesState';	
-				this.samplesView.showHideColumns();			
+				this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
+				for each (var sample:Object in samples) {
+					sample.@seqPrepByCore = 'Y';
+					sample.@numberSequencingLanes = '';
+					sample.@idFlowCellType = '';
+				}
+				this.samplesView.showHideColumns();		
+				this.samplesView.checkSamplesCompleteness();	
 			} else {						
 				if (setupView.requestTypeGroup.selectedValue == "QC") {
 					this.currentState = 'QCState';
 					this.sampleSetupView.currentState = 'QCSetupState';
 					this.samplesView.currentState = 'QCSamplesState';				
 					this.samplesView.showHideColumns();						
+					this.samplesView.checkSamplesCompleteness();	
 
 				} else {
 					this.currentState = 'MicroarrayState';
 					this.sampleSetupView.currentState = '';
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
+					this.samplesView.checkSamplesCompleteness();	
 					this.hybsView.currentState = 'HybsState';
 					
 					this.hybSetupView.microarrayCategoryCombo.selectedIndex = 0;
@@ -1312,7 +1330,7 @@
         		for each(var sequenceLane:Object in lanes) {
         			if (sequenceLane.@idSample == sample.@idSample) {
         				theLanes.addItem(sequenceLane);
-        				if (theLanes.length == numberOfLanes) {
+        				if (numberOfLanes != -1 && theLanes.length == numberOfLanes) {
         					break;
         				}
         			}
@@ -1506,6 +1524,7 @@
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}
+
 		
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {

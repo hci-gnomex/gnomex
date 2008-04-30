@@ -43,6 +43,7 @@
     
     <mx:Script> 
         <![CDATA[
+        import mx.events.ListEvent;
         import mx.rpc.events.FaultEvent;           
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
@@ -177,14 +178,20 @@
 			this.experimentFactorGrid.invalidateList();
 		}
 		
-		private function toggleExperimentDesignCheck():void {
+		private function toggleExperimentDesignCheck(event:ListEvent):void {
+			if (event.columnIndex == 0) {
+   				return;
+   			}
 			if (experimentDesignGrid.selectedItem.@isSelected == "true") {
 				experimentDesignGrid.selectedItem.@isSelected = "false";
 			} else {
 				experimentDesignGrid.selectedItem.@isSelected = "true";
 			}
 		}
-		private function toggleExperimentFactorCheck():void {
+		private function toggleExperimentFactorCheck(event:ListEvent):void {
+			if (event.columnIndex == 0) {
+   				return;
+   			}
 			if (experimentFactorGrid.selectedItem.@isSelected == "true") {
 				experimentFactorGrid.selectedItem.@isSelected = "false";
 			} else {
@@ -280,7 +287,7 @@
         </mx:VBox>
         <mx:HBox width="250" height="100%"  paddingLeft="4">
             <mx:DataGrid  width="100%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentDesignGrid">
-                <mx:itemClick>toggleExperimentDesignCheck()</mx:itemClick>
+                <mx:itemClick>toggleExperimentDesignCheck(event)</mx:itemClick>
                 <mx:columns>
                     <mx:DataGridColumn headerText=" " 
                     	width="18" 
@@ -292,7 +299,7 @@
                     <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
                 </mx:columns>
             </mx:DataGrid>
-            <mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentFactorGrid" itemClick="toggleExperimentFactorCheck()">
+            <mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentFactorGrid" itemClick="toggleExperimentFactorCheck(event)">
                 <mx:columns>
                     <mx:DataGridColumn headerText=" " 
                     	width="18" 
