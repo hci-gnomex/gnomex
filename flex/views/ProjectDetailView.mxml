@@ -31,6 +31,7 @@
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
+		import mx.events.ListEvent;
 		
 		private var closeWindowAfterSave:Boolean = false;
 		public var fromSubmitRequestWindow:Boolean = false;
@@ -202,6 +203,27 @@
 			}
 		}
 		
+		private function toggleExperimentDesignCheck(event:ListEvent):void {
+   			if (event.columnIndex == 0) {
+	   			return;
+   			}
+   			if (experimentDesignEntryGrid.selectedItem.@isSelected == "true") {
+				experimentDesignEntryGrid.selectedItem.@isSelected = "false";
+			} else {
+				experimentDesignEntryGrid.selectedItem.@isSelected = "true";
+			}
+		}
+		private function toggleExperimentFactorCheck(event:ListEvent):void {
+   			if (event.columnIndex == 0) {
+	   			return;
+   			}
+   			if (experimentFactorEntryGrid.selectedItem.@isSelected == "true") {
+				experimentFactorEntryGrid.selectedItem.@isSelected = "false";
+			} else {
+				experimentFactorEntryGrid.selectedItem.@isSelected = "true";
+			}
+		}
+		
 
 	]]>
 </mx:Script>
@@ -238,7 +260,7 @@
 	    <mx:DataGrid id="experimentDesignEntryGrid" width="30%" height="100%" 
 	    	dataProvider="{experimentDesignEntries}" 
 	    	selectionColor="#FFFFFF"
- 			showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20">
+ 			showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20" itemClick="toggleExperimentDesignCheck(event)">
 	        <mx:columns>
 	            <mx:DataGridColumn headerText=" " 
 	            	width="17" 
@@ -272,7 +294,7 @@
             </mx:columns>
 	    </mx:DataGrid>
 
-	    <mx:DataGrid id="experimentFactorEntryGrid" width="30%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20">
+	    <mx:DataGrid id="experimentFactorEntryGrid" width="30%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20" itemClick="toggleExperimentFactorCheck(event)">
 	        <mx:columns>
 	            <mx:DataGridColumn headerText=" " 
 	            	width="17" 

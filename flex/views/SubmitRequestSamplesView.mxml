@@ -15,10 +15,11 @@
 				    " name='' description='' " +
 				    " canChangeSampleName='Y'" +
 				    " canChangeSampleType='Y'" +
-				    " canChangeConcentration='Y'" +
+				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
 				    " canChangeSamplePrepMethod='Y'" +
    					" canChangeNumberSequencingLanes='Y'" + 
+   					" canChangeNumberSequencingCycles='Y'" +
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
 					" idFlowCellType='" + parentDocument.sampleSetupView.flowCellTypeCombo.selectedItem.@value + "'" +				
@@ -42,9 +43,10 @@
 				    " name='' description='' " +
 				    " canChangeSampleName='Y'" +
   				    " canChangeSampleType='Y'" +
-				    " canChangeConcentration='Y'" +
+				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
 				    " canChangeSamplePrepMethod='Y'" +
+   					" canChangeNumberSequencingCycles='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
@@ -72,9 +74,10 @@
 			    " name='' description='' " +
 			    " canChangeSampleName='Y'" +
 			    " canChangeSampleType='Y'" +
-			    " canChangeConcentration='Y'" +
+			    " canChangeSampleConcentration='Y'" +
 			    " canChangeSampleSource='Y'" +
 			    " canChangeSamplePrepMethod='Y'" +
+  				" canChangeNumberSequencingCycles='Y'" +
 				" canChangeNumberSequencingLanes='Y'" + 
 				" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 				" codeConcentrationUnit='ng/ul'" + 
@@ -90,9 +93,10 @@
 			    " name='' description='' " +
 			    " canChangeSampleName='Y'" +
 			    " canChangeSampleType='Y'" +
-			    " canChangeConcentration='Y'" +
+			    " canChangeSampleConcentration='Y'" +
 			    " canChangeSampleSource='Y'" +
 			    " canChangeSamplePrepMethod='Y'" +
+  				" canChangeNumberSequencingCycles='Y'" +
 				" canChangeNumberSequencingLanes='Y'" + 
 				" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 				" codeConcentrationUnit='ng/ul'" + 
@@ -124,7 +128,9 @@
 							hyb.@idSampleChannel2 = '0';
 						}
 					}
-
+					for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
+						parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
+					}
 					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 					
 				}
@@ -142,7 +148,13 @@
 					
 					var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + "Sample" + parentDocument.samples.length + "'" +
-					" name='" +  sampleToCopy.@name + "'" + 
+					" name='" + sampleToCopy.@name + "'" + 
+					" canChangeSampleName='Y'" +
+			    	" canChangeSampleType='Y'" +
+			   	 	" canChangeSampleConcentration='Y'" +
+			    	" canChangeSampleSource='Y'" +
+			    	" canChangeSamplePrepMethod='Y'" +
+					" canChangeNumberSequencingLanes='Y'" + 
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
 					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
@@ -216,6 +228,7 @@
 		private function onPromptToClearAllSamples(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
             	parentDocument.samples.removeAll();
+            	parentDocument.lanes.removeAll();
             	checkSamplesCompleteness();
             }
         }		
@@ -224,38 +237,26 @@
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
         		if (currentState.indexOf('SolexaSamples') >= 0) {
-        			if( sample.@isAlreadyPrepped == 'N') {
-		        		if (sample.@name != null && sample.@name != '' &&
-		        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-		        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-		        			sample.@concentration != null && sample.@concentration != '' &&
-		        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-		        			sample.@idOrganism != null && sample.@idOrganism != '' &&
-		        			sample.@numberSequencingLanes != null && sample.@numberSequencingLanes != '' &&
-		        			sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
-		        			sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
-		        			completeCount++;
-		        		}       				
-		        	} else {
-		        			if (sample.@name != null && sample.@name != '' &&
-		        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-		        			sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
-		        			sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
-		        			sample.@concentration != null && sample.@concentration != '' &&
-		        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-		        			sample.@idOrganism != null && sample.@idOrganism != '' &&
-		        			sample.@totalVolume != null && sample.@totalVolume != '' &&
-		        			sample.@numberSequencingLanes != null && sample.@numberSequencingLanes != '' &&
-		        			sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
-		        			sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
-		        			completeCount++;       				
-		        			
-		        		}
-        				
-        			}
-        			
-        		}
-        		else if (currentState.indexOf('QCSamples') >= 0){
+        			if (sample.@name != null && sample.@name != '' &&
+		        		sample.@idSampleType != null && sample.@idSampleType != '' &&
+		        		sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
+		        		sample.@concentration != null && sample.@concentration != '' &&
+		        		sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
+		        		sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
+		        		sample.@idSampleSource != null && sample.@idSampleSource != '' &&
+		        		sample.@idOrganism != null && sample.@idOrganism != '' &&
+		        		sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
+		        		sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
+		        				
+		        		if (!parentDocument.isEditState()) {
+	        				if (sample.@numberSequencingLanes != '') {
+	        					completeCount++;
+	        				}		
+	        			} else {
+	        				completeCount++;
+	        			}
+		        	}
+		        } else if (currentState.indexOf('QCSamples') >= 0){
 	        		if (sample.@name != null && sample.@name != '' &&
 	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
 	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
@@ -289,19 +290,30 @@
         	// create the sequencing lanes based on the number of lanes 
         	// entered for each sample.
         	if (isComplete && currentState =='SolexaSamplesState') {
-        		for each (var theSample:Object in parentDocument.samples) {
-        			var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
-        			if (numberLanesForSample < theSample.@numberSequencingLanes) {
-	        			var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
-	        			for (var x:Number = 0; x < numberLanesToAdd; x++) {
-	        				addSequencingLaneForSample(theSample);
+        		var isValidNumberSeqLanes:Boolean = true;
+        		for each (var s:Object in parentDocument.samples) {
+    				if (s.@numberSequencingLanes > 100) {
+    					callLater(showMaxLaneError, [s.@numberSequencingLanes]);
+    					isValidNumberSeqLanes = false;
+    					break;
+    				}
+        		}
+        		if (isValidNumberSeqLanes) {
+	        		for each (var theSample:Object in parentDocument.samples) {
+	        			var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
+	        			if (numberLanesForSample < theSample.@numberSequencingLanes) {
+		        			var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
+		        			for (var x:Number = 0; x < numberLanesToAdd; x++) {
+		        				addSequencingLaneForSample(theSample);
+		        			}
+	        			} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
+	        				var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
+							for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
+								parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
+							}
 	        			}
-        			} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
-        				var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
-						for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
-							parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
-						}
-        			}
+	        				
+	        		}
         		}
         	}
 
@@ -324,6 +336,10 @@
         
         }
         
+        private function showMaxLaneError(numberSeqLanes:String):void {
+			Alert.show("Number of lanes to sequence " + numberSeqLanes + " is too large.");
+        }
+        
                 
         private function postSamplesCompleteness(isComplete:Boolean):void {
 	    		
@@ -343,8 +359,12 @@
 	        	parentDocument.confirmView.enabled = false;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
-	    			parentDocument.hybSetupView.checkHybSetupCompleteness();    				
+	    			parentDocument.hybSetupView.checkHybSetupCompleteness();
+	    			this.refreshHybsGrid();    				
     			} 
+    			if (parentDocument.isSolexaState() && !parentDocument.isEditState()) {
+    				this.refreshLanesGrid();
+    			}
     		}
         	
         }
@@ -385,10 +405,10 @@
 				}
 			}
 		}
-		public function propagateNumberSequencingCycles(idNumberSequencingCycles:String):void {
+		public function propagateNumberSequencingCycles(theSample:Object):void {
 			if (currentState.indexOf('SolexaSamples') >= 0) {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@idNumberSequencingCycles = idNumberSequencingCycles;
+				for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
+					lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
 				}
 			}
 		}		
@@ -474,6 +494,14 @@
 			}
   						
         }
+		private function refreshHybsGrid():void {
+ 		    parentDocument.hybsView.hybsGrid.invalidateList();
+	        parentDocument.hybsView.hybsGrid.invalidateDisplayList();
+		}
+		private function refreshLanesGrid():void {
+ 		    parentDocument.lanesConfirmGrid.invalidateList();
+ 		    parentDocument.lanesConfirmGrid.invalidateDisplayList();
+		}
         
 	]]>
 </mx:Script>	
@@ -507,7 +535,7 @@
 					</mx:DataGridColumn>
 	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" labelFunction="parentApplication.lookupFlowCellType" dataField="@idFlowCellType"/>
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"
-	 					 rendererIsEditor="false" editorDataField="value" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/>
+	 					 rendererIsEditor="false" editorDataField="value" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCyclesSample"/>
 					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" itemRenderer="views.renderers.LabelNumberSequencingLanes"  itemEditor="views.renderers.TextInputNumberSequencingLanes" rendererIsEditor="false">
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
@@ -546,7 +574,7 @@
 					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"/>
 					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"/>
 					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"/>
-					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="false" width="100" dataField="{parentDocument.request.@treatement == 'Y'}"/>
+					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatement == 'Y'}" width="100" dataField="@treatment"/>
 					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 				</mx:columns>
 			</mx:DataGrid>

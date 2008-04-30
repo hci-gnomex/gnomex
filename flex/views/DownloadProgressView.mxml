@@ -8,6 +8,8 @@
         <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"/>
         <mx:Button label="Close" click="PopUpManager.removePopUp(this)"/>
     </mx:ControlBar>
+
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
     
     <mx:Script>
     	<![CDATA[
@@ -66,7 +68,9 @@
 		        request.data = this.params;
 	        }
 	        try {
-		        fr.download(request, "gnomex_data.zip");	        	
+	        	var today:Date = new Date();
+	        	var fileName:String = 'gnomex-data-' + dateFormatter.format(today) + '.zip';
+		        fr.download(request, fileName);	        	
 	        } catch (error:Error) {
 	        	mx.controls.Alert.show("Unable to download file. " + error.message);
 	        }

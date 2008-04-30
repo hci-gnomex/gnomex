@@ -2,6 +2,8 @@
 <mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="false" >
 <mx:Script>
 	<![CDATA[
+		import mx.events.ListEvent;
+		
        	private function propagateTreatment():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@treatment = this.treatmentTextInput.text;
@@ -9,13 +11,13 @@
 			if (this.treatmentTextInput.text != '') {
 				parentDocument.samplesView.treatmentColumn.visible = true;
 				if (!parentDocument.isEditState()) {
-					parentDocument.treatmentConfirmColumn.visible = true;				
+					parentDocument.confirmView.treatmentConfirmColumn.visible = true;				
 				}
 				parentDocument.request.@treatment = 'Y';
 			} else {
 				parentDocument.samplesView.treatmentColumn.visible = false;
 				if (!parentDocument.isEditState()) {
-					parentDocument.treatmentConfirmColumn.visible = false;				
+					parentDocument.confirmView.treatmentConfirmColumn.visible = false;				
 				}
 				parentDocument.request.@treatment = 'N';
 				
@@ -128,64 +130,88 @@
 				}
 			}
 		}
+		
+		private function toggleSampleAnnotationCheck(event:ListEvent):void {
+   			if (event.columnIndex == 0) {
+	   			return;
+   			}
+   			if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
+				sampleAnnotationGrid.selectedItem.@isSelected = "false";
+				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic, false);
+          		clearOutUncheckedSampleAnnotations();				
+			} else {
+				sampleAnnotationGrid.selectedItem.@isSelected = "true";
+				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic, true);
+          		clearOutUncheckedSampleAnnotations();
+			}
+		}
 				
 		
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%">
 		<mx:HBox width="100%" height="100%" horizontalGap="24">
-			<mx:VBox height="100%">
+			<mx:VBox height="100%" verticalGap="1">
 			    <mx:HBox>
 				    <mx:Image source="{parentApplication.iconBullet}"/>
-				    <mx:Text  htmlText="Specify all sample characteristics you wish to &lt;BR&gt; annotate in subsequent columns:"/>
+				    <mx:Text width="100%" height="100%">
+				    	<mx:text>Specify all sample characteristics you wish to annotate in subsequent columns:</mx:text>
+				    </mx:Text>
 			    	
 			    </mx:HBox>
-				<mx:DataGrid id="sampleAnnotationGrid" height="100%" 
-					dataProvider="{parentDocument.sampleCharacteristicEntries}" 
-					selectionColor="#FFFFFF" fontSize="9"
-				showHeaders="true" headerHeight="20" variableRowHeight="true" width="280">
-				    <mx:columns>
-				        <mx:DataGridColumn headerText=" " 
-				        	width="17" 
-				        	editable="true"                        	
-				        	dataField="@isSelected" 
-				        	editorDataField="selected"
-				        	itemRenderer="views.renderers.CheckBoxIsSelectedSampleCharacteristic" >
-				        </mx:DataGridColumn>
-				        <mx:DataGridColumn  
-				        	headerText="Sample characteristics"
-				        	editable="false" editorDataField="selected" 
-				        	dataField="@sampleCharacteristic">
-				            <mx:itemRenderer>
-				                <mx:Component >
-				                     <mx:HBox>
-				                       <mx:Label text="{data.@sampleCharacteristic}">			                           	
-				                       </mx:Label>
-				                       <mx:TextInput id="scOtherLabel" fontSize="9"
-				                       	text="{data.@otherLabel}"
-				                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.confirmView.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
-				                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
-				                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
-				                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
-				                       	editable="{data.@sampleCharacteristic == 'Other' ? true : false}">			                           
-				                       </mx:TextInput>
-				                     	
-				                     </mx:HBox>
-				                </mx:Component>
-				            </mx:itemRenderer>
-				        </mx:DataGridColumn>
-				    </mx:columns>
-				</mx:DataGrid>
+			    <mx:HBox width="100%" height="100%">
+					<mx:Spacer width="18"/>
+					<mx:DataGrid id="sampleAnnotationGrid" height="100%" 
+						dataProvider="{parentDocument.sampleCharacteristicEntries}" 
+						selectionColor="#FFFFFF"
+					showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20">
+					    <mx:columns>
+					        <mx:DataGridColumn headerText=" " 
+					        	width="20" 
+					        	editable="true"                        	
+					        	dataField="@isSelected" 
+					        	editorDataField="selected"
+					        	itemRenderer="views.renderers.CheckBoxIsSelectedSampleCharacteristic" >
+					        </mx:DataGridColumn>
+					        <mx:DataGridColumn  
+					        	headerText="Sample characteristics"
+					        	editable="false" editorDataField="selected" 
+					        	dataField="@sampleCharacteristic">
+					            <mx:itemRenderer>
+					                <mx:Component >
+					                     <mx:HBox>
+					                       <mx:Label text="{data.@sampleCharacteristic}">			                           	
+					                       </mx:Label>
+					                       <mx:TextInput id="scOtherLabel" fontSize="9"
+					                       	text="{data.@otherLabel}"
+					                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.confirmView.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
+					                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
+					                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
+					                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
+					                       	editable="{data.@sampleCharacteristic == 'Other' ? true : false}">			                           
+					                       </mx:TextInput>
+					                     	
+					                     </mx:HBox>
+					                </mx:Component>
+					            </mx:itemRenderer>
+					        </mx:DataGridColumn>
+					    </mx:columns>
+					</mx:DataGrid>
+			    </mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" verticalGap="2">
 				<mx:HBox>
 					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%" height="28"/>
+					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%" height="100%"/>
 					
 				</mx:HBox>
-				<mx:TextArea width="100%" height="100" id="treatmentTextInput" focusOut="propagateTreatment()">
-				</mx:TextArea>
+				<mx:HBox width="100%" height="100%">
+					<mx:Spacer width="18"/>
+					<mx:TextArea width="100%" height="40" id="treatmentTextInput" focusOut="propagateTreatment()">
+					</mx:TextArea>
+					
+				</mx:HBox>
 				
 			</mx:VBox>
 			

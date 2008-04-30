@@ -4,9 +4,11 @@ package views.renderers
 	import flash.display.Graphics;
 	import mx.controls.Alert;
 	import flash.events.Event;
+	import mx.validators.NumberValidator;
 
 	public class TextInputNumberSequencingLanes extends TextInput
 	{
+		
     	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
      	{
           super.updateDisplayList(unscaledWidth,unscaledHeight);

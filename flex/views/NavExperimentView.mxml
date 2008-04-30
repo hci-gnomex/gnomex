@@ -441,6 +441,11 @@
 
 		
 		private function onGetRequest(event:ResultEvent):void {
+			if (getRequest.lastResult.name() != "OpenRequestList") {
+        		Alert.show(getRequest.lastResult..ACTMESSAGE.@TEXT);
+        		return;
+        	}
+        	
 		    if (this.showDownloads) {
 		    	this.showExperimentDownloads();
 		    	theViews.visible = true;
@@ -471,6 +476,10 @@
 		}
 
 		private function onGetRequestForDownload(event:ResultEvent):void {
+			if (getRequestForDownload.lastResult.name() != "OpenRequestList") {
+        		Alert.show(getRequestForDownload.lastResult..ACTMESSAGE.@TEXT);
+        		return;
+        	}			
 			selectedExperiment = getRequestForDownload.lastResult.Request.(@number == selectedRequestNumber);
 			
 			var params:Object = new Object();

@@ -2,6 +2,8 @@ package views.renderers
 {
 	import mx.controls.CheckBox;
 	import flash.events.Event;
+	import flash.display.DisplayObject;
+	import flash.text.TextField;
 
 	public class CheckBoxIsSelectedSampleCharacteristic extends CheckBox
 	{
@@ -38,5 +40,28 @@ package views.renderers
           		parentDocument.clearOutUncheckedSampleAnnotations();
           	}
           }
+			override protected function updateDisplayList(w:Number, h:Number):void
+			{
+				super.updateDisplayList(w, h);
+		
+				var n:int = numChildren;
+				for (var i:int = 0; i < n; i++)
+				{
+					var c:DisplayObject = getChildAt(i);
+					if (!(c is TextField))
+					{
+						c.x = (w - c.width) / 2;
+						c.y = 0;
+					}
+				}
+				
+				// Select or de-select checkbox based on @isSelected value
+ 				if (_data != null && _data.hasOwnProperty("@isSelected") && _data.@isSelected == "true") {
+          			this.selected = true;
+	          	} else {
+    	      		this.selected = false;
+        	  	}
+ 
+			}          
 	}
 }
