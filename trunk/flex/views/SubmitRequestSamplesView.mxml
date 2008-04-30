@@ -436,6 +436,7 @@
         public function showHideColumns():void {
         	sampleNumberCol.visible = parentDocument.isEditState();
         	sampleRowNumberCol.visible = !parentDocument.isEditState();
+        	this.showQCFieldsCheckBox.visible = parentDocument.isEditState();
         	
         	if (showQCFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
@@ -448,7 +449,6 @@
 				samplePrepMethodCol.visible = false;
 				preppedByCoreCol.visible = false;
         	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
-				showQCFieldsCheckBox.visible = false;
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
@@ -462,7 +462,6 @@
 				fragmentSizeToCol.visible = true;
 
 			} else if (currentState.indexOf('QCSamples') >= 0) {
-				showQCFieldsCheckBox.visible = true;
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
@@ -475,7 +474,6 @@
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
 			} else {
-				showQCFieldsCheckBox.visible = true;
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
@@ -497,6 +495,10 @@
 		private function refreshHybsGrid():void {
  		    parentDocument.hybsView.hybsGrid.invalidateList();
 	        parentDocument.hybsView.hybsGrid.invalidateDisplayList();
+	        if (!parentDocument.isEditState()) {
+		        parentDocument.confirmView.hybsGridConfirm.invalidateList();
+		        parentDocument.confirmView.hybsGridConfirm.invalidateDisplayList();
+	        }
 		}
 		private function refreshLanesGrid():void {
  		    parentDocument.lanesConfirmGrid.invalidateList();
@@ -509,7 +511,7 @@
 			<mx:HBox id="headerContainer" width="100%">
 				<mx:Label id="samplesTitle" text="Samples  (fields in pink are required.)"/>
 				<mx:HBox width="100%" horizontalAlign="right">
-					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="{parentDocument.isEditState() &amp;&amp; currentState.indexOf('SolexaSamples') &lt; 0}" click="showHideColumns()">
+					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="false" click="showHideColumns()">
 					</mx:CheckBox>							
 				</mx:HBox>
 			</mx:HBox>
@@ -574,7 +576,7 @@
 					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"/>
 					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"/>
 					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"/>
-					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatement == 'Y'}" width="100" dataField="@treatment"/>
+					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 				</mx:columns>
 			</mx:DataGrid>

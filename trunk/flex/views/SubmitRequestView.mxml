@@ -294,7 +294,6 @@
 			setupView.requestRadioSolexa.selected = false;
 			setupView.submitNewRequestRadio.selected = true;
 
-			samplesView.showQCFieldsCheckBox.visible = false;
 			samplesView.enabled = false;			
 			
 			if (theTab.contains(hybsView)) {
@@ -1029,7 +1028,6 @@
 					samplesView.currentState = 'QCSamplesEditState';					
 				}
 				samplesView.showHideColumns(); 
-				samplesView.showQCFieldsCheckBox.visible = true;
 
 			} else {
 				currentState = 'MicroarrayEditState';

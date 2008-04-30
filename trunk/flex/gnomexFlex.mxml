@@ -973,7 +973,7 @@
 			            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="10">
 			            </mx:HBox>
 			            
-			            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle">
+			            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}">
 			              <mx:Label text="Lookup by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false"/>
 			              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha="0.42" width="56"  fontFamily="Arial" visible="false"/>
 			              <mx:Button id="lookupButton"  
@@ -981,7 +981,7 @@
 			              	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 			            </mx:HBox>
 			            <mx:Spacer width="20"/>
-			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle">
+			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
 			              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
 			              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".42"/>
 			              <mx:Button id="searchButton" height="18" click="theViews.selectedChild=navSearchView;callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search"/>

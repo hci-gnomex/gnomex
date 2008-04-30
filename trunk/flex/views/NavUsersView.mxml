@@ -96,6 +96,7 @@
 
     <mx:Script>
         <![CDATA[
+        	import mx.managers.PopUpManager;
 
           import mx.rpc.events.ResultEvent; 
 		  import mx.controls.Alert;
@@ -158,6 +159,11 @@
            	this.selectedUser = null;
            	this.fullUser = null;
             detailViews.selectedChild = this.userDetailView;
+            
+            var addWindow:views.UserAddView = views.UserAddView(mx.managers.PopUpManager.createPopUp(this, views.UserAddView, true));
+            mx.managers.PopUpManager.centerPopUp(addWindow);
+            addWindow.setFocus();
+            addWindow.firstName.setFocus();
           }
           public function prepareToAddGroup():void 
            {
@@ -281,7 +287,7 @@
           private function onDeleteAppUser(event:ResultEvent):void {          	
           	if (deleteAppUser.lastResult.name() == "SUCCESS") {          		
               refreshAppUserList();
-              detailViews.selectedChild = this.userDetailView;              
+              detailViews.selectedChild = this.userEmptyView;              
             } else {
             	Alert.show("Delete user failed. " + deleteAppUser.lastResult..ACTMESSAGE.@TEXT);
             }
