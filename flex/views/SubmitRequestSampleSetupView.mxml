@@ -153,6 +153,9 @@
 		}
 		
 		private function selectDefaultSamplePrepMethod():void {
+			if (sampleTypeCombo.selectedItem == null || sampleTypeCombo.selectedItem.@value == '') {
+				return;
+			}
 			if (samplePrepMethodCombo.dataProvider.length > 1) {
 				for each(var item:Object in samplePrepMethodCombo.dataProvider) {
 
@@ -209,7 +212,13 @@
 				bioanalyzerChipTypeGrid.selectedItem.@isSelected = "true";
 			}
 			toggleOtherChipTypeSelections(bioanalyzerChipTypeGrid.selectedItem.@value);
-		}
+          	// initialize the samples grid
+          	parentDocument.samplesView.initializeSamplesGrid();
+          	// propagate selected chip type to samples
+          	propagateChipType();       	
+          	// check for sampleSetup completeness
+          	checkSampleSetupCompleteness();
+        }
 
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
