@@ -25,14 +25,14 @@
  		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project" &&
  		    parentDocument.parentDocument.selectedProject != null) {
  			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility == "Y") {
- 				parentDocument.saveVisibilityButton.visible = true;
+ 				parentDocument.saveVisibilityButton.enabled = true;
  				projectVisibilityCombo.enabled = true;
  			} else {
- 				parentDocument.saveVisibilityButton.visible = false;
+ 				parentDocument.saveVisibilityButton.enabled = false;
  				projectVisibilityCombo.enabled = false;
  			}
  		} else {
- 			parentDocument.saveVisibilityButton.visible = false;
+ 			parentDocument.saveVisibilityButton.enabled = false;
  			projectVisibilityCombo.enabled = false;
  		}
  	}
