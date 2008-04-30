@@ -13,7 +13,7 @@ Learn more about Flex at http://flex.org
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title></title>
+<title>GNomEx</title>
 <script src="AC_OETags.js" language="javascript"></script>
 <style>
 body { margin: 0px; overflow:hidden }
