@@ -347,10 +347,10 @@
 			   <mx:Label text="Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)"></mx:Label>
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
 						<mx:HBox id="buttonContainer">
-							<mx:Button label="Add" click="addHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addHybButton"/>
-							<mx:Button label="Copy" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyHybButton"/>
-							<mx:Button label="Delete" click="deleteHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteHybButton"/>
-							<mx:Button label="Clear all" click="promptToClearAllHybs()" icon="@Embed('../assets/folder_delete.png')" id="clearHybsButton"/>
+							<mx:Button click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../assets/add.png')" id="addHybButton" width="24" toolTip="Add hyb"/>
+							<mx:Button click="copyHyb();checkHybsCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copyHybButton" width="24" toolTip="Copy hyb"/>
+							<mx:Button click="deleteHyb();checkHybsCompleteness()" icon="@Embed(source='../assets/delete.png')" id="deleteHybButton" width="24" toolTip="Delete hyb(s)"/>
+							<mx:Button click="promptToClearAllHybs()" icon="@Embed('../assets/folder_delete.png')" id="clearHybsButton" width="24" toolTip="Clear all hybs"/>
 						</mx:HBox>
 						
 						<mx:HBox horizontalAlign="right" width="100%">

@@ -85,7 +85,7 @@
 	<mx:VDividedBox  width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	
 		<mx:VBox  width="100%">
-			<mx:HBox>
+			<mx:HBox verticalAlign="bottom">
 				<mx:VBox verticalGap="1" width="100%">
 					<mx:Label text="Last name"/>
 					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="200"/>
@@ -94,6 +94,11 @@
 					<mx:Label text="First name"/>
 					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}" width="200"/>
 				</mx:VBox>
+				<mx:CheckBox id="isActive" label="User is Active" >
+				</mx:CheckBox>
+				
+			</mx:HBox>
+			<mx:HBox verticalAlign="middle">
 				<mx:VBox verticalGap="1"  width="100%" >
 					<mx:Label text="Email" id="Label"/>
 					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200"/>
@@ -102,9 +107,6 @@
 					<mx:Label text="Phone" id="Label0"/>
 					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="200"/>
 				</mx:VBox>
-				
-			</mx:HBox>
-			<mx:HBox>
 				<mx:VBox verticalGap="1"   width="100%" >
 					<mx:Label text="Department" id="Label1"/>
 					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}" width="200"/>
@@ -113,8 +115,6 @@
 					<mx:Label text="Institution" id="Label2"/>
 					<mx:TextInput width="200" id="institute" text="{parentDocument.fullUser.@institute}"/>
 				</mx:VBox>
-				<mx:CheckBox id="isActive" label="Active" >
-				</mx:CheckBox>
 				
 			</mx:HBox>
 		  	<mx:HBox width="100%">
