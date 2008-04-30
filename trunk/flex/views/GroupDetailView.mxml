@@ -186,9 +186,9 @@
 		<mx:TabNavigator width="100%" height="100%"  styleName="form" >
 			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
 				
-				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="5" horizontalAlign="left" width="100%">
-				   <mx:VBox   height="100%" verticalGap="1" width="100%">
-					   	<mx:HBox verticalAlign="top" horizontalGap="10">
+				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
+				   <mx:VBox   height="100%" verticalGap="8" width="100%">
+					   	<mx:HBox verticalAlign="bottom" horizontalGap="10">
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Name"/>
 								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="200"/>
@@ -197,7 +197,7 @@
 								<mx:Label text="Department" />
 								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="200"/>
 							</mx:VBox>
-					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?"/>
+					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member"/>
 					   		
 					   	</mx:HBox>
 						<mx:HBox  verticalGap="0" width="100%" height="100%" horizontalAlign="right" horizontalGap="20">

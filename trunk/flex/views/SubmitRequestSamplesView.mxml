@@ -514,10 +514,10 @@
 				</mx:HBox>
 			</mx:HBox>
 			<mx:HBox id="buttonsContainer">
-				<mx:Button label="Add" click="addSample();checkSamplesCompleteness()" icon="@Embed('../assets/table_row_insert.png')" id="addSampleButton"/>
-				<mx:Button label="Copy" click="copySample();checkSamplesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copySampleButton"/>
-				<mx:Button label="Delete" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed('../assets/table_row_delete.png')" id="deleteSampleButton"/>
-				<mx:Button label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../assets/folder_delete.png')" id="clearSamplesButton"/>
+				<mx:Button click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../assets/add.png')" id="addSampleButton" toolTip="Add sample" width="24"/>
+				<mx:Button click="copySample();checkSamplesCompleteness()" icon="@Embed('../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" width="24"/>
+				<mx:Button click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" width="24"/>
+				<mx:Button click="promptToClearAllSamples();deleteSample();" icon="@Embed('../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" width="24"/>
 			</mx:HBox>
 					
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto">
