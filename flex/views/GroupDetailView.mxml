@@ -10,7 +10,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveGroup(event)"
-     fault="onFailSaveGroup(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to save group', event)"
     method="POST"
     useProxy="false">
     <mx:request>    
@@ -24,6 +24,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="onGetLab(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
     useProxy="false">
     </mx:HTTPService >
   
@@ -158,11 +159,6 @@
 			}
 			
 		}
-		
-		private function onFailSaveGroup(event:FaultEvent):void {
-        	Alert.show("failed to save Group " + event.message);
-        }
-
  
         
         private function onGetLab(event:ResultEvent):void {

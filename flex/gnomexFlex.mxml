@@ -7,6 +7,143 @@
 	
     <mx:Fade id="fadeOut" duration="100"/>
     <mx:Fade id="fadeIn" duration="100"/>
+    	
+	<mx:HTTPService 
+    id="createSecurityAdvisor" 
+    url="CreateSecurityAdvisor.gx"
+    resultFormat="e4x"
+    result="onCreateSecurityAdvisor(event)"
+    fault="onFailCreateSecurityAdvisor(event)"
+    destination="createSecurityAdvisor"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService > 
+        	
+	<mx:HTTPService 
+    id="createSecurityAdvisorForGuest" 
+    url="getSecurityAdvisorInfo.jsp"
+    resultFormat="e4x"
+    result="onCreateSecurityAdvisorForGuest(event)"
+	fault="onFailHttpRequest('Failed to create security advisor for guest', event)"
+    destination="createSecurityAdvisorForGuest"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService > 
+    
+    
+    <mx:HTTPService 
+    id="getAppUserList" 
+    url="GetAppUserList.gx"
+    resultFormat="e4x"
+    result="onGetAppUserList(event)"
+    destination="getAppUserList"
+	fault="onFailHttpRequest('Failed to get user list', event)"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+        
+    <mx:HTTPService 
+    id="manageDictionaries" 
+    url="ManageDictionaries.gx"
+    resultFormat="e4x"
+    result="onManageDictionaries(event)"
+	fault="onFailHttpRequest('Failed to load dictionaries', event)"
+    destination="manageDictionaries"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+       <action>load</action>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getExperimentDesignList" 
+    url="GetExperimentDesignList.gx"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    destination="getExperimentDesignList"
+    result="onGetExperimentDesignList(event)"
+	fault="onFailHttpRequest('Failed to get experiment design list', event)"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getExperimentFactorList" 
+    url="GetExperimentFactorList.gx"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    result="onGetExperimentFactorList(event)"
+	fault="onFailHttpRequest('Failed to get experiment factor list', event)"
+    destination="getExperimentFactorList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+         
+         
+    <mx:HTTPService 
+    id="getLabList" 
+    url="GetLabList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetLabList(event)"
+	fault="onFailHttpRequest('Failed to get lab list', event)"
+    destination="getLabList"
+    useProxy="false">
+    <mx:request>
+           <listKind>UnboundedLabList</listKind>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getSlideProductList" 
+    url="GetSlideProductList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetSlideProductList(event)"
+	fault="onFailHttpRequest('Failed to slide product list', event)"
+    destination="getSlideProductList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+        
+    <mx:HTTPService 
+    id="getSlideDesignList" 
+    url="GetSlideDesignList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetSlideDesignList(event)"
+	fault="onFailHttpRequest('Failed to slide design list', event)"
+    destination="getSlideDesignList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getProjectList" 
+    url="GetProjectList.gx"
+    resultFormat="e4x"
+    result="onGetProjectList(event)"
+    destination="getProjectList"
+	fault="onFailHttpRequest('Failed to project list', event)"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+
 	     
         <mx:Style source="css/gnomex_flex.css" />
         
@@ -810,146 +947,25 @@
 	        
             
         public function onFailHttpRequest(title:String, event:FaultEvent):void {
-        	var startPos:int = event.message.body.indexOf("TEXT=");
-        	var endPos:int   = event.message.body.indexOf("TYPE=");
-        	if (startPos != -1 && endPos != -1) {
-	        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), title);    		
+        	if (event.message.body is String) {
+	        	var startPos:int = event.message.body.indexOf("TEXT=");
+	        	var endPos:int   = event.message.body.indexOf("TYPE=");
+	        	if (startPos != -1 && endPos != -1) {
+		        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), title);    		
+	        	} else {
+	        		Alert.show(event.message.body.toString(), title);
+	        	}        
+        		
         	} else {
-        		Alert.show(event.message.body.toString(), title);
-        	}        
+        		Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, title);
+        		
+        	}
         }
             
             
         ]]>
     </mx:Script>
     
-    	
-	<mx:HTTPService 
-    id="createSecurityAdvisor" 
-    url="CreateSecurityAdvisor.gx"
-    resultFormat="e4x"
-    result="onCreateSecurityAdvisor(event)"
-    fault="onFailCreateSecurityAdvisor(event)"
-    destination="createSecurityAdvisor"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService > 
-        	
-	<mx:HTTPService 
-    id="createSecurityAdvisorForGuest" 
-    url="getSecurityAdvisorInfo.jsp"
-    resultFormat="e4x"
-    result="onCreateSecurityAdvisorForGuest(event)"
-    destination="createSecurityAdvisorForGuest"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService > 
-    
-    
-    <mx:HTTPService 
-    id="getAppUserList" 
-    url="GetAppUserList.gx"
-    resultFormat="e4x"
-    result="onGetAppUserList(event)"
-    destination="getAppUserList"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-    
-        
-    <mx:HTTPService 
-    id="manageDictionaries" 
-    url="ManageDictionaries.gx"
-    resultFormat="e4x"
-        result="onManageDictionaries(event)"
-    destination="manageDictionaries"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-       <action>load</action>
-    </mx:request>
-    </mx:HTTPService >
-    
-    <mx:HTTPService 
-    id="getExperimentDesignList" 
-    url="GetExperimentDesignList.gx"
-    resultFormat="e4x"
-    showBusyCursor="false"
-    destination="getExperimentDesignList"
-    result="onGetExperimentDesignList(event)"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-    
-    <mx:HTTPService 
-    id="getExperimentFactorList" 
-    url="GetExperimentFactorList.gx"
-    resultFormat="e4x"
-    showBusyCursor="false"
-    result="onGetExperimentFactorList(event)"
-    destination="getExperimentFactorList"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-         
-         
-    <mx:HTTPService 
-    id="getLabList" 
-    url="GetLabList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetLabList(event)"
-    destination="getLabList"
-    useProxy="false">
-    <mx:request>
-           <listKind>UnboundedLabList</listKind>
-    </mx:request>
-    </mx:HTTPService >
-    
-    <mx:HTTPService 
-    id="getSlideProductList" 
-    url="GetSlideProductList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetSlideProductList(event)"
-    destination="getSlideProductList"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-    
-        
-    <mx:HTTPService 
-    id="getSlideDesignList" 
-    url="GetSlideDesignList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetSlideDesignList(event)"
-    destination="getSlideDesignList"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-    
-    <mx:HTTPService 
-    id="getProjectList" 
-    url="GetProjectList.gx"
-    resultFormat="e4x"
-    result="onGetProjectList(event)"
-    destination="getProjectList"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
     
     <mx:XMLListCollection id="dictionaryEntries" source="{manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingReactionSize').DictionaryEntry}"/>
     <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}" sort="{experimentDesignSorter}"/>

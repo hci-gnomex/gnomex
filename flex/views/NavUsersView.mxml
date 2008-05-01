@@ -13,6 +13,7 @@
     url="GetAppUserList.gx"
     resultFormat="e4x"
     result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get user list', event)"
     destination="getAppUserList"
     useProxy="false">
     <mx:request>
@@ -26,6 +27,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get user', event)"
     useProxy="false">
     <mx:request>
             <idAppUser>{selectedUser.@idAppUser}</idAppUser>
@@ -39,6 +41,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="onDeleteAppUser(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete user', event)"
     useProxy="false">
     <mx:request>
             <idAppUser>{selectedUser.@idAppUser}</idAppUser>
@@ -51,6 +54,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get group list', event)"
     destination="getLabList"
     useProxy="false">
     <mx:request>
@@ -65,6 +69,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
     useProxy="false">
     <mx:request>
             <idLab>{selectedLab.@idLab}</idLab>
@@ -79,6 +84,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="onDeleteLab(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete group', event)"
     useProxy="false">
     <mx:request>
             <idLab>{selectedLab.@idLab}</idLab>
@@ -170,6 +176,13 @@
            	this.selectedLab = null;
            	this.fullLab = null;
             detailViews.selectedChild = this.groupDetailView;
+
+            
+            var addWindow:views.GroupAddView = views.GroupAddView(mx.managers.PopUpManager.createPopUp(this, views.GroupAddView, true));
+            mx.managers.PopUpManager.centerPopUp(addWindow);
+            addWindow.setFocus();
+            addWindow.labName.setFocus();
+
           }
           
           public function refreshAppUserList():void 

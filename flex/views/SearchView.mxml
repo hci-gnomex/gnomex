@@ -11,7 +11,7 @@
     destination="searchGNomEx"
     resultFormat="e4x"
     result="onSearchIndex(event)"
-    fault="onSearchIndexFailed(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to search index', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -144,15 +144,6 @@
         	callLater(parentDocument.expandAllNodes);
         }
         
-        private function onSearchIndexFailed(event:FaultEvent):void {
-        	Alert.show("Service failed");
-        	var errors:String = "On search failed:\n";
-        	errors += "\nfault code: " + event.fault.faultCode;
-        	errors += "\nfault detail: " + event.fault.faultDetail;
-        	errors += "\nfault string: " + event.fault.faultString;
-        	trace(errors);
-        			
-        }
 
 		public function clearForm():void {
 			this.text1.text = "";

@@ -12,7 +12,33 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="onGetAppUser(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get user', event)"
     useProxy="false">    
+    </mx:HTTPService >
+    
+
+    <mx:HTTPService 
+    id="saveAppUser" 
+    url="SaveAppUser.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onSaveAppUser(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save user', event)"
+    useProxy="false">
+    <mx:request>
+            <idAppUser>{parentDocument.fullUser != null ? parentDocument.fullUser.@idAppUser : "0"}</idAppUser>
+            <lastName>{lastName.text}</lastName>
+            <firstName>{firstName.text}</firstName>
+            <uNID>{uNID.text}</uNID>
+            <institute>{institute.text}</institute>
+            <department>{department.text}</department>
+            <phone>{phone.text}</phone>
+            <email>{email.text}</email>
+            <userNameExternal>{externalUserName.text}</userNameExternal>
+            <passwordExternal>{externalUserPassword.text}</passwordExternal>
+            <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
+            <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
+    </mx:request>
     </mx:HTTPService >
     
     <mx:Script>
@@ -42,9 +68,6 @@
             	
             }
             
-            private function onFailSaveAppUser(event:FaultEvent):void {
-            	Alert.show("An error occurred.  The user record did not save.");
-            }
             
             private function onGetAppUser(event:ResultEvent):void {
               parentDocument.fullUser = getAppUser.lastResult.AppUser.(@idAppUser = savedIdAppUser);
@@ -55,29 +78,6 @@
     </mx:Script>
 
 
-    <mx:HTTPService 
-    id="saveAppUser" 
-    url="SaveAppUser.gx"
-    showBusyCursor="true"
-    resultFormat="e4x"
-    result="onSaveAppUser(event)"
-    fault="onFailSaveAppUser(event)"
-    useProxy="false">
-    <mx:request>
-            <idAppUser>{parentDocument.fullUser != null ? parentDocument.fullUser.@idAppUser : "0"}</idAppUser>
-            <lastName>{lastName.text}</lastName>
-            <firstName>{firstName.text}</firstName>
-            <uNID>{uNID.text}</uNID>
-            <institute>{institute.text}</institute>
-            <department>{department.text}</department>
-            <phone>{phone.text}</phone>
-            <email>{email.text}</email>
-            <userNameExternal>{externalUserName.text}</userNameExternal>
-            <passwordExternal>{externalUserPassword.text}</passwordExternal>
-            <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
-            <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
-    </mx:request>
-    </mx:HTTPService >
     
 	<mx:VBox height="100%" width="100%"  styleName="form">
     

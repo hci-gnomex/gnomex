@@ -13,6 +13,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProjectRequestList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
     method="POST" 
     useProxy="false">
     <mx:request>
@@ -31,6 +32,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequest(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -43,6 +45,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequestForDownload(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get request for download', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -54,6 +57,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onDeleteRequest(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete request', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -67,6 +71,7 @@
     showBusyCursor="true"
     result="onGetProject(event)"
     method="POST"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get project', event)"
     useProxy="false">
     <mx:request>
       <idProject>{selectedIdProject}</idProject>
@@ -80,6 +85,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveRequestProject(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to reassign experiment project', event)"
     method="POST"
     useProxy="false">    
   </mx:HTTPService>
