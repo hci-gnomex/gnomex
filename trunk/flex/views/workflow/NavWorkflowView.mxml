@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+	xmlns:views="views.*" xmlns:workflow="views.workflow.*"  xmlns:WorkflowView="WorkflowView.*" 
+	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
+	label="Workflow" width="100%" height="100%" >
+
+    <mx:Script>
+        <![CDATA[ 
+        import mx.controls.Alert;
+        
+        private function onMicroarrayWorklistChange():void {
+        	if (microarrayViews.selectedChild == workflowQCView) {
+        		workflowQCView.getWorkListQC.send();
+        	} else if (microarrayViews.selectedChild == workflowLabelingView) {
+        		workflowLabelingView.getWorkList.send();
+        	} else if (microarrayViews.selectedChild  == workflowHybView) {
+        		workflowHybView.getWorkList.send();
+        	} else if (microarrayViews.selectedChild == workflowExtractionView) {
+        		workflowExtractionView.getWorkList.send();
+        	}
+			detailViews.selectedIndex = 0;
+			detailViews.visible = true;
+
+        }
+        private function onSolexaWorklistChange():void {
+        	if (solexaViews.selectedIndex == 0) {
+        		//workflowQCView.getWorkListQC.send();
+        	} else if (solexaViews.selectedIndex == 1) {
+        		//workflowLabelingView.getWorkList.send();
+        	} else if (solexaViews.selectedIndex == 2) {
+        		//workflowHybView.getWorkList.send();
+        	} 
+			detailViews.selectedIndex = 1;
+			detailViews.visible = true;
+
+        }
+        ]]>
+    </mx:Script>
+
+
+	<mx:HDividedBox width="100%" height="100%">
+
+		<mx:Accordion height="100%">
+			<mx:Canvas label="Microarray Workflow" width="100%" height="100%" >
+				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
+			  		
+			  		<mx:LinkBar dataProvider="microarrayViews" direction="vertical"   selectedIndex="4"  itemClick="onMicroarrayWorklistChange()" textDecoration="underline" styleName="navLinkBar" >
+			  		</mx:LinkBar>
+				
+				</mx:VBox>
+			</mx:Canvas >
+			<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
+				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
+					
+			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="navLinkBar">
+			  		</mx:LinkBar>
+				</mx:VBox>
+			</mx:Canvas>
+			
+		</mx:Accordion>
+		    
+			
+	
+		<mx:ViewStack id="detailViews" width="100%" height="100%">
+			<mx:ViewStack id="microarrayViews"  visible="true" height="100%" width="100%"  >
+
+
+	           <workflow:WorkflowQCView label="Quality Control" id="workflowQCView" icon="@Embed('../../assets/chart_curve.png')"/> 
+	           
+	           <workflow:WorkflowLabelingView label="Labeling" id="workflowLabelingView" icon="@Embed('../../assets/asterisk_yellow.png')"/>
+	    
+	           <workflow:WorkflowHybView label="Hybridization" id="workflowHybView" icon="@Embed('../../assets/basket_put.png')"/>
+	
+	           <workflow:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="@Embed('../../assets/color_swatch.png')"/>
+               
+               <mx:Canvas label="">
+               </mx:Canvas>
+               
+            </mx:ViewStack>
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
+	
+			   <mx:Canvas id="samplePrepView" label="Sample Prep"  icon="@Embed(source='../../assets/bullet_wrench.png')"/>
+			   <mx:Canvas id="assembleRunView" label="Assemble Run"  icon="@Embed(source='../../assets/sitemap.png')"/>
+			   <mx:Canvas id="sequencingView" label="Sequencing"  icon="@Embed(source='../../assets/text_linespacing.png')"/>
+	           <mx:Canvas label=""/>
+		</mx:ViewStack>
+			
+		</mx:ViewStack>
+		
+	
+	</mx:HDividedBox>
+	
+	
+  		
+	
+    
+</mx:Canvas>

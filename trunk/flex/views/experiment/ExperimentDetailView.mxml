@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+		import mx.events.CloseEvent;
+		import mx.controls.Alert;
+		import views.experiment.ExperimentEditView;
+	
+		[Bindable]
+		private var requestCategoryName:String;
+		[Bindable]
+		private var experimentCategoryName:String;
+		[Bindable]
+		private var billingAccountName:String;
+		
+		public function checkSecurity():void {
+			if (parentApplication.isGuestMode()) {
+				this.showCy3LabelingFieldsCheckBox.visible = false;
+				this.showCy5LabelingFieldsCheckBox.visible = false;
+				this.showExtFieldsCheckBox.visible = false;
+				this.showHybFieldsCheckBox.visible = false;
+				this.showQCFieldsCheckBox.visible = false;
+				this.showWorkflowLabel.visible = false;
+				this.requestFormButton.visible = false;
+			}
+		}
+	
+		public function setupForm():void {
+			this.currentState = '';						
+			this.theViews.selectedIndex = 0;
+			if (parentDocument.selectedExperiment.@codeRequestCategory == "QC") {
+				currentState = 'QCState';
+			} else if (parentDocument.selectedExperiment.@codeRequestCategory == 'SOLEXA') {
+				currentState = 'SolexaState';
+			} else {
+				currentState = 'MicroarrayState';
+
+				
+				showCy3LabelingFieldsCheckBox.selected = false;
+				showCy5LabelingFieldsCheckBox.selected = false;
+				showHybFieldsCheckBox.selected = false;
+				showExtFieldsCheckBox.selected = false;
+
+			}
+
+
+			showQCFieldsCheckBox.selected = false;
+
+
+			getRequestCategoryName();
+			getExperimentCategoryName();
+			getBillingAccountName();
+			callLater(showHideColumns);
+			
+		}
+		
+		private function showCy3LabelCols(isVisible:Boolean):void {
+			labelCol1.visible = isVisible;
+			labelCol2.visible = isVisible;
+			labelCol3.visible = isVisible;
+			labelCol4.visible = isVisible;
+			labelCol5.visible = isVisible;
+		}
+			
+		private function showCy5LabelCols(isVisible:Boolean):void {
+			labelCol6.visible = isVisible;
+			labelCol7.visible = isVisible;
+			labelCol8.visible = isVisible;
+			labelCol9.visible = isVisible;
+			labelCol10.visible = isVisible;
+		}
+
+	    private function getChannel1SampleName(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@name;
+	    	} else {
+	    		return "";
+	    	}
+		}
+		private function getChannel2SampleName(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel2.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@name;
+	    	} else {
+	    		return "";
+	    	}
+		}
+		private function getChannel1SampleNumber(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@number;
+	    	} else {
+	    		return "";
+	    	}
+		}
+		private function getChannel2SampleNumber(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel2.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@number;
+	    	} else {
+	    		return "";
+	    	}
+		}
+
+   	 	private function getSamplesGridRowNumber(item:Object,col:int):String
+	    {
+    	   var x:int = samplesGridConfirm.dataProvider.getItemIndex(item) + 1;
+	       return String(x);
+	    } 
+   	 	private function getHybsGridRowNumber(item:Object,col:int):String
+	    {
+    	   var x:int = hybsGridConfirm.dataProvider.getItemIndex(item) + 1;
+	       return String(x);
+	    } 
+
+		private function getRequestCategoryName():void {
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == parentDocument.selectedExperiment.@codeRequestCategory);
+			requestCategoryName = requestCategory.@display.toString();
+		}
+		private function getExperimentCategoryName():void {
+			var experimentCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == parentDocument.selectedExperiment.@codeMicroarrayCategory);
+			experimentCategoryName = experimentCategory.@display.toString();
+		}
+		private function getBillingAccountName():void {
+			var billingAccount:Object = null;
+			for each(var lab:Object in parentApplication.promptedSubmitRequestLabList) {
+				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
+					if (ba.@idBillingAccount == parentDocument.selectedExperiment.@idBillingAccount) {
+						billingAccount = ba;
+						break;
+					}
+						
+				}
+			}
+			if (billingAccount != null) {
+				billingAccountName = billingAccount.@accountName;
+			}
+		}
+		
+		private function showDownloads():void {
+			parentDocument.showExperimentDownloads();
+		}
+
+	  	public function promptToDeleteExperiment():void {
+			Alert.show("Delete experiment " + parentDocument.selectedExperiment.@number + "?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDeleteExperiment);
+			
+	  	}
+		
+	  	private function onPromptToDeleteExperiment(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	deleteExperiment();
+            }
+      	}
+		private function deleteExperiment():void {
+			parentDocument.deleteExperiment();
+		}
+		
+		private function showPrintableRequestForm():void {
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + parentDocument.selectedExperiment.@idRequest);
+			navigateToURL(url, '_blank');			
+		}
+		
+		private function showEditExperimentWindow():void {
+			 // add this get request code b/c the edit window was freezing the second time 
+			 // the edit window was pressed.  by putting this extra call in, it seems to clear
+			 // out some weird state.
+			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+			 var parms:Object = new Object();
+			 parms.idRequest = parentDocument.selectedIdRequest;
+			 parentDocument.getRequest.send(parms);
+ 
+			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
+			 editWindow.width= 1000;
+			 editWindow.height= 500;
+			 editWindow.showCloseButton = true;
+			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedExperiment.@number;
+			 PopUpManager.centerPopUp(editWindow);		
+             editWindow.setupEditForm(parentDocument.selectedExperiment);
+           	 editWindow.initializeData();
+		}
+		
+		public function refreshSavedExperiment():void {
+			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+			 var parms:Object = new Object();
+			 parms.idRequest = parentDocument.selectedIdRequest;
+			 parentDocument.getRequest.send(parms);
+			
+		}
+
+		public function getLanesGridRowNumber(item:Object,col:int):String
+        {
+           var x:int = this.lanesConfirmGrid.dataProvider.getItemIndex(item) + 1;
+           return String(x);     		
+        }
+		public function getLaneSampleName(item:Object,col:int):String
+        {
+        	var sampleName:String = "";
+    		for each(var sample:Object in this.samplesGridConfirm.dataProvider) {
+    			if (sample.@idSample == item.@idSample) {
+    				sampleName = sample.@name;
+    				break;
+    			}
+    		}
+        	return sampleName;
+        }
+        
+
+        
+       
+		public function getLaneSampleNumber(item:Object,col:int):String
+        {
+        	var sampleNumber:String = "";
+    		for each(var sample:Object in this.samplesGridConfirm.dataProvider) {
+    			if (sample.@idSample == item.@idSample) {
+    				sampleNumber = sample.@number;
+    				break;
+    			}
+    		}
+        	return sampleNumber;
+        }
+        
+        private function showHideColumns():void {
+       	if (this.showQCFieldsCheckBox.selected) {
+				concentrationCol.visible = false; 
+				sampleTypeCol.visible = false;
+				organismCol.visible = false;
+				sampleSourceCol.visible = false;
+				preppedByLabCol.visible = false;
+				samplePrepCol.visible = false;
+				chipTypeCol.visible = false;
+				concentrationUnitCol.visible = false;
+
+				AGE0.visible = false;
+				CELLLINE0.visible = false;   
+				CELLTYPE0.visible = false;   
+				CLININFO0.visible = false;   
+				COMPOUND0.visible = false;   
+				DISSTATE0.visible = false;   
+				DOSE0.visible = false;   
+				GENMOD0.visible = false;   
+				GENOTYPE0.visible = false;   
+				GROWTHCOND0.visible = false;   
+				INDIV0.visible = false;   
+				ORGPART0.visible = false;   
+				SEX0.visible = false;   
+				TEMP0.visible = false;   
+				TIME0.visible = false;   
+				otherDataColumnConfirm.visible = false;   
+				treatmentCol.visible = false;   
+				descriptionCol.visible = false;   
+        		
+        	} else {
+				AGE0.visible = parentDocument.selectedExperiment.@AGE == 'Y' ? true : false;        		
+				CELLLINE0.visible = parentDocument.selectedExperiment.@CELLLINE == 'Y' ? true : false;   
+				CELLTYPE0.visible = parentDocument.selectedExperiment.@CELLTYPE == 'Y' ? true : false;   
+				CLININFO0.visible = parentDocument.selectedExperiment.@CLININFO == 'Y' ? true : false;   
+				COMPOUND0.visible = parentDocument.selectedExperiment.@COMPOUND == 'Y' ? true : false;   
+				DISSTATE0.visible = parentDocument.selectedExperiment.@DISSTATE == 'Y' ? true : false;   
+				DOSE0.visible = parentDocument.selectedExperiment.@DOSE == 'Y' ? true : false;   
+				GENMOD0.visible = parentDocument.selectedExperiment.@GENMOD == 'Y' ? true : false;   
+				GENOTYPE0.visible = parentDocument.selectedExperiment.@GENOTYPE == 'Y' ? true : false;   
+				GROWTHCOND0.visible = parentDocument.selectedExperiment.@GROWTHCOND == 'Y' ? true : false;   
+				INDIV0.visible = parentDocument.selectedExperiment.@INDIV == 'Y' ? true : false;   
+				ORGPART0.visible = parentDocument.selectedExperiment.@ORGPART == 'Y' ? true : false;   
+				SEX0.visible = parentDocument.selectedExperiment.@SEX == 'Y' ? true : false;   
+				TEMP0.visible = parentDocument.selectedExperiment.@TEMP == 'Y' ? true : false;   
+				TIME0.visible = parentDocument.selectedExperiment.@TIME == 'Y' ? true : false;   
+				otherDataColumnConfirm.visible = parentDocument.selectedExperiment.@OTHER == 'Y' ? true : false;   
+				treatmentCol.visible = parentDocument.selectedExperiment.@treatment == 'Y' ? true : false;   
+				descriptionCol.visible = true;   
+
+	        	if (currentState == 'SolexaState') {
+					concentrationCol.visible = true; 
+					sampleTypeCol.visible = true;
+					organismCol.visible = true;
+					sampleSourceCol.visible = true;
+					preppedByLabCol.visible = true;
+					samplePrepCol.visible = true;
+					chipTypeCol.visible = false;
+					concentrationUnitCol.visible = false;
+	        		
+	        	} else if (currentState == 'QCState') {
+					concentrationCol.visible = false; 
+					sampleTypeCol.visible = false;
+					organismCol.visible = false;
+					sampleSourceCol.visible = false;
+					preppedByLabCol.visible = false;
+					samplePrepCol.visible = true;
+					chipTypeCol.visible = true;
+					concentrationUnitCol.visible = true;
+	        		
+	        	} else {
+					concentrationCol.visible = true; 
+					sampleTypeCol.visible = true;
+					organismCol.visible = true;
+					sampleSourceCol.visible = true;
+					preppedByLabCol.visible = false;
+					samplePrepCol.visible = true;
+					chipTypeCol.visible = false;
+					concentrationUnitCol.visible = false;        		
+        		}
+        	} 
+        }
+
+	]]>
+</mx:Script>
+
+<mx:VBox width="100%" height="100%"  styleName="form" >
+	
+		
+	<mx:ViewStack id="theViews"  width="100%" height="100%" >
+
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+		    <mx:VBox height="100%"  width="100%" verticalGap="0">
+		        <mx:HBox width="100%" paddingTop="4" paddingBottom="10" horizontalGap="6" paddingLeft="6" paddingRight="6">
+		        	<mx:VBox verticalGap="0">
+		        		<mx:HBox horizontalGap="0">
+		                    <mx:Label text="#"  width="90" fontWeight="bold">
+		                    </mx:Label>
+		                    <mx:Text  id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80" />
+		                </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
+		                  <mx:Text text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
+		                </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label width="90" text="Completed on" fontWeight="bold"/>
+		                  <mx:Text  text="{parentDocument.selectedExperiment.@completedDate}" width="80" />
+		                </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox verticalGap="0">
+			        	
+			        	 <mx:HBox verticalGap="0" horizontalGap="0">
+			        	   <mx:Label text="Submitter"  width="105" fontWeight="bold"/>
+			        	   <mx:Text text="{parentDocument.selectedExperiment.@ownerName}" width="180" />
+			        	 </mx:HBox>
+			        	 <mx:HBox verticalGap="0" horizontalGap="0">
+			        	       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
+			        	       <mx:Text text="{requestCategoryName}" width="180" />
+			        	   </mx:HBox>
+			            <mx:HBox verticalGap="0" horizontalGap="0">
+			                <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
+			                <mx:Text  text="{experimentCategoryName}" width="180" />
+			            </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox width="100%" verticalGap="0">
+			        	
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                   <mx:Label text="Group"  width="55" fontWeight="bold"/>
+			                   <mx:Text text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
+			               </mx:HBox>
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                <mx:Label text="Account"  width="55" fontWeight="bold"/>
+			                <mx:Text text="{billingAccountName}" width="100%" />
+			            </mx:HBox>
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                <mx:Label text="Project"  width="55" fontWeight="bold"/>
+			                <mx:Text  text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
+			            </mx:HBox>
+		        	</mx:VBox>
+		        </mx:HBox>
+	
+				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+					<mx:VBox verticalGap="0" width="100%" height="100%">
+						<mx:HBox width="100%" horizontalGap="2">
+							<mx:Label text="{'Samples'}" fontWeight="bold"/>
+							<mx:Spacer width="74"/>
+							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="{currentState != 'SolexaState'}" click="showHideColumns()"/>
+						</mx:HBox>
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
+							<mx:columns>
+								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+								<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
+				                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
+					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  labelFunction="parentApplication.lookupSampleTypeName"/>
+					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" labelFunction="parentApplication.lookupOrganism"/>
+					            <mx:DataGridColumn id="sampleSourceCol" headerText="Sample Source" visible="{true}"  width="50" labelFunction="parentApplication.lookupSampleSource"/>
+					            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
+					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" labelFunction="parentApplication.lookupSamplePrepMethod"/>
+				                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" labelFunction="parentApplication.lookupChipType" />
+								
+
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 28s/18s" width="80" dataField="@qual28sTo18sRibosomalRatio"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
+
+								
+								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{parentDocument.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
+								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{parentDocument.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!parentDocument.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{parentDocument.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{parentDocument.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{parentDocument.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{parentDocument.selectedExperiment.@DOSE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{parentDocument.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{parentDocument.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{parentDocument.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{parentDocument.selectedExperiment.@INDIV == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{parentDocument.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{parentDocument.selectedExperiment.@SEX == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!parentDocument.selectedExperiment.@TEMP == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{parentDocument.selectedExperiment.@TIME == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{parentDocument.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{parentDocument.selectedExperiment.@OTHER == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="treatmentCol" visible="{parentDocument.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
+
+								<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:VBox>
+					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="8">
+							<mx:Label text="{'Hybridizations'}" fontWeight="bold"/>
+							<mx:Spacer width="40"/>
+							<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
+							<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
+							<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
+							<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
+							<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
+						</mx:HBox>
+						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+							<mx:columns>
+								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
+							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
+							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
+							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
+
+								<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1">
+									<mx:headerRenderer >
+									<mx:Component>
+										<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy3 Label"/>
+										    <mx:Label text="Protocol"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol2"  visible="false" headerText="Channel1 Labeling yield" width="80" dataField="@labelingYieldChannel1">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy3 Label"/>
+										    <mx:Label text="Yield"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy3 Label"/>
+										    <mx:Label text="Reaction size"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol4"  visible="false" headerText="Channel1 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel1">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy3 Label"/>
+										    <mx:Label text="# reactions"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy3 Label"/>
+										    <mx:Label text="Status"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel2" width="80" dataField="@idLabelingProtocolChannel2">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy5 Label"/>
+										    <mx:Label text="Protocol"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol7"   visible="false" headerText="Channel2 Labeling yield" width="80" dataField="@labelingYieldChannel2">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy5 Label"/>
+										    <mx:Label text="Yield"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy5 Label"/>
+										    <mx:Label text="Reaction size"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol9"  visible="false"  headerText="Channel2 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel2">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy5 Label"/>
+										    <mx:Label text="# reactions"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+								<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2">
+									<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+										    <mx:Label text="Cy5 Label"/>
+										    <mx:Label text="Status"/>
+										</mx:VBox>
+									</mx:Component>
+									</mx:headerRenderer>
+								</mx:DataGridColumn>
+
+
+
+								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
+								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
+								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"/>
+								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
+
+
+								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" labelFunction="parentApplication.lookupScanProtocol" dataField="@idScanProtocol"/>
+								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" labelFunction="parentApplication.lookupFeatureExtractionProtocol" dataField="@idFeatureExtractionProtocol"/>
+								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
+
+
+							     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" labelFunction="parentApplication.lookupSlideDesignName" />
+							     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"  labelFunction="parentApplication.lookupSlideSource" />
+								<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:VBox>
+				</mx:VBox>
+		    </mx:VBox>
+			
+		</mx:VBox>
+	    
+	     
+
+
+
+		
+	</mx:ViewStack>
+	
+</mx:VBox>
+
+<mx:ControlBar width="100%">
+    <mx:HBox width="100%" horizontalAlign="left">
+	    <mx:Button label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton"/>
+	    <mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton"/>
+	    <mx:Button label="Edit..." click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')">
+	        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+	    </mx:Button>				
+	
+    </mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="right">
+	    <mx:Button label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')">
+	        <mx:height>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
+	    </mx:Button>
+    	
+    </mx:HBox>
+</mx:ControlBar>
+
+<mx:states>
+	<mx:State name="MicroarrayState">		
+	</mx:State>
+	<mx:State name="QCState">		
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+	</mx:State>
+	<mx:State name="SolexaState">
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+		<mx:AddChild relativeTo="{this.confirmContainer}">
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
+						<mx:Label text="{lanesConfirmGrid.dataProvider.length + ' Sequencing Lanes'}"/>
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{parentDocument.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:columns>
+							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
+						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
+				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
+				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="false" dataField="@idGenomeBuildAlignTo"/> 						             						             
+							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+						</mx:columns>
+					</mx:DataGrid>
+					
+				</mx:VBox>					        			
+		
+		</mx:AddChild>
+	</mx:State>
+</mx:states>
+	
+</mx:Panel>

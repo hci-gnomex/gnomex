@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
+	xmlns:workflow="views.workflow.*" 
+	xmlns:experiment="views.experiment.*" 
+	xmlns:user="views.user.*"
+	xmlns:protocol="views.protocol.*"
+	xmlns:search="views.search.*"
+	xmlns:slide="views.slide.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
 	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()" >
@@ -147,12 +153,15 @@
 	     
         <mx:Style source="css/gnomex_flex.css" />
         
-            <mx:Script>
+<mx:Script>
             
         <![CDATA[
-        	import views.AboutView;
+        	import views.util.HciDictionaryView;
+        	import views.util.AboutView;
+        	import views.util.AppProgressView;
+        	import views.util.FileDownloadUtil;
+        	import views.util.PromptXMLListCollection;
         	import mx.collections.Sort;
-        	import views.PromptXMLListCollection;
         	import mx.collections.XMLListCollection;
             import mx.controls.Alert;
             import mx.rpc.events.ResultEvent;        
@@ -226,21 +235,21 @@
 	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
 	        
 			[Bindable]
-			public var promptedLabList:views.PromptXMLListCollection;
+			public var promptedLabList:PromptXMLListCollection;
 			[Bindable]
 			public var submitRequestLabList:XMLListCollection;
 			[Bindable]
-			public var promptedSubmitRequestLabList:views.PromptXMLListCollection;
+			public var promptedSubmitRequestLabList:PromptXMLListCollection;
 			[Bindable]
 			public var manageLabList:XMLListCollection;
 			[Bindable]
-			public var promptedAppUserList:views.PromptXMLListCollection;
+			public var promptedAppUserList:PromptXMLListCollection;
 			[Bindable]
 			public var slideProductList:XMLListCollection;
 			[Bindable]
 			public var filteredSlideProductList:XMLListCollection;
 			[Bindable]
-			public var promptedProjectList:views.PromptXMLListCollection;
+			public var promptedProjectList:PromptXMLListCollection;
 			[Bindable]
 			public var filteredProjectList:XMLListCollection;
 			[Bindable]
@@ -264,12 +273,12 @@
 			private var dictionarySorter:Sort;
 			private var sampleTypeSorter:Sort;
 
+			 
 			
-			
-            public	var fileDownloadUtil:views.FileDownloadUtil;
+            public	var fileDownloadUtil:FileDownloadUtil;
 
-
-			private var appProgressBar:views.AppProgressView;
+ 
+			private var appProgressBar:AppProgressView;
 			
 			private function lookupExperiment():void {
 				showExperiment(requestNumber.text);
@@ -484,7 +493,7 @@
             		return false;
             	}
             }
-            
+              
             private function checkSecurity():void {
 				if (!hasPermission("canAdministerUsers") &&
 				    !hasGroupsToManage()) {
@@ -515,7 +524,7 @@
             		Alert.show("Authentication failed.");  
             		return;	
             	}
-			    appProgressBar = new views.AppProgressView();
+			    appProgressBar = new AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 				PopUpManager.centerPopUp(appProgressBar);
 			    
@@ -538,7 +547,7 @@
             		Alert.show("You must launch GNomEx from guest page.");  
             		return;	
             	}
-			    appProgressBar = new views.AppProgressView();
+			    appProgressBar = new AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 			    PopUpManager.centerPopUp(appProgressBar);
 
@@ -1005,9 +1014,9 @@
 			          </mx:HBox>
 			        </mx:HBox>
 			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
-			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.HciDictionaryView, true));" visible="false" enabled="false"/>
+			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, HciDictionaryView, true));" visible="false" enabled="false"/>
 			        	<mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest('http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm'), '_blank');"/>
-			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, views.AboutView, true));"/>
+			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));"/>
 			        </mx:HBox>
 			      </mx:HBox>
 			      
@@ -1033,44 +1042,33 @@
 	    	paddingRight="0" horizontalCenter="0">
           
    
-
+ 
         <mx:ViewStack id="theViews" visible="true" width="100%" height="100%"   creationPolicy="all" paddingTop="0" paddingBottom="0">
 
 			<mx:Canvas>
 			</mx:Canvas>
 
-		    <views:SubmitRequestView id="submitRequestView" label="Submit Request" title="Submit Request" 
+		    <experiment:ExperimentEditView id="submitRequestView" label="Submit Request" title="Submit Request" 
 		    	icon="@Embed('assets/tag_blue_edit.png')"  width="100%" height="100%">
-            </views:SubmitRequestView>
-		    
-	   
-	        
-	        <views:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
+            </experiment:ExperimentEditView>
+
+	        <experiment:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
 	        	icon="@Embed('assets/flask.png')">
-	        </views:NavExperimentView>
+	        </experiment:NavExperimentView>
 
-	        
-	        <!--<views:NavAnalysisView label="Analysis" icon="@Embed('assets/plugin_edit.png')"/>-->
-
+	        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
+	        </workflow:NavWorkflowView> 
  
+	        <protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
+	        </protocol:ProtocolsView>
 
-	        <views:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
-	        </views:NavWorkflowView>
-
-	        <views:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
-	        </views:ProtocolsView>
-
-	        <views:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
-	        </views:SlideManagementView>
+	        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
+	        </slide:SlideManagementView>
 	        
-	        <views:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
-	        </views:NavUsersView>
-
-	        <!--views:HciDictionaryView visible="false" enabled="false" label="Dictionaries"  id="dictionariesView" icon="@Embed('assets/book.png')" width="100%" height="100%" backgroundAlpha="1.0">
-	        </views:HciDictionaryView-->
-	        
-           <views:NavSearchView id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
-	        </views:NavSearchView>
+	        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
+	        </user:NavUsersView>
+           <search:NavSearchView id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
+	        </search:NavSearchView>
 
 
       </mx:ViewStack> 
