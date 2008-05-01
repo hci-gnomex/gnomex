@@ -52,7 +52,7 @@
 		result="resultHandler(event)">
 		<mx:request>
 			<idProtocol>
-				{protocol.getItemAt(0).id}
+				{fullProtocol.id}
 			</idProtocol>
 			<protocolClassName>
 				{browseProtocols.selectedItem.@protocolClassName}
@@ -77,7 +77,7 @@
 			public var selectedProtocol:Object;
 			
 			[Bindable]
-			public var fullProtocol:XMLList;
+			public var fullProtocol:Object;
 			
 			[Bindable]
 			public var protocolList:XMLList;
@@ -147,7 +147,7 @@
 			}
 			
 			public function onDelete():void {
-				Alert.show("Are you sure you want to delete the "+protocol.getItemAt(0).name+" protocol?","Are you sure?",Alert.YES|Alert.NO,null,callDeleteProtocol,null,Alert.YES);
+				Alert.show("Are you sure you want to delete the "+fullProtocol.name+" protocol?","Are you sure?",Alert.YES|Alert.NO,null,callDeleteProtocol,null,Alert.YES);
 			}
 			
 			public function callDeleteProtocol(event:CloseEvent):void {
@@ -165,7 +165,7 @@
 					protocolList = new XMLList(getProtocolList.lastResult.Protocols);
 					initTree();
 				} else if (call.marker == "doneGetProtocol") {
-					fullProtocol = new XMLList(getProtocol.lastResult);
+					fullProtocol = getProtocol.lastResult;
 					showProtocol();
 				} else if (call.marker == "doneSaveProtocol") {
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
@@ -277,33 +277,17 @@
 			public function removeCreateProtocolPopUp():void {
 				PopUpManager.removePopUp(createNewProtocol);
 			}
-			
-			public function renderTree():void{
-				/*
-                if(refreshData){
-                    // Refresh all rows on next update.
-                    browseProtocols.invalidateList();
-                    refreshData = false;
-                    browseProtocols.openItems = open;
-                    // Validate and update the properties and layout
-                    // of this object and redraw it, if necessary.
-                    browseProtocols.validateNow();
-                }
-				*/
-            }
-            
             
 		]]>
 	</mx:Script>
 	
 	<mx:XMLListCollection id="protocols" source="{protocolList}"/>
-	<mx:XMLListCollection id="protocol" source="{fullProtocol}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
 		<mx:Panel width="220" height="100%" title="Protocol List" layout="absolute">
 				<mx:Tree 
 					id="browseProtocols" 
-					right="0" left="0" bottom="10" top="10"
+					right="0" left="0" bottom="0" top="0"
 					iconFunction="getTreeIcon"
 					borderThickness="0" 
 					labelField="@label" 
@@ -313,7 +297,6 @@
 					rollOverColor="#CECECE" 
 					backgroundAlpha="1"
 					change="onBrowseProtocols(event);"
-					render="renderTree()"
 					>
 				</mx:Tree>
 			<mx:ControlBar horizontalAlign="left" verticalAlign="middle" x="0" y="924" width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
@@ -330,46 +313,45 @@
 			<mx:Label text="No protocol selected" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:HBox left="10" top="10" right="10" styleName="formDisplay">
-				<mx:Label text="Name:" fontWeight="bold"/>
-				<mx:Label text="{protocol.getItemAt(0).name}" width="100%"/>
+			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle">
+				<mx:Label text="Name:" fontWeight="bold" width="100"/>
+				<mx:Label text="{fullProtocol.name}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox top="36" width="845" styleName="formDisplay" left="10" height="18">
-				<mx:Label text="Kind of Request:" fontWeight="bold"/>
+			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle">
+				<mx:Label text="Kind of Request:" fontWeight="bold" width="100"/>
 				<hci:DictionaryLabel
 					id="kindDisplay"
 					dictValue="@value"
 					dictDisplay="@display"
 					dictName="hci.gnomex.model.RequestCategory"
-					data="{protocol.getItemAt(0).codeRequestCategory}"
+					data="{fullProtocol.codeRequestCategory}"
 					dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-					text ="{kindDisplay.getDisplayForValue(protocol.getItemAt(0).codeRequestCategory)}"
+					text ="{kindDisplay.getDisplayForValue(fullProtocol.codeRequestCategory)}"
 					width="100%">
 					</hci:DictionaryLabel>
 			</mx:HBox>
-			<mx:HBox height="18" top="62" width="163" styleName="formDisplay" left="10">
-				<mx:Label text="Active:" fontWeight="bold" width="55"/>
-				<mx:Label text="{protocol.getItemAt(0).isActive.toString()}" width="51"/>
+			<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
+				<mx:Label text="Active:" fontWeight="bold" width="100"/>
+				<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox left="10" top="88" right="121" styleName="formDisplay">
-				<mx:Label text="URL:" fontWeight="bold"/>
-				<mx:Label text="{protocol.getItemAt(0).url}" width="100%"/>
-			</mx:HBox>
-			<mx:HBox width="103" height="26" horizontalAlign="center" verticalAlign="middle" right="10" top="83">
-				<mx:Button id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
+			<mx:HBox left="10" top="88" right="10" styleName="formDisplay" verticalAlign="middle">
+				<mx:Label text="URL:" fontWeight="bold" width="100"/>
+				<mx:Label text="{fullProtocol.url}" width="100%"/>
+				<mx:Button id="viewUrlButton2" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
 			</mx:HBox>
 			<mx:VBox top="114" bottom="10" left="10" right="10">
 				<mx:Label text="Protocol Description:" fontWeight="bold"/>
-				<mx:Text text="{protocol.getItemAt(0).description}" height="100%" width="100%"/>
+				<mx:Text text="{fullProtocol.description}" height="100%" width="100%"/>
 			</mx:VBox>	
 		</mx:Canvas>
 		<mx:Canvas id="editProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:VBox height="46" left="10" top="10" right="394">
-				<mx:Label text="Name:"/>
-				<mx:TextInput id="protocolName" text="{protocol.getItemAt(0).name}" width="100%"/>
+		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10">
+			<mx:VBox height="46" left="10" top="10" right="394" width="100%">
+				<mx:Label text="Name:" width="100"/>
+				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%"/>
 			</mx:VBox>
-			<mx:VBox height="46" top="10" width="265" right="121">
-				<mx:Label text="Kind of Request:"/>
+			<mx:VBox height="46" top="10" width="100%" right="121">
+				<mx:Label text="Kind of Request:" width="100"/>
 				<hci:DictionaryComboBox
 					id="codeRequestCategory"
 					dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
@@ -377,27 +359,28 @@
 					dictDisplay="@display"
 					dictName="hci.gnomex.model.RequestCategory"
 					labelField="@display"
-					data="{protocol.getItemAt(0).codeRequestCategory}"
+					data="{fullProtocol.codeRequestCategory}"
 					dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 					width="100%">
 					</hci:DictionaryComboBox>
 			</mx:VBox>
-			<mx:VBox right="10" top="10" width="103" horizontalAlign="left" verticalAlign="bottom" bottom="637">
-				<hci:CheckBoxYN  id="isActive" data="{protocol.getItemAt(0).isActive.toString()}" label="Active"/>
+			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637">
+				<hci:CheckBoxYN  id="isActive" data="{fullProtocol.isActive.toString()}" label="Active"/>
 			</mx:VBox>
-			<mx:VBox height="46" left="10" top="64" right="121">
-				<mx:Label text="URL:"/>
-				<mx:TextInput id="url" text="{protocol.getItemAt(0).url}" width="100%"/>
+			</mx:HBox>
+			<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
+			<mx:VBox height="46" left="10" top="64" right="121" width="100%">
+				<mx:Label text="URL:" width="100"/>
+				<mx:TextInput id="url" text="{fullProtocol.url}" width="100%"/>
 			</mx:VBox>
-			<mx:VBox width="103" height="46" horizontalAlign="center" verticalAlign="bottom" right="10" top="64">
-				<mx:Button id="viewUrlButton" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
-			</mx:VBox>
+				<mx:Button id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../assets/page_go_disabled.png')" icon="@Embed(source='../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
+			</mx:HBox>
 			<mx:VBox top="118" left="10" right="10" bottom="10">
 				<mx:Label text="Protocol Description:"/>
-				<mx:TextArea id="description" text="{protocol.getItemAt(0).description}" height="100%" width="100%"/>
+				<mx:TextArea id="description" text="{fullProtocol.description}" height="100%" width="100%"/>
 			</mx:VBox>	
-			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{protocol.getItemAt(0).id}" left="0" top="0"/>
-			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{protocol.getItemAt(0).protocolClassName}" left="0" top="0"/>
+			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{fullProtocol.id}" left="0" top="0"/>
+			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{fullProtocol.protocolClassName}" left="0" top="0"/>
 		</mx:Canvas>
 		</mx:ViewStack>
 			<mx:ControlBar width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" horizontalAlign="right" paddingTop="4" x="0" y="655">

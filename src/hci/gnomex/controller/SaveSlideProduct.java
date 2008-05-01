@@ -67,6 +67,7 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
           // make a new slide product and add a new slide design to it
           this.slideProductScreen.setIsSlideSet("Y");
           this.slideProductScreen.setSlidesInSet(new Integer(1));
+          this.slideProductScreen.setArraysPerSlide(new Integer(1));
           sess.save(slideProductScreen);
           sess.flush();
           // save microarray categories
