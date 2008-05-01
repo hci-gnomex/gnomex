@@ -13,7 +13,7 @@
 		resultFormat="e4x"
 		useProxy="false"
 		result="resultHandler(event)"
-		fault="faultHandler(event)">
+	    fault="parentApplication.onFailHttpRequest('Failed to get protocol list', event)">
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>
@@ -25,7 +25,7 @@
 		resultFormat="e4x"
 		useProxy="false"
 		result="resultHandler(event)"
-		fault="faultHandler(event)">
+	    fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)">
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>
@@ -38,7 +38,7 @@
 		resultFormat="e4x"
 		useProxy="false"
 		result="resultHandler(event)"
-		fault="faultHandler(event)">
+	    fault="parentApplication.onFailHttpRequest('Failed to save protocol', event)">
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>
@@ -49,7 +49,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
-		result="resultHandler(event)">
+	    fault="parentApplication.onFailHttpRequest('Failed to delete protocol', event)">
 		<mx:request>
 			<idProtocol>
 				{fullProtocol.id}
@@ -178,9 +178,6 @@
 				}
 			}
 			
-			public function faultHandler(event:FaultEvent):void {
-	           Alert.show(event.fault.faultString, "Error");
-	        }
 			
 			public function initTree():void {
 				// iteratively expand the tree

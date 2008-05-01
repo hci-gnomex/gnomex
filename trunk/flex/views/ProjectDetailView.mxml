@@ -8,7 +8,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveProject(event)"
-    fault="onSaveProjectFailed(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to save project', event)"
     method="POST"
     useProxy="false">
 </mx:HTTPService>
@@ -20,7 +20,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onDeleteProject(event)"
-    fault="onDeleteProjectFailed(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete project', event)"
     method="POST"
     useProxy="false">
 </mx:HTTPService>
@@ -139,15 +139,6 @@
         	} else {
         		Alert.show(deleteProject.lastResult..ACTMESSAGE.@TEXT);
         	}
-		}
-
-		
-		private function onSaveProjectFailed(event:FaultEvent):void {
-			Alert.show("failed to save project " + event.message);
-		}
-		
-		private function onDeleteProjectFailed(event:FaultEvent):void {
-			Alert.show("failed to delete project " + event.message);
 		}
 		public function sortExperimentDesigns(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {

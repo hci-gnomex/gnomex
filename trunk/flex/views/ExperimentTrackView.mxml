@@ -9,7 +9,8 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequestProgressList(event)"
-    method="POST"
+    fault="parentApplication.onFailHttpRequest('Failed to get experiment progress list', event)"
+	method="POST"
     useProxy="false">
   </mx:HTTPService>
 

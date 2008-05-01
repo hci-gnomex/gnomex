@@ -11,7 +11,7 @@
     destination="getWorkListQC"
     showBusyCursor="true"
     result="onGetWorkList(event)"
-	fault="onFailGetWorkList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
         <codeStepNext>QC</codeStepNext>
@@ -25,7 +25,7 @@
     destination="saveWorkItemQualityControl"
     showBusyCursor="true"
     result="onSaveWorkItemQualityControl(event)"
-    fault="onFailSaveWorkItemQualityControl(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save work list', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -164,10 +164,6 @@
         	refreshRequestNumbers();
         }
         
-        private function onFailGetWorkList(event:FaultEvent):void {
-        	Alert.show("failed to get work list " + event.message);
-        }
-        
         private function onSaveWorkItemQualityControl(event:ResultEvent):void {
         	if (saveWorkItemQC.lastResult.name() == "WorkItemList" || saveWorkItemQC.lastResult.name() == "SUCCESS" ) {
         		this.getWorkListQC.send();
@@ -176,16 +172,7 @@
         	}
         }
         
-        private function onFailSaveWorkItemQualityControl(event:FaultEvent):void {
-        	var startPos:int = event.message.body.indexOf("TEXT=");
-        	var endPos:int   = event.message.body.indexOf("TYPE=");
-        	if (startPos != -1 && endPos != -1) {
-	        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), "Failed to save work list");    		
-        	} else {
-        		Alert.show(event.message.body.toString(), "Failed to save work list");
-        	}
-        }
-        
+
         private function refreshRequestNumbers():void {
         	requestNumbers = new ArrayCollection();
 

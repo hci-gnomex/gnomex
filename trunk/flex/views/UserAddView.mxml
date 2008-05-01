@@ -6,7 +6,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="onSaveAppUser(event)"
-    fault="onFailSaveAppUser(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save user', event)"
     useProxy="false">
     <mx:request>
             <idAppUser>0</idAppUser>
@@ -24,6 +24,7 @@
     showBusyCursor="true"
     resultFormat="e4x"
     result="onGetAppUser(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get user', event)"
     useProxy="false">    
     </mx:HTTPService >    
 
@@ -50,10 +51,6 @@
 			} else {
 				Alert.show("An error occurred while saving the user record.");
 			}			
-		}
-		
-		private function onFailSaveAppUser(event:FaultEvent):void {
-			Alert.show("An error occurred.  The user record did not save.");
 		}
 		
 	     private function onGetAppUser(event:ResultEvent):void {

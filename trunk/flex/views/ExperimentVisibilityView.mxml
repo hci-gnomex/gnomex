@@ -10,6 +10,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveVisibility(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to save visibility', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>

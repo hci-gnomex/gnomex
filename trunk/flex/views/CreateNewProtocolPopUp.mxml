@@ -15,8 +15,9 @@
 		method="POST"
 		resultFormat="e4x"
 		useProxy="false"
-		result="resultHandler(event)">
-		<mx:request>
+		result="resultHandler(event)"
+    	fault="parentApplication.onFailHttpRequest('Failed to save protocol', event)">
+ 		<mx:request>
 			<protocolName>
 				{protocolName.text}
 			</protocolName>

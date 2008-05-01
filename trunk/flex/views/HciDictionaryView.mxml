@@ -27,7 +27,7 @@
 		resultFormat="e4x"
 		result="handleDictXml(currentDictAction,event)"
 		showBusyCursor="true"
-		fault="handleFault(event)"
+    	fault="parentApplication.onFailHttpRequest('Failed to manage dictionaries', event)"
 		method="POST"
 		>
 		<mx:request>
@@ -143,9 +143,6 @@
             	cbDict.selectedIndex = selectedDictIndex;
             }
 
-	        public function handleFault(event:FaultEvent):void {
-	           Alert.show(event.fault.faultString, "Error");
-	        }
 	       
 	       public function handleError(error:Error):void {
 	           Alert.show(error.message,error.name);               

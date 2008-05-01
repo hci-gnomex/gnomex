@@ -10,7 +10,7 @@
     destination="getWorkList"
     showBusyCursor="true"
     result="onGetWorkList(event)"
-	fault="onFailGetWorkList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
         <codeStepNext>EXT</codeStepNext>
@@ -24,7 +24,7 @@
     destination="saveWorkItem"
     showBusyCursor="true"
     result="onSaveWorkItem(event)"
-    fault="onFailSaveWorkItem(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save work list', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -88,10 +88,6 @@
         
         private function onGetWorkList(event:ResultEvent):void {
         	refreshRequestNumbers();
-        }
-        
-        private function onFailGetWorkList(event:FaultEvent):void {
-        	Alert.show("failed to get work list " + event.message);
         }
         
         private function onSaveWorkItem(event:ResultEvent):void {

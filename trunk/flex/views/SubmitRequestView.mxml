@@ -15,6 +15,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetNewRequest(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get request', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -29,6 +30,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequestToClone(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get request to copy', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -56,6 +58,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveExistingRequest(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to save request', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -289,7 +292,6 @@
 			setupView.requestTypeGroup.selectedValue = '';
 			setupView.requestRadioAffy.selected = false;
 			setupView.requestRadioAgilent.selected = false;
-			setupView.requestRadioNimbleGen.selected = false;
 			setupView.requestRadioQC.selected = false;
 			setupView.requestRadioSolexa.selected = false;
 			setupView.submitNewRequestRadio.selected = true;

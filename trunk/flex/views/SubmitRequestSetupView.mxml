@@ -10,6 +10,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -24,6 +25,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetNewProject(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -38,6 +40,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProject(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get project', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -49,6 +52,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProjectForEdit(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get project to edit', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -60,6 +64,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProjectRequestList(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
     method="POST"
     useProxy="false">
     <mx:request>
@@ -307,9 +312,6 @@
 						    </mx:HBox>
 						    <mx:HBox>
 								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
-							</mx:HBox>
-						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="NimbleGen Microarray" value="NIMBLE" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioNimbleGen"/>							
 							</mx:HBox>
 						</mx:VBox>
 						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
