@@ -78,7 +78,6 @@
 	<Dictionary displayName="Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-  <Dictionary displayName="Solexa Library Type" className="hci.gnomex.model.SolexaLibraryType" />
 	<Dictionary displayName="State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Slide Source" className="hci.gnomex.model.SlideSource" />
 	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" />
