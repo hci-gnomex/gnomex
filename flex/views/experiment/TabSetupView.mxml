@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Request setup" width="100%" height="100%" xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
+   
+
+   	
+   <mx:HTTPService  
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{this.labCombo.selectedItem.@idLab}</idLab>
+    </mx:request>
+   </mx:HTTPService>
+  
+   <mx:HTTPService  
+    id="getNewProject" 
+    url="GetProject.gx"
+    destination="getProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetNewProject(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+   		<idProject>0</idProject>    	
+    </mx:request>
+  </mx:HTTPService>
+
+  <mx:HTTPService  
+    id="getProject" 
+    url="GetProject.gx"
+    destination="getProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetProject(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get project', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+  
+    <mx:HTTPService  
+    id="getProjectForEdit" 
+    url="GetProject.gx"
+    destination="getProjectForEdit"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetProjectForEdit(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get project to edit', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+  
+  <mx:HTTPService  
+    id="getProjectRequestList" 
+    url="GetProjectRequestList.gx"
+    destination="getProjectRequestList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetProjectRequestList(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+            <idLab>{labCombo.selectedItem.@idLab}</idLab> 
+            <showSamples>N</showSamples>
+            <showCategory>N</showCategory>
+            <showMyLabsAlways>N</showMyLabsAlways>
+            <listKind>ProjectRequestCloneList</listKind>
+    </mx:request>
+   </mx:HTTPService>
+   
+<mx:Script>
+
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
+		import views.experiment.RequestCloneWindow;
+		import views.experiment.ProjectDetailWindow;
+
+        [Bindable]
+        private var lab:Object = null;
+        
+        [Bindable]
+        private var appUsers:XMLListCollection;
+        private var appUserSort:Sort;
+		
+        public var idAppUser:Object = '';
+
+		public var projectDetailWindow:ProjectDetailWindow;
+		public var selectedIdProject:Object;
+		
+		private var requestCloneWindow:RequestCloneWindow;
+		
+		public function checkSecurity():void {
+			if (parentApplication.hasPermission("canWriteAnyObject")) {
+				this.appUserContainer.visible = true;
+				idAppUser = '';
+			} else {
+				this.appUserContainer.visible = false;
+				idAppUser = parentApplication.getIdAppUser();
+			}			
+		}
+		
+		public function getRequestCategory():Object {
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
+			return requestCategory;			
+		}
+		
+				
+
+		private function showNewProjectWindow():void {
+			if (idAppUser == '' || idAppUser == null) {
+				Alert.show('Please select the user submitting the request'); 
+			} else {
+				getNewProject.send();
+			}		
+		}
+		
+		private function showEditProjectWindow():void {
+			selectedIdProject = this.projectCombo.selectedItem.@idProject;
+			var params:Object = new Object();
+			params.idProject = this.projectCombo.selectedItem.@idProject;
+			getProjectForEdit.send(params);			
+		}
+	
+		private function onGetNewProject(event:ResultEvent):void {
+			if (getNewProject.lastResult.name() == "OpenProjectList") {
+				 parentApplication.navExperimentView.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
+				 parentApplication.navExperimentView.selectedProject.@idAppUser = idAppUser;
+				 parentApplication.navExperimentView.selectedProject.@idLab = this.labCombo.selectedItem.@idLab;
+
+				 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
+				 this.projectDetailWindow.projectDetailView.fromSubmitRequestWindow = true;
+				 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+				 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+				 
+				 this.projectDetailWindow.labCombo.selectedItem = this.labCombo.selectedItem;
+				 this.projectDetailWindow.labCombo.enabled = false;
+				 
+				 PopUpManager.centerPopUp(this.projectDetailWindow);		
+				
+			} else {
+				mx.controls.Alert.show(getNewProject.lastResult..ACTMESSAGE.@TEXT, "Get new project failed");
+			}
+		}
+		
+		private function onGetProjectForEdit(event:ResultEvent):void {
+			if (getProjectForEdit.lastResult.name() == "OpenProjectList") {
+				 parentApplication.navExperimentView.selectedProject = getProjectForEdit.lastResult.Project.(@idProject == projectCombo.selectedItem.@idProject);
+
+				 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
+				 this.projectDetailWindow.title = "Edit Project";
+				 this.projectDetailWindow.projectDetailView.fromSubmitRequestWindow = true;
+				 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+				 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+				 
+				 this.projectDetailWindow.labCombo.selectedItem = this.labCombo.selectedItem;
+				 this.projectDetailWindow.labCombo.enabled = false;
+				 
+				 PopUpManager.centerPopUp(this.projectDetailWindow);		
+				
+			} else {
+				mx.controls.Alert.show(getNewProject.lastResult..ACTMESSAGE.@TEXT, "Get project for edit failed");
+			}
+			
+		}
+
+		
+		private function onGetProject(event:ResultEvent):void {
+			var newProject:Object = getProject.lastResult..Project.(@idProject == selectedIdProject);
+			parentApplication.filteredProjectListForSubmitRequests.addItem(newProject);
+			parentApplication.filteredProjectListForSubmitRequests.refresh();
+			this.projectCombo.selectedItem = newProject;
+			checkSetupCompleteness();
+		}
+				
+		public function onProjectAdded(idProject:Object):void {
+			selectedIdProject = idProject;
+			var params:Object = new Object();
+			params.idProject = idProject;
+			getProject.send(params);
+		}
+		
+		private function onPickStartingPoint():void {
+			if (this.cloneRequestRadio.selected) {
+				getProjectRequestList.send();
+			}
+		}
+		
+		
+		private function getMembersOfLab():void {
+			if (parentApplication.hasPermission("canWriteAnyObject") && 
+			    this.labCombo.selectedItem.@idLab != '') {
+			    idAppUser = null;
+				getLab.send();						    
+			}
+		}
+		private function onGetLab(event:ResultEvent):void {			
+			lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			appUsers = new XMLListCollection(lab.members.AppUser);
+			for each (var mgr:Object in lab.managers.AppUser) {
+				if (!appUsers.contains(mgr)) {
+					appUsers.addItem(mgr);				
+				}
+			}
+			appUsers.addItemAt(emptyNode, 0);
+			
+			appUserSort = new Sort();
+	        appUserSort.compareFunction = this.sortAppUsers;
+	        appUsers.sort = appUserSort;
+	        appUsers.refresh();
+	        
+	        this.appUserCombo.selectedIndex = 0;
+
+		}
+
+        private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var display1:String = obj1.@displayName;
+				var display2:String = obj2.@displayName;
+				
+				if (display1 < display2) {
+					return -1;
+				} else if (display1 > display2) {
+					return 1;
+				} else {
+					return 0;
+				}
+				
+			}
+		}			
+
+	
+		private function checkSetupCompleteness():void {
+        	var isComplete:Boolean = false;
+        	if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
+        		isComplete = true;
+        	} else if (idAppUser != null &&  idAppUser != '' &&
+        	    this.requestTypeGroup.selectedValue != null &&
+        	    this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' &&
+        	    this.billingAccountCombo.selectedItem != null && 
+        	    this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '') {
+        	    isComplete = true;
+        	    	
+        	} 
+    		parentDocument.sampleSetupView.enabled = isComplete;
+    		parentDocument.enableNextButtons();
+    		if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+        		parentDocument.annotationView.enabled = isComplete;        			
+    		}
+    		this.cloneRequestRadio.enabled = isComplete;
+    		
+    		callLater(postSetupCompleteness, [isComplete]);
+    		
+    		
+        }
+        
+        private function postSetupCompleteness(isComplete:Boolean):void {
+    		if (!isComplete) {
+	    		parentDocument.samplesView.enabled = false;
+	        	if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
+		        	parentDocument.hybSetupView.enabled = false;
+	        	} 
+	        	if (parentDocument.theTab.contains(parentDocument.hybsView)) {
+		        	parentDocument.hybsView.enabled = false;
+	        	} 
+	        	parentDocument.confirmView.enabled = false;
+    		} else {
+    			parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+    			parentDocument.samplesView.checkSamplesCompleteness();
+    			parentDocument.hybSetupView.checkHybSetupCompleteness();
+    			parentDocument.hybsView.checkHybsCompleteness();
+    		}
+        	
+        }
+
+		private function onGetProjectRequestList(event:ResultEvent):void {
+			
+			this.requestCloneWindow = RequestCloneWindow(PopUpManager.createPopUp(this, RequestCloneWindow, true));
+			PopUpManager.centerPopUp(requestCloneWindow);
+			requestCloneWindow.expandAllNodes();
+		}
+        
+
+	]]>
+</mx:Script>
+		<mx:VBox width="100%" height="100%" verticalGap="22" paddingTop="10">
+			<mx:VBox width="100%" verticalGap="1">
+			    <mx:HBox width="100%" horizontalGap="0">
+			    <mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
+			    <mx:Label text="Select a service request category:" width="220"/>
+					<mx:HBox width="100%" horizontalGap="12">
+						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
+						    <mx:RadioButtonGroup id="requestTypeGroup" />
+						    <mx:HBox>
+								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
+						    </mx:HBox>
+						    <mx:HBox>
+								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
+							</mx:HBox>
+						</mx:VBox>
+						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
+						    <mx:RadioButton groupName="requestTypeGroup" label="Bioanalyzer (QC)" value="QC" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
+						    <mx:HBox paddingTop="0">
+						    	<mx:Spacer width="10"/>												
+						    </mx:HBox>						
+						</mx:VBox>
+						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">
+							<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
+						</mx:VBox>
+					</mx:HBox>
+			    </mx:HBox>
+			</mx:VBox>
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
+				<mx:Label text="Verify your lab affiliation:" width="220"/>
+				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+					selectedIndex="-1" labelField="@name" 
+					width="300"
+					 change="parentApplication.filteredProjectListForSubmitRequests.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" id="labCombo">
+				</mx:ComboBox>
+				<mx:HBox id="appUserContainer" visible="true" paddingLeft="12" horizontalGap="0" width="100%">						    
+					<mx:Label text="User submitting request:"/>
+					<mx:ComboBox dataProvider="{appUsers}" 
+						selectedIndex="-1" labelField="@displayName" 
+					    id="appUserCombo" width="200">
+						<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
+					</mx:ComboBox>
+				</mx:HBox>
+			</mx:HBox>
+			<mx:VBox width="100%" verticalGap="0"> 
+				<mx:HBox width="100%" horizontalGap="0">
+					<mx:Image source="{parentApplication.iconBullet}"/>
+					<mx:Label text="Select the account to be billed:" width="220"/>
+					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" change="checkSetupCompleteness()">
+						<mx:dataProvider>{labCombo.selectedItem.billingAccounts.BillingAccount}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+				<mx:HBox width="100%">
+				    <mx:Spacer width="220"/>
+				    <mx:Text width="100%">
+				        <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3363; Fax 585-0900)]]></mx:htmlText>
+					</mx:Text>
+					
+				</mx:HBox>
+				<mx:HBox width="100%">
+				    <mx:Spacer width="220"/>
+					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff">
+						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_0906.pdf'), '_blank');</mx:click>
+					</mx:LinkButton>
+					<mx:LinkButton label="Work authorization form (Microsoft work doc)" textDecoration="underline" useHandCursor="true" color="#0000ff">
+						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_0906.doc'), '_blank');</mx:click>
+					</mx:LinkButton>
+				</mx:HBox>
+				
+			</mx:VBox>
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Text width="220" height="50">
+					<mx:htmlText>Select a project folder for organizing this request:</mx:htmlText>
+				</mx:Text>
+				<mx:HBox verticalGap="2">
+				    <mx:VBox verticalGap="2" paddingRight="20">
+					<mx:RadioButtonGroup id="projectRadioGroup"/>
+					<mx:RadioButton label="New project" groupName="projectRadioGroup" click="{showNewProjectWindow()}"/>
+					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true"/>
+				    	
+				    </mx:VBox>
+					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle">
+					<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="300" id="projectCombo" change="{checkSetupCompleteness()}">
+					</mx:ComboBox>
+						<mx:Button id="editProjectButton" label="Edit..." icon="@Embed('../../assets/folder.png')" click="showEditProjectWindow()"/>
+					</mx:HBox>					
+				</mx:HBox>
+			</mx:HBox>
+			<mx:VBox width="100%" verticalGap="1">
+			    <mx:HBox horizontalGap="0">
+			    <mx:Image source="{parentApplication.iconBullet}"/>
+			    <mx:Text text="Select a starting point for your request:" width="220"/>
+			    	<mx:VBox verticalGap="2" width="100%">
+						<mx:RadioButton groupName="requestTemplateGroup" label="Initiate a new experiment" selected="true" id="submitNewRequestRadio"/>							
+						<mx:HBox width="100%">
+							<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous experiment as a template for this request" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
+							<mx:Label text="{parentDocument.requestToClone.@label}" color="#0000ff" width="100%"/>
+							
+						</mx:HBox>
+			    		
+			    	</mx:VBox>
+			    </mx:HBox>
+			</mx:VBox>
+			
+		</mx:VBox>
+
+</mx:Canvas>

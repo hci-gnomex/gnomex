@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  xmlns:util="views.util.*"
+	width="100%" height="100%" title="Scan / Feature Extraction"
+	titleIcon="@Embed('../../assets/color_swatch.png')"  borderThicknessTop="2">
+	
+	<mx:HTTPService 
+    id="getWorkList" 
+    url="GetWorkItemList.gx"
+    resultFormat="e4x"
+    destination="getWorkList"
+    showBusyCursor="true"
+    result="onGetWorkList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
+    useProxy="false">
+    <mx:request>
+        <codeStepNext>EXT</codeStepNext>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="saveWorkItem" 
+    url="SaveWorkItemExtraction.gx"
+    resultFormat="e4x"
+    destination="saveWorkItem"
+    showBusyCursor="true"
+    result="onSaveWorkItem(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save work list', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+        <workItemXMLString>{dirtyWorkItems.toXMLString()}</workItemXMLString>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
+    
+
+    <mx:Script>
+        <![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.XMLListCollection;
+        import mx.rpc.events.FaultEvent; 
+        import mx.rpc.events.ResultEvent;   
+        import mx.controls.Alert;
+        
+        [Bindable]
+        private var requestNumberCount:String;
+        
+        [Bindable]
+        private var dirtyWorkItems:XMLListCollection;
+        
+        [Bindable]
+        private var requestNumbers:ArrayCollection;
+        
+        private function refreshWorkList():void {
+        	getWorkList.send();
+        }
+ 
+        private function getGridRowNumber(item:Object,col:int):String
+        {
+        	if (workList!= null) {
+	           var x:int = workList.getItemIndex(item) + 1;
+	           return String(x);     		
+        	} else {
+        		return "";
+        	}
+        }
+        
+		private function getSlideDesignName(item:Object, col:int):String {
+			var de:XMLList = parentApplication.getSlideProductList.lastResult.SlideProduct..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
+	    	if (de.length() == 1) {
+		    	return de[0].@name;
+	    	} else {
+	    		return "";
+	    	}
+		}            
+                
+        private function onEdit(event:Event):void {
+        	workList.filterFunction = null;
+	    	workListGrid.selectedItem.@isDirty = "Y";
+        }
+        
+        private function save():void {
+        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+        	dirtyWorkItems = new XMLListCollection(dirtyItems);
+        	saveWorkItem.send();
+        }
+        
+        private function onGetWorkList(event:ResultEvent):void {
+        	refreshRequestNumbers();
+        }
+        
+        private function onSaveWorkItem(event:ResultEvent):void {
+        	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
+        		this.getWorkList.send();
+        	} else {
+        		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
+        	}
+        }
+        
+        private function onFailSaveWorkItem(event:FaultEvent):void {
+        	var startPos:int = event.message.body.indexOf("TEXT=");
+        	var endPos:int   = event.message.body.indexOf("TYPE=");
+        	if (startPos != -1 && endPos != -1) {
+	        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), "Failed to save work list");    		
+        	} else {
+        		Alert.show(event.message.body.toString(), "Failed to save work list");
+        	}
+        }
+        
+        private function refreshRequestNumbers():void {
+        	requestNumbers = new ArrayCollection();
+
+			var blankItem:Object = new Object();
+			blankItem.data = "";
+			blankItem.label = "";
+        	requestNumbers.addItem(blankItem);
+        	
+        	for(var x:Number = 0; x < workList.length; x++) {
+        		var item:Object = workList.getItemAt(x, 0);
+        		
+        		var found:Boolean = false;
+        		for(var i:Number = 0; i < requestNumbers.length; i++) {
+        			if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
+        				found = true;
+        				break;
+        			}
+        		}
+        		if (found == false) {
+	    			var newItem:Object = new Object();
+	    			newItem.data = item.@requestNumber;
+	    			newItem.label = item.@requestNumber;
+        			requestNumbers.addItem(newItem);
+        		}
+        	}
+        	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
+        	
+        }
+        
+        private function filterWorkList(item:Object):Boolean {
+        	var keep:Boolean = true;
+        	if (requestNumberCombo.selectedItem != null && requestNumberCombo.selectedItem.label != "") {
+        		keep = false;
+        		if (item.@requestNumber == requestNumberCombo.selectedItem.label) {
+        			keep = true;
+        		}
+        	}        	
+        	return keep;
+        }
+  
+           
+
+        ]]>
+    </mx:Script> 
+    
+   
+    <mx:VBox   width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+        
+    
+    
+    
+
+            <mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalAlign="bottom">
+                <mx:Label text="{requestNumberCount}"/>
+            	<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
+	            	<mx:Label text="Request #"/>
+	            	<mx:ComboBox id="requestNumberCombo" 
+	            		dataProvider="{requestNumbers}" 
+	            		change="workList.filterFunction = filterWorkList;workList.refresh()"  
+	            		width="90">
+	            	</mx:ComboBox>
+            		
+            	</mx:HBox>
+            	
+            	
+            </mx:HBox>
+        	
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
+				<util:columns>
+					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Req #"  width="7" dataField="@requestNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Ready Date" width="10" dataField="@workItemCreateDate"/>
+					<mx:DataGridColumn editable="false" headerText="Requester"  width="14" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="7" dataField="@hybNumber"/>
+					<mx:DataGridColumn headerText="Scan Protocol"  width="29" dataField="@idScanProtocol" 
+	                	editorDataField="value"
+	                   sortable="false" 
+	                   editable="true"
+	                   rendererIsEditor="true"  
+	                   itemRenderer="views.renderers.ComboBoxScanProtocol" />
+					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="28" dataField="@idFeatureExtractionProtocol" 
+	                	editorDataField="value"
+	                   sortable="false" 
+	                   editable="true"
+	                   rendererIsEditor="true"  
+	                   itemRenderer="views.renderers.ComboBoxFeatureExtractionProtocol" />
+	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@extractionStatus" 
+	                	editorDataField="value"
+	                   sortable="false" 
+	                   editable="true"
+	                   rendererIsEditor="true"  
+	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusExtraction" />
+				</util:columns>
+		</util:DataGridAlternatingGroup>
+			
+		</mx:VBox>
+	  	
+	  </mx:VBox>
+					
+ <mx:ControlBar>
+ 	            	<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
+ 	            		click="refreshWorkList();" toolTip="Refresh worklist"/>
+	 	            <mx:HBox width="100%" horizontalAlign="right">
+	 	            	<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')">
+		            	</mx:Button>
+	 	            </mx:HBox>
+
+ </mx:ControlBar>						
+
+</mx:Panel>

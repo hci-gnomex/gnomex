@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*"  xmlns:util="views.util.*">
+
+
+   <mx:HTTPService  
+    id="getRequestProgressList" 
+    url="GetRequestProgressList.gx"
+    destination="getRequestProgressList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequestProgressList(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get experiment progress list', event)"
+	method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+    
+ <mx:Script>
+ <![CDATA[
+ 	import mx.formatters.DateFormatter;
+    import mx.rpc.events.ResultEvent;
+ 	import flash.display.Sprite;
+    import flash.net.FileReference;
+    import flash.net.URLRequest;
+    import flash.net.URLRequestMethod;
+    import flash.net.URLVariables;
+    import mx.managers.PopUpManager;
+   
+	
+ 	[Bindable]
+    private var rowCountMessage:String = new String();
+    
+    
+    private function onGetRequestProgressList(event:ResultEvent): void { 
+    	parentDocument.filterList();
+    	progressGrid.validateNow();
+    }    
+    public function setResultsCount():void {
+    	//rowCountMessage = downloadList.length + " folders found.";
+    }
+    
+    private function getGridRowNumber(item:Object,col:int):String
+    {
+       var x:int = progressList.getItemIndex(item) + 1;
+       return String(x);
+    } 
+    
+ 	private function getRequestKind(item:Object, col:int):String {
+		var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	if (de.length() == 1) {
+	    	return de[0].@display;
+    	} else {
+    		return "";
+    	}
+	}
+    
+ ]]>
+ </mx:Script>
+ 
+    <mx:XMLListCollection id="progressList" source="{getRequestProgressList.lastResult.RequestProgress}"/>
+
+	
+	<mx:VBox  width="100%" height="100%" paddingLeft="3" paddingBottom="4" paddingTop="4" paddingRight="4">
+	       <util:DataGridAlternatingGroup  sortableColumns="false" id="progressGrid" dataProvider="{progressList}"  width="100%" height="100%">
+	         <util:columns>
+	            <mx:DataGridColumn width="18" headerText="#">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0" >
+	                          <mx:Image id="experimentImage"  
+	                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment)) : '')}" >
+	                    	 </mx:Image> 
+	                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+		       	<mx:DataGridColumn headerText="Date"              width="15" dataField="@createDate"/>
+	            <mx:DataGridColumn headerText="Request Kind"      width="24" labelFunction="getRequestKind"/>
+		        <mx:DataGridColumn headerText="Requester"         width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+		       	<mx:DataGridColumn headerText="Hyb #"             width="10" dataField="@hybNumber"/>
+		       	<mx:DataGridColumn headerText="Cy3 Sample"        width="25" dataField="@nameSample1"  />
+	            <mx:DataGridColumn width="7" headerText="QC" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@qualDateSample1 != '' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Label">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@labelingDateSample1 != '' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+		       	
+		       	<mx:DataGridColumn headerText="Cy5 Sample"        width="25" dataField="@nameSample2" />
+	            <mx:DataGridColumn width="7" headerText="QC" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@qualDateSample2 != '' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Label" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@labelingDateSample2 != '' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Hyb">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@hybDate != '' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	            <mx:DataGridColumn width="7" headerText="Extract" >
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@extractionDate != '' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+	         </util:columns>
+	       </util:DataGridAlternatingGroup>
+	
+	     
+	</mx:VBox>
+	
+	
+
+
+
+</mx:Canvas>
+
+

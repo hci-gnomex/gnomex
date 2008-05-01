@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add Group" width="242" height="110" defaultButton="{saveButton}">
+    <mx:HTTPService 
+    id="saveLab" 
+    url="SaveLab.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onSaveLab(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save group', event)"
+    useProxy="false">
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get group', event)"
+    useProxy="false">    
+    </mx:HTTPService >    
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		
+		private var savedIdLab:Object;
+		
+		private function save():void {
+			var params:Object = new Object();
+			
+			params.idLab = 0;
+			params.name = labName.text;
+			params.accountsXMLString = "<billingAccounts/>";
+			params.membersXMLString = "<members/>";
+			params.collaboratorsXMLString = "<collaborators/>";
+			params.managersXMLString = "<managers/>";
+			
+			saveLab.send(params);
+		}
+		
+		private function onSaveLab(event:ResultEvent):void {
+			if (saveLab.lastResult.name() == "SUCCESS") {
+				savedIdLab = saveLab.lastResult.@idLab;
+				var params:Object = new Object();
+				params.idLab = savedIdLab;
+	 			getLab.send(params);
+				PopUpManager.removePopUp(this);
+			} else {
+				Alert.show("An error occurred while saving the group.");
+			}			
+		}
+		
+		
+	     private function onGetLab(event:ResultEvent):void {
+          parentApplication.navUsersView.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+          parentApplication.navUsersView.refreshGroupList();
+          parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
+        }
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%">
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Group name"/>
+			<mx:TextInput id="labName" width="100%"/>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{labName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

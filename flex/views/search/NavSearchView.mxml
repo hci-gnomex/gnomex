@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  
+	xmlns:search="views.search.*" 
+	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
+	label="Search"  defaultButton="{searchButton}"
+	width="100%" height="100%" creationPolicy="all" title="Advanced Search" icon="@Embed('../../assets/magnifier.png')">
+	
+	<mx:Script>
+    <![CDATA[ 
+    	import mx.managers.CursorManager;
+    
+        [Bindable]
+        private var rowCountMessage:String = new String();
+        
+        private function getGridRowNumber(item:Object,col:int):String
+        {
+           var x:int = searchList.getItemIndex(item) + 1;
+           return String(x);
+        }
+        
+        public function setResultsCount():void {
+        	rowCountMessage = searchList.length + " experiments, " + searchProtocolList.length + " protocols found.";
+        	searchResultsTreeView.enabled = true;
+        	this.searchResultsView.enabled = true;
+
+        }
+        
+        private function onExperimentRowSelected():void  {
+        	parentApplication.showExperiment(resultsGrid.selectedItem.@requestNumber);
+        }
+        
+                
+        private function onExperimentNodeSelected():void  {
+        	if (resultsTree.selectedItem.name() == "RequestNode") {
+	        	parentApplication.showExperiment(resultsTree.selectedItem.@requestNumber);    		
+        	}
+        }
+        
+        
+	    public function expandAllNodes():void
+  		{   
+  			resultsTree.openItems = searchView.searchGNomEx.lastResult..Project;  			
+  			for each(var p:Object in searchView.searchGNomEx.lastResult.ProjectRequestList) {
+  				resultsTree.expandItem(p, true);
+  			}
+			for each(var lab:Object in searchView.searchGNomEx.lastResult..Lab) {
+  				resultsTree.expandItem(lab, true);
+  			}	 
+  					
+  			resultsProtocolTree.openItems = searchView.searchGNomEx.lastResult.ProtocolList;
+  		}
+  		
+
+  		
+  		private function collapseAllNodes():void {
+  			resultsTree.openItems = [];
+  			resultsProtocolTree.openItems = [];
+
+ 		}
+	  	public function getTreeIcon(item:Object):Class {
+				if (item.name() == "Lab") {
+					return parentApplication.iconGroup;
+				} else if (item.name() == "Project") {
+					return parentApplication.iconProject;
+				} else if (item.name() == "RequestCategory") {
+					return parentApplication.iconCategory;
+				} else if (item.name() == "RequestNode" &&
+				           item.@codeRequestCategory == "QC") {
+					return parentApplication.iconQC;
+				} else if (item.name() == "RequestNode" &&
+				           item.@codeRequestCategory == "Solexa") {
+					return parentApplication.iconSolexa;
+				} else if (item.name() == "Protocol") {
+					return parentApplication.iconProtocol;
+				} else if (item.name() == "ProjectRequestList" || item.name() == "ProtocolList") {
+					return parentApplication.iconProject;
+				} else {
+					return parentApplication.iconExperiment;
+				}
+		}	
+	  	public function getTreeLabel(item:Object):String {
+	  		if (item.name() == "ProjectRequestList") {
+	  			return "Labs";
+	  		} else if (item.name() == "ProtocolList") {
+	  			return "Protocols";
+	  		}else {
+	  			return item.@label;
+	  		}
+	  	}
+		
+ 		public function onViewSwitch():void {
+
+			if (searchViews.selectedChild == searchView ) {
+				buttonStack.selectedChild = searchButtonView;
+				buttonStack.visible = true;
+				buttonStack.selectedChild = searchButtonView;
+				buttonStackTop.selectedChild = searchTopButtonView;
+			} else if (searchViews.selectedChild == searchResultsView) {
+				buttonStack.visible = true;
+				buttonStack.selectedChild = resultButtonView;
+				buttonStackTop.selectedChild = resultTopButtonView;
+				resultsViewStack.selectedIndex = 0;
+				
+			} else if (searchViews.selectedChild == searchResultsTreeView) {
+				buttonStack.visible = true;
+				buttonStack.selectedChild = resultTreeButtonView;
+				buttonStackTop.selectedChild = resultTreeTopButtonView;
+				this.resultsProtocolViewStack.selectedIndex = 0;
+			}
+	}
+
+    ]]>
+    </mx:Script>
+   
+    
+    <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
+    <mx:XMLListCollection id="searchProtocolList" source="{searchView.searchGNomEx.lastResult.ProtocolList.Protocol}"/>
+    <mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingBottom="0"  verticalGap="0" paddingTop="0">
+
+
+<mx:VBox width="100%" verticalGap="0" height="100%">
+	<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="0">
+        <mx:TabBar dataProvider="{searchViews}" 
+        	itemClick="onViewSwitch()" 
+        	useHandCursor="true"  styleName="formTabBar">
+        </mx:TabBar>
+        <mx:Spacer width="140"/>
+        <mx:HBox width="100%" horizontalAlign="right">
+            <mx:ViewStack width="100%"  id="buttonStackTop" >
+                <mx:HBox  horizontalAlign="right" width="100%" id="searchTopButtonView" verticalAlign="top">
+		        	<mx:Button visible="false">
+		        	</mx:Button>
+                </mx:HBox>
+                <mx:HBox width="100%" horizontalAlign="right" id="resultTopButtonView" horizontalGap="20">
+				    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
+		        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
+                </mx:HBox>
+                <mx:HBox width="100%" horizontalAlign="right" id="resultTreeTopButtonView" >
+	                <mx:HBox width="100%" horizontalAlign="right"  horizontalGap="20">
+					    <mx:Label text="Criteria used in search" textDecoration="underline" toolTip="{searchView.searchGNomEx.lastResult.@search}" ></mx:Label>
+			        	<mx:Label  text="{rowCountMessage}" textAlign="right"/>
+                    </mx:HBox>
+                </mx:HBox>
+
+        	</mx:ViewStack>
+        	
+        </mx:HBox>
+
+     </mx:HBox>
+	
+
+	<mx:ViewStack  id="searchViews" width="100%" height="100%" 
+			 creationPolicy="all"  styleName="formTabBody" cornerRadius="0">
+	
+		<search:SearchView id="searchView" label="New search" width="100%" height="100%" >
+		</search:SearchView>
+		
+		<mx:VBox id="searchResultsView"  label="Results"   enabled = "false" width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4">
+		   <mx:HBox>
+		      <mx:LinkBar dataProvider="{resultsViewStack}" styleName="formLinkBar"/>
+		   </mx:HBox>
+
+			<mx:ViewStack id="resultsViewStack" width="100%" height="100%" >
+			  <mx:VBox label="Experiments" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+	             <mx:VBox id="listView" width="100%" height="100%">
+	  		       <mx:DataGrid  dataProvider="{searchList}"  width="100%" height="100%" doubleClick="onExperimentRowSelected()" id="resultsGrid" doubleClickEnabled="true">
+			       <mx:columns>
+			       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
+			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
+			       	<mx:DataGridColumn headerText="Group" width="50" dataField="@requestLabName"/>
+			       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory"/>
+			       	<mx:DataGridColumn headerText="Request Date" width="37" dataField="@requestCreateDate"/>
+			       	<mx:DataGridColumn headerText="Request #" width="35" dataField="@requestNumber"/>
+			       	<mx:DataGridColumn headerText="Microarray" width="170" dataField="@slideProductName"/>
+			       </mx:columns>
+			       </mx:DataGrid>
+			     </mx:VBox>
+			  </mx:VBox>
+			  <mx:VBox label="Protocols" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+	             <mx:VBox id="listProtocolView" width="100%" height="100%">
+	  		       <mx:DataGrid  dataProvider="{searchProtocolList}"  width="100%" height="100%"  id="resultsProtocolGrid" doubleClickEnabled="true">
+			       <mx:columns>
+			       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
+			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
+			       	<mx:DataGridColumn headerText="type" width="50" dataField="@protocolType"/>
+			       	<mx:DataGridColumn headerText="Name" width="250" dataField="@name"/>
+			       </mx:columns>
+			       </mx:DataGrid>
+			     </mx:VBox>
+			  </mx:VBox>
+			</mx:ViewStack>			
+			
+		</mx:VBox>
+		
+		
+		<mx:VBox id="searchResultsTreeView"  
+		   label="Results (tree)" 
+			enabled="false" styleName="form"
+			width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4"  >
+		   <mx:HBox width="100%" paddingBottom="0" verticalAlign="bottom">
+		      <mx:LinkBar dataProvider="{resultsProtocolViewStack}" styleName="formLinkBar"/>
+			   <mx:HBox  width="100%" horizontalAlign="right" verticalAlign="bottom" paddingBottom="0">
+				          <mx:LinkButton  label="Collapse" click="collapseAllNodes()"  useHandCursor="true" selected="true" id="collapse" toggle="false" paddingBottom="0"/>
+				          <mx:LinkButton  label="Expand"  useHandCursor="true" click="expandAllNodes()" id="expand" toggle="true" paddingBottom="0"/>		   
+			   </mx:HBox>
+		   </mx:HBox>
+			<mx:ViewStack id="resultsProtocolViewStack" width="100%" height="100%" >
+			  <mx:VBox label="Experiments"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			     <mx:VBox id="treeView" width="100%" height="100%">
+			     	<mx:Tree id="resultsTree" width="100%" height="100%" 
+		    	 		dataProvider="{searchView.searchGNomEx.lastResult.ProjectRequestList}"
+		     			labelField="@label" 
+		     			 doubleClickEnabled="true" doubleClick="onExperimentNodeSelected()"
+		     		 	iconFunction="getTreeIcon"
+		     		 	labelFunction="getTreeLabel"
+		     			showRoot="true" >
+		     		</mx:Tree>
+		     	</mx:VBox>
+		      </mx:VBox>
+		     	
+			  <mx:VBox label="Protocols"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			     <mx:VBox id="treeProtocolView" width="100%" height="100%">
+			     	<mx:Tree id="resultsProtocolTree" width="100%" height="100%" 
+		    	 		dataProvider="{searchView.searchGNomEx.lastResult.ProtocolList}"
+		     			labelField="@label" 
+		     		 	iconFunction="getTreeIcon"
+		     		 	labelFunction="getTreeLabel"
+		     			showRoot="true" >
+		     		</mx:Tree>
+		     	</mx:VBox>
+		     </mx:VBox>
+			</mx:ViewStack>
+		</mx:VBox>
+	</mx:ViewStack>
+
+
+</mx:VBox>
+        
+		            	
+    </mx:VBox>
+
+				<mx:ControlBar width="100%" >
+	                <mx:ViewStack width="100%" id="buttonStack" >
+	                    <mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
+				        	<mx:Button label="Search" click="searchView.callSearchIndex()"  icon="@Embed('../../assets/magnifier.png')" id="searchButton">
+				        	</mx:Button>
+				        	<mx:Button label="Clear"  click="searchView.clearForm()">
+				        	</mx:Button>
+	                    </mx:HBox>
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">
+	                    </mx:HBox>
+	                    <mx:HBox width="100%" horizontalAlign="left" id="resultTreeButtonView" horizontalGap="20">
+	                    </mx:HBox>
+	
+                	</mx:ViewStack>
+					
+				</mx:ControlBar>
+    
+</mx:Panel>

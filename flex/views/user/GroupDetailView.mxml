@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
+	 height="100%" width="100%" label="Group Detail" 
+	  title="{parentDocument.fullLab.@name}" >
+	  
+  <mx:HTTPService  
+    id="saveGroup" 
+    url="SaveLab.gx"
+    destination="saveGroup" 
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveGroup(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to save group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>    
+    </mx:request>
+  </mx:HTTPService>
+    
+    <mx:HTTPService 
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetLab(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    useProxy="false">
+    </mx:HTTPService >
+  
+	  
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.controls.Alert;
+		import mx.rpc.events.FaultEvent;
+		
+		private var savedIdLab:Object = '';
+	
+		private function addBillingAccount():void {
+			var node:XML = new XML("<BillingAccount " +
+			    " idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
+			    " accountName='" + accountName.text + "'" +
+ 			    " expirationDateOther=''" + 
+			    " accountNumberBus=''" + 
+			    " accountNumberOrg=''" + 
+			    " accountNumberFund=''" + 
+			    " accountNumberActivity=''" + 
+			    " accountNumberProject=''" + 
+			    " accountNumberAccount=''" + 
+			    " accountNumberAu=''" + 
+			    " accountNumberYear=''" +  
+			    " isSelectedPeerReviewedFunding='false'" + 
+				"/>");
+			billingAccounts.addItem(node);
+			
+			accountName.text = '';
+
+
+			
+		}
+		
+		private function removeBillingAccount():void {
+			if (billingAccountGrid.selectedIndex != -1) {
+				billingAccounts.removeItemAt(billingAccountGrid.selectedIndex);
+			}
+		}
+		
+		private function addMember():void {
+			var node:XML = new XML("<AppUser " +
+			    " idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
+			    " displayName='" + memberCombo.selectedItem.@displayName + "'" +
+				"/>");
+			members.addItem(node);
+		}
+		
+		private function removeMember():void {
+			if (membersGrid.selectedIndex != -1) {
+				members.removeItemAt(membersGrid.selectedIndex);
+			}
+		}
+		private function addCollaborator():void {
+			var node:XML = new XML("<AppUser " +
+			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
+			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+				"/>");
+			collaborators.addItem(node);
+		}
+		
+		private function removeCollaborator():void {
+			if (collaboratorsGrid.selectedIndex != -1) {
+				collaborators.removeItemAt(collaboratorsGrid.selectedIndex);
+			}
+		}
+		private function addManager():void {
+			var node:XML = new XML("<AppUser " +
+			    " idAppUser='" + managerCombo.selectedItem.@idAppUser + "'" +
+			    " displayName='" + managerCombo.selectedItem.@displayName + "'" +
+				"/>");
+			managers.addItem(node);
+		}
+		
+		private function removeManager():void {
+			if (managerCombo.selectedIndex != -1) {
+				managers.removeItemAt(managersGrid.selectedIndex);
+			}
+		}
+		
+		private function getExpirationDateString(item:Object,col:int):String
+        {
+        	return item.@expirationDateOther.toString();
+        }
+        
+        private function save():void {
+			
+			var params:Object = new Object();
+			
+			if (parentDocument.fullLab != null) {
+				params.idLab = parentDocument.fullLab.@idLab;			
+			} else {
+				params.idLab = '';
+			}
+			params.name =  this.groupName.text;
+			params.department = this.department.text;
+			params.notes = this.notes.text;
+			params.contactName =  this.contactName.text;
+			params.contactAddress = this.contactAddress.text;
+			params.contactCity =  this.contactCity.text;
+			params.contactCodeState =  this.contactState.text;
+			params.contactZip = this.contactZip.text;
+			params.contactPhone = this.contactPhone.text;
+			params.contactEmail = this.contactEmail.text;
+			params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
+			
+			for each(var ba:Object in billingAccounts) {
+				ba.@expirationDate = ba.@expirationDateOther;
+			}
+			
+			params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + "</billingAccounts>";
+			params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
+			params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
+			params.managersXMLString = "<managers>" + managers.toXMLString() + "</managers>";
+
+			saveGroup.send(params);			
+			
+		}
+		
+		private function onSaveGroup(event:ResultEvent):void {
+			if (saveGroup.lastResult.name() == "SUCCESS") {
+				savedIdLab = saveGroup.lastResult.@idLab;
+
+				var params:Object = new Object();
+				params.idLab = savedIdLab;
+	 			getLab.send(params);
+				
+				parentDocument.refreshGroupList();
+			} else {
+				Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
+			}
+			
+		}
+ 
+        
+        private function onGetLab(event:ResultEvent):void {
+          parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+        }
+
+
+	]]>
+</mx:Script>	  
+
+	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.billingAccounts.BillingAccount}"/>
+	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
+	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
+	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}"/>
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	
+	
+	<mx:VBox  height="100%" width="100%" verticalGap="0" >
+
+		
+		<mx:TabNavigator width="100%" height="100%"  styleName="form" >
+			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
+				
+				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
+				   <mx:VBox   height="100%" verticalGap="8" width="100%">
+					   	<mx:HBox verticalAlign="bottom" horizontalGap="10">
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Name"/>
+								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="200"/>
+							</mx:VBox>
+							<mx:VBox  verticalGap="0">
+								<mx:Label text="Department" />
+								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="200"/>
+							</mx:VBox>
+					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member"/>
+					   		
+					   	</mx:HBox>
+						<mx:HBox  verticalGap="0" width="100%" height="100%" horizontalAlign="right" horizontalGap="20">
+						    <mx:VBox verticalGap="0" width="100%" height="100%">
+								<mx:Label text="Notes" />
+								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%"/>
+						    	
+						    </mx:VBox>
+							<mx:HBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="right">
+							 <mx:VBox verticalGap="0">
+							 <mx:VBox  verticalGap="0">
+							 	<mx:Label text="Billing Contact" />
+							 	<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="140"/>
+							 </mx:VBox>
+							 <mx:VBox  verticalGap="0">
+							 	<mx:Label text="Address" />
+							 	<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="140"/>
+							 </mx:VBox>
+							 </mx:VBox>
+							 <mx:VBox verticalGap="0">
+							      <mx:VBox  verticalGap="0">
+							      	<mx:Label text="City" />
+							      	<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="120"/>
+							      </mx:VBox>
+							      <mx:HBox width="100%">
+							      <mx:VBox  verticalGap="0">
+							      	<mx:Label text="State" />
+							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="60"/>
+							      </mx:VBox>
+							      <mx:VBox  verticalGap="0" width="100%">
+							      	<mx:Label text="Zip" />
+							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="60"/>
+							      </mx:VBox>
+							      	
+							      </mx:HBox>
+							 	</mx:VBox>
+							 <mx:VBox verticalGap="0">
+							  <mx:VBox  verticalGap="0">
+							  	<mx:Label text="Phone" />
+							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="120"/>
+							  </mx:VBox>
+							  <mx:VBox  verticalGap="0">
+							  	<mx:Label text="Email" />
+							  	<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="120"/>
+							  </mx:VBox>
+							 	</mx:VBox>
+								
+							</mx:HBox>
+						</mx:HBox>
+				   	
+				   </mx:VBox>
+				</mx:HBox>
+				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="10">
+				   <mx:VBox verticalGap="4" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
+				       <mx:Label text="Members"/>
+				   	   <mx:HBox width="100%" horizontalAlign="left">
+					       <mx:ComboBox width="170" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+				   	   	   	   <mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				   	   	   </mx:Button>
+				   	   	   <mx:Button click="removeMember()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}" width="25"/>
+				   	   </mx:HBox>
+		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   </mx:VBox>
+				   <mx:VBox width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
+				       <mx:Label text="Collaborators"/>
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="170" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+				   	   	   	   <mx:enabled>{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				   	   	   </mx:Button>
+				   	   	   <mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}" width="25"/>
+				   	   </mx:HBox>
+		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   </mx:VBox>
+				   <mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
+				       <mx:Label text="Managers"/>
+				   	   <mx:HBox width="100%">
+					       <mx:ComboBox width="170" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
+					       </mx:ComboBox>
+				   	   	   <mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+				   	   	   	   <mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				   	   	   </mx:Button>
+				   	   	   <mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
+				   	   </mx:HBox>
+					    <mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%">
+				           <mx:columns>
+				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
+				           </mx:columns>
+				       </mx:DataGrid>			   	
+				   </mx:VBox>
+				    			    
+	
+				</mx:HBox>
+			</mx:VBox>			
+			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox horizontalAlign="left" width="100%">
+					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
+						<mx:Label text="Account name"/>
+						<mx:TextInput id="accountName" width="100%"/>
+						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}"/>
+						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}"/>						
+					</mx:HBox>
+				</mx:HBox>
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto">
+					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
+					<mx:columns>
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="100"/>
+						<mx:DataGridColumn dataField="@expirationDate" width="80"
+			                headerText="Expires"  
+			          		itemEditor="views.renderers.DateFieldExpiration" 
+			          		itemRenderer="mx.controls.Label" 
+			                rendererIsEditor="false" 
+			                labelFunction="getExpirationDateString"
+			                editorDataField="selectedDate"/>
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" labelFunction="{parentApplication.lookupFundingAgency}"
+							editorDataField="value" itemRenderer="mx.controls.Label" itemEditor="views.renderers.ComboBoxFundingAgency"  rendererIsEditor="false"  width="60"/>
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="60"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="60"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="90"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="90"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="40"/>
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:HBox horizontalAlign="right" width="100%">
+				</mx:HBox>
+				
+			</mx:VBox>
+		</mx:TabNavigator>
+	   
+    </mx:VBox>
+		<mx:ControlBar width="100%"  horizontalAlign="right">
+			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" width="70" click="save()"/>
+		</mx:ControlBar>
+	    
+  
+</mx:Panel>
