@@ -49,6 +49,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to delete protocol', event)">
 		<mx:request>
 			<idProtocol>
@@ -164,6 +165,7 @@
 				var call:Object = event.token;
 				if (call.marker == "doneGetProtocolList") {
 					protocolList = new XMLList(getProtocolList.lastResult.Protocols);
+					protocols.refresh();
 					initTree();
 				} else if (call.marker == "doneGetProtocol") {
 					fullProtocol = getProtocol.lastResult;
@@ -172,10 +174,10 @@
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
 				} else if (call.marker == "doneDeleteProtocol") {
-					callGetProtocolList();
 					fullProtocol = null;
 					protocolViews.selectedChild = blankProtocol;
 					bodyPanel.title = "Protocol: ";
+					callGetProtocolList();
 				}
 			}
 			
