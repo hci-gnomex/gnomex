@@ -734,15 +734,6 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
-	<!-- hci.gnomex.model.SolexaLibraryType -->
-	<class name="hci.gnomex.model.SolexaLibraryType" table="SolexaLibraryType">
-		<id name="idSolexaLibraryType" column="idSolexaLibraryType" type="integer">
-			<generator class="native"/>
-		</id>
-		<property name="solexaLibraryType" column="solexaLibraryType" type="string"/>
-		<property name="isActive" column="isActive" type="string"/>
-	</class>
-	
 	<!-- hci.gnomex.model.State -->
 	<class name="hci.gnomex.model.State" table="State">
 		<id name="codeState" column="codeState" type="string">
