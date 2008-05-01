@@ -64,28 +64,26 @@
 			}
 		]]>
 	</mx:Script>
-		<mx:Canvas height="110" width="382">
-			<mx:VBox left="0" right="0" top="0" bottom="178">
+			<mx:VBox width="100%">
 				<mx:Label text="Protocol Name" color="#FFFFFF"/>
 				<mx:TextInput id="protocolName" width="100%"/>
 			</mx:VBox>
-			<mx:VBox top="54" left="0" right="85" bottom="124">
-				<mx:Label text="Kind of Request:" color="#FFFFFF"/>
-				<hci:DictionaryComboBox
-					id="codeRequestCategory"
-					dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
-					dictValue="@value"
-					dictDisplay="@display"
-					dictName="hci.gnomex.model.RequestCategory"
-					labelField="@display"
-					dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-					width="100%">
-					</hci:DictionaryComboBox>
-			</mx:VBox>
-			<mx:VBox height="46" width="77" horizontalAlign="left" verticalAlign="bottom" x="305" y="54">
+			<mx:HBox width="100%" verticalAlign="bottom">
+				<mx:VBox top="54" left="0" right="85" bottom="124" width="100%" verticalAlign="bottom">
+					<mx:Label text="Kind of Request:" color="#FFFFFF"/>
+					<hci:DictionaryComboBox
+						id="codeRequestCategory"
+						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
+						dictValue="@value"
+						dictDisplay="@display"
+						dictName="hci.gnomex.model.RequestCategory"
+						labelField="@display"
+						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
+						width="100%">
+						</hci:DictionaryComboBox>
+				</mx:VBox>
 				<hci:CheckBoxYN  id="isActive"  label="Active" color="#FFFFFF" selected="true"/>
-			</mx:VBox>
-		</mx:Canvas>
+			</mx:HBox>
 			<mx:ControlBar horizontalAlign="right" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:Button id="saveProtocolButton" label="Create Protocol" click="callSaveProtocol()" icon="@Embed('../assets/action_save.gif')" toolTip="Save protocol" top="118" bottom="36" right="10" left="241"/>
 				<mx:Button id="cancer" label="Cancel" click="PopUpManager.removePopUp(this)" icon="@Embed('../assets/delete.png')" toolTip="Cancel" top="124" bottom="-22" right="282" left="17"/>

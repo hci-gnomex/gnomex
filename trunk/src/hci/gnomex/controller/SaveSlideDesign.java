@@ -210,6 +210,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
           }
           
           // Remove array coordinates no longer in the list
+          
           List arrayCoordinatesToRemove = new ArrayList();
           for (Iterator i = existingArrayCoordinates.iterator(); i.hasNext();) {
             ArrayCoordinate ac = (ArrayCoordinate) i.next();
@@ -235,9 +236,6 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
           }
           slideProduct.setMicroarrayCategories(microarrayCategories);
         }
-        
-        
-        
         
         sess.flush();
         
