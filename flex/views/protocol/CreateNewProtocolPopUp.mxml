@@ -3,9 +3,9 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:hci = "hci.components.*"
 	layout="vertical" left="0" right="0" top="0" bottom="0" 
-	backgroundAlpha="1.0" cornerRadius="4"
 	showCloseButton="true"
-	close="PopUpManager.removePopUp(this)" borderColor="#9F9F9F" backgroundColor="#747474"
+	close="PopUpManager.removePopUp(this)"
+	defaultButton="{saveProtocolButton}"
 	creationComplete="init()">
 		
 		<mx:HTTPService
@@ -45,6 +45,7 @@
 			public function init():void {
 				protocolClassName = parentApplication.protocolsView.browseProtocols.selectedItem.@protocolClassName;
 				this.title = "Create New "+parentApplication.protocolsView.protocolList.(@protocolClassName==protocolClassName).@label;
+				
 			}
 			
 			public function callSaveProtocol():void {
@@ -65,13 +66,13 @@
 			}
 		]]>
 	</mx:Script>
-			<mx:VBox width="100%">
-				<mx:Label text="Protocol Name" color="#FFFFFF"/>
-				<mx:TextInput id="protocolName" width="100%"/>
+			<mx:VBox width="100%" verticalGap="0">
+				<mx:Label text="Protocol Name" color="#000000"/>
+				<mx:TextInput id="protocolName" width="100%" />
 			</mx:VBox>
 			<mx:HBox width="100%" verticalAlign="bottom">
-				<mx:VBox top="54" left="0" right="85" bottom="124" width="100%" verticalAlign="bottom">
-					<mx:Label text="Kind of Request:" color="#FFFFFF"/>
+				<mx:VBox top="54" left="0" right="85" bottom="124" width="100%" verticalAlign="bottom" height="100%" verticalGap="0">
+					<mx:Label text="Kind of Request:" color="#000000"/>
 					<hci:DictionaryComboBox
 						id="codeRequestCategory"
 						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
@@ -83,7 +84,7 @@
 						width="100%">
 						</hci:DictionaryComboBox>
 				</mx:VBox>
-				<hci:CheckBoxYN  id="isActive"  label="Active" color="#FFFFFF" selected="true"/>
+				<hci:CheckBoxYN  id="isActive"  label="Active" color="#000000" selected="true"/>
 			</mx:HBox>
 			<mx:ControlBar horizontalAlign="right" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:Button id="saveProtocolButton" label="Create Protocol" click="callSaveProtocol()" icon="@Embed('../../assets/action_save.gif')" toolTip="Save protocol" top="118" bottom="36" right="10" left="241"/>
