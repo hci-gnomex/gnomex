@@ -277,8 +277,10 @@
               userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
               if (fullUser.@isExternalUser == 'Y') {
               	userDetailView.currentState = "externalUserState";
+              	userDetailView.radioExternalUser.selected = true;
               } else {
               	userDetailView.currentState = "";
+              	userDetailView.radioUniversityUser.selected = true;
               }
               detailViews.selectedChild = this.userDetailView;
               
