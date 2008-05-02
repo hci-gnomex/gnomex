@@ -6,6 +6,7 @@ import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
@@ -161,7 +162,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
 
           // if this is a new request, create QC work items for each sample
-          if (requestParser.isNewRequest()) {
+          if (requestParser.isNewRequest()  && 
+              !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
             workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);
