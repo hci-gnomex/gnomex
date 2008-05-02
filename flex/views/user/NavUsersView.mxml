@@ -275,7 +275,13 @@
             if (call.marker == "doneGetAppUser") {
               fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
               userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
+              if (fullUser.@isExternalUser == 'Y') {
+              	userDetailView.currentState = "externalUserState";
+              } else {
+              	userDetailView.currentState = "";
+              }
               detailViews.selectedChild = this.userDetailView;
+              
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
             } else if (call.marker == "doneGetLabList") {
@@ -286,6 +292,7 @@
             	} else {
             		detailViews.selectedChild = this.groupManageView;	
             	}
+            	groupDetailView.resetDirty(); 
             } 
 
           }

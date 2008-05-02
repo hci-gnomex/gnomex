@@ -2,6 +2,16 @@
 <mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
 	 height="100%" width="100%" label="Group Detail" 
 	  title="{parentDocument.fullLab.@name}" >
+  <mx:states>
+    <mx:State name="dirtyState">
+      <mx:AddChild relativeTo="{controlbar1}" position="firstChild">
+        <mx:HBox  backgroundColor="#FFFF99"  horizontalAlign="right" id="hbox1" paddingTop="1" paddingBottom="1" paddingLeft="4" paddingRight="4"  cornerRadius="4" borderStyle="solid" fontStyle="normal" fontWeight="normal">
+           <mx:Text  textAlign="right" text="Your changes have not been saved"/>
+        </mx:HBox>
+      </mx:AddChild>
+      <mx:AddChild/>
+    </mx:State>
+  </mx:states>
 	  
   <mx:HTTPService  
     id="saveGroup" 
@@ -35,9 +45,20 @@
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
 		
+		private var isDirty:Boolean = false;
 		private var savedIdLab:Object = '';
 	
+		private function setDirty():void {
+			isDirty = true;
+			currentState = "dirtyState";
+			
+		}
+		public function resetDirty():void {
+			isDirty = false;
+			currentState = "";
+		}	
 		private function addBillingAccount():void {
+			setDirty();
 			var node:XML = new XML("<BillingAccount " +
 			    " idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
 			    " accountName='" + accountName.text + "'" +
@@ -61,12 +82,14 @@
 		}
 		
 		private function removeBillingAccount():void {
+			setDirty();
 			if (billingAccountGrid.selectedIndex != -1) {
 				billingAccounts.removeItemAt(billingAccountGrid.selectedIndex);
 			}
 		}
 		
 		private function addMember():void {
+			setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
 			    " displayName='" + memberCombo.selectedItem.@displayName + "'" +
@@ -75,11 +98,13 @@
 		}
 		
 		private function removeMember():void {
+			setDirty();
 			if (membersGrid.selectedIndex != -1) {
 				members.removeItemAt(membersGrid.selectedIndex);
 			}
 		}
 		private function addCollaborator():void {
+			setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
 			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
@@ -88,11 +113,13 @@
 		}
 		
 		private function removeCollaborator():void {
+			setDirty();
 			if (collaboratorsGrid.selectedIndex != -1) {
 				collaborators.removeItemAt(collaboratorsGrid.selectedIndex);
 			}
 		}
 		private function addManager():void {
+			setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + managerCombo.selectedItem.@idAppUser + "'" +
 			    " displayName='" + managerCombo.selectedItem.@displayName + "'" +
@@ -101,6 +128,7 @@
 		}
 		
 		private function removeManager():void {
+			setDirty();
 			if (managerCombo.selectedIndex != -1) {
 				managers.removeItemAt(managersGrid.selectedIndex);
 			}
@@ -157,6 +185,7 @@
 			} else {
 				Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
 			}
+			resetDirty();
 			
 		}
  
@@ -187,61 +216,61 @@
 					   	<mx:HBox verticalAlign="bottom" horizontalGap="10">
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Name"/>
-								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="200"/>
+								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="200" change="setDirty()"/>
 							</mx:VBox>
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Department" />
-								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="200"/>
+								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="200" change="setDirty()"/>
 							</mx:VBox>
-					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member"/>
+					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member" click="setDirty()"/>
 					   		
 					   	</mx:HBox>
-						<mx:HBox  verticalGap="0" width="100%" height="100%" horizontalAlign="right" horizontalGap="20">
-						    <mx:VBox verticalGap="0" width="100%" height="100%">
+						<mx:HBox  verticalGap="0" width="100%" height="100%" horizontalAlign="left" horizontalGap="10">
+						    <mx:VBox verticalGap="0" height="100%" width="410">
 								<mx:Label text="Notes" />
-								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%"/>
+								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%" change="setDirty()"/>
 						    	
 						    </mx:VBox>
-							<mx:HBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="right">
-							 <mx:VBox verticalGap="0">
+							<mx:VBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="left" width="100%" borderStyle="inset" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+							 <mx:HBox verticalGap="0" width="100%">
 							 <mx:VBox  verticalGap="0">
 							 	<mx:Label text="Billing Contact" />
-							 	<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="140"/>
+							 	<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="160" change="setDirty()"/>
 							 </mx:VBox>
-							 <mx:VBox  verticalGap="0">
+							 <mx:VBox  verticalGap="0" width="100%">
 							 	<mx:Label text="Address" />
-							 	<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="140"/>
+							 	<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="100%" change="setDirty()"/>
 							 </mx:VBox>
-							 </mx:VBox>
-							 <mx:VBox verticalGap="0">
+							 </mx:HBox>
+							 <mx:HBox verticalGap="0" width="100%">
 							      <mx:VBox  verticalGap="0">
 							      	<mx:Label text="City" />
-							      	<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="120"/>
+							      	<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="160" change="setDirty()"/>
 							      </mx:VBox>
 							      <mx:HBox width="100%">
 							      <mx:VBox  verticalGap="0">
 							      	<mx:Label text="State" />
-							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="60"/>
+							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="60" change="setDirty()"/>
 							      </mx:VBox>
 							      <mx:VBox  verticalGap="0" width="100%">
 							      	<mx:Label text="Zip" />
-							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="60"/>
+							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="100%" click="setDirty()"/>
 							      </mx:VBox>
 							      	
 							      </mx:HBox>
-							 	</mx:VBox>
-							 <mx:VBox verticalGap="0">
+							 </mx:HBox>
+							 <mx:HBox verticalGap="0" width="100%">
 							  <mx:VBox  verticalGap="0">
 							  	<mx:Label text="Phone" />
-							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="120"/>
+							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="160" change="setDirty()"/>
 							  </mx:VBox>
-							  <mx:VBox  verticalGap="0">
+							  <mx:VBox  verticalGap="0" width="100%">
 							  	<mx:Label text="Email" />
-							  	<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="120"/>
+							  	<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="setDirty()"/>
 							  </mx:VBox>
-							 	</mx:VBox>
+							 </mx:HBox>
 								
-							</mx:HBox>
+							</mx:VBox>
 						</mx:HBox>
 				   	
 				   </mx:VBox>
@@ -338,8 +367,8 @@
 		</mx:TabNavigator>
 	   
     </mx:VBox>
-		<mx:ControlBar width="100%"  horizontalAlign="right">
-			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" width="70" click="save()"/>
+		<mx:ControlBar width="100%"  horizontalAlign="right" id="controlbar1">
+			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="save()" id="button1"/>
 		</mx:ControlBar>
 	    
   

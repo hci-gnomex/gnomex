@@ -285,8 +285,7 @@
 			submittedIdRequest = null;
 			submittedRequestNumber = null;
 
-			setupView.labCombo.selectedIndex = -1;
-			setupView.billingAccountCombo.selectedIndex = -1;
+			setupView.selectDefaultLab();
 			setupView.appUserCombo.selectedIndex = -1;
 			setupView.projectCombo.selectedIndex = -1;
 			setupView.requestTypeGroup.selectedValue = '';

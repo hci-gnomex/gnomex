@@ -90,18 +90,21 @@
        	private function propagateFlowCellType():void {
 
 			var idFlowCellType:String = '';
-       		if (currentState == 'SolexaSetupPreppedState') {
-       			idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
-       		} else {
-       			idFlowCellType = this.getDefaultIdFlowCellType();
-       		}
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idFlowCellType = idFlowCellType;
+			if (parentDocument.isSolexaState()) {
+	       		if (currentState == 'SolexaSetupPreppedState') {
+	       			idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
+	       		} else {
+	       			idFlowCellType = this.getDefaultIdFlowCellType();
+	       		}
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@idFlowCellType = idFlowCellType;
+				}
+				for each (var lane:Object in parentDocument.lanes) {
+					lane.@idFlowCellType = idFlowCellType;
+				}
+				callLater(parentDocument.samplesView.checkSamplesCompleteness);
+				
 			}
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idFlowCellType = idFlowCellType;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateGenomeBuild():void {
 			for each (var sample:Object in parentDocument.samples) {
@@ -446,6 +449,9 @@
         		
         	</mx:AddChild>
         	<mx:SetProperty target="{label4}" name="text" value="Enter an approximate sample concentration:"/>
+        	<mx:AddChild relativeTo="{concentrationContainer}" position="lastChild">
+        		<mx:Label text="ng/µL" id="concentrationLabel0"/>
+        	</mx:AddChild>
         	
         	
         </mx:State>

@@ -108,6 +108,19 @@
 			} else {
 				this.appUserContainer.visible = false;
 				idAppUser = parentApplication.getIdAppUser();
+				if (labCombo.dataProvider.length == 2) {
+					labCombo.selectedIndex = 1;
+				}
+			}			
+		}
+		
+		public function selectDefaultLab():void {
+			if (parentApplication.hasPermission("canWriteAnyObject")) {
+				labCombo.selectedIndex = 0;
+			} else {
+				if (labCombo.dataProvider.length == 2) {
+					labCombo.selectedIndex = 1;
+				}
 			}			
 		}
 		
@@ -125,7 +138,13 @@
 				getNewProject.send();
 			}		
 		}
-		
+		private function filterBillingAccount(item:Object):Boolean {
+
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	return true;
+		}
 		private function showEditProjectWindow():void {
 			selectedIdProject = this.projectCombo.selectedItem.@idProject;
 			var params:Object = new Object();
@@ -301,6 +320,8 @@
 
 	]]>
 </mx:Script>
+	<mx:XMLListCollection id="billingAccounts" source="{labCombo.selectedItem.billingAccounts.BillingAccount}" filterFunction="filterBillingAccount"/>
+	
 		<mx:VBox width="100%" height="100%" verticalGap="22" paddingTop="10">
 			<mx:VBox width="100%" verticalGap="1">
 			    <mx:HBox width="100%" horizontalGap="0">
@@ -350,7 +371,7 @@
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the account to be billed:" width="220"/>
 					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" change="checkSetupCompleteness()">
-						<mx:dataProvider>{labCombo.selectedItem.billingAccounts.BillingAccount}</mx:dataProvider>
+						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>
 				<mx:HBox width="100%">
