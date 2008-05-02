@@ -12,7 +12,7 @@
 	backgroundColor="#747474"
 	creationComplete="initializeData()" 
 	styleName="form" 
-	width="800" 
+	width="900" 
 	height="500" 
 	title="GNomEx Dictionary Editor" 
 	borderThicknessBottom="4" borderThicknessTop="4">

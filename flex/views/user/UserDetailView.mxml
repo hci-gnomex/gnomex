@@ -95,7 +95,7 @@
 	
 		<mx:VBox  width="100%" verticalGap="10">
 			<mx:HBox verticalAlign="bottom">
-				<mx:VBox verticalGap="1" width="100%">
+				<mx:VBox verticalGap="1" width="100%" id="vbox3">
 					<mx:Label text="Last name"/>
 					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="170"/>
 				</mx:VBox>
@@ -220,6 +220,8 @@
 
   	</mx:AddChild>
   	<mx:RemoveChild target="{vbox1}"/>
+  	<mx:RemoveChild target="{vbox3}"/>
+  	<mx:AddChild relativeTo="{isActive}" position="before" target="{vbox3}"/>
   	</mx:State>
   </mx:states>
 </mx:Panel>
