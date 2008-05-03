@@ -216,22 +216,22 @@
 					   	<mx:HBox verticalAlign="bottom" horizontalGap="10">
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Name"/>
-								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="200" change="setDirty()"/>
+								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="240" change="setDirty()"/>
 							</mx:VBox>
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Department" />
-								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="200" change="setDirty()"/>
+								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="setDirty()"/>
 							</mx:VBox>
 					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member" click="setDirty()"/>
 					   		
 					   	</mx:HBox>
-						<mx:HBox  verticalGap="0" width="100%" height="100%" horizontalAlign="left" horizontalGap="10">
-						    <mx:VBox verticalGap="0" height="100%" width="410">
+						<mx:HBox  verticalGap="0" height="100%" horizontalAlign="left" horizontalGap="10" width="100%">
+						    <mx:VBox verticalGap="0" height="100%" width="370">
 								<mx:Label text="Notes" />
 								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%" change="setDirty()"/>
 						    	
 						    </mx:VBox>
-							<mx:VBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="left" width="100%" borderStyle="inset" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+							<mx:VBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="left" borderStyle="inset" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%">
 							 <mx:HBox verticalGap="0" width="100%">
 							 <mx:VBox  verticalGap="0">
 							 	<mx:Label text="Billing Contact" />
@@ -250,11 +250,11 @@
 							      <mx:HBox width="100%">
 							      <mx:VBox  verticalGap="0">
 							      	<mx:Label text="State" />
-							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="60" change="setDirty()"/>
+							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="50" change="setDirty()"/>
 							      </mx:VBox>
 							      <mx:VBox  verticalGap="0" width="100%">
 							      	<mx:Label text="Zip" />
-							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="100%" click="setDirty()"/>
+							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="110" click="setDirty()"/>
 							      </mx:VBox>
 							      	
 							      </mx:HBox>
@@ -262,7 +262,7 @@
 							 <mx:HBox verticalGap="0" width="100%">
 							  <mx:VBox  verticalGap="0">
 							  	<mx:Label text="Phone" />
-							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="160" change="setDirty()"/>
+							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="100" change="setDirty()"/>
 							  </mx:VBox>
 							  <mx:VBox  verticalGap="0" width="100%">
 							  	<mx:Label text="Email" />
@@ -275,10 +275,10 @@
 				   	
 				   </mx:VBox>
 				</mx:HBox>
-				<mx:HBox label="Membership" width="100%" paddingLeft="4" height="100%" horizontalGap="10">
+				<mx:HBox label="Membership" paddingLeft="4" height="100%" horizontalGap="8" width="100%" paddingRight="4" paddingBottom="4">
 				   <mx:VBox verticalGap="4" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
 				       <mx:Label text="Members"/>
-				   	   <mx:HBox width="100%" horizontalAlign="left">
+				   	   <mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
 					       <mx:ComboBox width="170" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
@@ -294,7 +294,7 @@
 				   </mx:VBox>
 				   <mx:VBox width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
 				       <mx:Label text="Collaborators"/>
-				   	   <mx:HBox width="100%">
+				   	   <mx:HBox width="100%" horizontalGap="6">
 					       <mx:ComboBox width="170" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
@@ -310,7 +310,7 @@
 				   </mx:VBox>
 				   <mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
 				       <mx:Label text="Managers"/>
-				   	   <mx:HBox width="100%">
+				   	   <mx:HBox width="100%" horizontalGap="6">
 					       <mx:ComboBox width="170" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
@@ -333,8 +333,8 @@
 					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
 						<mx:Label text="Account name"/>
 						<mx:TextInput id="accountName" width="100%"/>
-						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}"/>
-						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}"/>						
+						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}" width="24"/>
+						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
 					</mx:HBox>
 				</mx:HBox>
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto">
@@ -357,11 +357,9 @@
 						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="90"/>
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
-						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="40"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
 					</mx:columns>
 				</mx:DataGrid>
-				<mx:HBox horizontalAlign="right" width="100%">
-				</mx:HBox>
 				
 			</mx:VBox>
 		</mx:TabNavigator>
