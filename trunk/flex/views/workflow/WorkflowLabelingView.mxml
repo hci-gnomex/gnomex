@@ -227,26 +227,31 @@
                 <mx:DataGridColumn editable="false" headerText="Sample #" width="10" dataField="@sampleNumber"/>
 				<mx:DataGridColumn editable="false"  headerText="Mod Nuc." width="8" labelFunction="parentApplication.lookupLabel" dataField="@idLabel"/>
 				<mx:DataGridColumn headerText="Labeling Protocol"  width="29" dataField="@idLabelingProtocol" 
-                	editorDataField="value"
+                   editorDataField="value"
+                   labelFunction="parentApplication.lookupLabelingProtocol"
                    sortable="false" 
                    editable="true"
-                   rendererIsEditor="true"  
-                   itemRenderer="views.renderers.ComboBoxLabelingProtocol" />
+                   rendererIsEditor="false"
+                   itemRenderer="mx.controls.Label"  
+                   itemEditor="views.renderers.ComboBoxLabelingProtocol" />
 	            <mx:DataGridColumn headerText="Yield" width="7" dataField="@labelingYield"/>
 				<mx:DataGridColumn headerText="Reaction Size" width="11" 
 					dataField="@codeLabelingReactionSize"
 					editorDataField="value"
+                   labelFunction="parentApplication.lookupLabelingReactionSize"
                    sortable="false" 
                    editable="true"
-                   rendererIsEditor="true"  
-                   itemRenderer="views.renderers.ComboBoxLabelingReactionSize" />
+                   rendererIsEditor="false"  
+                   itemRenderer="mx.controls.Label"
+                   itemEditor="views.renderers.ComboBoxLabelingReactionSize" />
 				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions"/>
                 <mx:DataGridColumn headerText="Status"  width="15" dataField="@labelingStatus" 
                 	editorDataField="value"
                    sortable="false" 
                    editable="true"
-                   rendererIsEditor="true"  
-                   itemRenderer="views.renderers.ComboBoxWorkflowStatusLabeling" />
+                   rendererIsEditor="false"  
+                   itemRenderer="mx.controls.Label"
+                   itemEditor="views.renderers.ComboBoxWorkflowStatusLabeling" />
 			</util:columns>
 		</util:DataGridAlternatingGroup>
 			

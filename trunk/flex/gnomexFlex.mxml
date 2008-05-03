@@ -882,6 +882,22 @@
         		return "";
         	}
         }
+        public function lookupLabelingProtocol(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocol);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
+        public function lookupLabelingReactionSize(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingReactionSize').DictionaryEntry.(@value == item.@codeLabelingReactionSize);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
         public function lookupLabelingProtocolChannel1(item:Object,col:int):String {
         	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocolChannel1);
         	if (dict != null) {

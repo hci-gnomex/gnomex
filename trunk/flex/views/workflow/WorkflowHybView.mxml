@@ -186,23 +186,27 @@
 					<mx:DataGridColumn headerText="Slide" width="22" labelFunction="getSlideDesignName"/>
 					<mx:DataGridColumn headerText="Slide Barcode" width="13" dataField="@slideBarcode"/>
 					<mx:DataGridColumn headerText="Coord"  width="7" dataField="@arrayCoordinate" 
-	                	editorDataField="value"
+	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
-	                   rendererIsEditor="true"  
-	                   itemRenderer="views.renderers.ComboBoxArrayCoordinate" />
+	                   rendererIsEditor="false"
+	                   itemRenderer="mx.controls.Label"  
+	                   itemEditor="views.renderers.ComboBoxArrayCoordinate" />
 					<mx:DataGridColumn headerText="Hyb Protocol"  width="25" dataField="@idHybProtocol" 
-	                	editorDataField="value"
+	                   editorDataField="value"
+                       labelFunction="parentApplication.lookupHybProtocol"
 	                   sortable="false" 
 	                   editable="true"
-	                   rendererIsEditor="true"  
-	                   itemRenderer="views.renderers.ComboBoxHybProtocol" />
+	                   rendererIsEditor="false"
+	                   itemRenderer="mx.controls.Label"  
+	                   itemEditor="views.renderers.ComboBoxHybProtocol" />
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@hybStatus" 
-	                	editorDataField="value"
+	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
-	                   rendererIsEditor="true"  
-	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusHyb" />
+	                   rendererIsEditor="false"
+	                   itemRenderer="mx.controls.Label"  
+	                   itemEditor="views.renderers.ComboBoxWorkflowStatusHyb" />
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			
