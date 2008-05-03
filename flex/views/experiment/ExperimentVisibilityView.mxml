@@ -108,7 +108,7 @@
 	       	 width="100%" height="100%" 
 	       	 itemEditEnd="onEdit(event)">
 	         <mx:columns>
-	            <mx:DataGridColumn width="28" headerText="#">
+	            <mx:DataGridColumn width="35" minWidth="35" headerText="#">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0" >

@@ -63,7 +63,7 @@
 	<mx:VBox  width="100%" height="100%" paddingLeft="3" paddingBottom="4" paddingTop="4" paddingRight="4">
 	       <util:DataGridAlternatingGroup  sortableColumns="false" id="progressGrid" dataProvider="{progressList}"  width="100%" height="100%">
 	         <util:columns>
-	            <mx:DataGridColumn width="18" headerText="#">
+	            <mx:DataGridColumn width="18" minWidth="20" headerText="#">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0" >
