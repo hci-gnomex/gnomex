@@ -122,7 +122,7 @@
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%" >
 					<mx:Label text="Phone" id="Label0"/>
-					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="100"/>
+					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="130"/>
 				</mx:VBox>
 				
 			</mx:HBox>
@@ -137,7 +137,7 @@
 					
 				</mx:HBox>	
 				<mx:HBox paddingLeft="18">	  	      
-		  	    <mx:VBox verticalGap="1" id="vbox1" width="100">
+		  	    <mx:VBox verticalGap="1" id="unidContainer" width="100">
 		  	      <mx:Label text="uNID" />
 		  	      <mx:TextInput id="uNID" 
 		  	      	text="{parentDocument.fullUser.@uNID}" 
@@ -169,17 +169,17 @@
 	   
 		<mx:VBox width="100%" height="100%">
 			<mx:HBox width="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" height="100%">
-			  <mx:DataGrid id="membershipLabs" width="30%" dataProvider="{parentDocument.membershipLabs}" height="100%">
+			  <mx:DataGrid id="membershipLabs" width="100%" dataProvider="{parentDocument.membershipLabs}" height="100%">
 		            <mx:columns>
 		                <mx:DataGridColumn dataField="@name" headerText="Labs"/>
 		            </mx:columns>
 		        </mx:DataGrid>
-			    <mx:DataGrid id="collaboratingLabs" width="30%" dataProvider="{parentDocument.collaboratingLabs}" height="100%">
+			    <mx:DataGrid id="collaboratingLabs" width="100%" dataProvider="{parentDocument.collaboratingLabs}" height="100%">
 		            <mx:columns>
 		                <mx:DataGridColumn dataField="@name" headerText="Collaborating Labs"/>
 		            </mx:columns>
 		        </mx:DataGrid>
-			    <mx:DataGrid id="managingLabs" width="30%" dataProvider="{parentDocument.managingLabs}" height="100%">
+			    <mx:DataGrid id="managingLabs" width="100%" dataProvider="{parentDocument.managingLabs}" height="100%">
 		            <mx:columns>
 		                <mx:DataGridColumn dataField="@name" headerText="Managing Labs"/>
 		            </mx:columns>
@@ -219,8 +219,7 @@
 		 </mx:HBox>
 
   	</mx:AddChild>
-  	<mx:RemoveChild target="{vbox1}"/>
-  	<mx:AddChild relativeTo="{isActive}" position="before" target="{vbox3}"/>
+  	<mx:RemoveChild target="{unidContainer}"/>
   	</mx:State>
   </mx:states>
 </mx:Panel>
