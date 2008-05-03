@@ -246,8 +246,9 @@
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@qualStatus" 
 	                	editorDataField="value"
-	                   rendererIsEditor="true"  
-	                   itemRenderer="views.renderers.ComboBoxWorkflowStatusQC" />
+	                   rendererIsEditor="false"
+	                   itemRenderer="mx.controls.Label"  
+	                   itemEditor="views.renderers.ComboBoxWorkflowStatusQC" />
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			
