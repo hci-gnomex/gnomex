@@ -525,6 +525,7 @@
             		Alert.show("Authentication failed.");  
             		return;	
             	}
+            	userName.text = "(" +createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName + ")";
 			    appProgressBar = new AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 				PopUpManager.centerPopUp(appProgressBar);
@@ -548,6 +549,7 @@
             		Alert.show("You must launch GNomEx from guest page.");  
             		return;	
             	}
+            	userName.text = "(guest)";
 			    appProgressBar = new AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 			    PopUpManager.centerPopUp(appProgressBar);
@@ -668,6 +670,8 @@
 	        	    searchButton.visible = true;
 	        	    lookupButton.visible = true;
 	        	    searchLabel.visible = true;
+	        	    
+	        	    userName.visible = true;
 	        	    	
 		        	callLater(launchStartWindow);
 	        	}
@@ -1011,8 +1015,9 @@
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2" verticalAlign="middle">
 			          <mx:Image source="assets/hciLogo_hOnly.png"/>
 			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="16" color="#ffffff" fontWeight="bold"/>
-			          <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="10">
-			            <mx:HBox horizontalAlign="left" width="100%" paddingLeft="10">
+			          <mx:HBox width="100%" height="100%"  horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="10">
+			            <mx:HBox horizontalAlign="left" verticalAlign="middle" width="100%" paddingLeft="15" paddingRight="6" height="100%">
+			                <mx:Label id="userName" color="#ffffff"  visible="false"/>
 			            </mx:HBox>
 			            
 			            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}">
@@ -1022,7 +1027,7 @@
 			              	fontFamily="Arial"  height="18"
 			              	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 			            </mx:HBox>
-			            <mx:Spacer width="20"/>
+			            <mx:Spacer width="10"/>
 			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
 			              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
 			              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".42"/>
