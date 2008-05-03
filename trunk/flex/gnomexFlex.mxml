@@ -525,7 +525,7 @@
             		Alert.show("Authentication failed.");  
             		return;	
             	}
-            	userName.text = "(" +createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName + ")";
+            	userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 			    appProgressBar = new AppProgressView();
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 				PopUpManager.centerPopUp(appProgressBar);
