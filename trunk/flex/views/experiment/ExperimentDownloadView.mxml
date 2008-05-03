@@ -257,11 +257,11 @@
 		            	editorDataField="selected" sortable="false"
 		            	itemRenderer="views.renderers.CheckBoxIsSelectedDownload">
 		            </mx:DataGridColumn>
-		            <mx:DataGridColumn width="35" headerText="#">
+		            <mx:DataGridColumn minWidth="45" width="45" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
 		                        <mx:HBox  horizontalGap="0" >
-				                   <mx:Image id="experimentImage"  
+				                   <mx:Image   id="experimentImage"  
 			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment)) : '')}" >
  								   </mx:Image>
 		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
@@ -270,7 +270,7 @@
 		                    </mx:Component>
 		                </mx:itemRenderer>
 		            </mx:DataGridColumn> 
-			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="130" dataField="@hybNumber"/>
+			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="120" dataField="@hybNumber"/>
 			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
 			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>

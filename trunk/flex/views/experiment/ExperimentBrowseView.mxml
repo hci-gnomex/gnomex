@@ -377,7 +377,7 @@
 			       	itemDoubleClick="onExperimentRowSelected()" 
 			       	doubleClickEnabled="true">
 			         <mx:columns>
-			            <mx:DataGridColumn  width="28" headerText="#">
+			            <mx:DataGridColumn   minWidth="28" width="28" headerText="#">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0"  >
