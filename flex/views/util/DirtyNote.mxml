@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox  xmlns:mx="http://www.adobe.com/2006/mxml"
+	visible="{isDirtyFlag}" backgroundColor="#ffff99"  
+	horizontalAlign="right" paddingTop="1" 
+	paddingBottom="1" paddingLeft="4" paddingRight="4"  
+	cornerRadius="4" 
+	borderStyle="solid" 
+	fontStyle="normal" fontWeight="normal">
+	
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+            private var isDirtyFlag:Boolean = false;
+            
+			public function isDirty():Boolean {
+				return isDirtyFlag;
+			}
+			public function setDirty():void {
+				parentDocument.styleName = "dirtyPanel";
+				isDirtyFlag = true;
+			}
+			public function resetDirty():void {
+				parentDocument.styleName = "";
+				isDirtyFlag = false;
+			}               
+		]]>
+	</mx:Script>
+			<mx:Text  textAlign="right" text="Your changes have not been saved"/>
+</mx:HBox>

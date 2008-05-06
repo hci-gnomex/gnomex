@@ -7,7 +7,10 @@
     <mx:Script>
         <![CDATA[ 
         import mx.controls.Alert;
-        
+		
+		public function checkDirty():void {
+		}
+		        
         private function onMicroarrayWorklistChange():void {
         	if (microarrayViews.selectedChild == workflowQCView) {
         		workflowQCView.getWorkListQC.send();

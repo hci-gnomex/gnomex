@@ -100,7 +100,9 @@
 		[Bindable]
 		public var requestToClone:Object;
 		
-		
+		public function checkDirty():void {
+		}
+				
 		public function initializeData():void {
 			if (!this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {

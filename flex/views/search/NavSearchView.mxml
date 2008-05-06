@@ -12,6 +12,9 @@
         [Bindable]
         private var rowCountMessage:String = new String();
         
+		public function checkDirty():void {
+		}
+		        
         private function getGridRowNumber(item:Object,col:int):String
         {
            var x:int = searchList.getItemIndex(item) + 1;

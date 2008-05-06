@@ -119,6 +119,9 @@
 			[Bindable]
 			public var refreshData:Boolean = false;
 			
+			public function checkDirty():void {
+			}
+			
 			public function initializeData():void {
 				callGetProtocolList();
 			}

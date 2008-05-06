@@ -170,8 +170,7 @@
             import mx.managers.PopUpManager;
             import mx.events.CloseEvent;
             import mx.rpc.events.FaultEvent;
-			
-	        
+            
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
 	        public var iconCheck:Class;
@@ -234,6 +233,8 @@
 	        public var iconWarning:Class;
 	        
 	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
+	        
+	        private var currentView:Object = null;
 	        
 			[Bindable]
 			public var promptedLabList:PromptXMLListCollection;
@@ -336,6 +337,10 @@
             }
             
             private function onViewSelection():void {
+            	if (currentView != null) {
+	            	currentView.checkDirty();
+            	}
+            	
             	theViews.creationPolicy="all";
             	theViews.visible = true;
             	if (theViews.selectedChild == submitRequestView) {
@@ -360,9 +365,7 @@
             	if (theViews.selectedChild == protocolsView) {
             		protocolsView.initializeData();
             	}
-            	/*if (theViews.selectedChild == dictionariesView) {
-            		dictionariesView.initializeData();
-            	}*/
+            	currentView = theViews.selectedChild;
             	
             }
                         
@@ -1046,7 +1049,7 @@
 			      	 dataProvider="{theViews}" width="100%"
                      enabled="true" visible="false"  
                      verticalAlign="middle"
-                     itemClick="onViewSelection()" horizontalAlign="left" horizontalGap="20">
+                     itemClick="onViewSelection()"  horizontalAlign="left" horizontalGap="20">
 			      </mx:LinkBar>
 	      	
 		      	
