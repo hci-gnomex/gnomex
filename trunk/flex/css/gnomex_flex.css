@@ -249,15 +249,20 @@ TextArea {
 .appProgressTitle {
 	fontWeight: normal;
 	fontColor: black;
+	
 }
 
 .dirtyPanel {
-   headerColors:   #ccccaa, #ffffff; 
-   titleStyleName: dirtypanelTitle;
+   headerColors:   #66aa55, #99dd99; 
+   titleStyleName: dirtyPanelTitle;
+   
 }
 
 .dirtyPanelTitle {
-	 color: #000000;
+	 color: #ffffff;
+	/*fontStyle: italic;*/
+
+	 
 }
 
 

@@ -9,18 +9,29 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.containers.Panel;
+			
 			[Bindable]
             private var isDirtyFlag:Boolean = false;
             
 			public function isDirty():Boolean {
 				return isDirtyFlag;
 			}
+			
+			private function setPanelStyle(styleName:String):void {
+				if (this.parentDocument is Panel) {
+					this.parentDocument.styleName = styleName;
+				}else if (this.parent.parent is Panel) {
+					var p:Panel = Panel(parent.parent);
+					p.styleName = styleName;
+				}
+			}
 			public function setDirty():void {
-				parentDocument.styleName = "dirtyPanel";
+				setPanelStyle("dirtyPanel");
 				isDirtyFlag = true;
 			}
 			public function resetDirty():void {
-				parentDocument.styleName = "";
+				setPanelStyle("");
 				isDirtyFlag = false;
 			}               
 		]]>

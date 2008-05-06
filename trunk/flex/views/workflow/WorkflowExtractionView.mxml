@@ -53,6 +53,7 @@
         private var requestNumbers:ArrayCollection;
         
         private function refreshWorkList():void {
+        	dirty.resetDirty();
         	getWorkList.send();
         }
  
@@ -78,6 +79,7 @@
         private function onEdit(event:Event):void {
         	workList.filterFunction = null;
 	    	workListGrid.selectedItem.@isDirty = "Y";
+        	dirty.setDirty();
         }
         
         private function save():void {
@@ -92,7 +94,8 @@
         
         private function onSaveWorkItem(event:ResultEvent):void {
         	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
-        		this.getWorkList.send();
+        		dirty.resetDirty();
+        	    this.getWorkList.send();
         	} else {
         		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
         	}
@@ -218,6 +221,7 @@
  	            	<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
  	            		click="refreshWorkList();" toolTip="Refresh worklist"/>
 	 	            <mx:HBox width="100%" horizontalAlign="right">
+	 	                <util:DirtyNote id="dirty"/>
 	 	            	<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')">
 		            	</mx:Button>
 	 	            </mx:HBox>

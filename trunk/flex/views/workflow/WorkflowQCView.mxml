@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel label="Quality Control"  
-	xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:views="views.*" xmlns:util="views.util.*"
-	width="100%" height="100%" title="Quality Control" titleIcon="@Embed('../../assets/chart_curve.png')]"
-	 borderThicknessTop="2">
+	xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns:views="views.*" 
+	xmlns:util="views.util.*"
+	width="100%" height="100%" 
+	title="Quality Control" 
+	titleIcon="@Embed('../../assets/chart_curve.png')]"
+	borderThicknessTop="2">
 	
 	<mx:HTTPService 
     id="getWorkListQC" 
@@ -60,6 +64,7 @@
         private var requestNumbers:ArrayCollection;
         
         private function refreshWorkList():void {
+        	dirty.resetDirty();
         	getWorkListQC.send();
         }
  
@@ -76,6 +81,7 @@
         private function onEdit(event:mx.events.DataGridEvent ):void {
         	workList.filterFunction = null;
 	    	workListGrid.selectedItem.@isDirty = "Y";
+	    	dirty.setDirty();
 	    	
 
         }
@@ -166,6 +172,7 @@
         
         private function onSaveWorkItemQualityControl(event:ResultEvent):void {
         	if (saveWorkItemQC.lastResult.name() == "WorkItemList" || saveWorkItemQC.lastResult.name() == "SUCCESS" ) {
+        		dirty.resetDirty();
         		this.getWorkListQC.send();
         	} else {
         		Alert.show(saveWorkItemQC.lastResult..ACTMESSAGE.@TEXT);
@@ -260,6 +267,7 @@
  	            	<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
  	            		click="refreshWorkList();" toolTip="Refresh worklist"/>
 	 	            <mx:HBox width="100%" horizontalAlign="right">
+	 	            	<util:DirtyNote id="dirty"/>
 	 	            	<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')">
 		            	</mx:Button>
 	 	            </mx:HBox>
