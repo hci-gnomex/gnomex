@@ -139,6 +139,9 @@
         [Embed(source="assets/images_disable.png")]
         public var iconSlideSetInActive:Class;
 		
+		public function checkDirty():void {
+		}		
+		
 		public function initializeData():void {
           	callGetSlideList();
           }

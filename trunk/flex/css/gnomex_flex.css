@@ -251,7 +251,14 @@ TextArea {
 	fontColor: black;
 }
 
+.dirtyPanel {
+   headerColors:   #ccccaa, #ffffff; 
+   titleStyleName: dirtypanelTitle;
+}
 
+.dirtyPanelTitle {
+	 color: #000000;
+}
 
 
 

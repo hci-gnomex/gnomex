@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:UsersView="UsersView.*"
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  
+     xmlns:util="views.util.*" 
 	 height="100%" width="100%" label="Group Detail" 
-	  title="{parentDocument.fullLab.@name}" >
-  <mx:states>
-    <mx:State name="dirtyState">
-      <mx:AddChild relativeTo="{controlbar1}" position="firstChild">
-        <mx:HBox  backgroundColor="#FFFF99"  horizontalAlign="right" id="hbox1" paddingTop="1" paddingBottom="1" paddingLeft="4" paddingRight="4"  cornerRadius="4" borderStyle="solid" fontStyle="normal" fontWeight="normal">
-           <mx:Text  textAlign="right" text="Your changes have not been saved"/>
-        </mx:HBox>
-      </mx:AddChild>
-      <mx:AddChild/>
-    </mx:State>
-  </mx:states>
+	  title="{parentDocument.fullLab.@name}">
 	  
   <mx:HTTPService  
     id="saveGroup" 
@@ -44,21 +35,32 @@
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
+		import mx.events.CloseEvent;
 		
-		private var isDirty:Boolean = false;
+		
 		private var savedIdLab:Object = '';
-	
-		private function setDirty():void {
-			isDirty = true;
-			currentState = "dirtyState";
-			
+		
+		public function promptToSaveDirty():void {
+			if (dirty.isDirty()) {
+				Alert.show("Your changes to group " + parentDocument.fullLab.@name + " have not been saved.  Save now?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToSaveDirty);
+				
+			} 
 		}
-		public function resetDirty():void {
-			isDirty = false;
-			currentState = "";
-		}	
+	
+			
+		private function onPromptToSaveDirty(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	save();
+            } else {
+				dirty.resetDirty();
+		    }
+	    }
+		
 		private function addBillingAccount():void {
-			setDirty();
+			dirty.setDirty();
 			var node:XML = new XML("<BillingAccount " +
 			    " idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
 			    " accountName='" + accountName.text + "'" +
@@ -82,14 +84,14 @@
 		}
 		
 		private function removeBillingAccount():void {
-			setDirty();
+			dirty.setDirty();
 			if (billingAccountGrid.selectedIndex != -1) {
 				billingAccounts.removeItemAt(billingAccountGrid.selectedIndex);
 			}
 		}
 		
 		private function addMember():void {
-			setDirty();
+			dirty.setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
 			    " displayName='" + memberCombo.selectedItem.@displayName + "'" +
@@ -98,13 +100,13 @@
 		}
 		
 		private function removeMember():void {
-			setDirty();
+			dirty.setDirty();
 			if (membersGrid.selectedIndex != -1) {
 				members.removeItemAt(membersGrid.selectedIndex);
 			}
 		}
 		private function addCollaborator():void {
-			setDirty();
+			dirty.setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
 			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
@@ -113,13 +115,13 @@
 		}
 		
 		private function removeCollaborator():void {
-			setDirty();
+			dirty.setDirty();
 			if (collaboratorsGrid.selectedIndex != -1) {
 				collaborators.removeItemAt(collaboratorsGrid.selectedIndex);
 			}
 		}
 		private function addManager():void {
-			setDirty();
+			dirty.setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + managerCombo.selectedItem.@idAppUser + "'" +
 			    " displayName='" + managerCombo.selectedItem.@displayName + "'" +
@@ -128,7 +130,7 @@
 		}
 		
 		private function removeManager():void {
-			setDirty();
+			dirty.setDirty();
 			if (managerCombo.selectedIndex != -1) {
 				managers.removeItemAt(managersGrid.selectedIndex);
 			}
@@ -171,7 +173,7 @@
 
 			saveGroup.send(params);			
 			
-		}
+		} 
 		
 		private function onSaveGroup(event:ResultEvent):void {
 			if (saveGroup.lastResult.name() == "SUCCESS") {
@@ -180,12 +182,11 @@
 				var params:Object = new Object();
 				params.idLab = savedIdLab;
 	 			getLab.send(params);
-				
-				parentDocument.refreshGroupList();
+	 			
+				dirty.resetDirty();
 			} else {
 				Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
 			}
-			resetDirty();
 			
 		}
  
@@ -216,45 +217,45 @@
 					   	<mx:HBox verticalAlign="bottom" horizontalGap="10">
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Name"/>
-								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="240" change="setDirty()"/>
+								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="240" change="dirty.setDirty()"/>
 							</mx:VBox>
 							<mx:VBox  verticalGap="0">
 								<mx:Label text="Department" />
-								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="setDirty()"/>
+								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="dirty.setDirty()"/>
 							</mx:VBox>
-					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member" click="setDirty()"/>
+					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member" click="dirty.setDirty()"/>
 					   		
 					   	</mx:HBox>
 						<mx:HBox  verticalGap="0" height="100%" horizontalAlign="left" horizontalGap="10" width="100%">
 						    <mx:VBox verticalGap="0" height="100%" width="370">
 								<mx:Label text="Notes" />
-								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%" change="setDirty()"/>
+								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%" change="dirty.setDirty()"/>
 						    	
 						    </mx:VBox>
 							<mx:VBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="left" borderStyle="inset" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%">
 							 <mx:HBox verticalGap="0" width="100%">
 							 <mx:VBox  verticalGap="0">
 							 	<mx:Label text="Billing Contact" />
-							 	<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="160" change="setDirty()"/>
+							 	<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="160" change="dirty.setDirty()"/>
 							 </mx:VBox>
 							 <mx:VBox  verticalGap="0" width="100%">
 							 	<mx:Label text="Address" />
-							 	<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="100%" change="setDirty()"/>
+							 	<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="100%" change="dirty.setDirty()"/>
 							 </mx:VBox>
 							 </mx:HBox>
 							 <mx:HBox verticalGap="0" width="100%">
 							      <mx:VBox  verticalGap="0">
 							      	<mx:Label text="City" />
-							      	<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="160" change="setDirty()"/>
+							      	<mx:TextInput id="contactCity" text="{parentDocument.fullLab.@contactCity}" width="160" change="dirty.setDirty()"/>
 							      </mx:VBox>
 							      <mx:HBox width="100%">
 							      <mx:VBox  verticalGap="0">
 							      	<mx:Label text="State" />
-							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="50" change="setDirty()"/>
+							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="50" change="dirty.setDirty()"/>
 							      </mx:VBox>
 							      <mx:VBox  verticalGap="0" width="100%">
 							      	<mx:Label text="Zip" />
-							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="110" click="setDirty()"/>
+							      	<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="110" click="dirty.setDirty()"/>
 							      </mx:VBox>
 							      	
 							      </mx:HBox>
@@ -262,11 +263,11 @@
 							 <mx:HBox verticalGap="0" width="100%">
 							  <mx:VBox  verticalGap="0">
 							  	<mx:Label text="Phone" />
-							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="100" change="setDirty()"/>
+							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="100" change="dirty.setDirty()"/>
 							  </mx:VBox>
 							  <mx:VBox  verticalGap="0" width="100%">
 							  	<mx:Label text="Email" />
-							  	<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="setDirty()"/>
+							  	<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
 							  </mx:VBox>
 							 </mx:HBox>
 								
@@ -340,21 +341,21 @@
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="100"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="80"
+						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="140"/>
+						<mx:DataGridColumn dataField="@expirationDate" width="75"
 			                headerText="Expires"  
 			          		itemEditor="views.renderers.DateFieldExpiration" 
-			          		itemRenderer="mx.controls.Label" 
+			           		itemRenderer="mx.controls.Label" 
 			                rendererIsEditor="false" 
 			                labelFunction="getExpirationDateString"
 			                editorDataField="selectedDate"/>
 						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" labelFunction="{parentApplication.lookupFundingAgency}"
-							editorDataField="value" itemRenderer="mx.controls.Label" itemEditor="views.renderers.ComboBoxFundingAgency"  rendererIsEditor="false"  width="60"/>
+							editorDataField="value" itemRenderer="mx.controls.Label" itemEditor="views.renderers.ComboBoxFundingAgency"  rendererIsEditor="false"  width="130"/>
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
-						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="60"/>
-						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="60"/>
-						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="90"/>
-						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="90"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
@@ -366,6 +367,7 @@
 	   
     </mx:VBox>
 		<mx:ControlBar width="100%"  horizontalAlign="right" id="controlbar1">
+		    <util:DirtyNote id="dirty"/>
 			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="save()" id="button1"/>
 		</mx:ControlBar>
 	    

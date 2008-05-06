@@ -3,7 +3,7 @@
 	xmlns:UsersView="UsersView.*" label="Users And Groups" 
 	width="100%" height="100%" xmlns:views="views.*" xmlns:user="views.user.*" 
 	cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
-	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left">
+	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
 
 
 
@@ -11,6 +11,7 @@
      <mx:HTTPService 
     id="getAppUserList" 
     url="GetAppUserList.gx"
+    showBusyCursor="true"
     resultFormat="e4x"
     result="resultHandler(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to get user list', event)"
@@ -102,6 +103,7 @@
 
     <mx:Script>
         <![CDATA[
+        	import mx.events.ItemClickEvent;
           import views.user.GroupAddView;
           import views.user.UserAddView;
 	      import mx.managers.PopUpManager;
@@ -121,6 +123,17 @@
           public var filteredAppGroupXML:XMLList;
           [Bindable]
 		  private var groupsToManage:XMLListCollection;
+		  
+		  public function isDirty():Boolean {
+		  	return userDetailView.dirty.isDirty() ||
+		  	 	   groupDetailView.dirty.isDirty() ||
+		  	 	   groupManageView.dirty.isDirty(); 
+		  }
+		  public function checkDirty():void {
+		  	//userDetailView.promptToSaveDirty();
+		  	//groupDetailView.promptToSaveDirty();
+		  	//groupManageView.promptToSaveDirty();
+		  }
 
           
           public function initializeData():void
@@ -140,29 +153,66 @@
 			}
 		 }
         
-          private function userRowSelected():void 
+          private function userRowSelected(event:Event):void 
            {
+           	//if (isDirty()) {
+           	//	this.usersGrid.selectedItem = this.selectedUser;
+           	//	checkDirty();
+           	//	return;
+           	//}
+	        detailViews.selectedChild = userDetailView;
+           	selectUserRow();
+          }
+          
+          public function selectUserRow():void {
+          	
            	this.selectedUser = usersGrid.selectedItem;
             callGetAppUser();
- 
           }
+          
+          
           
           private function labRowSelected():void 
            {
-           	this.selectedLab = labsGrid.selectedItem;
+           	//if (isDirty()) {
+           	//	this.labsGrid.selectedItem = this.selectedLab;
+			//	checkDirty();
+			//	return;           		
+           	//} 
+            if (parentApplication.hasPermission("canAdministerUsers")) {
+            	detailViews.selectedChild = this.groupDetailView;
+        	} else {
+        		detailViews.selectedChild = this.groupManageView;	
+        	}
+       		selectLabRow();
+          }
+          
+          public function selectLabRow():void {
+          	this.selectedLab = labsGrid.selectedItem;
            	callGetLab();
             detailViews.selectedChild = this.groupDetailView;
           }
 
           private function manageLabRowSelected():void 
            {
+           	//if (isDirty()) {
+           	//	this.manageLabsGrid.selectedItem = this.selectedLab;
+           	//	checkDirty();
+           	//	return;
+           	//}
+           	
            	this.selectedLab = manageLabsGrid.selectedItem;
            	callGetLab();
             detailViews.selectedChild = this.groupManageView;
           }
           
           public function prepareToAddUser():void 
-           {
+          {
+          	//if (isDirty()) {
+           	//	this.usersGrid.selectedItem = this.selectedUser;
+           	//	checkDirty();
+           	//	return;
+            //}
            	this.selectedUser = null;
            	this.fullUser = null;
             detailViews.selectedChild = this.userDetailView;
@@ -174,6 +224,11 @@
           }
           public function prepareToAddGroup():void 
            {
+          	//if (isDirty()) {
+           	//	this.labsGrid.selectedItem = this.selectedLab;
+           	//	checkDirty();
+           	//	return;
+            //}           	
            	this.selectedLab = null;
            	this.fullLab = null;
             detailViews.selectedChild = this.groupDetailView;
@@ -188,12 +243,22 @@
           
           public function refreshAppUserList():void 
            {
+          	//if (isDirty()) {
+           	//	this.usersGrid.selectedItem = this.selectedUser;
+           	//	checkDirty();
+           	//	return;
+            //}           	
           	callGetAppUserList();
           	appUsers.refresh()
           }
           
           public function refreshGroupList():void 
            {
+          	//if (isDirty()) {
+           	//	this.labsGrid.selectedItem = this.selectedLab;
+           	//	checkDirty();
+           	//	return;
+            //}             	
           	callGetLabList();
           	labs.refresh();
           }
@@ -282,19 +347,14 @@
               	userDetailView.currentState = "";
               	userDetailView.radioUniversityUser.selected = true;
               }
-              detailViews.selectedChild = this.userDetailView;
+              userDetailView.dirty.resetDirty();
               
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
             } else if (call.marker == "doneGetLabList") {
             } if (call.marker == "doneGetLab") {
             	fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
-	            if (parentApplication.hasPermission("canAdministerUsers")) {
-	            	detailViews.selectedChild = this.groupDetailView;
-            	} else {
-            		detailViews.selectedChild = this.groupManageView;	
-            	}
-            	groupDetailView.resetDirty(); 
+            	groupDetailView.dirty.resetDirty(); 
             } 
 
           }
@@ -322,6 +382,7 @@
 			} else {
 				detailViews.selectedChild = groupEmptyView;          					
 			}
+          	//checkDirty();
           }
 
            
@@ -350,7 +411,7 @@
 		    	      <mx:DataGrid id="usersGrid" 
 		    	      	visible="true" width="100%" editable="false" enabled="true" 
 		    	      	dataProvider="{appUsers}" height="100%"  
-		    	      	itemClick="userRowSelected()" showHeaders="false">
+		    	      	itemClick="userRowSelected(event)" showHeaders="false" >
 						<mx:columns>
 									<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
 					    </mx:columns>

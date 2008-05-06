@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
-	xmlns:views="views.*" 
+	 xmlns:views="views.*" 
+	 xmlns:util="views.util.*" 
 	 height="100%" width="100%" 
 	 label="User Detail"  
 	 title="{'User ' + parentDocument.fullUser.@displayName}">
@@ -46,13 +47,34 @@
             import mx.controls.Alert;
             import mx.rpc.events.FaultEvent;
             import mx.rpc.events.ResultEvent;
+            import mx.events.CloseEvent;
+            
+           
             
             private var savedIdAppUser:Object = '';
             
+			public function promptToSaveDirty():void {
+				if (dirty.isDirty()) {
+					Alert.show("Your changes to user " + parentDocument.fullUser.@displayName + " have not been saved.  Save now?", 
+								null, 
+								(Alert.YES | Alert.NO), this,  
+								onPromptToSaveDirty);
+				}
+			}
+			
+				
+			private function onPromptToSaveDirty(event:CloseEvent):void {
+			    if (event.detail==Alert.YES) {
+			    	save();
+			    } else {
+					dirty.resetDirty();
+			    }
+
+			}
+      
+			  
             private function save():void {
 				saveAppUser.send();
-				parentDocument.refreshAppUserList();
-            	
             }
             
             private function onSaveAppUser(event:ResultEvent):void {
@@ -60,7 +82,7 @@
 					savedIdAppUser = saveAppUser.lastResult.@idAppUser;
 					var params:Object = new Object();
 					params.idAppUser = savedIdAppUser;
-		 			getAppUser.send(params);
+		 			dirty.resetDirty();
 				} else {
 					Alert.show("An error occurred while saving the user record.");
 				}
@@ -97,32 +119,32 @@
 			<mx:HBox verticalAlign="bottom">
 				<mx:VBox verticalGap="1"  width="100%">
 					<mx:Label text="First name"/>
-					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}" width="170"/>
+					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}" width="170" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1" width="100%" id="vbox3">
 					<mx:Label text="Last name"/>
-					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="170"/>
+					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="170" change="dirty.setDirty()"/>
 				</mx:VBox>
-				<mx:CheckBox id="isActive" label="User is Active" >
+				<mx:CheckBox id="isActive" label="User is Active"  click="dirty.setDirty()">
 				</mx:CheckBox>
 				
 			</mx:HBox>
 			<mx:HBox verticalAlign="middle">
 				<mx:VBox verticalGap="1"   width="100%" >
 					<mx:Label text="Institution" id="Label2"/>
-					<mx:TextInput width="170" id="institute" text="{parentDocument.fullUser.@institute}"/>
+					<mx:TextInput width="170" id="institute" text="{parentDocument.fullUser.@institute}" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"   width="100%" >
 					<mx:Label text="Department" id="Label1"/>
-					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}" width="170"/>
+					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}" width="170" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%" >
 					<mx:Label text="Email" id="Label"/>
-					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200"/>
+					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  width="100%" >
 					<mx:Label text="Phone" id="Label0"/>
-					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="130"/>
+					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="130" change="dirty.setDirty()"/>
 				</mx:VBox>
 				
 			</mx:HBox>
@@ -141,16 +163,16 @@
 		  	      <mx:Label text="uNID" />
 		  	      <mx:TextInput id="uNID" 
 		  	      	text="{parentDocument.fullUser.@uNID}" 
-		  	       width="100"/>
+		  	       width="100" change="dirty.setDirty()"/>
 		  	     </mx:VBox>		  	    	
 		  	    <mx:VBox paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalGap="0" id="permissionKindContainer">
 		  	      <mx:Label text="Permission Level"/>
 		  	        <mx:HBox verticalGap="0" paddingLeft="10" paddingTop="0">
 		  	           <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
-		  	          <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup">
+		  	          <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>ADMIN</mx:value>
 		  	          </mx:RadioButton>
-		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup">
+		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>LAB</mx:value>
 		  	         </mx:RadioButton>
 		  	         	
@@ -192,10 +214,11 @@
 	</mx:VBox>
 
 	<mx:ControlBar   width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
-	  <mx:VBox width="100%" horizontalAlign="right">
+	  <mx:HBox width="100%" horizontalAlign="right">
+	    <util:DirtyNote id="dirty"/>
 	  
 		<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')" width="70"/>
-	  </mx:VBox>	
+	  </mx:HBox>	
 	</mx:ControlBar>
   
   <mx:states>
