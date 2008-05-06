@@ -3,6 +3,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:hci = "hci.components.*"
 	xmlns:views = "views.*"
+	xmlns:util = "views.util.*"	
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	width="100%" height="100%">
 
@@ -173,14 +174,17 @@
 				} else if (call.marker == "doneGetProtocol") {
 					fullProtocol = getProtocol.lastResult;
 					showProtocol();
+					dirty.resetDirty();
 				} else if (call.marker == "doneSaveProtocol") {
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
+					dirty.resetDirty();
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
 					protocolViews.selectedChild = blankProtocol;
 					bodyPanel.title = "Protocol: ";
 					callGetProtocolList();
+					dirty.resetDirty();
 				}
 			}
 			
@@ -351,7 +355,7 @@
 		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10">
 			<mx:VBox height="46" left="10" top="10" right="394" width="100%">
 				<mx:Label text="Name:" width="100"/>
-				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%"/>
+				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
 			<mx:VBox height="46" top="10" width="100%" right="121">
 				<mx:Label text="Kind of Request:" width="100"/>
@@ -364,29 +368,30 @@
 					labelField="@display"
 					data="{fullProtocol.codeRequestCategory}"
 					dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-					width="100%">
+					width="100%" change="dirty.setDirty()">
 					</hci:DictionaryComboBox>
 			</mx:VBox>
 			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637">
-				<hci:CheckBoxYN  id="isActive" data="{fullProtocol.isActive.toString()}" label="Active"/>
+				<hci:CheckBoxYN  id="isActive" data="{fullProtocol.isActive.toString()}" label="Active" click="dirty.setDirty()"/>
 			</mx:VBox>
 			</mx:HBox>
 			<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
 			<mx:VBox height="46" left="10" top="64" right="121" width="100%">
 				<mx:Label text="URL:" width="100"/>
-				<mx:TextInput id="url" text="{fullProtocol.url}" width="100%"/>
+				<mx:TextInput id="url" text="{fullProtocol.url}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
 				<mx:Button id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
 			</mx:HBox>
 			<mx:VBox top="118" left="10" right="10" bottom="10">
 				<mx:Label text="Protocol Description:"/>
-				<mx:TextArea id="description" text="{fullProtocol.description}" height="100%" width="100%"/>
+				<mx:TextArea id="description" text="{fullProtocol.description}" height="100%" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>	
 			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{fullProtocol.id}" left="0" top="0"/>
 			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{fullProtocol.protocolClassName}" left="0" top="0"/>
 		</mx:Canvas>
 		</mx:ViewStack>
 			<mx:ControlBar width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" horizontalAlign="right" paddingTop="4" x="0" y="655">
+			    <util:DirtyNote id="dirty"/>
 				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
 		</mx:Panel>

@@ -46,6 +46,7 @@ package views.renderers
 
 		    protected override function change(event:ListEvent):void {
 		        parentDocument.workList.filterFunction = null;
+		        parentDocument.dirty.setDirty();
 		        super.change(event);
 	        }
 

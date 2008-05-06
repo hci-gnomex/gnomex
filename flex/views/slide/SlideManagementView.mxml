@@ -168,22 +168,26 @@
 				} else {
 					selectSlideView(null);
 				}
+				dirty.resetDirty();
 			} else if (call.marker == "doneDeleteSlideDesign" || call.marker == "doneDeleteSlideProduct") {
 				callGetSlideList();
 				browseSlides.selectedIndex = -1;
 				selectSlideView(null);
+				dirty.resetDirty();
 			}  else if (call.marker == "doneSaveSlideProduct") {
 				lastSavedSlideProductId = saveSlideProduct.lastResult.@idSlideProduct.toString();
 				callGetSlideList();
 				params = new Object();
 				params.idSlideProduct = lastSavedSlideProductId;
 				callGetSlideProduct(params);
+				dirty.resetDirty();
 			} else if (call.marker == "doneSaveSlideDesign") {
 				lastSavedSlideDesignId = saveSlideDesign.lastResult.@idSlideDesign.toString();
 				callGetSlideList();
 				params = new Object();
 				params.idSlideDesign = lastSavedSlideDesignId;
 				callGetSlideDesign(params);
+				dirty.resetDirty();
 			}
 		}		
 		
@@ -324,6 +328,7 @@
 		}
 		
 		public function prepareToAddSlideDesign(event:CloseEvent):void {
+			dirty.resetDirty();
 			this.fullSlideDesign = null;
 			//slideDesign.removeAll();
 			this.fullSlideDesignArrayCoordinates = null;
@@ -356,6 +361,7 @@
 		}
 		
 		public function prepareToAddSlideProduct():void {
+			dirty.resetDirty();
 			this.fullSlideProduct = null;
 			//slideProduct.removeAll();
 			saveSlideButton.enabled = true;
@@ -368,6 +374,7 @@
 		}
 		
 		public function addMicroarrayCategory(event:MouseEvent):void {
+			dirty.setDirty();
 			var code:String;
 			var category:String;
 			var node:XML = null;
@@ -399,6 +406,7 @@
 		}
 		
 		public function removeMicroarrayCategory(event:MouseEvent):void {
+			dirty.setDirty();
 			if (slideViews.selectedChild == slideDesignView) {
 				if (sdMicroarrayCategoriesList.selectedItem != null 
 					&& sdMicroarrayCategories.contains(sdMicroarrayCategoriesList.selectedItem)) {
@@ -436,6 +444,7 @@
 		}
 		
 		public function addArrayCoord(event:Event):void {
+			dirty.setDirty();
 			var x:String = newArrayRow.text;
 			var y:String = newArrayCol.text;
 			if (x != null && x != "" && y != null && y != "") {
@@ -466,6 +475,7 @@
 		}
 		
 		public function removeArrayCoord(event:MouseEvent):void {
+			dirty.setDirty();
 			if (dgArrayCoords.selectedItem != null) {
 				if (sdArrayCoordiantes.length > 0) {
 					sdArrayCoordiantes.removeItemAt(dgArrayCoords.selectedIndex);
@@ -603,12 +613,12 @@
 				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
 				<mx:HBox left="10" top="10" right="10" verticalAlign="middle">
 					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="74"/>
-					<mx:TextInput right="75" top="27" left="10" id="sdName" text="{fullSlideDesign.@name}" width="100%"/>
-					<hci:CheckBoxYN id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57"/>
+					<mx:TextInput right="75" top="27" left="10" id="sdName" text="{fullSlideDesign.@name}" width="100%" change="dirty.setDirty()"/>
+					<hci:CheckBoxYN id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 				</mx:HBox>
 		
 				<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
-					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustum}" top="57" left="10" width="20%"/>
+					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustum}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 				
 					<mx:Label text="For Group:" top="59" left="121" width="20%"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
@@ -616,7 +626,7 @@
 						dataProvider="{parentApplication.promptedLabList}"
 						labelField="@name"
 						prompt=""
-						data="{fullSlideDesign.SlideProduct.@idLab}" width="100%">
+						data="{fullSlideDesign.SlideProduct.@idLab}" width="100%" change="dirty.setDirty()">
 					</util:ComboBoxLabList>
 				</mx:HBox>
 				<mx:HBox y="70" right="10" left="10">
@@ -632,7 +642,7 @@
 								prompt=" "
 								data="{fullSlideDesign.SlideProduct.@idVendor}"
 								dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-								>
+								 change="dirty.setDirty()">
 								</hci:DictionaryComboBox>
 						</mx:VBox>
 						<mx:VBox left="213" top="79" width="25%">
@@ -647,16 +657,16 @@
 								prompt=" "
 								data="{fullSlideDesign.SlideProduct.@idOrganism}"
 								dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-								width="100%">
+								width="100%" change="dirty.setDirty()">
 								</hci:DictionaryComboBox>
 						</mx:VBox>
 						<mx:VBox left="589" top="79" width="25%">
 							<mx:Label text="Design Protocol:" top="85" right="72" width="100%"/>
-							<mx:TextInput top="102" right="10" width="100%" id="sdDesignProtocol" text="{fullSlideDesign.@slideDesignProtocolName}"/>
+							<mx:TextInput top="102" right="10" width="100%" id="sdDesignProtocol" text="{fullSlideDesign.@slideDesignProtocolName}" change="dirty.setDirty()"/>
 						</mx:VBox>
 						<mx:VBox width="25%" top="79" x="416">
 							<mx:Label text="Catalog Number:" top="85" right="211" width="100%"/>
-							<mx:TextInput id="sdCatalogNumber" right="196" top="102" width="100%">
+							<mx:TextInput id="sdCatalogNumber" right="196" top="102" width="100%" change="dirty.setDirty()">
 								<mx:text>{fullSlideDesign.SlideProduct.@catalogNumber}</mx:text>
 							</mx:TextInput>
 						</mx:VBox>
@@ -675,9 +685,9 @@
 							prompt="Select a catagory to add..."
 							dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 							></hci:DictionaryComboBox>
-						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="true" left="10" y="189" width="100%"/>
-						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="true" top="219" left="10" width="100%"/>
-						<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="true"/>
+						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
+						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
+						<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
 					</mx:VBox>
 					<mx:VBox x="279" y="142">
 						<mx:Button id="sdAddCategory" click="addMicroarrayCategory(event)" icon="@Embed(source='../../assets/add.png')" width="25" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="true" x="279" y="159"/>
@@ -739,18 +749,18 @@
 				<mx:Canvas id="slideProductView" width="100%" height="100%" styleName="form" x="11" y="160">
 					<mx:HBox left="10" right="10" top="10" verticalAlign="middle">
 						<mx:Label text="Slide Name:" left="10" top="10" height="18" width="82"/>
-						<mx:TextInput top="27" left="10" height="22" right="75" id="spName" text="{fullSlideProduct.@name}" width="100%"/>
-						<hci:CheckBoxYN id="spIsActive" label="Active" data="{fullSlideProduct.@isActive}" right="10" top="27" height="22" width="57"/>
+						<mx:TextInput top="27" left="10" height="22" right="75" id="spName" text="{fullSlideProduct.@name}" width="100%" change="dirty.setDirty();"/>
+						<hci:CheckBoxYN id="spIsActive" label="Active" data="{fullSlideProduct.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 					</mx:HBox>
 					<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
-					<hci:CheckBoxYN id="spIsCustom" label="Custom slide" data="{fullSlideProduct.@isCustum}" top="57" left="10" width="20%"/>
+					<hci:CheckBoxYN id="spIsCustom" label="Custom slide" data="{fullSlideProduct.@isCustum}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
 					<mx:Label text="For Group:" top="59" left="121" width="10%"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
 						id="spIdLab"
 						dataProvider="{parentApplication.promptedLabList}"
 						labelField="@name"
 						prompt=" "
-						data="{fullSlideProduct.@idLab}" width="70%">
+						data="{fullSlideProduct.@idLab}" width="70%" change="dirty.setDirty();">
 					</util:ComboBoxLabList>
 					</mx:HBox>
 					<mx:HBox y="70" right="10" left="10">
@@ -766,7 +776,7 @@
 						prompt=" "
 						data="{fullSlideProduct.@idVendor}"
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-						>
+						 change="dirty.setDirty();">
 						</hci:DictionaryComboBox>
 					</mx:VBox>
 					<mx:VBox width="100%">
@@ -781,12 +791,12 @@
 						prompt=" "
 						data="{fullSlideProduct.@idOrganism}"
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-						 width="100%">
+						 width="100%" change="dirty.setDirty();">
 						</hci:DictionaryComboBox>
 					</mx:VBox>
 					<mx:VBox width="100%">
 					<mx:Label text="Catalog Number:" top="85" right="26" width="100%"/>
-					<mx:TextInput top="102" id="spCatalogNumber" right="10" width="100%">
+					<mx:TextInput top="102" id="spCatalogNumber" right="10" width="100%" change="dirty.setDirty();">
 						<mx:text>{fullSlideProduct.@catalogNumber}</mx:text>
 					</mx:TextInput>
 					</mx:VBox>
@@ -805,8 +815,8 @@
 						prompt="Select a catagory to add..."
 						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}">
 						</hci:DictionaryComboBox>
-					<mx:TextInput id="idSlideProduct" text="{fullSlideProduct.@idSlideProduct}" editable="false" enabled="false" visible="true" width="100%" left="10" top="189"/>
-					<mx:TextInput id="isSlideSet" text="{fullSlideProduct.@isSlideSet}" editable="false" enabled="false" visible="true" top="219" left="10" width="100%"/>
+					<mx:TextInput id="idSlideProduct" text="{fullSlideProduct.@idSlideProduct}" editable="false" enabled="false" visible="false" width="100%" left="10" top="189"/>
+					<mx:TextInput id="isSlideSet" text="{fullSlideProduct.@isSlideSet}" editable="false" enabled="false" visible="false" top="219" left="10" width="100%"/>
 					</mx:VBox>
 					<mx:VBox>
 					<mx:Button  id="spAddCategory" click="addMicroarrayCategory(event)" x="279" y="159" icon="@Embed(source='../../assets/add.png')" width="25" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="true"/>					
@@ -826,6 +836,7 @@
 				
 			</mx:ViewStack>
 			<mx:ControlBar horizontalAlign="right">
+			    <util:DirtyNote id="dirty"/>
 				<mx:Button id="saveSlideButton" label="Save" click="onSaveSlide();" icon="@Embed(source='../../assets/save.png')" toolTip="Save" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
 			
