@@ -182,6 +182,7 @@
 			 PopUpManager.centerPopUp(editWindow);		
              editWindow.setupEditForm(parentDocument.selectedExperiment);
            	 editWindow.initializeData();
+           	 callLater(editWindow.setupDataListeners);
 		}
 		
 		public function refreshSavedExperiment():void {

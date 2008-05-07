@@ -194,6 +194,9 @@
 	       checkLanesCompleteness();
 		}
 		
+		public function onEdit():void {
+		}
+		
 	]]>
 </mx:Script>
 	<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="0">

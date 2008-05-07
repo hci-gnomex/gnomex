@@ -113,6 +113,7 @@
 		}
 		
 		private function deleteSample():void {
+			parentDocument.dirty.setDirty();
 			if (samplesGrid.selectedItems.length > 0) {
 				for each(var sample:Object in samplesGrid.selectedItems) {					
 					if (sample.@idSample.indexOf("Sample") < 0) {
@@ -142,6 +143,7 @@
 		}
 		
 		private function copySample():void {
+			parentDocument.dirty.setDirty();
 			if (samplesGrid.selectedIndex != -1) {
 				for each(var i:int in samplesGrid.selectedIndices) {					
 					var sampleToCopy:Object = parentDocument.samples[i];
@@ -504,6 +506,10 @@
  		    parentDocument.lanesConfirmGrid.invalidateList();
  		    parentDocument.lanesConfirmGrid.invalidateDisplayList();
 		}
+		
+		public function onEdit():void {
+			parentDocument.dirty.setDirty();
+		}
         
 	]]>
 </mx:Script>	
@@ -522,7 +528,10 @@
 				<mx:Button click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" width="24"/>
 			</mx:HBox>
 					
-			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto">
+			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" 
+				allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" 
+				selectionColor="#FFFFB9" rollOverColor="#C0C0C0"
+				horizontalScrollPolicy="auto">
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>

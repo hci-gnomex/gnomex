@@ -5,7 +5,6 @@
 	xmlns:util="views.util.*"
 	width="100%" height="100%" 
 	title="Quality Control" 
-	titleIcon="@Embed('../../assets/chart_curve.png')]"
 	borderThicknessTop="2">
 	
 	<mx:HTTPService 
@@ -43,6 +42,8 @@
 
     <mx:Script>
         <![CDATA[
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
         import mx.validators.NumberValidator;
         import mx.events.ValidationResultEvent;
         import mx.collections.ArrayCollection;
@@ -68,7 +69,14 @@
         	getWorkListQC.send();
         }
  
-        private function getGridRowNumber(item:Object,col:int):String
+		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets to work list
+			} else {
+				dirty.setDirty();
+			}
+		}
+		private function getGridRowNumber(item:Object,col:int):String
         {
         	if (workList!= null) {
 	           var x:int = workList.getItemIndex(item) + 1;
@@ -78,12 +86,9 @@
         	}
         }
                 
-        private function onEdit(event:mx.events.DataGridEvent ):void {
+        public function onEdit():void {
         	workList.filterFunction = null;
 	    	workListGrid.selectedItem.@isDirty = "Y";
-	    	dirty.setDirty();
-	    	
-
         }
         
         private function validate():Boolean {
@@ -168,6 +173,8 @@
         
         private function onGetWorkList(event:ResultEvent):void {
         	refreshRequestNumbers();
+        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+        	
         }
         
         private function onSaveWorkItemQualityControl(event:ResultEvent):void {
@@ -218,6 +225,7 @@
         	}        	
         	return keep;
         }
+        
   
            
 
@@ -227,6 +235,7 @@
    
     <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
             <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalAlign="bottom">
+                <mx:Image source="{parentApplication.iconQC}"/>
                 <mx:Label text="{requestNumberCount}"/>
             	<mx:HBox width="100%" horizontalAlign="right"  verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
@@ -239,7 +248,7 @@
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
+			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>

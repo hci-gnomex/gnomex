@@ -72,7 +72,7 @@
 	
 	
 	                
-    private function onEdit(event:Event):void {
+    public function onEdit():void {
     	visibilityGrid.selectedItem.@isDirty = "Y";
     }
     
@@ -106,7 +106,7 @@
 	       <mx:DataGrid  id="visibilityGrid" 
 	       	dataProvider="{parentDocument.browseList}" 
 	       	 width="100%" height="100%" 
-	       	 itemEditEnd="onEdit(event)">
+	       	 itemEditEnd="onEdit()">
 	         <mx:columns>
 	            <mx:DataGridColumn width="35" minWidth="35" headerText="#">
 	                <mx:itemRenderer>

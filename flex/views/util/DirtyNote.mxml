@@ -10,29 +10,38 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.containers.Panel;
+			import mx.managers.PopUpManager;
+			import views.util.DirtyPopup;
+			import mx.core.IFlexDisplayObject;
 			
 			[Bindable]
             private var isDirtyFlag:Boolean = false;
+            
+            private var popup:IFlexDisplayObject = null;
             
 			public function isDirty():Boolean {
 				return isDirtyFlag;
 			}
 			
-			private function setPanelStyle(styleName:String):void {
+
+			private function setDirtyVisual():void {
 				if (this.parentDocument is Panel) {
-					this.parentDocument.styleName = styleName;
+					Panel(parentDocument).titleIcon = isDirtyFlag ? parentApplication.iconYellowFlag : null;
+					
 				}else if (this.parent.parent is Panel) {
 					var p:Panel = Panel(parent.parent);
-					p.styleName = styleName;
+					p.titleIcon = isDirtyFlag ? parentApplication.iconYellowFlag : null;
+
 				}
 			}
+
 			public function setDirty():void {
-				setPanelStyle("dirtyPanel");
 				isDirtyFlag = true;
+				setDirtyVisual();
 			}
 			public function resetDirty():void {
-				setPanelStyle("");
 				isDirtyFlag = false;
+				setDirtyVisual();
 			}               
 		]]>
 	</mx:Script>

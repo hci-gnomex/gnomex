@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel label="Hybridization"  xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*"
 	width="100%" height="100%" title="Hybridization" 
-	titleIcon="@Embed('../../assets/basket_put.png')"  borderThicknessTop="2">
+	borderThicknessTop="2">
 	
 	<mx:HTTPService  
     id="getWorkList" 
@@ -37,6 +37,8 @@
 
     <mx:Script>
         <![CDATA[
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
         import mx.collections.ArrayCollection;
         import mx.collections.XMLListCollection;
         import mx.rpc.events.FaultEvent; 
@@ -56,7 +58,13 @@
         	dirty.resetDirty();
         	getWorkList.send();
         }
- 
+ 		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets to work list
+			} else {
+				dirty.setDirty();
+			}
+		}
         private function getGridRowNumber(item:Object,col:int):String
         {
         	if (workList!= null) {
@@ -76,10 +84,9 @@
 	    	}
 		}            
                 
-        private function onEdit(event:Event):void {
+        public function onEdit():void {
         	workList.filterFunction = null;
 	    	workListGrid.selectedItem.@isDirty = "Y";
-        	dirty.setDirty();
         }
         
         private function save():void {
@@ -90,6 +97,7 @@
         
         private function onGetWorkList(event:ResultEvent):void {
         	refreshRequestNumbers();
+        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
         }
         
         private function onSaveWorkItem(event:ResultEvent):void {
@@ -151,7 +159,7 @@
         	return keep;
         }
   
-           
+
 
         ]]>
     </mx:Script> 
@@ -162,6 +170,7 @@
     
     
             <mx:HBox width="100%" horizontalAlign="left"   paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalAlign="bottom">
+                <mx:Image source="{parentApplication.iconHyb}"/>
                 <mx:Label text="{requestNumberCount}"/>
             	<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
@@ -179,7 +188,7 @@
 
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit(event)">
+			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="7" dataField="@requestNumber"/>
