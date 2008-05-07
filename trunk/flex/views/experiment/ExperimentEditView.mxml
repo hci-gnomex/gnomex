@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
-    xmlns:views="views.*" xmlns:experiment="views.experiment.*"
+    xmlns:views="views.*" 
+    xmlns:util="views.util.*" 
+    xmlns:experiment="views.experiment.*"
     close="{PopUpManager.removePopUp(this)}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	label="Submit Request" width="100%" height="100%" 
@@ -65,7 +67,9 @@
   
 	<mx:Script>
 		<![CDATA[
+		import mx.events.PropertyChangeEvent;
 		import mx.collections.ArrayCollection;
+		import mx.events.CollectionEvent;
 		import mx.controls.Alert;
 		import mx.core.UIComponent;
 		import mx.core.Container;
@@ -73,7 +77,7 @@
 		import mx.rpc.events.FaultEvent;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
-
+		import mx.events.CollectionEvent;
         
         
 		[Bindable]
@@ -1057,11 +1061,24 @@
 				
 			}
 			
-			callLater(initializeControls);
-			callLater(hybSetupView.assignSlideNumbers);			
-			callLater(samplesView.checkSamplesCompleteness);
-			callLater(hybSetupView.checkHybSetupCompleteness);
-			callLater(hybsView.checkHybsCompleteness);
+			callLater(postSetupEditForm);
+
+		}
+		
+		private function postSetupEditForm():void {
+			initializeControls();
+			hybSetupView.assignSlideNumbers();			
+			samplesView.checkSamplesCompleteness();
+			hybSetupView.checkHybSetupCompleteness();
+			hybsView.checkHybsCompleteness();
+			
+		}
+		
+		public function setupDataListeners():void {
+			hybs.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingHybDataChange);
+			samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+			lanes.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);			
+			
 		}
 		
 		
@@ -1549,6 +1566,27 @@
 			navigateToURL(url, '_blank');			
 		}
 		
+		private function underlyingHybDataChange(event:Event):void {
+			dirty.setDirty();
+		}
+		private function underlyingSampleDataChange(event:CollectionEvent):void {
+			var ignore:int = 0;
+			for each(var e:PropertyChangeEvent in event.items) {
+				if (e.property == "@channel1Count" || e.property == "@channel2Count" || e.property == "@laneCount" ) {
+					ignore++;
+				}
+			}
+			// Ignore change events on @channel1Count, @channel2Count
+			if (ignore == event.items.length) {
+				
+			} else {
+				dirty.setDirty();
+				
+			}
+		}
+		private function underlyingLaneDataChange(event:CollectionEvent):void {
+			dirty.setDirty();
+		}
 
 
 		]]>
@@ -1563,7 +1601,7 @@
 
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>
 
-	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}"/>
+	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}" />
 
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
@@ -1615,6 +1653,7 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%" horizontalAlign="right">
+	 	        <util:DirtyNote id="dirty"/>
  				<mx:Button id="saveButton" label="Save" 
 	            	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveRequest()">
 	            </mx:Button>

@@ -313,6 +313,9 @@
 			labelCol9.visible = isVisible;
 			labelCol10.visible = isVisible;
 		}
+		public function onEdit():void {		
+		}
+
 
 		
 	]]>
@@ -327,7 +330,7 @@
 	        		 dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
 					<mx:columns>
 						<mx:DataGridColumn headerText = "Samples" width="90" dataField="@name"/>
-			            <mx:DataGridColumn width="30"  labelFunction="getChannelCountLabelFunction" headerText="">
+			            <mx:DataGridColumn id="channelCountCol" width="30"  labelFunction="getChannelCountLabelFunction" headerText="">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
