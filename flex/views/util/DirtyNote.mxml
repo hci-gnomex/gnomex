@@ -11,7 +11,6 @@
 		<![CDATA[
 			import mx.containers.Panel;
 			import mx.managers.PopUpManager;
-			import views.util.DirtyPopup;
 			import mx.core.IFlexDisplayObject;
 			
 			[Bindable]
