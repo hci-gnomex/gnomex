@@ -366,6 +366,7 @@
             		navSearchView.searchView.initializeData();
             	}
             	if (theViews.selectedChild == navExperimentView) {
+					navExperimentView.selectedRequestNumber = null;
             		navExperimentView.initializeExperiments();
             	}
             	if (theViews.selectedChild == navUsersView) {

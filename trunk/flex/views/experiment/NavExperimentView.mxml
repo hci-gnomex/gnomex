@@ -448,10 +448,17 @@
 
 		
 		private function onGetRequest(event:ResultEvent):void {
+			if (getRequest.lastResult.name() == "SUCCESS") {
+				Alert.show("Experiment not found");
+				parentApplication.theViews.selectedIndex = 0;
+        		return;
+        	}
 			if (getRequest.lastResult.name() != "OpenRequestList") {
         		Alert.show(getRequest.lastResult..ACTMESSAGE.@TEXT);
         		return;
         	}
+        	
+
         	
 		    if (this.showDownloads) {
 		    	this.showExperimentDownloads();
@@ -537,7 +544,18 @@
 		}
 		
 		public function refreshExperiments():void {
-			getProjectRequestList.send();
+			if (this.selectedRequestNumber != null) {
+				var params:Object = new Object();
+				params.idProject = selectedExperiment.@idProject;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				params.searchPublicProjects = 'N';
+				getProjectRequestList.send(params);
+				
+			} else {
+				getProjectRequestList.send();
+			}
+
 		}
 		
 		public function initializeExperiments():void {
@@ -652,6 +670,7 @@
 	    private function onDeleteRequest(event:ResultEvent): void {
 	    	if (deleteRequest.lastResult.name() == "SUCCESS") {
 	    		this.refreshExperiments();
+	    		theViews.selectedChild = browseView;
 	    	} else {
 	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
 	    	}

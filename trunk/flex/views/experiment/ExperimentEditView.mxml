@@ -68,6 +68,7 @@
 	<mx:Script>
 		<![CDATA[
 		import mx.events.PropertyChangeEvent;
+		import mx.events.CollectionEventKind;
 		import mx.collections.ArrayCollection;
 		import mx.events.CollectionEvent;
 		import mx.controls.Alert;
@@ -1571,9 +1572,18 @@
 		}
 		private function underlyingSampleDataChange(event:CollectionEvent):void {
 			var ignore:int = 0;
-			for each(var e:PropertyChangeEvent in event.items) {
-				if (e.property == "@channel1Count" || e.property == "@channel2Count" || e.property == "@laneCount" ) {
-					ignore++;
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
+			
+			for each(var e:Object in event.items) {
+				if (e is PropertyChangeEvent) {
+					var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+					if (pe.property == "@channel1Count" || pe.property == "@channel2Count" || pe.property == "@laneCount" ) {
+						ignore++;
+					}
+					
 				}
 			}
 			// Ignore change events on @channel1Count, @channel2Count
