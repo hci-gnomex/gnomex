@@ -40,6 +40,18 @@
     </mx:request>
   </mx:HTTPService>
 
+
+   <mx:HTTPService  
+    id="getRequest" 
+    url="GetRequest.gx"
+    destination="getRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequest(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get existing request', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
   
   <mx:HTTPService  
     id="saveNewRequest" 
@@ -1556,10 +1568,20 @@
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
+				dirty.resetDirty();
+
+			 	var parms:Object = new Object();
+			 	parms.idRequest = request.@idRequest;
+			 	getRequest.send(parms);
+			 				
 				parentApplication.navExperimentView.detailView.refreshSavedExperiment();
 			} else {
 				Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
+		}
+		
+		private function onGetRequest(event:ResultEvent):void {
+			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
 		}
 
 		private function showPrintableRequestForm():void {
@@ -1567,7 +1589,11 @@
 			navigateToURL(url, '_blank');			
 		}
 		
-		private function underlyingHybDataChange(event:Event):void {
+		private function underlyingHybDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
 			dirty.setDirty();
 		}
 		private function underlyingSampleDataChange(event:CollectionEvent):void {
@@ -1595,6 +1621,10 @@
 			}
 		}
 		private function underlyingLaneDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
 			dirty.setDirty();
 		}
 
