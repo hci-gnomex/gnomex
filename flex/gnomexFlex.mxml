@@ -863,6 +863,14 @@
         		return "";
         	}
         }
+        public function lookupRequestCategory(item:Object,col:int):String {
+        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+        	if (dict != null) {
+        		return dict.@display;
+        	} else {
+        		return "";
+        	}
+        }
         public function lookupSampleSource(item:Object,col:int):String {
         	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == item.@idSampleSource);
         	if (dict != null) {

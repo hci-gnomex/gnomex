@@ -171,7 +171,7 @@
 			       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
 			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
 			       	<mx:DataGridColumn headerText="Group" width="50" dataField="@requestLabName"/>
-			       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory"/>
+			       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory" labelFunction="parentApplication.lookupRequestCategory"/>
 			       	<mx:DataGridColumn headerText="Request Date" width="37" dataField="@requestCreateDate"/>
 			       	<mx:DataGridColumn headerText="Request #" width="35" dataField="@requestNumber"/>
 			       	<mx:DataGridColumn headerText="Microarray" width="170" dataField="@slideProductName"/>
