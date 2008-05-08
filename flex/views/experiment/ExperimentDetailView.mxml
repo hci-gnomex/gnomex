@@ -318,7 +318,7 @@
 
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 		    <mx:VBox height="100%"  width="100%" verticalGap="0">
-		        <mx:HBox width="100%" paddingTop="4" paddingBottom="10" horizontalGap="6" paddingLeft="6" paddingRight="6">
+		        <mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
 		        	<mx:VBox verticalGap="0">
 		        		<mx:HBox horizontalGap="0">
 		                    <mx:Label text="#"  width="90" fontWeight="bold">
@@ -365,11 +365,13 @@
 			            </mx:HBox>
 		        	</mx:VBox>
 		        </mx:HBox>
+		        
 	
 				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
-					<mx:VBox verticalGap="0" width="100%" height="100%">
-						<mx:HBox width="100%" horizontalGap="2">
-							<mx:Label text="{'Samples'}" fontWeight="bold"/>
+			    <mx:HRule width="100%"/>
+					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
 							<mx:Spacer width="74"/>
 							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="{currentState != 'SolexaState'}" click="showHideColumns()"/>
 						</mx:HBox>
@@ -416,10 +418,14 @@
 								<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
 							</mx:columns>
 						</mx:DataGrid>
+		        <mx:Spacer height="4"/>
 					</mx:VBox>
+					<mx:HRule width="100%"/>
+					
+			    
 					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
-						<mx:HBox width="100%" horizontalGap="2" paddingTop="8">
-							<mx:Label text="{'Hybridizations'}" fontWeight="bold"/>
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+							<mx:Label text="{'Hybridizations (' + hybsGridConfirm.dataProvider.length + ')' }" fontWeight="bold"/>
 							<mx:Spacer width="40"/>
 							<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
 							<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
@@ -598,7 +604,7 @@
 		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
 		<mx:AddChild relativeTo="{this.confirmContainer}">
 				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
-						<mx:Label text="{lanesConfirmGrid.dataProvider.length + ' Sequencing Lanes'}"/>
+						<mx:Label text="{'Sequencing Lanes (' + lanesConfirmGrid.dataProvider.length + ')'}"  fontWeight="bold"/>
 						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{parentDocument.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
 						<mx:columns>
 							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
