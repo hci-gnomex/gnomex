@@ -60,6 +60,7 @@
 						onPromptToClearAllLanes);
 			
 		}
+				
         public function initializeLanesGrid():void {
         	if (parentDocument == null) {
         		return;
@@ -113,6 +114,22 @@
             	checkLanesCompleteness();
             }
         }
+       	private function getLaneCountLabelFunction(item:Object,col:int):String
+        {
+        	var laneCount:int = 0;
+        	if (parentDocument == null) {
+        		return "";
+        	}
+        	if (parentDocument.lanes!= null) {
+        		for each(var lane:Object in parentDocument.lanes) {
+        			if (lane.@idSample == item.@idSample) {
+        				laneCount++;
+        			}
+        		}
+        	} 
+			item.@laneCount = laneCount;
+			return "";
+        }        
         public function checkLanesCompleteness():void {
         	var completeCount:int = 0;
         	for each(var lane:Object in parentDocument.lanes) {
@@ -215,13 +232,6 @@
 			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="true" dataField="@idNumberSequencingCycles" 						             						             
 			             	  editorDataField="value"  
 			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/> 						             						             
-<!--			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="true" dataField="@idFlowCellType"
-			             	  editorDataField="value"  
-			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelFlowCellType" itemEditor="views.renderers.ComboBoxFlowCellType"/> 						             						             
-			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="true" dataField="@idNumberSequencingCycles" 						             						             
-			             	  editorDataField="value"  
-			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/>
--->			             	   						             						             
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelGenomeBuild" itemEditor="views.renderers.ComboBoxGenomeBuild"/> 						             						             
 						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
@@ -243,16 +253,16 @@
 		        		 dragEnabled="true" id="sampleLaneDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
 						<mx:columns>
 							<mx:DataGridColumn headerText = "Samples" width="80" dataField="@name"/>
-				            <!--<mx:DataGridColumn width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+				            <mx:DataGridColumn width="20"  labelFunction="getLaneCountLabelFunction" headerText="">
 				                <mx:itemRenderer>
 				                    <mx:Component >
 				                        <mx:HBox  horizontalGap="0" >
-				                          <mx:Image source="{data.@laneCount > 0 ? '../assets/tick.png' : ''}">
+				                          <mx:Image source="{data.@laneCount > 0 ? parentApplication.iconCheck : ''}">
 				                    	 </mx:Image> 
 				                        </mx:HBox>
 				                    </mx:Component>
 				                </mx:itemRenderer>
-				            </mx:DataGridColumn> -->		
+				            </mx:DataGridColumn> 	
 						</mx:columns> 										        				        		
 		         	</mx:DataGrid>
 		        </mx:VBox>            	
