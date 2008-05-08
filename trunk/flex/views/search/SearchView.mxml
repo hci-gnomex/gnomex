@@ -24,6 +24,8 @@
             <text4>{text4.text}</text4>
             <idLab>{labCombo.selectedItem.@idLab}</idLab>
             <idOrganism>{organismCombo.selectedItem.@value}</idOrganism>
+            <idSampleType>{sampleTypeCombo.selectedItem.@value}</idSampleType>
+            <codeRequestCategory>{requestCategoryCombo.selectedItem.@value}</codeRequestCategory>
             <searchOrganismOnSlideProduct>{searchOrganismOnSlideProductRadio.selected == true ? "Y" : "N" }</searchOrganismOnSlideProduct>
             <searchOrganismOnSample>{searchOrganismOnSampleRadio.selected == true ? "Y" : "N" }</searchOrganismOnSample>
             <codeMicroarrayCategory>{microarrayCategoryCombo.selectedItem.@value}</codeMicroarrayCategory>
@@ -35,7 +37,9 @@
             <organism>{organismCombo.selectedItem.@organism}</organism>
             <slideProduct>{microarrayCombo.selectedItem.@name}</slideProduct>
             <microarrayCategory>{microarrayCategoryCombo.selectedItem.@display}</microarrayCategory>
+            <requestCategory>{requestCategoryCombo.selectedItem.@display}</requestCategory>
             <sampleSource>{sampleSourceCombo.selectedItem.@display}</sampleSource>
+            <sampleType>{sampleTypeCombo.selectedItem.@display}</sampleType>
             <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
             <showCategory>N</showCategory>
     </mx:request>
@@ -73,12 +77,24 @@
        	microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
        	organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
        	sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
+       	requestCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry;
+       	sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
        }
        
         private function filterSlideProduct(item:Object):Boolean {
         	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
         		return true;
         	}
+			var doesMatchRequestCategoryVendor:Boolean = true;
+        	if (requestCategoryCombo.selectedItem != null && 
+        	    requestCategoryCombo.selectedItem.@value != '') {
+        		doesMatchRequestCategoryVendor = false;
+				var rCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestCategoryCombo.selectedItem.@value);
+        		if (item.@idVendor == rCategory.@idVendor) {
+        			doesMatchRequestCategoryVendor = true;        			
+        		}
+        	}       	
+        	
         	var doesMatchOrganism:Boolean = true;
         	if (organismCombo.selectedItem != null && 
         	    organismCombo.selectedItem.@value != null  &&
@@ -111,7 +127,7 @@
         		}
         	}
         	
-        	return doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
+        	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
         public function callSearchIndex():void {
 			var codeDesignList:XMLList = parentApplication.getExperimentDesignList.lastResult.ExperimentDesign;     			
@@ -155,6 +171,8 @@
 			this.organismCombo.selectedIndex = 0;
 			this.microarrayCategoryCombo.selectedIndex = 0;
 			this.microarrayCombo.selectedIndex = 0;
+			this.requestCategoryCombo.selectedIndex = 0;
+			this.sampleTypeCombo.selectedIndex = 0;
 			
 			for each (var item:Object in parentApplication.experimentDesignList) {
 				item.@isSelected = "false";
@@ -202,7 +220,7 @@
             <mx:HBox width="100%">
               <mx:VBox width="100%" verticalGap="8">
                 <mx:HBox>
-                	<mx:Label text="Keywords:" textAlign="left" width="120"/>
+                	<mx:Label text="Keywords:" textAlign="left" width="130"/>
                 	<mx:TextInput id="text1" width="80">
                     </mx:TextInput>
                     <mx:TextInput id="text2" width="80">
@@ -216,8 +234,29 @@
               	
               </mx:VBox>
             </mx:HBox>
+            <mx:HBox>
+             <mx:Label text="Experiment Category:" textAlign="left" width="130"/>
+             <mx:ComboBox id="requestCategoryCombo"  labelField="@display" 
+             	 width="200">
+              <mx:change>parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0</mx:change>
+             </mx:ComboBox>
+            </mx:HBox>
+            <mx:HBox>
+               <mx:Label text="Sample Type:" textAlign="left" width="130"/>
+               <mx:ComboBox id="sampleTypeCombo"  
+                labelField="@display"
+               	 width="200">
+               </mx:ComboBox>
+            </mx:HBox>
+            <mx:HBox>
+               <mx:Label text="Sample Source:" textAlign="left" width="130"/>
+               <mx:ComboBox id="sampleSourceCombo"  
+                labelField="@display"
+               	 width="200">
+               </mx:ComboBox>
+            </mx:HBox>
             <mx:HBox paddingBottom="0" width="100%">
-             <mx:Label text="Organism:" textAlign="left" width="120"/>
+             <mx:Label text="Organism:" textAlign="left" width="130"/>
             <mx:VBox verticalGap="0">
                <mx:ComboBox 
                	id="organismCombo"  labelField="@display" 
@@ -232,14 +271,7 @@
             </mx:VBox>
             </mx:HBox>
             <mx:HBox>
-               <mx:Label text="Sample Source:" textAlign="left" width="120"/>
-               <mx:ComboBox id="sampleSourceCombo"  
-                labelField="@display"
-               	 width="200">
-               </mx:ComboBox>
-            </mx:HBox>
-            <mx:HBox>
-              <mx:Label text="Group:" textAlign="left" width="120"/>
+              <mx:Label text="Group:" textAlign="left" width="130"/>
               <mx:ComboBox id="labCombo"  
               	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
                width="200"
@@ -248,13 +280,13 @@
               	
             </mx:HBox>
             <mx:HBox>
-             <mx:Label text="Microarray Category:" textAlign="left" width="120"/>
+             <mx:Label text="Microarray Category:" textAlign="left" width="130"/>
              <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
              	 width="200" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
              </mx:ComboBox>
             </mx:HBox>
             <mx:HBox width="100%">
-             <mx:Label text="Microarray:" textAlign="left" width="120"/>
+             <mx:Label text="Microarray:" textAlign="left" width="130"/>
              <mx:ComboBox id="microarrayCombo"  
              	labelField="@name" 
              	dataProvider="{parentApplication.filteredSlideProductList}" 
