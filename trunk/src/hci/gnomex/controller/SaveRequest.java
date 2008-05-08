@@ -155,6 +155,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         int sampleCount = 1;
         for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
           String idSampleString = (String)i.next();
+          boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
           Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
           saveSample(idSampleString, sample, sess, sampleCount);
           
@@ -162,7 +163,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
 
           // if this is a new request, create QC work items for each sample
-          if (requestParser.isNewRequest()  && 
+          if ((requestParser.isNewRequest()  || isNewSample) && 
               !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
