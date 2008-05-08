@@ -261,6 +261,9 @@
 
 		private function onBrowseTree():void {
 			setResultsCount();
+			
+			browseView.dirtyProject.resetDirty();
+			browseView.dirtyVisibility.resetDirty();
 
 			selectedProject = null;
 			selectedIdProject = null;
@@ -516,6 +519,7 @@
 				browseView.theViews.addChild(browseView.projectDetailView);
 			}
 			browseView.projectDetailView.checkSecurity();
+			browseView.projectDetailView.setupDataListeners();
 
 		}
 

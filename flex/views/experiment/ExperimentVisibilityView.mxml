@@ -64,6 +64,7 @@
 		if (saveVisibility.lastResult.name() == "SUCCESS" ||
 		    saveVisibility.lastResult.name() == "ProjectRequestVisibilityList") {
     		parentDocument.parentDocument.refreshExperiments();
+    		parentDocument.dirtyVisibility.resetDirty();
     	} else {
     		mx.controls.Alert.show(saveVisibility.lastResult..ACTMESSAGE.@TEXT);
     	}
@@ -74,6 +75,7 @@
 	                
     public function onEdit():void {
     	visibilityGrid.selectedItem.@isDirty = "Y";
+    	parentDocument.dirtyVisibility.setDirty();
     }
     
     public function setVisibilityCombo():void {
@@ -101,11 +103,12 @@
 					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@projectName}"/>
 	                <mx:ComboBox id="projectVisibilityCombo" labelField="@display"  
                      	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
-                     	  width="250" />
+                     	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
 	       </mx:HBox>
 	       <mx:DataGrid  id="visibilityGrid" 
 	       	dataProvider="{parentDocument.browseList}" 
 	       	 width="100%" height="100%" 
+			 editable="true"
 	       	 itemEditEnd="onEdit()">
 	         <mx:columns>
 	            <mx:DataGridColumn width="35" minWidth="35" headerText="#">
@@ -126,7 +129,10 @@
 		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"/>
 		       	<mx:DataGridColumn headerText="Microarray" width="90" dataField="@slideProductName"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
-					editorDataField="value" sortable="false" editable="true" rendererIsEditor="true" itemRenderer="views.renderers.ComboBoxVisibility" />
+					editorDataField="value" sortable="false" editable="{projectVisibilityCombo.enabled}" 
+					rendererIsEditor="false" 
+					labelFunction="parentApplication.lookupVisibility"
+					itemRenderer="mx.controls.Label" itemEditor="views.renderers.ComboBoxVisibility" />
 	         </mx:columns>
 	       </mx:DataGrid>
 	

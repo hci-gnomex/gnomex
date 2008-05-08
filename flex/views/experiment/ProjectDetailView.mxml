@@ -27,6 +27,8 @@
   
 <mx:Script>
 	<![CDATA[
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
@@ -68,8 +70,27 @@
 			}
 		}
 		
+		public function setupDataListeners():void {
+			experimentDesignEntries.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingExperimentDesignDataChange);
+			experimentFactorEntries.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingExperimentFactorDataChange);			
+		}
 		
+		private function underlyingExperimentDesignDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
+			parentApplication.navExperimentView.browseView.dirtyProject.setDirty();
+		}
 
+		
+		private function underlyingExperimentFactorDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
+			parentApplication.navExperimentView.browseView.dirtyProject.setDirty();
+		}
 		
 		public function addProject():void {
 			closeWindowAfterSave = true;
@@ -111,6 +132,7 @@
 		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
+        		parentApplication.navExperimentView.browseView.dirtyProject.resetDirty();
 				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
 				if (fromSubmitRequestWindow) {
 					parentApplication.submitRequestView.setupView.onProjectAdded(saveProject.lastResult.@idProject);
@@ -237,6 +259,7 @@
 				<mx:Label text="Project name:"/>
 				<mx:TextInput id="projectName" width="100%"  
 					text="{parentApplication.navExperimentView.selectedProject.@name}">
+					<mx:change>parentApplication.navExperimentView.browseView.dirtyProject.setDirty()</mx:change>
 					<mx:toolTip>(Suggested naming convention: Lab-Species-Experiment title)</mx:toolTip>
 				</mx:TextInput>			    	
 		    </mx:VBox>
@@ -244,7 +267,9 @@
 			<mx:VBox width="100%" verticalGap="0" height="100%">
 				<mx:Label text="Project description:"/>
 				<mx:TextArea height="100%" id="projectDescription" width="100%" 
-					text="{parentApplication.navExperimentView.selectedProject.@description}"/>			    	
+					text="{parentApplication.navExperimentView.selectedProject.@description}">
+					<mx:change>parentApplication.navExperimentView.browseView.dirtyProject.setDirty()</mx:change>
+				</mx:TextArea>			    	
 		    </mx:VBox>
 		</mx:VBox>
 
