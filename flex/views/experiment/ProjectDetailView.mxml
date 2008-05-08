@@ -80,7 +80,7 @@
 				// ignore refresh and resets 
 				return;
 			}
-			parentApplication.navExperimentView.browseView.dirtyProject.setDirty();
+			setDirty();
 		}
 
 		
@@ -89,7 +89,7 @@
 				// ignore refresh and resets 
 				return;
 			}
-			parentApplication.navExperimentView.browseView.dirtyProject.setDirty();
+			setDirty();
 		}
 		
 		public function addProject():void {
@@ -130,9 +130,25 @@
 			
 		} 
 		
+		private function setDirty():void {
+			if (parentDocument is ProjectDetailWindow) {
+				parentDocument.dirtyProject.setDirty();
+			} else {
+				parentApplication.navExperimentView.browseView.dirtyProject.setDirty();
+			}
+		}
+		
+		private function resetDirty():void {
+			if (parentDocument is ProjectDetailWindow) {
+				parentDocument.dirtyProject.resetDirty();
+			} else {
+				parentApplication.navExperimentView.browseView.dirtyProject.resetDirty();
+			}
+		}
+		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
-        		parentApplication.navExperimentView.browseView.dirtyProject.resetDirty();
+        		resetDirty();
 				parentApplication.navExperimentView.selectedIdProject = saveProject.lastResult.@idProject;
 				if (fromSubmitRequestWindow) {
 					parentApplication.submitRequestView.setupView.onProjectAdded(saveProject.lastResult.@idProject);
@@ -259,7 +275,7 @@
 				<mx:Label text="Project name:"/>
 				<mx:TextInput id="projectName" width="100%"  
 					text="{parentApplication.navExperimentView.selectedProject.@name}">
-					<mx:change>parentApplication.navExperimentView.browseView.dirtyProject.setDirty()</mx:change>
+					<mx:change>setDirty()</mx:change>
 					<mx:toolTip>(Suggested naming convention: Lab-Species-Experiment title)</mx:toolTip>
 				</mx:TextInput>			    	
 		    </mx:VBox>
@@ -268,7 +284,7 @@
 				<mx:Label text="Project description:"/>
 				<mx:TextArea height="100%" id="projectDescription" width="100%" 
 					text="{parentApplication.navExperimentView.selectedProject.@description}">
-					<mx:change>parentApplication.navExperimentView.browseView.dirtyProject.setDirty()</mx:change>
+					<mx:change>setDirty()</mx:change>
 				</mx:TextArea>			    	
 		    </mx:VBox>
 		</mx:VBox>

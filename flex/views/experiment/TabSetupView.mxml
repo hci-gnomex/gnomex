@@ -162,6 +162,7 @@
 				 this.projectDetailWindow.projectDetailView.fromSubmitRequestWindow = true;
 				 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 				 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+				 this.projectDetailWindow.projectDetailView.setupDataListeners();
 				 
 				 this.projectDetailWindow.labCombo.selectedItem = this.labCombo.selectedItem;
 				 this.projectDetailWindow.labCombo.enabled = false;
@@ -182,6 +183,7 @@
 				 this.projectDetailWindow.projectDetailView.fromSubmitRequestWindow = true;
 				 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 				 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+				 this.projectDetailWindow.projectDetailView.setupDataListeners();
 				 
 				 this.projectDetailWindow.labCombo.selectedItem = this.labCombo.selectedItem;
 				 this.projectDetailWindow.labCombo.enabled = false;
