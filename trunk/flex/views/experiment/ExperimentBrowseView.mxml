@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="100%" height="100%" xmlns:views="views.*"  xmlns:experiment="views.experiment.*"  
-	  verticalGap="0" borderThicknessTop="0">
+	width="100%" height="100%" 
+	xmlns:views="views.*"  
+	xmlns:experiment="views.experiment.*"  
+	xmlns:util="views.util.*"
+	verticalGap="0" borderThicknessTop="0">
 	  
 
   
@@ -427,6 +430,7 @@
 	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
 	            </mx:HBox>
 	            <mx:HBox horizontalAlign="right" id="saveProjectButtonView" horizontalGap="2" verticalAlign="middle">
+			        <util:DirtyNote id="dirtyProject"/>
 		            <mx:Button id="saveProjectButton" label="Save" 
 		            	icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" 
 		            	click="projectDetailView.save()"  toolTip="Save project">
@@ -437,6 +441,7 @@
 	                <mx:Button label="Button" visible="false"/>
 	            </mx:HBox>
 	        	<mx:HBox  verticalAlign="middle" horizontalAlign="right" id="saveVisibilityButtonView" height="100%">
+			        <util:DirtyNote id="dirtyVisibility"/>
 		        	<mx:Button label="Save" id="saveVisibilityButton"
 		        		icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" 
 		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for project and experiments">
