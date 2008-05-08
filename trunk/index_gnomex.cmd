@@ -12,4 +12,4 @@ set CP=.;%GNOMEX_JAR%;%GNOMEX_HOME%\lib;%LUCENE_JAR%;%JDBC_DRIVER%;%HIBERNATE_HO
 for %%i in (%LIB%\*.jar) do call append_classpath.cmd %%i
 
 
-C:\j2sdk1.4.2_03\bin\java -classpath %CP% hci.gnomex.lucene.BuildSearchIndex %1 %2
+C:\j2sdk1.4.2_13\bin\java -classpath %CP% hci.gnomex.lucene.BuildSearchIndex %1 %2

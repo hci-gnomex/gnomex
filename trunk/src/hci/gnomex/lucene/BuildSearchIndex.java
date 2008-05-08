@@ -210,7 +210,9 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       reqOwner.lastName, ");
     buf.append("       proj.codeVisibility, ");
     buf.append("       req.codeVisibility, ");
-    buf.append("       req.createDate ");
+    buf.append("       req.createDate, ");
+    buf.append("       s1.idSampleType ");
+    
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
@@ -222,6 +224,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   ls1.sample as s1 ");
     buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls2 ");
     buf.append("LEFT JOIN   ls2.sample as s2 ");
+    buf.append("WHERE       req.codeRequestCategory != '" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "' ");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -240,6 +243,62 @@ public class BuildSearchIndex extends DetailObject {
       }
       rows.add(row);
     }    
+    
+    buf = new StringBuffer();
+    buf.append("SELECT proj.id, ");
+    buf.append("       req.id, ");
+    buf.append("       req.number, ");
+    buf.append("       proj.name, ");
+    buf.append("       proj.description, ");
+    buf.append("       '', ");
+    buf.append("       s1.name, ");
+    buf.append("       s1.description, ");
+    buf.append("       s1.idOrganism, ");
+    buf.append("       s1.idSampleSource, ");
+    buf.append("       '', ");
+    buf.append("       '',  ");
+    buf.append("       '',  ");
+    buf.append("       '', ");
+    buf.append("       '',  ");
+    buf.append("       '',  ");
+    buf.append("       req.codeRequestCategory,  ");
+    buf.append("       proj.idLab,  ");
+    buf.append("       labProj.name,  ");
+    buf.append("       req.idLab,  ");
+    buf.append("       labReq.name,  ");
+    buf.append("       req.codeMicroarrayCategory, ");
+    buf.append("       reqOwner.firstName, ");
+    buf.append("       reqOwner.lastName, ");
+    buf.append("       proj.codeVisibility, ");
+    buf.append("       req.codeVisibility, ");
+    buf.append("       req.createDate, ");
+    buf.append("       s1.idSampleType ");
+    
+    buf.append("FROM        Project as proj ");
+    buf.append("LEFT JOIN   proj.requests as req ");
+    buf.append("LEFT JOIN   proj.lab as labProj ");
+    buf.append("LEFT JOIN   req.lab as labReq ");
+    buf.append("LEFT JOIN   req.appUser as reqOwner ");
+    buf.append("LEFT JOIN   req.sequenceLanes as lane ");
+    buf.append("LEFT JOIN   lane.sample as s1 ");
+    buf.append("WHERE       req.codeRequestCategory = '" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "' ");
+    buf.append("ORDER BY proj.idProject, req.idRequest ");
+    
+    results = sess.createQuery(buf.toString()).list();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idProject = (Integer)row[0];
+      Integer idRequest = (Integer)row[1];
+      String key = idProject + "-" + (idRequest != null ? idRequest.toString() : "");
+      
+      List rows = (List)projectRequestMap.get(key);
+      if (rows == null) {
+        rows = new ArrayList();
+        projectRequestMap.put(key, rows);
+      }
+      rows.add(row);
+    }  
   }
   
   private void getProjectAnnotations(Session sess) throws Exception{
@@ -421,6 +480,8 @@ public class BuildSearchIndex extends DetailObject {
     StringBuffer sampleDescriptions = new StringBuffer();
     StringBuffer sampleOrganisms = new StringBuffer();
     HashMap      idOrganismSampleMap = new HashMap();
+    HashMap      idSampleTypeMap = new HashMap();
+    StringBuffer sampleTypes = new StringBuffer();
     HashMap      idSampleSourceMap = new HashMap();
     StringBuffer sampleSources = new StringBuffer();
     Integer      idSlideProduct = null;
@@ -462,23 +523,27 @@ public class BuildSearchIndex extends DetailObject {
       String  sampleDesc      = (String) row[7];
       Integer idOrganism      = (Integer)row[8];
       Integer idSampleSource   = (Integer)row[9];
+      Integer idSampleType   = (Integer)row[27];
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
       if (idSampleSource != null) {
         idSampleSourceMap.put(idSampleSource, null);
       }
-      
+      if (idSampleType != null) {
+        idSampleTypeMap.put(idSampleType, null);
+      }      
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
       sampleSources.append(     idSampleSource != null ? dh.getSampleSource(idSampleSource) + " " : "");
+      sampleTypes.append(     idSampleType != null ? dh.getSampleType(idSampleType) + " " : "");
 
       // sample 2
       sampleName      = (String) row[10];
       sampleDesc      = (String) row[11];
-      idOrganism      = (Integer)row[12];
-      idSampleSource   = (Integer)row[13];
+      idOrganism      = row[12] instanceof Integer ? (Integer)row[12] : null;
+      idSampleSource   =row[13] instanceof Integer ? (Integer)row[13] : null;
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
@@ -492,8 +557,8 @@ public class BuildSearchIndex extends DetailObject {
       sampleSources.append(     idSampleSource != null ? dh.getSampleSource(idSampleSource) + " " : "");
       
       // more request data
-      idSlideProduct           = (Integer)row[14];
-      idOrganismSlideProduct   = (Integer)row[15];
+      idSlideProduct           = row[14] instanceof Integer ? (Integer)row[14] : null;
+      idOrganismSlideProduct   = row[14] instanceof Integer ? (Integer)row[15] : null;
       codeRequestCategory      = (String) row[16];
       idLabProject             = (Integer)row[17];
       labProject               = (String) row[18];
@@ -547,6 +612,15 @@ public class BuildSearchIndex extends DetailObject {
       idOrganismSamples.append(idOrganismSample.toString());
       if (i2.hasNext()) {
         idOrganismSamples.append(" ");
+      }
+    }
+    //  Concatenate string of distinct idSampleTypes for samples
+    StringBuffer idSampleTypes = new StringBuffer();
+    for(Iterator i2 = idSampleTypeMap.keySet().iterator(); i2.hasNext();) {
+      Integer idSampleType = (Integer)i2.next();
+      idSampleTypes.append(idSampleType.toString());
+      if (i2.hasNext()) {
+        idSampleTypes.append(" ");
       }
     }
     
@@ -660,6 +734,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_ORGANISMS, sampleOrganisms.toString());
     indexedFieldMap.put(ExperimentIndexHelper.ID_ORGANISM_SAMPLE, idOrganismSamples.toString());
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_SOURCES, sampleSources.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_TYPES, idSampleTypes.toString());
     indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_SOURCES, idSampleSources.toString());
     indexedFieldMap.put(ExperimentIndexHelper.REQUEST_CATEGORY, requestCategory);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_REQUEST_CATEGORY, codeRequestCategory);

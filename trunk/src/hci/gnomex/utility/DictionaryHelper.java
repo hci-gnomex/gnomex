@@ -163,6 +163,13 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  public String getSampleType(Integer idSampleType) {
+    String name = "";
+    if (idSampleType != null) {
+      name = (String)sampleTypeMap.get(idSampleType);
+    }
+    return name;
+  }
   public String getSlideDesignName(Integer idSlideDesign) {
     String name = "";
     if (idSlideDesign != null) {

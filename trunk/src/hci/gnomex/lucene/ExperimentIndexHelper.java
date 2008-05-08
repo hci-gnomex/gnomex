@@ -29,6 +29,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       SAMPLE_DESCRIPTIONS = "sampleDescriptions";
   public static final String       SAMPLE_ORGANISMS = "sampleOrganisms";
   public static final String       ID_ORGANISM_SAMPLE = "idOrganismSamples";
+  public static final String       ID_SAMPLE_TYPES = "idSampleTypes";
   public static final String       SAMPLE_SOURCES = "sampleSources";
   public static final String       ID_SAMPLE_SOURCES = "idSampleSources";
   public static final String       REQUEST_CATEGORY = "requestCategory";

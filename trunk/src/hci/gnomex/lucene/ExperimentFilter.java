@@ -1,4 +1,4 @@
-package hci.gnomex.lucene;
+  package hci.gnomex.lucene;
 
 
 import hci.gnomex.security.SecurityAdvisor;
@@ -18,6 +18,7 @@ public class ExperimentFilter extends DetailObject {
   private String                codeRequestCategory;
   private String                codeMicroarrayCategory;
   private Integer               idSlideProduct;
+  private Integer               idSampleType;
   private Integer               idSampleSource;
   private Integer               idOrganism;
   private String                text;
@@ -39,7 +40,8 @@ public class ExperimentFilter extends DetailObject {
   private String                requestCategory; 
   private String                microarrayCategory; 
   private String                slideProduct; 
-  private String                sampleSrouce; 
+  private String                sampleSource; 
+  private String                sampleType; 
   private String                organism; 
   
   private StringBuffer          searchText;
@@ -183,7 +185,7 @@ public class ExperimentFilter extends DetailObject {
     if (codeRequestCategory != null && !codeRequestCategory.equals("")){
       this.addLogicalOperator();
       searchText.append(" " + ExperimentIndexHelper.CODE_REQUEST_CATEGORY + ":");
-searchText.append(codeRequestCategory);
+      searchText.append(codeRequestCategory);
       searchText.append("'");
       
       displayText.append(" request category = " + requestCategory);
@@ -226,6 +228,18 @@ searchText.append(codeRequestCategory);
     }
 
     //
+    // Search by sampleType
+    //
+    if (idSampleType != null){
+      this.addLogicalOperator();
+      searchText.append(" " + ExperimentIndexHelper.ID_SAMPLE_TYPES + ":");
+      searchText.append(idSampleType);
+
+      displayText.append(" sample type = " + sampleType);
+    } 
+    
+
+    //
     // Search by sampleSource
     //
     if (idSampleSource != null){
@@ -233,7 +247,7 @@ searchText.append(codeRequestCategory);
       searchText.append(" " + ExperimentIndexHelper.ID_SAMPLE_SOURCES + ":");
       searchText.append(idSampleSource);
 
-      displayText.append(" sample source = " + idSampleSource);
+      displayText.append(" sample source = " + sampleSource);
     } 
     
     
@@ -542,13 +556,13 @@ searchText.append(codeRequestCategory);
   }
 
   
-  public String getSampleSrouce() {
-    return sampleSrouce;
+  public String getSampleSource() {
+    return sampleSource;
   }
 
   
-  public void setSampleSrouce(String sampleSrouce) {
-    this.sampleSrouce = sampleSrouce;
+  public void setSampleSource(String sampleSource) {
+    this.sampleSource = sampleSource;
   }
 
   
@@ -569,6 +583,26 @@ searchText.append(codeRequestCategory);
   
   public void setShowCategory(String showCategory) {
     this.showCategory = showCategory;
+  }
+
+  
+  public String getSampleType() {
+    return sampleType;
+  }
+
+  
+  public void setSampleType(String sampleType) {
+    this.sampleType = sampleType;
+  }
+
+  
+  public Integer getIdSampleType() {
+    return idSampleType;
+  }
+
+  
+  public void setIdSampleType(Integer idSampleType) {
+    this.idSampleType = idSampleType;
   }
 
 
