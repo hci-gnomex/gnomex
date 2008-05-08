@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" width="800" height="500" 
-	xmlns:views="views.*" xmlns:experiment="views.experiment.*"
+	xmlns:views="views.*" 
+	xmlns:experiment="views.experiment.*"
+	xmlns:util="views.util.*"
 	showCloseButton="true" 
 	close="closeWindow()" 
 	title="New Project" 
-	titleIcon="@Embed('../../assets/folder_add.png')" 
+	
 >
 <mx:Script>
 	<![CDATA[
@@ -17,7 +19,7 @@
             
 	]]>
 </mx:Script>
-	<mx:VBox width="100%" height="100%" styleName="form">
+	<mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingLeft="4" paddingRight="4" >
 		<mx:ComboBox id="labCombo" 
 		 labelField="@name"
 		 dataProvider="{parentApplication.submitRequestLabList}"
@@ -27,16 +29,20 @@
 		<experiment:ProjectDetailView id="projectDetailView">
 		</experiment:ProjectDetailView>
 		
-		<mx:HBox width="100%" horizontalAlign="right">
-			<mx:Button id="saveProjectButton" label="Save" 
-				icon="@Embed('../../assets/action_save.gif')" 
-				click="projectDetailView.addProject()"
-				toolTip="Save project">
-			 </mx:Button>
-			<mx:Button id="cancelButton" label="Cancel" 
-				 click="closeWindow()">
-			 </mx:Button>
-		</mx:HBox>
+
 		
 	</mx:VBox>
+
+	<mx:ControlBar width="100%" horizontalAlign="right">
+	    <util:DirtyNote id="dirtyProject"/>
+		<mx:Button id="saveProjectButton" label="Save" 
+			icon="@Embed('../../assets/action_save.gif')" 
+			click="projectDetailView.addProject()"
+			toolTip="Save project">
+		 </mx:Button>
+		<mx:Button id="cancelButton" label="Cancel" 
+			 click="closeWindow()">
+		 </mx:Button>
+	</mx:ControlBar>
+	
 </mx:TitleWindow>
