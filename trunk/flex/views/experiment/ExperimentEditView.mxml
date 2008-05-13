@@ -838,10 +838,12 @@
 				sample.@treatment = "";
 				sample.@canChangeSampleName='Y';
 				sample.@canChangeSampleType='Y';
-				sample.@canChangeConcentration='Y';
+				sample.@canChangeSampleConcentration='Y';
 				sample.@canChangeSampleSource='Y';
 				sample.@canChangeSamplePrepMethod='Y';
+   				sample.@canChangeNumberSequencingLanes='Y';
    				sample.@canChangeNumberSequencingLanes='Y'; 
+   				sample.@canChangeNumberSequencingCycles='Y';
    				sample.@numberSequencingLanes = '';
    				sample.@concentration = '';
    				sample.@fragmentSizeFrom = '';
