@@ -45,6 +45,8 @@
     import mx.managers.PopUpManager;
 	import mx.containers.TitleWindow;
 	import views.experiment.ProjectDetailWindow;
+	import views.util.DownloadHints;
+	import mx.core.IFlexDisplayObject;
 
 
 
@@ -317,6 +319,11 @@
 		}
 		return theIcon;
 	}
+	
+	private function showDownloadHints():void {
+		var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this, DownloadHints, true));
+		PopUpManager.centerPopUp(hints);			 		
+	}
 
 
  	]]>
@@ -454,6 +461,7 @@
 		            	toolTip="Download selected folders"
 		            	label="Download" 
 		            	visible="true"/>
+		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
 	            </mx:HBox>		                    
 	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
 		            <mx:Button id="downloadFilesButton" 
@@ -461,6 +469,7 @@
 		             	icon="@Embed('../../assets/icon_download.gif')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
+		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
 	            </mx:HBox>		                    
 	        </mx:ViewStack>
 		</mx:HBox>
