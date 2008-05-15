@@ -118,7 +118,7 @@
             }
         }
         public function initializeHybsGrid():void {
-        	if (parentDocument.requestToClone != null) {
+        	if (parentDocument.requestToClone != null && parentDocument.hybs.length > 0) {
         		return;
         	}
         	
