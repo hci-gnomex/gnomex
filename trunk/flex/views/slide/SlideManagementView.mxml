@@ -100,7 +100,7 @@
 		import mx.rpc.events.ResultEvent;
 		
 		[Bindable]
-		public var fullSlideList:XMLList;
+		public var slideList:XMLListCollection;
 		
 		[Bindable]
 		public var fullSlideProduct:Object;
@@ -150,9 +150,23 @@
 			var call:Object = event.token;
 			var params:Object;
 			if (call.marker == "doneGetSlideList") {
-				this.fullSlideList = new XMLList(getSlideList.lastResult);
+				searchText.text = "";
+				this.slideList = new XMLListCollection(getSlideList.lastResult.children());
+				this.slideList.filterFunction = filterSlideList;
+
+				var selectedNode:Object = null;
+				if (fullSlideDesign != null) {
+					selectedNode = getSlideList.lastResult..SlideDesign.(@id == fullSlideDesign.@idSlideDesign);
+					var parentNode:Object = getSlideList.lastResult..SlideProduct.(@id == selectedNode.@idSlideProduct);
+					callLater(selectBrowseTreeNode, [selectedNode[0], parentNode[0]]);
+				} else if (fullSlideProduct != null) {
+					selectedNode = getSlideList.lastResult..SlideProduct.(@id == fullSlideProduct.@idSlideProduct);
+					callLater(selectBrowseTreeNode, [selectedNode[0], null]);
+				}
+				
 			} else if (call.marker == "doneGetSlideProduct") {
 				this.fullSlideProduct = getSlideProduct.lastResult;
+				this.fullSlideDesign = null;
 				this.fullSlideProductMicroarrayCategories = new XMLList(getSlideProduct.lastResult.microarrayCategories.MicroarrayCategory);
 				if (lastSavedSlideProductId != null) {
 					selectSlideView("SlideProduct");
@@ -161,6 +175,7 @@
 				}
 			} else if (call.marker == "doneGetSlideDesign") {
 				this.fullSlideDesign = getSlideDesign.lastResult;
+				this.fullSlideProduct = null;
 				this.fullSlideDesignMicroarrayCategories = new XMLList(getSlideDesign.lastResult.SlideProduct.microarrayCategories.MicroarrayCategory);
 				this.fullSlideDesignArrayCoordinates = new XMLList(getSlideDesign.lastResult.arrayCoordinates.ArrayCoordinate);
 				if (lastSavedSlideDesignId != null) {
@@ -189,6 +204,14 @@
 				callGetSlideDesign(params);
 				dirty.resetDirty();
 			}
+		}
+		
+		private function selectBrowseTreeNode(selectedNode:Object, parentNode:Object):void {
+			if (parentNode != null) {
+				this.browseSlides.expandItem(parentNode, true);
+			}
+			this.browseSlides.selectedItem = selectedNode;
+			this.browseSlides.firstVisibleItem = selectedNode;
 		}		
 		
 		public function callGetSlideList():void {
@@ -451,7 +474,7 @@
 				var name:String = newArrayName.text;
 				if (validateArrayCoord(name)) {
 					var ac_idSlideDesign:String = "0";
-					if (idSlideDesign.text != null && idSlideDesign.text != "") {
+					if (idSlideDesign.text != null && idSlideDesign.text != "" && idSlideDesign.text != "0") {
 						ac_idSlideDesign = fullSlideDesign.@idSlideDesign;
 					}
 					var node:XML = new XML("<ArrayCoordinate name='"+name+"' value='0' x='"+x+"' y='"+y+"' display='"+name+"' idArrayCoordinate='ArrayCoordinate_"+name+" ' idSlideDesign='"+ac_idSlideDesign+"' canWrite='Y' datakey='0' />");
@@ -571,11 +594,20 @@
 		}
 		*/
 		
+		private function filterSlideList(item:Object):Boolean {
+			if (item.@name.toString().match(new RegExp(searchText.text + ".*", "i")) != null) {
+				trace(item.@name);
+				return true;
+			} else {
+				return false;
+			}
+        }          
+
+		
 	]]>
 </mx:Script>
 	
 	
-	<mx:XMLListCollection id="slideList" source="{fullSlideList}"/>
 	<!--mx:XMLListCollection id="slideDesign" source="{fullSlideDesign}"/-->
 	<!--mx:XMLListCollection id="slideProduct" source="{fullSlideProduct}"/-->
 	<mx:XMLListCollection id="sdMicroarrayCategories" source="{fullSlideDesignMicroarrayCategories}"/>
@@ -588,14 +620,15 @@
 		<!--mx:Label x="0" y="0" text="Type slide name here to find in list." fontSize="9" width="292" textAlign="right" height="17" visible="false"/>
 		<mx:TextInput id="slideSearchText" editable="true" 
 		       	      	change="slideList.refresh()" width="100%" toolTip="Type slide name here to find in list" y="16" visible="false"/-->
-			<mx:Tree left="0" right="0" top="0" bottom="0"
+			<mx:TextInput id="searchText" x="0" y="0" width="100%" change="slideList.refresh();browseSlides.dataProvider=null;browseSlides.dataProvider=slideList;"/>
+			<mx:Tree left="0" right="0" top="24" bottom="0"
 				id="browseSlides"
 				labelField="@name"
 				iconFunction="getTreeIcon"
 				change="onBrowseSlides(event);"
 				click="onBrowseSlides(event);"
 				showRoot="false"
-				dataProvider="{slideList.getItemAt(0)}">
+				dataProvider="{slideList}">
 			</mx:Tree>
 			
 			<mx:ControlBar>
