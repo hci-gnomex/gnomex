@@ -45,6 +45,7 @@
 		
 		private function onSaveLab(event:ResultEvent):void {
 			if (saveLab.lastResult.name() == "SUCCESS") {
+				parentApplication.getLabList.send();
 				savedIdLab = saveLab.lastResult.@idLab;
 				var params:Object = new Object();
 				params.idLab = savedIdLab;
