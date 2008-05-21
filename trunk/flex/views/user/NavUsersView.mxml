@@ -361,6 +361,7 @@
           
           private function onDeleteLab(event:ResultEvent):void {          	
           	if (deleteLab.lastResult.name() == "SUCCESS") {          		
+			  parentApplication.getLabList.send();
               refreshGroupList();
               detailViews.selectedChild = this.groupEmptyView;              
             } else {
@@ -369,6 +370,7 @@
           }
           private function onDeleteAppUser(event:ResultEvent):void {          	
           	if (deleteAppUser.lastResult.name() == "SUCCESS") {          		
+			  parentApplication.getAppUserList.send();
               refreshAppUserList();
               detailViews.selectedChild = this.userEmptyView;              
             } else {
