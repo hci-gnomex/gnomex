@@ -548,6 +548,9 @@
 		}
 		
 		public function refreshExperiments():void {
+			this.browseTree.selectedItem = null;
+			selectedIdProject = null;
+			selectedIdLab = null;
 			if (this.selectedRequestNumber != null) {
 				var params:Object = new Object();
 				params.idProject = selectedExperiment.@idProject;
