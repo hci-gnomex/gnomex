@@ -917,6 +917,16 @@
 			     hyb.@canChangeSlideDesign='Y';
 			}
 
+			// Initialize the flow cell on the sample
+			// to the default flow cell of the sample prep method
+			if (this.isSolexaState()) {
+				var idFlowCellType:String = this.getDefaultIdFlowCellType();
+				if (idFlowCellType != null) {
+					for each(var s:Object in samples) {
+						s.@idFlowCellType = idFlowCellType;
+					}
+				}
+			}
 			
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
@@ -937,6 +947,16 @@
 			
 			
 		}
+		
+		public function getDefaultIdFlowCellType():String {
+			var idFlowCellType:String = "";
+			var applicableFlowCellTypes:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == this.request.@idSamplePrepMethodDefault);
+			if (applicableFlowCellTypes.length() > 0) {
+				idFlowCellType =  applicableFlowCellTypes[0].@idFlowCellType;
+			} 
+			return idFlowCellType;
+		}
+
 		
 		public function clearOutSampleAnnotations():void {
 			for each(var annotation:Object in sampleCharacteristicEntries) {
@@ -1115,10 +1135,12 @@
 			}
 
 			
-			if (isMicroarrayState()) {
+			if (isMicroarrayState() || this.isSolexaState()) {
 				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
 				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
-
+			}
+			
+			if (isMicroarrayState()) {
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
