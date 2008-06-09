@@ -328,10 +328,10 @@
 
 
           private function filterUser(item:Object):Boolean {
-                return item.@displayName.toString().match(new RegExp("^" + userSearchText.text + ".*", "i"));
+                return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
           }          
           private function filterLab(item:Object):Boolean {
-                return item.@name.toString().match(new RegExp("^" + labSearchText.text + ".*", "i"));
+                return item.@name.toString().match(new RegExp(labSearchText.text + ".*", "i"));
           }    
                      
 
