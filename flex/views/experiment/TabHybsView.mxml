@@ -409,7 +409,7 @@
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Cy3 Label"/>
-							    <mx:Label text="Yield"/>
+							    <mx:Label text="Conc."/>
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
@@ -462,7 +462,7 @@
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Cy5 Label"/>
-							    <mx:Label text="Yield"/>
+							    <mx:Label text="Conc."/>
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
