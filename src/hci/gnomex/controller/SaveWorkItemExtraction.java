@@ -114,12 +114,19 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
               request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
             }
             
+            
             // Send a confirmation email
             if (request.isConsideredFinished() && !confirmedRequestMap.containsKey(request.getNumber())) {
               if (request.getAppUser() != null && 
                   request.getAppUser().getEmail() != null &&
                   !request.getAppUser().getEmail().equals("")) {
-                this.sendConfirmationEmail(sess, request);   
+                try {
+                  this.sendConfirmationEmail(sess, request);                  
+                } catch (Exception e) {
+                  log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
+                  " is complete. " + e.toString());
+                  
+                }
                 confirmedRequestMap.put(request.getNumber(), request.getNumber());
               }
               else {
