@@ -3,10 +3,12 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	title="Downloading File" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
 	 creationComplete="centerPopup()" modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7" backgroundColor="#FFFFFF" borderColor="#FFFFFF">
-    <mx:ProgressBar id="downloadProgress" label="" mode="manual" />
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:ProgressBar id="downloadProgress" label="" mode="manual"/>
+    </mx:HBox>
     <mx:ControlBar horizontalAlign="right">
         <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"/>
-        <mx:Button label="Close" click="PopUpManager.removePopUp(this)"/>
+        <mx:Button label="Close" click="PopUpManager.removePopUp(this);downloadWindowCount--;"/>
     </mx:ControlBar>
 
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
@@ -35,6 +37,8 @@
 	    private var theParent:DisplayObject;
 	    private var estimatedDownloadSize:int;
 	    
+	    private static var downloadWindowCount:int = 0;
+	    
 	    
 
 		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:int):void {
@@ -53,7 +57,11 @@
 		}
 		
 		private function centerPopup():void {
-			PopUpManager.centerPopUp(this);	
+			PopUpManager.centerPopUp(this);
+			if (downloadWindowCount > 1) {
+				this.y = this.y + (10 * downloadWindowCount);	
+				this.x = this.x + (10 * downloadWindowCount);	
+			}
 		}
 
 	    
@@ -91,11 +99,15 @@
 	     */
 	    private function openHandler(event:Event):void
 	    {
+	    	downloadWindowCount++;
+	    	this.title = "Downloading " + fr.name;
 	    	PopUpManager.addPopUp(this, theParent, false);
 	    	centerPopup();
 	        downloadProgress.label = "Downloading %3%%";
 	        if (btn != null) {
-		        btn.enabled = false;
+	        	// We won't force single-threaded downloads, so next
+	        	// line commented out.
+		        //btn.enabled = false;
 	        }
 	    }
 	    /**
