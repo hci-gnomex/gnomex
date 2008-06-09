@@ -259,7 +259,7 @@
 			params.accessionNumberArrayExpress = "";
 			params.isSlideSet = "Y";
 			params.isInSlideSet = "Y";
-			if (spIdLab.data != null && spIdLab.data != "") {
+			if (spIdLab.selectedIndex > -1) {
 				params.idLab = spIdLab.selectedItem.@idLab;
 			}
 			if (spIsCustom.selected == true) {
@@ -296,7 +296,7 @@
 			params.accessionNumberArrayExpress = "";
 			params.isInSlideSet = isInSlideSet.text;
 			params.slideSet = sdIdSlideProduct.text;
-			if (sdIdLab.data != null && sdIdLab.data != "") {
+			if (sdIdLab.selectedIndex > -1) {
 				params.idLab = sdIdLab.selectedItem.@idLab;
 			}
 			if (sdIsCustom.selected == true) {
@@ -651,7 +651,7 @@
 				</mx:HBox>
 		
 				<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
-					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustum}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
+					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 				
 					<mx:Label text="For Group:" top="59" left="121" width="20%"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
@@ -786,7 +786,7 @@
 						<hci:CheckBoxYN id="spIsActive" label="Active" data="{fullSlideProduct.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 					</mx:HBox>
 					<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
-					<hci:CheckBoxYN id="spIsCustom" label="Custom slide" data="{fullSlideProduct.@isCustum}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
+					<hci:CheckBoxYN id="spIsCustom" label="Custom slide"  data="{fullSlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
 					<mx:Label text="For Group:" top="59" left="121" width="10%"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
 						id="spIdLab"
