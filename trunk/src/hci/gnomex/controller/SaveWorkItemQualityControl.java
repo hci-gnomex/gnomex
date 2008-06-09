@@ -149,7 +149,13 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
               if (request.getAppUser() != null && 
                   request.getAppUser().getEmail() != null &&
                   !request.getAppUser().getEmail().equals("")) {
-                this.sendConfirmationEmail(sess, request);       
+                
+                try {
+                  this.sendConfirmationEmail(sess, request);
+                } catch (Exception e) {
+                  log.error("Unable to send confirmation email notifying submitter that qc on request " + request.getNumber() + 
+                  " is complete. " + e.toString());
+                }
                 confirmedRequestMap.put(request.getNumber(), request.getNumber());
               } else {
                 log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
@@ -232,11 +238,11 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
       
       
       MailUtil.send(request.getAppUser().getEmail(), 
-          null,
-          Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
-          emailSubject, 
-          emailFormatter.formatQualityControl(),
-          true);      
+            null,
+            Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
+            emailSubject, 
+            emailFormatter.formatQualityControl(),
+            true);      
     }
     
   }
