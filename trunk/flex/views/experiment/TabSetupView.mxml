@@ -199,6 +199,20 @@
 		
 		private function onGetProject(event:ResultEvent):void {
 			var newProject:Object = getProject.lastResult..Project.(@idProject == selectedIdProject);
+			
+			// If this is an existing project we just editted, remove the old one from the dropdown.
+			//  We will add the refreshed one below.
+			var existingProject:Object = null;
+			var x:int = 0;
+			for each(var project:Object in parentApplication.filteredProjectListForSubmitRequests) {
+				if (project.@idProject == newProject.@idProject) {
+					parentApplication.filteredProjectListForSubmitRequests.removeItemAt(x);
+					parentApplication.filteredProjectListForSubmitRequests.refresh();
+					break;
+				}
+				x++;
+			}
+			
 			parentApplication.filteredProjectListForSubmitRequests.addItem(newProject);
 			parentApplication.filteredProjectListForSubmitRequests.refresh();
 			this.projectCombo.selectedItem = newProject;
