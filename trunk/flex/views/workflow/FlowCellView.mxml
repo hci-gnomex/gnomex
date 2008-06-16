@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" 
+	width="100%" height="100%" 
+	title="Solexa Flow Cells"
+	xmlns:util="views.util.*">
+	
+   <mx:HTTPService  
+    id="getFlowCellList" 
+    url="GetFlowCellList.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetFlowCellList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+      
+<mx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+
+    	private function getLaneRowNumber(item:Object,col:int):String
+    	{
+       		var x:int = flowCellLanesGrid.dataProvider.getItemIndex(item) + 1;
+       		return String(x);
+
+    	} 
+    	
+        private function onGetFlowCellList(event:ResultEvent):void {
+        	if (event.result.name() == "FlowCellList") {
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell list");
+        	} 
+        }
+		private function showPrintableForm():void {
+			var url:URLRequest = new URLRequest('ShowFlowCellForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
+			navigateToURL(url, '_blank');			
+		}
+    	
+	]]>
+</mx:Script>    	
+	<mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
+	
+	<mx:VDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:VBox width="100%" height="100%"   verticalGap="0">	
+			<mx:VBox width="100%" height="100%" verticalGap="1">			
+				<mx:VBox width="100%" height="100%" verticalGap="1">			
+					<mx:Label text="Flow Cells" fontWeight="bold"/>
+					<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" dataProvider="{flowCells}">
+						<mx:columns>
+							<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
+							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="50"/>
+							<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" labelFunction="parentApplication.lookupFlowCellType" width="80"/>
+							<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  labelFunction="parentApplication.lookupNumberSequencingCycles" width="36"/>
+							<mx:DataGridColumn  dataField="@notes" headerText="Content" />
+							<mx:DataGridColumn  dataField="@startDate" headerText="Start Date" width="55"/>
+							<mx:DataGridColumn  dataField="@firstCycleDate" headerText="1st Cycle Date" width="55"/>
+							<mx:DataGridColumn  dataField="@lastCycleDate" headerText="Last Cycle Date" width="55"/>
+						</mx:columns>				
+					</mx:DataGrid>		
+				</mx:VBox>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:VBox width="100%"  verticalGap="1">
+			<mx:HBox width="100%" verticalAlign="middle">
+				<mx:Label text="Flow Cell Detail" fontWeight="bold"/>
+				<mx:LinkButton label="Printable form" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+			</mx:HBox>
+
+			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.sequenceLanes.SequenceLane}" width="100%" height="178" maxHeight="178" >	
+				<mx:columns>
+					<mx:DataGridColumn  headerText="Lane" labelFunction="getLaneRowNumber" width="10"/>
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" labelFunction="parentApplication.lookupFlowCellType"/>
+					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  labelFunction="parentApplication.lookupOrganism"/>
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn  dataField="@sampleNumber" width="35" headerText="Sample #"/>
+				</mx:columns>			
+			</mx:DataGrid>			
+		</mx:VBox>
+	</mx:VDividedBox>
+	<mx:ControlBar horizontalAlign="right">
+	    <mx:HBox width="100%" horizontalAlign="left">
+			<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
+				 toolTip="Refresh worklist"/>
+	    </mx:HBox>
+	</mx:ControlBar>	
+</mx:Panel>

@@ -172,10 +172,13 @@
         }
         
         private function onGetWorkList(event:ResultEvent):void {
-        	refreshRequestNumbers();
-        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
-        	
-        }
+        	if (event.result.name() == "WorkItemList") {
+    	    	refreshRequestNumbers();
+	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
+        	} 
+       	}
         
         private function onSaveWorkItemQualityControl(event:ResultEvent):void {
         	if (saveWorkItemQC.lastResult.name() == "WorkItemList" || saveWorkItemQC.lastResult.name() == "SUCCESS" ) {
@@ -252,7 +255,7 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Ready Date" width="15" dataField="@workItemCreateDate"/>
+					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
 					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="15" dataField="@qualCalcConcentration"/>

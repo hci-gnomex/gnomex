@@ -127,6 +127,7 @@
 				trackView.progressList.refresh();
 			}
 			trackView.getRequestProgressList.send(params);
+			trackView.getRequestProgressSolexaList.send(params);
 			
 		}		
 	}
@@ -161,6 +162,7 @@
 		selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
 		parentDocument.selectedExperiment = selectedExperiment;
 		parentDocument.theViews.selectedChild = parentDocument.detailView;
+		parentDocument.detailView.setupForm();
 	}
 
 	private function onViewSwitch():void {

@@ -119,6 +119,7 @@
     	var progressWindow:DownloadProgressView = new DownloadProgressView();
     	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize);
     	
+    	
  	}
  	
  	public function downloadFiles():void {
@@ -270,11 +271,10 @@
 		                    </mx:Component>
 		                </mx:itemRenderer>
 		            </mx:DataGridColumn> 
-			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="120" dataField="@hybNumber"/>
+			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@hybNumber"/>
 			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
 			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
-			       	<mx:DataGridColumn headerText="Group" width="40" dataField="@idLab" labelFunction="parentApplication.getLabName"/>
 			       	<mx:DataGridColumn headerText="Sample 1" width="50" dataField="@nameSample1"/>
 			       	<mx:DataGridColumn headerText="Sample 2" width="50" dataField="@nameSample2"/>
 		         </util:columns>

@@ -169,10 +169,9 @@
 			 // add this get request code b/c the edit window was freezing the second time 
 			 // the edit window was pressed.  by putting this extra call in, it seems to clear
 			 // out some weird state.
-			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
-			 var parms:Object = new Object();
-			 parms.idRequest = parentDocument.selectedIdRequest;
-			 parentDocument.getRequest.send(parms);
+			 //var parms:Object = new Object();
+			 //parms.idRequest = parentDocument.selectedExperiment.@idRequest;
+			 //parentDocument.getRequest.send(parms);
  
 			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
 			 editWindow.width= 1000;
@@ -373,7 +372,7 @@
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
 							<mx:Spacer width="74"/>
-							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="{currentState != 'SolexaState'}" click="showHideColumns()"/>
+							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
 						</mx:HBox>
 						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
@@ -456,7 +455,7 @@
 									<mx:Component>
 										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
 										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Yield"/>
+										    <mx:Label text="Conc."/>
 										</mx:VBox>
 									</mx:Component>
 									</mx:headerRenderer>
@@ -506,7 +505,7 @@
 									<mx:Component>
 										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
 										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Yield"/>
+										    <mx:Label text="Conc."/>
 										</mx:VBox>
 									</mx:Component>
 									</mx:headerRenderer>
@@ -577,19 +576,19 @@
 
 <mx:ControlBar width="100%">
     <mx:HBox width="100%" horizontalAlign="left">
-	    <mx:Button label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton"/>
-	    <mx:Button label="Request form" click="showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton"/>
-	    <mx:Button label="Edit..." click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')">
+	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
+	    <mx:LinkButton label="Printable form" click="showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
 	        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-	    </mx:Button>				
+	    </mx:LinkButton>				
 	
     </mx:HBox>
     <mx:HBox width="100%" horizontalAlign="right">
-	    <mx:Button label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')">
+	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline">
 	        <mx:height>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
-	    </mx:Button>
+	    </mx:LinkButton>
     	
     </mx:HBox>
 </mx:ControlBar>
@@ -612,6 +611,11 @@
 						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
 				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
+				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
+				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
+							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus"/>
+							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"/>
 				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="false" dataField="@idGenomeBuildAlignTo"/> 						             						             
 							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 						</mx:columns>
