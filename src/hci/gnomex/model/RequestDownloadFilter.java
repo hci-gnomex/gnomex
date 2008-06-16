@@ -54,7 +54,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        '', '',");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
-    queryBuf.append("        ''");
+    queryBuf.append("        max(s.seqPrepByCore) ");
     getQualityControlResultQueryBody(queryBuf);
     
     
@@ -82,7 +82,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        s1.qualFailed, s2.qualFailed, ls1.labelingFailed, ls2.labelingFailed, ");
     queryBuf.append("        hyb.extractionFailed, hyb.extractionBypassed, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
-    queryBuf.append("        ''");
+    queryBuf.append("        '' ");
     getMicroarrayResultQueryBody(queryBuf);
     
     return queryBuf;
@@ -141,7 +141,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
-    queryBuf.append("        ''");
+    queryBuf.append("        '' " );
     getSolexaResultQueryBody(queryBuf);
     
     return queryBuf;
@@ -157,13 +157,40 @@ public class RequestDownloadFilter extends DetailObject {
     addRequestCriteria();
     addLaneCriteria();
     addSecurityCriteria();
-    
-    
-    
-    
-  
   }
   
+  
+  public StringBuffer getSolexaLaneStatusQuery(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    addWhere = true;
+    
+    queryBuf.append(" SELECT DISTINCT req.idRequest, ");
+    queryBuf.append("        s.idSample, ");
+    queryBuf.append("        s.number, ");
+    queryBuf.append("        max(fc.firstCycleDate), ");
+    queryBuf.append("        max(fc.firstCycleFailed), ");
+    queryBuf.append("        max(fc.lastCycleDate), ");
+    queryBuf.append("        max(fc.lastCycleFailed) "); 
+    getSolexaLaneStatusQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  public void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" JOIN           req.sequenceLanes as l ");
+    queryBuf.append(" JOIN           l.sample as s ");
+    queryBuf.append(" JOIN           l.flowCell as fc ");
+
+    addRequestCriteria();
+    addLaneCriteria();
+    addSecurityCriteria();
+
+    queryBuf.append("        group by req.idRequest, s.idSample, s.number ");
+    
+  }
   
   public boolean hasCriteria() {
     if ((requestNumber != null && !requestNumber.equals("")) ||

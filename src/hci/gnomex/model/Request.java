@@ -407,6 +407,24 @@ public class Request extends HibernateDetailObject {
     
     if (this.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       isFinished = isFinishedWithQC();
+    } else if (this.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      int doneLaneCount = 0;
+      for(Iterator i1 = this.getSequenceLanes().iterator(); i1.hasNext();) {
+        SequenceLane l = (SequenceLane)i1.next();
+        if (l.getFlowCell() != null) {
+          if (l.getFlowCell().getFirstCycleFailed() != null && l.getFlowCell().getFirstCycleFailed().equals("Y")) {
+            doneLaneCount++;
+          } else if (l.getFlowCell().getLastCycleDate() != null) {
+            doneLaneCount++;
+          } else if (l.getFlowCell().getLastCycleFailed() != null && l.getFlowCell().getLastCycleFailed().equals("Y")) {
+            doneLaneCount++;
+          } 
+        }
+      }
+      
+      if (doneLaneCount == this.getSequenceLanes().size()) {
+        isFinished = true;
+      }            
     } else {
       int doneHybCount = 0;
       for(Iterator i1 = this.getHybridizations().iterator(); i1.hasNext();) {

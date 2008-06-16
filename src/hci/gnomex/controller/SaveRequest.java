@@ -160,17 +160,27 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           saveSample(idSampleString, sample, sess, sampleCount);
           
 
-          
-
           // if this is a new request, create QC work items for each sample
-          if ((requestParser.isNewRequest()  || isNewSample) && 
-              !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+          if ((requestParser.isNewRequest()  || isNewSample)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-            workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);
-            workItem.setSample(sample);
-            workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-            sess.save(workItem);
+            boolean createWorkItem = true;
+            if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+              if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
+                workItem.setCodeStepNext(Step.SEQ_QC);
+              } else {
+                // Bypass creating Solexa QC work item if samples are not to be prepped by core
+                createWorkItem = false;
+              }
+              
+            } else {
+                workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);
+            }
+            if (createWorkItem) {
+              workItem.setSample(sample);
+              workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+              sess.save(workItem);
+            }
           }
           
           sampleCount++;
@@ -202,12 +212,29 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           int laneCount = 1;
           for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
             RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
-            saveSequenceLane(laneInfo, sess, laneCount);
+            boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+            SequenceLane lane = saveSequenceLane(laneInfo, sess, laneCount);
+
+            // if this is a new solexa request and the samples are already sequence prepped,
+            // create an Assemble work item for each sequence lane
+            if (requestParser.isNewRequest()  || isNewLane) {
+              if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+                if (lane.getSample().getSeqPrepByCore() != null && lane.getSample().getSeqPrepByCore().equalsIgnoreCase("N")) {
+                  WorkItem workItem = new WorkItem();
+                  workItem.setIdRequest(requestParser.getRequest().getIdRequest());
+                  workItem.setCodeStepNext(Step.SEQ_ASSEMBLE);
+                  workItem.setSequenceLane(lane);
+                  workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+                  sess.save(workItem);
+                }
+              }
+            }
             laneCount++;
           }
           if (requestParser.isNewRequest()) {
             requestParser.getRequest().setSequenceLanes(sequenceLanes);        
-          }                
+          }       
+          
           
         }
         
@@ -215,7 +242,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.save(requestParser.getRequest());
         sess.flush();
 
-        // Create microarray data directories for request.
+        // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
           this.createResultDirectories(serverName, requestParser.getRequest());
         }
@@ -234,8 +261,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             try {
               sendConfirmationEmail(sess, requestParser.getRequest());
             } catch (Exception e) {
-              log.error("An error occurred while trying to email request submit confirmation in SaveRequest.", e);
-              e.printStackTrace();
+              log.error("Unable to send confirmation email notifying submitter that request "
+                  + requestParser.getRequest().getNumber()
+                  + " has been submitted.  " + e.toString());
             }
           } else {
             log.error("Unable to send confirmation email notifying submitter that request "
@@ -702,7 +730,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.flush();
   }
   
-  private void saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int laneCount) throws Exception {
+  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int laneCount) throws Exception {
 
     
     SequenceLane sequenceLane = null;
@@ -741,6 +769,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     sess.flush();
+    sess.refresh(sequenceLane);
+    return sequenceLane;
   }
   
   
@@ -823,6 +853,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
       }      
     }
+    if (req.getSequenceLanes() != null) {
+      for(Iterator i = req.getSamples().iterator(); i.hasNext();) {
+        Sample s = (Sample)i.next();
+        String sampleDirectoryName = directoryName + "\\" + s.getNumber();
+        success = (new File(sampleDirectoryName)).mkdir();
+        if (!success) {
+          log.error("Unable to create directory " + sampleDirectoryName);      
+        }
+        
+      }      
+    }    
   }
   
  

@@ -14,9 +14,12 @@ public class WorkItem extends HibernateDetailObject {
   private String         codeStepNext;
   private Date           createDate;
   private Integer        idRequest;
+  private Request        request;
   private Sample         sample;
   private LabeledSample  labeledSample;
   private Hybridization  hybridization;
+  private SequenceLane   sequenceLane;
+  private FlowCell       flowCell;
   
  
   public String getCodeStepNext() {
@@ -85,5 +88,35 @@ public class WorkItem extends HibernateDetailObject {
   
   public void setCreateDate(Date createDate) {
     this.createDate = createDate;
+  }
+
+  
+  public SequenceLane getSequenceLane() {
+    return sequenceLane;
+  }
+
+  
+  public void setSequenceLane(SequenceLane sequenceLane) {
+    this.sequenceLane = sequenceLane;
+  }
+
+  
+  public FlowCell getFlowCell() {
+    return flowCell;
+  }
+
+  
+  public void setFlowCell(FlowCell flowCell) {
+    this.flowCell = flowCell;
+  }
+
+  
+  public Request getRequest() {
+    return request;
+  }
+
+  
+  public void setRequest(Request request) {
+    this.request = request;
   }
 }

@@ -82,7 +82,29 @@
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
 	</class>
-    
+	
+	<!-- hci.gnomex.model.FlowCell -->
+	<class name="hci.gnomex.model.FlowCell" table="FlowCell">
+		<id name="idFlowCell" column="idFlowCell" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="number" column="number" type="string"/>
+		<property name="createDate" column="createDate" type="date"/>
+		<property name="notes" column="notes" type="string"/>
+		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
+		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
+		<property name="firstCycleDate" column="firstCycleDate" type="date"/>
+		<property name="firstCycleFailed" column="firstCycleFailed" type="string"/>
+		<property name="lastCycleDate" column="lastCycleDate" type="date"/>
+		<property name="lastCycleFailed" column="lastCycleFailed" type="string"/>
+		<property name="barcode" column="barcode" type="string"/>
+		<property name="startDate" column="startDate" type="date"/>
+		<set name="sequenceLanes" table="SequenceLane" lazy="false" cascade="none" sort="hci.gnomex.utility.FlowCellLaneComparator">
+			<key column="idFlowCell"/>
+			<one-to-many class="hci.gnomex.model.SequenceLane" />
+		</set>
+	</class>	   
+	 
     <!-- hci.gnomex.model.Hybridization -->
 	<class name="hci.gnomex.model.Hybridization" table="Hybridization">
 		<id name="idHybridization" column="idHybridization" type="integer">
@@ -286,6 +308,9 @@
 		<property name="fragmentSizeFrom" column="fragmentSizeFrom" type="integer"/>
 		<property name="fragmentSizeTo" column="fragmentSizeTo" type="integer"/>
 		<property name="seqPrepByCore" column="seqPrepByCore" type="string"/>
+		<property name="seqPrepDate" column="seqPrepDate" type="date"/>
+		<property name="seqPrepFailed" column="seqPrepFailed" type="string"/>
+		<property name="seqPrepBypassed" column="seqPrepBypassed" type="string"/>
 		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />
@@ -321,10 +346,14 @@
 		<property name="idSample" column="idSample" type="integer"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
 		<property name="idRequest" column="idRequest" type="integer"/>
+		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none" insert="false" update="false" />
 		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
 		<property name="idGenomeBuildAlignTo" column="idGenomeBuildAlignTo" type="integer"/>
 		<property name="analysisInstructions" column="analysisInstructions" type="string"/>
+		<property name="idFlowCell" column="idFlowCell" type="integer"/>
+		<property name="flowCellLaneNumber" column="flowCellLaneNumber" type="integer"/>
+		
 	</class>	
 	
 	<!-- hci.gnomex.model.Slide -->
@@ -353,11 +382,14 @@
 		</id>
 		
 		<property name="codeStepNext" column="codeStepNext" type="string"/>
+		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" update="false" insert="false"/>
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="createDate" column="createDate" type="date"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none"/>
 		<many-to-one name="labeledSample" column="idLabeledSample" class="hci.gnomex.model.LabeledSample" cascade="none"/>
 		<many-to-one name="hybridization" column="idHybridization" class="hci.gnomex.model.Hybridization" cascade="none"/>
+		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none"/>
+		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none"/>
 	</class>
     
 <!--                       -->

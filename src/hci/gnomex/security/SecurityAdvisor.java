@@ -757,7 +757,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       boolean addedCriteria = false;
       addedCriteria = addMembershipCriteria(queryBuf, classShortName);
 
-      // Add critiera for objects with collaborator visiblity
+      // Add critiera for objects with collaborator visibility
       if (addedCriteria) {
         queryBuf.append(" OR ");        
       }

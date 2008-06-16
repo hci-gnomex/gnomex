@@ -126,6 +126,30 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         rowMap.put(key, row);
       }
       
+      buf = filter.getSolexaLaneStatusQuery(this.getSecAdvisor());
+      log.debug("Query for get solexa lane status: " + buf.toString());
+      List laneStatusRows = (List)sess.createQuery(buf.toString()).list();
+      HashMap laneStatusMap = new HashMap();
+      for(Iterator i = laneStatusRows.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        
+        Integer idRequest            = (Integer)row[0];
+        Integer idSample             = (Integer)row[1];
+        String sampleNumber          = (String)row[2];
+        java.sql.Date firstCycleDate = (java.sql.Date)row[3];
+        String firstCycleFailed      = (String)row[4];
+        java.sql.Date lastCycleDate  = (java.sql.Date)row[5];
+        String lastCycleFailed       = (String)row[6];
+        
+        LaneStatusInfo ls = new LaneStatusInfo();
+        ls.setFirstCycleDate(firstCycleDate);
+        ls.setFirstCycleFailed(firstCycleFailed);
+        ls.setLastCycleDate(lastCycleDate);
+        ls.setLastCycleFailed(lastCycleFailed);
+        
+        laneStatusMap.put(sampleNumber, ls); 
+      }
+      
       
       buf = filter.getQualityControlResultQuery(this.getSecAdvisor());
       log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
@@ -206,7 +230,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("ownerFirstName", row[28] == null ? "" :  (String)row[28]);
         n.setAttribute("ownerLastName",  row[29] == null ? "" :  (String)row[29]);
 
-        Integer idFlowCellType = row[30] == null || row[30].equals("") ? null : (Integer)row[30];
+        String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String)row[30];
         
         if (idSlideDesign == null && (hybNumber == null || hybNumber.equals(""))) {
             n.setAttribute("results", "bioanalyzer");
@@ -224,10 +248,34 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             hasMaxQualDate = true;
           }
           if(hasMaxQualDate) {
-            n.setAttribute("hasResults","Y");                       
+            n.setAttribute("hasResults","Y"); 
+          } else if (seqPrepByCore.equals("Y")) {
+            n.setAttribute("status", "not performed");
+            n.setAttribute("hasResults", "N");
           } else {
             n.setAttribute("status", "in progress");            
             n.setAttribute("hasResults","N");
+          }
+        } else if (n.getAttributeValue("results").equals("sequencing")) {
+          n.setAttribute("results", "Intensity data and mapped reads");
+          String sampleNumber = (String)row[11];        
+          LaneStatusInfo ls = (LaneStatusInfo)laneStatusMap.get(sampleNumber);
+          if (ls != null) {
+            if (ls.getLastCycleDate() != null) {
+              n.setAttribute("hasResults", "Y");            
+            } else if (ls.getFirstCycleFailed() != null && ls.getFirstCycleFailed().equals("Y")) {
+              n.setAttribute("status", "failed 1st cycle");          
+              n.setAttribute("hasResults","N");                       
+            } else if(ls.getLastCycleFailed() != null && ls.getLastCycleFailed().equals("Y")) {
+              n.setAttribute("status", "failed last cycle");          
+              n.setAttribute("hasResults","N");                       
+            } else  {
+              n.setAttribute("status", "in progress");          
+              n.setAttribute("hasResults","N");                   
+            }            
+          } else {
+            n.setAttribute("status", "in progress");          
+            n.setAttribute("hasResults","N");                               
           }
         } else {
           if(!n.getAttributeValue("extractionDate").equals("")) {
@@ -357,6 +405,49 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       
       
     }
+  }
+  
+  private static class LaneStatusInfo {
+    private java.sql.Date firstCycleDate;
+    private String        firstCycleFailed;
+    private java.sql.Date lastCycleDate;
+    private String        lastCycleFailed;
+    
+    public java.sql.Date getFirstCycleDate() {
+      return firstCycleDate;
+    }
+    
+    public void setFirstCycleDate(java.sql.Date firstCycleDate) {
+      this.firstCycleDate = firstCycleDate;
+    }
+    
+    public String getFirstCycleFailed() {
+      return firstCycleFailed;
+    }
+    
+    public void setFirstCycleFailed(String firstCycleFailed) {
+      this.firstCycleFailed = firstCycleFailed;
+    }
+    
+    public java.sql.Date getLastCycleDate() {
+      return lastCycleDate;
+    }
+    
+    public void setLastCycleDate(java.sql.Date lastCycleDate) {
+      this.lastCycleDate = lastCycleDate;
+    }
+    
+    public String getLastCycleFailed() {
+      return lastCycleFailed;
+    }
+    
+    public void setLastCycleFailed(String lastCycleFailed) {
+      this.lastCycleFailed = lastCycleFailed;
+    }
+    
+    
+    
+    
   }
   
   
