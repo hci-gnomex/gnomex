@@ -349,20 +349,20 @@
 						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
 						    <mx:RadioButtonGroup id="requestTypeGroup" />
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
 						    </mx:HBox>
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
 							</mx:HBox>
 						</mx:VBox>
 						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
-						    <mx:RadioButton groupName="requestTypeGroup" label="Bioanalyzer (QC)" value="QC" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
+						    <mx:RadioButton groupName="requestTypeGroup" label="Bioanalyzer (QC)" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
 						    <mx:HBox paddingTop="0">
 						    	<mx:Spacer width="10"/>												
 						    </mx:HBox>						
 						</mx:VBox>
 						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">
-							<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName()" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
+							<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
 						</mx:VBox>
 					</mx:HBox>
 			    </mx:HBox>

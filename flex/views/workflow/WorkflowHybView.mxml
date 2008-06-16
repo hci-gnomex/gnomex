@@ -96,8 +96,12 @@
         }
         
         private function onGetWorkList(event:ResultEvent):void {
-        	refreshRequestNumbers();
-        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+        	if (event.result.name() == "WorkItemList") {
+    	    	refreshRequestNumbers();
+	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
+        	} 
         }
         
         private function onSaveWorkItem(event:ResultEvent):void {
@@ -192,7 +196,7 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="7" dataField="@requestNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Ready Date" width="12" dataField="@workItemCreateDate"/>
+					<mx:DataGridColumn editable="false" headerText="Submit Date" width="12" dataField="@createDate"/>
 					<mx:DataGridColumn editable="false" headerText="Requester"  width="12" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="9" dataField="@hybNumber"/>
 					<mx:DataGridColumn headerText="Slide" width="22" labelFunction="getSlideDesignName"/>

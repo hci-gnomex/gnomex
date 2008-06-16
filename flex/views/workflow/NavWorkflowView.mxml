@@ -27,11 +27,14 @@
         }
         private function onSolexaWorklistChange():void {
         	if (solexaViews.selectedIndex == 0) {
-        		//workflowQCView.getWorkListQC.send();
+        		workflowSolexaQCView.getWorkList.send();
         	} else if (solexaViews.selectedIndex == 1) {
-        		//workflowLabelingView.getWorkList.send();
+        		workflowSolexaPrepView.getWorkList.send();
         	} else if (solexaViews.selectedIndex == 2) {
-        		//workflowHybView.getWorkList.send();
+        		workflowSolexaAssembleView.getWorkList.send();
+        		workflowSolexaAssembleView.getNextWorkList.send();
+        	} else if (solexaViews.selectedIndex == 3) {
+        		workflowSolexaRunView.getWorkList.send();
         	} 
 			detailViews.selectedIndex = 1;
 			detailViews.visible = true;
@@ -55,8 +58,14 @@
 			<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 					
-			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="navLinkBar" height="88" backgroundColor="#FFFFFF">
+			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="navLinkBar" height="121" backgroundColor="#FFFFFF">
 			  		</mx:LinkBar>
+
+					<mx:Spacer height="20"/>			  		
+			  		<mx:HRule>
+			  		</mx:HRule>
+					<mx:Spacer height="10"/>			  		
+			  		<mx:LinkButton label="Flow Cells" textDecoration="underline" click="{detailViews.selectedIndex = 1;solexaViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
 				</mx:VBox>
 			</mx:Canvas>
 			
@@ -80,13 +89,15 @@
                </mx:Canvas>
                
             </mx:ViewStack>
-			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
-	
-			   <mx:Canvas id="samplePrepView" label="Sample Prep"  icon="@Embed(source='../../assets/bullet_wrench.png')"/>
-			   <mx:Canvas id="assembleRunView" label="Assemble Run"  icon="@Embed(source='../../assets/sitemap.png')"/>
-			   <mx:Canvas id="sequencingView" label="Sequencing"  icon="@Embed(source='../../assets/solexa.png')"/>
-	           <mx:Canvas label=""/>
-		</mx:ViewStack>
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="4"  >
+			
+			   <workflow:WorkflowSolexaQCView label="Quality Control" id="workflowSolexaQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
+			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/bullet_wrench.png')"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Assemble" id="workflowSolexaAssembleView" icon="@Embed('../../assets/sitemap.png')"/> 	           
+			   <workflow:WorkflowSolexaRunView label="Run" id="workflowSolexaRunView" icon="@Embed('../../assets/solexa.png')"/> 	           
+			   <mx:Canvas label=""/>
+			   <workflow:FlowCellView id="flowCellView"/>
+			</mx:ViewStack>
 			
 		</mx:ViewStack>
 		

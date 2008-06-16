@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" 
+	width="100%" height="100%" 
+	title="Solexa Assemble Flow Cell"
+	xmlns:util="views.util.*">
+	
+	
+	<mx:HTTPService 
+    id="getWorkList" 
+    url="GetWorkItemList.gx"
+    resultFormat="e4x"
+    destination="getWorkList"
+    showBusyCursor="true"
+    result="onGetWorkList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
+    useProxy="false">
+    <mx:request>
+        <codeStepNext>SEQASSEM</codeStepNext>
+    </mx:request>
+    </mx:HTTPService >
+    
+    	
+	<mx:HTTPService 
+    id="getNextWorkList" 
+    url="GetWorkItemList.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetNextWorkList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get next work list', event)"
+    useProxy="false">
+    <mx:request>
+        <codeStepNext>SEQRUN</codeStepNext>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="saveWorkItem" 
+    url="SaveWorkItemSolexaAssemble.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveWorkItem(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save work list', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >    
+    
+    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
+    <mx:XMLListCollection id="dirtyWorkList" />
+    <mx:XMLListCollection id="nextWorkList" source="{getNextWorkList.lastResult.WorkItem}"/>
+    
+<mx:Script>
+	<![CDATA[
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.rpc.events.ResultEvent;
+		import mx.controls.Alert;
+		import mx.events.DragEvent;
+		import mx.managers.DragManager;
+		import mx.events.CloseEvent;
+		
+		private var isValid:Boolean = true;
+		
+		private var warningMessage:String = "";
+		
+		private function onGetWorkList(event:ResultEvent):void {
+        	if (event.result.name() == "WorkItemList") {
+    	    	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
+        	}
+        }
+		private function onGetNextWorkList(event:ResultEvent):void {
+        	if (event.result.name() != "WorkItemList") {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting next work list");
+        	}
+        }
+		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets to work list
+			} else {
+				dirty.setDirty();
+			}
+		}
+		private function refreshWorkList():void {
+			dirtyWorkList.removeAll();
+        	dirty.resetDirty();
+        	getWorkList.send();
+        	getNextWorkList.send();
+        }
+
+    	private function getAssembleLaneRowNumber(item:Object,col:int):String
+    	{
+       		var x:int = dirtyWorkList.getItemIndex(item) + 1;
+       		return String(x);
+    	} 
+    	private function getPendingLaneRowNumber(item:Object,col:int):String
+    	{
+       		var x:int = workList.getItemIndex(item) + 1;
+       		return String(x);
+    	} 	
+    	
+    	private function save():void {
+    		// Prevent save if flow cell barcode is not entered
+    		if (this.flowCellBarcode.text == "") {
+    			this.flowCellBarcode.setFocus();
+    			Alert.show("Please enter the flow cell barcode");
+    			return;
+    		}
+    		warningMessage = "";
+    		isValid = true;
+    		validateNumberOfLanes();
+    		validateOrganism();
+	    	validateNumberSequencingCycles();
+    		if (isValid) {
+    			saveWorkItems();
+    		} else {
+    			promptForWarning();
+    		}
+    	}
+    	
+    	private function saveWorkItems():void {
+    		var params:Object = new Object();
+    		params.flowCellBarcode = this.flowCellBarcode.text;
+    		params.workItemXMLString = dirtyWorkList.toXMLString();
+        	saveWorkItem.send(params);
+    	}	
+
+    	private function promptForWarning():void {
+    		if (warningMessage != "") {
+    			warningMessage += "Continue saving?";
+				Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForWarning);
+	       	}
+    	}
+    	
+    	private function onPromptForWarning(event:CloseEvent):void {
+    		if (event.detail == Alert.YES) {
+    			saveWorkItems();
+    		}
+    	}
+
+        private function onSaveWorkItem(event:ResultEvent):void {
+        	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
+        		dirty.resetDirty();
+        		this.getWorkList.send();
+        		this.getNextWorkList.send();
+        		dirtyWorkList.removeAll();
+        		this.flowCellBarcode.text = "";
+
+        	} else {
+        		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
+        	}        	
+        }    
+    	private function validateNumberOfLanes():void {
+    		if (dirtyWorkList.length < 7) {
+    			warningMessage = "Not all 7 lanes are populated.\n";
+    			isValid = false;
+    		}
+    	}
+    	        	
+    	private function validateOrganism():void {
+    		var theItem:Object;
+    		var item:Object;
+    		var invalidCount:int = 0;
+	       //Warn if different organism or number of seq cycles
+	       for each (theItem in dirtyWorkList) {
+	       		for each (item in dirtyWorkList) {
+	       			if (theItem.@idOrganism != item.@idOrganism) {
+	       				warningMessage = "Different organisms are used on the flow cell.\n";
+	       				isValid = false;
+	       				invalidCount++;
+	       				break;
+	       			}
+	       		}
+	       		if (invalidCount > 0) {
+	       			break;
+	       		}
+	       }
+
+    	}
+    	
+    	
+    	private function validateNumberSequencingCycles():void {
+    		var theItem:Object;
+    		var item:Object;
+    		var invalidCount:int = 0;
+	       for each (theItem in dirtyWorkList) {
+	       		for each (item in dirtyWorkList) {
+	       			if (theItem.@idNumberSequencingCycles != item.@idNumberSequencingCycles) {
+	       				isValid = false;
+	       				warningMessage += "Different number of sequencing cycles are used on the flow cell.\n";
+	       				invalidCount++;
+	       				break;
+	       			}
+	       		}
+	       		if (invalidCount > 0) {
+	       			break;
+	       		}
+	       }    		
+
+    	}
+ 	
+    	
+    	private function moveAssembleLaneUp():void {
+    		var pos:int = this.assembleLanesGrid.selectedIndex;
+    		if (pos == 0) {
+    			return;
+    		}
+
+    		var item:Object = this.assembleLanesGrid.selectedItem;
+    		var prevItem:Object  = dirtyWorkList.getItemAt(pos - 1);
+    		
+    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));
+    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(prevItem));
+    		
+    		pos--;
+    		dirtyWorkList.addItemAt(item, pos);
+    		dirtyWorkList.addItemAt(prevItem, pos + 1);
+    		
+    		assembleLanesGrid.selectedItem = item;
+    		
+    	}
+    	private function moveAssembleLaneDown():void {
+    		var pos:int = this.assembleLanesGrid.selectedIndex;
+    		if (pos == (dirtyWorkList.length - 1)) {
+    			return;
+    		}
+
+    		var item:Object = this.assembleLanesGrid.selectedItem;
+    		var nextItem:Object  = dirtyWorkList.getItemAt(pos + 1);
+    		
+    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));
+    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(nextItem));
+    		
+    		dirtyWorkList.addItemAt(nextItem, pos);
+    		dirtyWorkList.addItemAt(item, pos + 1);
+    		
+    		assembleLanesGrid.selectedItem = item; 
+    	}   	
+	  	private function onDragDropLane(event:DragEvent) : void
+		{
+	       // retrieve the data associated with the "items" format. This will be the data that
+	       // the dragInitiator has copied into the DragSource.
+	       var items:Array = event.dragSource.dataForFormat("items") as Array;
+	
+	       // determine where in the grid the drop occurs and select that node by the index; followed by 
+	       // retrieving the node itself. 
+	       var row:int = assembleLanesGrid.calculateDropIndex(event);
+	       assembleLanesGrid.selectedIndex = row;
+	       var node:XML = assembleLanesGrid.selectedItem as XML;	       
+	        
+	       // Disallow operation if already 7 lanes loaded
+	       if (dirtyWorkList.length == 7) {
+	       	  	Alert.show("Max 7 lanes loaded.  Please save assembled flow cell.");
+		       	event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);
+				return;	       	  	
+	       }
+	       
+	       // Disallow operation if flow cell is of different type
+	       for each (var dragItem:Object in items) {
+	       		for each (var item:Object in dirtyWorkList) {
+	       			if (dragItem.@idFlowCellType != item.@idFlowCellType) {
+	       				Alert.show("Incompatible flow cell type.");
+			       		event.preventDefault();
+			       		event.target.hideDropFeedback(event);
+			       		DragManager.showFeedback(DragManager.NONE);
+						return;	       	  	
+	       			}
+	       		}
+	       }
+	       
+
+	       
+	
+	       // taking all of the items in the DragSouce, move to work items
+	       // to the dirtyWorkItems list
+	       for(var i:Number=0; i < items.length; i++) {
+	       	if (items[i].name() == "WorkItem") {
+		    	dirtyWorkList.addItemAt(items[i], row);
+		    	workList.removeItemAt(workList.getItemIndex(items[i]));	       			
+	       	} 
+	       }
+	       
+	       
+	       // Don't allow flex to do any default moves to the data.  
+	       // We handle it in the code above.
+	       event.preventDefault();
+	       
+		}
+		
+		private function removeAssembleLane():void {
+			var item:Object = this.assembleLanesGrid.selectedItem;
+		   	workList.addItem(item);
+		    dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));	       			
+		}
+	]]>
+</mx:Script>    	
+	<mx:HDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:VBox width="100%" height="100%"   verticalGap="0">	
+		    <mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
+				<mx:Label text="{'Pending Sequence Lanes (' + workList.length + ')' }" fontWeight="bold"/>
+		    </mx:HBox>
+			<mx:DataGrid id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true">
+				<mx:columns>
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" labelFunction="parentApplication.lookupFlowCellType" width="80"/>
+					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism"  labelFunction="parentApplication.lookupOrganism" width="35" />
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
+					<mx:DataGridColumn  dataField="@sampleNumber" headerText="Sample #" width="40"/>
+				</mx:columns>				
+			</mx:DataGrid>		
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" verticalGap="1">			
+			    <mx:HBox paddingTop="3" width="100%" verticalAlign="bottom" paddingBottom="1">
+					<mx:Label text="Flow Cell to Assemble" fontWeight="bold"/>
+					<mx:Spacer width="20"/>
+					<mx:Label text="Barcode:"/>
+					<mx:TextInput id="flowCellBarcode"/>
+					<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0">
+						<mx:Button click="moveAssembleLaneUp()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
+						<mx:Button click="moveAssembleLaneDown()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
+						<mx:VRule height="20"/>
+						<mx:Button id="removeFlowCellButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeAssembleLane()">
+							<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
+						</mx:Button>
+					</mx:HBox>
+			    </mx:HBox>
+			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="178" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
+				<mx:columns>
+					<mx:DataGridColumn  headerText="Lane" labelFunction="getAssembleLaneRowNumber" width="21"/>
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" labelFunction="parentApplication.lookupFlowCellType"/>
+					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  labelFunction="parentApplication.lookupOrganism"/>
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn  dataField="@sampleNumber" width="35" headerText="Sample #"/>
+				</mx:columns>			
+			</mx:DataGrid>		
+			<mx:Spacer height="20"/>
+			<mx:VBox width="100%" height="100%" verticalGap="1">			
+				<mx:Label text="Flow Cells ready for Sequencing" fontWeight="bold"/>
+				<mx:DataGrid width="100%" height="100%" dataProvider="{nextWorkList}">
+					<mx:columns>
+						<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
+						<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" labelFunction="parentApplication.lookupFlowCellType" width="100"/>
+						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  labelFunction="parentApplication.lookupNumberSequencingCycles" width="47"/>
+						<mx:DataGridColumn  dataField="@notes" headerText="Content" />
+					</mx:columns>				
+				</mx:DataGrid>		
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+	<mx:ControlBar horizontalAlign="right">
+	    <mx:HBox width="100%" horizontalAlign="left">
+			<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
+				click="refreshWorkList();" toolTip="Refresh worklist"/>
+	    </mx:HBox>
+		<util:DirtyNote id="dirty"/>
+		<mx:Button label="Save" id="saveButton" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')" click="save()"/>
+	</mx:ControlBar>	
+</mx:Panel>

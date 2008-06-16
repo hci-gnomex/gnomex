@@ -1132,6 +1132,14 @@
 				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
 				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
 				
+				if (currentState == 'QCState') {
+					for each(var chipType:Object in sampleSetupView.bioanalyzerChipTypeGrid.dataProvider) {
+						if (chipType.@codeBioanalyzerChipType == request.@codeBioanalyzerChipType) {
+							chipType.@isSelected = 'true';
+							break;
+						}
+					}
+				}
 			}
 
 			
@@ -1431,6 +1439,9 @@
 			request.@idAppUser = setupView.idAppUser;
 			request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
+			if (currentState == 'QCState') {
+				request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
+			}
 			
 			request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 			
@@ -1438,9 +1449,8 @@
 				request.@idSampleSourceDefault = sampleSetupView.sampleSourceCombo.selectedItem.@value;
 				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 			}
-			if (currentState != 'QCState' && sampleSetupView.currentState != 'SampleSetupPreppedState') {
-				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
-				
+			if (sampleSetupView.currentState != 'SampleSetupPreppedState') {
+				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;				
 			}
 
 			if (currentState == 'MicroarrayState') {
@@ -1699,8 +1709,10 @@
  	   <mx:ControlBar>
  		<mx:ViewStack id="buttonStack" width="100%">
 	 	    <mx:HBox width="100%" >
-				<mx:Button label="&lt; Back" enabled="false" visible="true" id="backButton" click="previousTab()"/>
-				<mx:Button id="nextButton"  label="Next &gt;" enabled="false" click="nextTab()"/>
+				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.PNG')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
+				<mx:Button id="nextButton"  label="Next" enabled="false" click="nextTab()" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" fontWeight="normal">
+					<mx:disabledIcon>@Embed(source='../../assets/arrow_right_disabled.png')</mx:disabledIcon>
+				</mx:Button>
 				<mx:ViewStack id="confirmButtonStack" width="100%" >
 							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
 								<mx:Button visible="false" />

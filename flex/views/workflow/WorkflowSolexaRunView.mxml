@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel label="Solexa Sequencing"  
+	xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns:views="views.*" 
+	xmlns:util="views.util.*"
+	width="100%" height="100%" 
+	title="Solexa Sequencing" 
+	borderThicknessTop="2">
+	
+	<mx:HTTPService 
+    id="getWorkList" 
+    url="GetWorkItemList.gx"
+    resultFormat="e4x"
+    destination="getWorkList"
+    showBusyCursor="true"
+    result="onGetWorkList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
+    useProxy="false">
+    <mx:request>
+        <codeStepNext>SEQRUN</codeStepNext>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="saveWorkItem" 
+    url="SaveWorkItemSolexaRun.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveWorkItem(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save work list', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+        <workItemXMLString>{dirtyWorkItems.toXMLString()}</workItemXMLString>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
+    
+
+
+    <mx:Script>
+        <![CDATA[
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
+        import mx.validators.NumberValidator;
+        import mx.events.ValidationResultEvent;
+        import mx.collections.ArrayCollection;
+        import mx.collections.XMLListCollection;
+        import mx.rpc.events.FaultEvent; 
+        import mx.rpc.events.ResultEvent;   
+        import mx.controls.Alert;
+        
+        [Bindable]
+        private var flowCellCount:String;
+        
+        [Bindable]
+        private var inputNumber:String;
+        
+        [Bindable]
+        private var dirtyWorkItems:XMLListCollection;
+
+        private function refreshWorkList():void {
+        	dirty.resetDirty();
+        	getWorkList.send();
+        }
+ 
+		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets to work list
+			} else {
+				dirty.setDirty();
+			}
+		}
+		private function getGridRowNumber(item:Object,col:int):String
+        {
+        	if (workList!= null) {
+	           var x:int = workList.getItemIndex(item) + 1;
+	           return String(x);     		
+        	} else {
+        		return "";
+        	}
+        }
+                
+        public function onEdit():void {
+        	workListGrid.selectedItem.@isDirty = "Y";
+        }
+        
+        private function validate():Boolean {
+	   		return true;
+        }
+        
+        private function save():void {
+        	if (validate() == false) {
+        		return;
+        	}
+        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+        	dirtyWorkItems = new XMLListCollection(dirtyItems);
+        	saveWorkItem.send();
+        }
+        
+        private function onGetWorkList(event:ResultEvent):void {
+        	if (event.result.name() == "WorkItemList") {
+    	    	flowCellCount = workList.length + ' flow cells on work list.';
+	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
+        	}        
+        }
+        
+        private function onSaveWorkItem(event:ResultEvent):void {
+        	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
+        		dirty.resetDirty();
+        		this.getWorkList.send();
+        	} else {
+        		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
+        	}
+        }
+        
+        
+
+        ]]>
+    </mx:Script> 
+    
+   
+    <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+            <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalAlign="bottom">
+                <mx:Image source="{parentApplication.iconSolexa}"/>
+                <mx:Label text="{flowCellCount}"/>
+            	<mx:HBox width="100%" horizontalAlign="right"  verticalAlign="middle">
+            	</mx:HBox>
+            	
+            	
+            </mx:HBox>
+        	
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
+				<util:columns>
+					<mx:DataGridColumn editable="false" headerText=""   width="10" labelFunction="getGridRowNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Flow Cell #"  width="25" dataField="@number"/>
+					<mx:DataGridColumn editable="false" headerText="Submit Date" width="30" dataField="@createDate"/>
+					<mx:DataGridColumn editable="false" headerText="Flow Cell Type"  width="50" dataField="@idFlowCellType" labelFunction="parentApplication.lookupFlowCellType"/>
+					<mx:DataGridColumn editable="false" headerText="# Cycles"  width="25" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn editable="false" headerText="Contents"  width="120" dataField="@notes"/>
+	                <mx:DataGridColumn headerText="First Cycle Status"  width="42" dataField="@firstCycleStatus" 
+	                	editorDataField="value" 
+	                   rendererIsEditor="false"
+	                   itemRenderer="mx.controls.Label"  
+	                   itemEditor="views.renderers.ComboBoxWorkflowStatusSeqFirstCycle" />
+	                <mx:DataGridColumn headerText="Last Cycle Status"  width="42" dataField="@lastCycleStatus" 
+	                	editorDataField="value" 
+	                   rendererIsEditor="false"
+	                   itemRenderer="mx.controls.Label"  
+	                   itemEditor="views.renderers.ComboBoxWorkflowStatusSeqLastCycle" />
+				</util:columns>
+		</util:DataGridAlternatingGroup>
+			
+		</mx:VBox>
+	  	
+	  </mx:VBox>
+					
+ <mx:ControlBar>
+ 	            	<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
+ 	            		click="refreshWorkList();" toolTip="Refresh worklist"/>
+	 	            <mx:HBox width="100%" horizontalAlign="right">
+	 	            	<util:DirtyNote id="dirty"/>
+	 	            	<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')">
+		            	</mx:Button>
+	 	            </mx:HBox>
+
+ </mx:ControlBar>						
+
+</mx:Panel>
