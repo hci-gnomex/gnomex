@@ -55,15 +55,21 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
         Comparator comparator = null;
-        if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)) {
+        if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
+            filter.getCodeStepNext().equals(Step.SEQ_QC) ||
+            filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
           comparator  = new LabeledSampleComparator();
+        } else if (filter.getCodeStepNext().equals(Step.SEQ_ASSEMBLE)) {
+          comparator  = new LaneComparator();
+        } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
+          comparator = new FlowCellComparator();
         } else {
           comparator =  new HybComparator();
         }
         
-        TreeMap allRows = new TreeMap(comparator);
+        TreeMap allRows = allRows = new TreeMap(comparator);
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
         log.info("GetWorkItemList query: " + queryBuf.toString());
         List rows = (List) sess.createQuery(queryBuf.toString()).list();
@@ -73,17 +79,23 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           String requestNumber    = (String) row[1];
           String sampleNumber     = (String) row[9];
-          String hybNumber        = (String) row[11];
+          String itemNumber       = (String) row[11];
+          
 
           String key = null;
-          if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)) {
+          if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
+              filter.getCodeStepNext().equals(Step.SEQ_QC) ||
+              filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
             Integer idLabel         = row[16] == null || row[16].equals("") ? null : (Integer)row[16];
             Integer idLabeledSample = row[18] == null || row[18].equals("") ? null : (Integer)row[18];
             key = requestNumber + "," + sampleNumber + "," + idLabel  + "," + idLabeledSample;
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
+            Integer idFlowCellType = (Integer)row[13];
+            key = idFlowCellType.toString();
           } else {
-            key = requestNumber + "," + hybNumber;
+            key = requestNumber + "," + itemNumber;
           }
 
           allRows.put(key, row);
@@ -98,7 +110,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           Object[] row = (Object[])allRows.get(key);
           
           String requestNumber = (String)row[1];
-          if (!requestNumber.equals(prevRequestNumber)) {
+          if (requestNumber != null && !requestNumber.equals(prevRequestNumber)) {
             alt = !alt;
           }
           
@@ -107,8 +119,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("isSelected",             "N");
           n.setAttribute("altColor",               new Boolean(alt).toString());
           
-          n.setAttribute("idRequest",              ((Integer)row[0]).toString());
-          n.setAttribute("requestNumber",          (String)row[1]);
+          n.setAttribute("idRequest",              row[0] == null ? "" : ((Integer)row[0]).toString());
+          n.setAttribute("requestNumber",          row[1] == null ? "" : (String)row[1]);
           n.setAttribute("createDate",             row[2] == null ? "" :  this.formatDate((java.sql.Date)row[2]));
           n.setAttribute("codeRequestCategory",    row[3] == null ? "" :  (String)row[3]);
           n.setAttribute("codeRequestCategory1",   row[3] == null ? "" :  (String)row[3]);
@@ -119,11 +131,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("idSample",               row[8] == null ? "" :  ((Integer)row[8]).toString());
           n.setAttribute("sampleNumber",           row[9] == null ? "" :  (String)row[9]);
           n.setAttribute("idHybridization",        row[10] == null ? "" :  ((Integer)row[10]).toString());
-          n.setAttribute("hybNumber",              row[11] == null ? "" :  (String)row[11]);
+          if (filter.getCodeStepNext().equals(Step.SEQ_ASSEMBLE)) {
+            n.setAttribute("laneNumber",             row[11] == null ? "" :  (String)row[11]);  
+          } else {
+            n.setAttribute("hybNumber",              row[11] == null ? "" :  (String)row[11]);
+          }
           n.setAttribute("workItemCreateDate",     row[12] == null ? "" :  this.formatDate((java.sql.Date)row[12]));
           n.setAttribute("isDirty","N");
           
-          if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)) {
+          if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
+              filter.getCodeStepNext().equals(Step.SEQ_QC)) {
             n.setAttribute("qualDate",                   row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
             n.setAttribute("qualCompleted",              row[13] == null ? "N" : "Y");
             n.setAttribute("qualFailed",                 row[14] == null ? "" :  (String)row[14]);
@@ -207,8 +224,50 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               extractionStatus = Constants.STATUS_BYPASSED;
             }
             n.setAttribute("extractionStatus", extractionStatus);
-          }
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_ASSEMBLE)) {
+            n.setAttribute("idSequenceLane",               row[13] == null ? "" :  ((Integer)row[13]).toString());
+            n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
+            n.setAttribute("idOrganism",                   row[15] == null ? "" :  ((Integer)row[15]).toString());
+            n.setAttribute("idNumberSequencingCycles",     row[16] == null ? "" :  ((Integer)row[16]).toString());
           
+          }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
+            n.setAttribute("idFlowCell",                   row[13] == null ? "" :  ((Integer)row[13]).toString());
+            n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
+            n.setAttribute("idNumberSequencingCycles",     row[15] == null ? "" :  ((Integer)row[15]).toString());
+            n.setAttribute("number",                       row[16] == null ? "" :  ((String)row[16]));
+            n.setAttribute("createDate",                   row[17] == null ? "" :  this.formatDate((java.sql.Date)row[17]));
+            n.setAttribute("notes",                        row[18] == null ? "" :  ((String)row[18]));
+            n.setAttribute("firstCycleDate",               row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
+            n.setAttribute("firstCycleCompleted",          row[19] == null ? "N" : "Y");
+            n.setAttribute("firstCycleFailed",             row[20] == null ? "" :  ((String)row[20]));
+            n.setAttribute("lastCycleDate",                row[21] == null ? "" :  this.formatDate((java.sql.Date)row[21]));
+            n.setAttribute("lastCycleCompleted",           row[21] == null ? "N" : "Y");
+            n.setAttribute("lastCycleFailed",              row[22] == null ? "" :  ((String)row[22]));
+            n.setAttribute("firstCycleStartDate",          row[23] == null ? "" :   this.formatDate((java.sql.Date)row[23]));
+
+            String firstCycleStatus = "";
+            if (n.getAttributeValue("firstCycleCompleted").equals("Y")) {
+              firstCycleStatus = Constants.STATUS_COMPLETED;
+            } else if (n.getAttributeValue("firstCycleFailed").equals("Y")) {
+              firstCycleStatus = Constants.STATUS_TERMINATED;
+            } else if (n.getAttributeValue("firstCycleStartDate") != "") {
+              firstCycleStatus = Constants.STATUS_IN_PROGRESS;
+            }
+            n.setAttribute("firstCycleStatus", firstCycleStatus);
+          
+            String lastCycleStatus = "";
+            if (n.getAttributeValue("lastCycleCompleted").equals("Y")) {
+              lastCycleStatus = Constants.STATUS_COMPLETED;
+            } else if (n.getAttributeValue("lastCycleFailed").equals("Y")) {
+              lastCycleStatus = Constants.STATUS_TERMINATED;
+            }   
+            n.setAttribute("lastCycleStatus", lastCycleStatus);
+          
+         
+          }
+
+
+
           
           doc.getRootElement().addContent(n);
           
@@ -312,6 +371,45 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
     }
   }
+  public static class  LaneComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      String key1 = (String)o1;
+      String key2 = (String)o2;
+
+      
+      
+      String[] tokens1 = key1.split(",");
+      String[] tokens2 = key2.split(",");
+      
+      String reqNumber1    = tokens1[0];
+      String itemNumber1 = tokens1[1];
+      
+      String reqNumber2    = tokens2[0];
+      String itemNumber2 = tokens2[1];
+
+      String[] itemNumberTokens1 = itemNumber1.split("L");
+      String number1 = itemNumberTokens1[itemNumberTokens1.length - 1];
+
+      String[] itemNumberTokens2 = itemNumber2.split("L");
+      String number2 = itemNumberTokens2[itemNumberTokens2.length - 1];
+
+      if (reqNumber1.equals(reqNumber2)) {
+        return new Integer(number1).compareTo(new Integer(number2));        
+      } else {
+        return reqNumber1.compareTo(reqNumber2);
+      }
+      
+    }
+  }  
+  public static class  FlowCellComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      String key1 = (String)o1;
+      String key2 = (String)o2;
+      return new Integer(key1).compareTo(new Integer(key2));        
+      
+    }
+  }  
+  
   public static class  LabeledSampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;

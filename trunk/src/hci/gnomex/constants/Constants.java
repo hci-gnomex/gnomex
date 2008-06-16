@@ -25,6 +25,7 @@ public class Constants {
   public static final String              WINDOW_NAME_TRACK_REQUESTS      = "Experiment Detail";
   public static final String              WINDOW_NAME_FETCH_RESULTS       = "Experiment Download";
 
+  public static final  String             STATUS_IN_PROGRESS              = "In Progress";
   public static final  String             STATUS_COMPLETED                = "Completed";
   public static final  String             STATUS_TERMINATED               = "Terminated";
   public static final  String             STATUS_BYPASSED                 = "Bypassed";

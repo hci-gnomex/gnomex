@@ -11,6 +11,11 @@ public class Step extends DictionaryEntry implements Serializable {
   public static final String   HYB_STEP                 = "HYB";
   public static final String   SCAN_EXTRACTION_STEP     = "EXT";
 
+  public static final String   SEQ_QC                   = "SEQQC";
+  public static final String   SEQ_PREP                 = "SEQPREP";
+  public static final String   SEQ_ASSEMBLE             = "SEQASSEM";
+  public static final String   SEQ_RUN                  = "SEQRUN";
+
   private String codeStep;
   private String step;
   private String isActive;

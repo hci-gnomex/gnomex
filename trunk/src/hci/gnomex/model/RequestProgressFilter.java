@@ -16,22 +16,22 @@ public class RequestProgressFilter extends DetailObject {
   
   
   // Criteria
-  private String                requestNumber;
-  private Integer               idAppUser;
-  private Integer               idLab;
-  private Date                  createDateFrom;
-  private Date                  createDateTo;
-  private String                isComplete;
-  private String                isNotComplete;
-  private String                requestDateLastWeek;
-  private String                requestDateLastMonth;
-  private String                requestDateLastYear;
-  private Integer               idProject;
+  protected String                requestNumber;
+  protected Integer               idAppUser;
+  protected Integer               idLab;
+  protected Date                  createDateFrom;
+  protected Date                  createDateTo;
+  protected String                isComplete;
+  protected String                isNotComplete;
+  protected String                requestDateLastWeek;
+  protected String                requestDateLastMonth;
+  protected String                requestDateLastYear;
+  protected Integer               idProject;
   
   
-  private StringBuffer          queryBuf;
-  private boolean              addWhere = true;
-  private SecurityAdvisor       secAdvisor;
+  protected StringBuffer          queryBuf;
+  protected boolean              addWhere = true;
+  protected SecurityAdvisor       secAdvisor;
   
   
   public boolean hasCriteria() {
@@ -142,7 +142,7 @@ public class RequestProgressFilter extends DetailObject {
   
   
 
-  private void addRequestCriteria() {
+  protected void addRequestCriteria() {
     // Search by request number 
     if (requestNumber != null && !requestNumber.equals("")){
       this.addWhereOrAnd();
@@ -246,7 +246,7 @@ public class RequestProgressFilter extends DetailObject {
     
   }
 
-  private void addSecurityCriteria() {
+  protected void addSecurityCriteria() {
     secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, true);
   }
     

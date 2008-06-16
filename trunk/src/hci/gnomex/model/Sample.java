@@ -47,6 +47,9 @@ public class Sample extends HibernateDetailObject {
   private Integer     fragmentSizeFrom;
   private Integer     fragmentSizeTo;
   private String      seqPrepByCore;
+  private Date        seqPrepDate;
+  private String      seqPrepFailed;
+  private String      seqPrepBypassed;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -376,6 +379,36 @@ public class Sample extends HibernateDetailObject {
   
   public void setSeqPrepByCore(String seqPrepByCore) {
     this.seqPrepByCore = seqPrepByCore;
+  }
+
+  
+  public Date getSeqPrepDate() {
+    return seqPrepDate;
+  }
+
+  
+  public void setSeqPrepDate(Date seqPrepDate) {
+    this.seqPrepDate = seqPrepDate;
+  }
+
+  
+  public String getSeqPrepFailed() {
+    return seqPrepFailed;
+  }
+
+  
+  public void setSeqPrepFailed(String seqPrepFailed) {
+    this.seqPrepFailed = seqPrepFailed;
+  }
+
+  
+  public String getSeqPrepBypassed() {
+    return seqPrepBypassed;
+  }
+
+  
+  public void setSeqPrepBypassed(String seqPrepBypassed) {
+    this.seqPrepBypassed = seqPrepBypassed;
   }
 
 
