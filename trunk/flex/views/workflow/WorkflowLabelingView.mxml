@@ -47,6 +47,7 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        import views.renderers.ComboBox;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -66,6 +67,7 @@
 				// ignore refresh and resets to work list
 			} else {
 				dirty.setDirty();
+				this.workList.filterFunction = null;
 			}
 		}
         private function getGridRowNumber(item:Object,col:int):String
@@ -249,7 +251,7 @@
                    editable="true"
                    rendererIsEditor="false"
                    itemRenderer="mx.controls.Label"  
-                   itemEditor="views.renderers.ComboBoxLabelingProtocol" />
+ 	               itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabeling'})}"/>			                
 	            <mx:DataGridColumn headerText="Yield" width="7" dataField="@labelingYield"/>
 				<mx:DataGridColumn headerText="Reaction Size" width="11" 
 					dataField="@codeLabelingReactionSize"
@@ -259,7 +261,7 @@
                    editable="true"
                    rendererIsEditor="false"  
                    itemRenderer="mx.controls.Label"
-                   itemEditor="views.renderers.ComboBoxLabelingReactionSize" />
+ 	               itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingReactionSize', dataField: '@codeLabelingReactionSize'})}"/>			                
 				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions"/>
                 <mx:DataGridColumn headerText="Status"  width="15" dataField="@labelingStatus" 
                 	editorDataField="value"
@@ -267,7 +269,7 @@
                    editable="true"
                    rendererIsEditor="false"  
                    itemRenderer="mx.controls.Label"
-                   itemEditor="views.renderers.ComboBoxWorkflowStatusLabeling" />
+ 	               itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@labelingStatus'})}"/>			                
 			</util:columns>
 		</util:DataGridAlternatingGroup>
 			

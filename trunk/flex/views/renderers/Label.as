@@ -1,10 +1,14 @@
-package views.renderers
+package views.renderers 
 {
 	import mx.controls.Label;
 	import flash.display.Graphics;
 
-	public class LabelBase extends mx.controls.Label
-	{   protected var cellAttributeName:String;
+	public class Label extends mx.controls.Label
+	{   protected var _dataField:String;
+	
+		public function set dataField(dataField:String):void {
+			this._dataField = dataField;	
+		}
 
         override protected function initializationComplete():void {   
 	        initializeFields();
@@ -21,7 +25,7 @@ package views.renderers
           }
           var g:Graphics = graphics;
           g.clear();
-          g.beginFill( data[cellAttributeName] == '' ? parentApplication.REQUIRED_FIELD_BACKGROUND : 0xffffff );
+          g.beginFill( data[_dataField] == '' ? parentApplication.REQUIRED_FIELD_BACKGROUND : 0xffffff );
           g.drawRect(0,0,unscaledWidth,unscaledHeight);
           g.endFill();
 

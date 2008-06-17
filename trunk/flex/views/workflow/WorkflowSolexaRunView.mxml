@@ -50,6 +50,7 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        import views.renderers.ComboBox;
         
         [Bindable]
         private var flowCellCount:String;
@@ -70,6 +71,7 @@
 				// ignore refresh and resets to work list
 			} else {
 				dirty.setDirty();
+				this.workList.filterFunction = null;
 			}
 		}
 		private function getGridRowNumber(item:Object,col:int):String
@@ -147,12 +149,12 @@
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
-	                   itemEditor="views.renderers.ComboBoxWorkflowStatusSeqFirstCycle" />
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@firstCycleStatus', showInProgress: true, showBypassed: false})}"/>			                
 	                <mx:DataGridColumn headerText="Last Cycle Status"  width="42" dataField="@lastCycleStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
-	                   itemEditor="views.renderers.ComboBoxWorkflowStatusSeqLastCycle" />
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@lastCycleStatus', showBypassed: false})}"/>			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

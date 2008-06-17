@@ -350,7 +350,8 @@
 			                labelFunction="getExpirationDateString"
 			                editorDataField="selectedDate"/>
 						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" labelFunction="{parentApplication.lookupFundingAgency}"
-							editorDataField="value" itemRenderer="mx.controls.Label" itemEditor="views.renderers.ComboBoxFundingAgency"  rendererIsEditor="false"  width="130"/>
+							editorDataField="value" itemRenderer="mx.controls.Label" rendererIsEditor="false"  width="130"
+    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FundingAgency', dataField: '@idFundingAgency'})}"/>			                
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
 						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
 						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>

@@ -1643,6 +1643,19 @@
 					if (pe.property == "@channel1Count" || pe.property == "@channel2Count" || pe.property == "@laneCount" ) {
 						ignore++;
 					}
+					if (pe.property == "@idSamplePrepMethod") {
+						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+						samplesView.propagateSamplePrepMethod(String(pe.newValue));
+						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+					}else if (pe.property == "@idOrganism") {
+						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+						samplesView.propagateOrganism(String(pe.newValue));
+						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+					}else if (pe.property == "@idNumberSequencingCycles") {
+						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+						samplesView.propagateNumberSequencingCycles(pe.source);
+						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+					}
 					
 				}
 			}

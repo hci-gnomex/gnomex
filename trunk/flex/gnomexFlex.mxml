@@ -367,6 +367,7 @@
             		submitRequestView.initializeData();
             		submitRequestView.checkSecurity();
             		submitRequestView.setupForm();
+            		submitRequestView.setupDataListeners();
             	}
             	if (theViews.selectedChild == this.navSearchView) {
             		navSearchView.searchView.checkSecurity();
@@ -1031,8 +1032,12 @@
         		
         	}
         }
-            
-            
+			public static function createRendererWithProperties(renderer:Class,properties:Object ):IFactory {  
+				var factory:ClassFactory = new ClassFactory(renderer);   
+				factory.properties = properties;  
+				return factory;
+			}            
+        
         ]]>
     </mx:Script>
     

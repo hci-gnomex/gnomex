@@ -80,6 +80,7 @@
 				// ignore refresh and resets to work list
 			} else {
 				dirty.setDirty();
+				this.workList.filterFunction = null;
 			}
 		}
 		private function refreshWorkList():void {

@@ -1,15 +1,11 @@
 package views.renderers
 {
-	import mx.controls.ComboBox;
-	import flash.events.MouseEvent;
-	import mx.collections.XMLListCollection;
-	import flash.events.Event;
-	import mx.events.ListEvent;
-	import mx.events.CollectionEvent;
-	import mx.controls.DataGrid;
 	import mx.collections.IList;
+	import mx.controls.DataGrid;
+	import mx.events.CollectionEvent;
+	import mx.events.ListEvent;
 
-	public class ComboBoxArrayCoordinate extends ComboBoxBase
+	public class ComboBoxArrayCoordinate extends views.renderers.ComboBox
 	{
 			private var coordDictionary:XML =    
 		 			<coordDictionary>
@@ -24,15 +20,6 @@ package views.renderers
                         <dictionary value="2_4"  display="2_4" />
                     </coordDictionary>;
 			
-
-			protected override function initializeFields():void {
-		    	cellAttributeName              = "@arrayCoordinate";
-		    	choiceValueAttributeName       = "@value";
-		    	choiceDisplayAttributeName     = "@display";
-				showMissingDataBackground      = false;
-		    }
-		    
-
 		    
 		    protected override function setDataProvider():void {
 				dataProvider = new XMLList(coordDictionary.dictionary);
@@ -46,14 +33,8 @@ package views.renderers
             	initializeFields();
             	setDataProvider();
                 this.addEventListener(ListEvent.CHANGE, change);
-            	labelField = choiceDisplayAttributeName;
+            	labelField = this._dictionaryDisplayField;
             }
-
-		    protected override function change(event:ListEvent):void {
-		        parentDocument.workList.filterFunction = null;
-		        super.change(event);
-	        }
-
             
 		    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		    {

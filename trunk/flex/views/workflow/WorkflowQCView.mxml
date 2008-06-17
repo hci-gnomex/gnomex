@@ -51,6 +51,7 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        import views.renderers.ComboBox;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -74,6 +75,7 @@
 				// ignore refresh and resets to work list
 			} else {
 				dirty.setDirty();
+				this.workList.filterFunction = null;
 			}
 		}
 		private function getGridRowNumber(item:Object,col:int):String
@@ -267,7 +269,7 @@
 	                	editorDataField="value"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
-	                   itemEditor="views.renderers.ComboBoxWorkflowStatusQC" />
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@qualStatus'})}"/>			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

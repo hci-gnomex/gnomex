@@ -225,13 +225,18 @@
 					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="false" width="60" dataField="@number"/>
 					    <mx:DataGridColumn  headerText="Sample"  width="120" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
-                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" itemRenderer="views.renderers.LabelLaneSample" />								    	
+                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
+                            itemRenderer="views.renderers.LabelLaneSample" />                 
 			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"
-			             	  editorDataField="value"  
-			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelFlowCellType" itemEditor="views.renderers.ComboBoxFlowCellType"/> 						             						             
+			             	editorDataField="value"  
+			             	rendererIsEditor="false"
+			             	itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idFlowCellType'})}"                 
+	 	                    itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', securityDataField: '@canChangeFlowCellType'})}"/>
 			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="true" dataField="@idNumberSequencingCycles" 						             						             
 			             	  editorDataField="value"  
-			             	  rendererIsEditor="false" itemRenderer="views.renderers.LabelNumberSequencingCycles" itemEditor="views.renderers.ComboBoxNumberSequencingCycles"/> 						             						             
+			             	  rendererIsEditor="false" 
+           	                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idNumberSequencingCycles'})}"                 
+       	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', securityDataField: '@canChangeNumberSequencingCycles'})}"/>
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
@@ -240,7 +245,9 @@
 			            <mx:DataGridColumn  headerText="Last Cycle Status" width="90" 
 			            	dataField="@lastCycleStatus" editable="false"/>
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
-			             	  editorDataField="value"  rendererIsEditor="false" itemRenderer="views.renderers.LabelGenomeBuild" itemEditor="views.renderers.ComboBoxGenomeBuild"/> 						             						             
+			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
+           	                  itemRenderer="mx.controls.Label"                 
+       	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo', securityDataField: '@canChangeGenomeBuildAlignTo'})}"/>
 						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>
 				</mx:DataGrid>
