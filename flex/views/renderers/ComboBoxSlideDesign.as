@@ -6,13 +6,9 @@ package views.renderers
 	import mx.controls.DataGrid;
 	import mx.controls.Alert;
 	
-	public class ComboBoxSlideDesign  extends ComboBoxBase
+	public class ComboBoxSlideDesign  extends ComboBox
 	{
-			protected override function initializeFields():void {
-		    	cellAttributeName            = "@idSlideDesign";
-		    	choiceDisplayAttributeName   = "@name";
-		    	choiceValueAttributeName     = "@idSlideDesign";
-		    }
+
 		    
 		    override public function set data(o:Object):void
             {

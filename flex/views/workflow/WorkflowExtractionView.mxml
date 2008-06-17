@@ -44,6 +44,7 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        import views.renderers.ComboBox;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -63,6 +64,7 @@
 				// ignore refresh and resets to work list
 			} else {
 				dirty.setDirty();
+				this.workList.filterFunction = null;
 			}
 		}
         private function getGridRowNumber(item:Object,col:int):String
@@ -207,7 +209,7 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
-	                   itemEditor="views.renderers.ComboBoxScanProtocol" />
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol'})}"/>			                
 					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="28" dataField="@idFeatureExtractionProtocol" 
 	                   editorDataField="value"
                        labelFunction="parentApplication.lookupFeatureExtractionProtocol"
@@ -215,14 +217,14 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
-	                   itemEditor="views.renderers.ComboBoxFeatureExtractionProtocol" />
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol'})}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@extractionStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
-	                   itemEditor="views.renderers.ComboBoxWorkflowStatusExtraction" />
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@extractionStatus'})}"/>			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

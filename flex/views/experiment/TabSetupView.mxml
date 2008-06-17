@@ -120,6 +120,7 @@
 			} else {
 				if (labCombo.dataProvider.length == 2) {
 					labCombo.selectedIndex = 1;
+					getLab.send();							
 				}
 			}			
 		}
@@ -259,6 +260,10 @@
 	        this.appUserCombo.selectedIndex = 0;
 	        
 	        billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+	        billingAccounts.filterFunction = this.filterBillingAccount;
+	        billingAccounts.refresh();
+	        
+	        parentApplication.filteredProjectListForSubmitRequests.refresh();
 
 		}
 

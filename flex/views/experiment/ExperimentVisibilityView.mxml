@@ -18,9 +18,9 @@
 
  <mx:Script>
  <![CDATA[
- 	import mx.collections.XMLListCollection;
- 
+ 	import mx.collections.XMLListCollection; 
  	import mx.rpc.events.ResultEvent;
+ 	import views.renderers.ComboBoxVisibility;
  	
  	public function checkSecurity():void {
  		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project" &&
@@ -132,7 +132,9 @@
 					editorDataField="value" sortable="false" editable="{projectVisibilityCombo.enabled}" 
 					rendererIsEditor="false" 
 					labelFunction="parentApplication.lookupVisibility"
-					itemRenderer="mx.controls.Label" itemEditor="views.renderers.ComboBoxVisibility" />
+					itemRenderer="mx.controls.Label" 
+					itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxVisibility, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"/>
+
 	         </mx:columns>
 	       </mx:DataGrid>
 	

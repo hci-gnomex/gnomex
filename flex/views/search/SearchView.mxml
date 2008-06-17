@@ -317,7 +317,7 @@
                     	editable="true"                        	
                     	dataField="@isSelected" 
                     	editorDataField="selected"
-                    	itemRenderer="views.renderers.CheckBoxIsSelected" >
+                    	itemRenderer="views.renderers.CheckBox" >
                     </mx:DataGridColumn>
                     <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
                 </mx:columns>
@@ -329,7 +329,7 @@
                     	editable="true"                        	
                     	dataField="@isSelected" 
                     	editorDataField="selected" 
-                    	itemRenderer="views.renderers.CheckBoxIsSelected">
+                    	itemRenderer="views.renderers.CheckBox">
                     </mx:DataGridColumn>
                     <mx:DataGridColumn headerText="Experimental Factors (differences)" editable="false" dataField="@experimentFactor"/>
                 </mx:columns>
