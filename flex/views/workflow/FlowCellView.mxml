@@ -20,6 +20,7 @@
 	<![CDATA[
 		import mx.controls.Alert;
 		import mx.rpc.events.ResultEvent;
+		import views.renderers.LabelDictionary;
 
     	private function getLaneRowNumber(item:Object,col:int):String
     	{
@@ -52,8 +53,10 @@
 						<mx:columns>
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
 							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="50"/>
-							<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" labelFunction="parentApplication.lookupFlowCellType" width="80"/>
-							<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  labelFunction="parentApplication.lookupNumberSequencingCycles" width="36"/>
+							<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80"
+ 	                            itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 							
+							<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="36"
+ 	                            itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 							
 							<mx:DataGridColumn  dataField="@notes" headerText="Content" />
 							<mx:DataGridColumn  dataField="@startDate" headerText="Start Date" width="55"/>
 							<mx:DataGridColumn  dataField="@firstCycleDate" headerText="1st Cycle Date" width="55"/>
@@ -72,9 +75,12 @@
 			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.sequenceLanes.SequenceLane}" width="100%" height="178" maxHeight="178" >	
 				<mx:columns>
 					<mx:DataGridColumn  headerText="Lane" labelFunction="getLaneRowNumber" width="10"/>
-					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" labelFunction="parentApplication.lookupFlowCellType"/>
-					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  labelFunction="parentApplication.lookupOrganism"/>
-					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 							
+					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40" 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 							
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 							
 					<mx:DataGridColumn  dataField="@sampleNumber" width="35" headerText="Sample #"/>
 				</mx:columns>			
 			</mx:DataGrid>			

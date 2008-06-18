@@ -131,8 +131,7 @@
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="{projectVisibilityCombo.enabled}" 
 					rendererIsEditor="false" 
-					labelFunction="parentApplication.lookupVisibility"
-					itemRenderer="mx.controls.Label" 
+					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"
 					itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxVisibility, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"/>
 
 	         </mx:columns>

@@ -6,6 +6,7 @@
 		import mx.events.CloseEvent;
 		import mx.controls.Alert;
 		import views.experiment.ExperimentEditView;
+		import views.renderers.LabelDictionary;
 	
 		[Bindable]
 		private var requestCategoryName:String;
@@ -379,13 +380,19 @@
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 								<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
-				                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
-					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  labelFunction="parentApplication.lookupSampleTypeName"/>
-					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" labelFunction="parentApplication.lookupOrganism"/>
-					            <mx:DataGridColumn id="sampleSourceCol" headerText="Sample Source" visible="{true}"  width="50" labelFunction="parentApplication.lookupSampleSource"/>
+				                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
+	                  				itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ConcentrationUnit', dataField: '@codeConcentrationUnit'})}"/>
+					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
+	                  				itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleType', dataField: '@idSampleType'})}"/>
+					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
+	                  				itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
+					            <mx:DataGridColumn id="sampleSourceCol" headerText="Sample Source" visible="{true}"  width="50" 
+	                  				itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleSource', dataField: '@idSampleSource'})}"/>
 					            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" labelFunction="parentApplication.lookupSamplePrepMethod"/>
-				                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" labelFunction="parentApplication.lookupChipType" />
+					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" 
+	                  				itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SamplePrepMethod', dataField: '@idSamplePrepMethod'})}"/>
+				                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
+	                  				itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.BioanalyzerChipType', dataField: '@codeBioanalyzerChipType'})}"/>
 								
 
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
@@ -440,7 +447,8 @@
 							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
 							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
 
-								<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1">
+								<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol" width="80" dataField="@idLabelingProtocolChannel1"
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel1'})}">                 											
 									<mx:headerRenderer >
 									<mx:Component>
 										<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -490,7 +498,8 @@
 									</mx:Component>
 									</mx:headerRenderer>
 								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel2" width="80" dataField="@idLabelingProtocolChannel2">
+								<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel2"
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel2'})}">                 											
 									<mx:headerRenderer>
 									<mx:Component>
 										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -545,17 +554,21 @@
 
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"/>
+								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" dataField="@idHybProtocol"
+                                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"/>                 											
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
 
 
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" labelFunction="parentApplication.lookupScanProtocol" dataField="@idScanProtocol"/>
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" labelFunction="parentApplication.lookupFeatureExtractionProtocol" dataField="@idFeatureExtractionProtocol"/>
+								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" dataField="@idScanProtocol"
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol'})}"/>                 											
+								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" dataField="@idFeatureExtractionProtocol"
+                                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol'})}"/>                 											
 								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
 
 
 							     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" labelFunction="parentApplication.lookupSlideDesignName" />
-							     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"  labelFunction="parentApplication.lookupSlideSource" />
+							     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"   
+                                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource'})}"/>                 											
 								<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
 							</mx:columns>
 						</mx:DataGrid>
@@ -609,16 +622,19 @@
 							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
 						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
-				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"/> 						             						             
-				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="false" dataField="@idNumberSequencingCycles"/> 						             						             
+				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
 							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
 							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus"/>
 							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"/>
-				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="false" dataField="@idGenomeBuildAlignTo"/> 						             						             
+				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idGenomeBuildAlignTo'})}"/>                 											
 							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
-						</mx:columns>
+						</mx:columns> 
 					</mx:DataGrid>
 					
 				</mx:VBox>					        			

@@ -393,11 +393,12 @@
   					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel2Number" editable="false"/>
                             
                             
-					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel1" width="80" dataField="@idLabelingProtocolChannel1"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
+					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel1"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel1'})}"
 	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel1', canChangeByAdminOnly: true})}">
 						<mx:headerRenderer >
-						<mx:Component>
+					 	<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Cy3 Label"/>
 							    <mx:Label text="Protocol"/>
@@ -416,7 +417,8 @@
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingReactionSize', dataField: '@codeLabelingReactionSizeChannel1'})}"
 	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingReactionSize', dataField: '@codeLabelingReactionSizeChannel1', canChangeByAdminOnly: true})}">
 						<mx:headerRenderer>
 						<mx:Component>
@@ -449,8 +451,9 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  labelFunction="parentApplication.lookupLabelingProtocolChannel2" width="80" dataField="@idLabelingProtocolChannel2"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
+					<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel2"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel2'})}"
 	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel2', canChangeByAdminOnly: true})}">
 						<mx:headerRenderer>
 						<mx:Component>
@@ -510,8 +513,9 @@
 
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="70" dataField="@slideBarcode"/>
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="70" dataField="@arrayCoordinateName"/>
-					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" labelFunction="parentApplication.lookupHybProtocol"  dataField="@idHybProtocol"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
+					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70"  dataField="@idHybProtocol"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"
    	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol', canChangeByAdminOnly: true})}"/>        	                   					
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
@@ -519,14 +523,17 @@
 					
 
 
-					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" labelFunction="parentApplication.lookupScanProtocol" dataField="@idScanProtocol"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
+					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70"  dataField="@idScanProtocol"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol'})}"
    	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol', canChangeByAdminOnly: true})}"/>        	                   					
-					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" labelFunction="parentApplication.lookupFeatureExtractionProtocol" dataField="@idFeatureExtractionProtocol"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
+					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70"  dataField="@idFeatureExtractionProtocol"
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol'})}"
    	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol', canChangeByAdminOnly: true})}"/>        	                   					
 					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"
    	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@extractionStatus', canChangeByAdminOnly: true})}"/>
 					
 
@@ -541,8 +548,8 @@
  	                        itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxSlideDesign, {dictionaryDisplayField: '@name', dictionaryValueField: '@idSlideDesign', dataField: '@idSlideDesign', securityDataField: '@canChangeSlideDesign'})}"			                
     	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idSlideDesign'})}"/>                 			                
 			             <mx:DataGridColumn visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="78" dataField="@codeSlideSource" 
-			                editorDataField="value" sortable="false" editable="true" labelFunction="parentApplication.lookupSlideSource" rendererIsEditor="false" 
- 	                        itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@codeSlideSource'})}"                 
+			                editorDataField="value" sortable="false" editable="true"  rendererIsEditor="false" 
+ 	                        itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource', isRequired: true})}"
  	                        itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource', securityDataField: '@canChangeSlideSource'})}"/>			                
 			                
 						<mx:DataGridColumn headerText="Notes" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="100" dataField="@notes"/>

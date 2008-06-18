@@ -546,8 +546,8 @@
  	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@concentration'})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.TextInput, {dataField: '@concentration', securityDataField: '@canChangeSampleConcentration'})}"       />          
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" labelFunction="parentApplication.lookupConcentrationUnit" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@codeConcentrationUnit'})}"                 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ConcentrationUnit', dataField: '@codeConcentrationUnit', isRequired: true})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.ConcentrationUnit', dataField: '@idConcentrationUnit'})}"/>
 					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" rendererIsEditor="false"
  	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@fragmentSizeFrom'})}"                 
@@ -555,35 +555,36 @@
 					<mx:DataGridColumn id="fragmentSizeToCol" headerText="Size To" width="54" editorDataField="text" dataField="@fragmentSizeTo"  rendererIsEditor="false"
  	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@fragmentSizeTo'})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.TextInput, {dataField: '@fragmentSizeTo', securityDataField: '@canChangeSampleType'})}"       />          
-	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" labelFunction="parentApplication.lookupFlowCellType" dataField="@idFlowCellType"/>
-	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"
+	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idFlowCellType"
+                        itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', isRequired: true})}"/>                 											
+	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
 	 				    rendererIsEditor="false" editorDataField="value" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idNumberSequencingCycles'})}"                 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', isRequired: true})}"                 
    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', securityDataField: '@canChangeNumberSequencingCycles'})}"/>
 					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" rendererIsEditor="false"
  	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@numberSequencingLanes'})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.TextInput, {dataField: '@numberSequencingLanes', securityDataField: '@canChangeNumberSequencingLanes'})}"       />          
 					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
                     <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" labelFunction="parentApplication.lookupSamplePrepMethod" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idSamplePrepMethod'})}"                 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SamplePrepMethod', dataField: '@idSamplePrepMethod', isRequired: true})}"                 
 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.SamplePrepMethod', dataField: '@idSamplePrepMethod', securityDataField: '@canChangeSamplePrepMethod'})}"/>
 	                 <mx:DataGridColumn headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected}" width="120"   dataField="@idSampleType" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" labelFunction="parentApplication.lookupSampleTypeName" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idSampleType'})}"                 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleType', dataField: '@idSampleType', isRequired: true})}"                 
 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.SampleType', dataField: '@idSampleType', securityDataField: '@canChangeSampleType'})}"/>
 	                <mx:DataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="110" headerText="Organism"  dataField="@idOrganism" 
-	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  labelFunction="parentApplication.lookupOrganism" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idOrganism'})}"                 
+	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism', isRequired: true})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
 	                <mx:DataGridColumn headerText="Sample Source" visible="{!showQCFieldsCheckBox.selected}" width="95" dataField="@idSampleSource" 
-	                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="false" labelFunction="parentApplication.lookupSampleSource" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idSampleSource'})}"                 
+	                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="false"
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleSource', dataField: '@idSampleSource', isRequired: true})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.SampleSource', dataField: '@idSampleSource'})}"/>
 	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" labelFunction="parentApplication.lookupChipType" 
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@codeBioananalyzerChipType'})}"                 
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.BioanalyzerChipType', dataField: '@codeBioananalyzerChipType'})}"/>
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.BioanalyzerChipType', dataField: '@codeBioanalyzerChipType', isRequired: true})}"                 
+ 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.BioanalyzerChipType', dataField: '@codeBioanalyzerChipType'})}"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Confirm" width="100%" height="100%" enabled="false">
-<mx:Script>
+<mx:Script>	
 	<![CDATA[
+		import views.renderers.LabelDictionary;
+		
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = false;
@@ -64,17 +66,23 @@
 					    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
-		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" labelFunction="parentApplication.lookupConcentrationUnit" />
+		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ConcentrationUnit', dataField: '@codeConcentrationUnit'})}"/>
 						<mx:DataGridColumn id="fragmentSizeFromConfirmCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom">
 						</mx:DataGridColumn>
 						<mx:DataGridColumn id="fragmentSizeToConfirmCol" headerText="Size To" width="54"  dataField="@fragmentSizeTo">
 						</mx:DataGridColumn>
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
-			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" labelFunction="parentApplication.lookupSamplePrepMethod"/>
-			            <mx:DataGridColumn headerText="Sample Type"  width="130" labelFunction="parentApplication.lookupSampleTypeName"/>
-			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" labelFunction="parentApplication.lookupOrganism"/>
-			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" labelFunction="parentApplication.lookupSampleSource"/>
-		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" labelFunction="parentApplication.lookupChipType" />
+			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SamplePrepMethod', dataField: '@idSamplePrepMethod'})}"/>
+			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleType', dataField: '@idSampleType'})}"/>
+			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
+			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleSource', dataField: '@idSampleSource'})}"/>
+		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.BioanalyzerChipType', dataField: '@codeBioanalyzerChipType'})}"/>
 						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
 						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
 						<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
@@ -104,8 +112,8 @@
 					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="70" labelFunction="parentDocument.getHybsGridRowNumber"/>
 					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>
 					    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="parentDocument.getSampleChannel2Name"/>
-					     <mx:DataGridColumn headerText="Slide"  width="320" labelFunction="parentApplication.lookupSlideDesignName" />
-					     <mx:DataGridColumn headerText="Slide Source"  width="82"  labelFunction="parentApplication.lookupSlideSource" />
+					     <mx:DataGridColumn headerText="Slide Source"  width="82" 
+	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource'})}"/>
 						<mx:DataGridColumn headerText="Notes" width="100" dataField="@notes"/>
 					</mx:columns>
 				</mx:DataGrid>
