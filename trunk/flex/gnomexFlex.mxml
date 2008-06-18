@@ -170,6 +170,7 @@
             import mx.managers.PopUpManager;
             import mx.events.CloseEvent;
             import mx.rpc.events.FaultEvent;
+            import mx.controls.dataGridClasses.DataGridColumn;
             
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -829,81 +830,8 @@
 				
 			}
 		}
-			
-
-        public function lookupLabel(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Label').DictionaryEntry.(@value == item.@idLabel);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupVisibility(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == item.@codeVisibility);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupSampleTypeName(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == item.@idSampleType);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupFundingAgency(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FundingAgency').DictionaryEntry.(@value == item.@idFundingAgency);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupOrganism(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == item.@idOrganism);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupSamplePrepMethod(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == item.@idSamplePrepMethod);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupRequestCategory(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupSampleSource(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == item.@idSampleSource);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupSlideSource(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SlideSource').DictionaryEntry.(@value == item.@codeSlideSource);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupSlideDesignName(item:Object,col:int):String {
+		
+        public function lookupSlideDesignName(item:Object, col:DataGridColumn):String {
         	var sd:Object = getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
         	if (sd != null) {
         		return sd.@name;
@@ -911,111 +839,6 @@
         		return "";
         	}
         }
-        public function lookupChipType(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value == item.@codeBioanalyzerChipType);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupConcentrationUnit(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.ConcentrationUnit').DictionaryEntry.(@value == item.@codeConcentrationUnit);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupLabelingProtocol(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocol);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupLabelingReactionSize(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingReactionSize').DictionaryEntry.(@value == item.@codeLabelingReactionSize);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupLabelingProtocolChannel1(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocolChannel1);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }        
-        public function lookupLabelingProtocolChannel2(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.LabelingProtocol').DictionaryEntry.(@value == item.@idLabelingProtocolChannel2);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }        
-        public function lookupHybProtocol(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.HybProtocol').DictionaryEntry.(@value == item.@idHybProtocol);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }	        	
-        public function lookupScanProtocol(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.ScanProtocol').DictionaryEntry.(@value == item.@idScanProtocol);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }	        	
-        public function lookupFeatureExtractionProtocol(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry.(@value == item.@idFeatureExtractionProtocol);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }	        	
-        public function lookupFlowCellType(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry.(@value == item.@idFlowCellType);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupNumberSequencingCycles(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@value == item.@idNumberSequencingCycles);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupSolexaLibraryType(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SolexaLibraryType').DictionaryEntry.(@value == item.@idSolexaLibraryType);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-        public function lookupGenomeBuild(item:Object,col:int):String {
-        	var dict:Object = manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == item.@idGenomeBuildAlignTo);
-        	if (dict != null) {
-        		return dict.@display;
-        	} else {
-        		return "";
-        	}
-        }
-	        
             
         public function onFailHttpRequest(title:String, event:FaultEvent):void {
         	if (event.message.body is String) {
@@ -1032,11 +855,12 @@
         		
         	}
         }
-			public static function createRendererWithProperties(renderer:Class,properties:Object ):IFactory {  
-				var factory:ClassFactory = new ClassFactory(renderer);   
-				factory.properties = properties;  
-				return factory;
-			}            
+		
+		public static function createRendererWithProperties(renderer:Class, properties:Object):IFactory {  
+			var factory:ClassFactory = new ClassFactory(renderer);   
+			factory.properties = properties;  
+			return factory;
+		}            
         
         ]]>
     </mx:Script>

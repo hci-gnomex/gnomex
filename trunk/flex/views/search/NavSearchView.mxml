@@ -8,6 +8,7 @@
 	<mx:Script>
     <![CDATA[ 
     	import mx.managers.CursorManager;
+    	import views.renderers.LabelDictionary;
     
         [Bindable]
         private var rowCountMessage:String = new String();
@@ -171,7 +172,8 @@
 			       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
 			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
 			       	<mx:DataGridColumn headerText="Group" width="50" dataField="@requestLabName"/>
-			       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory" labelFunction="parentApplication.lookupRequestCategory"/>
+			       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory" 
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.RequestCategory', dataField: '@codeRequestCategory'})}"/>                 			       	
 			       	<mx:DataGridColumn headerText="Request Date" width="37" dataField="@requestCreateDate"/>
 			       	<mx:DataGridColumn headerText="Request #" width="35" dataField="@requestNumber"/>
 			       	<mx:DataGridColumn headerText="Microarray" width="170" dataField="@slideProductName"/>

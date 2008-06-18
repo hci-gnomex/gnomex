@@ -58,6 +58,7 @@
 		import mx.events.DragEvent;
 		import mx.managers.DragManager;
 		import mx.events.CloseEvent;
+		import views.renderers.LabelDictionary;
 		
 		private var isValid:Boolean = true;
 		
@@ -291,11 +292,39 @@
 	       
 		}
 		
-		private function removeAssembleLane():void {
+		public function removeAssembleLane():void {
 			var item:Object = this.assembleLanesGrid.selectedItem;
 		   	workList.addItem(item);
 		    dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));	       			
 		}
+		
+		//
+		// Need to use these label functions instead of LabelDictionary item renderer because drag image is blank otherwise.
+		//
+        private function lookupOrganism(item:Object, col:DataGridColumn):String {
+        	var d:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == item.@idOrganism);
+        	if (d != null) {
+        		return d.@display;
+        	} else {
+        		return "";
+        	}
+        }		
+        private function lookupFlowCellType(item:Object, col:DataGridColumn):String {
+        	var d:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry.(@value == item.@idFlowCellType);
+        	if (d != null) {
+        		return d.@display;
+        	} else {
+        		return "";
+        	}
+        }		
+        private function lookupNumberSequencingCycles(item:Object, col:DataGridColumn):String {
+        	var d:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@value == item.@idNumberSequencingCycles);
+        	if (d != null) {
+        		return d.@display;
+        	} else {
+        		return "";
+        	}
+        }		
 	]]>
 </mx:Script>    	
 	<mx:HDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
@@ -305,9 +334,9 @@
 		    </mx:HBox>
 			<mx:DataGrid id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true">
 				<mx:columns>
-					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" labelFunction="parentApplication.lookupFlowCellType" width="80"/>
-					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism"  labelFunction="parentApplication.lookupOrganism" width="35" />
-					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" labelFunction="lookupFlowCellType"/>
+                   <mx:DataGridColumn  dataField="@idOrganism" headerText="Organism"   width="35"  labelFunction="lookupOrganism"/>
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35"  labelFunction="lookupNumberSequencingCycles"/>
 					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
 					<mx:DataGridColumn  dataField="@sampleNumber" headerText="Sample #" width="40"/>
 				</mx:columns>				
@@ -331,9 +360,12 @@
 			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="178" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
 				<mx:columns>
 					<mx:DataGridColumn  headerText="Lane" labelFunction="getAssembleLaneRowNumber" width="21"/>
-					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" labelFunction="parentApplication.lookupFlowCellType"/>
-					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  labelFunction="parentApplication.lookupOrganism"/>
-					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" 
+                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  
+                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 											
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" 
+                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
 					<mx:DataGridColumn  dataField="@sampleNumber" width="35" headerText="Sample #"/>
 				</mx:columns>			
 			</mx:DataGrid>		
@@ -343,8 +375,10 @@
 				<mx:DataGrid width="100%" height="100%" dataProvider="{nextWorkList}">
 					<mx:columns>
 						<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
-						<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" labelFunction="parentApplication.lookupFlowCellType" width="100"/>
-						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  labelFunction="parentApplication.lookupNumberSequencingCycles" width="47"/>
+						<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="100"
+                           itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="47"
+                           itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
 						<mx:DataGridColumn  dataField="@notes" headerText="Content" />
 					</mx:columns>				
 				</mx:DataGrid>		

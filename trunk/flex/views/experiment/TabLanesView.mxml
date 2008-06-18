@@ -227,15 +227,15 @@
 					    	labelFunction="parentDocument.getLaneSampleName" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
                             itemRenderer="views.renderers.LabelLaneSample" />                 
-			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  labelFunction="parentApplication.lookupFlowCellType" editable="false" dataField="@idFlowCellType"
+			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType"
 			             	editorDataField="value"  
 			             	rendererIsEditor="false"
-			             	itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idFlowCellType'})}"                 
+			             	itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', isRequired: true})}"                 
 	 	                    itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', securityDataField: '@canChangeFlowCellType'})}"/>
-			             <mx:DataGridColumn width="65"  headerText="# Cycles"   labelFunction="parentApplication.lookupNumberSequencingCycles" editable="true" dataField="@idNumberSequencingCycles" 						             						             
+			             <mx:DataGridColumn width="65"  headerText="# Cycles"   editable="true" dataField="@idNumberSequencingCycles" 						             						             
 			             	  editorDataField="value"  
 			             	  rendererIsEditor="false" 
-           	                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idNumberSequencingCycles'})}"                 
+           	                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', isRequired: true})}"                 
        	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', securityDataField: '@canChangeNumberSequencingCycles'})}"/>
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
@@ -244,7 +244,7 @@
 						 	width="90" dataField="@firstCycleStatus" editable="false"/>							
 			            <mx:DataGridColumn  headerText="Last Cycle Status" width="90" 
 			            	dataField="@lastCycleStatus" editable="false"/>
-			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"   labelFunction="parentApplication.lookupGenomeBuild" editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
+			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
            	                  itemRenderer="mx.controls.Label"                 
        	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo', securityDataField: '@canChangeGenomeBuildAlignTo'})}"/>

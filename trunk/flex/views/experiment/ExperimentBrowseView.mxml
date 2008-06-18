@@ -7,7 +7,7 @@
 	verticalGap="0" borderThicknessTop="0">
 	  
 
-  
+   
    <mx:HTTPService  
     id="getRequest" 
     url="GetRequest.gx"

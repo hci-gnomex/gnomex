@@ -142,8 +142,10 @@
 					<mx:DataGridColumn editable="false" headerText=""   width="10" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Flow Cell #"  width="25" dataField="@number"/>
 					<mx:DataGridColumn editable="false" headerText="Submit Date" width="30" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Flow Cell Type"  width="50" dataField="@idFlowCellType" labelFunction="parentApplication.lookupFlowCellType"/>
-					<mx:DataGridColumn editable="false" headerText="# Cycles"  width="25" dataField="@idNumberSequencingCycles" labelFunction="parentApplication.lookupNumberSequencingCycles"/>
+					<mx:DataGridColumn editable="false" headerText="Flow Cell Type"  width="50" dataField="@idFlowCellType" 
+                           itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+					<mx:DataGridColumn editable="false" headerText="# Cycles"  width="25" dataField="@idNumberSequencingCycles" 
+                           itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
 					<mx:DataGridColumn editable="false" headerText="Contents"  width="120" dataField="@notes"/>
 	                <mx:DataGridColumn headerText="First Cycle Status"  width="42" dataField="@firstCycleStatus" 
 	                	editorDataField="value" 

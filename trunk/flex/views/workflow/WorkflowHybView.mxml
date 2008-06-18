@@ -212,11 +212,10 @@
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxArrayCoordinate, {dataField: '@arrayCoordinate'})}"/>			                
 					<mx:DataGridColumn headerText="Hyb Protocol"  width="25" dataField="@idHybProtocol" 
 	                   editorDataField="value"
-                       labelFunction="parentApplication.lookupHybProtocol"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
-	                   itemRenderer="mx.controls.Label"  
+ 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol', isRequired: true})}"                 
  	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@hybStatus" 
 	                   editorDataField="value"
