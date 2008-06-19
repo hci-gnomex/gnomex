@@ -238,7 +238,10 @@
 			if (parentApplication.hasPermission("canWriteAnyObject") && 
 			    this.labCombo.selectedItem.@idLab != '') {
 			    idAppUser = null;
-				getLab.send();						    
+			}
+			
+			if (this.labCombo.selectedItem.@idLab != null) {
+				getLab.send();				
 			}
 		}
 		private function onGetLab(event:ResultEvent):void {			

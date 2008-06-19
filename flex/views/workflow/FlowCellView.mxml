@@ -18,6 +18,7 @@
       
 <mx:Script>
 	<![CDATA[
+		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.controls.Alert;
 		import mx.rpc.events.ResultEvent;
 		import views.renderers.LabelDictionary;
@@ -38,6 +39,11 @@
 		private function showPrintableForm():void {
 			var url:URLRequest = new URLRequest('ShowFlowCellForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
 			navigateToURL(url, '_blank');			
+		}
+		
+		private function getFragmentSizeRange(item:Object, col:DataGridColumn):String {
+			return (item.@fragmentSizeFrom != "" ? item.@fragmentSizeFrom : "?") + " - " + 
+			       (item.@fragmentSizeTo != "" ? item.@fragmentSizeTo : "?");
 		}
     	
 	]]>
@@ -82,6 +88,9 @@
 					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" 
  	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 							
 					<mx:DataGridColumn  dataField="@sampleNumber" width="35" headerText="Sample #"/>
+					<mx:DataGridColumn  dataField="@fragmentSizeFrom" labelFunction="getFragmentSizeRange" width="35" headerText="Fragment Size"/>
+					<mx:DataGridColumn  dataField="@calcConcentration" width="35" headerText="Conc."/>
+					<mx:DataGridColumn  dataField="@workflowStatus" width="55" headerText="Status"/>
 				</mx:columns>			
 			</mx:DataGrid>			
 		</mx:VBox>
