@@ -214,6 +214,14 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }  
   
+  public Date getFlowCellStartDate() {
+    if (flowCell != null) {
+      return flowCell.getStartDate();
+    } else {
+      return null;
+    }
+  }
+  
   public String getWorkflowStatus() {
     if (getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
       return "Sequenced";
@@ -223,6 +231,8 @@ public class SequenceLane extends HibernateDetailObject {
       return "Failed 1st cycle sequencing";
     } else if (getFlowCellFirstCycleDate() != null) {
       return  "1st cycle sequenced";
+    } else if (this.getFlowCellStartDate() != null) {
+      return  "1st cycle sequencing in progress";
     } else if (getFlowCell() != null) {
       return "Ready for sequencing";
     } else if (getSample().getSeqPrepByCore() != null && !getSample().getSeqPrepByCore().equals("Y")) {
