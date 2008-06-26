@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" 
+	xmlns:views="views.*"  
+	xmlns:analysis="views.analysis.*"  
+	xmlns:util="views.util.*"
+	verticalGap="0" borderThicknessTop="0">
+	  
+
+   
+   <mx:HTTPService  
+    id="getAnalysis" 
+    url="GetAnalysis.gx"
+    destination="getAnalysis"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysis(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+
+   <mx:HTTPService  
+    id="getNewProject" 
+    url="GetProject.gx"
+    destination="getProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetNewProject(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+   		<idProject>0</idProject>    	
+    </mx:request>
+  </mx:HTTPService>
+
+  
+ <mx:Script>
+ 	<![CDATA[
+ 	import mx.collections.ArrayCollection;
+ 	import mx.core.IContainer;
+ 	import mx.rpc.events.ResultEvent;
+    import mx.managers.PopUpManager;
+	import mx.containers.TitleWindow;
+	import views.experiment.ProjectDetailWindow;
+	import views.util.DownloadHints;
+	import mx.core.IFlexDisplayObject;
+	import views.renderers.LabelDictionary;
+
+
+
+    [Bindable]
+    public var selectedAnalysis:Object;
+    
+    private var selectedIdAnalysis:int;
+
+    private var projectDetailWindow:ProjectDetailWindow;
+        
+        
+	public function checkSecurity():void { 
+		if (parentApplication.isGuestMode()) {
+			theViews.removeChild(this.visibilityView);
+		}
+	}
+
+        
+    public function getFullName(item:Object, col:int):String {
+    	return item.@ownerLastName + ", " + item.@ownerFirstName;
+    }
+
+    public function getRequestKind(item:Object, col:int):String {
+    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	if (de.length() == 1) {
+	    	return de[0].@display;
+    	} else {
+    		return "";
+    	}
+    }
+    public function getExperimentKind(item:Object, col:int):String {
+    	if (item.@codeMicroarrayCategory == "") {
+    		return getRequestKind(item, col);
+    	} else {
+	    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == item.@codeMicroarrayCategory);
+	    	if (de.length() == 1) {
+		    	return de[0].@display;    		
+	    	} else {
+	    		return getRequestKind(item, col);
+	    	}
+    	}
+    }
+    
+   
+    
+  	public function refreshDownloadList():void {
+	}
+	
+  	public function refreshDownloadListForExperiment():void {
+		var params:Object = new Object();
+		params.requestNumber = parentDocument.selectedExperiment.@number;
+	
+	}
+	
+	public function refreshTrackList():void {
+			
+	}
+	
+	public function refreshVisibilityList():void {
+		if (theViews.selectedChild == visibilityView) {
+			visibilityView.checkSecurity();
+			visibilityView.setVisibilityCombo();
+		}
+	}
+	
+    
+    private function getGridRowNumber(item:Object,col:int):String
+    {
+       var x:int = browseList.getItemIndex(item) + 1;
+       return String(x);
+    } 
+  	
+  	private function onAnalysisRowSelected():void {
+		showAnalysisDetail(analysisList.selectedItem.@idAnalysis);
+  	}
+  	
+  	public function showAnalysisDetail(idAnalysis:int):void {
+  		selectedIdAnalysis = idAnalysis;
+
+		var parms:Object = new Object();
+		parms.idAnalysis = selectedIdAnalysis;
+		getAnalysis.send(parms);  		
+  	}
+
+  	private function onGetAnalysis(event:ResultEvent):void {
+		selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);
+		parentDocument.selectedAnalysis = selectedAnalysis;
+		parentDocument.theViews.selectedChild = parentDocument.detailView;
+		parentDocument.detailView.setupForm();
+	}
+
+	private function onViewSwitch():void {
+		
+		this.refreshDownloadList();
+		this.refreshTrackList();
+		this.refreshVisibilityList();
+		
+		refreshButtonStack();
+		refreshFilterView();
+		filterList();
+		
+
+	}
+	
+	public function refreshFilterView():void {
+		if (theViews.selectedChild == this.analysisGroupView) {
+			filterListView.visible = false;
+		} else {
+			filterListView.visible = true;
+		}
+	}
+	
+     
+	public function refreshButtonStack():void {
+		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
+			parentDocument.newAnalysisGroupButton.enabled = true;
+			parentDocument.newAnalysisButton.enabled = true;
+		} else {
+			parentDocument.newAnalysisGroupButton.enabled = false;
+			parentDocument.newAnalysisButton.enabled = false;
+		}
+		if (theViews.selectedChild == experimentListView ) {
+			buttonStack.selectedChild = browseButtonView;				
+		} else if (theViews.selectedChild == analysisGroupView) {
+			buttonStack.selectedChild = saveAnalysisGroupView;
+		} else if (theViews.selectedChild == visibilityView) {
+			buttonStack.selectedChild = saveVisibilityButtonView;
+		} else if (theViews.selectedChild == downloadView) {
+			if (downloadView.theTab.selectedIndex == 0) {
+				buttonStack.selectedChild = downloadFoldersButtonView;			
+			} else {
+				buttonStack.selectedChild = downloadFilesButtonView;
+			}
+		}
+		
+	}
+		
+
+	
+	
+	public function filterList():void {
+		browseList.filterFunction = parentDocument.filterAnalysisList;
+		browseList.refresh();
+				
+	}
+	
+	public function clearFilter():void {
+		browseList.filterFunction = null;
+		 
+	}
+	 
+	
+	
+	public function showNewProjectWindow():void {
+		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
+			getNewProject.send();		
+		} else {
+			mx.controls.Alert.show("You are not able to add projects in this group.");
+		}
+	}
+
+	private function onGetNewProject(event:ResultEvent):void {
+		if (getNewProject.lastResult.name() == "OpenProjectList") {
+			 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
+			 parentDocument.selectedProject.@idAppUser = parentApplication.getIdAppUser();
+			 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
+			 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
+			 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+			 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+			 
+			 var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == parentDocument.selectedIdLab);
+			 this.projectDetailWindow.labCombo.selectedItem = selectedLabNode;
+			 
+			 PopUpManager.centerPopUp(this.projectDetailWindow);		
+			
+		} else {
+			mx.controls.Alert.show(getNewProject.lastResult..ACTMESSAGE.@TEXT, "Get new project failed");
+		}
+	}
+	
+	private function toggleRequestNumberFilter():void {
+	}
+	private function toggleMyExperimentFilter():void {
+	}
+
+	private function toggleDateCheckboxes(checkBoxNumber:int):void {
+		this.analysisNumberCombo.selectedIndex = 0;
+	}
+		
+	private function moreFilters():void {
+		if (filterStack.selectedIndex == 0) {
+			filterStack.selectedIndex = 1;
+		} else {
+			filterStack.selectedIndex = 0;
+		}
+	}
+	
+	public function getExperimentIcon(codeRequestCategory:String):Class {
+		var theIcon:Class = parentApplication.iconExperiment;
+		switch(codeRequestCategory){  
+			case 'QC': 
+				theIcon = parentApplication.iconQC; 
+				break; 
+			case 'SOLEXA': 
+				theIcon = parentApplication.iconSolexa; 
+				break; 
+			default: 
+				theIcon = parentApplication.iconExperiment;	
+		}
+		return theIcon;
+	}
+	
+	private function showDownloadHints():void {
+		var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this, DownloadHints, true));
+		PopUpManager.centerPopUp(hints);			 		
+	}
+
+
+ 	]]>
+ </mx:Script>
+ 
+    <mx:XMLListCollection id="browseList" source="{parentDocument.browseTree.selectedItem..Analysis}"/>
+ 
+		
+
+<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
+ 	<mx:VBox width="100%"  verticalGap="0" paddingTop="2">
+
+
+	        <mx:HBox id="filterListView"  width="100%" horizontalAlign="right" horizontalGap="0">
+				<mx:ViewStack id="filterStack" width="100%" >
+				    <mx:HBox horizontalAlign="right" width="100%">
+				    	
+				    </mx:HBox>
+					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="10" horizontalAlign="right" verticalAlign="middle">
+				    	<mx:VRule height="22"/>
+						<mx:Spacer width="5"/>
+				    	<mx:VRule height="22"/>
+			    </mx:HBox>
+					
+				</mx:ViewStack>				
+		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0" horizontalAlign="right" paddingLeft="2" verticalAlign="middle">
+			        <mx:Label text="Analysis #"/>
+			        <mx:ComboBox dataProvider="{parentDocument.analysisNumbers}" id="analysisNumberCombo" change="toggleRequestNumberFilter();filterList()" width="80" >					    		
+			        </mx:ComboBox> 
+		        </mx:HBox>
+	        	
+	        </mx:HBox>
+
+
+
+
+	        <mx:TabBar dataProvider="{theViews}" 
+	        	itemClick="onViewSwitch()" 
+	        	useHandCursor="true" paddingBottom="0" paddingTop="2" height="25" styleName="formTabBar">
+	        </mx:TabBar>
+ 					    
+	</mx:VBox>
+
+		        
+	<mx:VBox width="100%" height="100%" styleName="formTabBody"  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
+		<mx:ViewStack id="theViews"  paddingTop="0" width="100%" height="100%"  paddingLeft="0">
+		       <mx:VBox id="experimentListView" width="100%" height="100%" 
+		       	label="Analysis" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+			       <mx:DataGrid  id="analysisList" 
+			       	dataProvider="{browseList}"  
+			       	width="100%" height="100%" 
+			       	itemDoubleClick="onAnalysisRowSelected()" 
+			       	doubleClickEnabled="true">
+			         <mx:columns>
+			            <mx:DataGridColumn   minWidth="28" width="28" headerText="#">
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
+			                          <mx:Image id="experimentImage"  
+			                          	source="{parentApplication.iconAnalysis}" >
+			                    	 </mx:Image> 
+			                           <mx:Label id="number" text="{data.@number}">
+			                           </mx:Label>
+			                        </mx:HBox>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> 
+				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
+				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
+				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
+ 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>                 
+				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"
+ 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisProtocol', dataField: '@idAnalysisProtocol'})}"/>                 
+				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50"
+ 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 
+				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+			         </mx:columns>
+			       </mx:DataGrid> 	    
+		       </mx:VBox>
+			       
+				<analysis:AnalysisDownloadView id="downloadView" 
+					label="Downloads" 
+					 borderStyle="none">
+				</analysis:AnalysisDownloadView>
+				
+				
+	 			<analysis:AnalysisVisibilityView id="visibilityView" label="Visibility">
+				</analysis:AnalysisVisibilityView>
+				
+				<analysis:AnalysisGroupView id="analysisGroupView" label="Analysis Group"  >
+			     </analysis:AnalysisGroupView>   
+		</mx:ViewStack>
+			
+	</mx:VBox>	    	 
+	
+</mx:VBox>		     
+		
+	<mx:ControlBar width="100%" >
+		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" horizontalGap="0">
+			<mx:ViewStack  id="buttonStack"  width="100%" >
+	            <mx:HBox horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
+ 					<mx:Button  visible="false"/>
+ 	            </mx:HBox>
+	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
+	            </mx:HBox>
+	            <mx:HBox horizontalAlign="right" id="saveAnalysisGroupView" horizontalGap="2" verticalAlign="middle">
+			        <util:DirtyNote id="dirtyProject"/>
+		            <mx:Button id="saveAnalysisGroupButton" label="Save" 
+		            	icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" 
+		            	click="analysisGroupView.save()"  toolTip="Save analysis group">
+		                  </mx:Button>
+		            
+	            </mx:HBox>
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="trackButtonView" horizontalGap="2">
+	                <mx:Button label="Button" visible="false"/>
+	            </mx:HBox>
+	        	<mx:HBox  verticalAlign="middle" horizontalAlign="right" id="saveVisibilityButtonView" height="100%">
+			        <util:DirtyNote id="dirtyVisibility"/>
+		        	<mx:Button label="Save" id="saveVisibilityButton"
+		        		icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" 
+		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for analysis group">
+		        	      </mx:Button>
+	        	</mx:HBox>
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFoldersButtonView">
+		            <mx:Button id="downloadFoldersButton" 
+		            	click="downloadView.downloadFolders()" 
+		            	icon="@Embed('../../assets/icon_download.gif')" 
+		            	toolTip="Download selected folders"
+		            	label="Download" 
+		            	visible="true"/>
+		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
+	            </mx:HBox>		                    
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
+		            <mx:Button id="downloadFilesButton" 
+		             	click="downloadView.downloadFiles()" 
+		             	icon="@Embed('../../assets/icon_download.gif')" 
+		             	toolTip="Download selected files"
+		             	label="Download"/>
+		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
+	            </mx:HBox>		                    
+	        </mx:ViewStack>
+		</mx:HBox>
+	</mx:ControlBar>
+	
+
+</mx:Panel>
+
+
+

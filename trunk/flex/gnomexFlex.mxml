@@ -3,6 +3,7 @@
 	xmlns:views="views.*"  
 	xmlns:workflow="views.workflow.*" 
 	xmlns:experiment="views.experiment.*" 
+	xmlns:analysis="views.analysis.*" 
 	xmlns:user="views.user.*"
 	xmlns:protocol="views.protocol.*"
 	xmlns:search="views.search.*"
@@ -249,6 +250,11 @@
 	        [Bindable]
 	        [Embed(source="assets/bullet_wrench.png")]
 	        public var iconSamplePrep:Class;
+
+
+	        [Bindable]
+	        [Embed(source="assets/map.png")]
+	        public var iconAnalysis:Class;
 	        
 	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
 	        
@@ -377,6 +383,11 @@
             	if (theViews.selectedChild == navExperimentView) {
 					navExperimentView.selectedRequestNumber = null;
             		navExperimentView.initializeExperiments();
+            	}
+            	if (theViews.selectedChild == navAnalysisView) {
+            		navAnalysisView.checkSecurity();
+					navAnalysisView.selectedAnalysisNumber = null;
+            		navAnalysisView.initializeAnalysis();
             	}
             	if (theViews.selectedChild == navUsersView) {
             		navUsersView.checkSecurity();
@@ -946,6 +957,10 @@
 	        <experiment:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
 	        	icon="@Embed('assets/flask.png')">
 	        </experiment:NavExperimentView>
+
+	        <analysis:NavAnalysisView id="navAnalysisView" width="100%" height="100%" 
+	        	icon="@Embed('assets/map.png')">
+	        </analysis:NavAnalysisView>
 
 	        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 	        </workflow:NavWorkflowView> 

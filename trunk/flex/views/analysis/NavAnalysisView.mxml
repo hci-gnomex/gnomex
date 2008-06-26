@@ -1,162 +1,722 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HDividedBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
-	<mx:Accordion 
-		 width="220"
-		 height="100%" 
-		 backgroundAlpha=".3" 
-		 headerHeight="25">
-		<mx:Canvas label="Browse" width="100%" height="100%">
-		    <mx:VBox width="100%" height="100%">
-				<mx:VBox width="100%" verticalGap="0">
-					<mx:Label text="Group">
-					</mx:Label>
-					<mx:ComboBox id="labCombo" 
-						labelField="@name"
-						width="205"
-						dataProvider="{parentApplication.promptedLabList}">
-					</mx:ComboBox>
-				</mx:VBox>
-				<mx:Tree height="100%" width="100%" 
-					dataProvider="{analysisGroupList}"
-				    labelField="@label"
-				     showRoot="false"
-					 backgroundAlpha="0">
-			    </mx:Tree>
-		    	
-		    </mx:VBox>
-		</mx:Canvas>
-		<mx:Canvas label="Submit Analysis" width="100%" height="100%">
-		</mx:Canvas>
-	</mx:Accordion>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+	label="Analysis" width="100%" height="100%" 
+	xmlns:views="views.*" xmlns:analysis="views.analysis.*"
+	cornerRadius="10"  >
+
+
+  <mx:HTTPService  
+    id="getAnalysisGroupList" 
+    url="GetAnalysisGroupList.gx"
+    destination="getAnalysisGroupList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysisGroupList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
+    method="POST" 
+    useProxy="false">
+    <mx:request>
+            <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
+            <showMyLabsAlways>{this.currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
+            <searchPublicProjects>{searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
+    </mx:request>
+   </mx:HTTPService>
+   
+   <mx:HTTPService  
+    id="getAnalysis" 
+    url="GetAnalysis.gx"
+    destination="getAnalysis"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    result="onGetAnalysis(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
 
    
-   <mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
-   	<mx:Canvas>
-   	    <mx:VDividedBox width="100%" height="100%">
-	   	    <mx:VBox width="100%" height="100%">
-	   	        <mx:HBox width="100%" horizontalAlign="right" paddingRight="10">
-	   	        	<mx:Button label="Download">
-	   	        	</mx:Button>   	        	
-	   	        	<mx:Button label="Show Files">
-	   	        	</mx:Button>   	        	
-	   	        </mx:HBox>
-		   		<mx:DataGrid width="100%" height="100%">
-		   			<mx:columns>
-		   				<mx:DataGridColumn headerText=" " itemRenderer='mx.controls.CheckBox' width="22"/>
-		   				<mx:DataGridColumn headerText="Analysis Group" dataField="col1"/>
-		   				<mx:DataGridColumn headerText="Analysis" dataField="col3"/>
-		   				<mx:DataGridColumn headerText="Analysis #" dataField="col3" width="70"/>
-		   				<mx:DataGridColumn headerText="Genome Version" dataField="col2"/>
-		   				<mx:DataGridColumn headerText="Experiment Type" dataField="col3"/>
-		   				<mx:DataGridColumn headerText="Analysis Protocol" dataField="col2"/>
-		   				<mx:DataGridColumn headerText="Analysis Type" dataField="col2"/>
-		   				<mx:DataGridColumn headerText="Experiment #" dataField="col3" width="70"/>
-		   				<mx:DataGridColumn headerText="Raw Data?" dataField="col3" width="70"/>
-		   			</mx:columns>
-		   		</mx:DataGrid>
-		   	    	
-	   	    </mx:VBox>   	
-	   	    
-	   	    <mx:VBox width="100%" height="100%" paddingTop="12" paddingLeft="8" paddingRight="8">
-	   	        <mx:VBox width="100%" height="100%">
-		   	    	<mx:Tile width="100%" height="100" tileWidth="170">
-		   	    		<mx:VBox width="100%" verticalGap="0">
-		   	    			<mx:Label text="Name:"/>
-		   	    			<mx:TextInput width="100%"></mx:TextInput>
-		   	    		</mx:VBox>
-		   	    		<mx:VBox width="100%" verticalGap="0">
-		   	    			<mx:Label text="Analysis Group"/>
-		   	    			<mx:ComboBox width="100%"></mx:ComboBox>
-		   	    		</mx:VBox>
-		   	    		<mx:VBox width="100%" verticalGap="0">
-		   	    			<mx:Label text="Experiment Type"/>
-		   	    			<mx:ComboBox width="100%"></mx:ComboBox>
-		   	    		</mx:VBox>
-		   	    		<mx:VBox width="100%" verticalGap="0">
-		   	    			<mx:Label text="Analysis Type"/>
-		   	    			<mx:ComboBox width="100%"></mx:ComboBox>
-		   	    		</mx:VBox>
-		   	    		<mx:VBox width="100%" verticalGap="0">
-		   	    			<mx:Label text="Genome Version"/>
-		   	    			<mx:ComboBox width="100%"></mx:ComboBox>
-		   	    		</mx:VBox>
-		   	    		<mx:VBox width="100%" verticalGap="0">
-		   	    			<mx:Label text="Analysis Protocol"/>
-		   	    			<mx:ComboBox width="100%"></mx:ComboBox>
-		   	    		</mx:VBox>
-		   	    		<mx:VBox width="100%">
-		   	    			<mx:Label text="Analysis #:"/>
-		   	    			<mx:TextInput width="100%"></mx:TextInput>
-		   	    		</mx:VBox>
-		   	    		<mx:HBox width="100%">
-   		   	    		    <mx:VBox width="100%">
-		   	    			    <mx:Label text="Experiment #:"/>
-		   	    			    <mx:TextInput width="100%"></mx:TextInput>
-  	  	   	    		    </mx:VBox>
-		   	    			<mx:Button label="..."/>		   	    			
-		   	    		</mx:HBox>
-		   	    		    	
-		   	    	</mx:Tile>
-		   	    	
-		   	    	<mx:HDividedBox width="100%" height="100%">
-		   	    	  <mx:VBox verticalGap="0" height="100%">
-		   	    	    <mx:Label text="Description">
-		   	    	    </mx:Label>
-	  	   	    	    <mx:TextArea width="350" height="100%">
-		   	    	    </mx:TextArea>
-		   	    	  </mx:VBox>
-		   	    	  
-		   	    	  <mx:VBox width="100%" height="100%">
-		   	    	    <mx:Label text="Annotations"/>
-		   	    		<mx:DataGrid width="100%" height="100%" showHeaders="false">
-		   	    			<mx:columns>
-		   	    				<mx:DataGridColumn headerText="Property" dataField="col1"/>
-		   	    				<mx:DataGridColumn headerText="Value" dataField="col2"/>
-		   	    			</mx:columns>
-		   	    		</mx:DataGrid>
-		   	    		
-		   	    	  </mx:VBox>
-		   	    		
-		   	    	</mx:HDividedBox>
-		   	    	
-		   	    	
-		   	    	<mx:HBox width="100%" horizontalAlign="right"  height="100%">
-		   	    		<mx:Button label="Save"></mx:Button>
-		   	    		
-		   	    	</mx:HBox>
-		   	    	
-	   	        	
-	   	        </mx:VBox>
-	   	    </mx:VBox>	
-   	    	
-   	    	
-   	    </mx:VDividedBox>
-   	</mx:Canvas>
-   	
-   	<mx:Canvas>
-   	</mx:Canvas>
-		    
-   </mx:ViewStack>
+   <mx:HTTPService  
+    id="getRequestForDownload" 
+    url="GetRequest.gx"
+    destination="getRequestForDownload"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequestForDownload(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get request for download', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+   
+   <mx:HTTPService  
+    id="deleteRequest" 
+    url="DeleteRequest.gx"
+    destination="deleteRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onDeleteRequest(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete request', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
 
-	
-	
-	<mx:Script>
-		<![CDATA[
-		   [Bindable]
-			private var analysisGroupList:XML = 
-			 <AnalysisGroupList>
-			   <AnalysisGroup label="Analysis group 1">
-			      <Analysis label="Analysis 1a"/>
-			      <Analysis label="Analysis 1b"/>
-			   </AnalysisGroup>
-  			   <AnalysisGroup label="Analysis group 2">
-			      <Analysis label="Analysis 2.1"/>
-			      <Analysis label="Analysis 2.2"/>
-			      <Analysis label="Analysis 2.3"/>
-			   </AnalysisGroup>
-			 </AnalysisGroupList>
+   
+   <mx:HTTPService  
+    id="getAnalysisGroup" 
+    url="GetAnalysisGroup.gx"
+    destination="getAnalysisGroup"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysisGroup(event)"
+    method="POST"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get analysis group', event)"
+    useProxy="false">
+    <mx:request>
+      <idAnalysisGroup>{selectedIdAnalysisGroup}</idAnalysisGroup>
+    </mx:request>
+  </mx:HTTPService>
+  
+  <mx:HTTPService  
+    id="saveRequestProject" 
+    url="SaveRequestProject.gx"
+    destination="saveRequestProject"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveRequestProject(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to reassign experiment project', event)"
+    method="POST"
+    useProxy="false">    
+  </mx:HTTPService>
+
+
+ 
+	   <mx:Script> 
+        <![CDATA[
+        import mx.controls.Alert;
+        import mx.managers.DragManager;
+        import mx.core.DragSource;
+        import mx.events.DragEvent;
+        import mx.events.CloseEvent;
+        import mx.controls.Menu;
+        import mx.collections.ArrayCollection;
+
+        import mx.rpc.events.ResultEvent;   
+        import mx.collections.XMLListCollection;
+        
+        public var selectedIdAnalysis:Object;
+        public var selectedAnalysisNumber:Object;
+        
+        [Bindable]
+        public var selectedAnalysis:Object;
+        
+        [Bindable]
+        public var selectedAnalysisGroup:Object;
+        
+        public var selectedIdLab:String;
+        
+        public var selectedNode:Object;
+        
+        private var dropProject:Object;
+        private var dragRequest:Object;
+        
+        [Bindable]
+        public var selectedIdAnalysisGroup:String;
+        
+        [Bindable]
+    	public var rowCountMessage:String = new String();
+    	
+
+    	private var showDownloads:Boolean = false;
+    
+
+	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
+	 	public static const millisecondsPerMonth:Number = 1000 * 60 * 60 * 24 * 30;
+	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
+
+		public function checkDirty():void {
+		}
+		
+		public function checkSecurity():void {
+			this.browseView.checkSecurity();
+			if (parentApplication.hasPermission("canAccessAnyObject")) {
+				currentState = "AdminState";
+			} else if (parentApplication.isGuestMode()) {
+				currentState = "GuestState";
+			} else {
+				currentState = "";
+			}
+		}
+
+        private function getBrowseTreeLabel(item:Object):String {
+        	var label:String = item.@label;
+        	return label;
+        }
+        
+       
+        
+        private function onGetRequestDownloadList(event:ResultEvent): void {        	
+        	setResultsCount();
+        }
+        
+        private function onGetAnalysisGroupList(event:ResultEvent): void {  
+        	if (getAnalysisGroupList.lastResult.Lab.length() == 0) {
+        		browseTree.visible = false;
+        	} else {
+        		browseTree.visible = true;
+        	}
+        	
+        	var call:Object = event.token;
+        	if (call.marker == "showDownloads") {
+        		showDownloads = true;
+        	} else {
+        		showDownloads = false;
+        	}
+
+        	callLater(reselectTreeItem);    	
+        	if (selectedAnalysisNumber != null) {
+	        	callLater(expandAllNodes);          		
+        	} else {
+        		callLater(expandLabNodes);
+        	}
+	    }
+
+	    
+	    
+	    private function reselectTreeItem():void {
+			if (selectedIdAnalysisGroup != null) {
+				selectedNode = getAnalysisGroupList.lastResult..AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
+				callLater(selectTreeNode);
+				// Can't expand project because it messes up dropindex for future drag operations.
+				
+			} else if (selectedAnalysisNumber != null) {
+				selectedNode = getAnalysisGroupList.lastResult..Analysis.(@number == selectedAnalysisNumber);
+				browseTree.openItems = getAnalysisGroupList.lastResult..AnalysisGroup;
+				callLater(selectTreeNode);
+				
+			} else if (selectedIdLab != null) {
+				selectedNode = getAnalysisGroupList.lastResult..Lab.(@idLab == selectedIdLab);
+				callLater(selectTreeNode);
+				
+				
+			} else {
+				selectedNode = getAnalysisGroupList.lastResult..Lab[0];
+				browseTree.selectedItem = selectedNode;
+				onBrowseTree();
+			}
+	    	
+	    }
+	    
+	    private function selectTreeNode():void {
+	    	browseTree.selectedItem = selectedNode;
+	    	onBrowseTree();
+	    }
+	    
+        
+        
+	    private function expandLabNodes():void
+  		{
+  			browseTree.expandItem(getAnalysisGroupList.lastResult, true);
+  			for each(var lab:Object in getAnalysisGroupList.lastResult..Lab) {
+  				browseTree.expandItem(lab, true);
+  			}
+  			browseTree.validateNow();
+  			treeContainer.validateNow();
+  		}
+
+	    public function expandAllNodes():void
+  		{
+  			browseTree.expandItem(getAnalysisGroupList.lastResult, true);
+  			for each(var lab:Object in getAnalysisGroupList.lastResult..Lab) {
+  				browseTree.expandItem(lab, true);
+  			}
+  			for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
+  				browseTree.expandItem(ag, true);
+  			}
+  			browseTree.validateNow();
+  			treeContainer.validateNow();
+  		}
+  		
+  		
+  		private function collapseAllBrowseNodes():void {
+  			browseTree.openItems = [];
+  			browseTree.validateNow();
+  		}
+  		
+	    public function setResultsCount():void {
+	    	if (browseTree.selectedItem == null) {
+	    		rowCountMessage = "";
+	    	} else if (browseTree.selectedItem..Request.length() == 1) {
+		    	rowCountMessage = "(" + browseTree.selectedItem..Analysis.length() + " analysis)";
+	    	} else {
+			   	rowCountMessage = "(" + browseTree.selectedItem..Analysis.length() + " analyses)";
+	    	}
+	    }
+    
+
+		private function onBrowseTree():void {
+			setResultsCount();
 			
-		]]>
-	</mx:Script>
+			browseView.dirtyProject.resetDirty();
+			browseView.dirtyVisibility.resetDirty();
+
+			selectedAnalysisGroup = null;
+			selectedIdAnalysisGroup = null;
+			selectedIdLab = null;
+			
+			this.deleteButton.enabled = false;
+			this.newAnalysisGroupButton.enabled = false;
+			this.newAnalysisButton.enabled = false;
+			
+			if (browseTree.selectedItem == null) {
+				return;
+			}
+			
+			if (browseTree.selectedItem.name() == 'Analysis') {
+				detailView.title = "Analysis " + browseTree.selectedItem.@number;
+				selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
+				var parms:Object = new Object();
+				parms.idAnalysis = selectedIdAnalysis;
+				getAnalysis.send(parms);
+				selectedIdLab = null;
+				selectedIdAnalysisGroup = null;
+				
+			} else {												
+				selectedIdLab = browseTree.selectedItem.@idLab.toString();
+				
+				if (browseTree.selectedItem.name() == 'AnalysisGroup') {
+					browseView.title = browseTree.selectedItem.@label + "\t" + rowCountMessage;
+					selectedIdAnalysisGroup = browseTree.selectedItem.@idAnalysisGroup.toString();
+					if (!browseView.theViews.contains(browseView.analysisGroupView)) {
+						browseView.theViews.addChild(browseView.analysisGroupView);
+					}
+					getAnalysisGroup.send();
+					
+				} else {
+					browseView.title =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;;
+					selectedIdAnalysisGroup = null;
+					if (browseView.theViews.contains(browseView.analysisGroupView)) {
+						browseView.theViews.removeChild(browseView.analysisGroupView);
+					}
+					browseView.buttonStack.selectedChild = browseView.browseButtonView;
+					browseView.refreshButtonStack();
+					
+				}
+				
+				theViews.selectedIndex=0;
+			} 
+			
+			browseView.analysisNumberCombo.selectedIndex = -1;
+			browseView.browseList.refresh();
+			refreshAnalysisNumbers(browseView.browseList);
+			browseView.refreshVisibilityList();
+			theViews.visible = true;
+			
+			
+		}
+		
+		public function showExperimentDownloads():void {
+			
+			selectedNode = browseTree.selectedItem.parent();
+			selectTreeNode();
+			
+			for each (var item:Object in analysisNumbers) {
+				if (item.data == selectedAnalysis.@number) {
+					browseView.analysisNumberCombo.selectedItem = item;
+					break;
+				}
+			}
+			
+			
+			theViews.selectedChild = browseView;
+			browseView.theViews.selectedChild = browseView.downloadView;
+			browseView.refreshButtonStack();
+			
+
+		}
+		
+		public function refreshAnalysisNumbers(analysisList:XMLListCollection):void {
+	    	analysisNumbers.removeAll();
+	    	browseView.analysisNumberCombo.selectedIndex = -1;
 	
-</mx:HDividedBox>
+			var blankItem:Object = new Object();
+			blankItem.data = "";
+			blankItem.label = "";
+	    	analysisNumbers.addItem(blankItem);
+	    	
+	    	for(var x:Number = 0; x < analysisList.length; x++) {
+	    		var item:Object = analysisList.getItemAt(x, 0);
+	    		
+	    		var found:Boolean = false;
+	    		for(var i:Number = 0; i < analysisNumbers.length; i++) {
+	    			if (analysisNumbers.getItemAt(i).label == item.@number) {
+	    				found = true;
+	    				break;
+	    			}
+	    		}
+	    		if (found == false) {
+	    			var newItem:Object = new Object();
+	    			newItem.data = item.@number;
+	    			newItem.label = item.@number;
+	    			analysisNumbers.addItem(newItem);
+	    		}
+	    	}
+	    	analysisNumbers.refresh();
+	    }		
+		
+		public function sortAnalysisNumbers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var num1:String = obj1.label;
+				var num2:String = obj2.label;
+				
+				if (num1 == 'Other') {
+					return 1;
+				} else if (num2 == 'Other') {
+					return  -1;
+				} else {
+					if (num1 < num2) {
+						return -1;
+					} else if (num1 > num2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}			
+				
+			}
+		}
+
+		public function filterAnalysisList(item:Object):Boolean {
+        	var keep:Boolean = true;
+        	if (browseView.analysisNumberCombo.selectedItem != null && browseView.analysisNumberCombo.selectedItem.label != "") {
+        		keep = false; 
+        		if (item.@number == browseView.analysisNumberCombo.selectedItem.label) {
+        			keep = true;
+        		}
+        	}   
+        	return keep;
+        }
+        
+ 
+
+		
+		private function onGetAnalysis(event:ResultEvent):void {
+			if (getAnalysis.lastResult.name() == "SUCCESS") {
+				Alert.show("Analysis not found");
+				parentApplication.theViews.selectedIndex = 0;
+        		return;
+        	}
+			if (getAnalysis.lastResult.name() != "OpenAnalysisList") {
+        		Alert.show(getAnalysis.lastResult..ACTMESSAGE.@TEXT);
+        		return;
+        	}
+        	
+
+        	
+		    if (this.showDownloads) {
+		    	this.showExperimentDownloads();
+		    	theViews.visible = true;
+		    	this.showDownloads = false;
+		    	return;
+		    }
+
+			if (selectedIdAnalysis != null) {
+				selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);			
+			} else {
+				selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
+				
+				var params:Object = new Object();
+				params.idProject = selectedAnalysis.@idProject;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				params.searchPublicProjects = 'N';
+				getAnalysisGroupList.send(params);
+				
+			    detailView.title = "Analysis " + selectedAnalysisNumber;
+			    
+			    
+			}
+		    theViews.selectedChild = detailView;
+			detailView.setupForm();
+
+		    theViews.visible = true;
+		}
+
+		private function onGetRequestForDownload(event:ResultEvent):void {
+			if (getRequestForDownload.lastResult.name() != "OpenRequestList") {
+        		Alert.show(getRequestForDownload.lastResult..ACTMESSAGE.@TEXT);
+        		return;
+        	}			
+			selectedAnalysis = getRequestForDownload.lastResult.Request.(@number == selectedAnalysisNumber);
+			
+			var params:Object = new Object();
+			params.idProject = selectedAnalysis.@idProject;
+			params.showSamples = "N";
+			params.showCategory = "N";
+			var call:Object = getAnalysisGroupList.send(params);
+			call.marker = "showDownloads";
+		    theViews.visible = true;
+		}
+		
+		private function onGetAnalysisGroup(event:ResultEvent):void {
+			selectedAnalysisGroup = getAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
+			browseView.refreshDownloadList();
+			browseView.refreshTrackList();
+			browseView.refreshVisibilityList();
+			
+			browseView.refreshButtonStack();
+			if (!browseView.theViews.contains(browseView.analysisGroupView)) {
+				browseView.theViews.addChild(browseView.analysisGroupView);
+			}
+			browseView.analysisGroupView.checkSecurity();
+
+		}
+
+		public function getTreeIcon(item:Object):Class {
+				if (item.name() == "Lab") {
+					return parentApplication.iconGroup;
+				} else if (item.name() == "AnalysisGroup") {
+					return parentApplication.iconProject;
+				} else if (item.name() == "Analysis") {
+					return parentApplication.iconAnalysis;
+				} else {
+					return parentApplication.iconAnalysis;
+				}
+		}
+
+		public function getTreeLabel(item:Object):String {
+				if (item.name() == "Analysis") { 
+					return item.@name;
+				} else {
+					return item.@label;
+				}
+		}
+		
+		public function refreshAnalysis():void {
+			this.browseTree.selectedItem = null;
+			selectedIdAnalysisGroup = null;
+			selectedIdLab = null;
+			getAnalysisGroupList.send();
+		}
+		
+		public function initializeAnalysis():void {
+			if (parentApplication.hasPermission('canAccessAnyObject')) {
+			} else {
+				if (getAnalysisGroupList.lastResult == null ||
+				    selectedAnalysisNumber != null) {
+				    collapseAllBrowseNodes();
+				    selectedAnalysisNumber = null;
+					refreshAnalysis();
+				}
+				
+			}
+		}
+		
+	  
+	  	private function onDragDrop( event:DragEvent ) : void
+		{
+		   // Disallow drop operation if user is guest
+		   if (parentApplication.isGuestMode()) {
+				event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);		   	
+		       	return;
+		   }
+	       var ds:DragSource = event.dragSource;
+	       var dropTarget:Tree = Tree(event.currentTarget);
+	
+	       // retrieve the data associated with the "items" format. This will be the data that
+	       // the dragInitiator has copied into the DragSource.
+	       var items:Array = ds.dataForFormat("treeItems") as Array;
+	
+	       // determine where in the tree the drop occurs and select that node by the index; followed by 
+	       // retrieving the node itself. 
+	       var r:int = browseTree.calculateDropIndex(event);
+	       browseTree.selectedIndex = r;
+	       var node:XML = browseTree.selectedItem as XML;
+	       var p:*;
+	
+	
+	       if (node.name() == "Project") {
+	       		p = node;
+	       } else if (node.name() == "Request") {
+	       		p = node.parent();
+	       }else {
+	       		//ignore drop operations on lab.
+	       		event.preventDefault();
+		       	event.target.hideDropFeedback(event);
+		       	DragManager.showFeedback(DragManager.NONE);		 
+		       	return;
+	       }
+	
+	       // taking all of the items in the DragSouce, insert them into the 
+	       // tree using parent p. 
+	       if (p != null) {
+		       for(var i:Number=0; i < items.length; i++) {
+		       	if (items[i].name() == "Request") {
+		             browseTree.dataDescriptor.addChildAt(p, items[i], r+i);
+		             
+		             dropProject = p;
+		             dragRequest = items[i];
+		           	 promptToReassignProject();
+		             
+		       	} 
+		       }
+	       	
+	       }	       
+		}
+		
+	    public function promptToReassignProject():void {
+	   		var message:String = "Reassign experiment " + dragRequest.@requestNumber +
+	               " to project " + dropProject.@projectName + "?";
+	
+			Alert.show(message, 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToReassignProject);
+			
+		}
+		
+		private function onPromptToReassignProject(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+	            selectedAnalysisGroup = dropProject;
+	            selectedIdAnalysisGroup = dropProject.@idProject;
+	            selectedIdLab = dropProject.@idLab;
+	            
+	            var params:Object = new Object();
+	            params.idRequest = dragRequest.@idRequest;
+	            params.idProject = dropProject.@idProject;
+	                  		
+           		saveRequestProject.send(params);
+            }
+        }
+
+       	private function onSaveRequestProject(event:ResultEvent): void {
+   			dropProject = null;
+   			dragRequest = null;
+       		if (saveRequestProject.lastResult.name() == "SUCCESS") {
+				this.refreshAnalysis();
+			
+        	} else {
+        		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
+        	}	    	
+	    }
+	    
+	    public function deleteExperiment():void {
+	    	var params:Object = new Object();
+	    	params.idRequest = selectedAnalysis.@idRequest;
+	    	deleteRequest.send(params);
+	    }
+	    
+	    private function onDeleteRequest(event:ResultEvent): void {
+	    	if (deleteRequest.lastResult.name() == "SUCCESS") {
+	    		this.refreshAnalysis();
+	    		theViews.selectedChild = browseView;
+	    	} else {
+	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
+	    	}
+	    }
+
+		
+       ]]>
+    </mx:Script>
+   	  <mx:ArrayCollection id="analysisNumbers"  sort="{requestNumberSorter}"/>
+	  <mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>
+    
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+
+    
+	<mx:HDividedBox height="100%" width="100%">
+	
+	
+			
+			<mx:Panel label="Experiments" width="235" height="100%" title="Analysis" id="navPanel" >
+				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
+
+					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+						<mx:Tree width="100%" height="100%" 
+							dataProvider="{getAnalysisGroupList.lastResult}" 
+							showRoot="false" 
+							id="browseTree" click="onBrowseTree();" 
+							borderStyle="none"
+							labelField="@label"
+							labelFunction="getTreeLabel"
+					        dragEnabled="true" 
+					        dropEnabled="true" 
+					        dragMoveEnabled="true"
+							dragDrop="onDragDrop(event);" 
+							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
+						<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
+						
+					</mx:VBox>
+
+				</mx:VBox>
+					<mx:ControlBar width="100%">
+						        <mx:Button id="newAnalysisGroupButton" click="browseView.showNewProjectWindow()" icon="@Embed('../../assets/folder_add.png')" 
+						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..." width="58" enabled="false">
+						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
+						        </mx:Button>
+						        <mx:Button id="newAnalysisButton" click="browseView.showNewProjectWindow()" icon="@Embed('../../assets/map_add.png')" 
+						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." width="58" enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')"/>
+						        <mx:Button id="deleteButton" icon="@Embed('../../assets/delete.png')" 
+						        	click="browseView.analysisGroupView.promptToDeleteAnalysisGroup()"
+						        	label=""  letterSpacing=".3" horizontalGap="0" toolTip="Delete analysis group"  enabled="false">
+						        	        <mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
+						        </mx:Button>
+						        <mx:Button icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()"/>
+								
+					</mx:ControlBar>
+			</mx:Panel> 
+
+ 
+
+	   
+
+		
+	     <mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
+
+	        <analysis:AnalysisBrowseView id="browseView"  width="100%" height="100%">
+	        </analysis:AnalysisBrowseView>
+
+	        <analysis:AnalysisDetailView id="detailView" width="100%" height="100%">
+	        </analysis:AnalysisDetailView>
+	        
+
+
+         </mx:ViewStack>
+		
+	</mx:HDividedBox>
+	
+	<mx:states>
+		<mx:State name="GuestState">
+			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+		</mx:State>
+		
+		<mx:State name="AdminState">
+			<mx:AddChild position="firstChild"  relativeTo="{navContainer}">
+					<mx:VBox verticalGap="0" width="100%">
+				        <mx:Label id="groupLabel" visible="true" text="Select group to show experiments:" paddingBottom="0"/>
+						<mx:ComboBox id="browseLabCombo" 
+							labelField="@name"
+							dataProvider="{parentApplication.promptedLabList}"
+							 change="getAnalysisGroupList.send()"  
+							 visible="true"  width="200">
+						</mx:ComboBox>				
+				        <mx:Spacer height="6"/>
+						
+					</mx:VBox>
+			</mx:AddChild>
+			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+		</mx:State>
+
+		
+	</mx:states>
+	
+
+    
+</mx:Canvas>
