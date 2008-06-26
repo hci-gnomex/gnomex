@@ -84,10 +84,20 @@
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<servlet-class>hci.gnomex.controller.DownloadResultsServlet</servlet-class>
 	</servlet>
+
+	<servlet>
+		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.DownloadAnalysisFolderServlet</servlet-class>
+	</servlet>
 		
 	<servlet>
 		<servlet-name>DownloadFileServlet</servlet-name>
 		<servlet-class>hci.gnomex.controller.DownloadFileServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.DownloadAnalysisFileServlet</servlet-class>
 	</servlet>
 			
 	<servlet-mapping>
@@ -100,12 +110,21 @@
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>DownloadResultsServlet.gx</url-pattern>
 	</servlet-mapping>
+		
+	<servlet-mapping>
+		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
+		<url-pattern>DownloadAnalysisFolderServlet.gx</url-pattern>
+	</servlet-mapping>
 	
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>DownloadFileServlet</servlet-name>
 		<url-pattern>DownloadFileServlet.gx</url-pattern>
 	</servlet-mapping>
 	
+  <servlet-mapping>
+		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
+		<url-pattern>DownloadAnalysisFileServlet.gx</url-pattern>
+	</servlet-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>Captcha</servlet-name>
