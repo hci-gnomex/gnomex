@@ -22,6 +22,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 
@@ -40,8 +43,12 @@ public class BuildSearchIndex extends DetailObject {
   private Session         sess;
   private SessionFactory  sessionFactory;
   private static String  dbhost = "hci-db";
-  private static String  dbUserName = "GuestGNomEx";
-  private static String  dbPassword = "p@ssw0rd";
+
+  private String gnomex_db_driver;
+  private String gnomex_db_url;
+  private String gnomex_db_username;
+  private String gnomex_db_password;
+  
   
   private Map projectRequestMap;
   private Map projectAnnotationMap;
@@ -52,17 +59,12 @@ public class BuildSearchIndex extends DetailObject {
   
   private DictionaryHelper dh = null;
   
+  protected static String DATA_SOURCES = "/orion/config/data-sources.xml";  
 
   public BuildSearchIndex() {
   }
   public static void main(String[] args)
   {
-    if (args.length > 0) {
-      dbhost = args[0];
-    }
-    if (args.length > 1) {
-      dbPassword = args[1];
-    }
     BuildSearchIndex app = new BuildSearchIndex();
     try
     {
@@ -93,16 +95,18 @@ public class BuildSearchIndex extends DetailObject {
   private void connect()
       throws Exception
   {
+    registerDataSources(new File(DATA_SOURCES));
+    
     configuration = new Configuration()
     .addFile("SchemaGNomEx.hbm.xml");
     
       
     configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.SybaseDialect")
                  .setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'")
-                 .setProperty("hibernate.connection.driver_class", "com.microsoft.jdbc.sqlserver.SQLServerDriver")
-                 .setProperty("hibernate.connection.username", dbUserName)
-                 .setProperty("hibernate.connection.password", dbPassword)
-                 .setProperty("hibernate.connection.url", "jdbc:microsoft:sqlserver://" + dbhost + ":1433;databaseName=GNomEx;SelectMethod=cursor" )
+                 .setProperty("hibernate.connection.driver_class", this.gnomex_db_driver)
+                 .setProperty("hibernate.connection.username", this.gnomex_db_username)
+                 .setProperty("hibernate.connection.password", this.gnomex_db_password)
+                 .setProperty("hibernate.connection.url", this.gnomex_db_url )
                  .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.HashtableCacheProvider");
                  
     
@@ -784,6 +788,35 @@ public class BuildSearchIndex extends DetailObject {
     ProtocolIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
     return doc;
+  }
+
+  private void registerDataSources(File xmlFile) {
+    if(xmlFile.exists()) {
+      try {
+        SAXBuilder builder = new SAXBuilder();
+        org.jdom.Document doc = builder.build(xmlFile);
+        this.registerDataSources(doc);
+      } catch (JDOMException e) {
+      }
+    }
+  }
+
+  
+
+  private void registerDataSources(org.jdom.Document doc) {
+    Element root = doc.getRootElement();
+    if (root.getChildren("data-source") != null) {
+      Iterator i = root.getChildren("data-source").iterator();
+      while (i.hasNext()) {
+        Element e = (Element) i.next();
+        if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("GNOMEX_GUEST")) {
+          this.gnomex_db_driver = e.getAttributeValue("connection-driver");
+          this.gnomex_db_url = e.getAttributeValue("url");
+          this.gnomex_db_password = e.getAttributeValue("password");
+          this.gnomex_db_username = e.getAttributeValue("username");
+        } 
+      }
+    }
   }
 
 
