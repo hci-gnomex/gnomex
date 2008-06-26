@@ -36,17 +36,19 @@
 	    private var params:Object;
 	    private var theParent:DisplayObject;
 	    private var estimatedDownloadSize:int;
+	    private var suggestedFileName:String = "gnomex-data";
 	    
 	    private static var downloadWindowCount:int = 0;
 	    
 	    
 
-		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:int):void {
+		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:int, suggestedFileName:String):void {
 			this.url = url;
 	    	this.params = params;
 			this.btn = startDownloadButton;
 			this.theParent = parent;
 			this.estimatedDownloadSize = estimatedDownloadSize;
+			this.suggestedFileName = suggestedFileName;
 			
 			fr = new FileReference();
 	        fr.addEventListener(Event.OPEN, openHandler);
@@ -77,7 +79,7 @@
 	        }
 	        try {
 	        	var today:Date = new Date();
-	        	var fileName:String = 'gnomex-data-' + dateFormatter.format(today) + '.zip';
+	        	var fileName:String = suggestedFileName + "-" + dateFormatter.format(today) + '.zip';
 		        fr.download(request, fileName);	        	
 	        } catch (error:Error) {
 	        	mx.controls.Alert.show("Unable to download file. " + error.message);

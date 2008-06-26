@@ -5,8 +5,8 @@
 
    <mx:HTTPService  
     id="getExpandedFileList" 
-    url="GetExpandedFileList.gx"
-    destination="getExpandedFileList"
+    url="GetExpandedAnalysisFileList.gx"
+    destination="getExpandedFileList" 
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetExpandedFileList(event)"
@@ -20,7 +20,7 @@
 
    <mx:HTTPService  
     id="cacheFileDownloadList" 
-    url="CacheFileDownloadList.gx"
+    url="CacheAnalysisFileDownloadList.gx"
     destination="cacheFileDownloadList"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -33,22 +33,10 @@
     </mx:request>
   </mx:HTTPService>
   
-    
-    <mx:HTTPService  
-    id="getRequestDownloadList" 
-    url="GetRequestDownloadList.gx"
-    destination="getRequestDownloadList"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onGetRequestDownloadList(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to get request download list', event)"
-    method="POST"
-    useProxy="false">
-    </mx:HTTPService >	
-    
+	    
     <mx:HTTPService  
     id="getDownloadEstimatedSize" 
-    url="GetDownloadEstimatedSize.gx"
+    url="GetAnalysisDownloadEstimatedSize.gx"
     destination="getDownloadEstimatedSize"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -86,10 +74,11 @@
     
     private var estimatedDownloadSize:Number;
     
-    private const DOWNLOAD_FOLDERS_URL:String  = "DownloadResultsServlet.gx"; 
-    private const DOWNLOAD_FILES_URL:String    = "DownloadFileServlet.gx"; 
- private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-data";  
-       
+    private const DOWNLOAD_FOLDERS_URL:String = "DownloadAnalysisFolderServlet.gx"; 
+    private const DOWNLOAD_FILES_URL:String   = "DownloadAnalysisFileServlet.gx";  
+    private const SUGGESTED_LOCAL_FILENAME:String   = "gnomex-analysis";  
+   
+    
     [Bindable]
     public var resultKeys:String;  
     
@@ -101,9 +90,9 @@
     }
     private function getSelectedFolders():void {
 		resultKeys = "";
-    	for(var i:Number = 0; i < downloadList.length; i++) {
-    		if (downloadList[i].@isSelected != null && downloadList[i].@isSelected.toString() == "true") {
-        		resultKeys += downloadList[i].@key + ":";
+    	for(var i:Number = 0; i < parentDocument.browseList.length; i++) {
+    		if (parentDocument.browseList[i].@isSelected != null && parentDocument.browseList[i].@isSelected.toString() == "true") {
+        		resultKeys += parentDocument.browseList[i].@key + ":";
       		}
         }     	
     }
@@ -124,7 +113,7 @@
  	}
  	
  	public function downloadFiles():void {
-		var selectedFiles:XMLList = getExpandedFileList.lastResult..FileDescriptor.(@isSelected == "true");        	
+		var selectedFiles:XMLList = getExpandedFileList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");        	
     	selectedFileList = new XMLListCollection(selectedFiles);
     	estimatedDownloadSize = 0;
     	for each (var item:Object in selectedFileList) {
@@ -160,27 +149,25 @@
  		}
     }
     
-    private function getFolderName(item:Object, col:int):String {
-    	if (item.@hybNumber != null && item.@hybNumber != '') {
-	    	return item.@hybNumber + ' - ' + item.@results;		
-    	} else {
-    		return item.@results;
-    	}
-    }
-    
 
 	public function setFileCount():void {
-		fileCountMessage = expandedFileList.length + " files found.";
+		var count:int = 0;
+		for each (var file:Object in expandedFileList) {
+			if  (file.@type != 'dir') {
+				count++;
+			}
+		}
+		fileCountMessage = count + " files found.";
 	}
 
     
     public function setResultsCount():void {
-    	rowCountMessage = downloadList.length + " folders found.";
+    	rowCountMessage = parentDocument.browseList.length + " folders found.";
     }
     
     private function getGridRowNumber(item:Object,col:int):String
     {
-       var x:int = downloadList.getItemIndex(item) + 1;
+       var x:int = parentDocument.browseList.getItemIndex(item) + 1;
        return String(x);
     } 
     
@@ -229,12 +216,19 @@
 			fileGrid.selectedItem.@isSelected = "true";
 		}
 	}
+	private function getFolderName(item:Object, col:DataGridColumn):String {
+		if (item.@showAnalysisNumber == 'Y') {
+			return item.@folderName;
+		} else {
+			return '';
+		}
+	}
     
  ]]>
  </mx:Script>
  
-    <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.RequestDownload}"/>
-    <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult.RequestDirectory.Directory.FileDescriptor}"/>
+    
+    <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult..AnalysisFileDescriptor}"/>
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 	    <mx:LinkBar id="linkBar" styleName="formLinkBar" dataProvider="{theTab}"/>
@@ -246,40 +240,43 @@
 				label="Folders" width="100%" height="100%" 
 				paddingLeft="0" paddingRight="0" 
 				paddingTop="0" paddingBottom="0" verticalGap="0">
-		       <util:DataGridAlternatingGroup  
+		       <mx:DataGrid
 		       	 sortableColumns="false" id="folderGrid"
-		       	dataProvider="{downloadList}"  
+		       	dataProvider="{parentDocument.browseList}"  
 		       	width="100%" height="100%"
 		       	  itemClick="toggleFolderCheck(event)">
-		         <util:columns>
+		         <mx:columns>
 		            <mx:DataGridColumn headerText=" " 
-		            	width="10" 
+		            	width="14" 
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" sortable="false"
 		            	itemRenderer="views.renderers.CheckBox">
-		            </mx:DataGridColumn>
-		            <mx:DataGridColumn minWidth="45" width="45" headerText="#">
-		                <mx:itemRenderer>
-		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
-				                   <mx:Image   id="experimentImage"  
-			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment)) : '')}" >
- 								   </mx:Image>
-		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-		                           </mx:Label>
-		                        </mx:HBox>
-		                    </mx:Component>
-		                </mx:itemRenderer>
-		            </mx:DataGridColumn> 
-			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@hybNumber"/>
-			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
-			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
-			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
-			       	<mx:DataGridColumn headerText="Sample 1" width="50" dataField="@nameSample1"/>
-			       	<mx:DataGridColumn headerText="Sample 2" width="50" dataField="@nameSample2"/>
-		         </util:columns>
-		       </util:DataGridAlternatingGroup>
+			            </mx:DataGridColumn> 
+			            <mx:DataGridColumn   minWidth="28" width="28" headerText="">
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                        <mx:HBox  horizontalGap="0"  paddingLeft="4" >
+			                          <mx:Image id="experimentImage"  
+			                          	source="{parentApplication.iconAnalysis}" >
+			                    	 </mx:Image> 
+			                           <mx:Label id="number" text="{data.@number}">
+			                           </mx:Label>
+			                        </mx:HBox>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> 
+				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
+				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
+				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
+ 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>                 
+				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"
+ 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisProtocol', dataField: '@idAnalysisProtocol'})}"/>                 
+				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50"
+ 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 
+				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+		         </mx:columns>
+		       </mx:DataGrid>
 			</mx:VBox>
 			
 			
@@ -301,32 +298,19 @@
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
 		            	itemRenderer="views.renderers.CheckBox"/>
-		            <mx:DataGridColumn width="14" headerText="#">
+		            <mx:DataGridColumn width="7" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
+		                        <mx:HBox  horizontalGap="0"  paddingLeft="4">
 		                          <mx:Image id="experimentImage"  
-			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment)) : '')}" >
+			                          	source="{(data.@showAnalysisNumber == 'Y' ? parentApplication.iconAnalysis : '')}" >
 		                    	 </mx:Image> 
-		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-		                           </mx:Label>
 		                        </mx:HBox>
 		                    </mx:Component>
 		                </mx:itemRenderer>
 		            </mx:DataGridColumn> 
-		            <mx:DataGridColumn width="18" headerText="Folder" >
-		                <mx:itemRenderer>
-		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
-		                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? parentApplication.iconFolder : ''}">
-		                    	 </mx:Image> 
-		                           <mx:Label id="directoryName" text="{data.@showDirectoryName == 'Y' ? data.@directoryName : ''}">
-		                           </mx:Label>
-		                        </mx:HBox>
-		                    </mx:Component>
-		                </mx:itemRenderer>
-		            </mx:DataGridColumn> 
-		              	<mx:DataGridColumn dataField="@displayName"    headerText="File"   width="70"/>
+					<mx:DataGridColumn width="30" headerText="Folder" labelFunction="getFolderName"/>
+		            <mx:DataGridColumn dataField="@displayName"    headerText="File"   width="70"/>
 			    	<mx:DataGridColumn dataField="@type"           headerText="Type"   width="12"/>
 			    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size"   width="12"/>
 			    	<mx:DataGridColumn dataField="@lastModifyDateDisplay" headerText="Date"   width="22"/>

@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+		import mx.events.CloseEvent;
+		import mx.controls.Alert;
+		import views.experiment.ExperimentEditView;
+		import views.renderers.LabelDictionary;
+	
+		[Bindable]
+		private var analysisTypeName:String;
+		[Bindable]
+		private var analysisProtocolName:String;
+		[Bindable]
+		private var organismName:String;
+		[Bindable]
+		private var genomeBuildName:String;
+		
+		public function checkSecurity():void {
+			if (parentApplication.isGuestMode()) {
+			}
+		}
+	
+		public function setupForm():void {
+			this.currentState = '';						
+			this.theViews.selectedIndex = 0;
+			if (parentDocument.selectedAnalysis.@codeRequestCategory == "QC") {
+				currentState = 'QCState';
+			} else if (parentDocument.selectedAnalysis.@codeRequestCategory == 'SOLEXA') {
+				currentState = 'SolexaState';
+			} else {
+				currentState = 'MicroarrayState';
+
+				
+
+			}
+
+
+
+
+			getAnalysisTypeName();
+			getAnalysisProtocolName();
+			getOrganismName();
+			getGenomeBuildName();
+			callLater(showHideColumns);
+			
+		}
+		
+		private function showCy3LabelCols(isVisible:Boolean):void {
+		}
+			
+		private function showCy5LabelCols(isVisible:Boolean):void {
+		}
+
+	    private function getChannel1SampleName(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@name;
+	    	} else {
+	    		return "";
+	    	}
+		}
+		private function getChannel2SampleName(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel2.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@name;
+	    	} else {
+	    		return "";
+	    	}
+		}
+		private function getChannel1SampleNumber(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@number;
+	    	} else {
+	    		return "";
+	    	}
+		}
+		private function getChannel2SampleNumber(item:Object, col:int):String {
+			var de:XMLList = item.labeledSampleChannel2.LabeledSample.sample.Sample;
+	    	if (de.length() == 1) {
+		    	return de[0].@number;
+	    	} else {
+	    		return "";
+	    	}
+		}
+
+   	 	private function getSamplesGridRowNumber(item:Object,col:int):String
+	    {
+	    	return "";
+	    } 
+   	 	private function getHybsGridRowNumber(item:Object,col:int):String
+	    {
+	    	return "";
+	    } 
+
+		private function getAnalysisTypeName():void {
+			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idAnalysisType);
+			analysisTypeName = dict.@display.toString();
+		}
+		private function getAnalysisProtocolName():void {
+			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idAnalysisProtocol);
+			analysisProtocolName = dict.@display.toString();
+		}
+		private function getOrganismName():void {
+			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idOrganism);
+			organismName = dict.@display.toString();
+		}
+		private function getGenomeBuildName():void {
+			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idGenomeBuild);
+			genomeBuildName = dict.@display.toString();
+		}		
+		
+		private function showDownloads():void {
+			parentDocument.showExperimentDownloads();
+		}
+
+	  	public function promptToDeleteExperiment():void {
+			Alert.show("Delete experiment " + parentDocument.selectedAnalysis.@number + "?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDeleteExperiment);
+			
+	  	}
+		
+	  	private function onPromptToDeleteExperiment(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	deleteExperiment();
+            }
+      	}
+		private function deleteExperiment():void {
+			parentDocument.deleteExperiment();
+		}
+		
+		private function showPrintableRequestForm():void {
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + parentDocument.selectedAnalysis.@idRequest);
+			navigateToURL(url, '_blank');			
+		}
+		
+		private function showEditExperimentWindow():void {
+			 // add this get request code b/c the edit window was freezing the second time 
+			 // the edit window was pressed.  by putting this extra call in, it seems to clear
+			 // out some weird state.
+			 //var parms:Object = new Object();
+			 //parms.idRequest = parentDocument.selectedAnalysis.@idRequest;
+			 //parentDocument.getRequest.send(parms);
+ 
+			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
+			 editWindow.width= 1000;
+			 editWindow.height= 500;
+			 editWindow.showCloseButton = true;
+			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedAnalysis.@number;
+			 PopUpManager.centerPopUp(editWindow);		
+             editWindow.setupEditForm(parentDocument.selectedAnalysis);
+           	 editWindow.initializeData();
+           	 callLater(editWindow.setupDataListeners); 
+		}
+		
+		public function refreshSavedExperiment():void {
+			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+			 var parms:Object = new Object();
+			 parms.idRequest = parentDocument.selectedIdRequest;
+			 parentDocument.getRequest.send(parms);
+			
+		}
+
+		public function getLanesGridRowNumber(item:Object,col:int):String
+        {
+           var x:int = this.lanesConfirmGrid.dataProvider.getItemIndex(item) + 1;
+           return String(x);     		
+        }
+		public function getLaneSampleName(item:Object,col:int):String
+        {
+        	var sampleName:String = "";
+        	return sampleName;
+        }
+        
+
+        
+       
+		public function getLaneSampleNumber(item:Object,col:int):String
+        {
+        	var sampleNumber:String = "";
+        	return sampleNumber;
+        }
+        
+        private function showHideColumns():void {
+        }
+
+	]]>
+</mx:Script>
+
+<mx:VBox width="100%" height="100%"  styleName="form" >
+	
+		
+	<mx:ViewStack id="theViews"  width="100%" height="100%" >
+
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+		    <mx:VBox height="100%"  width="100%" verticalGap="0">
+		        <mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="20" paddingLeft="6" paddingRight="6">
+		        	<mx:VBox verticalGap="0">
+		        		<mx:HBox horizontalGap="0">
+		                    <mx:Label text="Analysis #"  width="90" fontWeight="bold">
+		                    </mx:Label>
+		                    <mx:Text   text="{parentDocument.selectedAnalysis.@number}"  width="120" />
+		                </mx:HBox>
+		        		<mx:HBox horizontalGap="0">
+		                    <mx:Label text="Name"  width="90" fontWeight="bold">
+		                    </mx:Label>
+		                    <mx:Text  text="{parentDocument.selectedAnalysis.@name}"  width="120" />
+		                </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
+		                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="120"/>
+		                </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox verticalGap="0">
+			        	
+			        	 <mx:HBox verticalGap="0" horizontalGap="0">
+			        	       <mx:Label text="Analysis Type"  width="105" fontWeight="bold"/>
+			        	       <mx:Text text="{analysisTypeName}" width="210" />
+			        	   </mx:HBox>
+			            <mx:HBox verticalGap="0" horizontalGap="0">
+			                <mx:Label text="Protocol"  width="105" fontWeight="bold"/>
+			                <mx:Text  text="{analysisProtocolName}" width="210" />
+			            </mx:HBox>
+			            <mx:HBox verticalGap="0" horizontalGap="0">
+			                <mx:Label text="Organism"  width="105" fontWeight="bold"/>
+			                <mx:Text  text="{organismName}" width="210" />
+			            </mx:HBox>
+			            <mx:HBox verticalGap="0" horizontalGap="0">
+			                <mx:Label text="Genome Build"  width="105" fontWeight="bold"/>
+			                <mx:Text  text="{genomeBuildName}" width="210" />
+			            </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox width="100%" verticalGap="0">
+			        	
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                   <mx:Label text="Group"  width="60" fontWeight="bold"/>
+			                   <mx:Text text="{parentDocument.selectedAnalysis.@labName}" width="100%"/>
+			               </mx:HBox>
+		        	</mx:VBox>
+		        </mx:HBox>
+		        
+	
+				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+			    <mx:HRule width="100%"/>
+					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+							<mx:Label text="Experiments:" fontWeight="bold"/>
+							<mx:Spacer width="74"/>
+						</mx:HBox>
+		        <mx:Spacer height="4"/>
+					</mx:VBox>
+					<mx:HRule width="100%"/>
+					
+			    
+					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+							<mx:Label text="Files:" fontWeight="bold"/>
+							<mx:Spacer width="40"/>
+						</mx:HBox>
+					</mx:VBox>
+				</mx:VBox>
+		    </mx:VBox>
+			
+		</mx:VBox>
+	    
+	     
+
+
+
+		
+	</mx:ViewStack>
+	
+</mx:VBox>
+
+<mx:ControlBar width="100%">
+    <mx:HBox width="100%" horizontalAlign="left">
+	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
+	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
+	        <mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+	    </mx:LinkButton>				
+	
+    </mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="right">
+	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline">
+	        <mx:height>{parentDocument.selectedAnalysis.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{parentDocument.selectedAnalysis.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
+	    </mx:LinkButton>
+    	
+    </mx:HBox>
+</mx:ControlBar>
+
+<mx:states>
+	<mx:State name="MicroarrayState">		
+	</mx:State>
+	<mx:State name="QCState">		
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+	</mx:State>
+	<mx:State name="SolexaState">
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+		<mx:AddChild relativeTo="{this.confirmContainer}">
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
+						<mx:Label text="{'Sequencing Lanes (' + lanesConfirmGrid.dataProvider.length + ')'}"  fontWeight="bold"/>
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{parentDocument.selectedAnalysis.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:columns>
+							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
+						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
+				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
+							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
+				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
+				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
+							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus"/>
+							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"/>
+				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idGenomeBuildAlignTo'})}"/>                 											
+							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+						</mx:columns> 
+					</mx:DataGrid>
+					
+				</mx:VBox>					        			
+		
+		</mx:AddChild>
+	</mx:State>
+</mx:states>
+	
+</mx:Panel>

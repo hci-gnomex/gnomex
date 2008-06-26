@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" >
+
+<mx:HTTPService  
+    id="saveAnalysisGroup" 
+    url="SaveAnalysisGroup.gx"
+    destination="saveAnalysisGroup"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveAnalysisGroup(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to save analysis group', event)"
+    method="POST"
+    useProxy="false">
+</mx:HTTPService>
+
+<mx:HTTPService  
+    id="deleteAnalysisGroup" 
+    url="DeleteAnalysisGroup.gx"
+    destination="deleteAnalysisGroup"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onDeleteAnalysisGroup(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete analysis group', event)"
+    method="POST"
+    useProxy="false">
+</mx:HTTPService>
+  
+<mx:Script>
+	<![CDATA[
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.ListEvent;
+		
+		private var closeWindowAfterSave:Boolean = false;
+		public var fromAddAnalysisWindow:Boolean = false;
+		
+		
+		
+		public function checkSecurity():void {
+			if (parentApplication.navAnalysisView.selectedAnalysisGroup == null) {
+				return;
+			}
+			
+			
+			if (parentApplication.navAnalysisView.selectedAnalysisGroup.@canUpdate != "Y") {
+				analysisName.editable = false;
+				analysisName.enabled = false;
+				description.editable = false;
+				description.enabled = false;
+			} else {
+				analysisName.editable = true;
+				analysisName.enabled = true;
+				description.editable = true;
+				description.enabled = true;
+			}
+			if (parentApplication.navAnalysisView.selectedAnalysisGroup.@canUpdate == "Y") {
+				parentDocument.saveAnalysisGroupButton.enabled = true;
+			} else{
+				parentDocument.saveAnalysisGroupButton.enabled = false;
+			}
+			
+			if (parentApplication.navAnalysisView.selectedAnalysisGroup.@canDelete == "Y") {
+				parentApplication.navAnalysisView.deleteButton.enabled = true;
+			} else{
+				parentApplication.navAnalysisView.deleteButton.enabled = false;
+			}
+		}
+			
+		
+		public function addAnalysisGroup():void {
+			closeWindowAfterSave = true;
+			parentApplication.navAnalysisView.selectedAnalysisGroup.@idLab = parentDocument.labCombo.selectedItem.@idLab;
+			save();
+		}
+		
+		public function save():void {
+			parentApplication.navAnalysisView.selectedAnalysisGroup.@name = analysisName.text;
+			parentApplication.navAnalysisView.selectedAnalysisGroup.@description = description.text;
+			
+			var params:Object = new Object();
+			params.analysisGroupXMLString = parentApplication.navAnalysisView.selectedAnalysisGroup.toXMLString();
+			params.parseEntries = 'Y';
+			saveAnalysisGroup.send(params);
+		}
+		
+		public function promptToDeleteAnalysisGroup():void {
+			Alert.show("Delete analysis group " + parentApplication.navAnalysisView.selectedAnalysisGroup.@name + "?", 
+						null, 
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDeleteAnalysisGroup);
+			
+		}
+		
+		private function onPromptToDeleteAnalysisGroup(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	removeAnalysisGroup();
+            }
+        }
+
+		
+		private function removeAnalysisGroup():void {
+			var params:Object = new Object();
+			params.idAnalysisGroup = parentApplication.navAnalysisView.selectedAnalysisGroup.@idAnalysisGroup;
+			deleteAnalysisGroup.send(params);
+			
+		} 
+		
+		private function setDirty():void {
+			/*
+			if (parentDocument is AnalysisGroupDetailWindow) {
+				parentDocument.dirtyAnalysisGroup.setDirty();
+			} else {
+				parentApplication.navAnalysisView.browseView.dirtyAnalysisGroup.setDirty();
+			}
+			*/
+		}
+		
+		private function resetDirty():void {
+			/*
+			if (parentDocument is AnalysisGroupDetailWindow) {
+				parentDocument.dirtyAnalysisGroup.resetDirty();
+			} else {
+				parentApplication.navAnalysisView.browseView.dirtyAnalysisGroup.resetDirty();
+			}
+			*/
+		}
+		
+		private function onSaveAnalysisGroup(event:ResultEvent):void {
+        	if (saveAnalysisGroup.lastResult.name() == "SUCCESS") {
+        		resetDirty();
+				parentApplication.navAnalysisView.selectedIdAnalysisGroup = saveAnalysisGroup.lastResult.@idAnalysisGroup;
+				if (fromAddAnalysisWindow) {
+					parentApplication.submitRequestView.setupView.onAnalysisGroupAdded(saveAnalysisGroup.lastResult.@idAnalysisGroup);
+				}else {
+					parentApplication.navAnalysisView.getAnalysisGroup.send();
+	        		parentApplication.navAnalysisView.refreshExperiments();
+				}
+        		
+        		if (closeWindowAfterSave) {
+        			parentDocument.closeWindow();
+        			closeWindowAfterSave = false;
+        		}
+        	} else {
+        		Alert.show(saveAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
+        	}
+			
+		}
+		
+		private function onDeleteAnalysisGroup(event:ResultEvent):void {
+        	if (deleteAnalysisGroup.lastResult.name() == "SUCCESS") {
+        		parentApplication.navAnalysisView.selectedAnalysisGroup = null;
+        		parentApplication.navAnalysisView.selectedIdAnalysisGroup = null;
+        		parentApplication.navAnalysisView.refreshAnalysis();
+        		parentApplication.navAnalysisView.theViews.visible = false;
+        		parentApplication.navAnalysisView.browseView.buttonStack.selectedChild = parentDocument.browseButtonView;
+        	} else {
+        		Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
+        	}
+		}
+				
+
+	]]>
+</mx:Script>
+
+	  
+ 
+
+	<mx:HDividedBox width="100%" height="100%" horizontalAlign="left" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		<mx:VBox width="33%" height="100%" verticalGap="10"  >
+		    <mx:VBox width="100%" verticalGap="0">
+				<mx:Label text="Analysis Group name:"/>
+				<mx:TextInput id="analysisName" width="100%"  
+					text="{parentApplication.navAnalysisView.selectedAnalysisGroup.@name}">
+					<mx:change>setDirty()</mx:change>
+				</mx:TextInput>			    	
+		    </mx:VBox>
+			
+			<mx:VBox width="100%" verticalGap="0" height="100%">
+				<mx:Label text="Description:"/>
+				<mx:TextArea height="100%" id="description" width="100%" 
+					text="{parentApplication.navAnalysisView.selectedAnalysisGroup.@description}">
+					<mx:change>setDirty()</mx:change>
+				</mx:TextArea>			    	
+		    </mx:VBox>
+		</mx:VBox>
+
+
+       
+   </mx:HDividedBox>
+   
+
+	
+</mx:Canvas>

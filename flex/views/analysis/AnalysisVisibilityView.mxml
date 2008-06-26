@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
+
+
+
+   <mx:HTTPService  
+    id="saveVisibility" 
+    url="SaveVisibility.gx"
+    destination="saveVisibility"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveVisibility(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to save visibility', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+
+ <mx:Script>
+ <![CDATA[
+ 	import mx.collections.XMLListCollection; 
+ 	import mx.rpc.events.ResultEvent;
+ 	import views.renderers.ComboBoxVisibility;
+ 	
+ 	public function checkSecurity():void {
+ 		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "AnalysisGroup" &&
+ 		    parentDocument.parentDocument.selectedAnalysisGroup != null) {
+ 			if (parentDocument.parentDocument.selectedAnalysisGroup.@canUpdateVisibility == "Y") {
+ 				parentDocument.saveVisibilityButton.enabled = true;
+ 				analysisGroupVisibilityCombo.enabled = true;
+ 				analysisGroupVisibilityCombo.visible = true;
+ 			} else {
+ 				parentDocument.saveVisibilityButton.enabled = false;
+ 				analysisGroupVisibilityCombo.enabled = false;
+ 				analysisGroupVisibilityCombo.visible = false;
+ 			}
+ 		} else {
+ 			parentDocument.saveVisibilityButton.enabled = false;
+ 			analysisGroupVisibilityCombo.enabled = false;
+ 			analysisGroupVisibilityCombo.visible = false;
+ 		}
+ 	}
+			
+
+ 	private function getRequestKind(item:Object, col:int):String {
+		var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	if (de.length() == 1) {
+	    	return de[0].@display;
+    	} else {
+    		return "";
+    	}
+	}
+	
+	public function save():void {
+	    var dirtyRequests:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Request.(@isDirty == 'Y');        	
+    	var dirtyRequestList:XMLListCollection = new XMLListCollection(dirtyRequests);
+    	
+    	var params:Object = new Object();
+    	params.idProject = parentDocument.parentDocument.browseTree.selectedItem.@idProject;
+    	params.codeVisibility = analysisGroupVisibilityCombo.selectedItem.@codeVisibility;
+    	params.visibilityXMLString = dirtyRequestList.toXMLString();
+    	saveVisibility.send(params);
+
+	}
+	
+	private function onSaveVisibility(event:ResultEvent):void {
+		if (saveVisibility.lastResult.name() == "SUCCESS" ||
+		    saveVisibility.lastResult.name() == "ProjectRequestVisibilityList") {
+    		parentDocument.parentDocument.refreshExperiments();
+    		parentDocument.dirtyVisibility.resetDirty();
+    	} else {
+    		mx.controls.Alert.show(saveVisibility.lastResult..ACTMESSAGE.@TEXT);
+    	}
+	}
+	
+	
+	
+	                
+    public function onEdit():void {
+    	visibilityGrid.selectedItem.@isDirty = "Y";
+    	parentDocument.dirtyVisibility.setDirty();
+    }
+    
+    
+    public function setVisibilityCombo():void {
+    	analysisGroupVisibilityCombo.selectedIndex = 0;
+        if (parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility != null) {
+            for(var i:Number = 0; i < analysisGroupVisibilityCombo.dataProvider.length; i++) {
+            	if(analysisGroupVisibilityCombo.dataProvider[i].@value == parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility) {
+                      analysisGroupVisibilityCombo.selectedIndex = i;
+                      break;
+                 }
+            }
+        	
+        }
+    }
+    
+    
+    
+    
+ ]]>
+ </mx:Script>
+	
+	<mx:VBox  width="100%" height="100%"   paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	       <mx:HBox width="100%" horizontalAlign="left">
+					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@label}"/>
+					<mx:ComboBox id="analysisGroupVisibilityCombo" labelField="@display"  
+					 	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
+					 	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
+	                
+	       </mx:HBox>
+	       <mx:DataGrid  id="visibilityGrid" 
+	       	dataProvider="{parentDocument.browseList}" 
+	       	 width="100%" height="100%" 
+			 editable="true"
+	       	 itemEditEnd="onEdit()">
+	         <mx:columns>
+	            <mx:DataGridColumn width="10" minWidth="35" headerText="#">
+	                <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
+			                    <mx:Image id="experimentImage"  
+			                     	source="{parentApplication.iconAnalysis}" >
+								</mx:Image>
+	                           <mx:Label id="requestNumber" text="{data.@number}">
+	                           </mx:Label>
+	                        </mx:HBox>
+	                    </mx:Component>
+	                </mx:itemRenderer>
+	            </mx:DataGridColumn> 
+		       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
+		       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
+		       	<mx:DataGridColumn headerText="Analysis Type" width="35"
+					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>
+		       	<mx:DataGridColumn headerText="Organism" width="35" 
+					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
+		       	<mx:DataGridColumn headerText="Description" width="35" dataField="@description"/>
+		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
+					editorDataField="value" sortable="false" editable="{analysisGroupVisibilityCombo.enabled}" 
+					rendererIsEditor="false" 
+					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"
+					itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxVisibility, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"/>
+
+	         </mx:columns>
+	       </mx:DataGrid>
+	
+	     
+	</mx:VBox>
+	
+	
+
+
+
+</mx:Canvas>
+
+
