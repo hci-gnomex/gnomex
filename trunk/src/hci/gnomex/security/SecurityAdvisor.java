@@ -3,6 +3,8 @@ package hci.gnomex.security;
 import hci.dictionary.model.DictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
@@ -201,6 +203,47 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }
     }
+    // 
+    // Analysis
+    //
+    else if (object instanceof Analysis) {
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // Normal gnomex users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        Analysis a = (Analysis)object;
+        
+        // Analysis has membership visibility
+        if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+          if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getIdLab())) {
+            canRead = true;
+          }            
+        }
+        // Analysis has membership + collaborator visiblity
+        else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
+          if (isGroupIAmMemberOf(a.getIdLab()) || 
+              isGroupIManage(a.getIdLab()) || 
+              isGroupICollaborateWith(a.getIdLab())) {
+            canRead = true;
+          } 
+        }
+        // Analysis has public visibility
+        else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          canRead = true;
+        }
+      }
+      // Guest users
+      else {
+        Analysis a = (Analysis)object;
+        
+        // Request has public visibility
+        if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          canRead = true;
+        }
+      }
+    }
     
     //
     // Project
@@ -229,6 +272,30 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     } 
     
+    //
+    // AnalysisGroup
+    //
+    else if (object instanceof AnalysisGroup) {
+      
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // GNomEx Users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        AnalysisGroup ag = (AnalysisGroup)object;
+        if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getIdLab()) || isGroupICollaborateWith(ag.getIdLab())) {
+          canRead = true;
+        } 
+      }  
+      // Guests
+      else {
+        AnalysisGroup ag = (AnalysisGroup)object;
+        if (ag.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          canRead = true;
+        }
+      }     
+    } 
     //
     // Dictionary
     //    
@@ -277,6 +344,26 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       } 
     }
     //
+    // Analysis
+    //
+    else if (object instanceof Analysis) {
+      
+      // Admins
+      if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = true;
+      }
+      // Univerity GNomEx users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        Analysis a = (Analysis)object;
+        
+        // Lab manager
+        if (isGroupIManage(a.getIdLab())) {
+          canUpdate = true;
+        }
+        
+      } 
+    }    
+    //
     // Project
     //
     else if (object instanceof Project) {
@@ -290,6 +377,24 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         Project proj = (Project)object;
         // Lab members or mananagers
         if (isGroupIAmMemberOf(proj.getIdLab()) || isGroupIManage(proj.getIdLab())) {
+          canUpdate = true;
+        } 
+      }  
+    } 
+    //
+    // AnalysisGroup
+    //
+    else if (object instanceof AnalysisGroup) {
+      
+      // Admins
+      if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = true;
+      }
+      // University GNomEx users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        AnalysisGroup ag = (AnalysisGroup)object;
+        // Lab members or mananagers
+        if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getIdLab())) {
           canUpdate = true;
         } 
       }  
@@ -341,7 +446,24 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             canUpdate = true;
           } 
         } 
-      }
+      } 
+      //
+      // Analysis
+      //
+      else if (object instanceof Analysis) {          
+          // Admins
+          if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+            canUpdate = true;
+          }
+          // University GNomEx users
+          else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+            Analysis analysis = (Analysis)object;
+            // Lab manager
+            if (isGroupIManage(analysis.getIdLab())) {
+              canUpdate = true;
+            } 
+          } 
+        }
       //
       // Project
       //
@@ -365,7 +487,27 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           }
         } 
         
-      } else {
+      }
+      //
+      // Analysis Group
+      //
+      else if (object instanceof AnalysisGroup) {
+          
+        // Admins
+        if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+          canUpdate = true;
+        }
+        // University GNomEx users
+        else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+          AnalysisGroup ag = (AnalysisGroup) object;
+          // Lab manager
+          if (isGroupIManage(ag.getIdLab())) {
+            canUpdate = true;
+          }          
+        } 
+        
+      }  
+      else {
         throw new UnknownPermissionException("Unknown object for data profile PROFILE_OBJECT_VISIBILITY");
       }
     } else if (dataProfile == PROFILE_GROUP_MEMBERSHIP) {
@@ -449,9 +591,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (object instanceof Request) {
       Request req = (Request)object;
       req.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
+    } else if (object instanceof Analysis) {
+      Analysis a = (Analysis)object;
+      a.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
     } else if (object instanceof Project) {
       Project proj = (Project)object;
       proj.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
+    } else if (object instanceof AnalysisGroup) {
+      AnalysisGroup ag = (AnalysisGroup)object;
+      ag.canUpdateVisibility(this.canUpdate(object, this.PROFILE_OBJECT_VISIBILITY));
     }
   }
   

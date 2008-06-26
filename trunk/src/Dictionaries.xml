@@ -2,6 +2,11 @@
 <Dictionaries>
 
 
+	<Dictionary displayName="Analysis Protocol" className="hci.gnomex.model.AnalysisProtocol"  editable="Y"  >
+  	  <Filter className="hci.gnomex.model.AnalysisType" filterField="idAnalysisType"/>
+	</Dictionary>
+	<Dictionary displayName="Analysis Type" className="hci.gnomex.model.AnalysisType"  editable="Y"  >
+	</Dictionary>
 	<Dictionary displayName="Array Coordinate of Slide (not editable)" className="hci.gnomex.model.ArrayCoordinate"  editable="N"  >
   	  <Filter className="hci.gnomex.model.SlideDesign" filterField="idSlideDesign"/>
 	</Dictionary>

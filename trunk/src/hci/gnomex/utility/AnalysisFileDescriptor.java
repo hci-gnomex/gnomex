@@ -11,14 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class FileDescriptor extends DetailObject implements Serializable {
+public class AnalysisFileDescriptor extends DetailObject implements Serializable {
   private static final double    KB = Math.pow(2, 10);
   private static final double    MB = Math.pow(2, 20);
   private static final double    GB = Math.pow(2, 30);
 
 
   private String    displayName;
-  private String    requestNumber;
+  private String    analysisNumber;
   private long     fileSize;
   private String    fileName;
   private Date      lastModifyDate;
@@ -27,11 +27,11 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private String    directoryName;
   private List      children = new ArrayList();
   
-  public FileDescriptor() {    
+  public AnalysisFileDescriptor() {    
   }
   
-  public FileDescriptor(String requestNumber, String displayName, File file) {
-    this.requestNumber = requestNumber;
+  public AnalysisFileDescriptor(String analysisNumber, String displayName, File file) {
+    this.analysisNumber = analysisNumber;
     this.displayName = displayName;
     
     this.fileSize = file.length();
@@ -42,7 +42,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
     }
-    this.zipEntryName = fileName.substring(Constants.MICROARRAY_DIRECTORY.length() + 5).replaceAll("\\\\", "/");  
+    this.zipEntryName = fileName.substring(Constants.ANALYSIS_DIRECTORY.length() + 5).replaceAll("\\\\", "/");  
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");
@@ -91,7 +91,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
     if (this.type != null && this.type.equals("dir")) {
       long total = 0;
       for(Iterator i = children.iterator(); i.hasNext();) {
-        FileDescriptor fd = (FileDescriptor)i.next();
+        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i.next();
         total += fd.getChildFileSize();            
       }      
       return total;
@@ -130,17 +130,17 @@ public class FileDescriptor extends DetailObject implements Serializable {
   }
 
   
-  public String getRequestNumber() {
-    return requestNumber;
+  public String getAnalysisNumber() {
+    return analysisNumber;
   }
   
   public String getNumber() {
-    return getRequestNumber();
+    return getAnalysisNumber();
   }
 
   
-  public void setRequestNumber(String requestNumber) {
-    this.requestNumber = requestNumber;
+  public void setAnalysisNumber(String analysisNumber) {
+    this.analysisNumber = analysisNumber;
   }
 
 
@@ -168,24 +168,21 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.zipEntryName = zipEntryName;
   }
   
-  public String getDirectoryRequestNumber() {
-    String requestNumber = "";
+
+  public String getDirectoryNumber() {
+    String analysisNumber = "";
     if (fileName != null && !fileName.equals("")) {
       // Get the directory name starting after the year
-      String relativePath = fileName.substring(Constants.MICROARRAY_DIRECTORY.length() + 5);
+      String relativePath = fileName.substring(Constants.ANALYSIS_DIRECTORY.length() + 5);
       String tokens[] = relativePath.split("/", 2);
       if (tokens == null || tokens.length == 1) {
         tokens = relativePath.split("\\\\", 2);
       }
       if (tokens.length == 2) {
-        requestNumber = tokens[0];
+        analysisNumber = tokens[0];
       }
     }
-    return requestNumber;
-  }
-  
-  public String getDirectoryNumber() {
-    return getDirectoryRequestNumber();
+    return analysisNumber;
   }
 
   

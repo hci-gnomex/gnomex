@@ -9,6 +9,40 @@
 <!--     DOMAIN OBJECTS    -->
 <!--                       -->
 
+	<!-- hci.gnomex.model.AnalysisGroup -->
+	<class name="hci.gnomex.model.AnalysisGroup" table="AnalysisGroup">
+		<id name="idAnalysisGroup" column="idAnalysisGroup" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="idLab" column="idLab" type="integer"/>
+		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<property name="codeVisibility" column="codeVisibility" type="string"/>		
+		<set name="analysisItems" table="AnalysisGroupItem" lazy="true" sort="hci.gnomex.utility.AnalysisNumberComparator" cascade="none">
+			<key column="idAnalysisGroup"/>
+			<many-to-many column="idAnalysis" class="hci.gnomex.model.Analysis"/>
+		</set>
+	</class>
+
+	<!-- hci.gnomex.model.Analysis -->
+	<class name="hci.gnomex.model.Analysis" table="Analysis">
+		<id name="idAnalysis" column="idAnalysis" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="number" column="number" type="string"/>
+		<property name="name" column="name" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="idLab" column="idLab" type="integer"/>
+		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<property name="idAnalysisType" column="idAnalysisType" type="integer"/>
+		<property name="idAnalysisProtocol" column="idAnalysisProtocol" type="integer"/>
+		<property name="idOrganism" column="idOrganism" type="integer"/>
+		<property name="idGenomeBuild" column="idGenomeBuild" type="integer"/>
+		<property name="createDate" column="createDate" type="date"/>
+		<property name="codeVisibility" column="codeVisibility" type="string"/>		
+	</class>
+	
     <!-- hci.gnomex.model.AppUser -->
 	<class name="hci.gnomex.model.AppUser" table="AppUser">
 		<id name="idAppUser" column="idAppUser" type="integer">
@@ -395,6 +429,27 @@
 <!--                       -->
 <!--      DICTIONARIES     -->
 <!--                       -->
+
+	<!-- hci.gnomex.model.AnalysisType -->
+	<class name="hci.gnomex.model.AnalysisType" table="AnalysisType">
+		<id name="idAnalysisType" column="idAnalysisType" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="analysisType" column="analysisType" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+
+	<!-- hci.gnomex.model.AnalysisProtocol -->
+	<class name="hci.gnomex.model.AnalysisProtocol" table="AnalysisProtocol">
+		<id name="idAnalysisProtocol" column="idAnalysisProtocol" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="analysisProtocol" column="analysisProtocol" type="string"/>
+		<property name="idAnalysisType" column="idAnalysisType" type="integer"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+	
     <!-- hci.gnomex.model.ArrayCoordinate -->
 	<class name="hci.gnomex.model.ArrayCoordinate" table="ArrayCoordinate">
 		<id name="idArrayCoordinate" column="idArrayCoordinate" type="integer">

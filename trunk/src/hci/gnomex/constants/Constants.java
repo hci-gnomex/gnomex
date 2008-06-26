@@ -9,6 +9,8 @@ public class Constants {
   
   public static final String              MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayDataShare\\";
   public static final String              TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\";
+  public static final String              ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare\\";
+  public static final String              TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\";
   public static final String              QC_DIRECTORY                    = "bioanalysis";
   
   public static final String              PRODUCTION_SERVER               = "hci-as1.hci.utah.edu";
