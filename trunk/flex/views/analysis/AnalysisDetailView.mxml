@@ -25,34 +25,23 @@
 		public function setupForm():void {
 			this.currentState = '';						
 			this.theViews.selectedIndex = 0;
-			if (parentDocument.selectedAnalysis.@codeRequestCategory == "QC") {
-				currentState = 'QCState';
-			} else if (parentDocument.selectedAnalysis.@codeRequestCategory == 'SOLEXA') {
-				currentState = 'SolexaState';
-			} else {
-				currentState = 'MicroarrayState';
-
-				
-
-			}
-
-
-
 
 			getAnalysisTypeName();
 			getAnalysisProtocolName();
 			getOrganismName();
 			getGenomeBuildName();
-			callLater(showHideColumns);
 			
+			var sequenceLanes:int = 0;
+			for each (var experimentItem:Object in parentDocument.selectedAnalysis.experimentItems.AnalysisExperimentItem..SequenceLane) {
+				sequenceLanes++;
+			}
+			if (sequenceLanes > 0) {
+				this.experimentItemStack.selectedIndex = 1;
+			} else {
+				this.experimentItemStack.selectedIndex = 0;
+			}
 		}
 		
-		private function showCy3LabelCols(isVisible:Boolean):void {
-		}
-			
-		private function showCy5LabelCols(isVisible:Boolean):void {
-		}
-
 	    private function getChannel1SampleName(item:Object, col:int):String {
 			var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
 	    	if (de.length() == 1) {
@@ -85,15 +74,6 @@
 	    		return "";
 	    	}
 		}
-
-   	 	private function getSamplesGridRowNumber(item:Object,col:int):String
-	    {
-	    	return "";
-	    } 
-   	 	private function getHybsGridRowNumber(item:Object,col:int):String
-	    {
-	    	return "";
-	    } 
 
 		private function getAnalysisTypeName():void {
 			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idAnalysisType);
@@ -133,11 +113,7 @@
 			parentDocument.deleteExperiment();
 		}
 		
-		private function showPrintableRequestForm():void {
-			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + parentDocument.selectedAnalysis.@idRequest);
-			navigateToURL(url, '_blank');			
-		}
-		
+
 		private function showEditExperimentWindow():void {
 			 // add this get request code b/c the edit window was freezing the second time 
 			 // the edit window was pressed.  by putting this extra call in, it seems to clear
@@ -165,28 +141,24 @@
 			
 		}
 
-		public function getLanesGridRowNumber(item:Object,col:int):String
-        {
-           var x:int = this.lanesConfirmGrid.dataProvider.getItemIndex(item) + 1;
-           return String(x);     		
-        }
-		public function getLaneSampleName(item:Object,col:int):String
-        {
-        	var sampleName:String = "";
-        	return sampleName;
-        }
-        
+
+   	 	private function getLanesGridRowNumber(item:Object,col:int):String
+	    {
+	    	var x:int = lanesGrid.dataProvider.getItemIndex(item) + 1;
+	       	return String(x);
+	    } 
+   	 	private function getHybsGridRowNumber(item:Object,col:int):String
+	    {
+	    	var x:int = hybsGrid.dataProvider.getItemIndex(item) + 1;
+	       	return String(x);
+	    } 
+   	 	private function getFilesGridRowNumber(item:Object,col:int):String
+	    {
+	    	var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
+	       	return String(x);
+	    } 
 
         
-       
-		public function getLaneSampleNumber(item:Object,col:int):String
-        {
-        	var sampleNumber:String = "";
-        	return sampleNumber;
-        }
-        
-        private function showHideColumns():void {
-        }
 
 	]]>
 </mx:Script>
@@ -237,9 +209,14 @@
 		        	<mx:VBox width="100%" verticalGap="0">
 			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                   <mx:Label text="Group"  width="60" fontWeight="bold"/>
+			                   <mx:Label text="Group"  width="102" fontWeight="bold"/>
 			                   <mx:Text text="{parentDocument.selectedAnalysis.@labName}" width="100%"/>
-			               </mx:HBox>
+			            </mx:HBox>
+			        	
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                   <mx:Label text="Analysis Groups"  width="102" fontWeight="bold"/>
+			                   <mx:Text text="{parentDocument.selectedAnalysis.@analysisGroupNames}" width="100%"/>
+			            </mx:HBox>
 		        	</mx:VBox>
 		        </mx:HBox>
 		        
@@ -248,19 +225,64 @@
 			    <mx:HRule width="100%"/>
 					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
-							<mx:Label text="Experiments:" fontWeight="bold"/>
 							<mx:Spacer width="74"/>
 						</mx:HBox>
-		        <mx:Spacer height="4"/>
+		        <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
+		        <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
+		        <mx:ViewStack width="100%" height="100%" id="experimentItemStack">
+		        	<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%">
+
+						<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="false" dataProvider="{parentDocument.selectedAnalysis..Hybridization}">
+							<mx:columns>
+							    <mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
+								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
+							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
+							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
+							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
+							    <mx:DataGridColumn headerText="Slide" width="320" labelFunction="parentApplication.lookupSlideDesignName" />
+								<mx:DataGridColumn headerText="Notes" width="100"   dataField="@notes"/>
+							</mx:columns>
+						</mx:DataGrid>
+
+		        	</mx:Canvas>
+		        	<mx:Canvas label="Solexa Sequence Lanes" width="100%" height="100%">
+		        		<mx:DataGrid width="100%" height="100%" dataProvider="{parentDocument.selectedAnalysis..SequenceLane}" id="lanesGrid">
+		        		  <mx:columns>
+							<mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
+							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+						    <mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
+						    <mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
+				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
+				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
+				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
+				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idGenomeBuildAlignTo'})}"/>                 											
+							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+		        		  </mx:columns>
+		        		</mx:DataGrid>
+		        	</mx:Canvas>
+		        </mx:ViewStack>
 					</mx:VBox>
 					<mx:HRule width="100%"/>
 					
 			    
-					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+					<mx:VBox width="100%" height="100%" verticalGap="0" >
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 							<mx:Label text="Files:" fontWeight="bold"/>
 							<mx:Spacer width="40"/>
 						</mx:HBox>
+						<mx:DataGrid id="filesGrid" dataProvider="{parentDocument.selectedAnalysis..AnalysisFile}" width="100%" height="100%">
+							<mx:columns>
+  							    <mx:DataGridColumn headerText="" width="25" labelFunction="getFilesGridRowNumber"/>
+								<mx:DataGridColumn headerText="File name" dataField="@fileName"/>
+								<mx:DataGridColumn headerText="Upload Date" width="80" dataField="@uploadDate"/>
+								<mx:DataGridColumn headerText="Comments" dataField="@comments"/>
+							</mx:columns>
+						</mx:DataGrid>
 					</mx:VBox>
 				</mx:VBox>
 		    </mx:VBox>
@@ -294,41 +316,5 @@
     </mx:HBox>
 </mx:ControlBar>
 
-<mx:states>
-	<mx:State name="MicroarrayState">		
-	</mx:State>
-	<mx:State name="QCState">		
-		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
-	</mx:State>
-	<mx:State name="SolexaState">
-		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
-		<mx:AddChild relativeTo="{this.confirmContainer}">
-				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
-						<mx:Label text="{'Sequencing Lanes (' + lanesConfirmGrid.dataProvider.length + ')'}"  fontWeight="bold"/>
-						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{parentDocument.selectedAnalysis.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
-						<mx:columns>
-							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
-						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
-				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
-                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
-				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
-							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
-				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
-				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
-							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus"/>
-							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"/>
-				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
-                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idGenomeBuildAlignTo'})}"/>                 											
-							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
-						</mx:columns> 
-					</mx:DataGrid>
-					
-				</mx:VBox>					        			
-		
-		</mx:AddChild>
-	</mx:State>
-</mx:states>
 	
 </mx:Panel>
