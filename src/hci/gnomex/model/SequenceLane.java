@@ -254,6 +254,15 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }
   
+  
+  public String getSampleName() {
+    if (sample != null) {
+      return sample.getName();
+    } else {
+      return "";
+    }
+  }
+  
   public Integer getIdOrganism() {
     if (sample != null) {
       return sample.getIdOrganism();

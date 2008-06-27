@@ -3,6 +3,9 @@ package hci.gnomex.model;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class Analysis extends HibernateDetailObject {
@@ -19,7 +22,10 @@ public class Analysis extends HibernateDetailObject {
   private Integer   idGenomeBuild;
   private Date      createDate;
   private String    codeVisibility;
-  
+  private Set       analysisGroups = new TreeSet();  
+  private Set       experimentItems = new TreeSet();
+  private Set       files = new TreeSet();
+    
   // permission field
   private boolean     canUpdateVisibility;
   
@@ -191,7 +197,64 @@ public class Analysis extends HibernateDetailObject {
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getLab");
+    this.excludeMethodFromXML("getAnalysisGroups");
   }
+
+
+
+  
+  public Set getAnalysisGroups() {
+    return analysisGroups;
+  }
+
+
+
+  
+  public void setAnalysisGroups(Set analysisGroups) {
+    this.analysisGroups = analysisGroups;
+  }
+  
+  public String getAnalysisGroupNames() {
+    StringBuffer buf = new StringBuffer();
+    for(Iterator i = analysisGroups.iterator(); i.hasNext();) {
+      AnalysisGroup ag = (AnalysisGroup)i.next();
+      buf.append(ag.getName());
+      if (i.hasNext()) {
+        buf.append(", ");
+      }
+    }
+    return buf.toString();
+  }
+
+
+
+  
+  public Set getExperimentItems() {
+    return experimentItems;
+  }
+
+
+
+  
+  public void setExperimentItems(Set experimentItems) {
+    this.experimentItems = experimentItems;
+  }
+
+
+
+  
+  public Set getFiles() {
+    return files;
+  }
+
+
+
+  
+  public void setFiles(Set files) {
+    this.files = files;
+  }
+
+
  
  
 }
