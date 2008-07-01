@@ -21,20 +21,6 @@
   </mx:HTTPService>
 
 
-   <mx:HTTPService  
-    id="getNewProject" 
-    url="GetProject.gx"
-    destination="getProject"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onGetNewProject(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
-    method="POST"
-    useProxy="false">
-    <mx:request>
-   		<idProject>0</idProject>    	
-    </mx:request>
-  </mx:HTTPService>
 
   
  <mx:Script>
@@ -44,7 +30,7 @@
  	import mx.rpc.events.ResultEvent;
     import mx.managers.PopUpManager;
 	import mx.containers.TitleWindow;
-	import views.experiment.ProjectDetailWindow;
+	import views.analysis.AnalysisGroupWindow;
 	import views.util.DownloadHints;
 	import mx.core.IFlexDisplayObject;
 	import views.renderers.LabelDictionary;
@@ -56,7 +42,7 @@
     
     private var selectedIdAnalysis:int;
 
-    private var projectDetailWindow:ProjectDetailWindow;
+
         
         
 	public function checkSecurity():void { 
@@ -162,13 +148,6 @@
 	
      
 	public function refreshButtonStack():void {
-		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
-			parentDocument.newAnalysisGroupButton.enabled = true;
-			parentDocument.newAnalysisButton.enabled = true;
-		} else {
-			parentDocument.newAnalysisGroupButton.enabled = false;
-			parentDocument.newAnalysisButton.enabled = false;
-		}
 		if (theViews.selectedChild == experimentListView ) {
 			buttonStack.selectedChild = browseButtonView;				
 		} else if (theViews.selectedChild == analysisGroupView) {
@@ -201,32 +180,7 @@
 	 
 	
 	
-	public function showNewProjectWindow():void {
-		if (parentApplication.canSubmitRequests(parentDocument.selectedIdLab)) {
-			getNewProject.send();		
-		} else {
-			mx.controls.Alert.show("You are not able to add projects in this group.");
-		}
-	}
 
-	private function onGetNewProject(event:ResultEvent):void {
-		if (getNewProject.lastResult.name() == "OpenProjectList") {
-			 parentDocument.selectedProject = getNewProject.lastResult.Project.(@idProject == 0);
-			 parentDocument.selectedProject.@idAppUser = parentApplication.getIdAppUser();
-			 parentDocument.selectedProject.@idLab = parentDocument.selectedIdLab;
-			 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
-			 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
-			 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
-			 
-			 var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == parentDocument.selectedIdLab);
-			 this.projectDetailWindow.labCombo.selectedItem = selectedLabNode;
-			 
-			 PopUpManager.centerPopUp(this.projectDetailWindow);		
-			
-		} else {
-			mx.controls.Alert.show(getNewProject.lastResult..ACTMESSAGE.@TEXT, "Get new project failed");
-		}
-	}
 	
 	private function toggleRequestNumberFilter():void {
 	}
@@ -370,7 +324,7 @@
 	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
 	            </mx:HBox>
 	            <mx:HBox horizontalAlign="right" id="saveAnalysisGroupView" horizontalGap="2" verticalAlign="middle">
-			        <util:DirtyNote id="dirtyProject"/>
+			        <util:DirtyNote id="dirtyAnalysisGroup"/>
 		            <mx:Button id="saveAnalysisGroupButton" label="Save" 
 		            	icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" 
 		            	click="analysisGroupView.save()"  toolTip="Save analysis group">

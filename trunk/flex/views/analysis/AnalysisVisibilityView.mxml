@@ -5,7 +5,7 @@
 
    <mx:HTTPService  
     id="saveVisibility" 
-    url="SaveVisibility.gx"
+    url="SaveVisibilityAnalysis.gx" 
     destination="saveVisibility"
     resultFormat="e4x"
     showBusyCursor="true"
@@ -14,7 +14,7 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
-
+ 
 
  <mx:Script>
  <![CDATA[
@@ -52,21 +52,21 @@
 	}
 	
 	public function save():void {
-	    var dirtyRequests:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Request.(@isDirty == 'Y');        	
-    	var dirtyRequestList:XMLListCollection = new XMLListCollection(dirtyRequests);
+	    var dirtyAnalysisItems:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Analysis.(@isDirty == 'Y');        	
+    	var dirtyAnalysisList:XMLListCollection = new XMLListCollection(dirtyAnalysisItems);
     	
     	var params:Object = new Object();
-    	params.idProject = parentDocument.parentDocument.browseTree.selectedItem.@idProject;
+    	params.idAnalysisGroup = parentDocument.parentDocument.browseTree.selectedItem.@idAnalysisGroup;
     	params.codeVisibility = analysisGroupVisibilityCombo.selectedItem.@codeVisibility;
-    	params.visibilityXMLString = dirtyRequestList.toXMLString();
+    	params.visibilityXMLString = dirtyAnalysisList.toXMLString();
     	saveVisibility.send(params);
 
 	}
 	
 	private function onSaveVisibility(event:ResultEvent):void {
 		if (saveVisibility.lastResult.name() == "SUCCESS" ||
-		    saveVisibility.lastResult.name() == "ProjectRequestVisibilityList") {
-    		parentDocument.parentDocument.refreshExperiments();
+		    saveVisibility.lastResult.name() == "AnalysisVisibilityList") {
+    		parentDocument.parentDocument.refreshAnalysis();
     		parentDocument.dirtyVisibility.resetDirty();
     	} else {
     		mx.controls.Alert.show(saveVisibility.lastResult..ACTMESSAGE.@TEXT);
@@ -115,26 +115,26 @@
 			 editable="true"
 	       	 itemEditEnd="onEdit()">
 	         <mx:columns>
-	            <mx:DataGridColumn width="10" minWidth="35" headerText="#">
+	            <mx:DataGridColumn width="5" minWidth="35" headerText="#"  editable="false">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
 			                    <mx:Image id="experimentImage"  
 			                     	source="{parentApplication.iconAnalysis}" >
 								</mx:Image>
-	                           <mx:Label id="requestNumber" text="{data.@number}">
+	                           <mx:Label id="number" text="{data.@number}">
 	                           </mx:Label>
 	                        </mx:HBox>
 	                    </mx:Component>
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
-		       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
-		       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
-		       	<mx:DataGridColumn headerText="Analysis Type" width="35"
+		       	<mx:DataGridColumn headerText="Name" width="60" dataField="@name" editable="false"/>
+		       	<mx:DataGridColumn headerText="Date" width="40" dataField="@createDateDisplay" editable="false"/>
+		       	<mx:DataGridColumn headerText="Analysis Type" width="45"  editable="false"
 					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>
-		       	<mx:DataGridColumn headerText="Organism" width="35" 
+		       	<mx:DataGridColumn headerText="Organism" width="45"   editable="false"
 					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
-		       	<mx:DataGridColumn headerText="Description" width="35" dataField="@description"/>
+		       	<mx:DataGridColumn headerText="Description" width="55" dataField="@description"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="{analysisGroupVisibilityCombo.enabled}" 
 					rendererIsEditor="false" 

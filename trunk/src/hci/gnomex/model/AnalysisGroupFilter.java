@@ -1,13 +1,8 @@
 package hci.gnomex.model;
 
 
-import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
-
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import hci.gnomex.security.SecurityAdvisor;
 
 public class AnalysisGroupFilter extends DetailObject {
   
@@ -31,6 +26,7 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        ag.name, ");
     queryBuf.append("        ag.description, ");
     queryBuf.append("        ag.idLab, ");
+    queryBuf.append("        ag.codeVisibility, ");
     queryBuf.append("        aglab.name, ");
     queryBuf.append("        a.idAnalysis, ");
     queryBuf.append("        a.number, ");
@@ -54,8 +50,8 @@ public class AnalysisGroupFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM                AnalysisGroup as ag ");
-    queryBuf.append(" JOIN                ag.analysisItems as a ");
-    queryBuf.append(" LEFT JOIN           ag.lab as aglab ");
+    queryBuf.append(" JOIN                ag.lab as aglab ");
+    queryBuf.append(" LEFT JOIN           ag.analysisItems as a ");
     queryBuf.append(" LEFT JOIN           a.lab as alab ");
 
     addAnalysisCriteria();
@@ -63,7 +59,7 @@ public class AnalysisGroupFilter extends DetailObject {
     addSecurityCriteria();
     
     
-    queryBuf.append(" order by ag.name, a.number ");
+    queryBuf.append(" order by aglab.name, ag.name, a.number ");
   
   }
   
@@ -73,7 +69,7 @@ public class AnalysisGroupFilter extends DetailObject {
     // Search by lab 
     if (idLab != null){
       this.addWhereOrAnd();
-      queryBuf.append(" a.idLab =");
+      queryBuf.append(" ag.idLab =");
       queryBuf.append(idLab);
     } 
     
@@ -90,7 +86,8 @@ public class AnalysisGroupFilter extends DetailObject {
    
       
     }  else {
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "a",       addWhere, scopeToGroup);
+      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "ag",       addWhere, scopeToGroup);
+      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "a",        addWhere, scopeToGroup, "a.idAnalysis is NULL");      
     }
     
 
