@@ -551,7 +551,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (hasPermission(this.CAN_DELETE_REQUESTS)) {
         canDelete = true;
       }
-    }
+    }    
+    // 
+    // Analysis
+    //
+    else if (object instanceof Analysis) { 
+
+      // Admin
+      if (hasPermission(this.CAN_DELETE_REQUESTS)) {
+        canDelete = true;
+      }
+    }   
     //
     // Project
     //
@@ -570,6 +580,21 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       else if (isGroupIAmMemberOf(proj.getIdLab()) && isOwner(proj.getIdAppUser())) {
           canDelete = true;
       }
+    }
+    //
+    // AnalysisGroup
+    //
+    else if (object instanceof AnalysisGroup) {
+      AnalysisGroup ag = (AnalysisGroup)object;
+      
+      // Admin
+      if (hasPermission(this.CAN_DELETE_ANY_PROJECT)) {
+        canDelete = true;
+      } 
+      // Lab manager
+      else if (isGroupIManage(ag.getIdLab())) {
+        canDelete = true;
+      }        
     } 
     //
     // Dictionary

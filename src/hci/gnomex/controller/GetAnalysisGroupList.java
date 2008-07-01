@@ -86,7 +86,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
         
         
         Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
-        Integer idAnalysis      = row[5] == null ? new Integer(-2) : (Integer)row[5];
+        Integer idAnalysis      = row[6] == null ? new Integer(-2) : (Integer)row[6];
         Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
         
         Element n = null;
@@ -167,8 +167,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
   private void addLabNode(Object[] row) {
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            ((Integer)row[3]).toString());
-    labNode.setAttribute("labName",          (row[4] == null? "" : (String)row[4]).toString());
-    labNode.setAttribute("label",          (row[4] == null? "" : (String)row[4]).toString());
+    labNode.setAttribute("labName",          (row[5] == null? "" : (String)row[5]).toString());
+    labNode.setAttribute("label",            (row[5] == null? "" : (String)row[5]).toString());
     rootNode.addContent(labNode);
   }
 
@@ -188,26 +188,27 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisGroupNode.setAttribute("description",     row[2] == null ? ""  : (String)row[2]);
     
     analysisGroupNode.setAttribute("idLab",           row[3] == null ? "" : ((Integer)row[3]).toString());
-    analysisGroupNode.setAttribute("labName",         (row[4] == null? "" : (String)row[4]).toString());
+    analysisGroupNode.setAttribute("codeVisibility",  row[4] == null ? ""  : (String)row[4]);
+    analysisGroupNode.setAttribute("labName",         (row[5] == null? "" : (String)row[5]).toString());
     labNode.addContent(analysisGroupNode);
   }
   
   private void addAnalysisNode(Object[] row) {
     analysisNode = new Element("Analysis");
-    analysisNode.setAttribute("idAnalysis",         row[5] == null ? ""  : ((Integer)row[5]).toString());
-    analysisNode.setAttribute("number",             row[6] == null ? ""  : (String)row[6]);
-    analysisNode.setAttribute("name",               row[7] == null ? ""  : (String)row[7]);
-    analysisNode.setAttribute("label",              row[6] == null ? ""  : (String)row[7]);
-    analysisNode.setAttribute("description",        row[8] == null ? ""  : (String)row[8]);
-    analysisNode.setAttribute("createDateDisplay",  row[9] == null ? ""  : this.formatDate((java.sql.Date)row[9], this.DATE_OUTPUT_SQL));
-    analysisNode.setAttribute("createDate",         row[9] == null ? ""  : this.formatDate((java.sql.Date)row[9], this.DATE_OUTPUT_SLASH));
-    analysisNode.setAttribute("idLab",              row[10] == null ? ""  : ((Integer)row[10]).toString());
-    analysisNode.setAttribute("labName",            row[11] == null ? ""  : (String)row[11]);    
-    analysisNode.setAttribute("idAnalysisType",     row[12] == null ? ""  : ((Integer)row[12]).toString());
-    analysisNode.setAttribute("idAnalysisProtocol", row[13] == null ? ""  : ((Integer)row[13]).toString());
-    analysisNode.setAttribute("idOrganism",         row[14] == null ? ""  : ((Integer)row[14]).toString());
-    analysisNode.setAttribute("idGenomeBuild",      row[15] == null ? ""  : ((Integer)row[15]).toString());
-    analysisNode.setAttribute("codeVisibility",     row[16] == null ? ""  : (String)row[16]);    
+    analysisNode.setAttribute("idAnalysis",         row[6] == null ? ""  : ((Integer)row[6]).toString());
+    analysisNode.setAttribute("number",             row[7] == null ? ""  : (String)row[7]);
+    analysisNode.setAttribute("name",               row[8] == null ? ""  : (String)row[8]);
+    analysisNode.setAttribute("label",              row[8] == null ? ""  : (String)row[8]);
+    analysisNode.setAttribute("description",        row[9] == null ? ""  : (String)row[9]);
+    analysisNode.setAttribute("createDateDisplay",  row[10] == null ? ""  : this.formatDate((java.sql.Date)row[10], this.DATE_OUTPUT_SQL));
+    analysisNode.setAttribute("createDate",         row[10] == null ? ""  : this.formatDate((java.sql.Date)row[10], this.DATE_OUTPUT_SLASH));
+    analysisNode.setAttribute("idLab",              row[11] == null ? ""  : ((Integer)row[11]).toString());
+    analysisNode.setAttribute("labName",            row[12] == null ? ""  : (String)row[12]);    
+    analysisNode.setAttribute("idAnalysisType",     row[13] == null ? ""  : ((Integer)row[13]).toString());
+    analysisNode.setAttribute("idAnalysisProtocol", row[14] == null ? ""  : ((Integer)row[14]).toString());
+    analysisNode.setAttribute("idOrganism",         row[15] == null ? ""  : ((Integer)row[15]).toString());
+    analysisNode.setAttribute("idGenomeBuild",      row[16] == null ? ""  : ((Integer)row[16]).toString());
+    analysisNode.setAttribute("codeVisibility",     row[17] == null ? ""  : (String)row[17]);    
     
     analysisNode.setAttribute("isDirty",                "N");
     analysisNode.setAttribute("isSelected",             "N");
@@ -218,8 +219,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
       analysisNode.setAttribute("requestPublicNote", "");
     }
     
-    String createDate    = this.formatDate((java.sql.Date)row[9]);
-    String analysisNumber = (String)row[6];
+    String createDate    = this.formatDate((java.sql.Date)row[10]);
+    String analysisNumber = (String)row[7];
     String tokens[] = createDate.split("/");
     String createMonth = tokens[0];
     String createDay   = tokens[1];

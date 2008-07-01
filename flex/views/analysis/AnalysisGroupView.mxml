@@ -13,17 +13,6 @@
     useProxy="false">
 </mx:HTTPService>
 
-<mx:HTTPService  
-    id="deleteAnalysisGroup" 
-    url="DeleteAnalysisGroup.gx"
-    destination="deleteAnalysisGroup"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onDeleteAnalysisGroup(event)"
- 	fault="parentApplication.onFailHttpRequest('Failed to delete analysis group', event)"
-    method="POST"
-    useProxy="false">
-</mx:HTTPService>
   
 <mx:Script>
 	<![CDATA[
@@ -63,11 +52,6 @@
 				parentDocument.saveAnalysisGroupButton.enabled = false;
 			}
 			
-			if (parentApplication.navAnalysisView.selectedAnalysisGroup.@canDelete == "Y") {
-				parentApplication.navAnalysisView.deleteButton.enabled = true;
-			} else{
-				parentApplication.navAnalysisView.deleteButton.enabled = false;
-			}
 		}
 			
 		
@@ -78,55 +62,28 @@
 		}
 		
 		public function save():void {
-			parentApplication.navAnalysisView.selectedAnalysisGroup.@name = analysisName.text;
-			parentApplication.navAnalysisView.selectedAnalysisGroup.@description = description.text;
-			
 			var params:Object = new Object();
-			params.analysisGroupXMLString = parentApplication.navAnalysisView.selectedAnalysisGroup.toXMLString();
-			params.parseEntries = 'Y';
+			params.name = analysisName.text;
+			params.description = description.text;
+			params.idAnalysisGroup = parentApplication.navAnalysisView.selectedAnalysisGroup.@idAnalysisGroup;
+			params.idLab = parentApplication.navAnalysisView.selectedAnalysisGroup.@idLab;
 			saveAnalysisGroup.send(params);
 		}
-		
-		public function promptToDeleteAnalysisGroup():void {
-			Alert.show("Delete analysis group " + parentApplication.navAnalysisView.selectedAnalysisGroup.@name + "?", 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDeleteAnalysisGroup);
-			
-		}
-		
-		private function onPromptToDeleteAnalysisGroup(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	removeAnalysisGroup();
-            }
-        }
-
-		
-		private function removeAnalysisGroup():void {
-			var params:Object = new Object();
-			params.idAnalysisGroup = parentApplication.navAnalysisView.selectedAnalysisGroup.@idAnalysisGroup;
-			deleteAnalysisGroup.send(params);
-			
-		} 
-		
+				
 		private function setDirty():void {
-			/*
-			if (parentDocument is AnalysisGroupDetailWindow) {
+			if (parentDocument is AnalysisGroupWindow) {
 				parentDocument.dirtyAnalysisGroup.setDirty();
 			} else {
 				parentApplication.navAnalysisView.browseView.dirtyAnalysisGroup.setDirty();
 			}
-			*/
 		}
 		
 		private function resetDirty():void {
-			/*
-			if (parentDocument is AnalysisGroupDetailWindow) {
+			if (parentDocument is AnalysisGroupWindow) {
 				parentDocument.dirtyAnalysisGroup.resetDirty();
 			} else {
 				parentApplication.navAnalysisView.browseView.dirtyAnalysisGroup.resetDirty();
 			}
-			*/
 		}
 		
 		private function onSaveAnalysisGroup(event:ResultEvent):void {
@@ -137,7 +94,7 @@
 					parentApplication.submitRequestView.setupView.onAnalysisGroupAdded(saveAnalysisGroup.lastResult.@idAnalysisGroup);
 				}else {
 					parentApplication.navAnalysisView.getAnalysisGroup.send();
-	        		parentApplication.navAnalysisView.refreshExperiments();
+	        		parentApplication.navAnalysisView.refreshAnalysis();
 				}
         		
         		if (closeWindowAfterSave) {
@@ -150,17 +107,6 @@
 			
 		}
 		
-		private function onDeleteAnalysisGroup(event:ResultEvent):void {
-        	if (deleteAnalysisGroup.lastResult.name() == "SUCCESS") {
-        		parentApplication.navAnalysisView.selectedAnalysisGroup = null;
-        		parentApplication.navAnalysisView.selectedIdAnalysisGroup = null;
-        		parentApplication.navAnalysisView.refreshAnalysis();
-        		parentApplication.navAnalysisView.theViews.visible = false;
-        		parentApplication.navAnalysisView.browseView.buttonStack.selectedChild = parentDocument.browseButtonView;
-        	} else {
-        		Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
-        	}
-		}
 				
 
 	]]>

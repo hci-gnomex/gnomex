@@ -34,27 +34,27 @@
     useProxy="false">
   </mx:HTTPService>
 
-   
+
    <mx:HTTPService  
-    id="getRequestForDownload" 
-    url="GetRequest.gx"
-    destination="getRequestForDownload"
+    id="deleteAnalysisGroup" 
+    url="DeleteAnalysisGroup.gx"
+    destination="deleteAnalysisGroup"
     resultFormat="e4x"
     showBusyCursor="true"
-    result="onGetRequestForDownload(event)"
- 	fault="parentApplication.onFailHttpRequest('Failed to get request for download', event)"
+    result="onDeleteAnalysisGroup(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete analysis group', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
-   
+
    <mx:HTTPService  
-    id="deleteRequest" 
-    url="DeleteRequest.gx"
-    destination="deleteRequest"
+    id="deleteAnalysis" 
+    url="DeleteAnalysis.gx"
+    destination="deleteAnalysis"
     resultFormat="e4x"
     showBusyCursor="true"
-    result="onDeleteRequest(event)"
- 	fault="parentApplication.onFailHttpRequest('Failed to delete request', event)"
+    result="onDeleteAnalysis(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete analysis', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -75,19 +75,21 @@
     </mx:request>
   </mx:HTTPService>
   
-  <mx:HTTPService  
-    id="saveRequestProject" 
-    url="SaveRequestProject.gx"
-    destination="saveRequestProject"
+    <mx:HTTPService  
+    id="getNewAnalysisGroup" 
+    url="GetAnalysisGroup.gx"
+    destination="getAnalysisGroup"
     resultFormat="e4x"
     showBusyCursor="true"
-    result="onSaveRequestProject(event)"
- 	fault="parentApplication.onFailHttpRequest('Failed to reassign experiment project', event)"
+    result="onGetNewAnalysisGroup(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
     method="POST"
-    useProxy="false">    
+    useProxy="false">
+    <mx:request>
+   		<idAnalysisGroup>0</idAnalysisGroup>    	
+    </mx:request>
   </mx:HTTPService>
-
-
+ 
  
 	   <mx:Script> 
         <![CDATA[
@@ -101,6 +103,7 @@
 
         import mx.rpc.events.ResultEvent;   
         import mx.collections.XMLListCollection;
+        import mx.managers.PopUpManager;
         
         public var selectedIdAnalysis:Object;
         public var selectedAnalysisNumber:Object;
@@ -127,7 +130,8 @@
 
     	private var showDownloads:Boolean = false;
     
-
+    	private var analysisGroupWindow:AnalysisGroupWindow;
+    
 	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
 	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
 	 	public static const millisecondsPerMonth:Number = 1000 * 60 * 60 * 24 * 30;
@@ -138,7 +142,7 @@
 		
 		public function checkSecurity():void {
 			this.browseView.checkSecurity();
-			if (parentApplication.hasPermission("canAccessAnyObject")) {
+			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				currentState = "AdminState";
 			} else if (parentApplication.isGuestMode()) {
 				currentState = "GuestState";
@@ -172,42 +176,90 @@
         		showDownloads = false;
         	}
 
-        	callLater(reselectTreeItem);    	
-        	if (selectedAnalysisNumber != null) {
-	        	callLater(expandAllNodes);          		
-        	} else {
-        		callLater(expandLabNodes);
-        	}
+        	callLater(reselectTreeItem);
+        	callLater(expandAllNodes); 
 	    }
 
 	    
 	    
 	    private function reselectTreeItem():void {
-			if (selectedIdAnalysisGroup != null) {
-				selectedNode = getAnalysisGroupList.lastResult..AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
-				callLater(selectTreeNode);
-				// Can't expand project because it messes up dropindex for future drag operations.
-				
-			} else if (selectedAnalysisNumber != null) {
-				selectedNode = getAnalysisGroupList.lastResult..Analysis.(@number == selectedAnalysisNumber);
-				browseTree.openItems = getAnalysisGroupList.lastResult..AnalysisGroup;
-				callLater(selectTreeNode);
-				
-			} else if (selectedIdLab != null) {
-				selectedNode = getAnalysisGroupList.lastResult..Lab.(@idLab == selectedIdLab);
-				callLater(selectTreeNode);
-				
-				
-			} else {
-				selectedNode = getAnalysisGroupList.lastResult..Lab[0];
-				browseTree.selectedItem = selectedNode;
-				onBrowseTree();
-			}
-	    	
+	    	callLater(selectTreeNode);
 	    }
 	    
 	    private function selectTreeNode():void {
-	    	browseTree.selectedItem = selectedNode;
+	    	var idx:int = -1;
+    		var pos:int = 0;
+    		var lab:Object;
+    		var analysisGroup:Object;
+    		var analysis:Object;
+    		if (selectedAnalysis != null) {
+		    	for each (lab in getAnalysisGroupList.lastResult..Lab) {
+		    		pos++;	    	
+		    		trace(lab.@name + ' ' + pos);
+		    		for each(analysisGroup in lab.AnalysisGroup) {
+		    			pos++;
+		    			for each( analysis in analysisGroup.Analysis) {
+		    				pos++;
+		    				if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis &&
+		    				    analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+		    					idx = --pos;
+		    					break;
+		    				}
+		    			}
+		    			if (idx != -1) {
+		    				break;
+		    			} 
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		}else if (selectedIdAnalysisGroup != null) {
+		    	for each (lab in getAnalysisGroupList.lastResult..Lab) {	   
+		    		pos++; 	
+		    		for each(analysisGroup in lab.AnalysisGroup) {
+		    			pos++;
+		    			if (analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+		    				idx = --pos;
+		    				break;
+		    			}
+		    			for each( analysis in analysisGroup.Analysis) {
+		    				pos++;
+		    			}
+			    		if (idx != -1) {
+			    			break;
+			    		}
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		} else if (selectedIdLab != null) {
+    			for each (lab in getAnalysisGroupList.lastResult..Lab) {	    	
+		    		pos++;
+    				if (selectedIdLab == lab.@idLab) {
+    					idx = --pos;
+    					break;
+    				}
+		    		for each(analysisGroup in lab.AnalysisGroup) {
+		    			pos++;
+		    			for each(analysis in analysisGroup.Analysis) {
+		    				pos++;
+		    			}
+			    		if (idx != -1) {
+			    			break;
+			    		}
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		}
+	    	
+	    	if (idx != -1) {
+	    		browseTree.selectedIndex = idx;
+	    	}
+	    	
 	    	onBrowseTree();
 	    }
 	    
@@ -231,6 +283,9 @@
   			}
   			for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
   				browseTree.expandItem(ag, true);
+  			}
+  			for each(var a:Object in getAnalysisGroupList.lastResult..Analysis) {
+  				browseTree.expandItem(a, true);
   			}
   			browseTree.validateNow();
   			treeContainer.validateNow();
@@ -256,16 +311,16 @@
 		private function onBrowseTree():void {
 			setResultsCount();
 			
-			browseView.dirtyProject.resetDirty();
+			browseView.dirtyAnalysisGroup.resetDirty();
 			browseView.dirtyVisibility.resetDirty();
 
 			selectedAnalysisGroup = null;
 			selectedIdAnalysisGroup = null;
+			selectedIdAnalysis = null;
+			selectedAnalysis = null;
 			selectedIdLab = null;
 			
 			this.deleteButton.enabled = false;
-			this.newAnalysisGroupButton.enabled = false;
-			this.newAnalysisButton.enabled = false;
 			
 			if (browseTree.selectedItem == null) {
 				return;
@@ -277,8 +332,8 @@
 				var parms:Object = new Object();
 				parms.idAnalysis = selectedIdAnalysis;
 				getAnalysis.send(parms);
-				selectedIdLab = null;
-				selectedIdAnalysisGroup = null;
+				selectedIdLab = browseTree.selectedItem.@idLab;
+				selectedIdAnalysisGroup = browseTree.selectedItem.parent().@idAnalysisGroup;
 				
 			} else {												
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
@@ -444,25 +499,16 @@
 		    theViews.selectedChild = detailView;
 			detailView.setupForm();
 
+			if (selectedAnalysis.@canDelete == "Y") {
+				this.deleteButton.enabled = true;
+			} else {
+				this.deleteButton.enabled = false;
+			}
+			browseView.refreshButtonStack();
+
 		    theViews.visible = true;
 		}
 
-		private function onGetRequestForDownload(event:ResultEvent):void {
-			if (getRequestForDownload.lastResult.name() != "OpenRequestList") {
-        		Alert.show(getRequestForDownload.lastResult..ACTMESSAGE.@TEXT);
-        		return;
-        	}			
-			selectedAnalysis = getRequestForDownload.lastResult.Request.(@number == selectedAnalysisNumber);
-			
-			var params:Object = new Object();
-			params.idProject = selectedAnalysis.@idProject;
-			params.showSamples = "N";
-			params.showCategory = "N";
-			var call:Object = getAnalysisGroupList.send(params);
-			call.marker = "showDownloads";
-		    theViews.visible = true;
-		}
-		
 		private function onGetAnalysisGroup(event:ResultEvent):void {
 			selectedAnalysisGroup = getAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
 			browseView.refreshDownloadList();
@@ -475,7 +521,30 @@
 			}
 			browseView.analysisGroupView.checkSecurity();
 
+			if (selectedAnalysisGroup.@canDelete == "Y") {
+				this.deleteButton.enabled = true;
+			} else {
+				this.deleteButton.enabled = false;
+			}
 		}
+		
+		private function onGetNewAnalysisGroup(event:ResultEvent):void {
+			if (getNewAnalysisGroup.lastResult.name() == "OpenAnalysisGroupList") {
+				 selectedAnalysisGroup = getNewAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == 0);
+				 selectedAnalysisGroup.@idAppUser = parentApplication.getIdAppUser();
+				 selectedAnalysisGroup.@idLab = selectedIdLab;
+				 this.analysisGroupWindow = AnalysisGroupWindow(PopUpManager.createPopUp(this, AnalysisGroupWindow, true));
+				 
+				 var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == browseLabCombo.selectedItem.@idLab);
+				 this.analysisGroupWindow.labCombo.selectedItem = selectedLabNode;
+				 
+				 PopUpManager.centerPopUp(this.analysisGroupWindow);		
+				
+			} else {
+				mx.controls.Alert.show(getNewAnalysisGroup.lastResult..ACTMESSAGE.@TEXT, "Get new analysis group failed");
+			}
+		}
+		
 
 		public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Lab") {
@@ -491,7 +560,7 @@
 
 		public function getTreeLabel(item:Object):String {
 				if (item.name() == "Analysis") { 
-					return item.@name;
+					return item.@number + " (" + item.@name + ")";
 				} else {
 					return item.@label;
 				}
@@ -499,8 +568,6 @@
 		
 		public function refreshAnalysis():void {
 			this.browseTree.selectedItem = null;
-			selectedIdAnalysisGroup = null;
-			selectedIdLab = null;
 			getAnalysisGroupList.send();
 		}
 		
@@ -516,111 +583,63 @@
 				
 			}
 		}
-		
-	  
-	  	private function onDragDrop( event:DragEvent ) : void
-		{
-		   // Disallow drop operation if user is guest
-		   if (parentApplication.isGuestMode()) {
-				event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);		   	
-		       	return;
-		   }
-	       var ds:DragSource = event.dragSource;
-	       var dropTarget:Tree = Tree(event.currentTarget);
-	
-	       // retrieve the data associated with the "items" format. This will be the data that
-	       // the dragInitiator has copied into the DragSource.
-	       var items:Array = ds.dataForFormat("treeItems") as Array;
-	
-	       // determine where in the tree the drop occurs and select that node by the index; followed by 
-	       // retrieving the node itself. 
-	       var r:int = browseTree.calculateDropIndex(event);
-	       browseTree.selectedIndex = r;
-	       var node:XML = browseTree.selectedItem as XML;
-	       var p:*;
-	
-	
-	       if (node.name() == "Project") {
-	       		p = node;
-	       } else if (node.name() == "Request") {
-	       		p = node.parent();
-	       }else {
-	       		//ignore drop operations on lab.
-	       		event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);		 
-		       	return;
-	       }
-	
-	       // taking all of the items in the DragSouce, insert them into the 
-	       // tree using parent p. 
-	       if (p != null) {
-		       for(var i:Number=0; i < items.length; i++) {
-		       	if (items[i].name() == "Request") {
-		             browseTree.dataDescriptor.addChildAt(p, items[i], r+i);
-		             
-		             dropProject = p;
-		             dragRequest = items[i];
-		           	 promptToReassignProject();
-		             
-		       	} 
-		       }
-	       	
-	       }	       
-		}
-		
-	    public function promptToReassignProject():void {
-	   		var message:String = "Reassign experiment " + dragRequest.@requestNumber +
-	               " to project " + dropProject.@projectName + "?";
-	
-			Alert.show(message, 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToReassignProject);
-			
-		}
-		
-		private function onPromptToReassignProject(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-	            selectedAnalysisGroup = dropProject;
-	            selectedIdAnalysisGroup = dropProject.@idProject;
-	            selectedIdLab = dropProject.@idLab;
-	            
-	            var params:Object = new Object();
-	            params.idRequest = dragRequest.@idRequest;
-	            params.idProject = dropProject.@idProject;
-	                  		
-           		saveRequestProject.send(params);
-            }
-        }
 
-       	private function onSaveRequestProject(event:ResultEvent): void {
-   			dropProject = null;
-   			dragRequest = null;
-       		if (saveRequestProject.lastResult.name() == "SUCCESS") {
-				this.refreshAnalysis();
-			
-        	} else {
-        		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
-        	}	    	
+
+		public function promptToDelete():void {
+			if (selectedAnalysis != null) {
+				Alert.show("Delete analysis " + selectedAnalysis.@name + "?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDelete);
+				
+			} else if (selectedAnalysisGroup != null) {
+				Alert.show("Delete analysis group " + selectedAnalysisGroup.@name + "?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDelete);
+				
+			}
+		}
+		
+		
+	    public function onPromptToDelete(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+			    var params:Object = new Object();
+		    	if (selectedAnalysis != null) {
+			    	params.idAnalysis = selectedAnalysis.@idAnalysis;
+		    		deleteAnalysis.send(params);
+		    	} else if (selectedAnalysisGroup != null) {
+			    	params.idAnalysisGroup = selectedAnalysisGroup.@idAnalysisGroup;
+		    		deleteAnalysisGroup.send(params);
+		    	}
+            }
 	    }
 	    
-	    public function deleteExperiment():void {
-	    	var params:Object = new Object();
-	    	params.idRequest = selectedAnalysis.@idRequest;
-	    	deleteRequest.send(params);
-	    }
-	    
-	    private function onDeleteRequest(event:ResultEvent): void {
-	    	if (deleteRequest.lastResult.name() == "SUCCESS") {
+	    private function onDeleteAnalysis(event:ResultEvent): void {
+	    	if (deleteAnalysis.lastResult.name() == "SUCCESS") {
+        		selectedAnalysisGroup = null;
+        		selectedIdAnalysisGroup = null;
+        		browseView.buttonStack.selectedChild = browseView.browseButtonView;
 	    		this.refreshAnalysis();
 	    		theViews.selectedChild = browseView;
 	    	} else {
-	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
+	    		Alert.show(deleteAnalysis.lastResult..ACTMESSAGE.@TEXT);
 	    	}
 	    }
+	    
+	    
+	    private function onDeleteAnalysisGroup(event:ResultEvent): void {
+	    	if (deleteAnalysisGroup.lastResult.name() == "SUCCESS") {
+        		selectedAnalysisGroup = null;
+        		selectedIdAnalysisGroup = null;
+        		browseView.buttonStack.selectedChild = browseView.browseButtonView;
+	    		this.refreshAnalysis();
+	    		theViews.selectedChild = browseView;
+	    	} else {
+	    		Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
+	    	}
+	    }
+	    
 
 		
        ]]>
@@ -637,7 +656,6 @@
 			
 			<mx:Panel label="Experiments" width="235" height="100%" title="Analysis" id="navPanel" >
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
-
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getAnalysisGroupList.lastResult}" 
@@ -646,10 +664,6 @@
 							borderStyle="none"
 							labelField="@label"
 							labelFunction="getTreeLabel"
-					        dragEnabled="true" 
-					        dropEnabled="true" 
-					        dragMoveEnabled="true"
-							dragDrop="onDragDrop(event);" 
 							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
 						<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
 						
@@ -657,15 +671,15 @@
 
 				</mx:VBox>
 					<mx:ControlBar width="100%">
-						        <mx:Button id="newAnalysisGroupButton" click="browseView.showNewProjectWindow()" icon="@Embed('../../assets/folder_add.png')" 
+						        <mx:Button id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
 						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..." width="58" enabled="false">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
 						        </mx:Button>
-						        <mx:Button id="newAnalysisButton" click="browseView.showNewProjectWindow()" icon="@Embed('../../assets/map_add.png')" 
+						        <mx:Button id="newAnalysisButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/map_add.png')" 
 						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." width="58" enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')"/>
 						        <mx:Button id="deleteButton" icon="@Embed('../../assets/delete.png')" 
-						        	click="browseView.analysisGroupView.promptToDeleteAnalysisGroup()"
-						        	label=""  letterSpacing=".3" horizontalGap="0" toolTip="Delete analysis group"  enabled="false">
+						        	click="promptToDelete()"
+						        	label=""  letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 						        </mx:Button>
 						        <mx:Button icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()"/>
@@ -712,6 +726,8 @@
 					</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="true"/>
+			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="true"/>
 		</mx:State>
 
 		
