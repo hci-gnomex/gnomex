@@ -197,7 +197,6 @@ public class Analysis extends HibernateDetailObject {
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getLab");
-    this.excludeMethodFromXML("getAnalysisGroups");
   }
 
 

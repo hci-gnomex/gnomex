@@ -5,8 +5,9 @@
 		import mx.managers.PopUpManager;
 		import mx.events.CloseEvent;
 		import mx.controls.Alert;
-		import views.experiment.ExperimentEditView;
+		import views.analysis.AnalysisEditView;
 		import views.renderers.LabelDictionary;
+	
 	
 		[Bindable]
 		private var analysisTypeName:String;
@@ -96,48 +97,22 @@
 			parentDocument.showExperimentDownloads();
 		}
 
-	  	public function promptToDeleteExperiment():void {
-			Alert.show("Delete experiment " + parentDocument.selectedAnalysis.@number + "?", 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDeleteExperiment);
-			
-	  	}
-		
-	  	private function onPromptToDeleteExperiment(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	deleteExperiment();
-            }
-      	}
-		private function deleteExperiment():void {
-			parentDocument.deleteExperiment();
-		}
-		
 
-		private function showEditExperimentWindow():void {
-			 // add this get request code b/c the edit window was freezing the second time 
-			 // the edit window was pressed.  by putting this extra call in, it seems to clear
-			 // out some weird state.
-			 //var parms:Object = new Object();
-			 //parms.idRequest = parentDocument.selectedAnalysis.@idRequest;
-			 //parentDocument.getRequest.send(parms);
- 
-			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
+		private function showEditWindow():void {
+			 var editWindow:AnalysisEditView = AnalysisEditView(PopUpManager.createPopUp(this.parentApplication.topArea, AnalysisEditView, true));
 			 editWindow.width= 1000;
 			 editWindow.height= 500;
 			 editWindow.showCloseButton = true;
-			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedAnalysis.@number;
+			 editWindow.title = "Edit Analysis " + this.parentDocument.selectedAnalysis.@number;
 			 PopUpManager.centerPopUp(editWindow);		
              editWindow.setupEditForm(parentDocument.selectedAnalysis);
-           	 editWindow.initializeData();
-           	 callLater(editWindow.setupDataListeners); 
 		}
 		
-		public function refreshSavedExperiment():void {
-			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+		public function refreshSavedAnalysis():void {
+			 parentDocument.selectedIdAnalysis = parentDocument.browseTree.selectedItem.@idAnalysis;
 			 var parms:Object = new Object();
-			 parms.idRequest = parentDocument.selectedIdRequest;
-			 parentDocument.getRequest.send(parms);
+			 parms.idAnalysis = parentDocument.selectedIdAnalysis;
+			 parentDocument.getAnalysis.send(parms);
 			
 		}
 
@@ -222,6 +197,10 @@
 		        
 	
 				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+			    <mx:HBox width="100%" horizontalGap="0">
+			    	<mx:Label text="Description" fontWeight="bold" width="90"/>
+			    	<mx:Text text="{parentDocument.selectedAnalysis.@description}" width="100%"/>
+			    </mx:HBox>
 			    <mx:HRule width="100%"/>
 					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
@@ -301,18 +280,13 @@
 <mx:ControlBar width="100%">
     <mx:HBox width="100%" horizontalAlign="left">
 	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
-	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
+	    <mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
 	        <mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 	    </mx:LinkButton>				
 	
     </mx:HBox>
     <mx:HBox width="100%" horizontalAlign="right">
-	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline">
-	        <mx:height>{parentDocument.selectedAnalysis.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
-	        <mx:visible>{parentDocument.selectedAnalysis.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
-	    </mx:LinkButton>
-    	
     </mx:HBox>
 </mx:ControlBar>
 

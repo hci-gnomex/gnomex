@@ -475,5 +475,35 @@ public class Hybridization extends HibernateDetailObject {
       return "";
     }
   }
+  public String getSampleNumber1() {
+    if (this.getLabeledSampleChannel1() != null && this.getLabeledSampleChannel1().getSample() != null) {
+      return this.getLabeledSampleChannel1().getSample().getNumber();
+    } else {
+      return "";
+    }
+  }
+  public String getSampleName1() {
+    if (this.getLabeledSampleChannel1() != null && this.getLabeledSampleChannel1().getSample() != null) {
+      return this.getLabeledSampleChannel1().getSample().getName();
+    } else {
+      return "";
+    }
+  } 
+  public String getSampleNumber2() {
+    if (this.getLabeledSampleChannel2() != null && this.getLabeledSampleChannel2().getSample() != null) {
+      return this.getLabeledSampleChannel2().getSample().getNumber();
+    } else {
+      return "";
+    }
+  }
+  public String getSampleName2() {
+    if (this.getLabeledSampleChannel2() != null && this.getLabeledSampleChannel2().getSample() != null) {
+      return this.getLabeledSampleChannel2().getSample().getName();
+    } else {
+      return "";
+    }
+  } 
+
+    
 
 }

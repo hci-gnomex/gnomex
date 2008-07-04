@@ -246,7 +246,7 @@
 			            	dataField="@lastCycleStatus" editable="false"/>
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
-           	                  itemRenderer="mx.controls.Label"                 
+           	                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo', isRequired: true})}"                 
        	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo', securityDataField: '@canChangeGenomeBuildAlignTo'})}"/>
 						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>

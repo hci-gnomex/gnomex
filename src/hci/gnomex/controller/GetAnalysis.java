@@ -62,6 +62,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         a.setIdAnalysis(new Integer(0));
       } else {
         a = (Analysis)sess.get(Analysis.class, idAnalysis);
+        Hibernate.initialize(a.getAnalysisGroups());
         if (!this.getSecAdvisor().canRead(a)) {
           this.addInvalidField("permissionerror", "Insufficient permissions to access this analysis Group.");
         } else {

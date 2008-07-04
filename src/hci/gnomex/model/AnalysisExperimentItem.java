@@ -13,6 +13,8 @@ public class AnalysisExperimentItem extends HibernateDetailObject {
   private Analysis       analysis;
   private Hybridization  hybridization;
   private SequenceLane   sequenceLane;
+  private Integer        idHybridization;
+  private Integer        idSequenceLane;
   
   public Integer getIdAnalysisExperimentItem() {
     return idAnalysisExperimentItem;
@@ -56,6 +58,26 @@ public class AnalysisExperimentItem extends HibernateDetailObject {
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getAnalysis");
+  }
+
+  
+  public Integer getIdHybridization() {
+    return idHybridization;
+  }
+
+  
+  public void setIdHybridization(Integer idHybridization) {
+    this.idHybridization = idHybridization;
+  }
+
+  
+  public Integer getIdSequenceLane() {
+    return idSequenceLane;
+  }
+
+  
+  public void setIdSequenceLane(Integer idSequenceLane) {
+    this.idSequenceLane = idSequenceLane;
   }
   
  

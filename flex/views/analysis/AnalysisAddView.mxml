@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" 
+	title="Add Analysis" width="358" height="226" 
+	defaultButton="{saveButton}">
+	
+    <mx:HTTPService 
+    id="saveAnalysis" 
+    url="SaveAnalysis.gx"
+    resultFormat="e4x"
+    result="onSaveAnalysis(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save analysis', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getAnalysis" 
+    url="GetAnalysis.gx"
+    destination="getAnalysis"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetAnalysis(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get analysis', event)"
+    useProxy="false">    
+    </mx:HTTPService >    
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		
+		private var savedIdAnalysis:Object;
+		
+		private function save():void {
+			var params:Object = new Object();
+			
+			params.idAnalysis = 0;
+			params.idLab = labCombo.selectedItem.@idLab;
+			params.name = analysisName.text;
+			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroupCombo.selectedItem.toXMLString() + "</analysisGroups>";
+			params.hybsXMLString = "<hybs/>";
+			params.lanesXMLString = "<lanes/>";
+			
+			saveAnalysis.send(params);
+		}
+		
+		private function onSaveAnalysis(event:ResultEvent):void {
+			if (saveAnalysis.lastResult.name() == "SUCCESS") {
+				savedIdAnalysis = saveAnalysis.lastResult.@idAnalysis;
+				var params:Object = new Object();
+				params.idAnalysis = savedIdAnalysis;
+	 			getAnalysis.send(params);
+				PopUpManager.removePopUp(this);
+				
+			} else {
+				Alert.show("An error occurred while saving the analysis.");
+			}			
+		}
+		
+		
+	     private function onGetAnalysis(event:ResultEvent):void {
+          parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
+          parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
+          parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
+          parentApplication.navAnalysisView.refreshAnalysis();
+          
+          showEditWindow();
+        }
+        
+        private function showEditWindow():void {
+			 var editWindow:AnalysisEditView = AnalysisEditView(PopUpManager.createPopUp(this.parentApplication.topArea, AnalysisEditView, true));
+			 editWindow.width= 1000;
+			 editWindow.height= 500;
+			 editWindow.showCloseButton = true;
+			 editWindow.title = "Edit Analysis " + parentApplication.navAnalysisView.selectedAnalysis.@number;
+			 PopUpManager.centerPopUp(editWindow);		
+             editWindow.setupEditForm(parentApplication.navAnalysisView.selectedAnalysis);
+		}
+
+	]]>
+</mx:Script>
+
+	<mx:VBox width="100%"  verticalGap="10">
+		<mx:VBox width="100%" verticalGap="0">
+				<mx:Label text="Group"/>
+				<mx:ComboBox id="labCombo" 
+				 labelField="@name"
+				 dataProvider="{parentApplication.submitRequestLabList}"
+				 visible="true" width="100%">
+				</mx:ComboBox>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Analysis group"/>
+			<mx:ComboBox width="100%" id="analysisGroupCombo" 
+				dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" 
+				labelField="@name" selectedIndex="-1" prompt="...">						
+			</mx:ComboBox>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Analysis name"/>
+			<mx:TextInput id="analysisName" width="100%"/>
+		</mx:VBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>
