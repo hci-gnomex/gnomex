@@ -63,8 +63,10 @@
 		</id>
 		<many-to-one name="analysis" column="idAnalysis" class="hci.gnomex.model.Analysis" cascade="none" update="false" insert="false"/>
 		<property name="idAnalysis" column="idAnalysis" type="integer"/>
-		<many-to-one name="hybridization" column="idHybridization" class="hci.gnomex.model.Hybridization" cascade="none"/>
-		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none"/>
+		<many-to-one name="hybridization" column="idHybridization" class="hci.gnomex.model.Hybridization" cascade="none" update="false" insert="false"/>
+		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none" update="false" insert="false"/>
+		<property name="idHybridization" column="idHybridization" type="integer"/>
+		<property name="idSequenceLane" column="idSequenceLane" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.AnalysisFile -->

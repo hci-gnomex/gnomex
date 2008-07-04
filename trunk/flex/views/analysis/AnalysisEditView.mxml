@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"     
+    xmlns:views="views.*" 
+    xmlns:util="views.util.*" 
+    xmlns:analysis="views.analysis.*"
+    close="{PopUpManager.removePopUp(this)}"
+    showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
+	label="Add Analysis"
+	title="Add Analysis" 
+	width="100%" height="100%" 
+	headerHeight="24" paddingBottom="2" paddingLeft="1" paddingRight="1">
+
+  <mx:HTTPService  
+    id="getExperimentPickList" 
+    url="GetExperimentPickList.gx"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    result="onGetExperimentPickList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
+    method="POST" 
+    useProxy="false">
+    <mx:request>
+            <idLab>{analysis.@idLab}</idLab> 
+            <showSamples>N</showSamples>
+            <showCategory>N</showCategory>
+            <showMyLabsAlways>N</showMyLabsAlways>
+            <searchPublicProjects>N</searchPublicProjects>
+    </mx:request>
+   </mx:HTTPService>
+   
+   <mx:HTTPService  
+    id="saveAnalysis" 
+    url="SaveAnalysis.gx"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    result="onSaveAnalysis(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to save analysis', event)"
+    method="POST" 
+    useProxy="false">
+   </mx:HTTPService>
+  
+   <mx:HTTPService  
+    id="getAnalysis" 
+    url="GetAnalysis.gx"
+    destination="getAnalysis"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysis(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+     	
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+		import views.renderers.LabelDictionary;
+		import mx.events.CloseEvent;
+		import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+		import mx.events.DragEvent;
+		import mx.events.DragEvent;
+		import mx.managers.DragManager;
+        import mx.core.DragSource;
+        import mx.core.UIComponent;
+        import mx.controls.listClasses.ListBase;
+        	
+	    [Bindable]
+		private var analysis:Object;
+		
+		public function setupEditForm(analysis:Object):void {
+			initializeDataProviders();
+			
+			this.analysis = analysis;
+			this.buttonStack.selectedChild = this.editButtonView;
+			
+			labCombo.selectedItem              = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
+			analysisTypeCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == analysis.@idAnalysisType);
+			analysisProtocolCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == analysis.@idAnalysisProtocol);
+			organismCombo.selectedItem         = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == analysis.@idOrganism);
+			genomeBuildCombo.selectedItem      = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == analysis.@idGenomeBuild);
+			
+			this.getExperimentPickList.send();			
+			
+			
+			
+		}
+		public function initializeDataProviders():void {
+			analysisTypeCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry;								
+			analysisProtocolCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry;								
+			organismCombo.dataProvider         = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;								
+			genomeBuildCombo.dataProvider      = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry;								
+		}
+		
+		private function nextTab():void {
+			theTab.selectedIndex++;
+		}
+		
+		private function previousTab():void {
+			if (theTab.selectedIndex > 0) {
+				theTab.selectedIndex--;				
+			}
+		}
+		private function addAnalysisGroup():void {
+			dirty.setDirty();
+			var node:XML = new XML("<AnalysisGroup " +
+			    " idAnalysisGroup='" + analysisGroupCombo.selectedItem.@idAnalysisGroup + "'" +
+			    " name='"            + analysisGroupCombo.selectedItem.@name + "'" +
+				"/>");
+			analysisGroups.addItem(node);
+		}
+
+		private function removeAnalysisGroup():void {
+			dirty.setDirty();
+			if (analysisGroupGrid.selectedIndex != -1) {
+				analysisGroups.removeItemAt(analysisGroupGrid.selectedIndex);
+			}
+		}
+		private function addExperimentItem(item:Object):void {
+			dirty.setDirty();
+			var node:XML;
+			if (item.@type == "SequenceLane") {
+				node = new XML("<SequenceLane " +
+			    	" label ='" + item.@label + "'" +
+			    	" number ='" + item.@itemNumber + "'" +
+			    	" createDate ='" + item.@createDate + "'" + 
+			    	" idRequest ='" + item.@idRequest + "'" +
+			    	" idOrganism ='" + item.@idOrganism + "'" +
+			    	" idSample ='" + item.@idSample + "'" +
+			    	" idSequenceLane ='" + item.@idSequenceLane + "'" +
+			    	" idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
+			    	" idFlowCellType ='" + item.@idFlowCellType + "'" +
+			    	" sampleNumber ='" + item.@sampleNumber1 + "'" +
+			    	" sampleName ='" + item.@sampleName1 + "'" +
+			    	" flowCellNumber ='" + item.@flowCellNumber + "'" +
+			    	" flowCellLaneNumber ='" + item.@flowCellLaneNumber  + "'" +
+			    	" idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
+			    	" analysisInstructions ='" + item.@analysisInstructions + "'" +
+					"/>");
+				var found:Boolean = false;
+				for each(var lane:Object in lanes) {
+					if (lane.@number == item.@itemNumber) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					lanes.addItem(node);
+				}
+				this.experimentItemStack.selectedChild = lanesView;	
+			} else {
+				node = new XML("<Hybridization " +
+			    	" label ='" + item.@label + "'" +
+			    	" number ='" + item.@itemNumber + "'" +
+			    	" idRequest ='" + item.@idRequest + "'" +
+			    	" idHybridization ='" + item.@idHybridization + "'" +
+			    	" sampleNumber1 ='" + item.@sampleNumber1 + "'" +
+			    	" sampleName1 ='" + item.@sampleName1 + "'" +
+			    	" sampleNumber2 ='" + item.@sampleNumber2 + "'" +
+			    	" sampleName2 ='" + item.@sampleName2 + "'" +
+			    	" slideDesign ='" + item.@slideDesign + "'" +
+			    	" idSlideDesign ='" + item.@idSlideDesign + "'" +
+					"/>");	
+				for each(var hyb:Object in hybs) {
+					if (hyb.@number == item.@itemNumber) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					hybs.addItem(node);
+				}
+				this.experimentItemStack.selectedChild = hybsView;	
+			}
+		}
+		private function removeExperimentItem():void {
+			dirty.setDirty();
+			if (hybsGrid.selectedItem != null) {
+				hybs.removeItemAt(hybsGrid.selectedIndex);				
+			} else if (lanesGrid.selectedItem != null) {
+				lanes.removeItemAt(lanesGrid.selectedIndex);								
+			}
+		}
+		private function onGetExperimentPickList(event:ResultEvent): void {
+			callLater(expandAllNodes);
+  		}
+  		
+  		public function expandAllNodes():void
+  		{
+  			experimentTree.expandItem(getExperimentPickList.lastResult, true);
+  			for each(var lab:Object in getExperimentPickList.lastResult..Lab) {
+  				experimentTree.expandItem(lab, true);
+  			}
+  			for each(var p:Object in getExperimentPickList.lastResult..Project) {
+  				experimentTree.expandItem(p, true);
+  			}
+  			experimentTree.validateNow();
+  		}
+
+
+   	 	private function getLanesGridRowNumber(item:Object,col:int):String
+	    {
+	    	var x:int = lanesGrid.dataProvider.getItemIndex(item) + 1;
+	       	return String(x);
+	    } 
+   	 	private function getHybsGridRowNumber(item:Object,col:int):String
+	    {
+	    	var x:int = hybsGrid.dataProvider.getItemIndex(item) + 1;
+	       	return String(x);
+	    } 
+   	 	private function getFilesGridRowNumber(item:Object,col:int):String
+	    {
+	    	var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
+	       	return String(x);
+	    } 		
+		private function promptToCancel():void {
+			Alert.show( "The analysis has not been saved.  Are you sure you want to quit?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToCancel,						
+						parentApplication.iconWarning);
+		}
+		
+		private function onPromptToCancel(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	cancelAnalysis();
+            }
+        }	
+        
+        public function cancelAnalysis():void {
+        	//getNewAnalysis.send();
+			//initializeForm();
+        	//parentApplication.theViews.selectedIndex = 0;
+        	//parentApplication.theViews.visible = false;
+        }     
+        
+        private function validateAndSaveAnalysis():void {        	
+
+			var params:Object = new Object();
+
+			params.idAnalysis         = analysis.@idAnalysis;
+			params.name               = this.analysisName.text;
+			params.description        = this.description.text;
+			params.idLab              = this.labCombo.selectedItem.@idLab;
+			params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
+			params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@value;
+			params.idOrganism         = this.organismCombo.selectedItem.@value;
+			params.idGenomeBuild      = this.genomeBuildCombo.selectedItem.@value;
+			
+			params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
+			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
+			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
+
+			saveAnalysis.send(params);			
+
+        }   	
+        
+		private function onSaveAnalysis(event:ResultEvent):void {
+			if (saveAnalysis.lastResult.name() == "SUCCESS") {
+				dirty.resetDirty();
+
+			 	var parms:Object = new Object();
+			 	parms.idAnalysis = analysis.@idAnalysis;
+			 	getAnalysis.send(parms);
+			 	
+				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis();			 				
+			} else {
+				Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
+
+		private function onGetAnalysis(event:ResultEvent):void {
+			analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
+		}
+		        
+        private function validateAndSubmitAnalysis():void {        	
+        }   	
+		public function getExperimentTreeIcon(item:Object):Class { 
+				if (item.name() == "Lab") {
+					return parentApplication.iconGroup;
+				} else if (item.name() == "Project") {
+					return parentApplication.iconProject;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
+					return parentApplication.iconQC;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
+					return parentApplication.iconSolexa;
+				} else if (item.name() == "Request" ) {
+					return parentApplication.iconExperiment;
+				} else {
+					return parentApplication.iconGreenBullet;
+				}
+		}
+
+		public function getExperimentTreeLabel(item:Object):String { 
+			return item.@label;
+		}
+
+		private function onDragEnter( event:DragEvent ) : void
+		{ 
+     		if( event.dragInitiator is Tree ) {
+         		var ds:DragSource = event.dragSource;
+         		if( !ds.hasFormat("treeItems") ) return; // no useful data
+         		var items:Array = ds.dataForFormat("treeItems") as Array;
+         		for(var i:Number=0; i < items.length; i++) {
+             		var item:XML = XML(items[i]);
+             		if( item.name() != "Request" && item.name() != "Item" ) {
+             			return; // not what we want
+             		}
+         		}    
+     		} 
+
+     		// if the tree passes or the dragInitiator is not a tree, accept the drop
+		     DragManager.acceptDragDrop(UIComponent(event.currentTarget)); 
+		}
+		private function onDragOver( event:DragEvent ) : void
+		{
+		     if( event.dragInitiator is Tree ) {
+		         DragManager.showFeedback(DragManager.COPY);
+		     } else {
+		         if (event.ctrlKey)
+		             DragManager.showFeedback(DragManager.COPY);
+		         else if (event.shiftKey)
+		             DragManager.showFeedback(DragManager.LINK);
+		         else {
+		             DragManager.showFeedback(DragManager.MOVE);
+		         }
+		     }
+		}
+		
+		private function onDragExit( event:DragEvent ) : void
+		{
+		     var dropTarget:ListBase=ListBase(event.currentTarget); 
+		     dropTarget.hideDropFeedback(event);
+		}
+		
+	  	public function onDragDropExperimentItem(event:DragEvent) : void
+		{
+	       // retrieve the data associated with the "items" format. This will be the data that
+	       // the dragInitiator has copied into the DragSource.
+	       var items:Array = event.dragSource.dataForFormat("treeItems") as Array;
+	
+	       // take the dragged tree items and add them to the experiment items
+	       // collection
+	       for(var i:Number=0; i < items.length; i++) {
+	       	if (items[i].name() == "Item") {
+		    	addExperimentItem(items[i]);	       			
+	       	} else if (items[i].name() == "Request") {
+	       		for each(var experimentItem:Object in items[i]..Item) {
+	       			addExperimentItem(experimentItem);
+	       		}
+	       	}
+	       }
+	       
+	       
+	       // Don't allow flex to do any default moves to the data.  
+	       // We handle it in the code above.
+	       event.preventDefault();
+	       
+		}
+		
+        
+	]]>
+</mx:Script>
+
+<mx:XMLListCollection  id="analysisGroups" source="{analysis..AnalysisGroup}"/>
+<mx:XMLListCollection  id="experimentItems" />
+<mx:XMLListCollection  id="hybs"           source="{analysis..Hybridization}"/>
+<mx:XMLListCollection  id="lanes"          source="{analysis..SequenceLane}"/>
+<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFile}"/>
+
+	<mx:TabNavigator id="theTab" width="100%" height="100%" creationPolicy="all">
+		<mx:Canvas label="Overview" width="100%" height="100%">
+		  <mx:HBox width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox width="100%">
+					<mx:Label text="Name" width="100">
+					</mx:Label>
+					<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="Description" width="100">
+					</mx:Label>
+					<mx:TextArea text="{analysis.@description}" width="100%" height="150" change="dirty.setDirty();" id="description"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="Group" width="100">
+					</mx:Label>
+					<mx:ComboBox  width="240" id="labCombo" 
+						dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+						selectedIndex="-1" labelField="@name"  change="dirty.setDirty();"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="Analysis Type" width="100">
+					</mx:Label>
+					<mx:ComboBox  width="240" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="Analysis Protocol" width="100">
+					</mx:Label>
+					<mx:ComboBox  width="240" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="Organism" width="100">
+					</mx:Label>
+					<mx:ComboBox  width="240" id="organismCombo" labelField="@display" change="dirty.setDirty();"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="Genome Build" width="100">
+					</mx:Label>
+					<mx:ComboBox  width="240" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VBox  width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox width="100%">
+					<mx:Label text="Analysis Groups"/>
+					<mx:ComboBox width="240" id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="...">						
+					</mx:ComboBox>
+		   	   	    <mx:Button icon="@Embed(source='../../assets/add.png')" 
+		   	   	    	disabledIcon="@Embed(source='../../assets/add_disable.png')" 
+		   	   	    	width="25" click="addAnalysisGroup()">
+		   	   	    	<mx:enabled>{analysisGroupCombo.selectedItem != null  ? true : false}</mx:enabled>
+		   	   	    </mx:Button>
+		   	   	    <mx:Button icon="@Embed(source='../../assets/delete.png')" 
+		   	   	    	disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+		   	   	    	enabled="{analysisGroupGrid.selectedItem != null}" 
+		   	   	    	width="25" click="removeAnalysisGroup()"/>					
+				</mx:HBox>
+				<mx:DataGrid id="analysisGroupGrid" width="100%" height="150" dataProvider="{analysisGroups}" showHeaders="false">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Name" dataField="@name"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+			</mx:VBox>
+		  </mx:HBox>
+		</mx:Canvas>
+		<mx:Canvas label="Experiments" width="100%" height="100%">
+			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:VBox width="230" height="100%">
+					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sequence lanes onto grid">						
+					</mx:Text>
+					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
+						showRoot="false" 
+						dataTipFunction="getExperimentTreeLabel"
+						dragEnabled="true"
+						dropEnabled="false"
+						dragMoveEnabled="false"
+						iconFunction="getExperimentTreeIcon" 
+						labelField="@label" 
+						labelFunction="getExperimentTreeLabel">						
+					</mx:Tree>
+				</mx:VBox>
+				<mx:VBox width="100%" height="100%">
+					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
+					     <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
+					     <mx:HBox width="100%">
+					          <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
+					          <mx:HBox width="100%" horizontalAlign="right">
+					               <mx:Button icon="@Embed(source='../../assets/delete.png')" 
+					               	disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+					               	enabled="{hybsGrid.selectedItem != null || lanesGrid.selectedItem != null}" 
+					               	width="25" click="removeExperimentItem()"/>
+					          </mx:HBox>
+					     </mx:HBox>
+					     <mx:ViewStack width="100%" height="100%" id="experimentItemStack" >
+
+
+					     	<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%" id="hybsView">
+					     	
+					     	<mx:DataGrid width="100%" height="100%" id="hybsGrid"  dataProvider="{hybs}"
+								dragEnabled="true"
+						        dragEnter="onDragEnter(event)"
+						        dragOver="onDragOver(event)"
+						        dragDrop="onDragDropExperimentItem(event)"
+						        dragExit="onDragExit(event)">
+					     		<mx:columns>
+					     		    <mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
+					     			<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+					     		    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" dataField="@sampleName1"/>
+					     		    <mx:DataGridColumn editable="false" headerText="ID"  width="60" dataField="@sampleNumber1"/>
+					     		    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" dataField="@sampleName2"/>
+					     		    <mx:DataGridColumn editable="false" headerText="ID"  width="60" dataField="@sampleNumber2"/>
+					     		    <mx:DataGridColumn headerText="Slide" width="320" labelFunction="parentApplication.lookupSlideDesignName"  />
+					     		</mx:columns>
+					     	</mx:DataGrid>
+					     	
+					     	</mx:Canvas>
+					     	<mx:Canvas label="Solexa Sequence Lanes" width="100%" height="100%" id="lanesView">
+					     		<mx:DataGrid width="100%" height="100%" dataProvider="{lanes}" id="lanesGrid"
+					     			dragEnabled="true"  
+							        dragEnter="onDragEnter(event)"
+							        dragOver="onDragOver(event)"
+					     			dragDrop="onDragDropExperimentItem(event)"
+							        dragExit="onDragExit(event)">
+					     		  <mx:columns>
+					     		  <mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
+					     		  <mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+					     		  <mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
+					     		  <mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
+					     		    <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
+					     		                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+					     		    <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+					     		                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
+					     		    <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
+					     		    <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
+					     		    <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+					     		                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo'})}"/>                 											
+					     		  <mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+					     		  </mx:columns>
+					     		</mx:DataGrid>
+					     	</mx:Canvas>
+					     </mx:ViewStack>
+					</mx:VBox>
+				</mx:VBox>	
+			</mx:HDividedBox>
+		</mx:Canvas>
+		<mx:VBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+			<mx:DataGrid id="filesGrid" dataProvider="{files}" width="100%" height="100%">
+				<mx:columns>
+				    <mx:DataGridColumn headerText="" width="25" labelFunction="getFilesGridRowNumber"/>
+					<mx:DataGridColumn headerText="File name" dataField="@fileName"/>
+					<mx:DataGridColumn headerText="Upload Date" width="80" dataField="@uploadDate"/>
+					<mx:DataGridColumn headerText="Comments" dataField="@comments"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+	</mx:TabNavigator>
+	<mx:ViewStack id="buttonStack" width="100%">
+		    <mx:HBox width="100%" id="addButtonView" >
+		    	<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.PNG')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
+		    	<mx:Button id="nextButton"  label="Next" enabled="false" click="nextTab()" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" fontWeight="normal">
+		    		<mx:disabledIcon>@Embed(source='../../assets/arrow_right_disabled.png')</mx:disabledIcon>
+		    	</mx:Button>
+		    	<mx:ViewStack id="confirmButtonStack" width="100%" >
+		    			<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
+		    				<mx:Button visible="false" />
+		    			</mx:HBox>
+		    			<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
+		    				<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitAnalysis()"  visible="true"/>
+		    			</mx:HBox>
+		    			<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
+		    			</mx:HBox>
+		    	    	
+		    	</mx:ViewStack>
+		    	<mx:HBox horizontalAlign="right">
+		    		<mx:Button label="Cancel" id="cancelButton0" click="promptToCancel()"/>
+		    	</mx:HBox>
+		    </mx:HBox>
+		    
+		    <mx:HBox width="100%" horizontalAlign="right" id="editButtonView">
+		        <util:DirtyNote id="dirty"/>
+  		    	<mx:Button id="saveButton" label="Save" 
+		             	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
+		        </mx:Button>
+		    	<mx:Button label="Close" enabled="true" visible="true" click="PopUpManager.removePopUp(this)"/>								
+		    
+		    </mx:HBox>
+		
+	</mx:ViewStack>
+
+</mx:TitleWindow>

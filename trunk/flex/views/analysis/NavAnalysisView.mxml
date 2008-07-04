@@ -75,7 +75,7 @@
     </mx:request>
   </mx:HTTPService>
   
-    <mx:HTTPService  
+  <mx:HTTPService  
     id="getNewAnalysisGroup" 
     url="GetAnalysisGroup.gx"
     destination="getAnalysisGroup"
@@ -89,6 +89,8 @@
    		<idAnalysisGroup>0</idAnalysisGroup>    	
     </mx:request>
   </mx:HTTPService>
+  
+   
  
  
 	   <mx:Script> 
@@ -103,7 +105,7 @@
 
         import mx.rpc.events.ResultEvent;   
         import mx.collections.XMLListCollection;
-        import mx.managers.PopUpManager;
+        import mx.managers.PopUpManager; 
         
         public var selectedIdAnalysis:Object;
         public var selectedAnalysisNumber:Object;
@@ -131,6 +133,7 @@
     	private var showDownloads:Boolean = false;
     
     	private var analysisGroupWindow:AnalysisGroupWindow;
+    	private var analysisAddWindow:AnalysisAddView;
     
 	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
 	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
@@ -545,6 +548,27 @@
 			}
 		}
 		
+		private function showNewAnalysisWindow():void {  
+			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
+		 	PopUpManager.centerPopUp(this.analysisAddWindow);		
+		 
+		 	var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == browseLabCombo.selectedItem.@idLab);
+		 	analysisAddWindow.labCombo.selectedItem = selectedLabNode;
+		 
+		 	if (selectedIdAnalysisGroup != null) {
+			 	var idx:int = 0;
+			 	for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
+			 		if (ag.@idAnalysisGroup == selectedIdAnalysisGroup) {
+			 			analysisAddWindow.analysisGroupCombo.selectedIndex = idx;
+			 			break;
+			 		}
+			 		idx++;
+			 	}
+		 		
+		 	}
+		 
+		}
+
 
 		public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Lab") {
@@ -675,7 +699,7 @@
 						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..." width="58" enabled="false">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
 						        </mx:Button>
-						        <mx:Button id="newAnalysisButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/map_add.png')" 
+						        <mx:Button id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
 						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." width="58" enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')"/>
 						        <mx:Button id="deleteButton" icon="@Embed('../../assets/delete.png')" 
 						        	click="promptToDelete()"
