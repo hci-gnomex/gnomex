@@ -52,6 +52,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
   private Analysis               analysisScreen;
   private boolean              isNewAnalysis = false;
+  private boolean              isNewAnalysisGroup = false;
+  
+  private String                newAnalysisGroupName;
+  private String                newAnalysisGroupDescription;
+  private Integer               newAnalysisGroupId = new Integer(-1);
   
   
   public void validate() {
@@ -109,6 +114,14 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       this.addInvalidField( "lanesXMLString", "Invalid lanesXMLString");
     }
     
+    if (request.getParameter("newAnalysisGroupName") != null && !request.getParameter("newAnalysisGroupName").equals("")) {
+      newAnalysisGroupName = request.getParameter("newAnalysisGroupName");
+      isNewAnalysisGroup = true;
+    }    
+    if (request.getParameter("newAnalysisGroupDescription") != null && !request.getParameter("newAnalysisGroupDescription").equals("")) {
+      newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
+    }    
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -126,6 +139,19 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (isNewAnalysis) {
           analysis = analysisScreen;
           sess.save(analysis);
+          
+          if (isNewAnalysisGroup) {
+            AnalysisGroup newAnalysisGroup = new AnalysisGroup();
+            newAnalysisGroup.setIdLab(analysisScreen.getIdLab());
+            newAnalysisGroup.setName(newAnalysisGroupName);
+            newAnalysisGroup.setDescription(newAnalysisGroupDescription);
+            sess.save(newAnalysisGroup);
+            newAnalysisGroupId = newAnalysisGroup.getIdAnalysisGroup();
+
+            TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
+            analysisGroups.add(newAnalysisGroup);
+            analysis.setAnalysisGroups(analysisGroups);            
+          }
           
           analysis.setNumber("A" + analysis.getIdAnalysis().toString());
           analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
@@ -145,13 +171,15 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         // Save analysis groups
         //
-        TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
-        for(Iterator i = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); i.hasNext();) {
-          String idAnalysisGroupString = (String)i.next();
-          AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
-          analysisGroups.add(ag);
+        if (!isNewAnalysisGroup) {
+          TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
+          for(Iterator i = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); i.hasNext();) {
+            String idAnalysisGroupString = (String)i.next();
+            AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
+            analysisGroups.add(ag);
+          }
+          analysis.setAnalysisGroups(analysisGroups);          
         }
-        analysis.setAnalysisGroups(analysisGroups);
         
         sess.flush();
         
@@ -178,7 +206,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         sess.flush();        
 
         
-        this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"/>";
+        this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"/>";
       
         setResponsePage(this.SUCCESS_JSP);
       } else {

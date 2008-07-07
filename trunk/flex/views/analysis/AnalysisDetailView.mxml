@@ -94,7 +94,7 @@
 		}		
 		
 		private function showDownloads():void {
-			parentDocument.showExperimentDownloads();
+			parentDocument.showAnalysisDownloads();
 		}
 
 

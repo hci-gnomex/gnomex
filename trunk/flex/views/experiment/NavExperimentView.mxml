@@ -334,6 +334,7 @@
 			
 			theViews.selectedChild = browseView;
 			browseView.theViews.selectedChild = browseView.downloadView;
+			browseView.downloadView.theTab.selectedChild = browseView.downloadView.folderView;
 			browseView.refreshButtonStack();
 			
 

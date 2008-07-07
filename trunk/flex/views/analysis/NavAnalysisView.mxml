@@ -207,6 +207,9 @@
 		    				    analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
 		    					idx = --pos;
 		    					break;
+		    				} else if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis && selectedIdAnalysisGroup == null) {
+		    					idx = --pos;
+		    					break;
 		    				}
 		    			}
 		    			if (idx != -1) {
@@ -372,14 +375,18 @@
 			
 		}
 		
-		public function showExperimentDownloads():void {
+		public function showAnalysisDownloads():void {
 			
-			selectedNode = browseTree.selectedItem.parent();
+			selectedAnalysis = null;
+			var theAnalysisNumber:Object = browseTree.selectedItem.@number;
+			selectedAnalysisGroup = browseTree.selectedItem.parent();
+			selectedIdAnalysisGroup = selectedAnalysisGroup.@idAnalysisGroup;
 			selectTreeNode();
 			
 			for each (var item:Object in analysisNumbers) {
-				if (item.data == selectedAnalysis.@number) {
+				if (item.data == theAnalysisNumber) {
 					browseView.analysisNumberCombo.selectedItem = item;
+					browseView.filterList();
 					break;
 				}
 			}
@@ -387,6 +394,7 @@
 			
 			theViews.selectedChild = browseView;
 			browseView.theViews.selectedChild = browseView.downloadView;
+			browseView.downloadView.theTab.selectedChild = browseView.downloadView.folderView;
 			browseView.refreshButtonStack();
 			
 
@@ -477,7 +485,7 @@
 
         	
 		    if (this.showDownloads) {
-		    	this.showExperimentDownloads();
+		    	this.showAnalysisDownloads();
 		    	theViews.visible = true;
 		    	this.showDownloads = false;
 		    	return;
@@ -695,12 +703,12 @@
 
 				</mx:VBox>
 					<mx:ControlBar width="100%">
+						        <mx:Button id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
+						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')"/>
 						        <mx:Button id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
-						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..." width="58" enabled="false">
+						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="false">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
 						        </mx:Button>
-						        <mx:Button id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
-						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." width="58" enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')"/>
 						        <mx:Button id="deleteButton" icon="@Embed('../../assets/delete.png')" 
 						        	click="promptToDelete()"
 						        	label=""  letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false">

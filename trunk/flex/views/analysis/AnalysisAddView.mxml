@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" width="358" height="226" 
+	title="Add Analysis" width="360" height="256" 
 	defaultButton="{saveButton}">
 	
     <mx:HTTPService 
@@ -27,12 +27,14 @@
 
 <mx:Script>
 	<![CDATA[
+		import views.util.AboutView;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.managers.PopUpManager;
 		import mx.controls.Alert;
 		
 		private var savedIdAnalysis:Object;
+		private var savedIdAnalysisGroup:Object;
 		
 		private function save():void {
 			var params:Object = new Object();
@@ -40,7 +42,14 @@
 			params.idAnalysis = 0;
 			params.idLab = labCombo.selectedItem.@idLab;
 			params.name = analysisName.text;
-			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroupCombo.selectedItem.toXMLString() + "</analysisGroups>";
+			if (currentState == "NewAnalysisGroupState") {
+				params.analysisGroupsXMLString = "<analysisGroups/>";
+				params.newAnalysisGroupName = newAnalysisGroupName.text;
+				params.newAnalysisGroupDescription = newAnalysisGroupDescription.text;
+			
+			} else {
+				params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroupCombo.selectedItem.toXMLString() + "</analysisGroups>";
+			}
 			params.hybsXMLString = "<hybs/>";
 			params.lanesXMLString = "<lanes/>";
 			
@@ -50,6 +59,9 @@
 		private function onSaveAnalysis(event:ResultEvent):void {
 			if (saveAnalysis.lastResult.name() == "SUCCESS") {
 				savedIdAnalysis = saveAnalysis.lastResult.@idAnalysis;
+				if (currentState == "NewAnalysisGroupState") {
+					savedIdAnalysisGroup = saveAnalysis.lastResult.@idAnalysisGroup;
+				}
 				var params:Object = new Object();
 				params.idAnalysis = savedIdAnalysis;
 	 			getAnalysis.send(params);
@@ -60,11 +72,27 @@
 			}			
 		}
 		
+		private function checkCompleteness():Boolean {
+			var isComplete:Boolean = false; 
+			if (currentState == "NewAnalysisGroupState") {
+				isComplete = labCombo.selectedItem != null && newAnalysisGroupName.text != '' && analysisName.text != ''; 
+				
+			} else {
+				isComplete = labCombo.selectedItem != null && analysisGroupCombo.selectedItem != null && analysisName.text != ''; 
+			}
+			this.saveButton.enabled = isComplete;
+			return isComplete;
+		}
+		
 		
 	     private function onGetAnalysis(event:ResultEvent):void {
           parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
           parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
-          parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
+          if (currentState == "NewAnalysisGroupState") {
+          	parentApplication.navAnalysisView.selectedIdAnalysisGroup = savedIdAnalysisGroup;          	
+          } else {
+	        parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
+          }
           parentApplication.navAnalysisView.refreshAnalysis();
           
           showEditWindow();
@@ -80,28 +108,36 @@
              editWindow.setupEditForm(parentApplication.navAnalysisView.selectedAnalysis);
 		}
 
+		private function refreshAnalysisGroups():void {
+			parentApplication.navAnalysisView.browseLabCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == labCombo.selectedItem.@idLab)
+			callLater(parentApplication.navAnalysisView.refreshAnalysis);
+			
+		}
 	]]>
 </mx:Script>
 
-	<mx:VBox width="100%"  verticalGap="10">
+	<mx:VBox width="100%"  verticalGap="20">
 		<mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Group"/>
 				<mx:ComboBox id="labCombo" 
 				 labelField="@name"
 				 dataProvider="{parentApplication.submitRequestLabList}"
-				 visible="true" width="100%">
+				 visible="true" width="100%" change="refreshAnalysisGroups();checkCompleteness()">
 				</mx:ComboBox>
 		</mx:VBox>
-		<mx:VBox height="100%" verticalGap="0" width="100%">
-			<mx:Label text="Analysis group"/>
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
+			<mx:Label text="Analysis group" id="label1"/>
 			<mx:ComboBox width="100%" id="analysisGroupCombo" 
 				dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" 
-				labelField="@name" selectedIndex="-1" prompt="...">						
+				labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
 			</mx:ComboBox>
+			<mx:HBox width="100%" horizontalAlign="right" id="hbox1">
+				<mx:LinkButton textDecoration="underline" color="#161FDA" id="newAnalysisGroupButton" label="New analysis group" click="currentState = &quot;NewAnalysisGroupState&quot;"/>
+			</mx:HBox>
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Analysis name"/>
-			<mx:TextInput id="analysisName" width="100%"/>
+			<mx:TextInput id="analysisName" width="100%" change="checkCompleteness()"/>
 		</mx:VBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
@@ -109,4 +145,26 @@
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
+	
+	<mx:states>
+		<mx:State name="NewAnalysisGroupState">
+			<mx:RemoveChild target="{analysisGroupCombo}"/>
+			<mx:RemoveChild target="{newAnalysisGroupButton}"/>
+			<mx:AddChild relativeTo="{hbox1}" position="before">
+				<mx:TextArea height="76" width="100%" id="newAnalysisGroupDescription"/>
+			</mx:AddChild>
+			<mx:SetProperty name="width" value="358"/>
+			<mx:SetProperty name="height" value="340"/>
+			<mx:SetProperty target="{label1}" name="text" value="New analysis group name"/>
+			<mx:AddChild relativeTo="{newAnalysisGroupDescription}" position="before">
+				<mx:TextInput width="100%" id="newAnalysisGroupName" change="checkCompleteness()"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{newAnalysisGroupDescription}" position="before">
+				<mx:Label text="New analysis group description"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{saveButton}" name="enabled" value="true">
+			</mx:SetProperty>
+		
+		</mx:State>
+	</mx:states>
 </mx:TitleWindow>
