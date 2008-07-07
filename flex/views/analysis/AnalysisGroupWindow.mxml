@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="800" height="500" 
+	layout="vertical" width="600" height="400" 
 	xmlns:views="views.*" 
 	xmlns:analysis="views.analysis.*"
 	xmlns:util="views.util.*"
@@ -9,21 +9,65 @@
 	title="New Analysis Group" 
 	
 >
+<mx:HTTPService  
+    id="saveAnalysisGroup" 
+    url="SaveAnalysisGroup.gx"
+    destination="saveAnalysisGroup"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSaveAnalysisGroup(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to save analysis group', event)"
+    method="POST"
+    useProxy="false">
+</mx:HTTPService>
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		import mx.controls.Alert;
 		
 		public function closeWindow():void {
 			PopUpManager.removePopUp(this);
 		}
-            
+		
+		
+		private function onLabChange():void {
+			parentApplication.navAnalysisView.selectedAnalysisGroup.@idLab = labCombo.selectedItem.@idLab;			
+						
+			parentApplication.navAnalysisView.browseLabCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == labCombo.selectedItem.@idLab)
+			callLater(parentApplication.navAnalysisView.refreshAnalysis);
+			
+		}
+
+        public function save():void {
+			var params:Object = new Object();
+			params.name = analysisGroupDetailView.analysisName.text;
+			params.description = analysisGroupDetailView.description.text; 
+			params.idAnalysisGroup = "0";
+			params.idLab = labCombo.selectedItem.@idLab;			
+			saveAnalysisGroup.send(params);
+		}
+		
+		private function onSaveAnalysisGroup(event:ResultEvent):void {
+        	if (saveAnalysisGroup.lastResult.name() == "SUCCESS") {
+        		parentApplication.navAnalysisView.selectedIdAnalysisGroup = saveAnalysisGroup.lastResult.@idAnalysisGroup;
+				parentApplication.navAnalysisView.getAnalysisGroup.send();
+	        	parentApplication.navAnalysisView.refreshAnalysis();
+        		
+        		closeWindow();
+        		
+        	} else {
+        		Alert.show(saveAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
+        	}
+			
+		}		
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingLeft="4" paddingRight="4" >
 		<mx:ComboBox id="labCombo" 
 		 labelField="@name"
 		 dataProvider="{parentApplication.submitRequestLabList}"
-		 visible="true" width="220">
+		 visible="true" width="220" change="onLabChange()">
 		</mx:ComboBox>
 		
 		<analysis:AnalysisGroupView id="analysisGroupDetailView">
@@ -37,7 +81,7 @@
 	    <util:DirtyNote id="dirtyAnalysisGroup"/>
 		<mx:Button id="saveAnalysisGroupButton" label="Save" 
 			icon="@Embed('../../assets/action_save.gif')" 
-			click="analysisGroupDetailView.addAnalysisGroup()"
+			click="save()"
 			toolTip="Save project">
 		 </mx:Button>
 		<mx:Button id="cancelButton" label="Cancel" 

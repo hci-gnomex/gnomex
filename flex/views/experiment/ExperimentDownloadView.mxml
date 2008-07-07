@@ -74,6 +74,7 @@
     import flash.net.URLVariables;
     import mx.managers.PopUpManager;
     import mx.events.ListEvent;
+    import mx.controls.Alert;
    
 	
  	[Bindable]
@@ -140,9 +141,19 @@
  	
  	public function exploreFolders():void {
  		getSelectedFolders();
- 		
- 		getExpandedFileList.send();
- 		exploreView.enabled = true;
+
+		if (resultKeys == "") {
+ 			Alert.show("Please check folders to explore");
+ 			callLater(selectFolderView);
+ 		} else {
+	 		getExpandedFileList.send();
+ 			exploreView.enabled = true;
+ 			
+ 		}  		
+ 	}
+ 	
+ 	private function selectFolderView():void {
+ 		theTab.selectedIndex = 0;
  	}
  	
  	private function getRequestNumber(item:Object, col:int):String {

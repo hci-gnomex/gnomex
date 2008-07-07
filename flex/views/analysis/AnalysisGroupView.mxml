@@ -48,23 +48,17 @@
 			}
 			if (parentApplication.navAnalysisView.selectedAnalysisGroup.@canUpdate == "Y") {
 				parentDocument.saveAnalysisGroupButton.enabled = true;
-			} else{
+			} else {
 				parentDocument.saveAnalysisGroupButton.enabled = false;
 			}
 			
 		}
 			
 		
-		public function addAnalysisGroup():void {
-			closeWindowAfterSave = true;
-			parentApplication.navAnalysisView.selectedAnalysisGroup.@idLab = parentDocument.labCombo.selectedItem.@idLab;
-			save();
-		}
-		
 		public function save():void {
 			var params:Object = new Object();
 			params.name = analysisName.text;
-			params.description = description.text;
+			params.description = description.text; 
 			params.idAnalysisGroup = parentApplication.navAnalysisView.selectedAnalysisGroup.@idAnalysisGroup;
 			params.idLab = parentApplication.navAnalysisView.selectedAnalysisGroup.@idLab;
 			saveAnalysisGroup.send(params);
@@ -96,11 +90,6 @@
 					parentApplication.navAnalysisView.getAnalysisGroup.send();
 	        		parentApplication.navAnalysisView.refreshAnalysis();
 				}
-        		
-        		if (closeWindowAfterSave) {
-        			parentDocument.closeWindow();
-        			closeWindowAfterSave = false;
-        		}
         	} else {
         		Alert.show(saveAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
         	}

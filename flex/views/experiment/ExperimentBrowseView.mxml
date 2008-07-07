@@ -103,6 +103,7 @@
 				params.idProject = parentDocument.selectedIdProject;
 			}
 			downloadView.getRequestDownloadList.send(params);
+			downloadView.theTab.selectedChild = downloadView.folderView;			
 		}
 	}
 	
