@@ -38,6 +38,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
   
   
   private String    keysString;
+  private String    baseDir;
   
   public void validate() {
   }
@@ -46,6 +47,8 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
 
     // Get input parameters
     keysString = request.getParameter("resultKeys");
+    baseDir = Constants.getMicroarrayDirectoryForReading(request.getServerName());
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -59,7 +62,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List requestNumbers = new ArrayList();
-    getFileNamesToDownload(keysString, requestNumbers, requestMap, directoryMap);
+    getFileNamesToDownload(baseDir, keysString, requestNumbers, requestMap, directoryMap);
    
     //  For each request number
     for(Iterator i = requestNumbers.iterator(); i.hasNext();) {
@@ -165,7 +168,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     return this;
   }
   
-  public static void getFileNamesToDownload(String keysString, List requestNumbers, Map requestMap, Map directoryMap) {
+  public static void getFileNamesToDownload(String baseDir, String keysString, List requestNumbers, Map requestMap, Map directoryMap) {
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
@@ -177,7 +180,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       String resultDirectory = tokens[3];
 
       String directoryKey = requestNumber + "-" + resultDirectory;
-      String directoryName = Constants.MICROARRAY_DIRECTORY + createYear + "/" + requestNumber + "/" + resultDirectory;
+      String directoryName = baseDir + createYear + "/" + requestNumber + "/" + resultDirectory;
       
       // We want the list to be ordered the same way as the original keys,
       // so we will keep the request numbers in a list

@@ -2,18 +2,24 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AnalysisFileParser;
 import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
 import hci.gnomex.utility.HibernateSession;
 
+import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,9 +44,15 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
   
+  private String                baseDir;
+  
   private String                analysisGroupsXMLString;
   private Document              analysisGroupsDoc;
   private AnalysisGroupParser   analysisGroupParser;
+
+  private String                analysisFilesXMLString;
+  private Document              analysisFilesDoc;
+  private AnalysisFileParser    analysisFileParser;
   
   private String                hybsXMLString;
   private Document              hybsDoc;
@@ -64,6 +76,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
+    baseDir = Constants.getAnalysisDirectory(request.getServerName());
+
     analysisScreen = new Analysis();
     HashMap errors = this.loadDetailObject(request, analysisScreen);
     this.addInvalidFields(errors);
@@ -84,6 +98,21 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     } catch (JDOMException je ) {
       log.error( "Cannot parse analysisGroupsXMLString", je );
       this.addInvalidField( "analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
+    }
+    
+    
+    if (request.getParameter("analysisFilesXMLString") != null && !request.getParameter("analysisFilesXMLString").equals("")) {
+      analysisFilesXMLString = request.getParameter("analysisFilesXMLString");
+    }
+    
+    reader = new StringReader(analysisFilesXMLString);
+    try {
+      SAXBuilder sax = new SAXBuilder();
+      analysisFilesDoc = sax.build(reader);
+      analysisFileParser = new AnalysisFileParser(analysisFilesDoc);
+    } catch (JDOMException je ) {
+      log.error( "Cannot parse analysisFilesXMLString", je );
+      this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
     }
     
     if (request.getParameter("hybsXMLString") != null && !request.getParameter("hybsXMLString").equals("")) {
@@ -131,6 +160,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         analysisGroupParser.parse(sess);
+        analysisFileParser.parse(sess);
         hybParser.parse(sess);
         laneParser.parse(sess);
         
@@ -205,6 +235,42 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         sess.flush();        
 
+        //
+        // Save analysis files
+        //
+        if (!isNewAnalysisGroup) {
+          for(Iterator i = analysisFileParser.getAnalysisFileMap().keySet().iterator(); i.hasNext();) {
+            String idAnalysisFileString = (String)i.next();
+            AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileMap().get(idAnalysisFileString);
+            sess.save(af);
+          }
+        }
+        // Get rid of removed analysis files
+        ArrayList filesToRemove = new ArrayList();
+        for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          boolean found = false;
+          for(Iterator i1 = analysisFileParser.getAnalysisFileMap().values().iterator(); i1.hasNext();) {
+            AnalysisFile afAdded = (AnalysisFile)i1.next();
+            if (afAdded.getFileName().equals(af.getFileName())) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            filesToRemove.add(af);
+          }
+        }
+        for(Iterator i = filesToRemove.iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          sess.delete(af);
+          analysis.getFiles().remove(af);
+
+          removeAnalysisFileFromFileSystem(baseDir, analysis, af);
+        }
+        
+        sess.flush();
+        
         
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"/>";
       
@@ -239,6 +305,28 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdOrganism(analysisScreen.getIdOrganism());
     analysis.setIdGenomeBuild(analysisScreen.getIdGenomeBuild());
   }
+  
+  
+  public static boolean removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+    String createYear = formatter.format(analysis.getCreateDate());
+    
+    String fileName = baseDir + createYear + "\\" + analysis.getNumber() + "\\" + analysisFile.getFileName();
+    File f = new File(fileName);
+    return f.delete();
+    
+  }
+  
+  public static boolean removeAnalysisDirectoryFromFileSystem(String baseDir, Analysis analysis) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+    String createYear = formatter.format(analysis.getCreateDate());
+    
+    String dirName = baseDir + createYear + "\\" + analysis.getNumber();
+    File f = new File(dirName);
+    return f.delete();
+    
+  }
+  
   
   private class AnalysisGroupComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {

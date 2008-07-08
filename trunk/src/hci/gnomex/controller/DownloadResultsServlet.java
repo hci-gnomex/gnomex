@@ -39,6 +39,7 @@ public class DownloadResultsServlet extends HttpServlet {
   private String    includeTIF = "N";
   private String    includeJPG = "N";
 
+  private String    baseDir;
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadResultsServlet.class);
   
@@ -59,6 +60,9 @@ public class DownloadResultsServlet extends HttpServlet {
         && !req.getParameter("includeJPG").equals("")) {
       includeJPG = req.getParameter("includeJPG");
     }
+    baseDir = Constants.getMicroarrayDirectoryForReading(req.getServerName());
+
+
 
     try {
 
@@ -77,7 +81,7 @@ public class DownloadResultsServlet extends HttpServlet {
         
        
         Map fileNameMap = new HashMap();
-        long fileSizeTotal = getFileNamesToDownload(keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+        long fileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
 
         // Set content length to estimated zip (compressed) size.
         int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
@@ -119,7 +123,7 @@ public class DownloadResultsServlet extends HttpServlet {
 
             // Add ZIP entry to output stream.
             // (The file name starts after the year subdirectory)
-            ZipEntry zipEntry = new ZipEntry(filename.substring(Constants.MICROARRAY_DIRECTORY.length() + 5));
+            ZipEntry zipEntry = new ZipEntry(filename.substring(Constants.getMicroarrayDirectoryNameLength() + 5));
             zout.putNextEntry(zipEntry);
 
             // Transfer bytes from the file to the ZIP file
@@ -193,7 +197,7 @@ public class DownloadResultsServlet extends HttpServlet {
     return request;    
   }
     
-  public static long getFileNamesToDownload(String keysString, Map fileNameMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
+  public static long getFileNamesToDownload(String baseDir, String keysString, Map fileNameMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
 
     long fileSizeTotal = 0;
     String[] keys = keysString.split(":");
@@ -206,7 +210,7 @@ public class DownloadResultsServlet extends HttpServlet {
       String requestNumber = tokens[2];
       String resultDirectory = tokens[3];
 
-      String directoryName = Constants.MICROARRAY_DIRECTORY + createYear + "/" + requestNumber + "/" + resultDirectory;      
+      String directoryName = baseDir + createYear + "/" + requestNumber + "/" + resultDirectory;      
       fileSizeTotal += getFileNames(requestNumber, directoryName, fileNameMap, includeAllTIFFiles, includeAllJPGFiles);
     }
     return fileSizeTotal;

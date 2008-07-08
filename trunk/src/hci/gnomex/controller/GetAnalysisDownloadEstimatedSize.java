@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ public class GetAnalysisDownloadEstimatedSize extends GNomExCommand implements S
   
   private String    keysString = null;
   private static int      totalFileSize = 0;
+  private String   baseDir = "";
 
   
   public void validate() {
@@ -26,6 +28,7 @@ public class GetAnalysisDownloadEstimatedSize extends GNomExCommand implements S
 
     // Get input parameters
     keysString = request.getParameter("resultKeys");
+    baseDir = Constants.getAnalysisDirectory(request.getServerName());
     
   }
 
@@ -34,7 +37,7 @@ public class GetAnalysisDownloadEstimatedSize extends GNomExCommand implements S
     try {
       
       Map fileNameMap = new HashMap();
-      long fileSizeTotal = DownloadAnalysisFolderServlet.getFileNamesToDownload(keysString, fileNameMap);
+      long fileSizeTotal = DownloadAnalysisFolderServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap);
       int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
       this.xmlResult = "<DownloadEstimatedSize size='" + estimatedCompressedSize + "'/>";
       

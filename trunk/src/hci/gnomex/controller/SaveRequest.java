@@ -811,12 +811,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   private void createResultDirectories(String serverName, Request req) {
-    String microarrayDir = null;
-    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
-      microarrayDir = Constants.MICROARRAY_DIRECTORY;
-    } else {
-      microarrayDir = Constants.TEST_MICROARRAY_DIRECTORY;
-    }
+    String microarrayDir = Constants.getMicroarrayDirectoryForWriting(serverName);
     
     String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
     String rootDir = microarrayDir + createYear;

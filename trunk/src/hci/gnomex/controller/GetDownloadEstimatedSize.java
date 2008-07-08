@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
   private String    includeTIF = "N";
   private String    includeJPG = "N";
   private static int      totalFileSize = 0;
+  private String    baseDir;
 
   
   public void validate() {
@@ -36,6 +38,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
         && !request.getParameter("includeJPG").equals("")) {
       includeJPG = request.getParameter("includeJPG");
     }
+    baseDir = Constants.getMicroarrayDirectoryForReading(request.getServerName());
   }
 
   public Command execute() throws RollBackCommandException {
@@ -43,7 +46,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
     try {
       
       Map fileNameMap = new HashMap();
-      long fileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+      long fileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
       int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
       this.xmlResult = "<DownloadEstimatedSize size='" + estimatedCompressedSize + "'/>";
       
