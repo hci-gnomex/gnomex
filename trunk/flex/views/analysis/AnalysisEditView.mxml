@@ -51,10 +51,21 @@
     useProxy="false">
   </mx:HTTPService>
   
-  
+  <mx:HTTPService  
+    id="getRequest" 
+    url="GetRequest.gx"
+    destination="getRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequest(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
      	
 <mx:Script>
 	<![CDATA[
+		import views.experiment.ExperimentDetailView;
 		import mx.managers.PopUpManager;
 		import views.renderers.LabelDictionary;
 		import mx.events.CloseEvent;
@@ -67,12 +78,18 @@
         import mx.core.UIComponent;
         import mx.controls.listClasses.ListBase;
         import views.util.MultiFileUpload;
+        import views.experiment.ExperimentDetailView;
         	
 	    [Bindable]
 		private var analysis:Object;
 		
+		[Bindable]
+		public var selectedExperiment:Object; 
+		
 		private var multiFileUpload:MultiFileUpload;
-        private var UPLOAD_SERVLET_URL:String = "UploadAnalysisFileServlet.gx";  
+        private var UPLOAD_SERVLET_URL:String = "UploadAnalysisFileServlet.gx";
+        
+        private var experimentDetailWindow:ExperimentDetailView;  
 		
 		public function setupEditForm(analysis:Object):void {
 			initializeDataProviders();
@@ -315,7 +332,6 @@
 
 		private function onGetAnalysis(event:ResultEvent):void {
 			analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
-			
 		}
 		        
         private function validateAndSubmitAnalysis():void {        	
@@ -457,7 +473,31 @@
     	   	return doesMatch;
     	}
        	
-        
+       private function showExperimentDetailWindow():void {  
+       		if (this.experimentTree.selectedItem.name() == "Request" ||
+       		    this.experimentTree.selectedItem.name() == "Item") {
+	       		var params:Object = new Object();
+    	   		params.idRequest = this.experimentTree.selectedItem.@idRequest;
+				getRequest.send(params);		 
+       		}
+       		
+		}
+
+		private function onGetRequest(event:ResultEvent):void {
+			selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.experimentTree.selectedItem.@idRequest);
+
+			this.experimentDetailWindow = ExperimentDetailView(PopUpManager.createPopUp(this, ExperimentDetailView, false));
+			this.experimentDetailWindow.showCloseButton = true;
+			experimentDetailWindow.width  = 800;
+			experimentDetailWindow.height = 500;			
+			experimentDetailWindow.setupForm(selectedExperiment); 
+		 	PopUpManager.centerPopUp(this.experimentDetailWindow);		
+			this.experimentDetailWindow.analysisButton.visible = false;
+			this.experimentDetailWindow.deleteButton.visible = false;
+			this.experimentDetailWindow.editButton.visible = false;
+			this.experimentDetailWindow.downloadExperimentButton.visible = false;
+		}
+
 	]]>
 </mx:Script>
 
@@ -549,7 +589,7 @@
 						dragMoveEnabled="false"
 						iconFunction="getExperimentTreeIcon" 
 						labelField="@label" 
-						labelFunction="getExperimentTreeLabel">						
+						labelFunction="getExperimentTreeLabel" doubleClickEnabled="true" itemDoubleClick="showExperimentDetailWindow()">						
 					</mx:Tree>
 				</mx:VBox>
 				<mx:VBox width="100%" height="100%">
