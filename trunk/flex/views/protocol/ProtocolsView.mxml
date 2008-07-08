@@ -306,12 +306,15 @@
 					change="onBrowseProtocols(event);"
 					> 
 				</mx:Tree>
-			<mx:ControlBar horizontalAlign="left" verticalAlign="middle" x="0" y="924" width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:Button id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../../assets/add.png')" toolTip="Add protocol" label="New" width="64" enabled="false" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
-				<mx:Button id="deleteProtocolButton" click="onDelete()" icon="@Embed('../../assets/delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false">
-					<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
-				</mx:Button>
-				<mx:Button id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../../assets/refresh_disable.png')"/>
+			<mx:ControlBar horizontalAlign="left" verticalAlign="top" x="0" y="924" width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:VBox verticalGap="0">
+					<mx:LinkButton id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../../assets/brick_add.png')" toolTip="Add protocol" label="New protocol" enabled="false" disabledIcon="@Embed(source='../../assets/brick_add_disable.png')" textDecoration="underline"/>
+					<mx:LinkButton id="deleteProtocolButton" click="onDelete()" icon="@Embed('../../assets/delete.png')" toolTip="Delete protocol" label="Delete protocol"  enabled="false" textDecoration="underline">
+						<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
+					</mx:LinkButton>
+					
+				</mx:VBox>
+				<mx:LinkButton label="Refresh" id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
 			</mx:ControlBar>
 		</mx:Panel>
 		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" title="Protocol:" paddingTop="0">

@@ -686,7 +686,7 @@
 	
 	
 			
-			<mx:Panel label="Experiments" width="235" height="100%" title="Analysis" id="navPanel" >
+			<mx:Panel label="Analysis" width="235" height="100%" title="Analysis" id="navPanel" >
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
 						<mx:Tree width="100%" height="100%" 
@@ -702,19 +702,24 @@
 					</mx:VBox>
 
 				</mx:VBox>
-					<mx:ControlBar width="100%">
-						        <mx:Button id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
-						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')"/>
-						        <mx:Button id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
-						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="false">
+					<mx:ControlBar width="100%" verticalAlign="bottom">
+						<mx:VBox verticalGap="0">
+						        <mx:LinkButton label="New analysis" id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
+						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')" textDecoration="underline"/>
+						        <mx:LinkButton label="New analysis group" id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
+						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="false" textDecoration="underline">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
-						        </mx:Button>
-						        <mx:Button id="deleteButton" icon="@Embed('../../assets/delete.png')" 
+						        </mx:LinkButton>
+							
+						</mx:VBox>
+						<mx:VBox verticalGap="0">
+						        <mx:LinkButton label="Delete" id="deleteButton" icon="@Embed('../../assets/delete.png')" 
 						        	click="promptToDelete()"
-						        	label=""  letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false">
+						        	 letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false" textDecoration="underline">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
-						        </mx:Button>
-						        <mx:Button icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()"/>
+						        </mx:LinkButton>
+						        <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline"/>
+						</mx:VBox>
 								
 					</mx:ControlBar>
 			</mx:Panel> 
@@ -746,7 +751,7 @@
 		<mx:State name="AdminState">
 			<mx:AddChild position="firstChild"  relativeTo="{navContainer}">
 					<mx:VBox verticalGap="0" width="100%">
-				        <mx:Label id="groupLabel" visible="true" text="Select group to show experiments:" paddingBottom="0"/>
+				        <mx:Label id="groupLabel" visible="true" text="Select group to show analysis:" paddingBottom="0"/>
 						<mx:ComboBox id="browseLabCombo" 
 							labelField="@name"
 							dataProvider="{parentApplication.promptedLabList}"
