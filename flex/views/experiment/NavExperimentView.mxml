@@ -718,15 +718,23 @@
 					</mx:VBox>
 
 				</mx:VBox>
-					<mx:ControlBar width="100%">
-						        <mx:Button id="newProjectButton" click="browseView.showNewProjectWindow()" icon="@Embed('../../assets/folder_add.png')" 
-						        	label="New.." paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New project..." width="58" enabled="false" downIcon="@Embed(source='../../assets/folder_add_disable.png')"/>
-						        <mx:Button id="deleteProjectButton" icon="@Embed('../../assets/folder_delete.png')" 
+					<mx:ControlBar width="100%" verticalAlign="top">
+						<mx:VBox verticalGap="0">
+						        <mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow()" 
+						        	icon="@Embed('../../assets/folder_add.png')" 
+						        	toolTip="New project..." 
+						        	enabled="false" 
+						        	disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" textDecoration="underline"/>
+						        <mx:LinkButton  label="Delete project" id="deleteProjectButton" icon="@Embed('../../assets/folder_delete.png')" 
 						        	click="browseView.projectDetailView.promptToDeleteProject()"
-						        	label="Delete"  letterSpacing=".3" horizontalGap="0" toolTip="Delete project" width="79" enabled="false">
-						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_delete_disable.png')</mx:disabledIcon>
-						        </mx:Button>
-						        <mx:Button icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()"/>
+						        	toolTip="Delete project" enabled="false" textDecoration="underline">
+						        	<mx:disabledIcon>@Embed(source='../../assets/folder_delete_disable.png')</mx:disabledIcon>
+						        </mx:LinkButton>
+							
+						</mx:VBox>
+						<mx:VBox verticalGap="0">
+						        <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline"/>
+						</mx:VBox>
 								
 					</mx:ControlBar>
 			</mx:Panel> 

@@ -632,10 +632,14 @@
 			</mx:Tree>
 			
 			<mx:ControlBar>
-				<mx:Button id="addSlideButton" click="onAddNewSlideDesign()" icon="@Embed('../../assets/image_add.png')" toolTip="Add new slide" label="New" width="64" enabled="true" disabledIcon="@Embed(source='../../assets/image_add_disable.png')"/>
-				<mx:Button id="addSlideSetButton" click="prepareToAddSlideProduct()" icon="@Embed('../../assets/images_add.png')" toolTip="Add new slide set" label="New Set" width="86" enabled="true" disabledIcon="@Embed(source='../../assets/images_add_disable.png')"/>
-				<mx:Button id="deleteSlideButton" click="prepareToDeleteSlide()" icon="@Embed('../../assets/delete.png')" toolTip="Delete protocol" label="Delete" width="79" enabled="false" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
-				<mx:Button id="refreshButton" click="callGetSlideList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" width="30" disabledIcon="@Embed(source='../../assets/refresh_disable.png')"/>
+				<mx:VBox verticalGap="0" width="100%">
+					<mx:LinkButton id="addSlideButton" click="onAddNewSlideDesign()" icon="@Embed('../../assets/image_add.png')" toolTip="Add new slide" label="New slide" enabled="true" disabledIcon="@Embed(source='../../assets/image_add_disable.png')" textDecoration="underline"/>
+					<mx:LinkButton id="addSlideSetButton" click="prepareToAddSlideProduct()" icon="@Embed('../../assets/images_add.png')" toolTip="Add new slide set" label="New slide set"  enabled="true" disabledIcon="@Embed(source='../../assets/images_add_disable.png')" textDecoration="underline"/>			
+				</mx:VBox>
+				<mx:VBox verticalGap="0" width="100%">
+					<mx:LinkButton id="deleteSlideButton" click="prepareToDeleteSlide()" icon="@Embed('../../assets/delete.png')" toolTip="Delete protocol" label="Delete" enabled="false" disabledIcon="@Embed(source='../../assets/delete_disable.png')" textDecoration="underline"/>
+					<mx:LinkButton id="refreshButton" click="callGetSlideList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" label="Refresh" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
+				</mx:VBox>
 			</mx:ControlBar>
 		</mx:Panel>
 		<mx:Panel title="Slide:" id="slideViewPanel" width="100%" height="100%" layout="absolute">

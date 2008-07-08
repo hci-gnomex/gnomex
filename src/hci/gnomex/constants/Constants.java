@@ -62,7 +62,7 @@ public class Constants {
     return ANALYSIS_DIRECTORY.length();
   }
   public static int getMicroarrayDirectoryNameLength() {
-    return ANALYSIS_DIRECTORY.length();
+    return MICROARRAY_DIRECTORY.length();
   }
 
 }

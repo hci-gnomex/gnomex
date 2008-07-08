@@ -420,10 +420,14 @@
 		      	     </mx:DataGrid>
 		      	   </mx:VBox>
 	              	
-				<mx:ControlBar width="100%">
-		    	      <mx:Button id="addUserButton" click="prepareToAddUser()" icon="@Embed('../../assets/user_add.png')" toolTip="Add user" label="New" disabledSkin="@Embed(source='../../assets/user_add_disable.png')"/>
-		    	      <mx:Button id="deleteUserButton" click="promptToDeleteAppUser()" icon="@Embed(source='../../assets/delete.png')" toolTip="Delete user" label="Delete" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{usersGrid.selectedItem != null}"/>
-		    	      <mx:Button id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list"/>
+				<mx:ControlBar width="100%" verticalAlign="top">
+				<mx:VBox verticalGap="0" width="100%">
+		    	      <mx:LinkButton id="addUserButton" click="prepareToAddUser()" icon="@Embed('../../assets/user_add.png')" toolTip="Add user" label="New user" disabledSkin="@Embed(source='../../assets/user_add_disable.png')" textDecoration="underline"/>
+		    	      <mx:LinkButton id="deleteUserButton" click="promptToDeleteAppUser()" icon="@Embed(source='../../assets/delete.png')" toolTip="Delete user" label="Delete user" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{usersGrid.selectedItem != null}" textDecoration="underline"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0" width="100%">
+		    	      <mx:LinkButton id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list" width="100%" textDecoration="underline" label="Refresh"/>
+				</mx:VBox>
 				</mx:ControlBar>
 	
 	
@@ -447,10 +451,14 @@
 		      	     </mx:DataGrid>
 		    	    </mx:VBox>
 
-					<mx:ControlBar width="100%">
-			    	      <mx:Button id="addGroupButton" icon="@Embed('../../assets/group_add.png')" toolTip="Add group" label="New" click="prepareToAddGroup()" disabledIcon="@Embed(source='../../assets/group_add_disable.png')"/>
-			    	      <mx:Button id="deleteGroupButton"  icon="@Embed(source='../../assets/delete.png')" toolTip="Delete group" label="Delete" click="promptToDeleteGroup()" enabled="{labsGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
-		    		      <mx:Button id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list"/>
+					<mx:ControlBar width="100%" verticalAlign="top">
+						<mx:VBox verticalGap="0">
+			    	      	<mx:LinkButton id="addGroupButton" icon="@Embed('../../assets/group_add.png')" toolTip="Add group" label="New group" click="prepareToAddGroup()" disabledIcon="@Embed(source='../../assets/group_add_disable.png')" textDecoration="underline"/>
+			    	      	<mx:LinkButton id="deleteGroupButton"  icon="@Embed(source='../../assets/delete.png')" toolTip="Delete group" label="Delete group" click="promptToDeleteGroup()" enabled="{labsGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" textDecoration="underline"/>
+		    		    </mx:VBox>
+						<mx:VBox verticalGap="0">
+		    		      	<mx:LinkButton id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list" textDecoration="underline" label="Refresh"/>
+		    		    </mx:VBox>
 					</mx:ControlBar>
 	
 	    	    </mx:VBox>
