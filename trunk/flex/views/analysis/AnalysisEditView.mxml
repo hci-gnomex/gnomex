@@ -6,7 +6,7 @@
     close="{PopUpManager.removePopUp(this)}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	label="Add Analysis" 
-	title="Add Analysis" 
+	title="Analysis Detail" 
 	width="100%" height="100%" 
 	headerHeight="24" paddingBottom="2" paddingLeft="1" paddingRight="1">
 
@@ -50,6 +50,8 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+  
+  
      	
 <mx:Script>
 	<![CDATA[
@@ -74,6 +76,7 @@
 		
 		public function setupEditForm(analysis:Object):void {
 			initializeDataProviders();
+
 			
 			this.analysis = analysis;
 			this.buttonStack.selectedChild = this.editButtonView;
@@ -82,7 +85,9 @@
 			analysisTypeCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == analysis.@idAnalysisType);
 			analysisProtocolCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == analysis.@idAnalysisProtocol);
 			organismCombo.selectedItem         = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == analysis.@idOrganism);
+			filteredGenomeBuildList.refresh();
 			genomeBuildCombo.selectedItem      = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == analysis.@idGenomeBuild);
+			
 			
 			this.getExperimentPickList.send();			
 			
@@ -91,10 +96,14 @@
 			
 		}
 		public function initializeDataProviders():void {
+			filteredGenomeBuildList.source = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry;
+			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
+			
 			analysisTypeCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry;								
 			analysisProtocolCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry;								
 			organismCombo.dataProvider         = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;								
-			genomeBuildCombo.dataProvider      = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry;								
+			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;								
+
 		}
 		
 		private function nextTab():void {
@@ -239,13 +248,29 @@
         }	
         
         public function cancelAnalysis():void {
-        	//getNewAnalysis.send();
-			//initializeForm();
-        	//parentApplication.theViews.selectedIndex = 0;
-        	//parentApplication.theViews.visible = false;
         }     
         
-        private function validateAndSaveAnalysis():void {        	
+        private function validateAndSaveAnalysis():void {
+        	
+        	// Check for required fields
+        	if (analysisName.text == "") {
+        		analysisName.setFocus();
+        		Alert.show("Please enter an analysis name.");        		
+        		return;
+        	} else if (labCombo.selectedItem == null || labCombo.selectedItem.@idLab == "") {
+        		labCombo.setFocus();
+        		Alert.show("Please select a group.");
+        		return;        		
+        	} else if (organismCombo.selectedItem == null || organismCombo.selectedItem.@value == "") {
+        		organismCombo.setFocus();
+        		Alert.show("Please select an organism.");
+        		return;        		
+        	} else if (analysisGroups.length == 0) {
+        		analysisGroupCombo.setFocus();
+        		Alert.show("Please choose at least one analysis group.");
+        		return;
+        	}
+        	        	
 
 			var params:Object = new Object();
 
@@ -256,7 +281,7 @@
 			params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
 			params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@value;
 			params.idOrganism         = this.organismCombo.selectedItem.@value;
-			params.idGenomeBuild      = this.genomeBuildCombo.selectedItem.@value;
+			params.idGenomeBuild      = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@value : "";
 			
 			params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
 			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
@@ -398,6 +423,7 @@
                 );
             
            multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+           multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
           
        }
        public function onUploadFinished(event:Event):void{
@@ -407,63 +433,90 @@
 			 	getAnalysis.send(parms);
 			 	
 				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis();			 				
-       }		
+       }	
+       
+       public function onChooseFileToUpload(event:Event):void {
+       		dirty.setDirty();
+       }
+       
+        private function filterGenomeBuild(item:Object):Boolean {
+        	if (item.@value == "") {
+        		return true;
+        	}
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	var doesMatch:Boolean = false;
+        	if (this.organismCombo.selectedItem != null && 
+        	    this.organismCombo.selectedItem.@value != null  &&
+        	    this.organismCombo.selectedItem.@value != "") {
+        	    if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@value.toString()) {
+        	    	doesMatch = true;
+        	    }
+        	}
+    	   	return doesMatch;
+    	}
+       	
         
 	]]>
 </mx:Script>
 
+<mx:XMLListCollection  id="filteredGenomeBuildList"/>
 <mx:XMLListCollection  id="analysisGroups" source="{analysis..AnalysisGroup}"/>
 <mx:XMLListCollection  id="experimentItems" />
 <mx:XMLListCollection  id="hybs"           source="{analysis..Hybridization}"/>
 <mx:XMLListCollection  id="lanes"          source="{analysis..SequenceLane}"/>
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFile}"/>
 
-	<mx:TabNavigator id="theTab" width="100%" height="100%" creationPolicy="all">
-		<mx:Canvas label="Overview" width="100%" height="100%">
-		  <mx:HBox width="100%" height="100%">
-			<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+	<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="200" creationPolicy="all">
+		<mx:HDividedBox label="Description" width="100%" height="100%">
+			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="12" width="650">
 				<mx:HBox width="100%">
-					<mx:Label text="Name" width="100">
-					</mx:Label>
-					<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label text="Description" width="100">
-					</mx:Label>
-					<mx:TextArea text="{analysis.@description}" width="100%" height="150" change="dirty.setDirty();" id="description"/>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label text="Group" width="100">
+					<mx:Label text="Group" width="90">
 					</mx:Label>
 					<mx:ComboBox  width="240" id="labCombo" 
 						dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 						selectedIndex="-1" labelField="@name"  change="dirty.setDirty();"/>
 				</mx:HBox>
 				<mx:HBox width="100%">
-					<mx:Label text="Analysis Type" width="100">
+					<mx:Label text="Name" width="90">
 					</mx:Label>
-					<mx:ComboBox  width="240" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+					<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
 				</mx:HBox>
 				<mx:HBox width="100%">
-					<mx:Label text="Analysis Protocol" width="100">
+					<mx:Label text="Description" width="90">
 					</mx:Label>
-					<mx:ComboBox  width="240" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+					<mx:TextArea text="{analysis.@description}" width="100%" height="110" change="dirty.setDirty();" id="description"/>
 				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label text="Organism" width="100">
-					</mx:Label>
-					<mx:ComboBox  width="240" id="organismCombo" labelField="@display" change="dirty.setDirty();"/>
+				<mx:HBox width="100%" horizontalGap="10">
+					<mx:HBox verticalGap="0">
+						<mx:Label text="Organism" width="90">
+						</mx:Label>
+						<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalGap="0">
+						<mx:Label text="Genome Build" width="100">
+						</mx:Label>
+						<mx:ComboBox  width="100%" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+					</mx:HBox>
 				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label text="Genome Build" width="100">
-					</mx:Label>
-					<mx:ComboBox  width="240" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+				<mx:HBox width="100%" horizontalGap="10">
+					<mx:HBox verticalGap="0">
+						<mx:Label text="Analysis Type" width="90">
+						</mx:Label>
+						<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="Analysis Protocol" width="100">
+						</mx:Label>
+						<mx:ComboBox  width="100%" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+					</mx:HBox>
 				</mx:HBox>
 			</mx:VBox>
-			<mx:VBox  width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:HBox width="100%">
 					<mx:Label text="Analysis Groups"/>
-					<mx:ComboBox width="240" id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="...">						
+					<mx:ComboBox id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="..." width="150">						
 					</mx:ComboBox>
 		   	   	    <mx:Button icon="@Embed(source='../../assets/add.png')" 
 		   	   	    	disabledIcon="@Embed(source='../../assets/add_disable.png')" 
@@ -482,8 +535,7 @@
 				</mx:DataGrid>
 				
 			</mx:VBox>
-		  </mx:HBox>
-		</mx:Canvas>
+		</mx:HDividedBox>
 		<mx:Canvas label="Experiments" width="100%" height="100%">
 			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:VBox width="230" height="100%">
@@ -568,13 +620,12 @@
 			<mx:VBox width="100%" height="100%" verticalGap="2">
 				<mx:Label text="Files to upload" fontWeight="bold"/>
 	            <mx:HBox  width="100%">
-	                <mx:Button id="uploadBrowseButton" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload" width="30"/>
-	                <mx:Button id="uploadDeleteButton" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file" width="30"/>
-	                <mx:Button toolTip="Clear All" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " width="30"/>
+	                <mx:LinkButton id="uploadBrowseButton" label="Choose files to upload" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
+	                <mx:LinkButton id="uploadDeleteButton" label="Remove file" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
+	                <mx:LinkButton label="Clear files from list" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
 	                <mx:HBox width="100%"  horizontalAlign="right">
 	                    <mx:VRule height="20"/>
 	                    <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
-	                    <mx:Button label="Cancel upload" id="uploadButton" enabled="false" visible="false"/>
 	                </mx:HBox>
 	            </mx:HBox>
 				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
@@ -583,7 +634,7 @@
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%" verticalGap="2">
 				<mx:Label text="Uploaded Files" fontWeight="bold"/>
-				<mx:Button id="removeFileButton"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file" width="30" click="removeAnalysisFile()"/>
+				<mx:LinkButton id="removeFileButton" label="Remove file (from file system)"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()"/>
 				<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
 					<mx:columns>
 					    <mx:DataGridColumn headerText="" width="25" editable="false" labelFunction="getFilesGridRowNumber"/>
@@ -619,6 +670,7 @@
 		    
 		    <mx:HBox width="100%" horizontalAlign="right" id="editButtonView">
 		        <util:DirtyNote id="dirty"/>
+	            <mx:Button label="Upload files" id="uploadButton" enabled="false" visible="true"/>
   		    	<mx:Button id="saveButton" label="Save" 
 		             	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
 		        </mx:Button>

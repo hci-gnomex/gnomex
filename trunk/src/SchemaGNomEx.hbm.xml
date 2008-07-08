@@ -67,6 +67,7 @@
 		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none" update="false" insert="false"/>
 		<property name="idHybridization" column="idHybridization" type="integer"/>
 		<property name="idSequenceLane" column="idSequenceLane" type="integer"/>
+		<property name="idRequest" column="idRequest" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.AnalysisFile -->
@@ -347,6 +348,10 @@
 		<set name="sequenceLanes" table="SequenceLane" lazy="false" cascade="none" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.SequenceLane" />
+		</set>
+		<set name="analysisExperimentItems" table="AnalysisExperimentItem" lazy="false" cascade="none" >
+			<key column="idRequest"/>
+			<one-to-many class="hci.gnomex.model.AnalysisExperimentItem" />
 		</set>
 		
 	</class>

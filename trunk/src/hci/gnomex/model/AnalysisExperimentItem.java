@@ -15,6 +15,7 @@ public class AnalysisExperimentItem extends HibernateDetailObject {
   private SequenceLane   sequenceLane;
   private Integer        idHybridization;
   private Integer        idSequenceLane;
+  private Integer        idRequest;
   
   public Integer getIdAnalysisExperimentItem() {
     return idAnalysisExperimentItem;
@@ -78,6 +79,16 @@ public class AnalysisExperimentItem extends HibernateDetailObject {
   
   public void setIdSequenceLane(Integer idSequenceLane) {
     this.idSequenceLane = idSequenceLane;
+  }
+
+  
+  public Integer getIdRequest() {
+    return idRequest;
+  }
+
+  
+  public void setIdRequest(Integer idRequest) {
+    this.idRequest = idRequest;
   }
   
  

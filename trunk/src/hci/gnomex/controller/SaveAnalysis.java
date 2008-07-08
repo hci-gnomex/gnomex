@@ -222,6 +222,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
           experimentItem.setIdAnalysis(analysis.getIdAnalysis());
           experimentItem.setIdHybridization(idHybridization);
+          experimentItem.setIdRequest(hybParser.getIdRequest(idHybridization));
           experimentItems.add(experimentItem);
         }
         for(Iterator i = laneParser.getIdSequenceLanes().iterator(); i.hasNext();) {
@@ -229,6 +230,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
           experimentItem.setIdAnalysis(analysis.getIdAnalysis());
           experimentItem.setIdSequenceLane(idSequenceLane);
+          experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
           experimentItems.add(experimentItem);
         }
         analysis.setExperimentItems(experimentItems);
