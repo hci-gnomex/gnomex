@@ -30,7 +30,8 @@ public class UploadAnalysisFileServlet extends HttpServlet {
   private Integer idAnalysis = null;
   private String  directoryName = "";
   
- 
+  private Analysis analysis;
+  private String   fileName;
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {;}
 
@@ -59,7 +60,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
       if (idAnalysis != null) {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal().getName());
         
-        Analysis analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
+        analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
@@ -78,7 +79,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
             if (part.isFile()) {
               // it's a file part
               FilePart filePart = (FilePart) part;
-              String fileName = filePart.getFileName();
+              fileName = filePart.getFileName();
               if (fileName != null) {
                 // the part actually contained a file
                 long size = filePart.writeTo(new File(directoryName));
@@ -108,14 +109,26 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           }
           sess.flush();
           
+        } else {
+          System.out.println("UploadAnalysisFileServlet - unable to upload file " + fileName + " for analysis idAnalysis=" + idAnalysis);
+          System.out.println("Insufficient write permissions for user " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserLastName());
+          throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
+          
         }
+        
+      } else {
+        System.out.println("UploadAnalysisFileServlet - unable to upload file " + fileName + " for analysis idAnalysis=" + idAnalysis);
+        System.out.println("idAnalysis is required");
+        throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
         
       }
       
       
     } catch (Exception e) {
+      System.out.println("UploadAnalysisFileServlet - unable to upload file " + fileName + " for analysis idAnalysis=" + idAnalysis);
       System.out.println(e.toString());
       e.printStackTrace();
+      throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
     }
   }
 }

@@ -279,10 +279,8 @@ package views.util
         		//if  filesize greater then _maxFileSize
 		        if (filesize > _maxFileSize){
 		        	r = false;
-		        	trace("false");
 		       	 }else if (filesize <= _maxFileSize){
 		        	r = true;
-		        	trace("true");
 	        	}
 	        	
 	        	if (_maxFileSize == 0){
@@ -358,13 +356,11 @@ package views.util
 	            for (i=0;i < event.currentTarget.fileList.length; i ++){
 	            	if (checkFileSize(event.currentTarget.fileList[i].size)){
 	                	_files.addItem(event.currentTarget.fileList[i]);
-	                	trace("under size " + event.currentTarget.fileList[i].size);
 	                	var browseFileEvent:Event = new Event(Event.OPEN);
 			            dispatchEvent(browseFileEvent);
 
 	            	}  else {
 	            	dl.push(event.currentTarget.fileList[i]);
-	            	trace(event.currentTarget.fileList[i].name + " too large");
 	            	}
 	            }	            
 	            if (dl.length > 0){
@@ -377,7 +373,6 @@ package views.util
         
         // called after the file is opened before upload    
         private function openHandler(event:Event):void{
-            trace('openHandler triggered');
             _files;
         }
         
@@ -389,7 +384,6 @@ package views.util
 
         // called after a file has been successully uploaded | we use this as well to check if there are any files left to upload and how to handle it
         private function completeHandler(event:Event):void{
-            //trace('completeHanderl triggered');
             _files.removeItemAt(0);
             if (_files.length > 0){
             	_totalbytes = 0;
@@ -404,26 +398,24 @@ package views.util
           
         // only called if there is an  error detected by flash player browsing or uploading a file   
         private function ioErrorHandler(event:IOErrorEvent):void{
-            //trace('And IO Error has occured:' +  event);
-            mx.controls.Alert.show(String(event),"ioError",0);
+            mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+            						"Upload IO error",0);
         }    
         // only called if a security error detected by flash player such as a sandbox violation
         private function securityErrorHandler(event:SecurityErrorEvent):void{
-            //trace("securityErrorHandler: " + event);
             mx.controls.Alert.show(String(event),"Security Error",0);
         }
         
         //  This function its not required
         private function cancelHandler(event:Event):void{
             // cancel button has been clicked;
-            trace('cancelled');
         }
         
         //  after a file upload is complete or attemted the server will return an http status code, code 200 means all is good anything else is bad.
         private function httpStatusHandler(event:HTTPStatusEvent):void {
-        //        trace("httpStatusHandler: " + event);
             if (event.status != 200){
-                mx.controls.Alert.show(String(event),"Error",0);
+            		mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+            						"HTTP status",0);
             }
         }
 
