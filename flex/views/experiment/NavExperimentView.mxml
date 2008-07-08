@@ -488,7 +488,7 @@
 			    
 			}
 		    theViews.selectedChild = detailView;
-			detailView.setupForm();
+			detailView.setupForm(this.selectedExperiment);
 
 		    theViews.visible = true;
 		}

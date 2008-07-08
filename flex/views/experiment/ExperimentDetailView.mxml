@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
+<mx:TitleWindow  xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" 
+	xmlns:views="views.*"  
+	 headerHeight="20"
+	close="{PopUpManager.removePopUp(this);}">
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
@@ -15,6 +19,9 @@
 		[Bindable]
 		private var billingAccountName:String;
 		
+		[Bindable]
+		private var selectedExperiment:Object;
+		
 		public function checkSecurity():void {
 			if (parentApplication.isGuestMode()) {
 				this.showCy3LabelingFieldsCheckBox.visible = false;
@@ -27,12 +34,14 @@
 			}
 		}
 	
-		public function setupForm():void {
+		public function setupForm(selectedExperiment:Object):void {
+			this.selectedExperiment = selectedExperiment;
+			
 			this.currentState = '';						
 			this.theViews.selectedIndex = 0;
-			if (parentDocument.selectedExperiment.@codeRequestCategory == "QC") {
+			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
-			} else if (parentDocument.selectedExperiment.@codeRequestCategory == 'SOLEXA') {
+			} else if (this.selectedExperiment.@codeRequestCategory == 'SOLEXA') {
 				currentState = 'SolexaState';
 			} else {
 				currentState = 'MicroarrayState';
@@ -45,7 +54,7 @@
 
 			}
 			
-			if (parentDocument.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+			if (this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
 				this.analysisButton.enabled = true;
 				this.hasAnalysis.visible = true;
 			} else {
@@ -125,18 +134,18 @@
 	    } 
 
 		private function getRequestCategoryName():void {
-			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == parentDocument.selectedExperiment.@codeRequestCategory);
+			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == this.selectedExperiment.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 		}
 		private function getExperimentCategoryName():void {
-			var experimentCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == parentDocument.selectedExperiment.@codeMicroarrayCategory);
+			var experimentCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == this.selectedExperiment.@codeMicroarrayCategory);
 			experimentCategoryName = experimentCategory.@display.toString();
 		}
 		private function getBillingAccountName():void {
 			var billingAccount:Object = null;
 			for each(var lab:Object in parentApplication.promptedSubmitRequestLabList) {
 				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
-					if (ba.@idBillingAccount == parentDocument.selectedExperiment.@idBillingAccount) {
+					if (ba.@idBillingAccount == this.selectedExperiment.@idBillingAccount) {
 						billingAccount = ba;
 						break;
 					}
@@ -153,7 +162,7 @@
 		}
 
 	  	public function promptToDeleteExperiment():void {
-			Alert.show("Delete experiment " + parentDocument.selectedExperiment.@number + "?", 
+			Alert.show("Delete experiment " + this.selectedExperiment.@number + "?", 
 						null, 
 						(Alert.YES | Alert.NO), this, 
 						onPromptToDeleteExperiment);
@@ -170,7 +179,7 @@
 		}
 		
 		private function showPrintableRequestForm():void {
-			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + parentDocument.selectedExperiment.@idRequest);
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
 			navigateToURL(url, '_blank');			
 		}
 		
@@ -179,16 +188,16 @@
 			 // the edit window was pressed.  by putting this extra call in, it seems to clear
 			 // out some weird state.
 			 //var parms:Object = new Object();
-			 //parms.idRequest = parentDocument.selectedExperiment.@idRequest;
+			 //parms.idRequest = this.selectedExperiment.@idRequest;
 			 //parentDocument.getRequest.send(parms);
  
 			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
 			 editWindow.width= 1000;
 			 editWindow.height= 500;
 			 editWindow.showCloseButton = true;
-			 editWindow.title = "Edit Experiment " + this.parentDocument.selectedExperiment.@number;
+			 editWindow.title = "Edit Experiment " + this.selectedExperiment.@number;
 			 PopUpManager.centerPopUp(editWindow);		
-             editWindow.setupEditForm(parentDocument.selectedExperiment);
+             editWindow.setupEditForm(this.selectedExperiment);
            	 editWindow.initializeData();
            	 callLater(editWindow.setupDataListeners); 
 		}
@@ -264,23 +273,23 @@
 				descriptionCol.visible = false;   
         		
         	} else {
-				AGE0.visible = parentDocument.selectedExperiment.@AGE == 'Y' ? true : false;        		
-				CELLLINE0.visible = parentDocument.selectedExperiment.@CELLLINE == 'Y' ? true : false;   
-				CELLTYPE0.visible = parentDocument.selectedExperiment.@CELLTYPE == 'Y' ? true : false;   
-				CLININFO0.visible = parentDocument.selectedExperiment.@CLININFO == 'Y' ? true : false;   
-				COMPOUND0.visible = parentDocument.selectedExperiment.@COMPOUND == 'Y' ? true : false;   
-				DISSTATE0.visible = parentDocument.selectedExperiment.@DISSTATE == 'Y' ? true : false;   
-				DOSE0.visible = parentDocument.selectedExperiment.@DOSE == 'Y' ? true : false;   
-				GENMOD0.visible = parentDocument.selectedExperiment.@GENMOD == 'Y' ? true : false;   
-				GENOTYPE0.visible = parentDocument.selectedExperiment.@GENOTYPE == 'Y' ? true : false;   
-				GROWTHCOND0.visible = parentDocument.selectedExperiment.@GROWTHCOND == 'Y' ? true : false;   
-				INDIV0.visible = parentDocument.selectedExperiment.@INDIV == 'Y' ? true : false;   
-				ORGPART0.visible = parentDocument.selectedExperiment.@ORGPART == 'Y' ? true : false;   
-				SEX0.visible = parentDocument.selectedExperiment.@SEX == 'Y' ? true : false;   
-				TEMP0.visible = parentDocument.selectedExperiment.@TEMP == 'Y' ? true : false;   
-				TIME0.visible = parentDocument.selectedExperiment.@TIME == 'Y' ? true : false;   
-				otherDataColumnConfirm.visible = parentDocument.selectedExperiment.@OTHER == 'Y' ? true : false;   
-				treatmentCol.visible = parentDocument.selectedExperiment.@treatment == 'Y' ? true : false;   
+				AGE0.visible = this.selectedExperiment.@AGE == 'Y' ? true : false;        		
+				CELLLINE0.visible = this.selectedExperiment.@CELLLINE == 'Y' ? true : false;   
+				CELLTYPE0.visible = this.selectedExperiment.@CELLTYPE == 'Y' ? true : false;   
+				CLININFO0.visible = this.selectedExperiment.@CLININFO == 'Y' ? true : false;   
+				COMPOUND0.visible = this.selectedExperiment.@COMPOUND == 'Y' ? true : false;   
+				DISSTATE0.visible = this.selectedExperiment.@DISSTATE == 'Y' ? true : false;   
+				DOSE0.visible = this.selectedExperiment.@DOSE == 'Y' ? true : false;   
+				GENMOD0.visible = this.selectedExperiment.@GENMOD == 'Y' ? true : false;   
+				GENOTYPE0.visible = this.selectedExperiment.@GENOTYPE == 'Y' ? true : false;   
+				GROWTHCOND0.visible = this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false;   
+				INDIV0.visible = this.selectedExperiment.@INDIV == 'Y' ? true : false;   
+				ORGPART0.visible = this.selectedExperiment.@ORGPART == 'Y' ? true : false;   
+				SEX0.visible = this.selectedExperiment.@SEX == 'Y' ? true : false;   
+				TEMP0.visible = this.selectedExperiment.@TEMP == 'Y' ? true : false;   
+				TIME0.visible = this.selectedExperiment.@TIME == 'Y' ? true : false;   
+				otherDataColumnConfirm.visible = this.selectedExperiment.@OTHER == 'Y' ? true : false;   
+				treatmentCol.visible = this.selectedExperiment.@treatment == 'Y' ? true : false;   
 				descriptionCol.visible = true;   
 
 	        	if (currentState == 'SolexaState') {
@@ -317,7 +326,7 @@
         }
         
         private function showRelatedAnalysis():void {
-        	parentApplication.showAnalysis(parentDocument.selectedExperiment);
+        	parentApplication.showAnalysis(this.selectedExperiment);
         }
 
 	]]>
@@ -335,22 +344,22 @@
 		        		<mx:HBox horizontalGap="0">
 		                    <mx:Label text="#"  width="90" fontWeight="bold">
 		                    </mx:Label>
-		                    <mx:Text  id="requestNumber" text="{parentDocument.selectedExperiment.@number}"  width="80" />
+		                    <mx:Text  id="requestNumber" text="{this.selectedExperiment.@number}"  width="80" />
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
 		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
-		                  <mx:Text text="{parentDocument.selectedExperiment.@createDate}" width="80"/>
+		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="80"/>
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
 		                  <mx:Label width="90" text="Completed on" fontWeight="bold"/>
-		                  <mx:Text  text="{parentDocument.selectedExperiment.@completedDate}" width="80" />
+		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="80" />
 		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox verticalGap="0">
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	   <mx:Label text="Submitter"  width="105" fontWeight="bold"/>
-			        	   <mx:Text text="{parentDocument.selectedExperiment.@ownerName}" width="180" />
+			        	   <mx:Text text="{this.selectedExperiment.@ownerName}" width="180" />
 			        	 </mx:HBox>
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
@@ -365,7 +374,7 @@
 			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 			                   <mx:Label text="Group"  width="55" fontWeight="bold"/>
-			                   <mx:Text text="{parentDocument.selectedExperiment.@labName}" width="100%"/>
+			                   <mx:Text text="{this.selectedExperiment.@labName}" width="100%"/>
 			               </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 			                <mx:Label text="Account"  width="55" fontWeight="bold"/>
@@ -373,7 +382,7 @@
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 			                <mx:Label text="Project"  width="55" fontWeight="bold"/>
-			                <mx:Text  text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
+			                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
 			            </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="bottom"
@@ -390,7 +399,7 @@
 							<mx:Spacer width="74"/>
 							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
 						</mx:HBox>
-						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
@@ -418,23 +427,23 @@
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
 
 								
-								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{parentDocument.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
-								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{parentDocument.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!parentDocument.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{parentDocument.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{parentDocument.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{parentDocument.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{parentDocument.selectedExperiment.@DOSE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{parentDocument.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{parentDocument.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{parentDocument.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{parentDocument.selectedExperiment.@INDIV == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{parentDocument.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{parentDocument.selectedExperiment.@SEX == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!parentDocument.selectedExperiment.@TEMP == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{parentDocument.selectedExperiment.@TIME == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{parentDocument.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{parentDocument.selectedExperiment.@OTHER == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="treatmentCol" visible="{parentDocument.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
+								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
+								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{this.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!this.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{this.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{this.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{this.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{this.selectedExperiment.@DOSE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{this.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{this.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{this.selectedExperiment.@INDIV == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{this.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{this.selectedExperiment.@SEX == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!this.selectedExperiment.@TEMP == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
+								<mx:DataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 
 								<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
 							</mx:columns>
@@ -454,7 +463,7 @@
 							<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
 							<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
 						</mx:HBox>
-						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{parentDocument.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{this.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
 							<mx:columns>
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
@@ -602,23 +611,23 @@
 	
 </mx:VBox>
 
-<mx:ControlBar width="100%">
+<mx:ControlBar width="100%" id="buttonBar">
     <mx:HBox width="100%" horizontalAlign="left">
 	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 	    <mx:LinkButton label="Printable form" click="showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
 	    <mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 	    	enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="showRelatedAnalysis()">
 	    </mx:LinkButton>
-	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
-	        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-	        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
+	        <mx:height>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 	    </mx:LinkButton>				
 	
     </mx:HBox>
     <mx:HBox width="100%" horizontalAlign="right">
-	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline">
-	        <mx:height>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
-	        <mx:visible>{parentDocument.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
+	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
+	        <mx:height>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
+	        <mx:visible>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
 	    </mx:LinkButton>
     	
     </mx:HBox>
@@ -635,7 +644,7 @@
 		<mx:AddChild relativeTo="{this.confirmContainer}">
 				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
 						<mx:Label text="{'Sequencing Lanes (' + lanesConfirmGrid.dataProvider.length + ')'}"  fontWeight="bold"/>
-						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{parentDocument.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{this.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
 						<mx:columns>
 							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
@@ -661,4 +670,4 @@
 	</mx:State>
 </mx:states>
 	
-</mx:Panel>
+</mx:TitleWindow>
