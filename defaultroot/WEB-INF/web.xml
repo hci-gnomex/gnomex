@@ -99,6 +99,11 @@
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<servlet-class>hci.gnomex.controller.DownloadAnalysisFileServlet</servlet-class>
 	</servlet>
+
+	<servlet>
+		<servlet-name>UploadAnalysisFileServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.UploadAnalysisFileServlet</servlet-class>
+	</servlet>
 			
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -125,7 +130,13 @@
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<url-pattern>DownloadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
+
+  <servlet-mapping>
+		<servlet-name>UploadAnalysisFileServlet</servlet-name>
+		<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
+	</servlet-mapping>
 	
+		
 	<servlet-mapping>
 		<servlet-name>Captcha</servlet-name>
 		<url-pattern>/Captcha.jpg</url-pattern>
