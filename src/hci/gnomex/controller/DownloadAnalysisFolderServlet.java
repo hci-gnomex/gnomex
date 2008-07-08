@@ -37,7 +37,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
   
   
   private String    keysString = null;
-  
+  private String    baseDir = "";
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadAnalysisFolderServlet.class);
   
@@ -50,7 +50,8 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
 
     // Get input parameters
     keysString = req.getParameter("resultKeys");
-
+    baseDir = Constants.getAnalysisDirectory(req.getServerName());
+    
     try {
 
       // Get security advisor
@@ -68,7 +69,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         
        
         Map fileNameMap = new HashMap();
-        long fileSizeTotal = getFileNamesToDownload(keysString, fileNameMap);
+        long fileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap);
 
         // Set content length to estimated zip (compressed) size.
         int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
@@ -115,7 +116,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
 
             // Add ZIP entry to output stream.
             // (The file name starts after the year subdirectory)
-            ZipEntry zipEntry = new ZipEntry("bioinformatics-analysis-" + filename.substring(Constants.ANALYSIS_DIRECTORY.length() + 5));
+            ZipEntry zipEntry = new ZipEntry("bioinformatics-analysis-" + filename.substring(baseDir.length() + 5));
             zout.putNextEntry(zipEntry);
 
             // Transfer bytes from the file to the ZIP file
@@ -181,7 +182,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
   
 
     
-  public static long getFileNamesToDownload(String keysString, Map fileNameMap) {
+  public static long getFileNamesToDownload(String baseDir, String keysString, Map fileNameMap) {
 
     long fileSizeTotal = 0;
     String[] keys = keysString.split(":");
@@ -193,7 +194,8 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
       String createDate = tokens[1];
       String analysisNumber = tokens[2];
 
-      String directoryName = Constants.ANALYSIS_DIRECTORY + createYear + "/" + analysisNumber;
+
+      String directoryName = baseDir + createYear + "/" + analysisNumber;
       fileSizeTotal += getFileNames(analysisNumber, directoryName, fileNameMap);
     }
     return fileSizeTotal;

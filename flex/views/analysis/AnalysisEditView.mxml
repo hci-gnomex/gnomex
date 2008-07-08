@@ -5,7 +5,7 @@
     xmlns:analysis="views.analysis.*"
     close="{PopUpManager.removePopUp(this)}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
-	label="Add Analysis"
+	label="Add Analysis" 
 	title="Add Analysis" 
 	width="100%" height="100%" 
 	headerHeight="24" paddingBottom="2" paddingLeft="1" paddingRight="1">
@@ -64,9 +64,13 @@
         import mx.core.DragSource;
         import mx.core.UIComponent;
         import mx.controls.listClasses.ListBase;
+        import views.util.MultiFileUpload;
         	
 	    [Bindable]
 		private var analysis:Object;
+		
+		private var multiFileUpload:MultiFileUpload;
+        private var UPLOAD_SERVLET_URL:String = "UploadAnalysisFileServlet.gx";  
 		
 		public function setupEditForm(analysis:Object):void {
 			initializeDataProviders();
@@ -82,6 +86,7 @@
 			
 			this.getExperimentPickList.send();			
 			
+			callLater(this.initializeFileUploadControl);
 			
 			
 		}
@@ -181,6 +186,12 @@
 				lanes.removeItemAt(lanesGrid.selectedIndex);								
 			}
 		}
+		private function removeAnalysisFile():void {
+			dirty.setDirty();
+			if (this.filesGrid.selectedIndex != -1) {
+				files.removeItemAt(filesGrid.selectedIndex);
+			}
+		}
 		private function onGetExperimentPickList(event:ResultEvent): void {
 			callLater(expandAllNodes);
   		}
@@ -250,6 +261,7 @@
 			params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
 			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
 			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
+			params.analysisFilesXMLString = "<analysisFiles>" +  files.toXMLString() + "</analysisFiles>";
 
 			saveAnalysis.send(params);			
 
@@ -257,8 +269,15 @@
         
 		private function onSaveAnalysis(event:ResultEvent):void {
 			if (saveAnalysis.lastResult.name() == "SUCCESS") {
+
+				// start file uploads
+				this.uploadButton.visible = true;
+				this.multiFileUpload.startUpload();
+
+
 				dirty.resetDirty();
 
+				// refresh analysis
 			 	var parms:Object = new Object();
 			 	parms.idAnalysis = analysis.@idAnalysis;
 			 	getAnalysis.send(parms);
@@ -271,6 +290,7 @@
 
 		private function onGetAnalysis(event:ResultEvent):void {
 			analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
+			
 		}
 		        
         private function validateAndSubmitAnalysis():void {        	
@@ -358,6 +378,36 @@
 	       
 		}
 		
+		public function initializeFileUploadControl():void{
+            
+            var postVariables:URLVariables = new URLVariables;
+            postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
+            trace("idAnalysis = " + postVariables.idAnalysis);
+                
+            multiFileUpload = new MultiFileUpload(
+                this.uploadFilesGrid,
+                this.uploadBrowseButton,
+                this.uploadClearButton,
+                this.uploadDeleteButton,
+                this.uploadButton,
+                this.uploadProgressBar,
+                UPLOAD_SERVLET_URL,
+                postVariables,
+                0,
+                null
+                );
+            
+           multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+          
+       }
+       public function onUploadFinished(event:Event):void{
+				// refresh analysis
+			 	var parms:Object = new Object();
+			 	parms.idAnalysis = analysis.@idAnalysis;
+			 	getAnalysis.send(parms);
+			 	
+				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis();			 				
+       }		
         
 	]]>
 </mx:Script>
@@ -514,16 +564,36 @@
 				</mx:VBox>	
 			</mx:HDividedBox>
 		</mx:Canvas>
-		<mx:VBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
-			<mx:DataGrid id="filesGrid" dataProvider="{files}" width="100%" height="100%">
-				<mx:columns>
-				    <mx:DataGridColumn headerText="" width="25" labelFunction="getFilesGridRowNumber"/>
-					<mx:DataGridColumn headerText="File name" dataField="@fileName"/>
-					<mx:DataGridColumn headerText="Upload Date" width="80" dataField="@uploadDate"/>
-					<mx:DataGridColumn headerText="Comments" dataField="@comments"/>
-				</mx:columns>
-			</mx:DataGrid>
-		</mx:VBox>
+		<mx:VDividedBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+			<mx:VBox width="100%" height="100%" verticalGap="2">
+				<mx:Label text="Files to upload" fontWeight="bold"/>
+	            <mx:HBox  width="100%">
+	                <mx:Button id="uploadBrowseButton" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload" width="30"/>
+	                <mx:Button id="uploadDeleteButton" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file" width="30"/>
+	                <mx:Button toolTip="Clear All" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " width="30"/>
+	                <mx:HBox width="100%"  horizontalAlign="right">
+	                    <mx:VRule height="20"/>
+	                    <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+	                    <mx:Button label="Cancel upload" id="uploadButton" enabled="false" visible="false"/>
+	                </mx:HBox>
+	            </mx:HBox>
+				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
+				</mx:DataGrid>				
+        		<mx:Spacer  width="100%" height="10"/>		
+			</mx:VBox>
+			<mx:VBox width="100%" height="100%" verticalGap="2">
+				<mx:Label text="Uploaded Files" fontWeight="bold"/>
+				<mx:Button id="removeFileButton"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file" width="30" click="removeAnalysisFile()"/>
+				<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
+					<mx:columns>
+					    <mx:DataGridColumn headerText="" width="25" editable="false" labelFunction="getFilesGridRowNumber"/>
+						<mx:DataGridColumn headerText="File name"  editable="false" dataField="@fileName"/>
+						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@uploadDate"/>
+						<mx:DataGridColumn headerText="Comments" editable="true" dataField="@comments"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+		</mx:VDividedBox>
 	</mx:TabNavigator>
 	<mx:ViewStack id="buttonStack" width="100%">
 		    <mx:HBox width="100%" id="addButtonView" >

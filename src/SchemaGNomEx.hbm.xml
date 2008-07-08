@@ -49,7 +49,7 @@
 			<key column="idAnalysis"/>
 			<one-to-many class="hci.gnomex.model.AnalysisExperimentItem" />
 		</set>
-		<set name="files" table="AnalysisFile" lazy="false" cascade="all" >
+		<set name="files" table="AnalysisFile" lazy="false" cascade="all" order-by="fileName">
 			<key column="idAnalysis"/>
 			<one-to-many class="hci.gnomex.model.AnalysisFile" />
 		</set>

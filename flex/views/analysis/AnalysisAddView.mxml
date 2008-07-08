@@ -52,6 +52,7 @@
 			}
 			params.hybsXMLString = "<hybs/>";
 			params.lanesXMLString = "<lanes/>";
+			params.analysisFilesXMLString = "<analysisFiles/>";
 			
 			saveAnalysis.send(params);
 		}

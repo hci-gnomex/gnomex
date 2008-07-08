@@ -2,10 +2,13 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -25,7 +28,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
   
   
   private Integer      idAnalysis = null;
-  
+  private String       baseDir;
  
   
   
@@ -39,6 +42,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idAnalysis", "idAnalysis is required.");
    }
+   baseDir = Constants.getAnalysisDirectory(request.getServerName());
 
   }
 
@@ -52,6 +56,13 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
       analysis.setAnalysisGroups(null);
     
       if (this.getSecAdvisor().canDelete(analysis)) {
+        
+        // Remove files from file system
+        for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          SaveAnalysis.removeAnalysisFileFromFileSystem(baseDir, analysis, af);
+        }
+        SaveAnalysis.removeAnalysisDirectoryFromFileSystem(baseDir, analysis);
         
         
         //

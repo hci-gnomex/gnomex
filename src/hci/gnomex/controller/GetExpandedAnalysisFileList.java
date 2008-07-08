@@ -39,6 +39,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
   
   
   private String    keysString;
+  private String    baseDir;
   
   public void validate() {
   }
@@ -47,6 +48,8 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
     // Get input parameters
     keysString = request.getParameter("resultKeys");
+    baseDir = Constants.getAnalysisDirectory(request.getServerName());
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -60,7 +63,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List analysisNumbers = new ArrayList();
-    getFileNamesToDownload(keysString, analysisNumbers, analysisMap, directoryMap);
+    getFileNamesToDownload(baseDir, keysString, analysisNumbers, analysisMap, directoryMap);
    
     //  For each request number
     for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {
@@ -169,7 +172,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
     return this;
   }
   
-  public static void getFileNamesToDownload(String keysString, List analysisNumbers, Map analysisMap, Map directoryMap) {
+  public static void getFileNamesToDownload(String baseDir, String keysString, List analysisNumbers, Map analysisMap, Map directoryMap) {
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
@@ -180,7 +183,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       String analysisNumber = tokens[2];
 
       String directoryKey = analysisNumber;
-      String directoryName = Constants.ANALYSIS_DIRECTORY + createYear + "/" + analysisNumber;
+      String directoryName = baseDir + createYear + "/" + analysisNumber;
       
       // We want the list to be ordered the same way as the original keys,
       // so we will keep the analysis numbers in a list
