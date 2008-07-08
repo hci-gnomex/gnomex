@@ -44,6 +44,14 @@
 				showExtFieldsCheckBox.selected = false;
 
 			}
+			
+			if (parentDocument.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+				this.analysisButton.enabled = true;
+				this.hasAnalysis.visible = true;
+			} else {
+				this.analysisButton.enabled = false;
+				this.hasAnalysis.visible = false;
+			}
 
 
 			showQCFieldsCheckBox.selected = false;
@@ -307,6 +315,10 @@
         		}
         	} 
         }
+        
+        private function showRelatedAnalysis():void {
+        	parentApplication.showAnalysis(parentDocument.selectedExperiment);
+        }
 
 	]]>
 </mx:Script>
@@ -364,6 +376,9 @@
 			                <mx:Text  text="{parentDocument.selectedExperiment.@projectName}" width="100%"/>
 			            </mx:HBox>
 		        	</mx:VBox>
+		        	<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="bottom"
+		        		enabled="true" disabledIcon="@Embed(source='../../assets/map_disable.png')" id="hasAnalysis" visible="false">
+		        	</mx:LinkButton>
 		        </mx:HBox>
 		        
 	
@@ -591,6 +606,9 @@
     <mx:HBox width="100%" horizontalAlign="left">
 	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 	    <mx:LinkButton label="Printable form" click="showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+	    <mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+	    	enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="showRelatedAnalysis()">
+	    </mx:LinkButton>
 	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
 	        <mx:height>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{parentDocument.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>

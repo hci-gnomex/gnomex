@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" width="360" height="256" 
+	title="Add Analysis" width="360" height="324" 
 	defaultButton="{saveButton}">
 	
     <mx:HTTPService 
@@ -42,6 +42,7 @@
 			params.idAnalysis = 0;
 			params.idLab = labCombo.selectedItem.@idLab;
 			params.name = analysisName.text;
+			params.idOrganism = organismCombo.selectedItem.@idOrganism;
 			if (currentState == "NewAnalysisGroupState") {
 				params.analysisGroupsXMLString = "<analysisGroups/>";
 				params.newAnalysisGroupName = newAnalysisGroupName.text;
@@ -76,10 +77,18 @@
 		private function checkCompleteness():Boolean {
 			var isComplete:Boolean = false; 
 			if (currentState == "NewAnalysisGroupState") {
-				isComplete = labCombo.selectedItem != null && newAnalysisGroupName.text != '' && analysisName.text != ''; 
+				isComplete = labCombo.selectedItem != null && 
+				newAnalysisGroupName.text != '' && 
+				analysisName.text != '' && 
+				organismCombo.selectedItem != null && 
+				organismCombo.selectedItem.@value != ""; 
 				
 			} else {
-				isComplete = labCombo.selectedItem != null && analysisGroupCombo.selectedItem != null && analysisName.text != ''; 
+				isComplete = labCombo.selectedItem != null && 
+				analysisGroupCombo.selectedItem != null && 
+				analysisName.text != '' && 
+				organismCombo.selectedItem != null  && 
+				organismCombo.selectedItem.@value != ""; 
 			}
 			this.saveButton.enabled = isComplete;
 			return isComplete;
@@ -102,7 +111,7 @@
         private function showEditWindow():void {
 			 var editWindow:AnalysisEditView = AnalysisEditView(PopUpManager.createPopUp(this.parentApplication.topArea, AnalysisEditView, true));
 			 editWindow.width= 1000;
-			 editWindow.height= 500;
+			 editWindow.height= 550;
 			 editWindow.showCloseButton = true;
 			 editWindow.title = "Edit Analysis " + parentApplication.navAnalysisView.selectedAnalysis.@number;
 			 PopUpManager.centerPopUp(editWindow);		
@@ -140,6 +149,13 @@
 			<mx:Label text="Analysis name"/>
 			<mx:TextInput id="analysisName" width="100%" change="checkCompleteness()"/>
 		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Organism" width="100">
+			</mx:Label>
+			<mx:ComboBox  width="100%" id="organismCombo" labelField="@display"  change="checkCompleteness()">
+				<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+			</mx:ComboBox>
+		</mx:VBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
@@ -155,7 +171,7 @@
 				<mx:TextArea height="76" width="100%" id="newAnalysisGroupDescription"/>
 			</mx:AddChild>
 			<mx:SetProperty name="width" value="358"/>
-			<mx:SetProperty name="height" value="340"/>
+			<mx:SetProperty name="height" value="406"/>
 			<mx:SetProperty target="{label1}" name="text" value="New analysis group name"/>
 			<mx:AddChild relativeTo="{newAnalysisGroupDescription}" position="before">
 				<mx:TextInput width="100%" id="newAnalysisGroupName" change="checkCompleteness()"/>

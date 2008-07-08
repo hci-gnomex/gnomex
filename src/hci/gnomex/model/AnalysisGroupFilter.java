@@ -10,6 +10,7 @@ public class AnalysisGroupFilter extends DetailObject {
   // Criteria
   private Integer               idLab;
   private String                searchPublicProjects;
+  private Integer               idRequest;
 
 
   private StringBuffer          queryBuf;
@@ -53,14 +54,27 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" JOIN                ag.lab as aglab ");
     queryBuf.append(" LEFT JOIN           ag.analysisItems as a ");
     queryBuf.append(" LEFT JOIN           a.lab as alab ");
+    
+    if (hasExperimentItemCriteria()) {
+      queryBuf.append(" JOIN              a.experimentItems as ex ");
+    }
 
     addAnalysisCriteria();
+    addExperimentItemCriteria();
     
     addSecurityCriteria();
     
     
     queryBuf.append(" order by aglab.name, ag.name, a.number ");
   
+  }
+  
+  private boolean hasExperimentItemCriteria() {
+    if (idRequest != null) {
+      return true;
+    } else {
+      return false;
+    }
   }
   
 
@@ -71,6 +85,15 @@ public class AnalysisGroupFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" ag.idLab =");
       queryBuf.append(idLab);
+    } 
+    
+  }
+  private void addExperimentItemCriteria() {
+    // Search by request (experiment item) 
+    if (idRequest != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" ex.idRequest =");
+      queryBuf.append(idRequest);
     } 
     
   }
@@ -136,6 +159,16 @@ public class AnalysisGroupFilter extends DetailObject {
   
   public void setSearchPublicProjects(String searchPublicProjects) {
     this.searchPublicProjects = searchPublicProjects;
+  }
+
+  
+  public Integer getIdRequest() {
+    return idRequest;
+  }
+
+  
+  public void setIdRequest(Integer idRequest) {
+    this.idRequest = idRequest;
   }
 
     

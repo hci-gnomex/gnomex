@@ -357,8 +357,11 @@ package views.util
             var dl:Array = [];                          
 	            for (i=0;i < event.currentTarget.fileList.length; i ++){
 	            	if (checkFileSize(event.currentTarget.fileList[i].size)){
-	                _files.addItem(event.currentTarget.fileList[i]);
-	                trace("under size " + event.currentTarget.fileList[i].size);
+	                	_files.addItem(event.currentTarget.fileList[i]);
+	                	trace("under size " + event.currentTarget.fileList[i].size);
+	                	var browseFileEvent:Event = new Event(Event.OPEN);
+			            dispatchEvent(browseFileEvent);
+
 	            	}  else {
 	            	dl.push(event.currentTarget.fileList[i]);
 	            	trace(event.currentTarget.fileList[i].name + " too large");

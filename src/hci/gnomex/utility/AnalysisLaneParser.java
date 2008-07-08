@@ -4,6 +4,7 @@ import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
   
   protected Document    doc;
   protected List        idSequenceLaneList = new ArrayList();
+  protected HashMap     idRequestMap = new HashMap();
   
   public AnalysisLaneParser(Document doc) {
     this.doc = doc;
@@ -31,7 +33,13 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
       Element node = (Element)i.next();
       
       String idSequenceLaneString = node.getAttributeValue("idSequenceLane");
-      idSequenceLaneList.add(new Integer(idSequenceLaneString));
+      Integer idSequenceLane = new Integer(idSequenceLaneString);
+
+      String idRequestString = node.getAttributeValue("idRequest");
+
+      idSequenceLaneList.add(idSequenceLane);
+      idRequestMap.put(idSequenceLane, new Integer(idRequestString));
+
     }
   }
 
@@ -39,4 +47,9 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
   public List getIdSequenceLanes() {
     return idSequenceLaneList;
   }
+  
+  public Integer getIdRequest(Integer idSequenceLane) {
+    return (Integer)idRequestMap.get(idSequenceLane);
+  }
+  
 }

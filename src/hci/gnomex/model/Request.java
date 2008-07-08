@@ -48,6 +48,8 @@ public class Request extends HibernateDetailObject {
   private Set          hybridizations = new TreeSet();
   private Set          workItems = new TreeSet();
   private Set          sequenceLanes = new TreeSet();
+  private Set          analysisExperimentItems = new TreeSet();
+    
   
   
   // permission field
@@ -549,6 +551,16 @@ public class Request extends HibernateDetailObject {
   
   public void setSequenceLanes(Set sequenceLanes) {
     this.sequenceLanes = sequenceLanes;
+  }
+
+  
+  public Set getAnalysisExperimentItems() {
+    return analysisExperimentItems;
+  }
+
+  
+  public void setAnalysisExperimentItems(Set analysisExperimentItems) {
+    this.analysisExperimentItems = analysisExperimentItems;
   }
   
   
