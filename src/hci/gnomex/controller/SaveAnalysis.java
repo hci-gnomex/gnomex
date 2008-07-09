@@ -157,17 +157,22 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      Analysis analysis = null;
+      if (isNewAnalysis) {
+        analysis = analysisScreen;
+        analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());        
+      } else {
+        analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());        
+      }
       
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+      if (this.getSecurityAdvisor().canUpdate(analysis)) {
         analysisGroupParser.parse(sess);
         analysisFileParser.parse(sess);
         hybParser.parse(sess);
         laneParser.parse(sess);
         
-        Analysis analysis = null;
               
         if (isNewAnalysis) {
-          analysis = analysisScreen;
           sess.save(analysis);
           
           if (isNewAnalysisGroup) {
@@ -175,6 +180,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             newAnalysisGroup.setIdLab(analysisScreen.getIdLab());
             newAnalysisGroup.setName(newAnalysisGroupName);
             newAnalysisGroup.setDescription(newAnalysisGroupDescription);
+            newAnalysisGroup.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
             sess.save(newAnalysisGroup);
             newAnalysisGroupId = newAnalysisGroup.getIdAnalysisGroup();
 
@@ -186,15 +192,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           analysis.setNumber("A" + analysis.getIdAnalysis().toString());
           analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
           analysis.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-          analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());
           sess.save(analysis);
 
           
           
         } else {
-          
-          analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());
-          
           initializeAnalysis(analysis);
         }
 
@@ -210,6 +212,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             defaultAnalysisGroup.setName(analysis.getName());
             defaultAnalysisGroup.setIdLab(analysisScreen.getIdLab());
             defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+            defaultAnalysisGroup.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
             sess.save(defaultAnalysisGroup);
             
             newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();

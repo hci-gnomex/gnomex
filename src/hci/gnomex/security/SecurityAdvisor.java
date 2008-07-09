@@ -180,7 +180,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             canRead = true;
           }            
         }
-        // Request has membership + collaborator visiblity
+        // Request has membership + collaborator visibility
         else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
           if (isGroupIAmMemberOf(req.getIdLab()) || 
               isGroupIManage(req.getIdLab()) || 
@@ -360,6 +360,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (isGroupIManage(a.getIdLab())) {
           canUpdate = true;
         }
+        //  Owner of analysis
+        else if (isGroupIAmMemberOf(a.getIdLab()) && isOwner(a.getIdAppUser())) {
+          canUpdate = true;
+        } 
         
       } 
     }    
@@ -393,8 +397,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         AnalysisGroup ag = (AnalysisGroup)object;
-        // Lab members or mananagers
+        // Lab members or managers
         if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getIdLab())) {
+          canUpdate = true;
+        } 
+        //  Owner of analysis group
+        else if (isGroupIAmMemberOf(ag.getIdLab()) && isOwner(ag.getIdAppUser())) {
           canUpdate = true;
         } 
       }  
@@ -462,6 +470,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             if (isGroupIManage(analysis.getIdLab())) {
               canUpdate = true;
             } 
+            // Owner of analysis
+            else if (isGroupIAmMemberOf(analysis.getIdLab()) && isOwner(analysis.getIdAppUser())) {
+              canUpdate = true;
+            } 
           } 
         }
       //
@@ -503,7 +515,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           // Lab manager
           if (isGroupIManage(ag.getIdLab())) {
             canUpdate = true;
-          }          
+          }     
+          // Owner of analysis group
+          else if (isGroupIAmMemberOf(ag.getIdLab()) && isOwner(ag.getIdAppUser())) {
+            canUpdate = true;
+          } 
+          
         } 
         
       }  
@@ -556,11 +573,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Analysis
     //
     else if (object instanceof Analysis) { 
-
+      Analysis a = (Analysis)object;
       // Admin
       if (hasPermission(this.CAN_DELETE_REQUESTS)) {
         canDelete = true;
+      } 
+      // Lab manager
+      else if (isGroupIManage(a.getIdLab())) {
+        canDelete = true;
+      }  
+      // Analysis owner
+      else if (isGroupIAmMemberOf(a.getIdLab()) && isOwner(a.getIdAppUser())) {
+          canDelete = true;
       }
+
     }   
     //
     // Project
@@ -595,6 +621,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       else if (isGroupIManage(ag.getIdLab())) {
         canDelete = true;
       }        
+      // Analysis group owner
+      else if (isGroupIAmMemberOf(ag.getIdLab()) && isOwner(ag.getIdAppUser())) {
+          canDelete = true;
+      }
     } 
     //
     // Dictionary

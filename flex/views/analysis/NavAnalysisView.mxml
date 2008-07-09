@@ -705,9 +705,9 @@
 					<mx:ControlBar width="100%" verticalAlign="bottom">
 						<mx:VBox verticalGap="0">
 						        <mx:LinkButton label="New analysis" id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
-						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="false" disabledIcon="@Embed(source='../../assets/map_add_disable.png')" textDecoration="underline"/>
+						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="true" disabledIcon="@Embed(source='../../assets/map_add_disable.png')" textDecoration="underline"/>
 						        <mx:LinkButton label="New analysis group" id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
-						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="false" textDecoration="underline">
+						        	paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="true" textDecoration="underline">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
 						        </mx:LinkButton>
 							
@@ -763,8 +763,6 @@
 					</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
-			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="true"/>
-			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="true"/>
 		</mx:State>
 
 		
