@@ -61,7 +61,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal().getName());
         
         analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
-        if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+        if (secAdvisor.canUpdate(analysis)) {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 
@@ -111,7 +111,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           
         } else {
           System.out.println("UploadAnalysisFileServlet - unable to upload file " + fileName + " for analysis idAnalysis=" + idAnalysis);
-          System.out.println("Insufficient write permissions for user " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserLastName());
+          System.out.println("Insufficient write permissions for user " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserFirstName());
           throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
           
         }
