@@ -163,7 +163,7 @@
 		selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
 		parentDocument.selectedExperiment = selectedExperiment;
 		parentDocument.theViews.selectedChild = parentDocument.detailView;
-		parentDocument.detailView.setupForm();
+		parentDocument.detailView.setupForm(parentDocument.selectedExperiment);
 	}
 
 	private function onViewSwitch():void {
@@ -408,6 +408,17 @@
 				       	<mx:DataGridColumn headerText="Project" width="40" dataField="@projectName"/>
 				       	<mx:DataGridColumn headerText="Experiment Kind" width="40" labelFunction="getExperimentKind"/>
 				       	<mx:DataGridColumn headerText="Microarray" width="100" dataField="@slideProductName"/>
+			            <mx:DataGridColumn width="10" headerText="Analysis?" >
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+			                          <mx:Image source="{data.@analysisNames != '' ? parentApplication.iconCheck : ''}">
+			                    	 </mx:Image> 
+			                        </mx:HBox>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> 
+				       	<mx:DataGridColumn headerText="Analysis Names" width="40" dataField="@analysisNames"/>
 			         </mx:columns>
 			       </mx:DataGrid> 	    
 		       </mx:VBox>
