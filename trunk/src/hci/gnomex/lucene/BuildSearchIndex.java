@@ -52,6 +52,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private Map projectRequestMap;
   private Map projectAnnotationMap;
+  private Map analysisGroupMap;
   private Map sampleAnnotationMap;
   private Map codeExperimentFactorMap;
   private Map codeExperimentDesignMap;
@@ -79,6 +80,9 @@ public class BuildSearchIndex extends DetailObject {
 
       System.out.println(new Date() + " building lucene protocol index...");
       app.buildProtocolIndex();
+      
+      System.out.println(new Date() + " building lucena analysis index...");
+      app.buildAnalysisIndex();
       
       System.out.println(new Date() + " disconnecting...");
       System.out.println();
@@ -183,6 +187,32 @@ public class BuildSearchIndex extends DetailObject {
     }
     protocolIndexWriter.optimize();
     protocolIndexWriter.close();
+  }
+  
+  private void buildAnalysisIndex() throws Exception{
+
+    IndexWriter analysisIndexWriter   = new IndexWriter(Constants.LUCENE_ANALYSIS_INDEX_DIRECTORY,   new StandardAnalyzer(), true);
+
+    // Get analysis data
+    getAnalysisData(sess);
+
+    
+    //
+    // Write Analysis Lucene Index.
+    // (A document for each protocol)
+    //
+    for( Iterator i = analysisGroupMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      Object[] keyTokens = key.split("-");
+      Integer idAnalysisGroup = new Integer((String)keyTokens[0]);
+      Integer idAnalysis = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
+      Object[] row = (Object[])analysisGroupMap.get(key);
+      
+      Document doc = buildAnalysisDocument(idAnalysisGroup, idAnalysis, row);
+      analysisIndexWriter.addDocument(doc);
+    }
+    analysisIndexWriter.optimize();
+    analysisIndexWriter.close();
   }
   
   
@@ -304,6 +334,47 @@ public class BuildSearchIndex extends DetailObject {
       rows.add(row);
     }  
   }
+  
+  private void getAnalysisData(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT ag.id, ");
+    buf.append("       a.id, ");
+    buf.append("       ag.name, ");
+    buf.append("       ag.description, ");
+    buf.append("       ag.codeVisibility, ");
+    buf.append("       owner.firstName, ");
+    buf.append("       owner.lastName, ");
+    buf.append("       lab.name,  ");
+    buf.append("       a.number, ");
+    buf.append("       a.name, ");
+    buf.append("       a.description, ");
+    buf.append("       a.idAnalysisType, ");
+    buf.append("       a.idAnalysisProtocol, ");
+    buf.append("       a.idOrganism, ");
+    buf.append("       a.idLab,  ");
+    buf.append("       a.createDate, ");
+    buf.append("       a.codeVisibility ");
+    
+    buf.append("FROM        AnalysisGroup as ag ");
+    buf.append("LEFT JOIN   ag.analysisItems as a ");
+    buf.append("LEFT JOIN   a.lab as lab ");
+    buf.append("LEFT JOIN   a.appUser as owner ");
+
+    buf.append("ORDER BY ag.name, a.number, a.name ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    analysisGroupMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idAnalysisGroup = (Integer)row[0];
+      Integer idAnalysis = (Integer)row[1];
+      String key = idAnalysisGroup + "-" + (idAnalysis != null ? idAnalysis.toString() : "");
+      
+      analysisGroupMap.put(key, row);
+    }    
+  }
+  
   
   private void getProjectAnnotations(Session sess) throws Exception{
     StringBuffer buf = new StringBuffer();
@@ -786,6 +857,74 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ProtocolIndexHelper.TEXT, name + " " + description);
     
     ProtocolIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
+    
+    return doc;
+  }
+
+  private Document buildAnalysisDocument(Integer idAnalysisGroup, Integer idAnalysis, Object[] row) {
+    
+    Document doc = new Document();
+
+        
+    String agName                 = (String)row[2];
+    String agDesc                 = (String)row[3];
+    String agCodeVisibility       = (String)row[4];
+    String ownerFirstName         = (String)row[5];
+    String ownerLastName          = (String)row[6];
+    String labName                = (String)row[7];
+    String number                 = (String)row[8];
+    String name                   = (String)row[9];
+    String desc                   = (String)row[10];
+    Integer idAnalysisType        = (Integer)row[11];
+    Integer idAnalysisProtocol    = (Integer)row[12];
+    Integer idOrganism            = (Integer)row[13];
+    Integer idLab                 = (Integer)row[14];
+    java.sql.Date createDate      = (java.sql.Date)row[15];
+    String codeVisibility         = (String)row[16];
+    String publicNote             = ""; 
+
+    if (codeVisibility != null && codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
+        publicNote = "(Public) ";
+    }
+
+    
+    Map nonIndexedFieldMap = new HashMap();
+    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSISGROUP, idAnalysisGroup.toString());
+    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS, idAnalysis != null ? idAnalysis.toString() : "");
+    nonIndexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NUMBER, number);
+    nonIndexedFieldMap.put(AnalysisIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
+    nonIndexedFieldMap.put(AnalysisIndexHelper.OWNER_LAST_NAME, ownerLastName);
+    nonIndexedFieldMap.put(AnalysisIndexHelper.CREATE_DATE, createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_SQL) : null);
+    nonIndexedFieldMap.put(AnalysisIndexHelper.PUBLIC_NOTE, publicNote);
+    
+
+    Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_NAME, agName);
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION, agDesc);
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NAME, name);
+    indexedFieldMap.put(AnalysisIndexHelper.DESCRIPTION, desc);
+    indexedFieldMap.put(AnalysisIndexHelper.ID_ORGANISM, idOrganism);
+    indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_TYPE, idAnalysisType);
+    indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, idAnalysisProtocol);
+    indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab);
+    indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName);
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_CODE_VISIBILITY, agCodeVisibility);
+    indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility);
+
+    
+    
+    StringBuffer buf = new StringBuffer();
+    buf.append(name);
+    buf.append(" ");
+    buf.append(desc);
+    buf.append(" ");
+    buf.append(agName);
+    buf.append(" ");
+    buf.append(agDesc);
+    buf.append(" ");
+    indexedFieldMap.put(AnalysisIndexHelper.TEXT, buf.toString());
+    
+    AnalysisIndexHelper.build(doc, nonIndexedFieldMap, indexedFieldMap);
     
     return doc;
   }
