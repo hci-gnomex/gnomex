@@ -104,6 +104,27 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       List results = (List)sess.createQuery(buf.toString()).list();
 
       
+      buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
+      log.info("Query for GetProjectRequestList: " + buf.toString());
+      List analysisResults = (List)sess.createQuery(buf.toString()).list();
+      HashMap analysisMap = new HashMap();
+      for(Iterator i = analysisResults.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        Integer idRequest      = (Integer)row[0];
+        String  analysisNumber = (String)row[1];
+        String  analysisName   = (String)row[2];
+        
+        StringBuffer names = (StringBuffer)analysisMap.get(idRequest);
+        if (names == null) {
+          names = new StringBuffer();
+        }
+        if (names.length() > 0) {
+          names.append(", ");
+        }
+        names.append(analysisNumber + " (" + analysisName + ")");
+        analysisMap.put(idRequest, names);
+      }
+
       Integer prevIdLab      = new Integer(-1);
       Integer prevIdProject  = new Integer(-1);
       Integer prevIdRequest  = new Integer(-1);
@@ -121,6 +142,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];    
         String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
         String  codeMicroarrayCategory     = row[16]== null ? "" : (String)row[16];
+        StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
         
         Element n = null;
         if (idLab.intValue() != prevIdLab.intValue()) {
@@ -132,26 +154,26 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
-            addRequestNode(row);          
+            addRequestNode(row, analysisNames);          
             addSampleNode(row);            
           }
         } else if (idProject.intValue() != prevIdProject.intValue()) {
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
-            addRequestNode(row);          
+            addRequestNode(row, analysisNames);          
             addSampleNode(row);
           }
         } else if (!codeRequestCategory.equals(prevCodeRequestCategory) ||
                     !codeMicroarrayCategory.equals(prevCodeMicroarrayCategory)) {
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
-            addRequestNode(row);          
+            addRequestNode(row, analysisNames);          
             addSampleNode(row);
           }
         } else if (idRequest.intValue() != prevIdRequest.intValue()) {
           if (idRequest.intValue() != -2) {
-            addRequestNode(row);          
+            addRequestNode(row, analysisNames);          
             addSampleNode(row);
           }
         } else {
@@ -267,7 +289,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     }
   }
   
-  private void addRequestNode(Object[] row) {
+  private void addRequestNode(Object[] row, StringBuffer analysisNames) {
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);
@@ -288,6 +310,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("ownerLastName",          row[25] == null ? "" : (String)row[25]);
     requestNode.setAttribute("isDirty",                "N");
     requestNode.setAttribute("isSelected",             "N");
+    requestNode.setAttribute("analysisNames",          analysisNames != null ? analysisNames.toString() : "");
     
     if (requestNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       requestNode.setAttribute("requestPublicNote",          "(Public) ");

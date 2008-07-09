@@ -98,6 +98,36 @@ public class ProjectRequestFilter extends DetailObject {
   
   }
   
+  public StringBuffer getAnalysisExperimentQuery(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    addWhere = true;
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        ax.idRequest, ");
+    queryBuf.append("        a.number,  ");
+    queryBuf.append("        a.name  ");
+    
+    getAnalysisExperimentQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  
+  public void getAnalysisExperimentQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM                Request as req ");
+    queryBuf.append(" JOIN                req.analysisExperimentItems as ax ");
+    queryBuf.append(" JOIN                ax.analysis as a ");
+
+    addRequestCriteria();
+    
+    addAnalysisExperimentSecurityCriteria();
+    
+    
+  
+  }
+  
   private boolean hasSlideProductCriteria() {
     if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) || 
         idSlideProduct != null) {
@@ -299,6 +329,23 @@ public class ProjectRequestFilter extends DetailObject {
     }  else {
       addWhere = secAdvisor.addSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup);
       addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, "req.idRequest is NULL");
+    }
+    
+
+    
+  }
+  private void addAnalysisExperimentSecurityCriteria() {
+    
+    boolean scopeToGroup = true;
+    if (this.searchPublicProjects != null && this.searchPublicProjects.equalsIgnoreCase("Y")) {
+      scopeToGroup = false;
+    }
+    
+    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+   
+      
+    }  else {
+      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup);
     }
     
 
