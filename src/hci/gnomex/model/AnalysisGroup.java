@@ -13,6 +13,8 @@ public class AnalysisGroup extends HibernateDetailObject {
   private String    description;
   private Integer   idLab;
   private Lab       lab;
+  private Integer   idAppUser;
+  private AppUser   appUser;
   private String    codeVisibility;
   private Set       analysisItems = new TreeSet();
   
@@ -131,6 +133,26 @@ public class AnalysisGroup extends HibernateDetailObject {
   }
   public void canUpdateVisibility(boolean canDo) {
     canUpdateVisibility = canDo;
+  }
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
+  }
+
+  
+  public AppUser getAppUser() {
+    return appUser;
+  }
+
+  
+  public void setAppUser(AppUser appUser) {
+    this.appUser = appUser;
   }
     
  

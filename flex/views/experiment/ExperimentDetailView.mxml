@@ -344,23 +344,19 @@
 		        		<mx:HBox horizontalGap="0">
 		                    <mx:Label text="#"  width="90" fontWeight="bold">
 		                    </mx:Label>
-		                    <mx:Text  id="requestNumber" text="{this.selectedExperiment.@number}"  width="80" />
+		                    <mx:Text  id="requestNumber" text="{this.selectedExperiment.@number}"  width="130" />
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
 		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
-		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="80"/>
+		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="120"/>
 		                </mx:HBox>
-		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label width="90" text="Completed on" fontWeight="bold"/>
-		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="80" />
-		                </mx:HBox>
+			        	 <mx:HBox verticalGap="0" horizontalGap="0">
+			        	   <mx:Label text="Submitted by"  width="90" fontWeight="bold"/>
+			        	   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
+			        	 </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox verticalGap="0">
 			        	
-			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	   <mx:Label text="Submitter"  width="105" fontWeight="bold"/>
-			        	   <mx:Text text="{this.selectedExperiment.@ownerName}" width="180" />
-			        	 </mx:HBox>
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
 			        	       <mx:Text text="{requestCategoryName}" width="180" />
@@ -369,6 +365,10 @@
 			                <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
 			                <mx:Text  text="{experimentCategoryName}" width="180" />
 			            </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label width="105" text="Completed on" fontWeight="bold"/>
+		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="180" />
+		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
 			        	

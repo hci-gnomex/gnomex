@@ -150,17 +150,21 @@
 		        		<mx:HBox horizontalGap="0">
 		                    <mx:Label text="Analysis #"  width="90" fontWeight="bold">
 		                    </mx:Label>
-		                    <mx:Text   text="{parentDocument.selectedAnalysis.@number}"  width="120" />
+		                    <mx:Text   text="{parentDocument.selectedAnalysis.@number}"  width="130" />
 		                </mx:HBox>
 		        		<mx:HBox horizontalGap="0">
 		                    <mx:Label text="Name"  width="90" fontWeight="bold">
 		                    </mx:Label>
-		                    <mx:Text  text="{parentDocument.selectedAnalysis.@name}"  width="120" />
+		                    <mx:Text  text="{parentDocument.selectedAnalysis.@name}"  width="130" />
 		                </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
 		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
-		                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="120"/>
+		                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="130"/>
 		                </mx:HBox>
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                   <mx:Label text="Submitted by"  width="90" fontWeight="bold"/>
+			                   <mx:Text text="{parentDocument.selectedAnalysis.@ownerName}" width="130"/> 
+			            </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox verticalGap="0">
 			        	
