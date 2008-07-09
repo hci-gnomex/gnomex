@@ -32,7 +32,8 @@ public class Constants {
 
   public static final String              LUCENE_EXPERIMENT_INDEX_DIRECTORY       = "c:/orion/luceneIndexGnomEx/Experiment";
   public static final String              LUCENE_PROTOCOL_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Protocol";
-
+  public static final String              LUCENE_ANALYSIS_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Analysis";
+  
   private static final String              MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayDataShare\\";
   private static final String              TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayDataShare01\\";
   private static final String              ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare\\";
