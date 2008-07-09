@@ -40,7 +40,9 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        a.idAnalysisProtocol, ");
     queryBuf.append("        a.idOrganism, ");
     queryBuf.append("        a.idGenomeBuild, ");
-    queryBuf.append("        a.codeVisibility ");
+    queryBuf.append("        a.codeVisibility, ");
+    queryBuf.append("        owner.lastName, ");
+    queryBuf.append("        owner.firstName ");
     
     getQueryBody(queryBuf);
     
@@ -54,6 +56,7 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" JOIN                ag.lab as aglab ");
     queryBuf.append(" LEFT JOIN           ag.analysisItems as a ");
     queryBuf.append(" LEFT JOIN           a.lab as alab ");
+    queryBuf.append(" LEFT JOIN           a.appUser as owner ");
     
     if (hasExperimentItemCriteria()) {
       queryBuf.append(" JOIN              a.experimentItems as ex ");

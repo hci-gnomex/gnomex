@@ -287,6 +287,7 @@
 			            </mx:DataGridColumn> 
 				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
+				       	<mx:DataGridColumn headerText="Submitted by" width="50" dataField="@ownerName"/>
 				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
  	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>                 
 				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"

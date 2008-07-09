@@ -16,6 +16,8 @@ public class Analysis extends HibernateDetailObject {
   private String    description;
   private Integer   idLab;
   private Lab       lab;
+  private Integer   idAppUser;
+  private AppUser   appUser;
   private Integer   idAnalysisType;
   private Integer   idAnalysisProtocol;
   private Integer   idOrganism;
@@ -197,6 +199,7 @@ public class Analysis extends HibernateDetailObject {
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getLab");
+    this.excludeMethodFromXML("getAppUser");
   }
 
 
@@ -254,6 +257,41 @@ public class Analysis extends HibernateDetailObject {
   }
 
 
- 
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+
+
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
+  }
+
+
+
+  
+  public AppUser getAppUser() {
+    return appUser;
+  }
+
+
+
+  
+  public void setAppUser(AppUser appUser) {
+    this.appUser = appUser;
+  }
+
+
+  public String getOwnerName() {
+    if (appUser != null) {
+      return appUser.getFirstName() + " " + appUser.getLastName();
+    } else {
+      return "";
+    }
+  }
+
  
 }

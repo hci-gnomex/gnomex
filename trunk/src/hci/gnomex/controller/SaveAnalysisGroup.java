@@ -88,6 +88,7 @@ public class SaveAnalysisGroup extends GNomExCommand implements Serializable {
     if (load.getIdAnalysisGroup().intValue() == 0) {
       analysisGroup = load;
       analysisGroup.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+      analysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
       isNewAnalysisGroup = true;
       
     } else {

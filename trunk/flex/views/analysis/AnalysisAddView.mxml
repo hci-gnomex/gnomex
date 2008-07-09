@@ -49,7 +49,11 @@
 				params.newAnalysisGroupDescription = newAnalysisGroupDescription.text;
 			
 			} else {
-				params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroupCombo.selectedItem.toXMLString() + "</analysisGroups>";
+				if (analysisGroupCombo.selectedItem != null) {
+					params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroupCombo.selectedItem.toXMLString() + "</analysisGroups>";				
+				} else {
+					params.analysisGroupsXMLString = "<analysisGroups/>";
+				}
 			}
 			params.hybsXMLString = "<hybs/>";
 			params.lanesXMLString = "<lanes/>";
@@ -61,9 +65,8 @@
 		private function onSaveAnalysis(event:ResultEvent):void {
 			if (saveAnalysis.lastResult.name() == "SUCCESS") {
 				savedIdAnalysis = saveAnalysis.lastResult.@idAnalysis;
-				if (currentState == "NewAnalysisGroupState") {
-					savedIdAnalysisGroup = saveAnalysis.lastResult.@idAnalysisGroup;
-				}
+				savedIdAnalysisGroup = saveAnalysis.lastResult.@idAnalysisGroup;
+				
 				var params:Object = new Object();
 				params.idAnalysis = savedIdAnalysis;
 	 			getAnalysis.send(params);
@@ -85,7 +88,6 @@
 				
 			} else {
 				isComplete = labCombo.selectedItem != null && 
-				analysisGroupCombo.selectedItem != null && 
 				analysisName.text != '' && 
 				organismCombo.selectedItem != null  && 
 				organismCombo.selectedItem.@value != ""; 
@@ -98,7 +100,7 @@
 	     private function onGetAnalysis(event:ResultEvent):void {
           parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
           parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
-          if (currentState == "NewAnalysisGroupState") {
+          if (savedIdAnalysisGroup != "" || savedIdAnalysisGroup != null) {
           	parentApplication.navAnalysisView.selectedIdAnalysisGroup = savedIdAnalysisGroup;          	
           } else {
 	        parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;

@@ -186,6 +186,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           analysis.setNumber("A" + analysis.getIdAnalysis().toString());
           analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
           analysis.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+          analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());
           sess.save(analysis);
 
           
@@ -203,10 +204,24 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         if (!isNewAnalysisGroup) {
           TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
-          for(Iterator i = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); i.hasNext();) {
-            String idAnalysisGroupString = (String)i.next();
-            AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
-            analysisGroups.add(ag);
+          // If analysis group wasn't provided, create a default one
+          if (analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
+            AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
+            defaultAnalysisGroup.setName(analysis.getName());
+            defaultAnalysisGroup.setIdLab(analysisScreen.getIdLab());
+            defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+            sess.save(defaultAnalysisGroup);
+            
+            newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();
+            
+            analysisGroups.add(defaultAnalysisGroup);
+          } else {
+            // Relate the analysis to the specified analysis groups
+            for(Iterator i = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); i.hasNext();) {
+              String idAnalysisGroupString = (String)i.next();
+              AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
+              analysisGroups.add(ag);
+            }
           }
           analysis.setAnalysisGroups(analysisGroups);          
         }

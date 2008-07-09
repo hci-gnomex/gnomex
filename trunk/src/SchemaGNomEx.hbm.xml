@@ -18,6 +18,8 @@
 		<property name="description" column="description" type="string"/>
 		<property name="idLab" column="idLab" type="integer"/>
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<property name="idAppUser" column="idAppUser" type="integer"/>
+		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
 		<property name="codeVisibility" column="codeVisibility" type="string"/>		
 		<set name="analysisItems" table="AnalysisGroupItem" lazy="true" sort="hci.gnomex.utility.AnalysisNumberComparator" cascade="none">
 			<key column="idAnalysisGroup"/>
@@ -35,6 +37,8 @@
 		<property name="description" column="description" type="string"/>
 		<property name="idLab" column="idLab" type="integer"/>
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<property name="idAppUser" column="idAppUser" type="integer"/>
+		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
 		<property name="idAnalysisType" column="idAnalysisType" type="integer"/>
 		<property name="idAnalysisProtocol" column="idAnalysisProtocol" type="integer"/>
 		<property name="idOrganism" column="idOrganism" type="integer"/>
