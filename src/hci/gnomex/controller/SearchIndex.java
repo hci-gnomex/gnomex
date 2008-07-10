@@ -46,6 +46,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndex.class);
 
+  private boolean isExperimentOnlySearch = false;
+  private boolean isAnalysisOnlySearch = false;
+  
   private ExperimentFilter experimentFilter = null;
   private ProtocolFilter       protocolFilter = null;
   private AnalysisFilter       analysisFilter = null;
@@ -86,6 +89,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
     
     
+    if (request.getParameter("isExperimentOnlySearch") != null && request.getParameter("isExperimentOnlySearch").equals("Y")) {
+      isExperimentOnlySearch = true;
+    }    
+    if (request.getParameter("isAnalysisOnlySearch") != null && request.getParameter("isAnalysisOnlySearch").equals("Y")) {
+      isAnalysisOnlySearch = true;
+    }    
    
     
     
@@ -128,107 +137,118 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     try {
       
-      
-   
-      IndexReader indexReader = IndexReader.open(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY);      
-      Searcher searcher = new IndexSearcher(indexReader);
-      
-      //
-      // Experiments
-      //
-      //  Build a Query object
-      String searchText = experimentFilter.getSearchText().toString();
-      searchDisplayText = experimentFilter.toString();
-      
-      // Build a Query to represent the security filter
-      String securitySearchText = this.buildSecuritySearch();
-      
-      if (searchText != null && searchText.trim().length() > 0) {
-        log.debug("Lucene search: " + searchText);
-        Query query = new QueryParser("text", new StandardAnalyzer()).parse(searchText);
-        
-        // Build security filter        
-        QueryWrapperFilter filter = this.buildSecurityQueryFilter(securitySearchText);
 
-        // Search for the query
-        Hits hits = null;
-        if (filter == null) {
-           hits = searcher.search(query);
-        } else {
-           hits = searcher.search(query, filter);
-        }  
+      
+      if (!isAnalysisOnlySearch) {
+        //
+        // Experiments
+        //
         
-        processHits(hits, searchText);
+        //  Build a Query object
+        IndexReader indexReader = IndexReader.open(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY);      
+        Searcher searcher = new IndexSearcher(indexReader);
+
+        String searchText = experimentFilter.getSearchText().toString();
+        searchDisplayText = experimentFilter.toString();
         
-      } else {
-        if (securitySearchText != null) {
-          Query query = new QueryParser("text", new StandardAnalyzer()).parse(securitySearchText);     
-          Hits hits = searcher.search(query);
-          processHits(hits, securitySearchText);
+        // Build a Query to represent the security filter
+        String securitySearchText = this.buildSecuritySearch();
+        
+        
+        if (searchText != null && searchText.trim().length() > 0) {
+          log.debug("Lucene search: " + searchText);
+          Query query = new QueryParser("text", new StandardAnalyzer()).parse(searchText);
+          
+          // Build security filter        
+          QueryWrapperFilter filter = this.buildSecurityQueryFilter(securitySearchText);
+
+          // Search for the query
+          Hits hits = null;
+          if (filter == null) {
+             hits = searcher.search(query);
+          } else {
+             hits = searcher.search(query, filter);
+          }  
+          
+          processHits(hits, searchText);
+          
         } else {
-          buildProjectRequestMap(indexReader);
+          if (securitySearchText != null) {
+            Query query = new QueryParser("text", new StandardAnalyzer()).parse(securitySearchText);     
+            Hits hits = searcher.search(query);
+            processHits(hits, securitySearchText);
+          } else {
+            buildProjectRequestMap(indexReader);
+          }
         }
-      }
-      
-      
-      //
-      // Protocols
-      //
-      IndexReader protocolIndexReader = IndexReader.open(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY);      
-      Searcher protocolSearcher = new IndexSearcher(protocolIndexReader);
-      
-      //  Build a Query object
-      String protocolSearchText = experimentFilter.getSearchText().toString();
-      
-      if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
-        log.debug("Lucene protocol search: " + protocolSearchText);
-        Query query = new QueryParser("text", new StandardAnalyzer()).parse(protocolSearchText);
-        
-        // Search for the query
-        Hits protocolHits = protocolSearcher.search(query);
-        processProtocolHits(protocolHits, protocolSearchText);
-        
-      } else {
-        buildProtocolMap(protocolIndexReader);
         
       }
       
-      //
-      // Analysis
-      //
-      IndexReader analysisIndexReader = IndexReader.open(Constants.LUCENE_ANALYSIS_INDEX_DIRECTORY);      
-      Searcher analysisSearcher = new IndexSearcher(analysisIndexReader);
       
-      //  Build a Query object
-      String analysisSearchText = analysisFilter.getSearchText().toString();
+      if (!isExperimentOnlySearch && !isAnalysisOnlySearch) {
+        //
+        // Protocols
+        //
+        IndexReader protocolIndexReader = IndexReader.open(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY);      
+        Searcher protocolSearcher = new IndexSearcher(protocolIndexReader);
+        
+        //  Build a Query object
+        String protocolSearchText = protocolFilter.getSearchText().toString();
+        
+        if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
+          log.debug("Lucene protocol search: " + protocolSearchText);
+          Query query = new QueryParser("text", new StandardAnalyzer()).parse(protocolSearchText);
+          
+          // Search for the query
+          Hits protocolHits = protocolSearcher.search(query);
+          processProtocolHits(protocolHits, protocolSearchText);
+          
+        } else {
+          buildProtocolMap(protocolIndexReader);
+          
+        }
+        
+      }
       
-      // Build a Query to represent the security filter
-      String analysisSecuritySearchText = this.buildAnalysisSecuritySearch();
+      
+      if (!isExperimentOnlySearch) {
+        //
+        // Analysis
+        //
+        IndexReader analysisIndexReader = IndexReader.open(Constants.LUCENE_ANALYSIS_INDEX_DIRECTORY);      
+        Searcher analysisSearcher = new IndexSearcher(analysisIndexReader);
+        
+        //  Build a Query object
+        String analysisSearchText = analysisFilter.getSearchText().toString();
+        
+        // Build a Query to represent the security filter
+        String analysisSecuritySearchText = this.buildAnalysisSecuritySearch();
 
-      if (analysisSearchText != null && analysisSearchText.trim().length() > 0) {
-        log.debug("Lucene analysis search: " + searchText);
-        Query query = new QueryParser("text", new StandardAnalyzer()).parse(analysisSearchText);
-        
-        // Build security filter        
-        QueryWrapperFilter filter = this.buildSecurityQueryFilter(analysisSecuritySearchText);
+        if (analysisSearchText != null && analysisSearchText.trim().length() > 0) {
+          log.debug("Lucene analysis search: " + analysisSearchText);
+          Query query = new QueryParser("text", new StandardAnalyzer()).parse(analysisSearchText);
+          
+          // Build security filter        
+          QueryWrapperFilter filter = this.buildSecurityQueryFilter(analysisSecuritySearchText);
 
-        // Search for the query
-        Hits hits = null;
-        if (filter == null) {
-           hits = analysisSearcher.search(query);
+          // Search for the query
+          Hits hits = null;
+          if (filter == null) {
+             hits = analysisSearcher.search(query);
+          } else {
+             hits = analysisSearcher.search(query, filter);
+          }  
+          
+          processAnalysisHits(hits, analysisSearchText);
+          
         } else {
-           hits = analysisSearcher.search(query, filter);
-        }  
-        
-        processAnalysisHits(hits, analysisSearchText);
-        
-      } else {
-        if (securitySearchText != null) {
-          Query query = new QueryParser("text", new StandardAnalyzer()).parse(securitySearchText);     
-          Hits hits = analysisSearcher.search(query);
-          processAnalysisHits(hits, analysisSecuritySearchText);
-        } else {
-          this.buildAnalysisGroupMap(analysisIndexReader);
+          if (analysisSecuritySearchText != null) {
+            Query query = new QueryParser("text", new StandardAnalyzer()).parse(analysisSecuritySearchText);     
+            Hits hits = analysisSearcher.search(query);
+            processAnalysisHits(hits, analysisSecuritySearchText);
+          } else {
+            this.buildAnalysisGroupMap(analysisIndexReader);
+          }
         }
       }
       
@@ -694,11 +714,17 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
     doc.getRootElement().setAttribute("search", searchDisplayText);
     
-    buildProjectRequestList(doc.getRootElement());
-    buildRequestList(doc.getRootElement());
-    buildProtocolList(doc.getRootElement());
-    buildAnalysisGroupList(doc.getRootElement());
-    buildAnalysisList(doc.getRootElement());
+    if (!isAnalysisOnlySearch) {
+      buildProjectRequestList(doc.getRootElement());
+      buildRequestList(doc.getRootElement());      
+    }
+    if (!isExperimentOnlySearch && !isAnalysisOnlySearch) {
+      buildProtocolList(doc.getRootElement());      
+    }
+    if (!isExperimentOnlySearch) {
+      buildAnalysisGroupList(doc.getRootElement());
+      buildAnalysisList(doc.getRootElement());      
+    }
     
     return doc;
     

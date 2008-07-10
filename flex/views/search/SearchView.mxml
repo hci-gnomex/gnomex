@@ -31,6 +31,8 @@
             <codeMicroarrayCategory>{microarrayCategoryCombo.selectedItem.@value}</codeMicroarrayCategory>
             <idSampleSource>{sampleSourceCombo.selectedItem.@value}</idSampleSource>
             <idSlideProduct>{microarrayCombo.selectedItem.@idSlideProduct}</idSlideProduct>
+            <idAnalysisType>{analysisTypeCombo.selectedItem.@value}</idAnalysisType>
+            <idAnalysisProtocol>{analysisProtocolCombo.selectedItem.@value}</idAnalysisProtocol>
             <experimentDesignConcatCodes>{experimentDesignCodes}</experimentDesignConcatCodes>
             <experimentFactorConcatCodes>{experimentFactorCodes}</experimentFactorConcatCodes>
             <lab>{labCombo.selectedItem.@name}</lab>
@@ -40,8 +42,12 @@
             <requestCategory>{requestCategoryCombo.selectedItem.@display}</requestCategory>
             <sampleSource>{sampleSourceCombo.selectedItem.@display}</sampleSource>
             <sampleType>{sampleTypeCombo.selectedItem.@display}</sampleType>
+            <analysisType>{analysisTypeCombo.selectedItem.@display}</analysisType>
+            <analysisProtocol>{analysisProtocolCombo.selectedItem.@display}</analysisProtocol>
             <searchPublicProjects>{includePublicProjectsCheckBox.selected == true ? "Y" : "N"}</searchPublicProjects>
             <showCategory>N</showCategory>
+            <isExperimentOnlySearch>{currentState == "ExperimentOnlySearchState" ? "Y" : "N"}</isExperimentOnlySearch>
+            <isAnalysisOnlySearch>{currentState == "AnalysisOnlySearchState" ? "Y" : "N"}</isAnalysisOnlySearch>
     </mx:request>
     </mx:HTTPService >
     
@@ -79,6 +85,8 @@
        	sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
        	requestCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry;
        	sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
+       	analysisTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry;
+       	analysisProtocolCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry;
        }
        
         private function filterSlideProduct(item:Object):Boolean {
@@ -208,6 +216,21 @@
 			}
 		}
                 
+        private function scopeSearch():void {
+        	if ((this.requestCategoryCombo.selectedItem != null && this.requestCategoryCombo.selectedItem.@value != "") ||
+        		(this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != "") ||
+        		(this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != "") ||
+        		(this.organismCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") ||
+        		(this.microarrayCategoryCombo.selectedItem != null && this.microarrayCategoryCombo.selectedItem.@value != "") ||
+        		(this.microarrayCombo.selectedItem != null && this.microarrayCombo.selectedItem.@idSlideProduct != "")) {
+    	    	currentState = "ExperimentOnlySearchState";       					        			
+        	} else if ((this.analysisProtocolCombo.selectedItem != null && this.analysisProtocolCombo.selectedItem.@value != "") ||
+        		      (this.analysisTypeCombo.selectedItem != null && this.analysisTypeCombo.selectedItem.@value != "")) {
+    	    	currentState = "AnalysisOnlySearchState";       					        			
+        	} else {
+        		currentState = "";
+        	}
+        }
            
 
         ]]>
@@ -216,7 +239,7 @@
    
 <mx:HDividedBox width="100%" height="100%">
     
-        <mx:VBox height="100%" verticalGap="20" paddingRight="4">
+        <mx:VBox height="100%" verticalGap="8" paddingRight="4">
             <mx:HBox width="100%">
               <mx:VBox width="100%" verticalGap="8">
                 <mx:HBox>
@@ -235,33 +258,42 @@
               </mx:VBox>
             </mx:HBox>
             <mx:HBox>
-             <mx:Label text="Experiment Category:" textAlign="left" width="130"/>
+              <mx:Label text="Group:" textAlign="left" width="130" id="label3"/>
+              <mx:ComboBox id="labCombo"  
+              	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
+               width="200"
+               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+              	</mx:ComboBox>
+              	
+            </mx:HBox>
+            <mx:HBox>
+             <mx:Label text="Experiment Category:" textAlign="left" width="130" id="label4"/>
              <mx:ComboBox id="requestCategoryCombo"  labelField="@display" 
              	 width="200">
-              <mx:change>parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0</mx:change>
+              <mx:change>parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()</mx:change>
              </mx:ComboBox>
             </mx:HBox>
             <mx:HBox>
-               <mx:Label text="Sample Type:" textAlign="left" width="130"/>
+               <mx:Label text="Sample Type:" textAlign="left" width="130" id="label5"/>
                <mx:ComboBox id="sampleTypeCombo"  
                 labelField="@display"
-               	 width="200">
+               	 width="200" change="scopeSearch()">
                </mx:ComboBox>
             </mx:HBox>
             <mx:HBox>
-               <mx:Label text="Sample Source:" textAlign="left" width="130"/>
+               <mx:Label text="Sample Source:" textAlign="left" width="130" id="label6"/>
                <mx:ComboBox id="sampleSourceCombo"  
                 labelField="@display"
-               	 width="200">
+               	 width="200" change="scopeSearch()">
                </mx:ComboBox>
             </mx:HBox>
             <mx:HBox paddingBottom="0" width="100%">
-             <mx:Label text="Organism:" textAlign="left" width="130"/>
+             <mx:Label text="Organism:" textAlign="left" width="130" id="label7"/>
             <mx:VBox verticalGap="0">
                <mx:ComboBox 
                	id="organismCombo"  labelField="@display"  
                width="200" 
-               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
                </mx:ComboBox>
                <mx:HBox>
                   <mx:RadioButtonGroup id="radiogroup2"/>
@@ -271,37 +303,42 @@
             </mx:VBox>
             </mx:HBox>
             <mx:HBox>
-              <mx:Label text="Group:" textAlign="left" width="130"/>
-              <mx:ComboBox id="labCombo"  
-              	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
-               width="200"
-               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
-              	</mx:ComboBox>
-              	
-            </mx:HBox>
-            <mx:HBox>
-             <mx:Label text="Microarray Category:" textAlign="left" width="130"/>
+             <mx:Label text="Microarray Category:" textAlign="left" width="130" id="label8"/>
              <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
-             	 width="200" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+             	 width="200" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
              </mx:ComboBox>
             </mx:HBox>
             <mx:HBox width="100%">
-             <mx:Label text="Microarray:" textAlign="left" width="130"/>
+             <mx:Label text="Microarray:" textAlign="left" width="130" id="label9"/>
              <mx:ComboBox id="microarrayCombo"  
              	labelField="@name" 
              	dataProvider="{parentApplication.filteredSlideProductList}" 
-             	 width="340">
+             	 width="340" change="scopeSearch()">
              </mx:ComboBox>
             </mx:HBox>
+            <mx:HBox>
+               <mx:Label text="Analysis Type:" textAlign="left" width="130" id="label1"/>
+               <mx:ComboBox id="analysisTypeCombo"  
+                labelField="@display"
+               	 width="300" change="scopeSearch()">
+               </mx:ComboBox>
+            </mx:HBox>
+            <mx:HBox>
+               <mx:Label text="Analysis Protocol:" textAlign="left" width="130" id="label2"/>
+               <mx:ComboBox id="analysisProtocolCombo"  
+                labelField="@display"
+               	 width="300" change="scopeSearch()">
+               </mx:ComboBox>
+            </mx:HBox>
     	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
-    	    <mx:HBox width="100%">
+    	    <mx:HBox width="100%" id="hbox1">
     	         <mx:VBox verticalGap="0">
 		        	<mx:RadioButtonGroup id="radiogroup1"/>
 		        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
 		        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
     	         </mx:VBox>
 	        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
-	        		<mx:CheckBox label="Include public projects" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
+	        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
 	        		</mx:CheckBox>
 	        	</mx:HBox>
     	    </mx:HBox>
@@ -337,10 +374,44 @@
         </mx:HBox>
 
 
-
-       
 						
 						
 
 </mx:HDividedBox>
+
+<mx:states>
+	<mx:State name="ExperimentOnlySearchState">	
+		<mx:SetProperty target="{analysisTypeCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{analysisProtocolCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label1}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label2}" name="enabled" value="false"/>
+		<mx:AddChild relativeTo="{hbox1}" position="before">
+			<mx:Label text="* Experiments only will be searched" fontWeight="bold" color="#730A1E"/>
+		</mx:AddChild>
+	</mx:State>
+	<mx:State name="AnalysisOnlySearchState">	
+		<mx:SetProperty target="{requestCategoryCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{sampleTypeCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{sampleSourceCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{organismCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{searchOrganismOnSlideProductRadio}" name="enabled" value="false"/>
+		<mx:SetProperty target="{searchOrganismOnSampleRadio}" name="enabled" value="false"/>
+		<mx:SetProperty target="{microarrayCategoryCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{microarrayCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label4}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label5}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label6}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label8}" name="enabled" value="false"/>
+		<mx:SetProperty target="{label9}" name="enabled" value="false"/>
+		<mx:SetProperty target="{experimentDesignGrid}" name="visible" value="false"/>
+		<mx:SetProperty target="{experimentFactorGrid}" name="visible" value="false"/>
+		<mx:AddChild relativeTo="{hbox1}" position="before">
+			<mx:Label text="* Analysis only will be searched" fontWeight="bold" color="#730A1E"/>
+		</mx:AddChild>
+	</mx:State>
+</mx:states>
+       
+
 </mx:VBox>
