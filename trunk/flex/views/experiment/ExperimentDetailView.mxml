@@ -326,7 +326,7 @@
         }
         
         private function showRelatedAnalysis():void {
-        	parentApplication.showAnalysis(this.selectedExperiment);
+        	parentApplication.showAnalysisForExperiment(this.selectedExperiment);
         }
 
 	]]>

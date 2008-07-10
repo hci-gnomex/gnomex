@@ -195,10 +195,29 @@
     		var lab:Object;
     		var analysisGroup:Object;
     		var analysis:Object;
-    		if (selectedAnalysis != null) {
+    		if (selectedAnalysisNumber != null) {
 		    	for each (lab in getAnalysisGroupList.lastResult..Lab) {
 		    		pos++;	    	
-		    		trace(lab.@name + ' ' + pos);
+		    		for each(analysisGroup in lab.AnalysisGroup) {
+		    			pos++;
+		    			for each( analysis in analysisGroup.Analysis) {
+		    				pos++;
+		    				if (analysis.@number == selectedAnalysisNumber) {
+		    					idx = --pos;
+		    					break;
+		    				} 
+		    			}
+		    			if (idx != -1) {
+		    				break;
+		    			} 
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		} else if (selectedAnalysis != null) {
+		    	for each (lab in getAnalysisGroupList.lastResult..Lab) {
+		    		pos++;	    	
 		    		for each(analysisGroup in lab.AnalysisGroup) {
 		    			pos++;
 		    			for each( analysis in analysisGroup.Analysis) {

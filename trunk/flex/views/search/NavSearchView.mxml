@@ -23,7 +23,7 @@
         }
         
         public function setResultsCount():void {
-        	rowCountMessage = searchList.length + " experiments, " + searchProtocolList.length + " protocols found.";
+        	rowCountMessage = searchList.length + " experiments, " + searchAnalysisList.length + " analyses, " + searchProtocolList.length + " protocols found.";
         	searchResultsTreeView.enabled = true;
         	this.searchResultsView.enabled = true;
 
@@ -40,6 +40,20 @@
         	}
         }
         
+        private function onAnalysisRowSelected():void  {
+        	parentApplication.showAnalysis(this.resultAnalysisGrid.selectedItem.@idAnalysis,
+        								   this.resultAnalysisGrid.selectedItem.@number, 
+        								   this.resultAnalysisGrid.selectedItem.@idLab);
+        }
+        
+                
+        private function onAnalysisNodeSelected():void  {
+        	if (resultsAnalysisTree.selectedItem.name() == "AnalysisNode") {
+	        	parentApplication.showAnalysis(this.resultsAnalysisTree.selectedItem.@idAnalysis, 
+	        	                               this.resultsAnalysisTree.selectedItem.@number,
+	        	                               this.resultsAnalysisTree.selectedItem.@idLab);    		
+        	}
+        }
         
 	    public function expandAllNodes():void
   		{   
@@ -50,8 +64,16 @@
 			for each(var lab:Object in searchView.searchGNomEx.lastResult..Lab) {
   				resultsTree.expandItem(lab, true);
   			}	 
-  					
   			resultsProtocolTree.openItems = searchView.searchGNomEx.lastResult.ProtocolList;
+
+  			this.resultsAnalysisTree.openItems = searchView.searchGNomEx.lastResult..AnalysisGroup;
+  			for each(var ag:Object in searchView.searchGNomEx.lastResult.AnalysisGroupList) {
+  				resultsAnalysisTree.expandItem(ag, true);
+  			}
+			for each(var l:Object in searchView.searchGNomEx.lastResult..Lab) {
+  				resultsAnalysisTree.expandItem(l, true);
+  			}	 
+
   		}
   		
 
@@ -64,7 +86,7 @@
 	  	public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Lab") {
 					return parentApplication.iconGroup;
-				} else if (item.name() == "Project") {
+				} else if (item.name() == "Project" || item.name() == "AnalysisGroup") {
 					return parentApplication.iconProject;
 				} else if (item.name() == "RequestCategory") {
 					return parentApplication.iconCategory;
@@ -76,20 +98,30 @@
 					return parentApplication.iconSolexa;
 				} else if (item.name() == "Protocol") {
 					return parentApplication.iconProtocol;
-				} else if (item.name() == "ProjectRequestList" || item.name() == "ProtocolList") {
+				} else if (item.name() == "AnalysisNode") {
+					return parentApplication.iconAnalysis;
+				} else if (item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList") {
 					return parentApplication.iconProject;
-				} else {
+				} else if (item.name() == "RequestNode") {
 					return parentApplication.iconExperiment;
+				} else {
+					return parentApplication.iconGreenBullet;
 				}
 		}	
 	  	public function getTreeLabel(item:Object):String {
 	  		if (item.name() == "ProjectRequestList") {
-	  			return "Labs";
+	  			return "Experiment hits";
 	  		} else if (item.name() == "ProtocolList") {
-	  			return "Protocols";
+	  			return "Protocol hits";
+	  		} else if (item.name() == "AnalysisGroupList") {
+	  			return "Analysis hits";
 	  		}else {
 	  			return item.@label;
 	  		}
+	  	}
+	  	
+	  	public function getOwnerName(item:Object,col:DataGridColumn):String {
+	  		return item.@ownerFirstName + " " + item.@ownerLastName;
 	  	}
 		
  		public function onViewSwitch():void {
@@ -119,6 +151,7 @@
     
     <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
     <mx:XMLListCollection id="searchProtocolList" source="{searchView.searchGNomEx.lastResult.ProtocolList.Protocol}"/>
+    <mx:XMLListCollection id="searchAnalysisList" source="{searchView.searchGNomEx.lastResult.AnalysisList.Analysis}"/>
     <mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingBottom="0"  verticalGap="0" paddingTop="0">
 
 
@@ -181,6 +214,27 @@
 			       </mx:DataGrid>
 			     </mx:VBox>
 			  </mx:VBox>
+			  
+			  <mx:VBox label="Analysis" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+	             <mx:VBox id="listAnalysisView" width="100%" height="100%">
+	  		       <mx:DataGrid  dataProvider="{searchAnalysisList}"  width="100%" height="100%"  id="resultAnalysisGrid" doubleClickEnabled="true"  doubleClick="onAnalysisRowSelected()">
+			       <mx:columns>
+			       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
+			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
+			       	<mx:DataGridColumn headerText="Group" width="60" dataField="@labName"/>
+			       	<mx:DataGridColumn headerText="Analysis Group" width="70" dataField="@analysisGroupName"/>
+			       	<mx:DataGridColumn headerText="Analysis Number" width="50" dataField="@number"/>
+			       	<mx:DataGridColumn headerText="Analysis Name" width="70" dataField="@name"/>
+			       	<mx:DataGridColumn headerText="Organism" width="50" dataField="@organism"/>
+			       	<mx:DataGridColumn headerText="Type" width="50" dataField="@analysisType"/>
+			       	<mx:DataGridColumn headerText="Protocol" width="50" dataField="@analysisProtocol"/>
+			       	<mx:DataGridColumn headerText="Submitted by" width="60" labelFunction="getOwnerName"/>
+			       	<mx:DataGridColumn headerText="Submit date" width="50" dataField="@createDate"/>
+			       </mx:columns>
+			       </mx:DataGrid>
+			     </mx:VBox>
+			  </mx:VBox>
+			  
 			  <mx:VBox label="Protocols" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 	             <mx:VBox id="listProtocolView" width="100%" height="100%">
 	  		       <mx:DataGrid  dataProvider="{searchProtocolList}"  width="100%" height="100%"  id="resultsProtocolGrid" doubleClickEnabled="true">
@@ -193,10 +247,9 @@
 			       </mx:DataGrid>
 			     </mx:VBox>
 			  </mx:VBox>
-			</mx:ViewStack>			
 			
+		</mx:ViewStack>
 		</mx:VBox>
-		
 		
 		<mx:VBox id="searchResultsTreeView"  
 		   label="Results (tree)" 
@@ -215,13 +268,26 @@
 			     	<mx:Tree id="resultsTree" width="100%" height="100%" 
 		    	 		dataProvider="{searchView.searchGNomEx.lastResult.ProjectRequestList}"
 		     			labelField="@label" 
-		     			 doubleClickEnabled="true" doubleClick="onExperimentNodeSelected()"
+		     			doubleClickEnabled="true" doubleClick="onExperimentNodeSelected()"
 		     		 	iconFunction="getTreeIcon"
 		     		 	labelFunction="getTreeLabel"
 		     			showRoot="true" >
 		     		</mx:Tree>
 		     	</mx:VBox>
 		      </mx:VBox>
+		     	
+			  <mx:VBox label="Analysis"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			     <mx:VBox id="treeAnalysisView" width="100%" height="100%">
+			     	<mx:Tree id="resultsAnalysisTree" width="100%" height="100%" 
+		    	 		dataProvider="{searchView.searchGNomEx.lastResult.AnalysisGroupList}"
+		     			labelField="@label" 
+		     		 	doubleClickEnabled="true" doubleClick="onAnalysisNodeSelected()"
+		     		 	iconFunction="getTreeIcon"
+		     		 	labelFunction="getTreeLabel"
+		     			showRoot="true" >
+		     		</mx:Tree>
+		     	</mx:VBox>
+		     </mx:VBox>
 		     	
 			  <mx:VBox label="Protocols"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 			     <mx:VBox id="treeProtocolView" width="100%" height="100%">
@@ -232,9 +298,9 @@
 		     		 	labelFunction="getTreeLabel"
 		     			showRoot="true" >
 		     		</mx:Tree>
-		     	</mx:VBox>
+		     	 </mx:VBox>
 		     </mx:VBox>
-			</mx:ViewStack>
+		    </mx:ViewStack>
 		</mx:VBox>
 	</mx:ViewStack>
 

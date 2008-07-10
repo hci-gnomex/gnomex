@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.AnalysisProtocol;
+import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.FlowCellType;
 import hci.gnomex.model.GenomeBuild;
@@ -39,8 +41,9 @@ public class DictionaryHelper implements Serializable {
   private Map              organismMap = new HashMap();
   private Map              flowCellTypeMap = new HashMap();
   private Map              numberSequencingCyclesMap = new HashMap();
-  private Map              genomeBuildMap = new HashMap();
-  
+  private Map              genomeBuildMap = new HashMap();  
+  private Map              analysisProtocolMap = new HashMap();
+  private Map              analysisTypeMap = new HashMap();
   
   public DictionaryHelper() {    
   }
@@ -118,7 +121,17 @@ public class DictionaryHelper implements Serializable {
       GenomeBuild gb = (GenomeBuild)i.next();
       genomeBuildMap.put(gb.getIdGenomeBuild(), gb.getGenomeBuildName());
     }    
-  }
+    List analysisTypes = sess.createQuery("SELECT at from AnalysisType as at").list();
+    for(Iterator i = analysisTypes.iterator(); i.hasNext();) {
+      AnalysisType at = (AnalysisType)i.next();
+      analysisTypeMap.put(at.getIdAnalysisType(), at.getAnalysisType());
+    }  
+    List analysisProtocols = sess.createQuery("SELECT at from AnalysisProtocol as at").list();
+    for(Iterator i = analysisProtocols.iterator(); i.hasNext();) {
+      AnalysisProtocol at = (AnalysisProtocol)i.next();
+      analysisProtocolMap.put(at.getIdAnalysisProtocol(), at.getAnalysisProtocol());
+    }  
+   }
   
   public String getSampleType(Sample sample) {
     String name = "";
@@ -250,6 +263,20 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (id != null) {
       name = (String)genomeBuildMap.get(id);
+    }
+    return name;
+  }
+  public String getAnalysisType(Integer id) {
+    String name = "";
+    if (id != null) {
+      name = (String)analysisTypeMap.get(id);
+    }
+    return name;
+  }
+  public String getAnalysisProtocol(Integer id) {
+    String name = "";
+    if (id != null) {
+      name = (String)analysisProtocolMap.get(id);
     }
     return name;
   }

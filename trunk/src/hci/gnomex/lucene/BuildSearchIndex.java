@@ -342,6 +342,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       ag.name, ");
     buf.append("       ag.description, ");
     buf.append("       ag.codeVisibility, ");
+    buf.append("       ag.idLab, ");
     buf.append("       owner.firstName, ");
     buf.append("       owner.lastName, ");
     buf.append("       lab.name,  ");
@@ -869,18 +870,19 @@ public class BuildSearchIndex extends DetailObject {
     String agName                 = (String)row[2];
     String agDesc                 = (String)row[3];
     String agCodeVisibility       = (String)row[4];
-    String ownerFirstName         = (String)row[5];
-    String ownerLastName          = (String)row[6];
-    String labName                = (String)row[7];
-    String number                 = (String)row[8];
-    String name                   = (String)row[9];
-    String desc                   = (String)row[10];
-    Integer idAnalysisType        = (Integer)row[11];
-    Integer idAnalysisProtocol    = (Integer)row[12];
-    Integer idOrganism            = (Integer)row[13];
-    Integer idLab                 = (Integer)row[14];
-    java.sql.Date createDate      = (java.sql.Date)row[15];
-    String codeVisibility         = (String)row[16];
+    Integer agIdLab               = (Integer)row[5];
+    String ownerFirstName         = (String)row[6];
+    String ownerLastName          = (String)row[7];
+    String labName                = (String)row[8];
+    String number                 = (String)row[9];
+    String name                   = (String)row[10];
+    String desc                   = (String)row[11];
+    Integer idAnalysisType        = (Integer)row[12];
+    Integer idAnalysisProtocol    = (Integer)row[13];
+    Integer idOrganism            = (Integer)row[14];
+    Integer idLab                 = (Integer)row[15];
+    java.sql.Date createDate      = (java.sql.Date)row[16];
+    String codeVisibility         = (String)row[17];
     String publicNote             = ""; 
 
     if (codeVisibility != null && codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
@@ -899,13 +901,17 @@ public class BuildSearchIndex extends DetailObject {
     
 
     Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, agIdLab);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_NAME, agName);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION, agDesc);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NAME, name);
     indexedFieldMap.put(AnalysisIndexHelper.DESCRIPTION, desc);
     indexedFieldMap.put(AnalysisIndexHelper.ID_ORGANISM, idOrganism);
+    indexedFieldMap.put(AnalysisIndexHelper.ORGANISM, idOrganism != null ? dh.getOrganism(idOrganism) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_TYPE, idAnalysisType);
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_TYPE, idAnalysisType != null ? dh.getAnalysisType(idAnalysisType) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, idAnalysisProtocol);
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? dh.getAnalysisProtocol(idAnalysisProtocol) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab);
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_CODE_VISIBILITY, agCodeVisibility);

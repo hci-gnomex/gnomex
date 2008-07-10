@@ -12,6 +12,7 @@ public class AnalysisIndexHelper extends IndexHelper {
   // Non-indexed fields
   public static final String       ID_ANALYSISGROUP = "idAnalysisGroup";
   public static final String       ID_ANALYSIS = "idAnalysis";
+  public static final String       ID_LAB_ANALYSISGROUP = "idLabAnalysisGroup";
   public static final String       ANALYSIS_NUMBER = "analysisNumber";
   public static final String       OWNER_FIRST_NAME = "ownerFirstName";
   public static final String       OWNER_LAST_NAME = "ownerLastName";
@@ -24,8 +25,11 @@ public class AnalysisIndexHelper extends IndexHelper {
   public static final String       ANALYSIS_NAME = "analysisName";
   public static final String       DESCRIPTION = "description";
   public static final String       ID_ORGANISM = "idOrganism";
+  public static final String       ORGANISM = "organism";
   public static final String       ID_ANALYSIS_TYPE = "idAnalysisType";
+  public static final String       ANALYSIS_TYPE = "analysisType";
   public static final String       ID_ANALYSIS_PROTOCOL = "idAnalysisProtocol";
+  public static final String       ANALYSIS_PROTOCOL = "analysisProtocol";
   public static final String       ID_LAB = "idLab";
   public static final String       LAB_NAME = "labName";
   public static final String       ANALYSIS_GROUP_CODE_VISIBILITY = "analysisGroupCodeVisibility";
