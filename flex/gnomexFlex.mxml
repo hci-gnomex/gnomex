@@ -345,7 +345,7 @@
 				
 			}
             
-			public function showAnalysis(request:Object):void {
+			public function showAnalysisForExperiment(request:Object):void {
 				navAnalysisView.selectedIdAnalysis = null;
 				navAnalysisView.selectedIdAnalysisGroup = null;
 				navAnalysisView.selectedIdLab = request.@idLab;
@@ -353,6 +353,23 @@
 				var parms:Object = new Object();
 				parms.idLab = request.@idLab;
 				parms.idRequest = request.@idRequest;
+				navAnalysisView.getAnalysisGroupList.send(parms);
+
+				theViews.visible = true;
+				navAnalysisView.checkSecurity();
+				theViews.selectedChild = navAnalysisView;
+				
+			}
+
+			public function showAnalysis(idAnalysis:Object, analysisNumber:String, idLab:String):void {
+				navAnalysisView.selectedIdAnalysis = null;
+				navAnalysisView.selectedIdAnalysisGroup = null;
+				navAnalysisView.selectedIdLab = idLab;
+				navAnalysisView.selectedAnalysisNumber = analysisNumber;
+
+				var parms:Object = new Object();
+				parms.idLab = idLab;
+				parms.idAnalysis = idAnalysis;
 				navAnalysisView.getAnalysisGroupList.send(parms);
 
 				theViews.visible = true;

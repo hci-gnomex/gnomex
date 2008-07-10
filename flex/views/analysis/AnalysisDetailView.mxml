@@ -15,7 +15,7 @@
 		private var analysisProtocolName:String;
 		[Bindable]
 		private var organismName:String;
-		[Bindable]
+		[Bindable] 
 		private var genomeBuildName:String;
 		
 		public function checkSecurity():void {

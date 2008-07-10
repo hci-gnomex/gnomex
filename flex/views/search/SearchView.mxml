@@ -259,7 +259,7 @@
              <mx:Label text="Organism:" textAlign="left" width="130"/>
             <mx:VBox verticalGap="0">
                <mx:ComboBox 
-               	id="organismCombo"  labelField="@display" 
+               	id="organismCombo"  labelField="@display"  
                width="200" 
                change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
                </mx:ComboBox>

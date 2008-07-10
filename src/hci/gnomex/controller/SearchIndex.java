@@ -5,6 +5,8 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.lucene.AnalysisFilter;
+import hci.gnomex.lucene.AnalysisIndexHelper;
 import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ExperimentFilter;
 import hci.gnomex.lucene.ProtocolIndexHelper;
@@ -46,6 +48,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   private ExperimentFilter experimentFilter = null;
   private ProtocolFilter       protocolFilter = null;
+  private AnalysisFilter       analysisFilter = null;
   
   private String listKind = "SearchList";
   
@@ -59,9 +62,17 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   private Map projectToRequestCategoryMap = null;
   private Map categoryToRequestMap = null;
   
+  private Map labAnalysisMap = null;
+  private Map analysisGroupMap = null;
+  private Map analysisMap = null;
+  private Map labToAnalysisGroupMap = null;
+  private Map analysisGroupToAnalysisMap = null;
+  
   private ArrayList rankedRequestNodes = null;
 
   private ArrayList rankedProtocolNodes = null;
+  
+  private ArrayList rankedAnalysisNodes = null;
   
   public void validate() {
   }
@@ -87,6 +98,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     errors = this.loadDetailObject(request, protocolFilter);
     this.addInvalidFields(errors);
     
+    analysisFilter = new AnalysisFilter();
+    errors = this.loadDetailObject(request, analysisFilter);
+    this.addInvalidFields(errors);    
     
     List experimentDesignCodes = new ArrayList();
     if (request.getParameter("experimentDesignConcatCodes") != null && !request.getParameter("experimentDesignConcatCodes").equals("")) {
@@ -119,6 +133,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       IndexReader indexReader = IndexReader.open(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY);      
       Searcher searcher = new IndexSearcher(indexReader);
       
+      //
+      // Experiments
+      //
       //  Build a Query object
       String searchText = experimentFilter.getSearchText().toString();
       searchDisplayText = experimentFilter.toString();
@@ -154,6 +171,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       }
       
       
+      //
+      // Protocols
+      //
       IndexReader protocolIndexReader = IndexReader.open(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY);      
       Searcher protocolSearcher = new IndexSearcher(protocolIndexReader);
       
@@ -172,7 +192,46 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         buildProtocolMap(protocolIndexReader);
         
       }
-     
+      
+      //
+      // Analysis
+      //
+      IndexReader analysisIndexReader = IndexReader.open(Constants.LUCENE_ANALYSIS_INDEX_DIRECTORY);      
+      Searcher analysisSearcher = new IndexSearcher(analysisIndexReader);
+      
+      //  Build a Query object
+      String analysisSearchText = analysisFilter.getSearchText().toString();
+      
+      // Build a Query to represent the security filter
+      String analysisSecuritySearchText = this.buildAnalysisSecuritySearch();
+
+      if (analysisSearchText != null && analysisSearchText.trim().length() > 0) {
+        log.debug("Lucene analysis search: " + searchText);
+        Query query = new QueryParser("text", new StandardAnalyzer()).parse(analysisSearchText);
+        
+        // Build security filter        
+        QueryWrapperFilter filter = this.buildSecurityQueryFilter(analysisSecuritySearchText);
+
+        // Search for the query
+        Hits hits = null;
+        if (filter == null) {
+           hits = analysisSearcher.search(query);
+        } else {
+           hits = analysisSearcher.search(query, filter);
+        }  
+        
+        processAnalysisHits(hits, analysisSearchText);
+        
+      } else {
+        if (securitySearchText != null) {
+          Query query = new QueryParser("text", new StandardAnalyzer()).parse(securitySearchText);     
+          Hits hits = analysisSearcher.search(query);
+          processAnalysisHits(hits, analysisSecuritySearchText);
+        } else {
+          this.buildAnalysisGroupMap(analysisIndexReader);
+        }
+      }
+      
 
       
       org.jdom.Document xmlDoc = this.buildXMLDocument();
@@ -236,6 +295,15 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
   }
   
+  private void processAnalysisHits(Hits hits, String searchText) throws Exception {
+    
+    // Show hits
+    showAnalysisHits(hits, searchText);
+    
+    // Map search results
+    this.buildAnalysisGroupMap(hits);
+    
+  }
   private void buildProjectRequestMap(Hits hits) throws Exception{
     
     labMap        = new HashMap();
@@ -271,6 +339,39 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       mapDocument(doc, -1, -1);      
     }
   }
+  
+  private void buildAnalysisGroupMap(Hits hits) throws Exception{
+    
+    labAnalysisMap = new HashMap();
+    analysisGroupMap = new HashMap();
+    analysisMap = new HashMap();
+    labToAnalysisGroupMap = new TreeMap();
+    analysisGroupToAnalysisMap = new TreeMap();
+    rankedAnalysisNodes = new ArrayList();
+    
+    for (int i = 0; i < hits.length(); i++) {
+      org.apache.lucene.document.Document doc = hits.doc(i);
+      float score = hits.score(i);
+      mapAnalysisDocument(doc, i, score);
+      
+    }
+  }
+  
+  private void buildAnalysisGroupMap(IndexReader indexReader) throws Exception{
+    
+    labAnalysisMap = new HashMap();
+    analysisGroupMap = new HashMap();
+    analysisMap = new HashMap();
+    labToAnalysisGroupMap = new TreeMap();
+    analysisGroupToAnalysisMap = new TreeMap();
+    rankedAnalysisNodes = new ArrayList();
+    
+    for (int i = 0; i < indexReader.numDocs(); i++) {
+      org.apache.lucene.document.Document doc = indexReader.document(i);
+      mapAnalysisDocument(doc, -1, -1);      
+    }
+  }
+  
   
   private void buildProtocolMap(Hits hits) throws Exception{
     
@@ -416,7 +517,87 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         idRequestMap = new TreeMap();
         categoryToRequestMap.put(catKey, idRequestMap);
       }
-      idRequestMap.put(requestCreateDate, idRequest);        
+      idRequestMap.put(requestCreateDate + "-" + idRequest, idRequest);        
+    }
+
+  }
+  
+ private void mapAnalysisDocument(org.apache.lucene.document.Document doc, int rank, float score) {
+    
+    Integer idAnalysisGroup = new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSISGROUP));
+    Integer idLab     = new Integer(doc.get(AnalysisIndexHelper.ID_LAB));
+    Integer idAnalysis          = doc.get(AnalysisIndexHelper.ID_ANALYSIS).equals("unknown") ? null : new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSIS));
+    
+    Element labNode = (Element)labAnalysisMap.get(idLab);
+    if (labNode == null) {
+      Element node = new Element("Lab");
+      node.setAttribute("idLab", idLab.toString());
+      node.setAttribute("labName", doc.get(AnalysisIndexHelper.LAB_NAME));
+      node.setAttribute("label", doc.get(AnalysisIndexHelper.LAB_NAME));
+      labAnalysisMap.put(idLab, node);
+    }
+
+    Element analysisGroupNode = (Element)analysisGroupMap.get(idAnalysisGroup);
+    if (analysisGroupNode == null) {
+      Element node = new Element("AnalysisGroup");
+      node.setAttribute("idAnalysisGroup", idAnalysisGroup.toString());
+      node.setAttribute("name", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
+      node.setAttribute("label", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
+      node.setAttribute("description", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION) : "");
+      node.setAttribute("codeVisibility", doc.get(AnalysisIndexHelper.CODE_VISIBILITY));
+      if (idAnalysis == null || idAnalysis.intValue() == 0) {
+        if (rank >= 0) {
+          node.setAttribute("searchRank", new Integer(rank + 1).toString());
+          node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+        }
+        if (score >= 0) {
+          node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");                    
+        }
+      }
+      analysisGroupMap.put(idAnalysisGroup, node);
+    }
+    
+    if (idAnalysis != null) {
+      
+      
+      Element analysisNode = (Element)analysisMap.get(idAnalysis);
+      if (analysisNode == null) {
+        Element node = new Element("AnalysisNode");
+        Element node1 = new Element("Analysis");
+        buildAnalysisNode(node, idAnalysis, doc, score, rank);
+        buildAnalysisNode(node1, idAnalysis, doc, score, rank);
+        
+        analysisMap.put(idAnalysisGroup + "-" + idAnalysis, node);
+        rankedAnalysisNodes.add(node1);
+      }        
+    } else {
+      Element node = new Element("Analysis");
+      buildEmptyAnalysisNode(node, idAnalysisGroup, doc, score, rank);
+      rankedAnalysisNodes.add(node);
+    }
+    
+    
+    String labName     = doc.get(AnalysisIndexHelper.LAB_NAME);
+    String analysisGroupName = doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME);
+    String analysisCreateDate = doc.get(AnalysisIndexHelper.CREATE_DATE);
+    String labKey = labName + "---" + idLab;
+    Map analysisGroupIdMap = (Map)labToAnalysisGroupMap.get(labKey);
+    if (analysisGroupIdMap == null) {
+      analysisGroupIdMap = new TreeMap();
+      labToAnalysisGroupMap.put(labKey, analysisGroupIdMap);
+    }
+    String analysisGroupKey = analysisGroupName + "---" + idAnalysisGroup;
+    analysisGroupIdMap.put(analysisGroupKey, idAnalysisGroup);        
+    
+    if (idAnalysis != null) {
+
+
+      Map idAnalysisMap = (Map)analysisGroupToAnalysisMap.get(idAnalysisGroup);
+      if (idAnalysisMap == null) {
+        idAnalysisMap = new TreeMap();
+        analysisGroupToAnalysisMap.put(idAnalysisGroup, idAnalysisMap);
+      }
+      idAnalysisMap.put(idAnalysisGroup + "-" + analysisCreateDate + "-" + idAnalysis, idAnalysis);        
     }
 
   }
@@ -462,7 +643,52 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
 
   }
+  
+  
+  private void buildAnalysisNode(Element node, Integer idAnalysis, Document doc, float score, int rank) {
+    node.setAttribute("idAnalysis", idAnalysis.toString());
+    node.setAttribute("analysisGroupName", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME));
+    node.setAttribute("number", doc.get(AnalysisIndexHelper.ANALYSIS_NUMBER));
+    node.setAttribute("label", doc.get(AnalysisIndexHelper.ANALYSIS_NUMBER) + " (" + doc.get(AnalysisIndexHelper.ANALYSIS_NAME) + ")");
+    node.setAttribute("createDate", doc.get(AnalysisIndexHelper.CREATE_DATE));
+    node.setAttribute("codeVisibility",  doc.get(AnalysisIndexHelper.CODE_VISIBILITY) != null ? doc.get(AnalysisIndexHelper.CODE_VISIBILITY) : "");
+    node.setAttribute("public",  doc.get(AnalysisIndexHelper.CODE_VISIBILITY) != null && doc.get(AnalysisIndexHelper.CODE_VISIBILITY).equals(Visibility.VISIBLE_TO_PUBLIC) ? "Public" : "");
+    node.setAttribute("publicNote", doc.get(AnalysisIndexHelper.PUBLIC_NOTE) != null ? doc.get(AnalysisIndexHelper.PUBLIC_NOTE) : "");
+    node.setAttribute("name", doc.get(AnalysisIndexHelper.ANALYSIS_NAME) != null ?  doc.get(AnalysisIndexHelper.ANALYSIS_NAME) : "");
+    node.setAttribute("ownerFirstName", doc.get(AnalysisIndexHelper.OWNER_FIRST_NAME) != null ? doc.get(AnalysisIndexHelper.OWNER_FIRST_NAME) : "");
+    node.setAttribute("ownerLastName", doc.get(AnalysisIndexHelper.OWNER_LAST_NAME) != null ? doc.get(AnalysisIndexHelper.OWNER_LAST_NAME) : "");
+    node.setAttribute("labName", doc.get(AnalysisIndexHelper.LAB_NAME) != null ? doc.get(AnalysisIndexHelper.LAB_NAME) : "" );
+    node.setAttribute("idAnalysisType", doc.get(AnalysisIndexHelper.ID_ANALYSIS_TYPE) != null ? doc.get(AnalysisIndexHelper.ID_ANALYSIS_TYPE) : "");
+    node.setAttribute("idOrganism", doc.get(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL) != null ? doc.get(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL) : "");
+    node.setAttribute("idAnalysisProtocol", doc.get(AnalysisIndexHelper.ID_ORGANISM) != null ? doc.get(AnalysisIndexHelper.ID_ORGANISM) : "");
+    node.setAttribute("organism", doc.get(AnalysisIndexHelper.ORGANISM) != null ? doc.get(AnalysisIndexHelper.ORGANISM) : "");
+    node.setAttribute("analysisType", doc.get(AnalysisIndexHelper.ANALYSIS_TYPE) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_TYPE) : "");
+    node.setAttribute("analysisProtocol", doc.get(AnalysisIndexHelper.ANALYSIS_PROTOCOL) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_PROTOCOL) : "");
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
 
+  }
+
+  private void buildEmptyAnalysisNode(Element node,  Integer idAnalysisGroup, Document doc, float score, int rank) {
+    node.setAttribute("idAnalysis", "-1");
+    node.setAttribute("idAnalysisGroup", idAnalysisGroup.toString());
+    node.setAttribute("analysisGroupName", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME));
+    node.setAttribute("name",  doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
+    node.setAttribute("label",  doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
+    if (rank >= 0) {
+      node.setAttribute("searchRank", new Integer(rank + 1).toString());          
+      node.setAttribute("searchInfo", " (Search rank #" + (rank + 1) + ")");
+    } 
+    if (score >= 0) {
+      node.setAttribute("searchScore", new Integer(Math.round(score * 100)).toString() + "%");          
+    }
+
+  }
   
   private org.jdom.Document buildXMLDocument() {
     org.jdom.Document doc = new org.jdom.Document(new Element(listKind));
@@ -471,6 +697,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     buildProjectRequestList(doc.getRootElement());
     buildRequestList(doc.getRootElement());
     buildProtocolList(doc.getRootElement());
+    buildAnalysisGroupList(doc.getRootElement());
+    buildAnalysisList(doc.getRootElement());
     
     return doc;
     
@@ -544,7 +772,53 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
     
   }
-  
+
+  private void buildAnalysisGroupList(Element root) {
+    Element parent = new Element("AnalysisGroupList");
+    root.addContent(parent);
+    
+    // For each lab
+    for(Iterator i = labToAnalysisGroupMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      
+      String []tokens = key.split("---");
+      Integer idLab = new Integer(tokens[1]);
+      
+      Element labNode = (Element)labAnalysisMap.get(idLab);
+      Map analysisGroupIdMap = (Map)labToAnalysisGroupMap.get(key);
+      
+      
+      parent.addContent(labNode);
+      
+      // For each analysis group in lab
+      for(Iterator i1 = analysisGroupIdMap.keySet().iterator(); i1.hasNext();) {
+        String agKey = (String)i1.next();
+
+        
+        Integer idAnalysisGroup = (Integer)analysisGroupIdMap.get(agKey);
+
+        Element agNode = (Element)analysisGroupMap.get(idAnalysisGroup);
+        Map idAnalysisMap = (Map)analysisGroupToAnalysisMap.get(idAnalysisGroup);
+        
+        labNode.addContent(agNode);
+        
+        
+        // For each analysis in analysis group
+        if (idAnalysisMap != null) {
+          for(Iterator i2 = idAnalysisMap.keySet().iterator(); i2.hasNext();) {
+            
+            String akey = (String)i2.next();
+            Integer idAnalysis = (Integer)idAnalysisMap.get(akey);
+            Element aNode = (Element)analysisMap.get(idAnalysisGroup + "-" + idAnalysis);
+            agNode.addContent(aNode);
+          }
+        }
+      }
+    }
+
+    
+  }
+
   private void buildRequestList(Element root) {
     Element parent = new Element("RequestList");
     root.addContent(parent);
@@ -569,6 +843,17 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
   }
   
+  private void buildAnalysisList(Element root) {
+    Element parent = new Element("AnalysisList");
+    root.addContent(parent);
+    
+    // For each request node
+    for(Iterator i = rankedAnalysisNodes.iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      parent.addContent(node);
+    }
+    
+  }
   
   private String buildSecuritySearch() throws Exception {
     boolean scopeToGroup = true;
@@ -594,6 +879,52 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     ExperimentIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
                                                                     ExperimentIndexHelper.ID_REQUEST + ":unknown" );
+    }
+    if (addedFilter1) {
+      searchText.append("(");
+      searchText.append(searchText1);
+      searchText.append(")");
+    }
+    if (addedFilter1 && addedFilter2) {
+      searchText.append(" AND ");
+    }
+    searchText.append("(");
+    searchText.append(searchText2);
+    searchText.append(")");
+    
+    if (addedFilter1 || addedFilter2) {
+      
+      log.debug("Security filter: " + searchText.toString());
+      return searchText.toString();           
+    } else {
+      return null;
+    }
+  }
+  
+  private String buildAnalysisSecuritySearch() throws Exception {
+    boolean scopeToGroup = true;
+    if (experimentFilter.getSearchPublicProjects() != null && experimentFilter.getSearchPublicProjects().equalsIgnoreCase("Y")) {
+      scopeToGroup = false;
+    }
+    
+   
+    StringBuffer searchText = new StringBuffer();
+    boolean addedFilter1 = false;
+    boolean addedFilter2 = false;
+    StringBuffer searchText1 = new StringBuffer();
+    StringBuffer searchText2 = new StringBuffer();
+    addedFilter1 = this.getSecAdvisor().buildLuceneSecurityFilter(searchText1, 
+                                                                   AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, 
+                                                                   AnalysisIndexHelper.ANALYSIS_GROUP_CODE_VISIBILITY, 
+                                                                   scopeToGroup,
+                                                                   null);
+    if (addedFilter1) {
+      searchText2 = new StringBuffer();
+      addedFilter2 = this.getSecAdvisor().buildLuceneSecurityFilter(searchText2, 
+                                                                    AnalysisIndexHelper.ID_LAB,
+                                                                    AnalysisIndexHelper.CODE_VISIBILITY,
+                                                                    scopeToGroup,
+                                                                    AnalysisIndexHelper.ID_ANALYSIS + ":unknown" );
     }
     if (addedFilter1) {
       searchText.append("(");
@@ -651,6 +982,36 @@ public class SearchIndex extends GNomExCommand implements Serializable {
               // "contents" field) was stored verbatim and can be
               // retrieved.
               System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get("projectName") + " " + doc.get("requestNumber"));
+          }
+      }
+      System.out.println();      
+    }
+
+  }
+  
+  
+  private void showAnalysisHits(Hits hits, String searchText) throws Exception {
+
+    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+      // Examine the Hits object to see if there were any matches
+      int hitCount = hits.length();
+      if (hitCount == 0) {
+          System.out.println(
+              "No matches were found for \"" + searchText + "\"");
+      }
+      else {
+          System.out.println("Hits for \"" + searchText + "\""  + ":");
+
+          // Iterate over the Documents in the Hits object
+          for (int i = 0; i < hitCount; i++) {
+              org.apache.lucene.document.Document doc = hits.doc(i);
+              float score = hits.score(i);
+
+              // Print the value that we stored in the "title" field. Note
+              // that this Field was not indexed, but (unlike the
+              // "contents" field) was stored verbatim and can be
+              // retrieved.
+              System.out.println("  " + (i + 1) + ". " + " score=" + score + " " + doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) + " " + doc.get(AnalysisIndexHelper.ANALYSIS_NAME));
           }
       }
       System.out.println();      

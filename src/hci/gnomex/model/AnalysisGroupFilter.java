@@ -11,6 +11,7 @@ public class AnalysisGroupFilter extends DetailObject {
   private Integer               idLab;
   private String                searchPublicProjects;
   private Integer               idRequest;
+  private Integer               idAnalysis;
 
 
   private StringBuffer          queryBuf;
@@ -89,6 +90,12 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(" ag.idLab =");
       queryBuf.append(idLab);
     } 
+    // Search by idAnalysis 
+    if (idAnalysis != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" a.idAnalysis =");
+      queryBuf.append(idAnalysis);
+    }
     
   }
   private void addExperimentItemCriteria() {
@@ -172,6 +179,16 @@ public class AnalysisGroupFilter extends DetailObject {
   
   public void setIdRequest(Integer idRequest) {
     this.idRequest = idRequest;
+  }
+
+  
+  public Integer getIdAnalysis() {
+    return idAnalysis;
+  }
+
+  
+  public void setIdAnalysis(Integer idAnalysis) {
+    this.idAnalysis = idAnalysis;
   }
 
     
