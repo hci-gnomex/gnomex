@@ -195,6 +195,11 @@
     		var lab:Object;
     		var analysisGroup:Object;
     		var analysis:Object;
+    		// If actionscript sets selectedItem (rather than selectedIndex) on tree,
+    		// there is a flex bug that causes an extra node to be inserted under
+    		// selected item.  To work around this problem, I'm iterating through
+    		// open items to determine the selected index.  This is clumsy code,
+    		// but it woirks!
     		if (selectedAnalysisNumber != null) {
 		    	for each (lab in getAnalysisGroupList.lastResult..Lab) {
 		    		pos++;	    	

@@ -57,6 +57,7 @@ public class BuildSearchIndex extends DetailObject {
   private Map codeExperimentFactorMap;
   private Map codeExperimentDesignMap;
   private Map protocolMap;
+  private Map analysisFileCommentsMap;
   
   private DictionaryHelper dh = null;
   
@@ -208,7 +209,9 @@ public class BuildSearchIndex extends DetailObject {
       Integer idAnalysis = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
       Object[] row = (Object[])analysisGroupMap.get(key);
       
-      Document doc = buildAnalysisDocument(idAnalysisGroup, idAnalysis, row);
+      StringBuffer analysisFileComments = (StringBuffer)analysisFileCommentsMap.get(idAnalysis);
+      
+      Document doc = buildAnalysisDocument(idAnalysisGroup, idAnalysis, row, analysisFileComments);
       analysisIndexWriter.addDocument(doc);
     }
     analysisIndexWriter.optimize();
@@ -373,7 +376,36 @@ public class BuildSearchIndex extends DetailObject {
       String key = idAnalysisGroup + "-" + (idAnalysis != null ? idAnalysis.toString() : "");
       
       analysisGroupMap.put(key, row);
+    }
+
+    // Get analysis file comments
+    buf = new StringBuffer();
+    buf.append("SELECT a.id, ");
+    buf.append("       af.fileName, ");
+    buf.append("       af.comments ");
+    buf.append("FROM        Analysis as a ");
+    buf.append("LEFT JOIN   a.files as af ");
+    
+    results = sess.createQuery(buf.toString()).list();
+    analysisFileCommentsMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idAnalysis = (Integer)row[0];
+      String fileName  = (String)row[1];
+      String comments = (String)row[2];
+      
+      StringBuffer analysisFileComments = (StringBuffer)analysisFileCommentsMap.get(idAnalysis);
+      if (analysisFileComments == null) {
+        analysisFileComments = new StringBuffer();
+      }
+      analysisFileComments.append(comments);
+      analysisFileComments.append(" ");
+      
+      
+      analysisFileCommentsMap.put(idAnalysis, analysisFileComments);
     }    
+    
   }
   
   
@@ -862,7 +894,7 @@ public class BuildSearchIndex extends DetailObject {
     return doc;
   }
 
-  private Document buildAnalysisDocument(Integer idAnalysisGroup, Integer idAnalysis, Object[] row) {
+  private Document buildAnalysisDocument(Integer idAnalysisGroup, Integer idAnalysis, Object[] row, StringBuffer analysisFileComments) {
     
     Document doc = new Document();
 
@@ -927,6 +959,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append(agName);
     buf.append(" ");
     buf.append(agDesc);
+    buf.append(" ");
+    buf.append(analysisFileComments != null ? analysisFileComments.toString() : "");
     buf.append(" ");
     indexedFieldMap.put(AnalysisIndexHelper.TEXT, buf.toString());
     
