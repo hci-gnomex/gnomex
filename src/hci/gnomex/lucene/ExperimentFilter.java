@@ -155,30 +155,34 @@ public class ExperimentFilter extends DetailObject {
 
       searchText.append(")");
     }
-    
+
     //
-    //  Search by idOrganism (of slide product)
-    //    - search if organism is not scoped or search is scoped to slide product organism
+    //  Search by idOrganism (of slide product or sample)
     //
     if (idOrganism != null) {
       if ((searchOrganismOnSlideProduct.equalsIgnoreCase("N") && searchOrganismOnSample.equalsIgnoreCase("N")) ||
-          searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) {
+          (searchOrganismOnSlideProduct.equalsIgnoreCase("Y") && searchOrganismOnSample.equalsIgnoreCase("Y"))) {
        this.addLogicalOperator();
+       searchText.append("(");
        searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT + ":");
        searchText.append(idOrganism);
 
-       displayText.append(" organism of microarray slide = " + organism);
-     } 
-      
-    }
+       searchText.append(" OR ");
+       
+       searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
+       searchText.append(idOrganism);
+       searchText.append(")");
 
-    //
-    //  Search by organism (of sample)
-    //    - search if organism is not scoped or search is scoped to sample organism
-    //
-    if (idOrganism != null) {
-      if ((searchOrganismOnSlideProduct.equalsIgnoreCase("N") && searchOrganismOnSample.equalsIgnoreCase("N")) ||
-          searchOrganismOnSample.equalsIgnoreCase("Y")) {
+       displayText.append(" organism  = " + organism);
+      } // Search on organism of microarray
+      else if (searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) {
+         this.addLogicalOperator();
+         searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT + ":");
+         searchText.append(idOrganism);
+
+         displayText.append(" organism of microarray slide = " + organism);
+      } // Search on organism of sample
+      else if (searchOrganismOnSample.equalsIgnoreCase("Y")) {
         this.addLogicalOperator();
         searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
         searchText.append(idOrganism);

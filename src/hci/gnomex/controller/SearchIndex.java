@@ -221,6 +221,11 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         //  Build a Query object
         String analysisSearchText = analysisFilter.getSearchText().toString();
         
+        if (isAnalysisOnlySearch) {
+          searchDisplayText = analysisFilter.toString();          
+        }
+        
+        
         // Build a Query to represent the security filter
         String analysisSecuritySearchText = this.buildAnalysisSecuritySearch();
 
