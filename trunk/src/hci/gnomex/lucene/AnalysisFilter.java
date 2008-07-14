@@ -378,6 +378,26 @@ public class AnalysisFilter extends DetailObject {
     this.idAnalysisProtocol = idAnalysisProtocol;
   }
 
+  
+  public String getAnalysisType() {
+    return analysisType;
+  }
+
+  
+  public void setAnalysisType(String analysisType) {
+    this.analysisType = analysisType;
+  }
+
+  
+  public String getAnalysisProtocol() {
+    return analysisProtocol;
+  }
+
+  
+  public void setAnalysisProtocol(String analysisProtocol) {
+    this.analysisProtocol = analysisProtocol;
+  }
+
 
 
   
