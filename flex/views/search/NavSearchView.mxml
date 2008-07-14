@@ -9,12 +9,20 @@
     <![CDATA[ 
     	import mx.managers.CursorManager;
     	import views.renderers.LabelDictionary;
+    	
+    	[Bindable] 
+    	private var experimentHitLabel:String = "Experiments";
+    	[Bindable] 
+    	private var analysisHitLabel:String = "Analysis";
+    	[Bindable] 
+    	private var protocolHitLabel:String = "Protocols";
     
         [Bindable]
         private var rowCountMessage:String = new String();
         
 		public function checkDirty():void {
 		}
+		 
 		        
         private function getGridRowNumber(item:Object,col:int):String
         {
@@ -24,8 +32,11 @@
         
         public function setResultsCount():void {
         	rowCountMessage = searchList.length + " experiments, " + searchAnalysisList.length + " analyses, " + searchProtocolList.length + " protocols found.";
+        	experimentHitLabel = "Experiments (" + searchList.length + " hits)";
+        	analysisHitLabel = "Analysis (" + searchAnalysisList.length + " hits)";
+        	protocolHitLabel = "Protocols (" + searchProtocolList.length + " hits)";
         	searchResultsTreeView.enabled = true;
-        	this.searchResultsView.enabled = true;
+        	this.searchResultsGridView.enabled = true;
 
         }
         
@@ -131,17 +142,33 @@
 				buttonStack.visible = true;
 				buttonStack.selectedChild = searchButtonView;
 				buttonStackTop.selectedChild = searchTopButtonView;
-			} else if (searchViews.selectedChild == searchResultsView) {
+			} else if (searchViews.selectedChild == searchResultsGridView) {
 				buttonStack.visible = true;
 				buttonStack.selectedChild = resultButtonView;
 				buttonStackTop.selectedChild = resultTopButtonView;
-				resultsViewStack.selectedIndex = 0;
+				if (searchList.length > 0) { 
+					resultsViewStack.selectedIndex = 0;				
+				} else if (this.searchAnalysisList.length > 0) {
+					resultsViewStack.selectedIndex = 1;
+				} else if (this.searchProtocolList.length > 0) {
+					resultsViewStack.selectedIndex = 2;
+				} else {
+					resultsViewStack.selectedIndex = 0;
+				} 
 				
 			} else if (searchViews.selectedChild == searchResultsTreeView) {
 				buttonStack.visible = true;
 				buttonStack.selectedChild = resultTreeButtonView;
 				buttonStackTop.selectedChild = resultTreeTopButtonView;
-				this.resultsProtocolViewStack.selectedIndex = 0;
+				if (searchList.length > 0) { 
+					this.resultsTreeViewStack.selectedIndex = 0;				
+				} else if (this.searchAnalysisList.length > 0) {
+					this.resultsTreeViewStack.selectedIndex = 1;				
+				} else if (this.searchProtocolList.length > 0) {
+					this.resultsTreeViewStack.selectedIndex = 2;				
+				} else {
+					this.resultsTreeViewStack.selectedIndex = 0;				
+				} 
 			}
 	}
 
@@ -192,13 +219,13 @@
 		<search:SearchView id="searchView" label="New search" width="100%" height="100%" >
 		</search:SearchView>
 		
-		<mx:VBox id="searchResultsView"  label="Results"   enabled = "false" width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4">
+		<mx:VBox id="searchResultsGridView"  label="Results"   enabled = "false" width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4">
 		   <mx:HBox>
 		      <mx:LinkBar dataProvider="{resultsViewStack}" styleName="formLinkBar"/>
 		   </mx:HBox>
 
 			<mx:ViewStack id="resultsViewStack" width="100%" height="100%" >
-			  <mx:VBox label="Experiments" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			  <mx:VBox  id="resultsExperimentView" label="{experimentHitLabel}" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 	             <mx:VBox id="listView" width="100%" height="100%">
 	  		       <mx:DataGrid  dataProvider="{searchList}"  width="100%" height="100%" doubleClick="onExperimentRowSelected()" id="resultsGrid" doubleClickEnabled="true">
 			       <mx:columns>
@@ -215,7 +242,7 @@
 			     </mx:VBox>
 			  </mx:VBox>
 			  
-			  <mx:VBox label="Analysis" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			  <mx:VBox id="resultsAnalysisView" label="{analysisHitLabel}" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 	             <mx:VBox id="listAnalysisView" width="100%" height="100%">
 	  		       <mx:DataGrid  dataProvider="{searchAnalysisList}"  width="100%" height="100%"  id="resultAnalysisGrid" doubleClickEnabled="true"  doubleClick="onAnalysisRowSelected()">
 			       <mx:columns>
@@ -235,7 +262,7 @@
 			     </mx:VBox>
 			  </mx:VBox>
 			  
-			  <mx:VBox label="Protocols" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			  <mx:VBox id="resultsProtocolView" label="{protocolHitLabel}" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 	             <mx:VBox id="listProtocolView" width="100%" height="100%">
 	  		       <mx:DataGrid  dataProvider="{searchProtocolList}"  width="100%" height="100%"  id="resultsProtocolGrid" doubleClickEnabled="true">
 			       <mx:columns>
@@ -256,14 +283,14 @@
 			enabled="false" styleName="form"
 			width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4"  >
 		   <mx:HBox width="100%" paddingBottom="0" verticalAlign="bottom">
-		      <mx:LinkBar dataProvider="{resultsProtocolViewStack}" styleName="formLinkBar"/>
+		      <mx:LinkBar dataProvider="{resultsTreeViewStack}" styleName="formLinkBar"/>
 			   <mx:HBox  width="100%" horizontalAlign="right" verticalAlign="bottom" paddingBottom="0">
 				          <mx:LinkButton  label="Collapse" click="collapseAllNodes()"  useHandCursor="true" selected="true" id="collapse" toggle="false" paddingBottom="0"/>
 				          <mx:LinkButton  label="Expand"  useHandCursor="true" click="expandAllNodes()" id="expand" toggle="true" paddingBottom="0"/>		   
 			   </mx:HBox>
 		   </mx:HBox>
-			<mx:ViewStack id="resultsProtocolViewStack" width="100%" height="100%" >
-			  <mx:VBox label="Experiments"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			<mx:ViewStack id="resultsTreeViewStack" width="100%" height="100%" >
+			  <mx:VBox id="resultsExperimentTreeView"  label="{experimentHitLabel}"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 			     <mx:VBox id="treeView" width="100%" height="100%">
 			     	<mx:Tree id="resultsTree" width="100%" height="100%" 
 		    	 		dataProvider="{searchView.searchGNomEx.lastResult.ProjectRequestList}"
@@ -276,7 +303,7 @@
 		     	</mx:VBox>
 		      </mx:VBox>
 		     	
-			  <mx:VBox label="Analysis"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			  <mx:VBox id="resultsAnalysisTreeView" label="{analysisHitLabel}"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 			     <mx:VBox id="treeAnalysisView" width="100%" height="100%">
 			     	<mx:Tree id="resultsAnalysisTree" width="100%" height="100%" 
 		    	 		dataProvider="{searchView.searchGNomEx.lastResult.AnalysisGroupList}"
@@ -289,7 +316,7 @@
 		     	</mx:VBox>
 		     </mx:VBox>
 		     	
-			  <mx:VBox label="Protocols"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
+			  <mx:VBox id="resultsProtocolTreeView" label="{protocolHitLabel}"  width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 			     <mx:VBox id="treeProtocolView" width="100%" height="100%">
 			     	<mx:Tree id="resultsProtocolTree" width="100%" height="100%" 
 		    	 		dataProvider="{searchView.searchGNomEx.lastResult.ProtocolList}"
