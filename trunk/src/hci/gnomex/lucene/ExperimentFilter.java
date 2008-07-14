@@ -30,8 +30,8 @@ public class ExperimentFilter extends DetailObject {
   private String                matchAllTerms = "Y";
   private List                  experimentDesignCodes;
   private List                  experimentFactorCodes;
-  private String                searchOrganismOnSlideProduct;
-  private String                searchOrganismOnSample;
+  private String                searchOrganismOnSlideProduct = "N";
+  private String                searchOrganismOnSample = "N";
   private String                searchPublicProjects;
   private String                showCategory = "Y";
   
@@ -158,24 +158,33 @@ public class ExperimentFilter extends DetailObject {
     
     //
     //  Search by idOrganism (of slide product)
+    //    - search if organism is not scoped or search is scoped to slide product organism
     //
-    if (idOrganism != null && searchOrganismOnSlideProduct != null && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT + ":");
-      searchText.append(idOrganism);
+    if (idOrganism != null) {
+      if ((searchOrganismOnSlideProduct.equalsIgnoreCase("N") && searchOrganismOnSample.equalsIgnoreCase("N")) ||
+          searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) {
+       this.addLogicalOperator();
+       searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SLIDE_PRODUCT + ":");
+       searchText.append(idOrganism);
 
-      displayText.append(" organism of microarray slide = " + organism);
-    } 
+       displayText.append(" organism of microarray slide = " + organism);
+     } 
+      
+    }
 
     //
     //  Search by organism (of sample)
+    //    - search if organism is not scoped or search is scoped to sample organism
     //
-    if (idOrganism != null && searchOrganismOnSample != null && searchOrganismOnSample.equalsIgnoreCase("Y")){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
-      searchText.append(idOrganism);
-
-      displayText.append(" organism of sample = " + organism);
+    if (idOrganism != null) {
+      if ((searchOrganismOnSlideProduct.equalsIgnoreCase("N") && searchOrganismOnSample.equalsIgnoreCase("N")) ||
+          searchOrganismOnSample.equalsIgnoreCase("Y")) {
+        this.addLogicalOperator();
+        searchText.append(" " + ExperimentIndexHelper.ID_ORGANISM_SAMPLE + ":");
+        searchText.append(idOrganism);
+        
+        displayText.append(" organism of sample = " + organism);
+      }
     }
     
     

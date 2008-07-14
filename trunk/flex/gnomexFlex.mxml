@@ -384,7 +384,7 @@
             	navSearchView.searchView.initializeData();
             	navSearchView.searchView.clearForm();
             	theViews.selectedChild = navSearchView;
- 				navSearchView.searchViews.selectedChild = navSearchView.searchResultsView;
+ 				navSearchView.searchViews.selectedChild = navSearchView.searchResultsGridView;
             	var params:Object = new Object();
             	params.text = searchText.text;
             	
