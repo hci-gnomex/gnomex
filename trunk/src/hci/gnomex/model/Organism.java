@@ -5,13 +5,14 @@ import java.io.Serializable;
 
 
 
-public class Organism extends DictionaryEntry implements Serializable, OntologyEntry {
+public class Organism extends DictionaryEntry implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
   private Integer idOrganism;
   private String  organism;
   private String  abbreviation;
   private String  mageOntologyCode;
   private String  mageOntologyDefinition;
   private String  isActive;
+  private Integer idAppUser;
   
   public String getDisplay() {
     String display = this.getNonNullString(getOrganism());
@@ -81,5 +82,23 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   public void setAbbreviation(String abbreviation) {
     this.abbreviation = abbreviation;
   }
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
+  }
+
+
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getMageOntologyCode");
+    this.excludeMethodFromXML("getMageOntologyDefinition");
+  }
+
+
 
 }

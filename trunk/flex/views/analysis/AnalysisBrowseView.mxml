@@ -47,7 +47,9 @@
         
 	public function checkSecurity():void { 
 		if (parentApplication.isGuestMode()) {
-			theViews.removeChild(this.visibilityView);
+			if (theViews.contains(this.visibilityView)) {
+				theViews.removeChild(this.visibilityView);
+			}
 		}
 	}
 

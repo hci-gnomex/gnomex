@@ -3,9 +3,11 @@
 
 
 	<Dictionary displayName="Analysis Protocol" className="hci.gnomex.model.AnalysisProtocol"  editable="Y"  >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
   	  <Filter className="hci.gnomex.model.AnalysisType" filterField="idAnalysisType"/>
 	</Dictionary>
 	<Dictionary displayName="Analysis Type" className="hci.gnomex.model.AnalysisType"  editable="Y"  >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
 	<Dictionary displayName="Array Coordinate of Slide (not editable)" className="hci.gnomex.model.ArrayCoordinate"  editable="N"  >
   	  <Filter className="hci.gnomex.model.SlideDesign" filterField="idSlideDesign"/>
@@ -25,6 +27,7 @@
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
    <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
       <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
       <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
@@ -38,7 +41,9 @@
 	<Dictionary displayName="Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
 	<Dictionary displayName="Microarray Category" className="hci.gnomex.model.MicroarrayCategory" />
 	<Dictionary displayName="Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
-	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism" />
+	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+	</Dictionary>
 	<Dictionary displayName="Protocol Type (IRB or IACUC)" className="hci.gnomex.model.ProtocolType" />	
 	<Dictionary displayName="Quality Control Step" className="hci.gnomex.model.QualityControlStep" />	
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
@@ -90,4 +95,5 @@
 	<Dictionary displayName="Vendor" className="hci.gnomex.model.Vendor" />
 	<Dictionary displayName="Visibility" className="hci.gnomex.model.Visibility" />
 	<Dictionary displayName="Slide Design (not editable)" className="hci.gnomex.model.SlideDesign" editable="N" />
+	<Dictionary displayName="Owner" className="hci.gnomex.model.AppUserLite"  editable="N"  />
 	</Dictionaries>

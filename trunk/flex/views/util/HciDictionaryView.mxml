@@ -75,6 +75,8 @@
 			public var selectedDictIndex:int = -1;
 			public var refreshView:String = "no";
 			
+			private var fullDictionaryList:XMLListCollection;
+			
 			[Bindable]
 			public var dgDictListCol:XMLListCollection = null;
 			
@@ -100,6 +102,8 @@
 				callManageDictionaries.request.action = currentDictAction;
 				callManageDictionaries.request.className = "";
 				callManageDictionaries.send();
+				
+				parentApplication.manageDictionaries.cancel();
 				parentApplication.manageDictionaries.send();
 			}
 			
@@ -124,9 +128,10 @@
 						initCbDict();
 						if (selectedDict != null) {
 							dgDictListCol.refresh();
-            				getDataForSelectedDict();
-						}
+							getDataForSelectedDict();
+            			}
 						updateModeDisplay(null);
+
             		} else if (action == "metadata") {
             			dictMetaData = this.callManageDictionaries.lastResult.Dictionary;
             			getDataForSelectedDict();
@@ -141,6 +146,19 @@
             		}
             	}
             	cbDict.selectedIndex = selectedDictIndex;
+            	
+				if (action == "load" || action == "reload") {
+					var initEvent:Event = new Event(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED);
+			        dispatchEvent(initEvent);
+				}
+				if (action == "metadata") {
+					var selectEvent:Event = new Event(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED);
+			        dispatchEvent(selectEvent);
+				}
+				if (action == "add") {
+					var addedEvent:Event = new Event(DictionaryEvent.DICTIONARY_WINDOW_ENTRY_ADDED);
+			        dispatchEvent(addedEvent);
+				}
             }
 
 	       
@@ -176,20 +194,47 @@
 	        }
 	       
 	      	public function initCbDict():void {
-	        	var cbDictListCol:XMLListCollection = new XMLListCollection(fullDictXml.(@canWrite=="Y"));
+	        	fullDictionaryList = new XMLListCollection(fullDictXml.(@canWrite=="Y"));
 	        	var item:Object = null;
 	        	
 	        	// sort by displayName
 	        	var sortDisplay:Sort = new Sort();
 	       		sortDisplay.fields=[new SortField("@displayName")];
-	       		cbDictListCol.sort = sortDisplay;
-	       		cbDictListCol.refresh(); 
+	       		fullDictionaryList.sort = sortDisplay;
+	       		fullDictionaryList.refresh(); 
 	        	
-	        	cbDict.dataProvider = cbDictListCol;
+	        	cbDict.dataProvider = fullDictionaryList;
 	        	cbDict.labelField = "@displayName";
 				cbDict.prompt = "Select a dictionary...";
 				cbDict.selectedIndex = selectedDictIndex;
 	      	}
+	      	
+	      	public function selectDictionary(dictionaryClassName:String):void {
+	      		for each(var dict:Object in fullDictionaryList) {
+	      			if (dict.@className == dictionaryClassName) {
+	      				selectedDict = className;
+	      				this.cbDict.selectedItem = dict;
+						currentDictAction='metadata';
+						refreshView='no';
+						updateModeDisplay(currentDictAction);
+						initGetDataForSelectedDict();
+	      				break;
+	      			}
+	      		}
+	       }
+	       
+	       public function selectDictionaryEntry(item:Object):void {
+				
+		   		for each (var dictionaryEntry:Object in dgDictListCol) {
+		   			if (dictionaryEntry.@value == item.@value) {
+						dgDict.selectedItem = dictionaryEntry;
+		   				saveMode='update';
+		   				currentDictAction='edit';
+		   				updateModeDisplay(currentDictAction);
+		   				buildEditorWindowForDictionaryEntry();		
+		   			}
+		   		}	       	
+	       }
 	       
 	       private function initGetDataForSelectedDict():void {
 	       		clearEditor();
@@ -295,6 +340,12 @@
 					return;
 				}
 	        	
+	        	buildEditorWindowForDictionaryEntry();
+
+	        	
+	        }
+	        
+	        private function buildEditorWindowForDictionaryEntry():void {
 	        	// update the UI
 	        	clearEditor();
 	        	if (currentDictAction == "add") {
@@ -342,8 +393,7 @@
 	        	}
 	        	for each (var vbox1:VBox in children) {
 	        		dgEditor.addChild(vbox1);
-	        	}
-	        	
+	        	}	        	
 	        }
 	        
 	        public function buildComponent(item:Object,selection:XML):VBox {
@@ -491,16 +541,9 @@
 	       }
 	       
 	       private function onClose():void {
-	       		Alert.show("Are you sure you want to close the Dictionary Editor?","Close the Dictionary Editor?",Alert.YES|Alert.NO,null,onCloseProcessor,null,Alert.YES);
+		       	PopUpManager.removePopUp(this);
 	       }
 	       
-	       private function onCloseProcessor(event:CloseEvent):void {
-	       	    if (event.detail == Alert.YES) {
-	       			PopUpManager.removePopUp(this);
-	       		} else {
-	       			return;
-	       		}
-	       }
 	       
 		]]>
 	</mx:Script>
@@ -509,14 +552,16 @@
 				
 				<mx:HDividedBox id="mainBox" top="0" left="0" right="0" bottom="0" styleName="form">
 						<mx:Canvas height="100%" width="100%">
-						<mx:ComboBox id="cbDict" right="89" left="4" top="4" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
+							<mx:ComboBox id="cbDict" right="89" left="4" top="4" cornerRadius="2" change="currentDictAction='metadata';refreshView='no';updateModeDisplay(currentDictAction);initGetDataForSelectedDict();"></mx:ComboBox>
 							<mx:Button id="add" icon="@Embed('assets/add.png')" disabledIcon="@Embed('assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" top="4" right="58" enabled="false" click="saveMode='insert';currentDictAction='add';buildEditorWindow(event);" toolTip="Add"/>
 							<mx:Button id="del"  icon="@Embed('assets/delete.png')" disabledIcon="@Embed('assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="4" right="31" enabled="false" click="currentDictAction='delete';updateModeDisplay(currentDictAction);deleteDictionaryEntry(event);" toolTip="Delete"/>
 							<mx:Button id="reload"  icon="@Embed('assets/refresh.png')" disabledIcon="@Embed('assets/refresh_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" top="4" right="4" enabled="true" click="currentDictAction='reload';updateModeDisplay(currentDictAction);reloadDictionaries();" toolTip="Reload"/>
-							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" doubleClick="saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" click="del.enabled=enableDelete();clearEditor();updateModeDisplay(null);" bottom="4" top="30" left="4" right="4"> 
+							<mx:DataGrid id="dgDict" cornerRadius="2" doubleClickEnabled="true" 
+								click="del.enabled=enableDelete();clearEditor();saveMode='update';currentDictAction='edit';updateModeDisplay(currentDictAction);buildEditorWindow(event);" 
+								bottom="4" top="30" left="4" right="4"> 
 							</mx:DataGrid>
 						</mx:Canvas>
-						<mx:Canvas width="40%" height="100%" borderStyle="none" backgroundColor="#000000" backgroundAlpha="0.05">
+						<mx:Canvas width="350" height="100%" borderStyle="none" backgroundColor="#000000" backgroundAlpha="0.05">
 							<mx:Tile id="dgEditor" 
 								borderStyle="none" 
 								direction="horizontal" 
@@ -528,9 +573,9 @@
 						        horizontalGap="10"
 						        cornerRadius="2" styleName="form" backgroundAlpha="0.0" left="0" top="0" bottom="33" width="100%">
 							</mx:Tile>
-						<mx:Text id="mode" color="#808080"  height="18" textAlign="right" right="60" bottom="7" left="5"/>
-							<mx:Button id="save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())" right="33" bottom="5" icon="@Embed(source='../../assets/save.png')" width="25" disabledIcon="@Embed(source='../../assets/save_disable.png')" toolTip="Save"/>
-							<mx:Button id="close" icon="@Embed(source='../../assets/cross.png')" width="25" right="5" bottom="5" toolTip="Close" click="onClose()"/>
+						<mx:Text id="mode" color="#808080"  height="18" textAlign="right" right="150" bottom="7" left="5"/>
+							<mx:Button label="Save" id="save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())" right="73" bottom="5" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')" toolTip="Save"/>
+							<mx:Button label="Close" id="close" right="5" bottom="5" toolTip="Close" click="onClose()"/>
 						</mx:Canvas>
 				</mx:HDividedBox>
 		<!--/mx:Panel-->

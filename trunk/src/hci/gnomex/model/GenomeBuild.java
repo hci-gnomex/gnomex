@@ -5,12 +5,13 @@ import java.io.Serializable;
 
 
 
-public class GenomeBuild extends DictionaryEntry implements Serializable {
+public class GenomeBuild extends DictionaryEntry implements Serializable, DictionaryEntryUserOwned {
   private Integer  idGenomeBuild;
   private String   genomeBuildName;
   private Integer  idOrganism;
   private String   isActive;
   private String   isLatestBuild;
+  private Integer  idAppUser;
   
   public String getDisplay() {
     String display = this.getNonNullString(getGenomeBuildName());
@@ -71,6 +72,16 @@ public class GenomeBuild extends DictionaryEntry implements Serializable {
   
   public void setIsLatestBuild(String isLatestBuild) {
     this.isLatestBuild = isLatestBuild;
+  }
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
   }
 
 }

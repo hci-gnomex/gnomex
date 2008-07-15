@@ -13,6 +13,7 @@ public class AnalysisIndexHelper extends IndexHelper {
   public static final String       ID_ANALYSISGROUP = "idAnalysisGroup";
   public static final String       ID_ANALYSIS = "idAnalysis";
   public static final String       ID_LAB_ANALYSISGROUP = "idLabAnalysisGroup";
+  public static final String       LAB_NAME_ANALYSISGROUP = "labNameAnalysisGroup";
   public static final String       ANALYSIS_NUMBER = "analysisNumber";
   public static final String       OWNER_FIRST_NAME = "ownerFirstName";
   public static final String       OWNER_LAST_NAME = "ownerLastName";

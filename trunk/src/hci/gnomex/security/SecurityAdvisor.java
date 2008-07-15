@@ -6,6 +6,8 @@ import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.AppUserLite;
+import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
@@ -413,6 +415,22 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     else if (object instanceof DictionaryEntry) {
       if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
         canUpdate = true;
+      } else if (object instanceof DictionaryEntryUserOwned) {
+        DictionaryEntryUserOwned de = (DictionaryEntryUserOwned)object;
+        if (de.getIdAppUser() != null && !this.isGuest() &&
+            de.getIdAppUser().equals(this.getIdAppUser())) {
+          canUpdate = true;
+        }
+      } else if (object instanceof AppUserLite) {
+        AppUserLite u = (AppUserLite)object;
+        if (u.getIdAppUser() != null && !this.isGuest() &&
+            u.getIdAppUser().equals(this.getIdAppUser())) {
+          canUpdate = true;
+        } else if ((u.getLastName() == null || u.getLastName().trim().equals("")) && 
+                   (u.getFirstName() == null || u.getFirstName().trim().equals(""))) {
+          // This is the "blank" user entry
+          canUpdate = true;
+        }
       }
     }
     return canUpdate;
@@ -423,7 +441,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (DictionaryEntry.class.isAssignableFrom(theClass)) {
       if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
         canUpdate = true;
-      }
+      } else if (!this.isGuest() && DictionaryEntryUserOwned.class.isAssignableFrom(theClass)) {
+        canUpdate = true;
+      } else if (!this.isGuest() && AppUserLite.class.isAssignableFrom(theClass)) {
+        canUpdate = true;
+      }      
     } else {
       throw new UnknownPermissionException("Unimplemented method");
     }

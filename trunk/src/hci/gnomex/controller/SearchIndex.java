@@ -550,8 +550,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
  private void mapAnalysisDocument(org.apache.lucene.document.Document doc, int rank, float score) {
     
     Integer idAnalysisGroup = new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSISGROUP));
-    Integer idLab     = new Integer(doc.get(AnalysisIndexHelper.ID_LAB));
-    Integer idAnalysis          = doc.get(AnalysisIndexHelper.ID_ANALYSIS).equals("unknown") ? null : new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSIS));
+    Integer idLab     = new Integer(doc.get(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP));
+    Integer idAnalysis          = doc.get(AnalysisIndexHelper.ID_ANALYSIS) == null ? null : new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSIS));
     
     Element labNode = (Element)labAnalysisMap.get(idLab);
     if (labNode == null) {
@@ -569,7 +569,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       node.setAttribute("name", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
       node.setAttribute("label", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
       node.setAttribute("description", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION) : "");
-      node.setAttribute("codeVisibility", doc.get(AnalysisIndexHelper.CODE_VISIBILITY));
+      node.setAttribute("codeVisibility", doc.get(AnalysisIndexHelper.CODE_VISIBILITY) != null ? doc.get(AnalysisIndexHelper.CODE_VISIBILITY) : "");
       if (idAnalysis == null || idAnalysis.intValue() == 0) {
         if (rank >= 0) {
           node.setAttribute("searchRank", new Integer(rank + 1).toString());
@@ -602,7 +602,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     }
     
     
-    String labName     = doc.get(AnalysisIndexHelper.LAB_NAME);
+    String labName     = doc.get(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP);
     String analysisGroupName = doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME);
     String analysisCreateDate = doc.get(AnalysisIndexHelper.CREATE_DATE);
     String labKey = labName + "---" + idLab;
@@ -817,7 +817,6 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       
       Element labNode = (Element)labAnalysisMap.get(idLab);
       Map analysisGroupIdMap = (Map)labToAnalysisGroupMap.get(key);
-      
       
       parent.addContent(labNode);
       

@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 
+import hci.gnomex.model.DictionaryEntryUserOwned;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.utility.DictionaryCommand;
 import hci.dictionary.utility.DictionaryManager;
@@ -66,7 +68,18 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     
     	//Get the dictionary manager and load it if it isn't already loaded
     	manager = DictionaryManager.getDictionaryManager(DICTIONARY_NAMES_XML, sess, this);
-      manager.loadCommand(this, request);    
+      manager.loadCommand(this, request);
+      
+      // Force personal ownership of dictionary entry if user not admin
+      if (this.dictionaryEntry != null &&
+          this.dictionaryEntry instanceof DictionaryEntryUserOwned &&
+          !this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+
+        SecurityAdvisor secAd = (SecurityAdvisor)this.getSecurityAdvisor();
+        ((DictionaryEntryUserOwned)this.dictionaryEntry).setIdAppUser(secAd.getIdAppUser());
+      }
+      
+      
   	} catch (Exception e) {  
   		e.printStackTrace();
     } finally {
@@ -131,9 +144,10 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
 
   public HttpServletResponse setResponseState(HttpServletResponse response) {
     log.debug("Executing setResponseState method in " + this.getClass().getName());
-
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     return response;
   }
+
 
   public HttpSession setSessionState(HttpSession session) {
     log.debug("Executing setSessionState method in " + this.getClass().getName());
