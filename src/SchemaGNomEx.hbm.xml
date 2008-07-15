@@ -483,6 +483,7 @@
 		</id>
 		<property name="analysisType" column="analysisType" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 
 
@@ -493,6 +494,17 @@
 		</id>
 		<property name="analysisProtocol" column="analysisProtocol" type="string"/>
 		<property name="idAnalysisType" column="idAnalysisType" type="integer"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
+	</class>
+
+  <!-- hci.gnomex.model.AppUserLite -->
+	<class name="hci.gnomex.model.AppUserLite" table="AppUser">
+		<id name="idAppUser" column="idAppUser" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="firstName" column="firstName" type="string"/>
+		<property name="lastName" column="lastName" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
@@ -604,6 +616,7 @@
 		<property name="idOrganism" column="idOrganism" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="isLatestBuild" column="isLatestBuild" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 
 	<!-- hci.gnomex.model.HybProtocol -->
@@ -676,6 +689,7 @@
 		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.ProtocolType -->

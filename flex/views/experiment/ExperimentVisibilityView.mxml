@@ -21,6 +21,10 @@
  	import mx.collections.XMLListCollection; 
  	import mx.rpc.events.ResultEvent;
  	import views.renderers.ComboBoxVisibility;
+ 	import mx.events.CloseEvent;
+ 	import mx.controls.Alert;
+ 	
+ 	private var broadestCodeVisibility:String = "MEM";
  	
  	public function checkSecurity():void {
  		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project" &&
@@ -48,7 +52,44 @@
     	}
 	}
 	
-	public function save():void {
+	public function  save():void {
+    	// Warn if visibility of experiment is broader than project
+    	broadestCodeVisibility = "MEM";
+    	for each (var r:Object in parentDocument.parentDocument.browseTree.selectedItem..Request) {
+    		if (r.@codeVisibility > broadestCodeVisibility) {
+    			broadestCodeVisibility = r.@codeVisibility;
+    		}
+    	}
+    	
+    	var broadestVisibility:String = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility).@visibility;
+    	
+    	if (projectVisibilityCombo.selectedItem.@codeVisibility < broadestCodeVisibility) {
+    		
+			mx.controls.Alert.show("It is recommeded that project '" +
+			    		parentDocument.parentDocument.browseTree.selectedItem.@label + 
+			    		"' have a visibility of '" + broadestVisibility +
+			    		" '; otherwise, experiments with broader visibility will not apply. (Experiments with more restrictive visibility will remain restricted.)\n\n" +
+			    		"Apply '" + broadestVisibility + "' visibility to project '" + parentDocument.parentDocument.browseTree.selectedItem.@label + "'?" ,
+			    		"Warning",
+						(Alert.YES | Alert.NO | Alert.CANCEL), 
+						this, 
+						onPromptToChangeProjectVisibility,						
+						parentApplication.iconWarning);
+    	} else {
+    		saveImpl();
+    	}
+	}
+
+	private function onPromptToChangeProjectVisibility(event:CloseEvent):void {
+        if (event.detail == Alert.YES) {
+        	projectVisibilityCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility);
+        	saveImpl();
+        } else if (event.detail == Alert.NO) {
+        	saveImpl();
+        } 
+    }		
+	
+	public function saveImpl():void {
 	    var dirtyRequests:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Request.(@isDirty == 'Y');        	
     	var dirtyRequestList:XMLListCollection = new XMLListCollection(dirtyRequests);
     	

@@ -5,10 +5,11 @@ import java.io.Serializable;
 
 
 
-public class AnalysisType extends DictionaryEntry implements Serializable {
+public class AnalysisType extends DictionaryEntry implements Serializable, DictionaryEntryUserOwned {
   private Integer  idAnalysisType;
   private String   analysisType;
   private String   isActive;
+  private Integer  idAppUser;
   
   public String getDisplay() {
     String display = this.getNonNullString(getAnalysisType());
@@ -48,6 +49,16 @@ public class AnalysisType extends DictionaryEntry implements Serializable {
   
   public void setAnalysisType(String analysisType) {
     this.analysisType = analysisType;
+  }
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
   }
 
 

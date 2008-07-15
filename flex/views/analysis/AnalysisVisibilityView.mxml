@@ -18,9 +18,13 @@
 
  <mx:Script>
  <![CDATA[
+ 	import mx.controls.Alert;
  	import mx.collections.XMLListCollection; 
  	import mx.rpc.events.ResultEvent;
  	import views.renderers.ComboBoxVisibility;
+ 	import mx.events.CloseEvent;
+ 	
+ 	private var broadestCodeVisibility:String = "MEM";
  	
  	public function checkSecurity():void {
  		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "AnalysisGroup" &&
@@ -52,9 +56,49 @@
 	}
 	
 	public function save():void {
-	    var dirtyAnalysisItems:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Analysis.(@isDirty == 'Y');        	
+    	// Warn if visibility of analysis is broader than analysis group
+    	broadestCodeVisibility = "MEM";
+    	for each (var a:Object in parentDocument.parentDocument.browseTree.selectedItem..Analysis) {
+    		if (a.@codeVisibility > broadestCodeVisibility) {
+    			broadestCodeVisibility = a.@codeVisibility;
+    		}
+    	}
+    	
+    	var broadestVisibility:String = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility).@visibility;
+    	
+    	if (analysisGroupVisibilityCombo.selectedItem.@codeVisibility < broadestCodeVisibility) {
+    		
+			mx.controls.Alert.show("It is recommeded that analysis group '" +
+			    		parentDocument.parentDocument.browseTree.selectedItem.@name + 
+			    		"' have a visibility of '" + broadestVisibility +
+			    		" '; otherwise, analyses with broader visibility will not apply. (Analyses with more restrictive visibility will remain restricted.)\n\n" +
+			    		"Apply '" + broadestVisibility + "' visibility to analysis group '" +  parentDocument.parentDocument.browseTree.selectedItem.@name + "'?" ,
+			    		"Warning",
+						(Alert.YES | Alert.NO | Alert.CANCEL), 
+						this, 
+						onPromptToChangeAnalysisGroupVisibility,						
+						parentApplication.iconWarning);
+    	} else {
+    		saveImpl();
+    	}
+	}
+
+	private function onPromptToChangeAnalysisGroupVisibility(event:CloseEvent):void {
+        if (event.detail == Alert.YES) {
+        	analysisGroupVisibilityCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility);
+        	saveImpl();
+        } else if (event.detail == Alert.NO) {
+        	saveImpl();
+        } 
+    }	
+    
+
+	
+	public function saveImpl():void {
+		var dirtyAnalysisItems:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Analysis.(@isDirty == 'Y');        	
     	var dirtyAnalysisList:XMLListCollection = new XMLListCollection(dirtyAnalysisItems);
     	
+
     	var params:Object = new Object();
     	params.idAnalysisGroup = parentDocument.parentDocument.browseTree.selectedItem.@idAnalysisGroup;
     	params.codeVisibility = analysisGroupVisibilityCombo.selectedItem.@codeVisibility;

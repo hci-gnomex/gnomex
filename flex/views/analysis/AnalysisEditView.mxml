@@ -79,6 +79,8 @@
         import mx.controls.listClasses.ListBase;
         import views.util.MultiFileUpload;
         import views.experiment.ExperimentDetailView;
+        import views.util.HciDictionaryView;
+        import views.util.DictionaryEvent;
         	
 	    [Bindable]
 		private var analysis:Object;
@@ -90,6 +92,8 @@
         private var UPLOAD_SERVLET_URL:String = "UploadAnalysisFileServlet.gx";
         
         private var experimentDetailWindow:ExperimentDetailView;  
+        
+        private var dictView:HciDictionaryView;
 		
 		public function setupEditForm(analysis:Object):void {
 			initializeDataProviders();
@@ -116,9 +120,10 @@
 			filteredGenomeBuildList.source = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry;
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			
+			
 			analysisTypeCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry;								
 			analysisProtocolCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry;								
-			organismCombo.dataProvider         = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;								
+			organismCombo.dataProvider         = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;							
 			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;								
 
 		}
@@ -336,7 +341,8 @@
 		        
         private function validateAndSubmitAnalysis():void {        	
         }   	
-		public function getExperimentTreeIcon(item:Object):Class { 
+        
+        public function getExperimentTreeIcon(item:Object):Class { 
 				if (item.name() == "Lab") {
 					return parentApplication.iconGroup;
 				} else if (item.name() == "Project") {
@@ -497,6 +503,117 @@
 			this.experimentDetailWindow.editButton.visible = false;
 			this.experimentDetailWindow.downloadExperimentButton.visible = false;
 		}
+		
+        //
+        // Edit organism dictionary
+        //
+		private function editOrganism():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(this, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryOrganismInitialized);
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			                          onDictionaryOrganismSelected);			
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryOrganismRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+          
+       	private function onDictionaryOrganismInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.Organism");
+        }	
+       	private function onDictionaryOrganismRefreshed(event:Event):void{
+			organismCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;								
+			organismCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == analysis.@idOrganism);				
+        }	
+       	private function onDictionaryOrganismSelected(event:Event):void{
+       		if (this.organismCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
+       			dictView.selectDictionaryEntry(organismCombo.selectedItem);
+       		}
+        }	
+		
+        //
+        // Edit genome build dictionary
+        //
+		private function editGenomeBuild():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(this, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryGenomeBuildInitialized);
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			                          onDictionaryGenomeBuildSelected);			
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryGenomeBuildRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+          
+       	public function onDictionaryGenomeBuildInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.GenomeBuild");
+        }	
+       	public function onDictionaryGenomeBuildRefreshed(event:Event):void{
+			filteredGenomeBuildList.source = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry;
+			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
+			
+			
+			this.genomeBuildCombo.dataProvider     = filteredGenomeBuildList;								
+			this.genomeBuildCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == analysis.@idGenomeBuild);				
+        }	
+       	private function onDictionaryGenomeBuildSelected(event:Event):void{
+       		if (this.genomeBuildCombo.selectedItem != null && this.genomeBuildCombo.selectedItem.@value != "") {
+       			dictView.selectDictionaryEntry(genomeBuildCombo.selectedItem);
+       		}
+        }	
+        
+        
+        //
+        // Edit analysis type dictionary
+        //
+		private function editAnalysisType():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(this, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryAnalysisTypeInitialized);
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			                          onDictionaryAnalysisTypeSelected);			
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryAnalysisTypeRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+       	private function onDictionaryAnalysisTypeInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.AnalysisType");
+        }          
+       	private function onDictionaryAnalysisTypeRefreshed(event:Event):void{
+			analysisTypeCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry;								
+			analysisTypeCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == analysis.@idAnalysisType);				
+        }	
+       	private function onDictionaryAnalysisTypeSelected(event:Event):void{
+       		if (this.analysisTypeCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
+       			dictView.selectDictionaryEntry(analysisTypeCombo.selectedItem);
+       		}
+        }
+
+        //
+        // Edit analysis protocol dictionary
+        //
+		private function editAnalysisProtocol():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(this, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryAnalysisProtocolInitialized);
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			                          onDictionaryAnalysisProtocolSelected);			
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryAnalysisProtocolRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+       	private function onDictionaryAnalysisProtocolInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.AnalysisProtocol");
+        }          
+       	private function onDictionaryAnalysisProtocolRefreshed(event:Event):void{
+			analysisProtocolCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry;								
+			analysisProtocolCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == analysis.@idAnalysisProtocol);				
+        }	
+       	private function onDictionaryAnalysisProtocolSelected(event:Event):void{
+       		if (this.analysisProtocolCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
+       			dictView.selectDictionaryEntry(analysisProtocolCombo.selectedItem);
+       		}
+        }
 
 	]]>
 </mx:Script>
@@ -532,24 +649,36 @@
 					<mx:HBox verticalGap="0">
 						<mx:Label text="Organism" width="90">
 						</mx:Label>
-						<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+						<mx:VBox verticalGap="0" horizontalAlign="right">
+							<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+							<mx:LinkButton label="Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()"/>
+						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox width="100%" verticalGap="0">
 						<mx:Label text="Genome Build" width="100">
 						</mx:Label>
-						<mx:ComboBox  width="100%" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+						<mx:VBox verticalGap="0" horizontalAlign="right" width="100%">
+							<mx:ComboBox  width="100%" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+							<mx:LinkButton label="Edit..." textDecoration="underline" color="#0F19DF" click="editGenomeBuild()"/>
+						</mx:VBox>
 					</mx:HBox>
 				</mx:HBox>
 				<mx:HBox width="100%" horizontalGap="10">
 					<mx:HBox verticalGap="0">
 						<mx:Label text="Analysis Type" width="90">
 						</mx:Label>
-						<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+						<mx:VBox verticalGap="0" horizontalAlign="right">
+							<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+							<mx:LinkButton label="Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()"/>							
+						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox width="100%">
 						<mx:Label text="Analysis Protocol" width="100">
 						</mx:Label>
-						<mx:ComboBox  width="100%" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+						<mx:VBox verticalGap="0"  horizontalAlign="right" width="100%">
+							<mx:ComboBox  width="100%" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+							<mx:LinkButton label="Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()"/>														
+						</mx:VBox>
 					</mx:HBox>
 				</mx:HBox>
 			</mx:VBox>

@@ -346,6 +346,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       ag.description, ");
     buf.append("       ag.codeVisibility, ");
     buf.append("       ag.idLab, ");
+    buf.append("       agLab.name, ");
     buf.append("       owner.firstName, ");
     buf.append("       owner.lastName, ");
     buf.append("       lab.name,  ");
@@ -360,6 +361,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       a.codeVisibility ");
     
     buf.append("FROM        AnalysisGroup as ag ");
+    buf.append("LEFT JOIN   ag.lab as agLab ");
     buf.append("LEFT JOIN   ag.analysisItems as a ");
     buf.append("LEFT JOIN   a.lab as lab ");
     buf.append("LEFT JOIN   a.appUser as owner ");
@@ -903,18 +905,19 @@ public class BuildSearchIndex extends DetailObject {
     String agDesc                 = (String)row[3];
     String agCodeVisibility       = (String)row[4];
     Integer agIdLab               = (Integer)row[5];
-    String ownerFirstName         = (String)row[6];
-    String ownerLastName          = (String)row[7];
-    String labName                = (String)row[8];
-    String number                 = (String)row[9];
-    String name                   = (String)row[10];
-    String desc                   = (String)row[11];
-    Integer idAnalysisType        = (Integer)row[12];
-    Integer idAnalysisProtocol    = (Integer)row[13];
-    Integer idOrganism            = (Integer)row[14];
-    Integer idLab                 = (Integer)row[15];
-    java.sql.Date createDate      = (java.sql.Date)row[16];
-    String codeVisibility         = (String)row[17];
+    String agLabName              = (String)row[6];
+    String ownerFirstName         = (String)row[7];
+    String ownerLastName          = (String)row[8];
+    String labName                = (String)row[9];
+    String number                 = (String)row[10];
+    String name                   = (String)row[11];
+    String desc                   = (String)row[12];
+    Integer idAnalysisType        = (Integer)row[13];
+    Integer idAnalysisProtocol    = (Integer)row[14];
+    Integer idOrganism            = (Integer)row[15];
+    Integer idLab                 = (Integer)row[16];
+    java.sql.Date createDate      = (java.sql.Date)row[17];
+    String codeVisibility         = (String)row[18];
     String publicNote             = ""; 
 
     if (codeVisibility != null && codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
@@ -924,6 +927,8 @@ public class BuildSearchIndex extends DetailObject {
     
     Map nonIndexedFieldMap = new HashMap();
     nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSISGROUP, idAnalysisGroup.toString());
+    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, agIdLab.toString());
+    nonIndexedFieldMap.put(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP, agLabName);
     nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS, idAnalysis != null ? idAnalysis.toString() : "");
     nonIndexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NUMBER, number);
     nonIndexedFieldMap.put(AnalysisIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
@@ -944,10 +949,10 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_TYPE, idAnalysisType != null ? dh.getAnalysisType(idAnalysisType) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, idAnalysisProtocol);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? dh.getAnalysisProtocol(idAnalysisProtocol) : "");
-    indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab);
-    indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName);
+    indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_CODE_VISIBILITY, agCodeVisibility);
-    indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility);
+    indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
 
     
     

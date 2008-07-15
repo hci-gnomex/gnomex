@@ -172,6 +172,7 @@
             import mx.events.CloseEvent;
             import mx.rpc.events.FaultEvent;
             import mx.controls.dataGridClasses.DataGridColumn;
+            import views.util.DictionaryEvent;
             
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -666,6 +667,10 @@
 	        	filteredMicroarrayCategoryListForSubmitRequests = new XMLListCollection(manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry);
 	        	
 	        	enableApp();
+	        	
+	        	var completeEvent:Event = new Event(DictionaryEvent.DICTIONARY_LOADED);
+			    dispatchEvent(completeEvent);
+
             }
             
 

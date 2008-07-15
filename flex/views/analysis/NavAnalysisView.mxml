@@ -770,6 +770,8 @@
 	<mx:states>
 		<mx:State name="GuestState">
 			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
+			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">

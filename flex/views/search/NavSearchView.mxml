@@ -285,8 +285,8 @@
 		   <mx:HBox width="100%" paddingBottom="0" verticalAlign="bottom">
 		      <mx:LinkBar dataProvider="{resultsTreeViewStack}" styleName="formLinkBar"/>
 			   <mx:HBox  width="100%" horizontalAlign="right" verticalAlign="bottom" paddingBottom="0">
-				          <mx:LinkButton  label="Collapse" click="collapseAllNodes()"  useHandCursor="true" selected="true" id="collapse" toggle="false" paddingBottom="0"/>
-				          <mx:LinkButton  label="Expand"  useHandCursor="true" click="expandAllNodes()" id="expand" toggle="true" paddingBottom="0"/>		   
+				          <mx:LinkButton  label="Expand tree"  useHandCursor="true" click="expandAllNodes()" id="expand" toggle="true" paddingBottom="0" textDecoration="underline"/>		   
+				          <mx:LinkButton  label="Collapse tree" click="collapseAllNodes()"  useHandCursor="true" selected="true" id="collapse" toggle="false" paddingBottom="0" textDecoration="underline"/>
 			   </mx:HBox>
 		   </mx:HBox>
 			<mx:ViewStack id="resultsTreeViewStack" width="100%" height="100%" >

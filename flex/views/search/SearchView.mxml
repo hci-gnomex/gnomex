@@ -175,7 +175,9 @@
         	parentDocument.searchViews.selectedChild = parentDocument.searchResultsGridView;
         	parentDocument.onViewSwitch();
         	parentDocument.setResultsCount();
-        	callLater(parentDocument.expandAllNodes);
+        	
+        	// Expansion takes forever... comment out for now.
+        	//callLater(parentDocument.expandAllNodes);
         }
         
 
