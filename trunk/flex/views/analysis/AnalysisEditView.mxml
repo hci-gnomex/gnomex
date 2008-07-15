@@ -497,11 +497,8 @@
 			experimentDetailWindow.width  = 800;
 			experimentDetailWindow.height = 500;			
 			experimentDetailWindow.setupForm(selectedExperiment); 
-		 	PopUpManager.centerPopUp(this.experimentDetailWindow);		
-			this.experimentDetailWindow.analysisButton.visible = false;
-			this.experimentDetailWindow.deleteButton.visible = false;
-			this.experimentDetailWindow.editButton.visible = false;
-			this.experimentDetailWindow.downloadExperimentButton.visible = false;
+		 	PopUpManager.centerPopUp(this.experimentDetailWindow);	
+		 	this.experimentDetailWindow.buttonBar.visible = false;	
 		}
 		
         //
