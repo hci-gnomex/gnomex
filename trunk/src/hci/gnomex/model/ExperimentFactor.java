@@ -73,4 +73,10 @@ public class ExperimentFactor extends DictionaryEntry implements Serializable, O
     this.codeExperimentFactor = codeExperimentFactor;
   }
 
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getMageOntologyCode");
+    this.excludeMethodFromXML("getMageOntologyDefinition");
+  }
+  
+
 }

@@ -73,5 +73,13 @@ public class ExperimentDesign extends DictionaryEntry implements Serializable, O
   public void setCodeExperimentDesign(String codeExperimentDesign) {
     this.codeExperimentDesign = codeExperimentDesign;
   }
+  
+
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getMageOntologyCode");
+    this.excludeMethodFromXML("getMageOntologyDefinition");
+  }
+  
+
 
 }
