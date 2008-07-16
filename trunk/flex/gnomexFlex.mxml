@@ -939,7 +939,7 @@
 			            </mx:HBox>
 			            
 			            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}">
-			              <mx:Label text="Lookup by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false"/>
+			              <mx:Label text="Lookup Experiment by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false"/>
 			              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha="0.42" width="56"  fontFamily="Arial" visible="false"/>
 			              <mx:Button id="lookupButton"  
 			              	fontFamily="Arial"  height="18"

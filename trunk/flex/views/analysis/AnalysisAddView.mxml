@@ -100,7 +100,7 @@
 	     private function onGetAnalysis(event:ResultEvent):void {
           parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
           parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
-          if (savedIdAnalysisGroup != "" || savedIdAnalysisGroup != null) {
+          if (savedIdAnalysisGroup != "-1" ) {
           	parentApplication.navAnalysisView.selectedIdAnalysisGroup = savedIdAnalysisGroup;          	
           } else {
 	        parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
