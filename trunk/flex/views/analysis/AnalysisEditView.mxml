@@ -173,7 +173,6 @@
 			var node:XML;
 			if (item.@type == "SequenceLane") {
 				node = new XML("<SequenceLane " +
-			    	" label ='" + item.@label + "'" +
 			    	" number ='" + item.@itemNumber + "'" +
 			    	" createDate ='" + item.@createDate + "'" + 
 			    	" idRequest ='" + item.@idRequest + "'" +
@@ -183,36 +182,41 @@
 			    	" idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
 			    	" idFlowCellType ='" + item.@idFlowCellType + "'" +
 			    	" sampleNumber ='" + item.@sampleNumber1 + "'" +
-			    	" sampleName ='" + item.@sampleName1 + "'" +
 			    	" flowCellNumber ='" + item.@flowCellNumber + "'" +
 			    	" flowCellLaneNumber ='" + item.@flowCellLaneNumber  + "'" +
 			    	" idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
-			    	" analysisInstructions ='" + item.@analysisInstructions + "'" +
-					"/>");
+			    	"/>");
+			    // Sample names and other text may have special characters.  Assign this
+				// way to avoid malformed XML error.
+				node.@label = item.@label;
+				node.@sampleName = item.@sampleName1;
+				node.@analysisInstructions = item.@analysisInstructions;
 				var found:Boolean = false;
 				for each(var lane:Object in lanes) {
 					if (lane.@number == item.@itemNumber) {
 						found = true;
 						break;
 					}
-				}
+				} 
 				if (!found) {
 					lanes.addItem(node);
 				}
 				this.experimentItemStack.selectedChild = lanesView;	
 			} else {
 				node = new XML("<Hybridization " +
-			    	" label ='" + item.@label + "'" +
 			    	" number ='" + item.@itemNumber + "'" +
 			    	" idRequest ='" + item.@idRequest + "'" +
 			    	" idHybridization ='" + item.@idHybridization + "'" +
 			    	" sampleNumber1 ='" + item.@sampleNumber1 + "'" +
-			    	" sampleName1 ='" + item.@sampleName1 + "'" +
 			    	" sampleNumber2 ='" + item.@sampleNumber2 + "'" +
-			    	" sampleName2 ='" + item.@sampleName2 + "'" +
 			    	" slideDesign ='" + item.@slideDesign + "'" +
 			    	" idSlideDesign ='" + item.@idSlideDesign + "'" +
-					"/>");	
+					"/>");
+				// Sample names may have special characters.  Assign this
+				// way to avoid malformed XML error.
+				node.@label = item.@label;
+				node.@sampleName1 = item.@sampleName1;
+				node.@sampleName2 = item.@sampleName2;	
 				for each(var hyb:Object in hybs) {
 					if (hyb.@number == item.@itemNumber) {
 						found = true;
@@ -599,7 +603,7 @@
 			analysisTypeCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == analysis.@idAnalysisType);				
         }	
        	private function onDictionaryAnalysisTypeSelected(event:Event):void{
-       		if (this.analysisTypeCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
+       		if (this.analysisTypeCombo.selectedItem != null && this.analysisTypeCombo.selectedItem.@value != "") {
        			dictView.selectDictionaryEntry(analysisTypeCombo.selectedItem);
        		}
         }
@@ -625,7 +629,7 @@
 			analysisProtocolCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == analysis.@idAnalysisProtocol);				
         }	
        	private function onDictionaryAnalysisProtocolSelected(event:Event):void{
-       		if (this.analysisProtocolCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
+       		if (this.analysisProtocolCombo.selectedItem != null && this.analysisProtocolCombo.selectedItem.@value != "") {
        			dictView.selectDictionaryEntry(analysisProtocolCombo.selectedItem);
        		}
         }
