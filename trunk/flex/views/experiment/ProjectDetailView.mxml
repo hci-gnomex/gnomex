@@ -34,10 +34,13 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
+		import views.util.HciDictionaryView;
+		import views.util.DictionaryEvent;
+		import mx.managers.PopUpManager;
 		
 		private var closeWindowAfterSave:Boolean = false;
 		public var fromSubmitRequestWindow:Boolean = false;
-		
+		private var dictView:HciDictionaryView;
 		
 		
 		public function checkSecurity():void {
@@ -59,8 +62,12 @@
 			}
 			if (parentApplication.navExperimentView.selectedProject.@canUpdate == "Y") {
 				parentDocument.saveProjectButton.enabled = true;
+				editExperimentDesignButton.enabled = true;
+				editExperimentFactorButton.enabled = true;
 			} else{
 				parentDocument.saveProjectButton.enabled = false;
+				editExperimentDesignButton.enabled = false;
+				editExperimentFactorButton.enabled = false;
 			}
 			
 			if (parentApplication.navExperimentView.selectedProject.@canDelete == "Y") {
@@ -253,6 +260,43 @@
 			}
 		}
 		
+		//
+        // Edit experiment design dictionary
+        //
+		private function editExperimentDesign():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryExperimentDesignInitialized);
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryExperimentDesignRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+       	private function onDictionaryExperimentDesignInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.ExperimentDesign");
+        }          
+       	private function onDictionaryExperimentDesignRefreshed(event:Event):void{
+			parentApplication.navExperimentView.getProject.send();
+        }	
+
+		
+		//
+        // Edit experiment factor dictionary
+        //
+		private function editExperimentFactor():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryExperimentFactorInitialized);
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryExperimentFactorRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+       	private function onDictionaryExperimentFactorInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.ExperimentFactor");
+        }          
+       	private function onDictionaryExperimentFactorRefreshed(event:Event):void{
+			parentApplication.navExperimentView.getProject.send();
+        }	
+		
 
 	]]>
 </mx:Script>
@@ -289,7 +333,8 @@
 		    </mx:VBox>
 		</mx:VBox>
 
-	    <mx:DataGrid id="experimentDesignEntryGrid" width="30%" height="100%" 
+		<mx:VBox width="30%" height="100%" verticalGap="0">
+	      <mx:DataGrid id="experimentDesignEntryGrid" width="100%" height="100%" 
 	    	dataProvider="{experimentDesignEntries}" 
 	    	selectionColor="#FFFFFF"
  			showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20" itemClick="toggleExperimentDesignCheck(event)">
@@ -324,9 +369,13 @@
 	                </mx:itemRenderer>
                 </mx:DataGridColumn>
             </mx:columns>
-	    </mx:DataGrid>
+  	      </mx:DataGrid>
+		  <mx:LinkButton label="Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentDesign()" id="editExperimentDesignButton">		  	
+		  </mx:LinkButton>			
+		</mx:VBox>
 
-	    <mx:DataGrid id="experimentFactorEntryGrid" width="30%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20" itemClick="toggleExperimentFactorCheck(event)">
+		<mx:VBox width="30%" height="100%" verticalGap="0">
+	      <mx:DataGrid id="experimentFactorEntryGrid" width="100%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20" itemClick="toggleExperimentFactorCheck(event)">
 	        <mx:columns>
 	            <mx:DataGridColumn headerText=" " 
 	            	width="17" 
@@ -358,7 +407,10 @@
 	                </mx:itemRenderer>
                 </mx:DataGridColumn>
 	        </mx:columns>
-	    </mx:DataGrid>
+  	      </mx:DataGrid>
+		  <mx:LinkButton label="Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentFactor()" id="editExperimentFactorButton">		  	
+		  </mx:LinkButton>			
+		</mx:VBox>
 
 
        

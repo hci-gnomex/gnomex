@@ -17,8 +17,12 @@
     </Dictionary>
     <Dictionary displayName="Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
   <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
-	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" />
-	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" />
+	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+	</Dictionary>
+	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+	</Dictionary>
 	<Dictionary displayName="Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
