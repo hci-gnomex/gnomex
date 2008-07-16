@@ -32,13 +32,21 @@
 	  
 <mx:Script>
 	<![CDATA[
+		import views.util.HciDictionaryView;
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
 		import mx.events.CloseEvent;
+		import mx.managers.PopUpManager;
+		import views.util.DictionaryEvent;
 		
 		
 		private var savedIdLab:Object = '';
+		private var dictView:HciDictionaryView;
+		
+		public function initializeData():void {
+			this.contactStateCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == "hci.gnomex.model.State").DictionaryEntry;
+		}
 		
 		public function promptToSaveDirty():void {
 			if (dirty.isDirty()) {
@@ -156,7 +164,7 @@
 			params.contactName =  this.contactName.text;
 			params.contactAddress = this.contactAddress.text;
 			params.contactCity =  this.contactCity.text;
-			params.contactCodeState =  this.contactState.text;
+			params.contactCodeState =  this.contactStateCombo.selectedItem != null ? this.contactStateCombo.selectedItem.@value : "";
 			params.contactZip = this.contactZip.text;
 			params.contactPhone = this.contactPhone.text;
 			params.contactEmail = this.contactEmail.text;
@@ -196,6 +204,31 @@
         }
 
 
+        //
+        // Edit state dictionary
+        //
+		private function editState():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navUsersView, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionaryStateInitialized);
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			                          onDictionaryStateSelected);			
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionaryStateRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+       	private function onDictionaryStateInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.State");
+        }          
+       	private function onDictionaryStateRefreshed(event:Event):void{
+			contactStateCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.State').DictionaryEntry;								
+			contactStateCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.State').DictionaryEntry.(@value == parentDocument.fullLab.@contactCodeState);				
+        }	
+       	private function onDictionaryStateSelected(event:Event):void{
+       		if (this.contactStateCombo.selectedItem != null && this.contactStateCombo.selectedItem.@value != "") {
+       			dictView.selectDictionaryEntry(contactStateCombo.selectedItem);
+       		}
+        }
 	]]>
 </mx:Script>	  
 
@@ -250,8 +283,12 @@
 							      </mx:VBox>
 							      <mx:HBox width="100%">
 							      <mx:VBox  verticalGap="0">
-							      	<mx:Label text="State" />
-							      	<mx:TextInput id="contactState" text="{parentDocument.fullLab.@codeContactState}" width="50" change="dirty.setDirty()"/>
+							      	<mx:Label text="State" /> 
+							      	<mx:VBox verticalGap="0" horizontalAlign="right">
+								      	<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="70" change="dirty.setDirty()" labelField="@value"/>
+										<mx:LinkButton label="Edit..." textDecoration="underline" color="#2335E5" click="editState()">
+										</mx:LinkButton>						      		
+							      	</mx:VBox>
 							      </mx:VBox>
 							      <mx:VBox  verticalGap="0" width="100%">
 							      	<mx:Label text="Zip" />
