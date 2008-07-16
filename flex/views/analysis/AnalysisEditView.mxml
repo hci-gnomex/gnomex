@@ -102,6 +102,22 @@
 			this.analysis = analysis;
 			this.buttonStack.selectedChild = this.editButtonView;
 			
+			// Build hybs & lanes collection.  Assign the idRequest to the Hybridization
+			// and SequenceLane node.
+			var item:Object;
+			for each(item in analysis..AnalysisExperimentItem) {
+				for each (var hyb:Object in item..Hybridization) {
+						hyb.@idRequest = item.@idRequest;
+						hybs.addItem(hyb);
+				}
+				for each (var lane:Object in item..SequenceLane) {
+						lane.@idRequest = item.@idRequest;
+						lanes.addItem(lane);
+				}
+			}
+			
+
+			
 			labCombo.selectedItem              = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 			analysisTypeCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == analysis.@idAnalysisType);
 			analysisProtocolCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == analysis.@idAnalysisProtocol);
@@ -309,6 +325,8 @@
 			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
 			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
 			params.analysisFilesXMLString = "<analysisFiles>" +  files.toXMLString() + "</analysisFiles>";
+			
+			trace(params.hybsXMLString);
 
 			saveAnalysis.send(params);			
 
@@ -618,8 +636,8 @@
 <mx:XMLListCollection  id="filteredGenomeBuildList"/>
 <mx:XMLListCollection  id="analysisGroups" source="{analysis..AnalysisGroup}"/>
 <mx:XMLListCollection  id="experimentItems" />
-<mx:XMLListCollection  id="hybs"           source="{analysis..Hybridization}"/>
-<mx:XMLListCollection  id="lanes"          source="{analysis..SequenceLane}"/>
+<mx:XMLListCollection  id="hybs"           />
+<mx:XMLListCollection  id="lanes"         />
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFile}"/>
 
 	<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="200" creationPolicy="all">
