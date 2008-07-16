@@ -113,7 +113,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     try {
     	manager.executeCommand(this, HibernateSession.currentSession(this.username), this.getSecurityAdvisor());
 		} catch (Exception e) {
-			String msg = null;
+			String msg = e.getMessage();
 			if (e.getCause() != null && e.getCause() instanceof SQLException) {
 				msg = e.getCause().getMessage();
 				if (msg != null) {
@@ -122,6 +122,8 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
 					}
 					msg = "Error: " + msg; 
 				}
+			} else if (e instanceof org.hibernate.id.IdentifierGenerationException) {
+			  msg = "Incomplete data.  Please fill in mandatory fields.";
 			}
       e.printStackTrace();
 			throw new RollBackCommandException(msg);

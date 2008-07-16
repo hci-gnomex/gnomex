@@ -561,7 +561,7 @@
 								bottom="4" top="30" left="4" right="4"> 
 							</mx:DataGrid>
 						</mx:Canvas>
-						<mx:Canvas width="350" height="100%" borderStyle="none" backgroundColor="#000000" backgroundAlpha="0.05">
+						<mx:Canvas width="320" height="100%" borderStyle="none" backgroundColor="#000000" backgroundAlpha="0.05">
 							<mx:Tile id="dgEditor" 
 								borderStyle="none" 
 								direction="horizontal" 

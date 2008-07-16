@@ -1,11 +1,12 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+
 import java.io.Serializable;
 
 
 
-public class ExperimentFactor extends DictionaryEntry implements Serializable, OntologyEntry {
+public class ExperimentFactor extends DictionaryEntry implements Serializable, OntologyEntry,  DictionaryEntryUserOwned {
   public static final String        OTHER = "OTHER";
   
   private String   codeExperimentFactor;
@@ -13,6 +14,7 @@ public class ExperimentFactor extends DictionaryEntry implements Serializable, O
   private String   mageOntologyCode;
   private String   mageOntologyDefinition;
   private String   isActive;
+  private Integer  idAppUser;
   
   public String getDisplay() {
     String display = this.getNonNullString(getExperimentFactor());
@@ -76,6 +78,16 @@ public class ExperimentFactor extends DictionaryEntry implements Serializable, O
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getMageOntologyCode");
     this.excludeMethodFromXML("getMageOntologyDefinition");
+  }
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
   }
   
 
