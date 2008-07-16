@@ -140,6 +140,7 @@
           {
           	callGetAppUserList();
           	callGetLabList();
+          	this.groupDetailView.initializeData();
           }
 
 		 public function checkSecurity():void {
