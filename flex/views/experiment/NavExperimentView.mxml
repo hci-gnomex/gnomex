@@ -19,7 +19,7 @@
             <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
             <showSamples>N</showSamples>
             <showCategory>N</showCategory>
-            <showMyLabsAlways>Y</showMyLabsAlways>
+            <showMyLabsAlways>{currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
             <searchPublicProjects>{searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
     </mx:request>
    </mx:HTTPService>
@@ -178,44 +178,146 @@
         		showDownloads = false;
         	}
 
-        	callLater(reselectTreeItem);    	
-        	if (selectedRequestNumber != null) {
-	        	callLater(expandAllNodes);          		
-        	} else {
-        		callLater(expandLabNodes);
-        	}
+        	
+        	
+        	callLater(expandAndReselectTree);    	
+        	
 	    }
 
+		private function expandAndReselectTree():void {
+			
+			//if (selectedRequestNumber != null) {
+	        //	expandAllNodes();          		
+        	//} else {
+        	//	expandLabNodes();
+        	//}
+        	expandAllNodes();
+			callLater(reselectTreeItem);
+		}
 	    
 	    
 	    private function reselectTreeItem():void {
-			if (selectedIdProject != null) {
-				selectedNode = getProjectRequestList.lastResult..Project.(@idProject == selectedIdProject);
-				callLater(selectTreeNode);
-				// Can't expand project because it messes up dropindex for future drag operations.
-				
-			} else if (selectedRequestNumber != null) {
-				selectedNode = getProjectRequestList.lastResult..Request.(@requestNumber == selectedRequestNumber);
-				browseTree.openItems = getProjectRequestList.lastResult..Project;
-				callLater(selectTreeNode);
-				
-			} else if (selectedIdLab != null) {
-				selectedNode = getProjectRequestList.lastResult..Lab.(@idLab == selectedIdLab);
-				callLater(selectTreeNode);
-				
-				
-			} else {
-				selectedNode = getProjectRequestList.lastResult..Lab[0];
-				browseTree.selectedItem = selectedNode;
-				onBrowseTree();
-			}
+			selectTreeNode();
 	    	
 	    }
 	    
+	    //private function selectTreeNode():void {
+	    //	browseTree.selectedItem = selectedNode;
+	    //	onBrowseTree();
+	    //}
 	    private function selectTreeNode():void {
-	    	browseTree.selectedItem = selectedNode;
-	    	onBrowseTree();
-	    }
+	    	var idx:int = -1; 
+    		var pos:int = 0;
+    		var lab:Object;
+    		var project:Object;
+    		var request:Object; 
+    		// If actionscript sets selectedItem (rather than selectedIndex) on tree,
+    		// there is a flex bug that causes an extra node to be inserted under
+    		// selected item.  To work around this problem, I'm iterating through
+    		// open items to determine the selected index.  This is clumsy code,
+    		// but it woirks!
+    		if (selectedRequestNumber != null) {
+		    	for each (lab in getProjectRequestList.lastResult..Lab) {
+		    		pos++;	    	
+		    		for each(project in lab.Project) {
+		    			pos++;
+		    			for each( request in project.Request) {
+		    				pos++;
+		    				if (request.@requestNumber == selectedRequestNumber) {
+		    					idx = --pos;
+		    					
+		    					// We came from the main gnomex app, so select the lab from the lab combo
+		    					if (this.currentState == "AdminState") {
+		    						for each(var l:Object in  parentApplication.promptedLabList) {
+		    							if (l.@idLab == request.@idLab) {
+		    								this.browseLabCombo.selectedItem = l;
+		    								break;	
+		    							}
+		    						}
+		    					}
+		    					break;
+		    				} 
+		    			}
+		    			if (idx != -1) {
+		    				break;
+		    			} 
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		} else if (selectedIdProject != null) {
+		    	for each (lab in getProjectRequestList.lastResult..Lab) {	   
+		    		pos++; 	
+		    		for each(project in lab.Project) {
+		    			pos++;
+		    			if (project.@idProject == selectedIdProject) {
+		    				idx = --pos;
+		    				break;
+		    			}
+		    			for each( request in project.Request) {
+		    				pos++;
+		    			}
+			    		if (idx != -1) {
+			    			break;
+			    		}
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		} else if (selectedIdRequest != null) {
+		    	for each (lab in getProjectRequestList.lastResult..Lab) {
+		    		pos++;	    	
+		    		for each(project in lab.Project) {
+		    			pos++;
+		    			for each( request in project.Request) {
+		    				pos++;
+		    				if (request.@idRequest == selectedIdRequest) {
+		    					idx = --pos;
+		    					break;
+		    				} 
+		    			}
+		    			if (idx != -1) {
+		    				break;
+		    			} 
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		} else if (selectedIdLab != null) {
+    			for each (lab in getProjectRequestList.lastResult..Lab) {	    	
+		    		pos++;
+    				if (selectedIdLab == lab.@idLab) {
+    					idx = --pos;
+    					break;
+    				}
+		    		for each(project in lab.Project) {
+		    			pos++;
+		    			for each(request in project.Request) {
+		    				pos++;
+		    			}
+			    		if (idx != -1) {
+			    			break;
+			    		}
+		    		}
+		    		if (idx != -1) {
+		    			break;
+		    		}
+    			}    			
+    		}
+	    	
+	    	if (idx != -1) {
+	    		// Select the tree item
+	    		browseTree.selectedIndex = idx;
+	    	} else {
+	    		// Otherwise, just select first lab
+	    		browseTree.selectedIndex = 0;
+	    	}
+			onBrowseTree();
+	    	
+	    }	    
 	    
         
         
@@ -284,6 +386,7 @@
 				getRequest.send(parms);
 				selectedIdLab = null;
 				selectedIdProject = null;
+				selectedRequestNumber = null;
 				
 			} else {												
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
@@ -321,7 +424,7 @@
 		
 		public function showExperimentDownloads():void {
 			
-			selectedNode = browseTree.selectedItem.parent();
+			selectedIdProject = browseTree.selectedItem.parent().@idProject;
 			selectTreeNode();
 			
 			for each (var item:Object in requestNumbers) {
@@ -548,7 +651,7 @@
 				}
 		}
 		
-		public function refreshExperiments():void {
+		public function refreshExperimentsAfterDrag():void {
 			this.browseTree.selectedItem = null;
 			selectedIdProject = null;
 			selectedIdLab = null;
@@ -566,6 +669,20 @@
 
 		}
 		
+		public function refreshExperiments():void {
+			if (this.selectedRequestNumber != null) {
+				var params:Object = new Object();
+				params.idProject = selectedExperiment.@idProject;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				params.searchPublicProjects = 'N';
+				getProjectRequestList.send(params);
+				
+			} else {
+				getProjectRequestList.send();
+			}
+
+		}
 		public function initializeExperiments():void {
 			if (parentApplication.hasPermission('canAccessAnyObject')) {
 			} else {
@@ -662,7 +779,7 @@
    			dropProject = null;
    			dragRequest = null;
        		if (saveRequestProject.lastResult.name() == "SUCCESS") {
-				this.refreshExperiments();
+				this.refreshExperimentsAfterDrag();
 			
         	} else {
         		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
@@ -770,7 +887,7 @@
 						<mx:ComboBox id="browseLabCombo" 
 							labelField="@name"
 							dataProvider="{parentApplication.promptedLabList}"
-							 change="getProjectRequestList.send()"  
+							 change="selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()"  
 							 visible="true"  width="200">
 						</mx:ComboBox>				
 				        <mx:Spacer height="6"/>
