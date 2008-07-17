@@ -187,12 +187,19 @@ public class RequestParser implements Serializable {
 
     //  Map all of the characteristics that were checked -- these represent the annotations to apply.
     // (All others should be ignored.)
+    /*
     for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
       Attribute a = (Attribute)i.next();
       if (SampleCharacteristic.isValidCode(a.getName())) {
         if (a.getValue().equalsIgnoreCase("Y")) {
           this.characteristicsToApplyMap.put(a.getName(), null);
         }
+      }
+    }*/
+    for (Iterator i1 = n.getChild("SampleCharacteristicEntries").getChildren("SampleCharacteristicEntry").iterator(); i1.hasNext();) {
+      Element scNode = (Element)i1.next();
+      if (scNode.getAttributeValue("isSelected").equals("true")) {
+        this.characteristicsToApplyMap.put(scNode.getAttributeValue("codeSampleCharacteristic"), null);        
       }
     }
     
@@ -304,7 +311,6 @@ public class RequestParser implements Serializable {
       String value = unEscape(a.getValue());
       
       if (value != null && !value.equals("") && 
-          SampleCharacteristic.isValidCode(code) &&
           this.characteristicsToApplyMap.containsKey(code)) {
         annotations.put(code, value);
         sampleAnnotationCodeMap.put(code, null);

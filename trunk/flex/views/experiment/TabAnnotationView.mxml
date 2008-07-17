@@ -2,10 +2,14 @@
 <mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="false" >
 <mx:Script>
 	<![CDATA[
+		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
 		import views.util.HciDictionaryView;
 		import views.util.DictionaryEvent;
+		import mx.collections.XMLListCollection;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		
 		
 		private var dictView:HciDictionaryView;
 		
@@ -166,7 +170,101 @@
 			dictView.selectDictionary("hci.gnomex.model.SampleCharacteristic");
         }          
        	private function onDictionarySampleCharacteristicRefreshed(event:Event):void{
+			this.checkForNewAnnotations();
+       		this.addNonStandardSampleColumns();
+			this.checkForRemovedAnnotations();       		
         }	
+        
+        private function checkForNewAnnotations():void {
+       		var de:Object;
+       		var annotation:Object;
+       		var exists:Boolean = false;
+       		for each(de in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == "hci.gnomex.model.SampleCharacteristic").DictionaryEntry.(@value != "")) {
+       			exists = false;
+       			for each(annotation in parentDocument.sampleCharacteristicEntries) {
+					if (de.@value == annotation.@codeSampleCharacteristic) {
+						exists = true;
+						break;
+					}      				
+       			}
+       			if (!exists) {
+       				
+       				var node:XML = new XML("<SampleCharacteristicEntry/>");
+       				node.@codeSampleCharacteristic = de.@value;
+       				node.@sampleCharacteristic = de.@display; 
+       				node.@otherLabel = "";
+       				node.@isSelected = "false";
+       			
+       				parentDocument.sampleCharacteristicEntries.addItem(node);
+       			}
+       		}
+        	
+        }
+        
+        public function addNonStandardSampleColumns():void {
+       		var annotation:Object;
+       		var col:DataGridColumn;
+       		var exists:Boolean = false;
+       		for each(annotation in parentDocument.sampleCharacteristicEntries) {
+				exists = false;
+       			for each(col in parentDocument.samplesView.samplesGrid.columns) {
+					if (col.dataField == ("@" + annotation.@codeSampleCharacteristic)) {
+						exists = true;
+						break;
+					}    				
+       			}
+       			if (!exists) {
+       				
+       				var newCol:DataGridColumn = new DataGridColumn();
+       				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
+       				newCol.headerText = annotation.@sampleCharacteristic;
+       				newCol.visible    = annotation.@isSelected == "true" ? true : false;
+       				
+       				var columns:Array = parentDocument.samplesView.samplesGrid.columns;
+       				// Pop the description; we want it to be the last column
+       				var descCol:DataGridColumn = DataGridColumn(columns.pop());
+       				columns.push(newCol);
+       				columns.push(descCol);
+       				parentDocument.samplesView.samplesGrid.columns = columns;
+
+					// Add to confirm samples grid     (if this is a submit request, not an edit request)  				
+       				if (!parentDocument.isEditState()) {
+	       				newCol = new DataGridColumn();
+	       				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
+	       				newCol.headerText = annotation.@sampleCharacteristic;
+	       				newCol.visible    = annotation.@isSelected == "true" ? true : false;
+	       				
+	       				var ccolumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
+	       				// Pop the description; we want it to be the last column
+	       				descCol = DataGridColumn(ccolumns.pop());
+	       				ccolumns.push(newCol);
+	       				ccolumns.push(descCol);
+	       				parentDocument.confirmView.samplesGridConfirm.columns = ccolumns;
+       					
+       				}
+       			}
+       		}
+        	
+        }
+
+        private function checkForRemovedAnnotations():void {
+       		var de:Object;
+       		var annotation:Object;
+       		var exists:Boolean = false;
+			for each(annotation in parentDocument.sampleCharacteristicEntries) {
+	       		for each(de in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == "hci.gnomex.model.SampleCharacteristic").DictionaryEntry.(@value != "")) {
+       			exists = false;
+       				if (de.@value == annotation.@codeSampleCharacteristic) {
+						exists = true;
+						break;
+					}      				
+       			}
+       			if (!exists) {
+       				parentDocument.sampleCharacteristicEntries.removeItemAt(parentDocument.sampleCharacteristicEntries.getItemIndex(annotation));
+       			}
+       		}
+        	
+        }
 		
 	]]>
 </mx:Script>
