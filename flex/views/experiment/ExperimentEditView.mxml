@@ -130,9 +130,10 @@
 					hybSetupView.organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
 				}
 				
-			}
+			} 
 			
 			initFilters();
+			this.annotationView.addNonStandardSampleColumns(); 
 		}
 		
 		private function initFilters():void {
@@ -1122,6 +1123,8 @@
 		private function onGetNewRequest(event:ResultEvent):void {
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idAppUser = setupView.idAppUser;
+			
+			this.annotationView.addNonStandardSampleColumns();
 
 		}
 

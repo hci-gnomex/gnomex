@@ -742,6 +742,7 @@
 		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 	
 	 <!-- hci.gnomex.model.SampleSource -->

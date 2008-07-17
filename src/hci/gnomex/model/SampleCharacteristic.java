@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 
 
-public class SampleCharacteristic extends DictionaryEntry implements Serializable, OntologyEntry {
+public class SampleCharacteristic extends DictionaryEntry implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
   public static final String     AGE                     = "AGE";
   public static final String     CELL_LINE               = "CELLLINE";
   public static final String     CELL_TYPE               = "CELLTYPE";
@@ -31,6 +31,7 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   private String   mageOntologyCode;
   private String   mageOntologyDefinition;
   private String   isActive;
+  private Integer  idAppUser;
   
   public static boolean isValidCode(String code) {
     if (code.equals(AGE) ||
@@ -112,6 +113,21 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   
   public void setCodeSampleCharacteristic(String codeSampleCharacteristic) {
     this.codeSampleCharacteristic = codeSampleCharacteristic;
+  }
+  
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getMageOntologyCode");
+    this.excludeMethodFromXML("getMageOntologyDefinition");
+  }
+
+
+  
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+  
+  public void setIdAppUser(Integer idAppUser) {
+    this.idAppUser = idAppUser;
   }
   
 

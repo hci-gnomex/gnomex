@@ -70,6 +70,7 @@
 			getExperimentCategoryName();
 			getBillingAccountName();
 			callLater(showHideColumns);
+			this.addNonStandardSampleColumns();
 			
 		}
 		
@@ -328,6 +329,39 @@
         private function showRelatedAnalysis():void {
         	parentApplication.showAnalysisForExperiment(this.selectedExperiment);
         }
+        
+        public function addNonStandardSampleColumns():void {
+       		var annotation:Object;
+       		var col:DataGridColumn;
+       		var exists:Boolean = false;
+       		for each(annotation in this.selectedExperiment.SampleCharacteristicEntries.SampleCharacteristicEntry) {
+				exists = false;
+       			for each(col in samplesGridConfirm.columns) {
+					if (col.dataField == ("@" + annotation.@codeSampleCharacteristic)) {
+						exists = true;
+						break;
+					}    				
+       			}
+       			if (!exists) {
+       				
+       				var newCol:DataGridColumn = new DataGridColumn();
+       				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
+       				newCol.headerText = annotation.@sampleCharacteristic;
+       				newCol.visible    = annotation.@isSelected == "true" ? true : false;
+       				
+       				var columns:Array = samplesGridConfirm.columns;
+       				// Pop the description; we want it to be the last column
+       				var descCol:DataGridColumn = DataGridColumn(columns.pop());
+       				columns.push(newCol);
+       				columns.push(descCol);
+       				samplesGridConfirm.columns = columns;
+       			} else {
+       				col.visible    = annotation.@isSelected == "true" ? true : false;       				
+       			}
+       		}
+        	
+        }
+        
 
 	]]>
 </mx:Script>

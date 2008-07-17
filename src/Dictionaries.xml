@@ -57,7 +57,9 @@
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.MicroarrayCategory" filterField="codeMicroarrayCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" />
+	<Dictionary displayName="Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>	
+	</Dictionary>
 	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
 	</Dictionary>
 	<Dictionary displayName="Sample Prep Methods associated with Sample Types" className="hci.gnomex.model.SamplePrepMethodSampleType" >
