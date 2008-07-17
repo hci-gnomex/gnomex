@@ -3,6 +3,11 @@
 <mx:Script>
 	<![CDATA[
 		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
+		import views.util.HciDictionaryView;
+		import views.util.DictionaryEvent;
+		
+		private var dictView:HciDictionaryView;
 		
        	private function propagateTreatment():void {
 			for each (var sample:Object in parentDocument.samples) {
@@ -146,6 +151,22 @@
 			}
 		}
 				
+		//
+        // Edit sample annotation dictionary
+        //
+		private function editSampleCharacteristicDictionary():void {
+			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
+			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			                          onDictionarySampleCharacteristicInitialized);
+			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                   onDictionarySampleCharacteristicRefreshed);
+			PopUpManager.centerPopUp(dictView);
+		}
+       	private function onDictionarySampleCharacteristicInitialized(event:Event):void{
+			dictView.selectDictionary("hci.gnomex.model.SampleCharacteristic");
+        }          
+       	private function onDictionarySampleCharacteristicRefreshed(event:Event):void{
+        }	
 		
 	]]>
 </mx:Script>
@@ -161,10 +182,11 @@
 			    </mx:HBox>
 			    <mx:HBox width="100%" height="100%">
 					<mx:Spacer width="18"/>
-					<mx:DataGrid id="sampleAnnotationGrid" height="100%" 
+					<mx:VBox width="100%" height="100%" verticalGap="0">
+					  <mx:DataGrid id="sampleAnnotationGrid" height="100%" 
 						dataProvider="{parentDocument.sampleCharacteristicEntries}" 
 						selectionColor="#FFFFFF"
-					showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20">
+						showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20">
 					    <mx:columns>
 					        <mx:DataGridColumn headerText=" " 
 					        	width="20" 
@@ -196,7 +218,11 @@
 					            </mx:itemRenderer>
 					        </mx:DataGridColumn>
 					    </mx:columns>
-					</mx:DataGrid>
+					  </mx:DataGrid>
+
+		  			  <mx:LinkButton label="Edit..." textDecoration="underline" styleName="blueLinkButton" click="editSampleCharacteristicDictionary()" id="editSampleAnnotationButton">		  	
+		 		      </mx:LinkButton>						
+					</mx:VBox>
 			    </mx:HBox>
 				
 			</mx:VBox>

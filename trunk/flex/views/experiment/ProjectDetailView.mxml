@@ -153,6 +153,14 @@
 			}
 		}
 		
+		private function isDirty():Boolean {
+			if (parentDocument is ProjectDetailWindow) {
+				return parentDocument.dirtyProject.isDirty();
+			} else {
+				return parentApplication.navExperimentView.browseView.dirtyProject.isDirty();
+			}
+		}
+		
 		private function onSaveProject(event:ResultEvent):void {
         	if (saveProject.lastResult.name() == "SUCCESS") {
         		resetDirty();
@@ -161,7 +169,7 @@
 					parentApplication.submitRequestView.setupView.onProjectAdded(saveProject.lastResult.@idProject);
 				}else {
 					parentApplication.navExperimentView.getProject.send();
-	        		parentApplication.navExperimentView.refreshExperiments();
+					parentApplication.navExperimentView.refreshExperiments();
 				}
         		
         		if (closeWindowAfterSave) {
@@ -264,6 +272,13 @@
         // Edit experiment design dictionary
         //
 		private function editExperimentDesign():void {
+			// Don't allow edit dictionary if window is dirty.  Warn user that project 
+			// should be saved
+			if (isDirty()) {
+				Alert.show("Please save your project changes before proceeding to edit Experiment Designs.", "Unsaved changes");
+				return;
+			}
+
 			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
 			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryExperimentDesignInitialized);
@@ -283,6 +298,10 @@
         // Edit experiment factor dictionary
         //
 		private function editExperimentFactor():void {
+			if (isDirty()) {
+				Alert.show("Please save your project changes before proceeding to edit Experimental Factors.", "Unsaved changes");
+				return;
+			}
 			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
 			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryExperimentFactorInitialized);
