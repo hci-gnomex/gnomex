@@ -63,6 +63,8 @@ public class BuildSearchIndex extends DetailObject {
   
   protected static String DATA_SOURCES = "/orion/config/data-sources.xml";  
 
+  private static final String          KEY_DELIM = "&-&-&";
+
   public BuildSearchIndex() {
   }
   public static void main(String[] args)
@@ -151,7 +153,7 @@ public class BuildSearchIndex extends DetailObject {
     for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
       
-      Object[] keyTokens = key.split("-");
+      Object[] keyTokens = key.split(KEY_DELIM);
       Integer idProject = new Integer((String)keyTokens[0]);
       Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
       List rows = (List)projectRequestMap.get(key);
@@ -178,7 +180,7 @@ public class BuildSearchIndex extends DetailObject {
     //
     for( Iterator i = protocolMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
-      Object[] keyTokens = key.split("-");
+      Object[] keyTokens = key.split(KEY_DELIM);
       String  protocolType = (String)keyTokens[0];
       Integer idProtocol  = new Integer((String)keyTokens[1]);
       Object[] row = (Object[])protocolMap.get(key);
@@ -204,7 +206,7 @@ public class BuildSearchIndex extends DetailObject {
     //
     for( Iterator i = analysisGroupMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
-      Object[] keyTokens = key.split("-");
+      Object[] keyTokens = key.split(KEY_DELIM);
       Integer idAnalysisGroup = new Integer((String)keyTokens[0]);
       Integer idAnalysis = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
       Object[] row = (Object[])analysisGroupMap.get(key);
@@ -271,7 +273,7 @@ public class BuildSearchIndex extends DetailObject {
       
       Integer idProject = (Integer)row[0];
       Integer idRequest = (Integer)row[1];
-      String key = idProject + "-" + (idRequest != null ? idRequest.toString() : "");
+      String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
       
       List rows = (List)projectRequestMap.get(key);
       if (rows == null) {
@@ -327,7 +329,7 @@ public class BuildSearchIndex extends DetailObject {
       
       Integer idProject = (Integer)row[0];
       Integer idRequest = (Integer)row[1];
-      String key = idProject + "-" + (idRequest != null ? idRequest.toString() : "");
+      String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
       
       List rows = (List)projectRequestMap.get(key);
       if (rows == null) {
@@ -375,7 +377,7 @@ public class BuildSearchIndex extends DetailObject {
       
       Integer idAnalysisGroup = (Integer)row[0];
       Integer idAnalysis = (Integer)row[1];
-      String key = idAnalysisGroup + "-" + (idAnalysis != null ? idAnalysis.toString() : "");
+      String key = idAnalysisGroup + KEY_DELIM + (idAnalysis != null ? idAnalysis.toString() : "");
       
       analysisGroupMap.put(key, row);
     }
@@ -523,7 +525,7 @@ public class BuildSearchIndex extends DetailObject {
     List results = sess.createQuery(buf.toString()).list();    
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();      
-      String key = "Labeling Protocol-" + row[0];      
+      String key = "Labeling Protocol" + KEY_DELIM + row[0];      
       protocolMap.put(key, row);      
     }
     
@@ -537,7 +539,7 @@ public class BuildSearchIndex extends DetailObject {
     results = sess.createQuery(buf.toString()).list();    
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();      
-      String key = "Hyb Protocol-" + row[0];      
+      String key = "Hyb Protocol" + KEY_DELIM + row[0];      
       protocolMap.put(key, row);      
     }
     
@@ -551,7 +553,7 @@ public class BuildSearchIndex extends DetailObject {
     results = sess.createQuery(buf.toString()).list();    
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();      
-      String key = "Scan Protocol-" + row[0];      
+      String key = "Scan Protocol"  + KEY_DELIM + row[0];      
       protocolMap.put(key, row);      
     }
     
@@ -565,7 +567,7 @@ public class BuildSearchIndex extends DetailObject {
     results = sess.createQuery(buf.toString()).list();    
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();      
-      String key = "Feature Extraction Protocol-" + row[0];      
+      String key = "Feature Extraction Protocol"  + KEY_DELIM + row[0];      
       protocolMap.put(key, row);      
     }
 
