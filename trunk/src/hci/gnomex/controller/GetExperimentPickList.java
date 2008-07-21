@@ -45,6 +45,8 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   private Element                        requestNode = null;
   private Element                        itemNode = null;
   
+  private static final String          KEY_DELIM = "&-&-&";
+  
   public void validate() {
   }
   
@@ -109,8 +111,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         
-        String key = projectName + "-" + createYear + "-" + sortDate + "-" + requestNumber + "-" + hybNumber;
-        
+        String key = projectName + KEY_DELIM + createYear + KEY_DELIM + sortDate + KEY_DELIM + requestNumber + KEY_DELIM + hybNumber;
         
         rowMap.put(key, row);
       }
@@ -132,7 +133,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         
-        String key = projectName + "-" + createYear + "-" + sortDate + "-" + requestNumber + "-" + laneNumber;
+        String key = projectName + KEY_DELIM + createYear + KEY_DELIM + sortDate + KEY_DELIM + requestNumber + KEY_DELIM + laneNumber;
         
         rowMap.put(key, row);
       }
@@ -340,8 +341,8 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
 
       
       
-      String[] tokens1 = key1.split("-");
-      String[] tokens2 = key2.split("-");
+      String[] tokens1 = key1.split(KEY_DELIM);
+      String[] tokens2 = key2.split(KEY_DELIM);
       
       String proj1         = tokens1[0];
       String yr1           = tokens1[1];
