@@ -557,8 +557,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     if (labNode == null) {
       Element node = new Element("Lab");
       node.setAttribute("idLab", idLab.toString());
-      node.setAttribute("labName", doc.get(AnalysisIndexHelper.LAB_NAME));
-      node.setAttribute("label", doc.get(AnalysisIndexHelper.LAB_NAME));
+      node.setAttribute("labName", doc.get(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP));
+      node.setAttribute("label", doc.get(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP));
       labAnalysisMap.put(idLab, node);
     }
 
