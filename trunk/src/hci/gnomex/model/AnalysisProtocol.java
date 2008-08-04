@@ -9,6 +9,8 @@ public class AnalysisProtocol extends DictionaryEntry implements Serializable, D
   private Integer  idAnalysisProtocol;
   private String   analysisProtocol;
   private Integer  idAnalysisType;
+  private String   description;
+  private String   url;
   private String   isActive;
   private Integer  idAppUser;
   
@@ -70,6 +72,26 @@ public class AnalysisProtocol extends DictionaryEntry implements Serializable, D
   
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
+  }
+
+  
+  public String getDescription() {
+    return description;
+  }
+
+  
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  
+  public String getUrl() {
+    return url;
+  }
+
+  
+  public void setUrl(String url) {
+    this.url = url;
   }
 
 

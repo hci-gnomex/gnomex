@@ -496,6 +496,8 @@
 		<property name="idAnalysisType" column="idAnalysisType" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
+		<property name="description" column="description" type="string"/>
+		<property name="url" column="url" type="string"/>
 	</class>
 
   <!-- hci.gnomex.model.AppUserLite -->
