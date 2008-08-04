@@ -80,6 +80,7 @@ public class ExperimentDesign extends DictionaryEntry implements Serializable, O
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getMageOntologyCode");
     this.excludeMethodFromXML("getMageOntologyDefinition");
+    super.registerMethodsToExcludeFromXML();
   }
 
   
