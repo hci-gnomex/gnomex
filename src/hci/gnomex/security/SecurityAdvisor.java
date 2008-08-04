@@ -1,6 +1,7 @@
 package hci.gnomex.security;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Analysis;
@@ -302,7 +303,30 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Dictionary
     //    
     else if (object instanceof DictionaryEntry) {
-      if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
+      // Admins can read every dictionary entry
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+        
+      }
+      // Normal users can read only their own AppUserLite dictionary entry
+      else if (object instanceof AppUserLite) {
+        AppUserLite u = (AppUserLite)object;
+        if (u.getIdAppUser() != null && !this.isGuest() &&
+            u.getIdAppUser().equals(this.getIdAppUser())) {
+          canRead = true;
+        } 
+      }
+      // All null dictionary entries can be read, except for the
+      // null entry from AppUserLite.
+      else if (object instanceof NullDictionaryEntry) {
+        NullDictionaryEntry de = (NullDictionaryEntry)object;
+        // Filter out null AppUserLite entry if user is not an admin
+        if (!de.getDictionaryClassName().equals("hci.gnomex.model.AppUserLite")) {
+          canRead = true;
+        }    
+      }
+      // All other dictionary entries are readable
+      else {
         canRead = true;
       }
     }
@@ -414,21 +438,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     else if (object instanceof DictionaryEntry) {
       if (hasPermission(this.CAN_WRITE_DICTIONARIES)) {
-        canUpdate = true;
+        // Admins can write every dictionary except for AppUserLite and null entries.
+        if ((object instanceof AppUserLite) ||
+            (object instanceof NullDictionaryEntry)) {
+          
+        } else {
+          canUpdate = true;
+        }
       } else if (object instanceof DictionaryEntryUserOwned) {
+        // Normal users can only write dictionary entries they own
         DictionaryEntryUserOwned de = (DictionaryEntryUserOwned)object;
         if (de.getIdAppUser() != null && !this.isGuest() &&
             de.getIdAppUser().equals(this.getIdAppUser())) {
-          canUpdate = true;
-        }
-      } else if (object instanceof AppUserLite) {
-        AppUserLite u = (AppUserLite)object;
-        if (u.getIdAppUser() != null && !this.isGuest() &&
-            u.getIdAppUser().equals(this.getIdAppUser())) {
-          canUpdate = true;
-        } else if ((u.getLastName() == null || u.getLastName().trim().equals("")) && 
-                   (u.getFirstName() == null || u.getFirstName().trim().equals(""))) {
-          // This is the "blank" user entry
           canUpdate = true;
         }
       }
