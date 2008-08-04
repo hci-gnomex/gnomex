@@ -67,7 +67,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     	Session sess = HibernateSession.currentSession(this.username);
     
     	//Get the dictionary manager and load it if it isn't already loaded
-    	manager = DictionaryManager.getDictionaryManager(DICTIONARY_NAMES_XML, sess, this);
+    	manager = DictionaryManager.getDictionaryManager(DICTIONARY_NAMES_XML, sess, this, true);
       manager.loadCommand(this, request);
       
       // Force personal ownership of dictionary entry if user not admin
@@ -111,7 +111,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     log.debug("Executing execute method in " + this.getClass().getName());
    
     try {
-    	manager.executeCommand(this, HibernateSession.currentSession(this.username), this.getSecurityAdvisor());
+    	manager.executeCommand(this, HibernateSession.currentSession(this.username), this.getSecurityAdvisor(), true);
 		} catch (Exception e) {
 			String msg = e.getMessage();
 			if (e.getCause() != null && e.getCause() instanceof SQLException) {
