@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas 
+<mx:Canvas  
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:hci="hci.components.*"
 	xmlns:views="views.*"
 	xmlns:util="views.util.*"
+    xmlns:hci="hci.flex.components.*"
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	width="100%" height="100%">
 
@@ -13,6 +13,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to get slide list', event)">
 		<mx:request>
@@ -25,6 +26,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to get slide design list', event)">
 		<mx:request>
@@ -38,6 +40,7 @@
 		resultFormat="e4x"
 	    fault="parentApplication.onFailHttpRequest('Failed to get slide project list', event)"
 		useProxy="false"
+		method="POST"
 		result="resultHandler(event)">
 		<mx:request>
 			<idSlideProduct>
@@ -52,6 +55,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to save slide design', event)">
 		<mx:request>
@@ -64,6 +68,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to get slide product', event)">
 		<mx:request>
@@ -75,6 +80,7 @@
 		url="DeleteSlideDesign.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to delete slide design', event)">
 		<mx:request>
@@ -86,6 +92,7 @@
 		url="DeleteSlideSet.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to delete slide set', event)">
 		<mx:request>
@@ -189,6 +196,9 @@
 				browseSlides.selectedIndex = -1;
 				selectSlideView(null);
 				dirty.resetDirty();
+				parentApplication.dictionaryManager.call("reload", "hci.gnomex.model.SlideDesign");
+				parentApplication.dictionaryManager.call("load", "");
+				parentApplication.getSlideProductList.send();
 			}  else if (call.marker == "doneSaveSlideProduct") {
 				lastSavedSlideProductId = saveSlideProduct.lastResult.@idSlideProduct.toString();
 				callGetSlideList();
@@ -196,6 +206,9 @@
 				params.idSlideProduct = lastSavedSlideProductId;
 				callGetSlideProduct(params);
 				dirty.resetDirty();
+				parentApplication.dictionaryManager.call("reload", "hci.gnomex.model.SlideDesign");
+				parentApplication.dictionaryManager.call("load", "");
+				parentApplication.getSlideProductList.send();
 			} else if (call.marker == "doneSaveSlideDesign") {
 				lastSavedSlideDesignId = saveSlideDesign.lastResult.@idSlideDesign.toString();
 				callGetSlideList();
@@ -203,6 +216,9 @@
 				params.idSlideDesign = lastSavedSlideDesignId;
 				callGetSlideDesign(params);
 				dirty.resetDirty();
+				parentApplication.dictionaryManager.call("reload", "hci.gnomex.model.SlideDesign");
+				parentApplication.dictionaryManager.call("load", "");
+				parentApplication.getSlideProductList.send();
 			}
 		}
 		
@@ -671,29 +687,21 @@
 							<mx:Label text="Vendor:" top="85" left="10" width="100%"/>
 							<hci:DictionaryComboBox top="102" left="10" width="100%" 
 								id="sdIdVendor"
-								dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
-								dictValue="@value"
-								dictDisplay="@display"
-								dictName="hci.gnomex.model.Vendor"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
 								labelField="@display"
 								prompt=" "
 								data="{fullSlideDesign.SlideProduct.@idVendor}"
-								dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-								 change="dirty.setDirty()">
+								change="dirty.setDirty()">
 								</hci:DictionaryComboBox>
 						</mx:VBox>
 						<mx:VBox left="213" top="79" width="25%">
 							<mx:Label text="Organism:" top="85" left="188" width="100%"/>
 							<hci:DictionaryComboBox top="102" left="188"
 								id="sdIdOrganism"
-								dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
-								dictValue="@value"
-								dictDisplay="@display"
-								dictName="hci.gnomex.model.Organism"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
 								labelField="@display"
 								prompt=" "
 								data="{fullSlideDesign.SlideProduct.@idOrganism}"
-								dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 								width="100%" change="dirty.setDirty()">
 								</hci:DictionaryComboBox>
 						</mx:VBox>
@@ -714,13 +722,9 @@
 						<mx:Label text="Category:" left="10" top="142" height="18" width="100%"/>
 						<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
 							 id="sdMicroarrayCategory"
-							dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
-							dictValue="@value"
-							dictDisplay="@display"
-							dictName="hci.gnomex.model.MicroarrayCategory"
+							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
 							labelField="@display"
 							prompt="Select a catagory to add..."
-							dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 							></hci:DictionaryComboBox>
 						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
 						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
@@ -805,14 +809,10 @@
 					<mx:Label text="Vendor:" top="85" left="10" width="100%"/>
 					<hci:DictionaryComboBox top="102" left="10" width="100%" 
 						id="spIdVendor"
-						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
-						dictValue="@value"
-						dictDisplay="@display"
-						dictName="hci.gnomex.model.Vendor"
+						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
 						labelField="@display"
 						prompt=" "
 						data="{fullSlideProduct.@idVendor}"
-						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						 change="dirty.setDirty();">
 						</hci:DictionaryComboBox>
 					</mx:VBox>
@@ -820,14 +820,10 @@
 					<mx:Label text="Organism:" top="85" left="188" width="100%"/>
 					<hci:DictionaryComboBox  left="188" right="150" top="102"
 						id="spIdOrganism"
-						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
-						dictValue="@value"
-						dictDisplay="@display"
-						dictName="hci.gnomex.model.Organism"
+						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
 						labelField="@display"
 						prompt=" "
 						data="{fullSlideProduct.@idOrganism}"
-						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						 width="100%" change="dirty.setDirty();">
 						</hci:DictionaryComboBox>
 					</mx:VBox>
@@ -844,13 +840,9 @@
 					<mx:Label text="Category:" left="10" top="142" height="18" width="100%"/>
 					<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
 						 id="spMicroarrayCategory"
-						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
-						dictValue="@value"
-						dictDisplay="@display"
-						dictName="hci.gnomex.model.MicroarrayCategory"
+						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
 						labelField="@display"
-						prompt="Select a catagory to add..."
-						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}">
+						prompt="Select a catagory to add...">
 						</hci:DictionaryComboBox>
 					<mx:TextInput id="idSlideProduct" text="{fullSlideProduct.@idSlideProduct}" editable="false" enabled="false" visible="false" width="100%" left="10" top="189"/>
 					<mx:TextInput id="isSlideSet" text="{fullSlideProduct.@isSlideSet}" editable="false" enabled="false" visible="false" top="219" left="10" width="100%"/>

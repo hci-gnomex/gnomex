@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:hci = "hci.components.*"
+	xmlns:hci="hci.flex.components.*"
 	layout="vertical" left="0" right="0" top="0" bottom="0" 
 	showCloseButton="true"
 	close="PopUpManager.removePopUp(this)"
@@ -75,12 +75,8 @@
 					<mx:Label text="Kind of Request:" color="#000000"/>
 					<hci:DictionaryComboBox
 						id="codeRequestCategory"
-						dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
-						dictValue="@value"
-						dictDisplay="@display"
-						dictName="hci.gnomex.model.RequestCategory"
+						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
 						labelField="@display"
-						dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 						width="100%">
 						</hci:DictionaryComboBox>
 				</mx:VBox>

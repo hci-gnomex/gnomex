@@ -584,7 +584,12 @@
 			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
 		 	PopUpManager.centerPopUp(this.analysisAddWindow);		
 		 
-		 	var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == browseLabCombo.selectedItem.@idLab);
+		 	var selectedLabNode:Object = null;
+		 	if (this.selectedIdLab != null) {
+				selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
+		 	} else {
+		 		selectedLabNode = parentApplication.getLabList.lastResult.Lab[0];
+		 	}
 		 	analysisAddWindow.labCombo.selectedItem = selectedLabNode;
 		 
 		 	if (selectedIdAnalysisGroup != null) {

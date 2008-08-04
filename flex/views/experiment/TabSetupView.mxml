@@ -126,7 +126,7 @@
 		}
 		
 		public function getRequestCategory():Object {
-			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestTypeGroup.selectedValue);
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestTypeGroup.selectedValue);
 			return requestCategory;			
 		}
 		
@@ -433,7 +433,7 @@
 					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle">
 					<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="300" id="projectCombo" change="{checkSetupCompleteness()}">
 					</mx:ComboBox>
-						<mx:Button id="editProjectButton" label="Edit..." icon="@Embed('../../assets/folder.png')" click="showEditProjectWindow()"/>
+						<mx:Button id="editProjectButton" label="New/Edit..." icon="@Embed('../../assets/folder.png')" click="showEditProjectWindow()"/>
 					</mx:HBox>					
 				</mx:HBox>
 			</mx:HBox>

@@ -58,7 +58,8 @@
 		import mx.events.DragEvent;
 		import mx.managers.DragManager;
 		import mx.events.CloseEvent;
-		import views.renderers.LabelDictionary;
+		import hci.flex.renderers.ComboBoxDictionary;
+		import hci.flex.renderers.LabelDictionary;
 		
 		private var isValid:Boolean = true;
 		
@@ -302,7 +303,7 @@
 		// Need to use these label functions instead of LabelDictionary item renderer because drag image is blank otherwise.
 		//
         private function lookupOrganism(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == item.@idOrganism);
+        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', item.@idOrganism);
         	if (d != null) {
         		return d.@display;
         	} else {
@@ -310,7 +311,7 @@
         	}
         }		
         private function lookupFlowCellType(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.FlowCellType').DictionaryEntry.(@value == item.@idFlowCellType);
+        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.FlowCellType', item.@idFlowCellType);
         	if (d != null) {
         		return d.@display;
         	} else {
@@ -318,7 +319,7 @@
         	}
         }		
         private function lookupNumberSequencingCycles(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@value == item.@idNumberSequencingCycles);
+        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
         	if (d != null) {
         		return d.@display;
         	} else {
@@ -361,11 +362,11 @@
 				<mx:columns>
 					<mx:DataGridColumn  headerText="Lane" labelFunction="getAssembleLaneRowNumber" width="21"/>
 					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" 
-                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 											
 					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  
-                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 											
+                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 											
 					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" 
-                     itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
+                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 					<mx:DataGridColumn  dataField="@sampleNumber" width="35" headerText="Sample #"/>
 				</mx:columns>			
 			</mx:DataGrid>		
@@ -376,9 +377,9 @@
 					<mx:columns>
 						<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
 						<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="100"
-                           itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 											
 						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="47"
-                           itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
+                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 						<mx:DataGridColumn  dataField="@notes" headerText="Content" />
 					</mx:columns>				
 				</mx:DataGrid>		

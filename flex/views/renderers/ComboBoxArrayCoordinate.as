@@ -4,6 +4,9 @@ package views.renderers
 	import mx.controls.DataGrid;
 	import mx.events.CollectionEvent;
 	import mx.events.ListEvent;
+	import mx.core.IFactory;
+	import views.renderers.ComboBox;
+	import hci.flex.renderers.RendererFactory;
 
 	public class ComboBoxArrayCoordinate extends views.renderers.ComboBox
 	{
@@ -20,21 +23,19 @@ package views.renderers
                         <dictionary value="2_4"  display="2_4" />
                     </coordDictionary>;
 			
-		    
-		    protected override function setDataProvider():void {
+			public static function create(dataField:String):IFactory {
+				return RendererFactory.create(ComboBoxArrayCoordinate, 
+				{ dataField: dataField});			
+				  
+			}	 
+					    
+		    override protected function initializationComplete():void {
+            
 				dataProvider = new XMLList(coordDictionary.dictionary);
-				
-				// This will detect changes to underlying data anc cause combobox to be selected based on value.
-				IList(DataGrid(owner).dataProvider).addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);
+            	super.initializationComplete();
             }
             
-            override protected function initializationComplete():void
-            {   
-            	initializeFields();
-            	setDataProvider();
-                this.addEventListener(ListEvent.CHANGE, change);
-            	labelField = this._dictionaryDisplayField;
-            }
+
             
 		    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		    {

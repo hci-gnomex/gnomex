@@ -45,6 +45,8 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBoxArrayCoordinate;
+        import hci.flex.renderers.ComboBoxDictionary;
+        import hci.flex.renderers.LabelDictionary;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -164,7 +166,10 @@
         	}        	
         	return keep;
         }
-  
+ 		public function lookupUserName(item:Object, col:DataGridColumn):String 
+    	{ 
+    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
+    	} 
 
 
         ]]>
@@ -199,7 +204,7 @@
 					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="7" dataField="@requestNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Submit Date" width="12" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Requester"  width="12" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+					<mx:DataGridColumn editable="false" headerText="Requester"  width="12" dataField="@idAppUser" labelFunction="lookupUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="9" dataField="@hybNumber"/>
 					<mx:DataGridColumn headerText="Slide" width="22" labelFunction="getSlideDesignName"/>
 					<mx:DataGridColumn headerText="Slide Barcode" width="13" dataField="@slideBarcode"/>
@@ -209,21 +214,22 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxArrayCoordinate, {dataField: '@arrayCoordinate'})}"/>			                
+ 	                   itemEditor="{views.renderers.ComboBoxArrayCoordinate.create('@arrayCoordinate')}"/>			                
 					<mx:DataGridColumn headerText="Hyb Protocol"  width="25" dataField="@idHybProtocol" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
- 	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol', isRequired: true})}"                 
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"/>			                
+ 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol', true)}"                 
+ 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol')}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@hybStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@hybStatus'})}"/>			                
+ 	                   itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@hybStatus')}"/>	
+ 	               <mx:DataGridColumn headerText="" width="0"/>		                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

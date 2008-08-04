@@ -3,7 +3,7 @@
 	layout="vertical" 
 	title="Add Analysis" width="360" height="324" 
 	defaultButton="{saveButton}">
-	
+	 
     <mx:HTTPService 
     id="saveAnalysis" 
     url="SaveAnalysis.gx"
@@ -155,7 +155,7 @@
 			<mx:Label text="Organism" width="100">
 			</mx:Label>
 			<mx:ComboBox  width="100%" id="organismCombo" labelField="@display"  change="checkCompleteness()">
-				<mx:dataProvider>{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:VBox>
 	</mx:VBox>

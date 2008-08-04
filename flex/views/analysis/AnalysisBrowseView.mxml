@@ -33,7 +33,7 @@
 	import views.analysis.AnalysisGroupWindow;
 	import views.util.DownloadHints;
 	import mx.core.IFlexDisplayObject;
-	import views.renderers.LabelDictionary;
+	import hci.flex.renderers.LabelDictionary;
 
 
 
@@ -59,7 +59,7 @@
     }
 
     public function getRequestKind(item:Object, col:int):String {
-    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', item.@codeRequestCategory);
     	if (de.length() == 1) {
 	    	return de[0].@display;
     	} else {
@@ -70,7 +70,7 @@
     	if (item.@codeMicroarrayCategory == "") {
     		return getRequestKind(item, col);
     	} else {
-	    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == item.@codeMicroarrayCategory);
+	    	var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', item.@codeMicroarrayCategory);
 	    	if (de.length() == 1) {
 		    	return de[0].@display;    		
 	    	} else {
@@ -291,11 +291,11 @@
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
 				       	<mx:DataGridColumn headerText="Submitted by" width="50" dataField="@ownerName"/>
 				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
- 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>                 
+ 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType','@idAnalysisType')}"/>                 
 				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"
- 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisProtocol', dataField: '@idAnalysisProtocol'})}"/>                 
+ 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisProtocol', '@idAnalysisProtocol')}"/>                 
 				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50"
- 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 
+ 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism','@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 			         </mx:columns>
 			       </mx:DataGrid> 	    

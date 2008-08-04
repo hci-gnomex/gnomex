@@ -23,6 +23,8 @@
  	import views.renderers.ComboBoxVisibility;
  	import mx.events.CloseEvent;
  	import mx.controls.Alert;
+ 	import hci.flex.renderers.ComboBoxDictionary;
+ 	import hci.flex.renderers.LabelDictionary;
  	
  	private var broadestCodeVisibility:String = "MEM";
  	
@@ -44,7 +46,7 @@
 			
 
  	private function getRequestKind(item:Object, col:int):String {
-		var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+		var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', item.@codeRequestCategory);
     	if (de.length() == 1) {
 	    	return de[0].@display;
     	} else {
@@ -61,7 +63,7 @@
     		}
     	}
     	
-    	var broadestVisibility:String = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility).@visibility;
+    	var broadestVisibility:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility).@visibility;
     	
     	if (projectVisibilityCombo.selectedItem.@codeVisibility < broadestCodeVisibility) {
     		
@@ -82,7 +84,7 @@
 
 	private function onPromptToChangeProjectVisibility(event:CloseEvent):void {
         if (event.detail == Alert.YES) {
-        	projectVisibilityCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility);
+        	projectVisibilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility);
         	saveImpl();
         } else if (event.detail == Alert.NO) {
         	saveImpl();
@@ -143,7 +145,7 @@
 	       <mx:HBox width="100%" horizontalAlign="left">
 					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@projectName}"/>
 	                <mx:ComboBox id="projectVisibilityCombo" labelField="@display"  
-                     	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
+                     	dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
                      	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
 	       </mx:HBox>
 	       <mx:DataGrid  id="visibilityGrid" 
@@ -172,8 +174,8 @@
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="{projectVisibilityCombo.enabled}" 
 					rendererIsEditor="false" 
-					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"
-					itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxVisibility, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"/>
+					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
+					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>
 
 	         </mx:columns>
 	       </mx:DataGrid>

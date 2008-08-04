@@ -2,7 +2,9 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Confirm" width="100%" height="100%" enabled="false">
 <mx:Script>	
 	<![CDATA[
-		import views.renderers.LabelDictionary;
+		import views.util.AnnotationDataGridColumn;
+		import hci.flex.renderers.ComboBoxDictionary;
+		import hci.flex.renderers.LabelDictionary; 
 		
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
@@ -32,6 +34,15 @@
 				fragmentSizeFromConfirmCol.visible = false;
 				fragmentSizeToConfirmCol.visible = false;
 				preppedByCoreCol.visible = false;
+			}
+			// If this is a QC request, hide the annotation columns 
+			if (parentDocument.currentState == 'QCState') {
+				// Make all annotation columns invisible
+				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
+					if (col is views.util.AnnotationDataGridColumn) {
+						col.visible = false;
+					}
+				}
 			}
   						
         }
@@ -67,39 +78,39 @@
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ConcentrationUnit', dataField: '@codeConcentrationUnit'})}"/>
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@codeConcentrationUnit')}"/>
 						<mx:DataGridColumn id="fragmentSizeFromConfirmCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom">
 						</mx:DataGridColumn>
 						<mx:DataGridColumn id="fragmentSizeToConfirmCol" headerText="Size To" width="54"  dataField="@fragmentSizeTo">
 						</mx:DataGridColumn>
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SamplePrepMethod', dataField: '@idSamplePrepMethod'})}"/>
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod')}"/>
 			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleType', dataField: '@idSampleType'})}"/>
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
 			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SampleSource', dataField: '@idSampleSource'})}"/>
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource')}"/>
 		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.BioanalyzerChipType', dataField: '@codeBioanalyzerChipType'})}"/>
-						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="true" visible="false"/>
-						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="false"/>
-						<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="false"/>
-						<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="false"/>
-						<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="true" visible="false"/>
-						<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="false"/>
-						<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="false"/>
-						<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="false"/>
-						<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="false"/>
-						<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="false"/>
-						<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="true" visible="false"/>
-						<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="false"/>
-						<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="true" visible="false"/>
-						<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="true" visible="false"/>
-						<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="true" visible="false"/>
-						<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="true" visible="false"/>
-						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="false" width="100" dataField="@treatment"/>
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="false" visible="{parentDocument.request.@AGE == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="false" visible="{parentDocument.request.@CELLLINE == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="false" visible="{parentDocument.request.@CELLTYPE == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="false" visible="{parentDocument.request.@CLININFO == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="false" visible="{parentDocument.request.@COMPOUND == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="false" visible="{parentDocument.request.@DISSTATE == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="false" visible="{parentDocument.request.@GENMOD == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="false" visible="{parentDocument.request.@GENOTYPE == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="false" visible="{parentDocument.request.@GROWTHCOND == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="false" visible="{parentDocument.request.@INDIV == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="false" visible="{parentDocument.request.@ORGPART == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="false" visible="{parentDocument.request.@SEX == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="false" visible="{parentDocument.request.@TEMP == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="false" visible="{parentDocument.request.@TIME == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="false" visible="{parentDocument.request.@OTHER == 'Y' ? true : false}"/>
+						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 						<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 					</mx:columns>
 				</mx:DataGrid>				
@@ -112,8 +123,10 @@
 					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="70" labelFunction="parentDocument.getHybsGridRowNumber"/>
 					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>
 					    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="parentDocument.getSampleChannel2Name"/>
-					     <mx:DataGridColumn headerText="Slide Source"  width="82" 
-	                  	  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource'})}"/>
+					     <mx:DataGridColumn headerText="Slide"  width="182" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideDesign', '@idSlideDesign')}"/>
+					     <mx:DataGridColumn headerText="Slide Source"  width="52" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource')}"/>
 						<mx:DataGridColumn headerText="Notes" width="100" dataField="@notes"/>
 					</mx:columns>
 				</mx:DataGrid>
