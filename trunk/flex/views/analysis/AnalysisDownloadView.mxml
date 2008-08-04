@@ -63,6 +63,7 @@
     import mx.managers.PopUpManager;
     import mx.events.ListEvent;
     import mx.controls.Alert;
+    import hci.flex.renderers.LabelDictionary;
    
 	
  	[Bindable]
@@ -264,7 +265,7 @@
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" sortable="false"
-		            	itemRenderer="views.renderers.CheckBox">
+		            	itemRenderer="hci.flex.renderers.CheckBox">
 			            </mx:DataGridColumn> 
 			            <mx:DataGridColumn   minWidth="28" width="28" headerText="">
 			                <mx:itemRenderer>
@@ -282,11 +283,11 @@
 				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
 				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
- 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>                 
+ 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>                 
 				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"
- 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisProtocol', dataField: '@idAnalysisProtocol'})}"/>                 
+ 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisProtocol', '@idAnalysisProtocol')}"/>                 
 				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50"
- 	                      itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>                 
+ 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 		         </mx:columns>
 		       </mx:DataGrid>
@@ -310,7 +311,7 @@
 		            	editable="true"           sortable="false"              	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
-		            	itemRenderer="views.renderers.CheckBox"/>
+		            	itemRenderer="hci.flex.renderers.CheckBox"/>
 		            <mx:DataGridColumn width="7" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >

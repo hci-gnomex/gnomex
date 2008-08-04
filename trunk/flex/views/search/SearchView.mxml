@@ -80,13 +80,13 @@
        public function initializeData():void {
        	parentApplication.filteredSlideProductList.filterFunction = filterSlideProduct;
        	
-       	microarrayCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry;
-       	organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
-       	sampleSourceCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry;
-       	requestCategoryCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry;
-       	sampleTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry;
-       	analysisTypeCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry;
-       	analysisProtocolCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry;
+       	microarrayCategoryCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.MicroarrayCategory');
+       	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');
+       	sampleSourceCombo.dataProvider           = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleSource');
+       	requestCategoryCombo.dataProvider        = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategory');
+       	sampleTypeCombo.dataProvider             = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType');
+       	analysisTypeCombo.dataProvider           = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
+       	analysisProtocolCombo.dataProvider       = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');
 
 		parentApplication.experimentDesignList.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingExperimentDesignChange);
 		parentApplication.experimentFactorList.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingExperimentFactorChange);			
@@ -107,7 +107,7 @@
         	if (requestCategoryCombo.selectedItem != null && 
         	    requestCategoryCombo.selectedItem.@value != '') {
         		doesMatchRequestCategoryVendor = false;
-				var rCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == requestCategoryCombo.selectedItem.@value);
+				var rCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestCategoryCombo.selectedItem.@value);
         		if (item.@idVendor == rCategory.@idVendor) {
         			doesMatchRequestCategoryVendor = true;        			
         		}
@@ -397,7 +397,7 @@
                     	editable="true"                        	
                     	dataField="@isSelected" 
                     	editorDataField="selected"
-                    	itemRenderer="views.renderers.CheckBox" >
+                    	itemRenderer="hci.flex.renderers.CheckBox" >
                     </mx:DataGridColumn>
                     <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
                 </mx:columns>
@@ -409,7 +409,7 @@
                     	editable="true"                        	
                     	dataField="@isSelected" 
                     	editorDataField="selected" 
-                    	itemRenderer="views.renderers.CheckBox">
+                    	itemRenderer="hci.flex.renderers.CheckBox">
                     </mx:DataGridColumn>
                     <mx:DataGridColumn headerText="Experimental Factors (differences)" editable="false" dataField="@experimentFactor"/>
                 </mx:columns>

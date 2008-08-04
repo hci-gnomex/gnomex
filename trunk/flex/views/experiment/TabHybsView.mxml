@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Hybs" width="100%" height="100%" enabled="false" >
-<mx:Script>
+<mx:Script> 
 	<![CDATA[ 
 		import mx.events.CloseEvent;
 		import mx.controls.Alert;
@@ -8,6 +8,9 @@
 		import mx.managers.DragManager;
         import mx.core.DragSource;
         import mx.collections.XMLListCollection;
+        import views.renderers.ComboBoxDictionary;
+        import hci.flex.renderers.LabelDictionary;
+        import views.renderers.ComboBoxWorkflowStatus;
 
 		[Bindable]
 		public var slideDesigns:XMLListCollection = new XMLListCollection();
@@ -395,8 +398,8 @@
                             
 					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel1"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel1'})}"
-	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel1', canChangeByAdminOnly: true})}">
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel1')}"
+	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel1', '', false, true)}">
 						<mx:headerRenderer >
 					 	<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -418,8 +421,8 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingReactionSize', dataField: '@codeLabelingReactionSizeChannel1'})}"
-	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingReactionSize', dataField: '@codeLabelingReactionSizeChannel1', canChangeByAdminOnly: true})}">
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSizeChannel1')}"
+	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize',  '@codeLabelingReactionSizeChannel1', '', false, true)}">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -441,7 +444,7 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-	    	           itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@labelingStatusChannel1', canChangeByAdminOnly: true})}">
+	    	           itemEditor="{ComboBoxWorkflowStatus.create('@labelingStatusChannel1')}">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -453,8 +456,8 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel2"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel2'})}"
-	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idLabelingProtocolChannel2', canChangeByAdminOnly: true})}">
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel2')}"
+	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel2', '', false, true)}">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -476,7 +479,7 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.LabelingReactionSize', dataField: '@codeLabelingReactionSizeChannel2', canChangeByAdminOnly: true})}">
+	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSizeChannel2', '', false, true)}">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -498,7 +501,7 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
-	    	           itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@labelingStatusChannel2', canChangeByAdminOnly: true})}">
+	    	           itemEditor="{ComboBoxWorkflowStatus.create('@labelingStatusChannel2')}">
 						<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -515,26 +518,26 @@
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" editable="{parentApplication.hasPermission('canWriteAnyObject')}" width="70" dataField="@arrayCoordinateName"/>
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70"  dataField="@idHybProtocol"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"
-   	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol', canChangeByAdminOnly: true})}"/>        	                   					
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol')}"
+   	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol', '', false, true)}"/>        	                   					
 					<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" itemRenderer="mx.controls.Label" 
-   	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@hybStatus', canChangeByAdminOnly: true})}"/>
+   	    	                   itemEditor="{ComboBoxWorkflowStatus.create('@hybStatus')}"/>
 					
 
 
 					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70"  dataField="@idScanProtocol"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol'})}"
-   	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol', canChangeByAdminOnly: true})}"/>        	                   					
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ScanProtocol', '@idScanProtocol')}"
+   	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ScanProtocol', '@idScanProtocol', '', false, true)}"/>        	                   					
 					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70"  dataField="@idFeatureExtractionProtocol"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol'})}"
-   	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol', canChangeByAdminOnly: true})}"/>        	                   					
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FeatureExtractionProtocol', '@idFeatureExtractionProtocol')}"
+   	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FeatureExtractionProtocol', '@idFeatureExtractionProtocol', '', false, true)}"/>        	                   					
 					<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
-  	                  	       itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.HybProtocol', dataField: '@idHybProtocol'})}"
-   	    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@extractionStatus', canChangeByAdminOnly: true})}"/>
+  	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol')}"
+   	    	                   itemEditor="{ComboBoxWorkflowStatus.create('@extractionStatus')}"/>
 					
 
 
@@ -544,13 +547,13 @@
                             
                             
 			             <mx:DataGridColumn id="slideDesignColumn" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide"  width="250" dataField="@idSlideDesign" 						             						             
-			                editorDataField="value" sortable="false" labelFunction="parentApplication.lookupSlideDesignName" editable="true" rendererIsEditor="false" 
- 	                        itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxSlideDesign, {dictionaryDisplayField: '@name', dictionaryValueField: '@idSlideDesign', dataField: '@idSlideDesign', securityDataField: '@canChangeSlideDesign'})}"			                
-    	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.Label, {dataField: '@idSlideDesign'})}"/>                 			                
+			                editorDataField="value" sortable="false"  editable="true" rendererIsEditor="false" 
+ 	                        itemEditor="{views.renderers.ComboBoxSlideDesign.create('@idSlideDesign', '@idSlideDesign', '@name' ,'@canChangeSlideDesign')}"			                
+    	                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideDesign', '@idSlideDesign', true)}"/>                 			                
 			             <mx:DataGridColumn visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="78" dataField="@codeSlideSource" 
 			                editorDataField="value" sortable="false" editable="true"  rendererIsEditor="false" 
- 	                        itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource', isRequired: true})}"
- 	                        itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.SlideSource', dataField: '@codeSlideSource', securityDataField: '@canChangeSlideSource'})}"/>			                
+ 	                        itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource', true)}"
+ 	                        itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource', '@canChangeSlideSource')}"/>			                
 			                
 						<mx:DataGridColumn headerText="Notes" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="100" dataField="@notes"/>
 					</util:columns>

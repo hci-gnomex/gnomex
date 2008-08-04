@@ -34,13 +34,13 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
-		import views.util.HciDictionaryView;
-		import views.util.DictionaryEvent;
+		import hci.flex.components.DictionaryEditor;
+		import hci.flex.events.DictionaryEvent;
 		import mx.managers.PopUpManager;
 		
 		private var closeWindowAfterSave:Boolean = false;
 		public var fromSubmitRequestWindow:Boolean = false;
-		private var dictView:HciDictionaryView;
+		private var dictionaryEditor:DictionaryEditor;
 		
 		
 		public function checkSecurity():void {
@@ -279,15 +279,15 @@
 				return;
 			}
 
-			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
-			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navExperimentView, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryExperimentDesignInitialized);
 			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                   onDictionaryExperimentDesignRefreshed);
-			PopUpManager.centerPopUp(dictView);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionaryExperimentDesignInitialized(event:Event):void{
-			dictView.selectDictionary("hci.gnomex.model.ExperimentDesign");
+			dictionaryEditor.selectDictionary("hci.gnomex.model.ExperimentDesign");
         }          
        	private function onDictionaryExperimentDesignRefreshed(event:Event):void{
 			parentApplication.navExperimentView.getProject.send();
@@ -302,15 +302,15 @@
 				Alert.show("Please save your project changes before proceeding to edit Experimental Factors.", "Unsaved changes");
 				return;
 			}
-			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navExperimentView, HciDictionaryView, true));
-			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navExperimentView, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryExperimentFactorInitialized);
 			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                   onDictionaryExperimentFactorRefreshed);
-			PopUpManager.centerPopUp(dictView);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionaryExperimentFactorInitialized(event:Event):void{
-			dictView.selectDictionary("hci.gnomex.model.ExperimentFactor");
+			dictionaryEditor.selectDictionary("hci.gnomex.model.ExperimentFactor");
         }          
        	private function onDictionaryExperimentFactorRefreshed(event:Event):void{
 			parentApplication.navExperimentView.getProject.send();
@@ -363,7 +363,7 @@
 	            	editable="true"                        	
 	            	dataField="@isSelected" 
 	            	editorDataField="selected"
-	            	itemRenderer="views.renderers.CheckBox" >
+	            	itemRenderer="hci.flex.renderers.CheckBox" >
 	            </mx:DataGridColumn>
 	            <mx:DataGridColumn  
 	            	headerText="Experiment Design (general intent)"
@@ -389,7 +389,7 @@
                 </mx:DataGridColumn>
             </mx:columns>
   	      </mx:DataGrid>
-		  <mx:LinkButton label="Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentDesign()" id="editExperimentDesignButton">		  	
+		  <mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentDesign()" id="editExperimentDesignButton">		  	
 		  </mx:LinkButton>			
 		</mx:VBox>
 
@@ -401,7 +401,7 @@
 	            	editable="true"                        	
 	            	dataField="@isSelected" 
 	            	editorDataField="selected" 
-	            	itemRenderer="views.renderers.CheckBox">
+	            	itemRenderer="hci.flex.renderers.CheckBox">
 	            </mx:DataGridColumn>
 	            <mx:DataGridColumn  
 	            	headerText="Factors (differences between samples)" 
@@ -427,7 +427,7 @@
                 </mx:DataGridColumn>
 	        </mx:columns>
   	      </mx:DataGrid>
-		  <mx:LinkButton label="Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentFactor()" id="editExperimentFactorButton">		  	
+		  <mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentFactor()" id="editExperimentFactorButton">		  	
 		  </mx:LinkButton>			
 		</mx:VBox>
 

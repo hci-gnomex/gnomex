@@ -163,7 +163,10 @@
         	return keep;
         }
         
-  
+		public function lookupUserName(item:Object, col:DataGridColumn):String 
+    	{ 
+    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
+    	}  
            
 
         ]]>
@@ -190,13 +193,13 @@
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@seqPrepStatus'})}"/>			                
+ 	                   itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>			                
 
 				</util:columns>
 		</util:DataGridAlternatingGroup>

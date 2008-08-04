@@ -50,7 +50,7 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
-        import views.renderers.ComboBox;
+        import views.renderers.ComboBoxWorkflowStatus;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -231,7 +231,10 @@
         	return keep;
         }
         
-  
+		public function lookupUserName(item:Object, col:DataGridColumn):String 
+    	{ 
+    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
+    	}  
            
 
         ]]>
@@ -258,7 +261,7 @@
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="15" dataField="@qualCalcConcentration"/>
 					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"/>
@@ -269,7 +272,7 @@
 	                	editorDataField="value"
 	                   rendererIsEditor="false" 
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@qualStatus'})}"/>			                
+ 	                   itemEditor="{ComboBoxWorkflowStatus.create('@qualStatus')}"/>			                
 
 				</util:columns>
 		</util:DataGridAlternatingGroup>

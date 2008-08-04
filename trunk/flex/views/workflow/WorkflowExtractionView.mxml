@@ -44,7 +44,9 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
-        import views.renderers.ComboBox;
+        import views.renderers.ComboBoxWorkflowStatus;
+        import hci.flex.renderers.ComboBoxDictionary;
+        import hci.flex.renderers.LabelDictionary;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -165,7 +167,10 @@
         	return keep;
         }
   
-   
+   		public function lookupUserName(item:Object, col:DataGridColumn):String 
+    	{ 
+    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
+    	}
 
         ]]>
     </mx:Script> 
@@ -197,31 +202,31 @@
 	
 			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
-					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
+					<mx:DataGridColumn editable="false" headerText=""  width="1" labelFunction="getGridRowNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Req #"  width="7" dataField="@requestNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Submit Date" width="10" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Requester"  width="14" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+					<mx:DataGridColumn editable="false" headerText="Requester"  width="8" dataField="@idAppUser" labelFunction="lookupUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="7" dataField="@hybNumber"/>
-					<mx:DataGridColumn headerText="Scan Protocol"  width="29" dataField="@idScanProtocol" 
+					<mx:DataGridColumn headerText="Scan Protocol"  width="12" dataField="@idScanProtocol" 
 	                   editorDataField="value"
                        sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
-	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol'})}"                 							
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.ScanProtocol', dataField: '@idScanProtocol'})}"/>			                
-					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="28" dataField="@idFeatureExtractionProtocol" 
+	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ScanProtocol', '@idScanProtocol')}"                 							
+ 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ScanProtocol', '@idScanProtocol')}"/>			                
+					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="12" dataField="@idFeatureExtractionProtocol" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
-	                   itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol'})}"                 							
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FeatureExtractionProtocol', dataField: '@idFeatureExtractionProtocol'})}"/>			                
-	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@extractionStatus" 
+	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FeatureExtractionProtocol', '@idFeatureExtractionProtocol')}"                 							
+ 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FeatureExtractionProtocol', '@idFeatureExtractionProtocol')}"/>			                
+	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@extractionStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
- 	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxWorkflowStatus, {dataField: '@extractionStatus'})}"/>			                
+ 	                   itemEditor="{ComboBoxWorkflowStatus.create('@extractionStatus')}"/>	          	                   			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

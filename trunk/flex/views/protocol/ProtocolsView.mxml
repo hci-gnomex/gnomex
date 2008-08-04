@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas
 	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:hci = "hci.components.*"
+	xmlns:hci = "hci.flex.components.*"
 	xmlns:views = "views.*"
 	xmlns:util = "views.util.*"	
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
@@ -13,6 +13,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"		
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to get protocol list', event)">
 		<mx:request>
@@ -25,6 +26,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"		
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)">
 		<mx:request>
@@ -50,6 +52,7 @@
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
+		method="POST"
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to delete protocol', event)">
 		<mx:request>
@@ -329,16 +332,11 @@
 			</mx:HBox>
 			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle">
 				<mx:Label text="Kind of Request:" fontWeight="bold" width="100"/>
-				<hci:DictionaryLabel
+				<mx:Label 
 					id="kindDisplay"
-					dictValue="@value"
-					dictDisplay="@display"
-					dictName="hci.gnomex.model.RequestCategory"
-					data="{fullProtocol.codeRequestCategory}"
-					dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
-					text ="{kindDisplay.getDisplayForValue(fullProtocol.codeRequestCategory)}"
+					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.RequestCategory', fullProtocol.codeRequestCategory)}"
 					width="100%">
-					</hci:DictionaryLabel>
+					</mx:Label>
 			</mx:HBox>
 			<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
 				<mx:Label text="Active:" fontWeight="bold" width="100"/>
@@ -364,13 +362,9 @@
 				<mx:Label text="Kind of Request:" width="100"/>
 				<hci:DictionaryComboBox
 					id="codeRequestCategory"
-					dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
-					dictValue="@value"
-					dictDisplay="@display"
-					dictName="hci.gnomex.model.RequestCategory"
+					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
 					labelField="@display"
 					data="{fullProtocol.codeRequestCategory}"
-					dictProvider="{new XMLList(parentApplication.manageDictionaries.lastResult.Dictionary)}"
 					width="100%" change="dirty.setDirty()">
 					</hci:DictionaryComboBox>
 			</mx:VBox>

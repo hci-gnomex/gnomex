@@ -6,7 +6,7 @@
 		import mx.events.CloseEvent;
 		import mx.controls.Alert;
 		import views.analysis.AnalysisEditView;
-		import views.renderers.LabelDictionary;
+		import hci.flex.renderers.LabelDictionary;
 	
 	
 		[Bindable]
@@ -77,19 +77,19 @@
 		}
 
 		private function getAnalysisTypeName():void {
-			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idAnalysisType);
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', parentDocument.selectedAnalysis.@idAnalysisType);
 			analysisTypeName = dict.@display.toString();
 		}
 		private function getAnalysisProtocolName():void {
-			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.AnalysisProtocol').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idAnalysisProtocol);
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', parentDocument.selectedAnalysis.@idAnalysisProtocol);
 			analysisProtocolName = dict.@display.toString();
 		}
 		private function getOrganismName():void {
-			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idOrganism);
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', parentDocument.selectedAnalysis.@idOrganism);
 			organismName = dict.@display.toString();
 		}
 		private function getGenomeBuildName():void {
-			var dict:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry.(@value == parentDocument.selectedAnalysis.@idGenomeBuild);
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', parentDocument.selectedAnalysis.@idGenomeBuild);
 			genomeBuildName = dict.@display.toString();
 		}		
 		
@@ -223,7 +223,7 @@
 							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
 							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
 							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
-							    <mx:DataGridColumn headerText="Slide" width="320" labelFunction="parentApplication.lookupSlideDesignName" />
+							    <mx:DataGridColumn headerText="Slide" width="320" />
 								<mx:DataGridColumn headerText="Notes" width="100"   dataField="@notes"/>
 							</mx:columns>
 						</mx:DataGrid>
@@ -237,13 +237,13 @@
 						    <mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 						    <mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
 				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
-                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType'})}"/>                 											
+                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType',  '@idFlowCellType')}"/>                 											
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles'})}"/>                 											
+                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
 				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
-                                    itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.LabelingProtocol', dataField: '@idGenomeBuildAlignTo'})}"/>                 											
+                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idGenomeBuildAlignTo')}"/>                 											
 							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 		        		  </mx:columns>
 		        		</mx:DataGrid>

@@ -23,6 +23,8 @@
  	import mx.rpc.events.ResultEvent;
  	import views.renderers.ComboBoxVisibility;
  	import mx.events.CloseEvent;
+ 	import hci.flex.renderers.ComboBoxDictionary;
+ 	import hci.flex.renderers.LabelDictionary;
  	
  	private var broadestCodeVisibility:String = "MEM";
  	
@@ -47,7 +49,7 @@
 			
 
  	private function getRequestKind(item:Object, col:int):String {
-		var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+		var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', item.@codeRequestCategory);
     	if (de.length() == 1) {
 	    	return de[0].@display;
     	} else {
@@ -64,7 +66,7 @@
     		}
     	}
     	
-    	var broadestVisibility:String = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility).@visibility;
+    	var broadestVisibility:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility).@visibility;
     	
     	if (analysisGroupVisibilityCombo.selectedItem.@codeVisibility < broadestCodeVisibility) {
     		
@@ -85,7 +87,7 @@
 
 	private function onPromptToChangeAnalysisGroupVisibility(event:CloseEvent):void {
         if (event.detail == Alert.YES) {
-        	analysisGroupVisibilityCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry.(@value == broadestCodeVisibility);
+        	analysisGroupVisibilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility);
         	saveImpl();
         } else if (event.detail == Alert.NO) {
         	saveImpl();
@@ -149,7 +151,7 @@
 	       <mx:HBox width="100%" horizontalAlign="left">
 					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@label}"/>
 					<mx:ComboBox id="analysisGroupVisibilityCombo" labelField="@display"  
-					 	dataProvider="{parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
+					 	dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
 					 	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
 	                
 	       </mx:HBox>
@@ -175,15 +177,15 @@
 		       	<mx:DataGridColumn headerText="Name" width="60" dataField="@name" editable="false"/>
 		       	<mx:DataGridColumn headerText="Date" width="40" dataField="@createDateDisplay" editable="false"/>
 		       	<mx:DataGridColumn headerText="Analysis Type" width="45"  editable="false"
-					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.AnalysisType', dataField: '@idAnalysisType'})}"/>
+					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>
 		       	<mx:DataGridColumn headerText="Organism" width="45"   editable="false"
-					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Organism', dataField: '@idOrganism'})}"/>
+					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism',  '@idOrganism')}"/>
 		       	<mx:DataGridColumn headerText="Description" width="55" dataField="@description"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="{analysisGroupVisibilityCombo.enabled}" 
 					rendererIsEditor="false" 
-					itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"
-					itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBoxVisibility, {dictionary: 'hci.gnomex.model.Visibility', dataField: '@codeVisibility'})}"/>
+					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
+					itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"/>
 
 	         </mx:columns>
 	       </mx:DataGrid>

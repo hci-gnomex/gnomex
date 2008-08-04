@@ -4,7 +4,7 @@
 	 height="100%" width="100%" label="Group Detail" 
 	  title="{parentDocument.fullLab.@name}">
 	  
-  <mx:HTTPService  
+  <mx:HTTPService   
     id="saveGroup" 
     url="SaveLab.gx"
     destination="saveGroup" 
@@ -32,20 +32,22 @@
 	  
 <mx:Script>
 	<![CDATA[
-		import views.util.HciDictionaryView;
+		import hci.flex.components.DictionaryEditor; 
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
-		import views.util.DictionaryEvent;
+		import hci.flex.events.DictionaryEvent;
+		import hci.flex.renderers.ComboBoxDictionary;
+		import hci.flex.renderers.LabelDictionary;
 		
 		
 		private var savedIdLab:Object = '';
-		private var dictView:HciDictionaryView;
+		private var dictionaryEditor:DictionaryEditor;
 		
 		public function initializeData():void {
-			this.contactStateCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == "hci.gnomex.model.State").DictionaryEntry;
+			this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 		}
 		
 		public function promptToSaveDirty():void {
@@ -208,25 +210,25 @@
         // Edit state dictionary
         //
 		private function editState():void {
-			dictView = HciDictionaryView(PopUpManager.createPopUp(parentApplication.navUsersView, HciDictionaryView, true));
-			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navUsersView, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryStateInitialized);
-			dictView.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
 			                          onDictionaryStateSelected);			
 			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                   onDictionaryStateRefreshed);
-			PopUpManager.centerPopUp(dictView);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionaryStateInitialized(event:Event):void{
-			dictView.selectDictionary("hci.gnomex.model.State");
+			dictionaryEditor.selectDictionary("hci.gnomex.model.State");
         }          
        	private function onDictionaryStateRefreshed(event:Event):void{
-			contactStateCombo.dataProvider     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.State').DictionaryEntry;								
-			contactStateCombo.selectedItem     = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.State').DictionaryEntry.(@value == parentDocument.fullLab.@contactCodeState);				
+			contactStateCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');								
+			contactStateCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.State', parentDocument.fullLab.@contactCodeState);				
         }	
        	private function onDictionaryStateSelected(event:Event):void{
        		if (this.contactStateCombo.selectedItem != null && this.contactStateCombo.selectedItem.@value != "") {
-       			dictView.selectDictionaryEntry(contactStateCombo.selectedItem);
+       			dictionaryEditor.selectDictionaryEntry(contactStateCombo.selectedItem);
        		}
         }
 	]]>
@@ -285,7 +287,8 @@
 							      <mx:VBox  verticalGap="0">
 							      	<mx:Label text="State" /> 
 							      	<mx:VBox verticalGap="0" horizontalAlign="right">
-								      	<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="70" change="dirty.setDirty()" labelField="@value"/>
+								      	<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="70" change="dirty.setDirty()" labelField="@value">
+								      	</mx:ComboBox>
 										<mx:LinkButton label="Edit..." textDecoration="underline" color="#2335E5" click="editState()">
 										</mx:LinkButton>						      		
 							      	</mx:VBox>
@@ -386,9 +389,10 @@
 			                rendererIsEditor="false" 
 			                labelFunction="getExpirationDateString"
 			                editorDataField="selectedDate"/>
-						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" labelFunction="{parentApplication.lookupFundingAgency}"
-							editorDataField="value" itemRenderer="mx.controls.Label" rendererIsEditor="false"  width="130"
-    	                   itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FundingAgency', dataField: '@idFundingAgency'})}"/>			                
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
+							editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
+						   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FundingAgency', '@idFundingAgency')}"
+    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FundingAgency', '@idFundingAgency')}"/>			                
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
 						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
 						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>

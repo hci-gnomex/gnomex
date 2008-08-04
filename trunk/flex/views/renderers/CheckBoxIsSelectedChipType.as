@@ -1,10 +1,11 @@
 package views.renderers
 {
 	import flash.events.Event;
+	import hci.flex.renderers.CheckBox;
 	
-	public class CheckBoxIsSelectedChipType extends views.renderers.CheckBox
+	public class CheckBoxIsSelectedChipType extends CheckBox
 	{
-          override protected function initializationComplete():void {
+          override protected function initializationComplete():void { 
           	this.addEventListener(Event.CHANGE, change);
           }   
           

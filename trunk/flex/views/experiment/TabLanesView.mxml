@@ -8,6 +8,8 @@
         import mx.core.DragSource;
         import mx.events.CloseEvent;
         import mx.controls.Alert;
+        import hci.flex.renderers.LabelDictionary;
+        import views.renderers.ComboBoxDictionary;
         		
 		private function addLane():void {
 			var emptyNode:XML = new XML("<SequenceLane " +
@@ -230,13 +232,13 @@
 			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType"
 			             	editorDataField="value"  
 			             	rendererIsEditor="false"
-			             	itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', isRequired: true})}"                 
-	 	                    itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', securityDataField: '@canChangeFlowCellType'})}"/>
+			             	itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType', true)}"                 
+	 	                    itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType', '@canChangeFlowCellType')}"/>
 			             <mx:DataGridColumn width="65"  headerText="# Cycles"   editable="true" dataField="@idNumberSequencingCycles" 						             						             
 			             	  editorDataField="value"  
 			             	  rendererIsEditor="false" 
-           	                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', isRequired: true})}"                 
-       	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', securityDataField: '@canChangeNumberSequencingCycles'})}"/>
+           	                  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles','@idNumberSequencingCycles', true)}"                 
+       	                      itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles')}"/>
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
@@ -246,8 +248,8 @@
 			            	dataField="@lastCycleStatus" editable="false"/>
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
-           	                  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo', isRequired: true})}"                 
-       	                      itemEditor="{gnomexFlex.createRendererWithProperties(views.renderers.ComboBox, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo', securityDataField: '@canChangeGenomeBuildAlignTo'})}"/>
+           	                  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo', true)}"                 
+       	                      itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo')}"/>
 						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>
 				</mx:DataGrid>

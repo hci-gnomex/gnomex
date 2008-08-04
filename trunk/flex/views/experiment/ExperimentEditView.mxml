@@ -91,7 +91,7 @@
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 		import mx.events.CollectionEvent;
-		import views.renderers.LabelDictionary;
+		import hci.flex.renderers.LabelDictionary;
         
         
 		[Bindable]
@@ -114,6 +114,22 @@
 		[Bindable]
 		public var request:Object;
 		
+		[Bindable]
+		public var samplePrepMethodList:XMLListCollection;
+		[Bindable]
+		public var sampleSourceList:XMLListCollection;
+		[Bindable]
+		public var filteredSampleTypeList:XMLListCollection;
+		[Bindable]
+		public var filteredFlowCellTypeList:XMLListCollection;
+		[Bindable]
+		public var filteredGenomeBuildList:XMLListCollection;
+		[Bindable]
+		public var filteredMicroarrayCategoryListForSubmitRequests:XMLListCollection;
+		
+		private var dictionarySorter:Sort;
+		private var sampleTypeSorter:Sort;
+
 		
 		[Bindable]
 		public var requestToClone:Object;
@@ -122,18 +138,42 @@
 		}
 				
 		public function initializeData():void {
-			if (!this.isSolexaState()) {
-				if (theTab.contains(sampleSetupView)) {
-					sampleSetupView.sampleOrganismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;					
-				}
-				if (theTab.contains(hybSetupView)) {
-					hybSetupView.organismCombo.dataProvider = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry;
-				}
-				
-			} 
+
+			samplePrepMethodList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod'));
+        	dictionarySorter = new Sort();
+    	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
+	        samplePrepMethodList.sort = dictionarySorter;
+	        samplePrepMethodList.refresh();
 			
+
+	        sampleSourceList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleSource'));
+	        sampleSourceList.sort = dictionarySorter;
+	        sampleSourceList.refresh();
+			
+        	
+        	filteredSampleTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
+        	sampleTypeSorter = new Sort();
+        	sampleTypeSorter.compareFunction = this.sortSampleTypes;	   
+        	filteredSampleTypeList.sort = sampleTypeSorter;     	
+        	filteredSampleTypeList.refresh();
+			
+        	
+	        filteredFlowCellTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.FlowCellType'));
+        	
+        	
+        	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild'));
+        	        	
+        	
+        	
+        	filteredMicroarrayCategoryListForSubmitRequests = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.MicroarrayCategory'));
+        	
+        
+
 			initFilters();
-			this.annotationView.addNonStandardSampleColumns(); 
+
+			if (theTab.contains(this.annotationView)) {
+				this.annotationView.addNonStandardSampleColumns(); 
+			}
 		}
 		
 		private function initFilters():void {
@@ -143,20 +183,20 @@
 			parentApplication.filteredSlideProductListForSubmitRequests.filterFunction = filterSlideProduct;
 			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 			
-			parentApplication.samplePrepMethodList.filterFunction = filterSamplePrepMethod;
-			parentApplication.samplePrepMethodList.refresh();
+			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
+			samplePrepMethodList.refresh();
 			
-			parentApplication.filteredFlowCellTypeList.filterFunction = filterFlowCellType;
-			parentApplication.filteredFlowCellTypeList.refresh();
+			filteredFlowCellTypeList.filterFunction = filterFlowCellType;
+			filteredFlowCellTypeList.refresh();
 
-			parentApplication.filteredGenomeBuildList.filterFunction = filterGenomeBuild;
-			parentApplication.filteredGenomeBuildList.refresh();
+			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
+			filteredGenomeBuildList.refresh();
 			
-			parentApplication.filteredMicroarrayCategoryListForSubmitRequests.filterFunction = filterMicroarrayCategory;
-			parentApplication.filteredMicroarrayCategoryListForSubmitRequests.refresh();
+			filteredMicroarrayCategoryListForSubmitRequests.filterFunction = filterMicroarrayCategory;
+			filteredMicroarrayCategoryListForSubmitRequests.refresh();
 			
-			parentApplication.filteredSampleTypeList.filterFunction = filterSampleType;
-			parentApplication.filteredSampleTypeList.refresh();
+			filteredSampleTypeList.filterFunction = filterSampleType;
+			filteredSampleTypeList.refresh();
 		}
 		
 		public function isSolexaState():Boolean {
@@ -447,7 +487,7 @@
 					this.hybsView.currentState = 'HybsState';
 					
 					this.hybSetupView.microarrayCategoryCombo.selectedIndex = 0;
-					parentApplication.filteredMicroarrayCategoryListForSubmitRequests.refresh();
+					filteredMicroarrayCategoryListForSubmitRequests.refresh();
 					
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
 					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
@@ -464,8 +504,8 @@
 	
 				}
 			}
-			parentApplication.filteredSampleTypeList.refresh();
-			parentApplication.samplePrepMethodList.refresh();
+			filteredSampleTypeList.refresh();
+			samplePrepMethodList.refresh();
 			
 			
 		}
@@ -576,8 +616,8 @@
 		}
 		
 		public function addSamplePrepMethodFilter():void {
-			parentApplication.samplePrepMethodList.filterFunction = filterSamplePrepMethod;
-			parentApplication.samplePrepMethodList.refresh();
+			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
+			samplePrepMethodList.refresh();
 		}
 		
 		public function getRequestCategory():Object {
@@ -585,7 +625,7 @@
 			if (!isEditState()) {
 				requestCategory = setupView.getRequestCategory();
         	} else {
-				requestCategory = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
         	}
         	return requestCategory;			
 		}
@@ -614,7 +654,7 @@
         	
         
         	var doesMatchRequestCategory:Boolean = false;
-        	var theSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
+        	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
     	   	for each (var xref1:Object in theSamplePrepMethods) {
     	   		if (xref1.@codeRequestCategory.toString() == setupView.requestTypeGroup.selectedValue) {
 	   				doesMatchRequestCategory = true;
@@ -627,7 +667,7 @@
         	    sampleSetupView.sampleTypeCombo.selectedItem.@value != null  &&
         	    sampleSetupView.sampleTypeCombo.selectedItem.@value != "") {
         	   	doesMatchSampleType = false;
-        	   	var applicableSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
+        	   	var applicableSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
         	   	for each (var xref:Object in applicableSamplePrepMethods) {
         	   		if (xref.@idSampleType.toString() == sampleSetupView.sampleTypeCombo.selectedItem.@value.toString()) {
     	   				doesMatchSampleType = true;
@@ -650,7 +690,7 @@
 
         	var doesMatchRequestCategory:Boolean = false;
         	var requestCategory:Object = this.getRequestCategory();
-        	var theSamplePrepMethods:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
+        	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
     	   	for each (var xref1:Object in theSamplePrepMethods) {
     	   		if (xref1.@codeRequestCategory.toString() == requestCategory.@codeRequestCategory.toString()) {
 	   				doesMatchRequestCategory = true;
@@ -669,7 +709,7 @@
         		return false;
         	}
         	var doesMatchRequestCategory:Boolean = false;
-        	var theMicroarrayCategories:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryMicroarrayCategory').DictionaryEntry.(@value != '' && @codeMicroarrayCategory == item.@value.toString());
+        	var theMicroarrayCategories:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryMicroarrayCategory').DictionaryEntry.(@value != '' && @codeMicroarrayCategory == item.@value.toString());
     	   	for each (var xref:Object in theMicroarrayCategories) {
     	   		if (xref.@codeRequestCategory.toString() == getRequestCategory().@codeRequestCategory.toString()) {
 	   				doesMatchRequestCategory = true;
@@ -720,7 +760,7 @@
         	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != "" && 
         	    sampleSetupView.samplePrepMethodCombo.selectedItem.@display.toString().indexOf("Other") < 0) {
         	    doesMatch = false;
-	        	var theFlowCellTypes:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idFlowCellType == item.@value.toString());
+	        	var theFlowCellTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idFlowCellType == item.@value.toString());
 	    	   	for each (var xref1:Object in theFlowCellTypes) {
 	    	   		if (xref1.@idSamplePrepMethod.toString() == sampleSetupView.samplePrepMethodCombo.selectedItem.@value.toString()) {
 		   				doesMatch = true;
@@ -749,7 +789,7 @@
         		}
         	} else {
         		doesMatchRequestCategoryVendor = false;
-				var rCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+				var rCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
         		if (item.@idVendor == rCategory.@idVendor) {
         			doesMatchRequestCategoryVendor = true;        			
         		}
@@ -952,7 +992,7 @@
 		
 		public function getDefaultIdFlowCellType():String {
 			var idFlowCellType:String = "";
-			var applicableFlowCellTypes:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == this.request.@idSamplePrepMethodDefault);
+			var applicableFlowCellTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == this.request.@idSamplePrepMethodDefault);
 			if (applicableFlowCellTypes.length() > 0) {
 				idFlowCellType =  applicableFlowCellTypes[0].@idFlowCellType;
 			} 
@@ -1004,7 +1044,7 @@
 			currentState = '';
 			samplesView.currentState = '';
 
-			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 
 			buttonStack.selectedIndex = 1;
@@ -1124,7 +1164,9 @@
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idAppUser = setupView.idAppUser;
 			
-			this.annotationView.addNonStandardSampleColumns();
+			if (theTab.contains(this.annotationView)) {
+				this.annotationView.addNonStandardSampleColumns();
+			} 
 
 		}
 
@@ -1133,8 +1175,8 @@
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
 				sampleSetupView.sampleConcentration.text = "100";
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
-				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value == request.@idSamplePrepMethodDefault);
+				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
 				
 				if (currentState == 'QCState') {
 					for each(var chipType:Object in sampleSetupView.bioanalyzerChipTypeGrid.dataProvider) {
@@ -1148,16 +1190,16 @@
 
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
-				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == request.@idOrganismSampleDefault);
-				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry.(@value == request.@idSampleSourceDefault);
+				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);
+				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleSource', request.@idSampleSourceDefault);
 			}
 			
 			if (isMicroarrayState()) {
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-				hybSetupView.microarrayCategoryCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == request.@codeMicroarrayCategory);
-				hybSetupView.organismCombo.selectedItem = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@value == theSlideProduct.@idOrganism);
+				hybSetupView.microarrayCategoryCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', request.@codeMicroarrayCategory);
+				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', theSlideProduct.@idOrganism);
 				checkForSampleTypeCompatibility();
 				hybSetupView.initializeSlideProductCombo();
 				initializeSlideDesigns();
@@ -1228,7 +1270,7 @@
         		if (request.@codeMicroarrayCategory!= '' &&
 	        	    request.@idSampleTypeDefault != '') {
     	    	    compatible = false;
-					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
+					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeMicroarrayCategory')) {
 						if (sampleTypeX.@codeMicroarrayCategory == request.@codeMicroarrayCategory &&
 					    	sampleTypeX.@idSampleType == request.@idSampleTypeDefault) {
 							compatible = true;
@@ -1243,7 +1285,7 @@
 	        	    sampleSetupView.sampleTypeCombo.selectedItem != null &&
 	        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != '') {
 	        	    compatible = false;
-					for each(sampleTypeX in parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleTypeMicroarrayCategory').DictionaryEntry) {
+					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeMicroarrayCategory')) {
 						if (sampleTypeX.@codeMicroarrayCategory == hybSetupView.microarrayCategoryCombo.selectedItem.@value &&
 						    sampleTypeX.@idSampleType == sampleSetupView.sampleTypeCombo.selectedItem.@value) {
 							compatible = true;
@@ -1259,7 +1301,7 @@
         public function checkForSampleTypeCompatibility():void {
         	if (!this.isSampleTypeCompatibile()) {
         		if (isEditState()) {
-					var sampleType:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.SampleType').DictionaryEntry.(@value == request.@idSampleTypeDefault);
+					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', request.@idSampleTypeDefault);
 					var sampleTypeName:String = sampleType.@display.toString();
         			
 	        		Alert.show('Sample type ' + sampleTypeName + 
@@ -1462,7 +1504,7 @@
 				request.@codeMicroarrayCategory = hybSetupView.microarrayCategoryCombo.selectedItem.@codeMicroarrayCategory;				
 			}
 			
-			var requestCategory:Object = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == request.@codeRequestCategory);
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
@@ -1678,6 +1720,62 @@
 			}
 			dirty.setDirty();
 		}
+		
+       	private function sortDictionaryEntries(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var display1:String = obj1.@display;
+				var display2:String = obj2.@display;
+				
+				if (display1.indexOf('Other') > -1) {
+					return 1;
+				} else if (display2.indexOf('Other') > -1) {
+					return  -1;
+				} else {
+					if (display1 < display2) {
+						return -1;
+					} else if (display1 > display2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}			
+				
+			}
+		}
+        
+        private function sortSampleTypes(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:int = obj1.@sortOrder;
+				var order2:int = obj2.@sortOrder;
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		}			
+		
 
 
 		]]>
@@ -1778,11 +1876,11 @@
 						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
 						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
 				            <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
-	                  		  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.FlowCellType', dataField: '@idFlowCellType', isRequired: true})}"/>
+	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType','@idFlowCellType', true)}"/>
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
-	                  		  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.NumberSequencingCycles', dataField: '@idNumberSequencingCycles', isRequired: true})}"/>
+	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"/>
 				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
-	                  		  itemRenderer="{gnomexFlex.createRendererWithProperties(views.renderers.LabelDictionary, {dictionary: 'hci.gnomex.model.GenomeBuild', dataField: '@idGenomeBuildAlignTo'})}"/>
+	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo')}"/>
 							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						</mx:columns>
 					</mx:DataGrid>

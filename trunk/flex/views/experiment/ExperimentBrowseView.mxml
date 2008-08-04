@@ -71,7 +71,7 @@
     }
 
     public function getRequestKind(item:Object, col:int):String {
-    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value == item.@codeRequestCategory);
+    	var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', item.@codeRequestCategory);
     	if (de.length() == 1) {
 	    	return de[0].@display;
     	} else {
@@ -82,7 +82,7 @@
     	if (item.@codeMicroarrayCategory == "") {
     		return getRequestKind(item, col);
     	} else {
-	    	var de:XMLList = parentApplication.manageDictionaries.lastResult.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry.(@value == item.@codeMicroarrayCategory);
+	    	var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', item.@codeMicroarrayCategory);
 	    	if (de.length() == 1) {
 		    	return de[0].@display;    		
 	    	} else {

@@ -240,6 +240,11 @@
 			fileGrid.selectedItem.@isSelected = "true";
 		}
 	}
+    public function lookupUserName(item:Object, col:DataGridColumn):String 
+    { 
+    	return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
+    }
+
     
  ]]>
  </mx:Script>
@@ -268,7 +273,7 @@
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" sortable="false"
-		            	itemRenderer="views.renderers.CheckBox">
+		            	itemRenderer="hci.flex.renderers.CheckBox">
 		            </mx:DataGridColumn>
 		            <mx:DataGridColumn minWidth="45" width="45" headerText="#">
 		                <mx:itemRenderer>
@@ -286,7 +291,7 @@
 			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@hybNumber"/>
 			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
-			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="parentApplication.getUserName"/>
+			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="lookupUserName"/>
 			       	<mx:DataGridColumn headerText="Sample 1" width="50" dataField="@nameSample1"/>
 			       	<mx:DataGridColumn headerText="Sample 2" width="50" dataField="@nameSample2"/>
 		         </util:columns>
@@ -311,7 +316,7 @@
 		            	editable="true"           sortable="false"              	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
-		            	itemRenderer="views.renderers.CheckBox"/>
+		            	itemRenderer="hci.flex.renderers.CheckBox"/>
 		            <mx:DataGridColumn width="14" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
