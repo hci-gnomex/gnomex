@@ -83,8 +83,7 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(theDoc);
-      System.out.println(xmlResult);
-    
+      
  
     
     setResponsePage(this.SUCCESS_JSP);
