@@ -842,11 +842,11 @@
 			        </mx:HBox>
 			      </mx:HBox>
 			      
-			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" height="22">
+			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" >
 			 			<mx:LinkBar id="linkButtonBar"
 			 				 dataProvider="{theViews}" width="100%"
-			 			            enabled="false" visible="false"  
-			 			            verticalAlign="middle"
+			 			            enabled="false" visible="false"   paddingBottom="0"
+			 			            verticalAlign="middle" 
 			 			            itemClick="onViewSelection()"  horizontalAlign="left" horizontalGap="20">
 			 			</mx:LinkBar>
 			      </mx:HBox>

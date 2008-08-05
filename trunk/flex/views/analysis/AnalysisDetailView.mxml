@@ -145,7 +145,9 @@
 
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 		    <mx:VBox height="100%"  width="100%" verticalGap="0">
-		        <mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="5" paddingLeft="6" paddingRight="6">
+		      <mx:VBox width="100%" verticalGap="0" paddingTop="4" paddingBottom="0" paddingLeft="6" paddingRight="6">
+		    
+		        <mx:HBox width="100%"  horizontalGap="5" >
 		        	<mx:VBox verticalGap="0">
 		        		<mx:HBox horizontalGap="0">
 		                    <mx:Label text="Analysis #"  width="81" fontWeight="bold">
@@ -170,19 +172,19 @@
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Analysis Type"  width="85" fontWeight="bold"/>
-			        	       <mx:Text text="{analysisTypeName}" width="130" />
+			        	       <mx:Text text="{analysisTypeName}" width="200" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Protocol"  width="85" fontWeight="bold"/>
-			                <mx:Text  text="{analysisProtocolName}" width="130" />
+			                <mx:Text  text="{analysisProtocolName}" width="200" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Organism"  width="85" fontWeight="bold"/>
-			                <mx:Text  text="{organismName}" width="130" />
+			                <mx:Text  text="{organismName}" width="200" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Genome Build"  width="85" fontWeight="bold"/>
-			                <mx:Text  text="{genomeBuildName}" width="130" />
+			                <mx:Text  text="{genomeBuildName}" width="200" />
 			            </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
@@ -198,63 +200,65 @@
 			            </mx:HBox>
 		        	</mx:VBox>
 		        </mx:HBox>
-		        
-	
-				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
-			    <mx:HBox width="100%" horizontalGap="0">
+			    <mx:HBox width="100%" horizontalGap="0" >
 			    	<mx:Label text="Description" fontWeight="bold" width="81"/>
 			    	<mx:Text text="{parentDocument.selectedAnalysis.@description}" width="100%"/>
 			    </mx:HBox>
-			    <mx:HRule width="100%"/>
-					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
-						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
-							<mx:Spacer width="74"/>
-						</mx:HBox>
-		        <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
-		        <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
-		        <mx:ViewStack width="100%" height="100%" id="experimentItemStack">
-		        	<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%">
-
-						<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="false" dataProvider="{parentDocument.selectedAnalysis..Hybridization}">
-							<mx:columns>
-							    <mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
-								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
-							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
-							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
-							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
-							    <mx:DataGridColumn headerText="Slide" width="320" />
-								<mx:DataGridColumn headerText="Notes" width="100"   dataField="@notes"/>
-							</mx:columns>
-						</mx:DataGrid>
-
-		        	</mx:Canvas>
-		        	<mx:Canvas label="Solexa Sequence Lanes" width="100%" height="100%">
-		        		<mx:DataGrid width="100%" height="100%" dataProvider="{parentDocument.selectedAnalysis..SequenceLane}" id="lanesGrid">
-		        		  <mx:columns>
-							<mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
-							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-						    <mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
-						    <mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
-				            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType',  '@idFlowCellType')}"/>                 											
-				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
-				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
-				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
-				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idGenomeBuildAlignTo')}"/>                 											
-							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
-		        		  </mx:columns>
-		        		</mx:DataGrid>
-		        	</mx:Canvas>
-		        </mx:ViewStack>
+			   <mx:HRule width="100%"/>
+		      </mx:VBox>
+		        
+	
+				<mx:VBox   width="100%" height="100%" verticalGap="4" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
+							<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
+								<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+									<mx:Spacer width="74"/>
+								</mx:HBox>
+				        <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0" paddingTop="0"/>
+				        <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0" paddingBottom="0"/>
+				        <mx:ViewStack width="100%" height="100%" id="experimentItemStack">
+				        	<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%">
+		
+								<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="false" dataProvider="{parentDocument.selectedAnalysis..Hybridization}">
+									<mx:columns>
+									    <mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
+										<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+									    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
+									    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
+									    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
+									    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
+									    <mx:DataGridColumn headerText="Slide" width="320" />
+										<mx:DataGridColumn headerText="Notes" width="100"   dataField="@notes"/>
+									</mx:columns>
+								</mx:DataGrid>
+		
+				        	</mx:Canvas>
+				        	<mx:Canvas label="Solexa Sequence Lanes" width="100%" height="100%">
+				        		<mx:DataGrid width="100%" height="100%" dataProvider="{parentDocument.selectedAnalysis..SequenceLane}" id="lanesGrid">
+				        		  <mx:columns>
+									<mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
+									<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+								    <mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
+								    <mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
+						            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
+		                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType',  '@idFlowCellType')}"/>                 											
+						            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+		                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
+						            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
+						            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
+						            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+		                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idGenomeBuildAlignTo')}"/>                 											
+									<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+				        		  </mx:columns>
+				        		</mx:DataGrid>
+				        	</mx:Canvas>
+				        </mx:ViewStack>
 					</mx:VBox>
-					<mx:HRule width="100%"/>
 					
 			    
-					<mx:VBox width="100%" height="100%" verticalGap="0" >
-						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+					<mx:VBox width="100%" height="100%" verticalGap="0" paddingTop="0" >
+					    <mx:Spacer height="2"/>
+						<mx:HRule width="100%" />
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="2">
 							<mx:Label text="Files:" fontWeight="bold"/>
 							<mx:Spacer width="40"/>
 						</mx:HBox>
