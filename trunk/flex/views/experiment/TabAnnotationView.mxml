@@ -162,9 +162,9 @@
 		private function editSampleCharacteristicDictionary():void {
 			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navExperimentView, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionarySampleCharacteristicInitialized);
-			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                   onDictionarySampleCharacteristicRefreshed);
+			                                  onDictionarySampleCharacteristicInitialized);
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                                     onDictionarySampleCharacteristicRefreshed);
 			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionarySampleCharacteristicInitialized(event:Event):void{

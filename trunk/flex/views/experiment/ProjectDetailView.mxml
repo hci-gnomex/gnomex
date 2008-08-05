@@ -281,9 +281,9 @@
 
 			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navExperimentView, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionaryExperimentDesignInitialized);
-			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                   onDictionaryExperimentDesignRefreshed);
+			                                  onDictionaryExperimentDesignInitialized);
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                                     onDictionaryExperimentDesignRefreshed);
 			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionaryExperimentDesignInitialized(event:Event):void{
@@ -304,9 +304,9 @@
 			}
 			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navExperimentView, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionaryExperimentFactorInitialized);
-			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                   onDictionaryExperimentFactorRefreshed);
+			                                  onDictionaryExperimentFactorInitialized);
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                                     onDictionaryExperimentFactorRefreshed);
 			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionaryExperimentFactorInitialized(event:Event):void{

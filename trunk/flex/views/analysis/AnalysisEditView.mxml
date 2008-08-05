@@ -557,11 +557,11 @@
 		private function editGenomeBuild():void {
 			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
 			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionaryGenomeBuildInitialized);
+			                                  onDictionaryGenomeBuildInitialized);
 			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-			                          onDictionaryGenomeBuildSelected);			
-			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                   onDictionaryGenomeBuildRefreshed);
+			                                   onDictionaryGenomeBuildSelected);			
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                                     onDictionaryGenomeBuildRefreshed);
 			PopUpManager.centerPopUp(dictionaryEditory);
 		}
           
@@ -589,11 +589,11 @@
 		private function editAnalysisType():void {
 			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
 			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionaryAnalysisTypeInitialized);
+			                                   onDictionaryAnalysisTypeInitialized);
 			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-			                          onDictionaryAnalysisTypeSelected);			
-			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                   onDictionaryAnalysisTypeRefreshed);
+			                                   onDictionaryAnalysisTypeSelected);			
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                                     onDictionaryAnalysisTypeRefreshed);
 			PopUpManager.centerPopUp(dictionaryEditory);
 		}
        	private function onDictionaryAnalysisTypeInitialized(event:Event):void{
@@ -615,11 +615,11 @@
 		private function editAnalysisProtocol():void {
 			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
 			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                          onDictionaryAnalysisProtocolInitialized);
+			                                  onDictionaryAnalysisProtocolInitialized);
 			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-			                          onDictionaryAnalysisProtocolSelected);			
-			parentApplication.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                   onDictionaryAnalysisProtocolRefreshed);
+			                                   onDictionaryAnalysisProtocolSelected);			
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+			                                                     onDictionaryAnalysisProtocolRefreshed);
 			PopUpManager.centerPopUp(dictionaryEditory);
 		}
        	private function onDictionaryAnalysisProtocolInitialized(event:Event):void{
