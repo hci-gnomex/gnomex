@@ -144,7 +144,11 @@
 				var params:Object = new Object();
 				params.idProtocol = idProtocol.text;
 				params.protocolName = protocolName.text;
-				params.codeRequestCategory = codeRequestCategory.selectedItem.@value;
+				if (this.currentState == "") {
+					params.codeRequestCategory = codeRequestCategory.selectedItem.@value;					
+				} else {
+					params.idAnalysisType = analysisTypeCombo.selectedItem.@value;
+				}
 				params.protocolDescription = description.text;
 				params.protocolUrl = url.text;
 				params.isActive = isActive.data;
@@ -250,11 +254,19 @@
 			}
 			
 			public function showProtocol():void {
+				currentState = "";
 				if (parentApplication.hasPermission("canWriteDictionaries")) {
 					protocolViews.selectedChild = editProtocol;
+					if (browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
+						currentState = "AnalysisEditState";
+					}
 					testForURL();
 				} else {
-					protocolViews.selectedChild = viewProtocol;
+					if (browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
+						protocolViews.selectedChild = viewAnalysisProtocol;					
+					} else {
+						protocolViews.selectedChild = viewProtocol;
+					}
 					testForURL();
 					addProtocolButton.enabled=false;
 					deleteProtocolButton.enabled=false;
@@ -271,6 +283,8 @@
 					viewUrlButton.enabled = showurl;
 				} else if (protocolViews.selectedChild == viewProtocol) {
 					viewUrlButton2.enabled = showurl;
+				} else if (protocolViews.selectedChild == viewAnalysisProtocol) {
+					viewAnalysisUrlButton.enabled = showurl;
 				}
 			}
 			
@@ -342,12 +356,43 @@
 				<mx:Label text="Active:" fontWeight="bold" width="100"/>
 				<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox left="10" top="88" right="10" styleName="formDisplay" verticalAlign="middle">
-				<mx:Label text="URL:" fontWeight="bold" width="100"/>
-				<mx:Label text="{fullProtocol.url}" width="100%"/>
-				<mx:Button id="viewUrlButton2" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
+			<mx:VBox left="10" top="88" right="10"  verticalGap="0" >
+			    <mx:HBox  styleName="formDisplay" verticalAlign="middle">
+				    <mx:Label text="URL:" fontWeight="bold" width="100"/>
+			    	<mx:Label text="{fullProtocol.url}" width="100%"/>
+			    </mx:HBox>
+					<mx:LinkButton paddingLeft="110"  id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
+			</mx:VBox>
+			<mx:VBox top="134" bottom="10" left="10" right="10">
+				<mx:Label text="Protocol Description:" fontWeight="bold"/>
+				<mx:Text text="{fullProtocol.description}" height="100%" width="100%"/>
+			</mx:VBox>	
+		</mx:Canvas>		
+		<mx:Canvas id="viewAnalysisProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle">
+				<mx:Label text="Name:" fontWeight="bold" width="100"/>
+				<mx:Label text="{fullProtocol.name}" width="100%"/>
 			</mx:HBox>
-			<mx:VBox top="114" bottom="10" left="10" right="10">
+			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle">
+				<mx:Label text="Analysis Type:" fontWeight="bold" width="100"/>
+				<mx:Label 
+					id="analysisType"
+					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AnalysisType', fullProtocol.idAnalysisType)}"
+					width="100%">
+					</mx:Label>
+			</mx:HBox>
+			<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
+				<mx:Label text="Active:" fontWeight="bold" width="100"/>
+				<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
+			</mx:HBox>
+			<mx:VBox left="10" top="88" right="10"  verticalGap="0" >
+			    <mx:HBox  styleName="formDisplay" verticalAlign="middle">
+				    <mx:Label text="URL:" fontWeight="bold" width="100"/>
+			    	<mx:Label text="{fullProtocol.url}" width="100%"/>
+			    </mx:HBox>
+					<mx:LinkButton paddingLeft="110"  id="viewAnalysisUrlButton" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
+			</mx:VBox>
+			<mx:VBox top="134" bottom="10" left="10" right="10">
 				<mx:Label text="Protocol Description:" fontWeight="bold"/>
 				<mx:Text text="{fullProtocol.description}" height="100%" width="100%"/>
 			</mx:VBox>	
@@ -358,8 +403,8 @@
 				<mx:Label text="Name:" width="100"/>
 				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
-			<mx:VBox height="46" top="10" width="100%" right="121">
-				<mx:Label text="Kind of Request:" width="100"/>
+			<mx:VBox height="46" top="10" width="100%" right="121" id="vbox1">
+				<mx:Label text="Kind of Request:" width="100" id="label1"/>
 				<hci:DictionaryComboBox
 					id="codeRequestCategory"
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
@@ -377,7 +422,7 @@
 				<mx:Label text="URL:" width="100"/>
 				<mx:TextInput id="url" text="{fullProtocol.url}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
-				<mx:Button id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)"/>
+				<mx:LinkButton id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>
 			</mx:HBox>
 			<mx:VBox top="118" left="10" right="10" bottom="10">
 				<mx:Label text="Protocol Description:"/>
@@ -395,5 +440,22 @@
 		
 		
 	</mx:HDividedBox>
+	
+	
+	<mx:states>
+		<mx:State name="AnalysisEditState">
+			<mx:SetProperty target="{label1}" name="text" value="Analysis Type:"/>
+			<mx:RemoveChild target="{codeRequestCategory}"/>
+			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
+				<hci:DictionaryComboBox
+					id="analysisTypeCombo"
+					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}"
+					labelField="@display"
+					data="{fullProtocol.idAnalysisType}"
+					width="100%" change="dirty.setDirty()">
+					</hci:DictionaryComboBox>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
 	
 </mx:Canvas>

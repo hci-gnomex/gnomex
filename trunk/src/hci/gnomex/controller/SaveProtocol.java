@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
@@ -33,6 +34,7 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
   private String    protocolUrl;
   private String    isActive = "Y";
   private String    codeRequestCategory;
+  private Integer   idAnalysisType;
   
   private Integer   idProtocolSaved;
   
@@ -64,6 +66,9 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
     if (request.getParameter("codeRequestCategory") != null && !request.getParameter("codeRequestCategory").equals("")) {
       codeRequestCategory = request.getParameter("codeRequestCategory");
     } 
+    if (request.getParameter("idAnalysisType") != null && !request.getParameter("idAnalysisType").equals("")) {
+      idAnalysisType = new Integer(request.getParameter("idAnalysisType"));
+    }
     
     if (protocolClassName == null) {
       this.addInvalidField("protocolClassName", "protocolClassName is required");
@@ -105,6 +110,11 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((FeatureExtractionProtocol)protocol).setFeatureExtractionProtocol(protocolName);
             ((FeatureExtractionProtocol)protocol).setIsActive("Y");
             ((FeatureExtractionProtocol)protocol).setCodeRequestCategory(codeRequestCategory);
+          } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
+            protocol = new AnalysisProtocol();
+            ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);
+            ((AnalysisProtocol)protocol).setIsActive("Y");
+            ((AnalysisProtocol)protocol).setIdAnalysisType(idAnalysisType);
           } else {
             addInvalidField("unknown protocol", "Unknown protocol");
           }
@@ -143,6 +153,13 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((FeatureExtractionProtocol)protocol).setIsActive(isActive);
             ((FeatureExtractionProtocol)protocol).setUrl(protocolUrl);
             ((FeatureExtractionProtocol)protocol).setCodeRequestCategory(codeRequestCategory);
+          } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
+            protocol =  (DictionaryEntry)sess.load(AnalysisProtocol.class, idProtocol);
+            ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);
+            ((AnalysisProtocol)protocol).setDescription(protocolDescription);
+            ((AnalysisProtocol)protocol).setIsActive(isActive);
+            ((AnalysisProtocol)protocol).setUrl(protocolUrl);
+            ((AnalysisProtocol)protocol).setIdAnalysisType(idAnalysisType);
           } else {
             addInvalidField("unknown protocol", "Unknown protocol");
           }

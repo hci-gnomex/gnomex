@@ -605,9 +605,6 @@
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 			    PopUpManager.centerPopUp(appProgressBar);
 
-				checkSecurity();
-
-			    
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
@@ -678,6 +675,10 @@
 	        
 	        
 	        private function enableApp():void {
+	        	if (currentState == "enabledState") {
+	        		return;
+	        	}
+	        	
 	        	if (dictionaryManager != null &&
 	        	    dictionaryManager.xml != null &&
 	        	    manageLabList != null &&

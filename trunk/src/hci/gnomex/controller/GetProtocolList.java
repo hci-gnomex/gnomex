@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
@@ -37,12 +38,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
       Element root = new Element("ProtocolList");
       Document doc = new Document(root);
       
-      // TODO: get the Feature Extraction Protocols
+      // get the Feature Extraction Protocols
       Element featureExtractionProtocols = new Element("Protocols");
       featureExtractionProtocols.setAttribute("label", "Feature Extraction Protocol");
       featureExtractionProtocols.setAttribute("protocolClassName", FeatureExtractionProtocol.class.getName());
       root.addContent(featureExtractionProtocols);
-      l = sess.createQuery("from FeatureExtractionProtocol").list();
+      l = sess.createQuery("select fe from FeatureExtractionProtocol fe order by fe.featureExtractionProtocol ").list();
       if (!l.isEmpty()) {
         Iterator iter = l.iterator();
         while (iter.hasNext()) {
@@ -51,12 +52,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         }
       }
       
-      // TODO: get the HybProtocols
+      // get the HybProtocols
       Element hybProtocols = new Element("Protocols");
       hybProtocols.setAttribute("label", "Hyb Protocol");
       hybProtocols.setAttribute("protocolClassName", HybProtocol.class.getName());
       root.addContent(hybProtocols);
-      l = sess.createQuery("from HybProtocol").list();
+      l = sess.createQuery("select h from HybProtocol h order by h.hybProtocol ").list();
       if (!l.isEmpty()) {
         Iterator iter = l.iterator();
         while (iter.hasNext()) {
@@ -65,12 +66,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         }
       }
       
-      // TODO: get the LabelingProtocols
+      // get the LabelingProtocols
       Element labelingProtocols = new Element("Protocols");
       labelingProtocols.setAttribute("label", "Labeling Protocol");
       labelingProtocols.setAttribute("protocolClassName", LabelingProtocol.class.getName());
       root.addContent(labelingProtocols);
-      l = sess.createQuery("from LabelingProtocol").list();
+      l = sess.createQuery("select l from LabelingProtocol l order by l.labelingProtocol").list();
       if (!l.isEmpty()) {
         Iterator iter = l.iterator();
         while (iter.hasNext()) {
@@ -79,7 +80,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         }
       }
       
-      // TODO: get the Scan Protocols
+      // get the Scan Protocols
       Element scanProtocols = new Element("Protocols");
       scanProtocols.setAttribute("label", "Scan Protocol");
       scanProtocols.setAttribute("protocolClassName", ScanProtocol.class.getName());
@@ -90,6 +91,20 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         while (iter.hasNext()) {
           ScanProtocol sp = (ScanProtocol) iter.next();
           addScanProtocolNode(sp, scanProtocols);
+        }
+      }
+
+      // get the Analysis Protocols
+      Element analysisProtocols = new Element("Protocols");
+      analysisProtocols.setAttribute("label", "Analysis Protocol");
+      analysisProtocols.setAttribute("protocolClassName", AnalysisProtocol.class.getName());
+      root.addContent(analysisProtocols);
+      l = sess.createQuery("select a from AnalysisProtocol a order by a.analysisProtocol").list();
+      if (!l.isEmpty()) {
+        Iterator iter = l.iterator();
+        while (iter.hasNext()) {
+          AnalysisProtocol ap = (AnalysisProtocol) iter.next();
+          addAnalysisProtocolNode(ap, analysisProtocols);
         }
       }
       XMLOutputter out = new XMLOutputter();
@@ -164,4 +179,13 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("protocolClassName", sp.getClass().getName());
     parent.addContent(e);
   }
+  
+  public void addAnalysisProtocolNode(AnalysisProtocol ap, Element parent) {
+    Element e = new Element("Protocol");
+    e.setAttribute("id", this.getNonNullString(ap.getIdAnalysisProtocol()));
+    e.setAttribute("label", this.getNonNullString(ap.getAnalysisProtocol()));
+    e.setAttribute("isActive", this.getNonNullString(ap.getIsActive()));
+    e.setAttribute("protocolClassName", ap.getClass().getName());
+    parent.addContent(e);
+  }  
 }
