@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
@@ -37,6 +38,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       String description = null;
       String url = null;
       String isActive = null;
+      Integer idAnalysisType = null;
       
       if (this.idProtocol != null || this.idProtocol.intValue() != 0) {
         if (this.protocolClassName.equals(FeatureExtractionProtocol.class.getName())) {
@@ -71,15 +73,28 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           description = sp.getDescription();
           url = sp.getUrl();
           isActive = sp.getIsActive();
+        } else if (this.protocolClassName.equals(AnalysisProtocol.class.getName())) {
+          AnalysisProtocol ap = (AnalysisProtocol) sess.load(AnalysisProtocol.class,this.idProtocol);
+          id = ap.getIdAnalysisProtocol().toString();
+          protocolName = ap.getAnalysisProtocol();
+          description = ap.getDescription();
+          url = ap.getUrl();
+          isActive = ap.getIsActive();
+          idAnalysisType = ap.getIdAnalysisType();
         }
         
         Element root = new Element("Protocol");
         Document doc = new Document(root);
         root.addContent(new Element("id").addContent(id));
         root.addContent(new Element("name").addContent(protocolName));
-        root.addContent(new Element("codeRequestCategory").addContent(codeRequestCategory));
         root.addContent(new Element("description").addContent(description));
         root.addContent(new Element("url").addContent(url));
+        if (this.protocolClassName.equals(AnalysisProtocol.class.getName())) {
+          root.addContent(new Element("idAnalysisType").addContent(idAnalysisType != null ? idAnalysisType.toString() : ""));
+        } else {
+          root.addContent(new Element("codeRequestCategory").addContent(codeRequestCategory));          
+        }
+        
         root.addContent(new Element("isActive").addContent(isActive));
         root.addContent(new Element("protocolClassName").addContent(this.protocolClassName));
         
