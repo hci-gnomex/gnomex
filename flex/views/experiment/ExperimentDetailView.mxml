@@ -396,20 +396,23 @@
 			        	   <mx:Label text="Submitted by"  width="90" fontWeight="bold"/>
 			        	   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
 			        	 </mx:HBox>
+						<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="right"
+ 		        		   enabled="true" disabledIcon="@Embed(source='../../assets/map_disable.png')" id="hasAnalysis" visible="false" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+		        	    </mx:LinkButton>			            
 		        	</mx:VBox>
 		        	<mx:VBox verticalGap="0">
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
-			        	       <mx:Text text="{requestCategoryName}" width="180" />
+			        	       <mx:Text text="{requestCategoryName}" width="120" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
-			                <mx:Text  text="{experimentCategoryName}" width="180" />
+			                <mx:Text  text="{experimentCategoryName}" width="120" />
 			            </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
 		                  <mx:Label width="105" text="Completed on" fontWeight="bold"/>
-		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="180" />
+		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="120" />
 		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
@@ -427,9 +430,7 @@
 			                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
 			            </mx:HBox>
 		        	</mx:VBox>
-		        	<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="bottom"
-		        		enabled="true" disabledIcon="@Embed(source='../../assets/map_disable.png')" id="hasAnalysis" visible="false">
-		        	</mx:LinkButton>
+		        	
 		        </mx:HBox>
 		        
 	
