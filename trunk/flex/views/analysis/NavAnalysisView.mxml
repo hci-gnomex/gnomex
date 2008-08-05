@@ -588,7 +588,12 @@
 		 	if (this.selectedIdLab != null) {
 				selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
 		 	} else {
-		 		selectedLabNode = parentApplication.getLabList.lastResult.Lab[0];
+		 		if (currentState == 'AdminState') {
+					selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == browseLabCombo.selectedItem.@idLab);		 	
+		 		} else {
+			 		selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@canSubmitRequests == "Y")[0];
+		 			
+		 		}
 		 	}
 		 	analysisAddWindow.labCombo.selectedItem = selectedLabNode;
 		 

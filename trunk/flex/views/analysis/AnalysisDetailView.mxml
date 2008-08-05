@@ -109,10 +109,12 @@
 		}
 		
 		public function refreshSavedAnalysis():void {
-			 parentDocument.selectedIdAnalysis = parentDocument.browseTree.selectedItem.@idAnalysis;
-			 var parms:Object = new Object();
-			 parms.idAnalysis = parentDocument.selectedIdAnalysis;
-			 parentDocument.getAnalysis.send(parms);
+			if (parentDocument.browseTree.selectedItem != null) {
+				 parentDocument.selectedIdAnalysis = parentDocument.browseTree.selectedItem.@idAnalysis;
+				 var parms:Object = new Object();
+				 parms.idAnalysis = parentDocument.selectedIdAnalysis;
+				 parentDocument.getAnalysis.send(parms);
+			}
 			
 		}
 
