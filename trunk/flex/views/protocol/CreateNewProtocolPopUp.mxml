@@ -5,8 +5,7 @@
 	layout="vertical" left="0" right="0" top="0" bottom="0" 
 	showCloseButton="true"
 	close="PopUpManager.removePopUp(this)"
-	defaultButton="{saveProtocolButton}"
-	creationComplete="init()">
+	defaultButton="{saveProtocolButton}">
 		
 		<mx:HTTPService
 		id="createProtocol"
@@ -24,6 +23,9 @@
 			<codeRequestCategory>
 				{codeRequestCategory.selectedItem.@value}
 			</codeRequestCategory>
+			<idAnalysisType>
+				{analysisTypeCombo.selectedItem.@value}
+			</idAnalysisType>
 			<isActive>
 				{isActive.data}
 			</isActive>
@@ -42,9 +44,15 @@
 			public var protocolClassName:String;
 			public var windowTitle:String;
 			
-			public function init():void {
-				protocolClassName = parentApplication.protocolsView.browseProtocols.selectedItem.@protocolClassName;
-				this.title = "Create New "+parentApplication.protocolsView.protocolList.(@protocolClassName==protocolClassName).@label;
+			private var protocolsView:ProtocolsView = null;
+			
+			public function init(protocolsView:ProtocolsView):void {
+				this.protocolsView = protocolsView;
+				protocolClassName = protocolsView.browseProtocols.selectedItem.@protocolClassName;
+				this.title = "Create New "+protocolsView.protocolList.(@protocolClassName==protocolClassName).@label;
+				if (protocolClassName == 'hci.gnomex.model.AnalysisProtocol') {
+					currentState = "AddAnalysisProtocolState";
+				}
 				
 			}
 			
@@ -56,12 +64,13 @@
 			public function resultHandler(event:ResultEvent):void {
 				var call:Object = event.token;
 				if (call.marker == "doneSaveProtocol") {
-					parentApplication.protocolsView.callGetProtocolList();
+					protocolsView.lastSavedProtocolId = createProtocol.lastResult.@idProtocolSaved;
+					protocolsView.lastSelectedProtocolClass = protocolClassName;
+					protocolsView.callGetProtocolList();
 					PopUpManager.removePopUp(this);
-					var params:Object = new Object();
-					params.id = createProtocol.lastResult.@idProtocolSaved;
-					params.protocolClassName = createProtocol.lastResult.@savedProtocolClassName;
-					parentApplication.protocolsView.callGetProtocol(params);
+
+					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
+					parentApplication.dictionaryManager.load();
 				}
 			}
 		]]>
@@ -71,8 +80,8 @@
 				<mx:TextInput id="protocolName" width="100%" />
 			</mx:VBox>
 			<mx:HBox width="100%" verticalAlign="bottom">
-				<mx:VBox top="54" left="0" right="85" bottom="124" width="100%" verticalAlign="bottom" height="100%" verticalGap="0">
-					<mx:Label text="Kind of Request:" color="#000000"/>
+				<mx:VBox top="54" left="0" right="85" bottom="124" width="100%" verticalAlign="bottom" height="100%" verticalGap="0" id="vbox1">
+					<mx:Label text="Kind of Request:" color="#000000" id="label1"/>
 					<hci:DictionaryComboBox
 						id="codeRequestCategory"
 						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
@@ -86,4 +95,20 @@
 				<mx:Button id="saveProtocolButton" label="Create Protocol" click="callSaveProtocol()" icon="@Embed('../../assets/action_save.gif')" toolTip="Save protocol" top="118" bottom="36" right="10" left="241"/>
 				<mx:Button id="cancer" label="Cancel" click="PopUpManager.removePopUp(this)" icon="@Embed('../../assets/delete.png')" toolTip="Cancel" top="124" bottom="-22" right="282" left="17"/>
 			</mx:ControlBar>
+			
+			
+			<mx:states>
+				<mx:State name="AddAnalysisProtocolState">					
+					<mx:RemoveChild target="{codeRequestCategory}"/>
+					<mx:SetProperty target="{label1}" name="text" value="Analysis Type:"/>
+					<mx:AddChild relativeTo="{vbox1}" position="lastChild">
+						<hci:DictionaryComboBox
+							id="analysisTypeCombo"
+							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}"
+							labelField="@display"
+							width="100%">
+							</hci:DictionaryComboBox>
+					</mx:AddChild>
+				</mx:State>
+			</mx:states>
 </mx:TitleWindow>
