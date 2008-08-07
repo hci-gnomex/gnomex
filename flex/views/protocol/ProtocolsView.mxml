@@ -17,6 +17,7 @@
 		result="resultHandler(event)"
 	    fault="parentApplication.onFailHttpRequest('Failed to get protocol list', event)">
 		<mx:request>
+		  <protocolClassName>{targetProtocolClassName}</protocolClassName>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -67,6 +68,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.core.IFlexDisplayObject;
 		    import views.protocol.CreateNewProtocolPopUp;
 			import mx.events.CloseEvent;
 			import mx.collections.XMLListCollection;
@@ -78,6 +80,9 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
+			
+			
+			
 			
 			[Bindable]
 			public var selectedProtocol:Object;
@@ -123,10 +128,15 @@
 			[Bindable]
 			public var refreshData:Boolean = false;
 			
+			[Bindable]
+			private var targetProtocolClassName:String = null;
+			
 			public function checkDirty():void {
 			}
 			
-			public function initializeData():void {
+			public function initializeData(targetProtocolClassName:String=null):void {
+				this.targetProtocolClassName = targetProtocolClassName;
+				currentState = "";
 				callGetProtocolList();
 			}
 			
@@ -144,10 +154,10 @@
 				var params:Object = new Object();
 				params.idProtocol = idProtocol.text;
 				params.protocolName = protocolName.text;
-				if (this.currentState == "") {
-					params.codeRequestCategory = codeRequestCategory.selectedItem.@value;					
+				if (this.currentState == "AnalysisEditState") {
+				 	params.idAnalysisType = analysisTypeCombo.selectedItem != null ? analysisTypeCombo.selectedItem.@value : "";
 				} else {
-					params.idAnalysisType = analysisTypeCombo.selectedItem.@value;
+					params.codeRequestCategory = codeRequestCategory.selectedItem != null ? codeRequestCategory.selectedItem.@value : "";					
 				}
 				params.protocolDescription = description.text;
 				params.protocolUrl = url.text;
@@ -178,23 +188,62 @@
 					protocolList = new XMLList(getProtocolList.lastResult.Protocols);
 					protocols.refresh();
 					initTree();
+					reselectTreeItem();
 				} else if (call.marker == "doneGetProtocol") {
 					fullProtocol = getProtocol.lastResult;
 					showProtocol();
 					dirty.resetDirty();
+					
+
 				} else if (call.marker == "doneSaveProtocol") {
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
 					dirty.resetDirty();
+					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
+					parentApplication.dictionaryManager.load();
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
+					lastSavedProtocolId = null;
 					protocolViews.selectedChild = blankProtocol;
+					this.saveProtocolButton.enabled = false;
+					this.deleteProtocolButton.enabled = false;
 					bodyPanel.title = "Protocol: ";
 					callGetProtocolList();
 					dirty.resetDirty();
+					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
+					parentApplication.dictionaryManager.load();
 				}
 			}
 			
+			
+			public function reselectTreeItem():void {
+				var idx:int = 0;
+				var pos:int = -1;
+				if (this.lastSelectedProtocolClass == null  ||
+				    this.lastSavedProtocolId == null) {
+					return;    	
+				}
+				for each(var protocolsNode:Object in getProtocolList.lastResult.Protocols) {
+					idx++;
+					for each(var protocolNode:Object in protocolsNode.Protocol) {
+						idx++;
+						if (protocolsNode.@protocolClassName == this.lastSelectedProtocolClass &&
+						    protocolNode.@id.toString() == this.lastSavedProtocolId) {
+							pos = --idx;
+							break;
+						}
+					}
+					if (pos != -1) {
+						break;
+					}
+				}				
+				if (pos != -1) {
+					this.browseProtocols.selectedIndex = pos;
+					this.browseProtocols.scrollToIndex(pos);
+					this.onBrowseProtocols(null);
+				}
+					
+			}
 			
 			public function initTree():void {
 				// iteratively expand the tree
@@ -202,6 +251,8 @@
 				for (var i:int = 0;i <= protocolTypeCount;i++) {
 					browseProtocols.expandItem(protocols.getItemAt(i),true);
 				}
+				browseProtocols.selectedIndex = 0;
+				onBrowseProtocols(null);
 			}
 			
 			public function getTreeIcon(item:Object):Class {
@@ -254,18 +305,20 @@
 			}
 			
 			public function showProtocol():void {
-				currentState = "";
 				if (parentApplication.hasPermission("canWriteDictionaries")) {
 					protocolViews.selectedChild = editProtocol;
-					if (browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
+					if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
 						currentState = "AnalysisEditState";
+					} else {
+						currentState = "";
 					}
 					testForURL();
 				} else {
-					if (browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
-						protocolViews.selectedChild = viewAnalysisProtocol;					
+					protocolViews.selectedChild = viewProtocol;
+					if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
+						currentState = "AnalysisViewState";
 					} else {
-						protocolViews.selectedChild = viewProtocol;
+						currentState = "";
 					}
 					testForURL();
 					addProtocolButton.enabled=false;
@@ -283,9 +336,7 @@
 					viewUrlButton.enabled = showurl;
 				} else if (protocolViews.selectedChild == viewProtocol) {
 					viewUrlButton2.enabled = showurl;
-				} else if (protocolViews.selectedChild == viewAnalysisProtocol) {
-					viewAnalysisUrlButton.enabled = showurl;
-				}
+				} 
 			}
 			
 			public function prepareToAddProtocol():void {
@@ -293,6 +344,7 @@
 					createNewProtocol = new CreateNewProtocolPopUp as CreateNewProtocolPopUp;
 					PopUpManager.addPopUp(createNewProtocol,parentApplication.mainArea,true,PopUpManagerChildList.APPLICATION)
 					PopUpManager.centerPopUp(createNewProtocol);
+					createNewProtocol.init(this);
 				} else {
 					Alert.show("Please select a protocol or protocol group of the type you wish to create");
 				}
@@ -334,8 +386,8 @@
 				<mx:LinkButton label="Refresh" id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
 			</mx:ControlBar>
 		</mx:Panel>
-		<mx:Panel id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" title="Protocol:" paddingTop="0">
-		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0">
+		<mx:TitleWindow id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" title="Protocol:" paddingTop="0" headerHeight="22">
+		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0" creationPolicy="all">
 		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 			<mx:Label text="No protocol selected" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
@@ -344,8 +396,8 @@
 				<mx:Label text="Name:" fontWeight="bold" width="100"/>
 				<mx:Label text="{fullProtocol.name}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle">
-				<mx:Label text="Kind of Request:" fontWeight="bold" width="100"/>
+			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle" id="hbox1">
+				<mx:Label text="Kind of Request:" fontWeight="bold" width="100" id="label2"/>
 				<mx:Label 
 					id="kindDisplay"
 					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.RequestCategory', fullProtocol.codeRequestCategory)}"
@@ -368,35 +420,6 @@
 				<mx:Text text="{fullProtocol.description}" height="100%" width="100%"/>
 			</mx:VBox>	
 		</mx:Canvas>		
-		<mx:Canvas id="viewAnalysisProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle">
-				<mx:Label text="Name:" fontWeight="bold" width="100"/>
-				<mx:Label text="{fullProtocol.name}" width="100%"/>
-			</mx:HBox>
-			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle">
-				<mx:Label text="Analysis Type:" fontWeight="bold" width="100"/>
-				<mx:Label 
-					id="analysisType"
-					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AnalysisType', fullProtocol.idAnalysisType)}"
-					width="100%">
-					</mx:Label>
-			</mx:HBox>
-			<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
-				<mx:Label text="Active:" fontWeight="bold" width="100"/>
-				<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
-			</mx:HBox>
-			<mx:VBox left="10" top="88" right="10"  verticalGap="0" >
-			    <mx:HBox  styleName="formDisplay" verticalAlign="middle">
-				    <mx:Label text="URL:" fontWeight="bold" width="100"/>
-			    	<mx:Label text="{fullProtocol.url}" width="100%"/>
-			    </mx:HBox>
-					<mx:LinkButton paddingLeft="110"  id="viewAnalysisUrlButton" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
-			</mx:VBox>
-			<mx:VBox top="134" bottom="10" left="10" right="10">
-				<mx:Label text="Protocol Description:" fontWeight="bold"/>
-				<mx:Text text="{fullProtocol.description}" height="100%" width="100%"/>
-			</mx:VBox>	
-		</mx:Canvas>
 		<mx:Canvas id="editProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10">
 			<mx:VBox height="46" left="10" top="10" right="394" width="100%">
@@ -436,7 +459,7 @@
 			    <util:DirtyNote id="dirty"/>
 				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
-		</mx:Panel>
+		</mx:TitleWindow>
 		
 		
 	</mx:HDividedBox>
@@ -455,6 +478,18 @@
 					width="100%" change="dirty.setDirty()">
 					</hci:DictionaryComboBox>
 			</mx:AddChild>
+		</mx:State>
+		<mx:State name="AnalysisViewState">
+			<mx:SetProperty target="{label2}" name="text" value="Analysis Type"/>
+			<mx:RemoveChild target="{kindDisplay}"/>
+			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
+				<mx:Label 
+					id="analysisTypeDisplay"
+					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AnalysisType', fullProtocol.idAnalysisType)}"
+					width="100%">
+					</mx:Label>
+			</mx:AddChild>
+			
 		</mx:State>
 	</mx:states>
 	

@@ -65,6 +65,7 @@
      	 
 <mx:Script>
 	<![CDATA[
+		import views.protocol.ProtocolsView;
 		import views.experiment.ExperimentDetailView;
 		import mx.managers.PopUpManager;
 		import mx.events.CloseEvent;
@@ -94,7 +95,9 @@
         
         private var experimentDetailWindow:ExperimentDetailView;  
         
-        private var dictionaryEditory:DictionaryEditor; 
+        private var dictionaryEditor:DictionaryEditor; 
+        
+        private var protocolEditor:views.protocol.ProtocolsView;
 		
 		public function setupEditForm(analysis:Object):void {
 			initializeDataProviders();
@@ -528,18 +531,18 @@
         // Edit organism dictionary
         //
 		private function editOrganism():void {
-			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryOrganismInitialized);
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
 			                          onDictionaryOrganismSelected);			
 			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                                      onDictionaryOrganismRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditory);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
           
        	private function onDictionaryOrganismInitialized(event:Event):void{
-			dictionaryEditory.selectDictionary("hci.gnomex.model.Organism");
+			dictionaryEditor.selectDictionary("hci.gnomex.model.Organism");
         }	
        	private function onDictionaryOrganismRefreshed(event:Event):void{
 			organismCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');								
@@ -547,7 +550,7 @@
         }	
        	private function onDictionaryOrganismSelected(event:Event):void{
        		if (this.organismCombo.selectedItem != null && this.organismCombo.selectedItem.@value != "") {
-       			dictionaryEditory.selectDictionaryEntry(organismCombo.selectedItem);
+       			dictionaryEditor.selectDictionaryEntry(organismCombo.selectedItem);
        		}
         }	
 		
@@ -555,18 +558,18 @@
         // Edit genome build dictionary
         //
 		private function editGenomeBuild():void {
-			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                  onDictionaryGenomeBuildInitialized);
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
 			                                   onDictionaryGenomeBuildSelected);			
 			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                                     onDictionaryGenomeBuildRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditory);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
           
        	public function onDictionaryGenomeBuildInitialized(event:Event):void{
-			dictionaryEditory.selectDictionary("hci.gnomex.model.GenomeBuild");
+			dictionaryEditor.selectDictionary("hci.gnomex.model.GenomeBuild");
         }	
        	public function onDictionaryGenomeBuildRefreshed(event:Event):void{
 			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
@@ -578,7 +581,7 @@
         }	
        	private function onDictionaryGenomeBuildSelected(event:Event):void{
        		if (this.genomeBuildCombo.selectedItem != null && this.genomeBuildCombo.selectedItem.@value != "") {
-       			dictionaryEditory.selectDictionaryEntry(genomeBuildCombo.selectedItem);
+       			dictionaryEditor.selectDictionaryEntry(genomeBuildCombo.selectedItem);
        		}
         }	
         
@@ -587,17 +590,17 @@
         // Edit analysis type dictionary
         //
 		private function editAnalysisType():void {
-			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                   onDictionaryAnalysisTypeInitialized);
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
 			                                   onDictionaryAnalysisTypeSelected);			
 			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                                     onDictionaryAnalysisTypeRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditory);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionaryAnalysisTypeInitialized(event:Event):void{
-			dictionaryEditory.selectDictionary("hci.gnomex.model.AnalysisType");
+			dictionaryEditor.selectDictionary("hci.gnomex.model.AnalysisType");
         }          
        	private function onDictionaryAnalysisTypeRefreshed(event:Event):void{
 			analysisTypeCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');								
@@ -605,35 +608,58 @@
         }	
        	private function onDictionaryAnalysisTypeSelected(event:Event):void{
        		if (this.analysisTypeCombo.selectedItem != null && this.analysisTypeCombo.selectedItem.@value != "") {
-       			dictionaryEditory.selectDictionaryEntry(analysisTypeCombo.selectedItem);
+       			dictionaryEditor.selectDictionaryEntry(analysisTypeCombo.selectedItem);
        		}
         }
 
         //
         // Edit analysis protocol dictionary
         //
-		private function editAnalysisProtocol():void {
-			dictionaryEditory = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+        /*
+		private function editAnalysisProtocolDE():void {
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                  onDictionaryAnalysisProtocolInitialized);
-			dictionaryEditory.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
 			                                   onDictionaryAnalysisProtocolSelected);			
 			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                                     onDictionaryAnalysisProtocolRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditory);
+			PopUpManager.centerPopUp(dictionaryEditor);
 		}
-       	private function onDictionaryAnalysisProtocolInitialized(event:Event):void{
-			dictionaryEditory.selectDictionary("hci.gnomex.model.AnalysisProtocol");
-        }          
-       	private function onDictionaryAnalysisProtocolRefreshed(event:Event):void{
+		*/
+		private function editAnalysisProtocol():void {
+			protocolEditor = views.protocol.ProtocolsView(PopUpManager.createPopUp(this, views.protocol.ProtocolsView, true));
+			protocolEditor.width = 800;
+			protocolEditor.height = 500;
+			protocolEditor.bodyPanel.showCloseButton = true;
+			protocolEditor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
+			protocolEditor.initializeData('hci.gnomex.model.AnalysisProtocol');
+//			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+//			                                  onDictionaryAnalysisProtocolInitialized);
+//			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+//			                                   onDictionaryAnalysisProtocolSelected);			
+//			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+//			                                                     onDictionaryAnalysisProtocolRefreshed);
+			PopUpManager.centerPopUp(protocolEditor);
+		}
+		
+		public function onCloseProtocolEditWindow(event:Event):void {
+			PopUpManager.removePopUp(protocolEditor);
 			analysisProtocolCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');							
 			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);				
-        }	
-       	private function onDictionaryAnalysisProtocolSelected(event:Event):void{
-       		if (this.analysisProtocolCombo.selectedItem != null && this.analysisProtocolCombo.selectedItem.@value != "") {
-       			dictionaryEditory.selectDictionaryEntry(analysisProtocolCombo.selectedItem);
-       		}
-        }
+		}
+//       	private function onDictionaryAnalysisProtocolInitialized(event:Event):void{
+//			dictionaryEditor.selectDictionary("hci.gnomex.model.AnalysisProtocol");
+//        }          
+//       	private function onDictionaryAnalysisProtocolRefreshed(event:Event):void{
+//			analysisProtocolCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');							
+//			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);				
+//        }	
+//       	private function onDictionaryAnalysisProtocolSelected(event:Event):void{
+//       		if (this.analysisProtocolCombo.selectedItem != null && this.analysisProtocolCombo.selectedItem.@value != "") {
+//       			dictionaryEditor.selectDictionaryEntry(analysisProtocolCombo.selectedItem);
+//       		}
+//        }
 
 	]]>
 </mx:Script>
