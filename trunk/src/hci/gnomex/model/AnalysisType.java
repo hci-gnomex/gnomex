@@ -1,6 +1,8 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
+
 import java.io.Serializable;
 
 
@@ -62,5 +64,21 @@ public class AnalysisType extends DictionaryEntry implements Serializable, Dicti
   }
 
 
-
+  public int compare(Object one, Object two) {
+    if (one instanceof AnalysisType && two instanceof AnalysisType) {
+      
+      AnalysisType at1 = (AnalysisType)one;
+      AnalysisType at2 = (AnalysisType)two;
+      
+      return at1.getAnalysisType().compareTo(at2.getAnalysisType());
+       
+    } else if (one instanceof NullDictionaryEntry && two instanceof AnalysisType) {
+      return -1;
+    } else if (two instanceof NullDictionaryEntry && one instanceof AnalysisType) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  
 }
