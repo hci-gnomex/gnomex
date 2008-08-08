@@ -109,7 +109,7 @@
         }     	
     }
     
-    public function downloadFolders():void { 
+    public function downloadFolders():void {
     	getSelectedFolders();
     	getDownloadEstimatedSize.send();
     	
@@ -117,7 +117,10 @@
             
     public function downloadFoldersAndShowProgress():void { 
     	
-        var parms:String = "resultKeys="+ resultKeys;
+        var parms:URLVariables = new URLVariables();
+        parms.resultKeys = resultKeys;
+        parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
+        parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
     	var progressWindow:DownloadProgressView = new DownloadProgressView();
     	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
     	
