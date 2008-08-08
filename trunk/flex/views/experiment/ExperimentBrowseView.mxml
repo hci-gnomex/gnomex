@@ -475,6 +475,9 @@
 		            	toolTip="Download selected folders"
 		            	label="Download" 
 		            	visible="true"/>
+		            <mx:CheckBox  id="includeJPEGFilesCheckBox" label="Include JPEG files" selected="true"/>
+		            <mx:CheckBox  id="includeTIFFFilesCheckBox" label="Include TIFF files" selected="false"/>
+		            <mx:Spacer width="20"/>
 		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
 	            </mx:HBox>		                    
 	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
