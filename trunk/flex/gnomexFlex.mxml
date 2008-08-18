@@ -355,6 +355,15 @@
 				
 			}
 
+			public function showProtocol(idProtocol:Object, className:String):void {
+				protocolsView.lastSavedProtocolId = idProtocol;
+				protocolsView.lastSelectedProtocolClass = className; 
+				protocolsView.initializeData();
+
+				theViews.visible = true;
+				theViews.selectedChild = protocolsView;
+				
+			}
             private function search():void {
             	theViews.visible = true;
             	navSearchView.searchView.checkSecurity();            	

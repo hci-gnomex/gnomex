@@ -131,6 +131,7 @@
 			[Bindable]
 			private var targetProtocolClassName:String = null;
 			
+			
 			public function checkDirty():void {
 			}
 			
