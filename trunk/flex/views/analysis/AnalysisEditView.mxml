@@ -704,7 +704,7 @@
 						<mx:Label text="Genome Build" width="100">
 						</mx:Label>
 						<mx:VBox verticalGap="0" horizontalAlign="right" width="100%">
-							<mx:ComboBox  width="100%" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+							<mx:ComboBox  width="220" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
 							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editGenomeBuild()"/>
 						</mx:VBox>
 					</mx:HBox>
@@ -722,7 +722,7 @@
 						<mx:Label text="Analysis Protocol" width="100">
 						</mx:Label>
 						<mx:VBox verticalGap="0"  horizontalAlign="right" width="100%">
-							<mx:ComboBox  width="100%" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+							<mx:ComboBox  width="220" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
 							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()"/>														
 						</mx:VBox>
 					</mx:HBox>

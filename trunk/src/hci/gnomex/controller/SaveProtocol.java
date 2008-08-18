@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.AnalysisProtocol;
+import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
@@ -35,6 +36,7 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
   private String    isActive = "Y";
   private String    codeRequestCategory;
   private Integer   idAnalysisType;
+  private Integer   idAppUser;
   
   private Integer   idProtocolSaved;
   
@@ -69,23 +71,34 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
     if (request.getParameter("idAnalysisType") != null && !request.getParameter("idAnalysisType").equals("")) {
       idAnalysisType = new Integer(request.getParameter("idAnalysisType"));
     }
-    
+    if (request.getParameter("idAppUser") != null && !request.getParameter("idAppUser").equals("")) {
+      idAppUser = new Integer(request.getParameter("idAppUser"));
+    }
     if (protocolClassName == null) {
       this.addInvalidField("protocolClassName", "protocolClassName is required");
     }
     if (protocolName == null) {
       this.addInvalidField("protocolName", "protocolName is required");
     }
+    
 
    
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
+    // Guests cannot save protocols.
+    if (this.getSecAdvisor().isGuest()) {
+      this.addInvalidField("Insufficient permissions", "Insufficient permission to edit dictionareis.");
+      setResponsePage(this.ERROR_JSP);
+      return this;
+    }
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES) || 
+          (protocolClassName.equals(AnalysisProtocol.class.getName()))) {
         
         DictionaryEntry protocol = null;
         if (idProtocol == null || idProtocol.intValue() == 0) {
@@ -115,6 +128,15 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);
             ((AnalysisProtocol)protocol).setIsActive("Y");
             ((AnalysisProtocol)protocol).setIdAnalysisType(idAnalysisType);
+            
+            // Force personal ownership of analysis protocol if user not admin
+            if (!this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+              SecurityAdvisor secAd = (SecurityAdvisor)this.getSecurityAdvisor();
+              ((AnalysisProtocol)protocol).setIdAppUser(secAd.getIdAppUser());
+            } else {              
+              ((AnalysisProtocol)protocol).setIdAppUser(idAppUser);
+            }
+            
           } else {
             addInvalidField("unknown protocol", "Unknown protocol");
           }
@@ -160,6 +182,17 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((AnalysisProtocol)protocol).setIsActive(isActive);
             ((AnalysisProtocol)protocol).setUrl(protocolUrl);
             ((AnalysisProtocol)protocol).setIdAnalysisType(idAnalysisType);
+
+            
+            // Force personal ownership of analysis protocol if user not admin
+            if (!this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+              SecurityAdvisor secAd = (SecurityAdvisor)this.getSecurityAdvisor();
+              ((AnalysisProtocol)protocol).setIdAppUser(secAd.getIdAppUser());
+            } else {              
+              ((AnalysisProtocol)protocol).setIdAppUser(idAppUser);
+            }
+            
+            
           } else {
             addInvalidField("unknown protocol", "Unknown protocol");
           }

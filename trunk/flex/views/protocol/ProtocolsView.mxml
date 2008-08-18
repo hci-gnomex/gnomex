@@ -156,6 +156,7 @@
 				params.protocolName = protocolName.text;
 				if (this.currentState == "AnalysisEditState") {
 				 	params.idAnalysisType = analysisTypeCombo.selectedItem != null ? analysisTypeCombo.selectedItem.@value : "";
+				 	params.idAppUser = appUserCombo.selectedItem != null ? appUserCombo.selectedItem.@value : "";
 				} else {
 					params.codeRequestCategory = codeRequestCategory.selectedItem != null ? codeRequestCategory.selectedItem.@value : "";					
 				}
@@ -272,24 +273,20 @@
 					params.protocolClassName = browseProtocols.selectedItem.@protocolClassName;
 					callGetProtocol(params);
 					lastSelectedProtocolClass =  browseProtocols.selectedItem.@protocolClassName;
-					if (parentApplication.hasPermission("canWriteDictionaries")) {
-						addProtocolButton.enabled = true;
-						deleteProtocolButton.enabled=true;
-						saveProtocolButton.enabled=true;
-					}
+					addProtocolButton.enabled =    parentApplication.hasPermission("canWriteDictionaries") || (!parentApplication.isGuestMode() && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") ? true : false;
+					deleteProtocolButton.enabled = browseProtocols.selectedItem.@canDelete == "Y" ? true : false;
+					saveProtocolButton.enabled   = browseProtocols.selectedItem.@canUpdate == "Y" ? true : false;
 				} else if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.name() == "Protocols") {
-					if (parentApplication.hasPermission("canWriteDictionaries")) {
-						addProtocolButton.enabled=true;
-					}
-					deleteProtocolButton.enabled=false;
-					saveProtocolButton.enabled=false;
+					addProtocolButton.enabled =    parentApplication.hasPermission("canWriteDictionaries") || (!parentApplication.isGuestMode() && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") ? true : false;
+					deleteProtocolButton.enabled = false;
+					saveProtocolButton.enabled = false;
 					bodyPanel.title = "Protocol: ";
 					bodyPanel.titleIcon = null;
 					protocolViews.selectedChild = blankProtocol;
 				} else {
-					addProtocolButton.enabled=false;
-					deleteProtocolButton.enabled=false;
-					saveProtocolButton.enabled=false;
+					addProtocolButton.enabled = false;
+					deleteProtocolButton.enabled = false;
+					saveProtocolButton.enabled = false;
 				}
 				
 			}
@@ -305,9 +302,9 @@
 			}
 			
 			public function showProtocol():void {
-				if (parentApplication.hasPermission("canWriteDictionaries")) {
+				if (fullProtocol.canUpdate == "Y") {
 					protocolViews.selectedChild = editProtocol;
-					if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
+					if (fullProtocol.protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
 						currentState = "AnalysisEditState";
 					} else {
 						currentState = "";
@@ -315,15 +312,12 @@
 					testForURL();
 				} else {
 					protocolViews.selectedChild = viewProtocol;
-					if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
+					if (fullProtocol.protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
 						currentState = "AnalysisViewState";
 					} else {
 						currentState = "";
 					}
 					testForURL();
-					addProtocolButton.enabled=false;
-					deleteProtocolButton.enabled=false;
-					saveProtocolButton.enabled=false;
 				}
 			}
 			
@@ -392,7 +386,7 @@
 			<mx:Label text="No protocol selected" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle">
+			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle" id="hbox2">
 				<mx:Label text="Name:" fontWeight="bold" width="100"/>
 				<mx:Label text="{fullProtocol.name}" width="100%"/>
 			</mx:HBox>
@@ -421,7 +415,7 @@
 			</mx:VBox>	
 		</mx:Canvas>		
 		<mx:Canvas id="editProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10">
+		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10" id="hbox3">
 			<mx:VBox height="46" left="10" top="10" right="394" width="100%">
 				<mx:Label text="Name:" width="100"/>
 				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
@@ -436,7 +430,7 @@
 					width="100%" change="dirty.setDirty()">
 					</hci:DictionaryComboBox>
 			</mx:VBox>
-			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637">
+			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637" id="vbox2">
 				<hci:CheckBoxYN  id="isActive" data="{fullProtocol.isActive.toString()}" label="Active" click="dirty.setDirty()"/>
 			</mx:VBox>
 			</mx:HBox>
@@ -478,6 +472,18 @@
 					width="100%" change="dirty.setDirty()">
 					</hci:DictionaryComboBox>
 			</mx:AddChild>
+			<mx:AddChild relativeTo="{vbox2}" position="before">
+				<mx:VBox height="46" width="100%" id="vbox0">
+					<mx:Label text="Owner:" width="100" id="label0"/>
+					<hci:DictionaryComboBox
+						id="appUserCombo"
+						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@canRead == 'Y')}"
+						labelField="@display"
+						data="{fullProtocol.idAppUser}"
+						width="100%" change="dirty.setDirty()">
+						</hci:DictionaryComboBox>
+				</mx:VBox>
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="AnalysisViewState">
 			<mx:SetProperty target="{label2}" name="text" value="Analysis Type"/>
@@ -488,6 +494,14 @@
 					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AnalysisType', fullProtocol.idAnalysisType)}"
 					width="100%">
 					</mx:Label>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox2}" position="lastChild">
+				<mx:HBox styleName="formDisplay" verticalAlign="middle">
+					<mx:Label text="Owner:" fontWeight="bold" width="100" visible="{fullProtocol.idAppUser != '' ? true : false}"/>
+					<mx:Label 
+					  text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', fullProtocol.idAppUser)}"
+					  width="100%"/>
+				</mx:HBox>
 			</mx:AddChild>
 			
 		</mx:State>
