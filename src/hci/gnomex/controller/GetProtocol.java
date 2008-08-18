@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
@@ -39,6 +40,10 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       String url = null;
       String isActive = null;
       Integer idAnalysisType = null;
+      Integer idAppUser = null;
+      String canRead = "N";
+      String canUpdate = "N";
+      String canDelete = "N";
       
       if (this.idProtocol != null || this.idProtocol.intValue() != 0) {
         if (this.protocolClassName.equals(FeatureExtractionProtocol.class.getName())) {
@@ -49,6 +54,11 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           description = fep.getDescription();
           url = fep.getUrl();
           isActive = fep.getIsActive();
+          setPermissions(fep);
+          canRead   = fep.canRead() ? "Y" : "N";
+          canUpdate = fep.canUpdate() ? "Y" : "N";
+          canDelete = fep.canDelete() ? "Y" : "N";
+          
         } else if (this.protocolClassName.equals(HybProtocol.class.getName())) {
           HybProtocol hp = (HybProtocol) sess.load(HybProtocol.class, this.idProtocol);
           id = hp.getIdHybProtocol().toString();
@@ -57,6 +67,11 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           description = hp.getDescription();
           url = hp.getUrl();
           isActive = hp.getIsActive();
+          setPermissions(hp);
+          canRead   = hp.canRead() ? "Y" : "N";
+          canUpdate = hp.canUpdate() ? "Y" : "N";
+          canDelete = hp.canDelete() ? "Y" : "N";
+          
         } else if (this.protocolClassName.equals(LabelingProtocol.class.getName())) {
           LabelingProtocol lp = (LabelingProtocol) sess.load(LabelingProtocol.class,this.idProtocol);
           id = lp.getIdLabelingProtocol().toString();
@@ -65,6 +80,11 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           description = lp.getDescription();
           url = lp.getUrl();
           isActive = lp.getIsActive();
+          setPermissions(lp);
+          canRead   = lp.canRead() ? "Y" : "N";
+          canUpdate = lp.canUpdate() ? "Y" : "N";
+          canDelete = lp.canDelete() ? "Y" : "N";
+          
         } else if (this.protocolClassName.equals(ScanProtocol.class.getName())) {
           ScanProtocol sp = (ScanProtocol) sess.load(ScanProtocol.class,this.idProtocol);
           id = sp.getIdScanProtocol().toString();
@@ -73,6 +93,10 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           description = sp.getDescription();
           url = sp.getUrl();
           isActive = sp.getIsActive();
+          setPermissions(sp);
+          canRead   = sp.canRead() ? "Y" : "N";
+          canUpdate = sp.canUpdate() ? "Y" : "N";
+          canDelete = sp.canDelete() ? "Y" : "N";
         } else if (this.protocolClassName.equals(AnalysisProtocol.class.getName())) {
           AnalysisProtocol ap = (AnalysisProtocol) sess.load(AnalysisProtocol.class,this.idProtocol);
           id = ap.getIdAnalysisProtocol().toString();
@@ -81,6 +105,11 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           url = ap.getUrl();
           isActive = ap.getIsActive();
           idAnalysisType = ap.getIdAnalysisType();
+          idAppUser = ap.getIdAppUser();
+          setPermissions(ap);
+          canRead   = ap.canRead() ? "Y" : "N";
+          canUpdate = ap.canUpdate() ? "Y" : "N";
+          canDelete = ap.canDelete() ? "Y" : "N";
         }
         
         Element root = new Element("Protocol");
@@ -89,6 +118,11 @@ public class GetProtocol extends GNomExCommand implements Serializable {
         root.addContent(new Element("name").addContent(protocolName));
         root.addContent(new Element("description").addContent(description));
         root.addContent(new Element("url").addContent(url));
+        root.addContent(new Element("idAppUser").addContent(idAppUser != null ? idAppUser.toString() : ""));
+        root.addContent(new Element("canRead").addContent(canRead));
+        root.addContent(new Element("canUpdate").addContent(canUpdate));
+        root.addContent(new Element("canDelete").addContent(canDelete));
+        
         if (this.protocolClassName.equals(AnalysisProtocol.class.getName())) {
           root.addContent(new Element("idAnalysisType").addContent(idAnalysisType != null ? idAnalysisType.toString() : ""));
         } else {
@@ -124,6 +158,28 @@ public class GetProtocol extends GNomExCommand implements Serializable {
     return this;
   }
 
+  public void setPermissions(DetailObject o) {
+    try {
+      o.canRead(this.getSecAdvisor().canRead(o));
+    } catch (UnknownPermissionException e) {
+      o.canRead(false);
+    }
+
+    try {
+      o.canUpdate(this.getSecAdvisor().canUpdate(o));
+    } catch (UnknownPermissionException e) {
+      o.canUpdate(false);
+    }
+
+    try {
+      o.canDelete(this.getSecAdvisor().canDelete(o));
+    } catch (UnknownPermissionException e) {
+      o.canDelete(false);
+    }
+
+
+  }
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     if (request.getParameter("id") != null && request.getParameter("id") != "") {

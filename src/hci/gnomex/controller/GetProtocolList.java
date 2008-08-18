@@ -2,6 +2,8 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
@@ -119,7 +121,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
           }
         }
       }
-
+      
       
       XMLOutputter out = new XMLOutputter();
       xmlResult = out.outputString(doc);
@@ -167,6 +169,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(fep.getFeatureExtractionProtocol()));
     e.setAttribute("isActive", this.getNonNullString(fep.getIsActive()));
     e.setAttribute("protocolClassName", fep.getClass().getName());
+
+    setPermissions(fep);
+    e.setAttribute("canRead",   fep.canRead()   ? "Y" : "N");
+    e.setAttribute("canDelete", fep.canDelete() ? "Y" : "N");
+    e.setAttribute("canUpdate", fep.canUpdate() ? "Y" : "N");    
+    
     parent.addContent(e);
   }
   
@@ -176,6 +184,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(hp.getHybProtocol()));
     e.setAttribute("isActive", this.getNonNullString(hp.getIsActive()));
     e.setAttribute("protocolClassName", hp.getClass().getName());
+
+    setPermissions(hp);
+    e.setAttribute("canRead",   hp.canRead()   ? "Y" : "N");
+    e.setAttribute("canDelete", hp.canDelete() ? "Y" : "N");
+    e.setAttribute("canUpdate", hp.canUpdate() ? "Y" : "N");    
+    
     parent.addContent(e);
   }
   
@@ -185,6 +199,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(lp.getLabelingProtocol()));
     e.setAttribute("isActive", this.getNonNullString(lp.getIsActive()));
     e.setAttribute("protocolClassName", lp.getClass().getName());
+
+    setPermissions(lp);
+    e.setAttribute("canRead",   lp.canRead()   ? "Y" : "N");
+    e.setAttribute("canDelete", lp.canDelete() ? "Y" : "N");
+    e.setAttribute("canUpdate", lp.canUpdate() ? "Y" : "N");
+    
     parent.addContent(e);
   }
   
@@ -194,6 +214,12 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(sp.getScanProtocol()));
     e.setAttribute("isActive", this.getNonNullString(sp.getIsActive()));
     e.setAttribute("protocolClassName", sp.getClass().getName());
+
+    setPermissions(sp);
+    e.setAttribute("canRead",   sp.canRead()   ? "Y" : "N");
+    e.setAttribute("canDelete", sp.canDelete() ? "Y" : "N");
+    e.setAttribute("canUpdate", sp.canUpdate() ? "Y" : "N");
+        
     parent.addContent(e);
   }
   
@@ -203,6 +229,35 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(ap.getAnalysisProtocol()));
     e.setAttribute("isActive", this.getNonNullString(ap.getIsActive()));
     e.setAttribute("protocolClassName", ap.getClass().getName());
+    e.setAttribute("idAppUser", this.getNonNullString(ap.getIdAppUser()));
+    
+    setPermissions(ap);
+    e.setAttribute("canRead",   ap.canRead()   ? "Y" : "N");
+    e.setAttribute("canDelete", ap.canDelete() ? "Y" : "N");
+    e.setAttribute("canUpdate", ap.canUpdate() ? "Y" : "N");
+    
     parent.addContent(e);
   }  
+  
+  public void setPermissions(DetailObject o) {
+    try {
+      o.canRead(this.getSecAdvisor().canRead(o));
+    } catch (UnknownPermissionException e) {
+      o.canRead(false);
+    }
+
+    try {
+      o.canUpdate(this.getSecAdvisor().canUpdate(o));
+    } catch (UnknownPermissionException e) {
+      o.canUpdate(false);
+    }
+
+    try {
+      o.canDelete(this.getSecAdvisor().canDelete(o));
+    } catch (UnknownPermissionException e) {
+      o.canDelete(false);
+    }
+
+
+  }
 }
