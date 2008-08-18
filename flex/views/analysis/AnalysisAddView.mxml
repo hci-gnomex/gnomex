@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" width="360" height="324" 
+	title="Add Analysis" width="368" height="374" 
 	defaultButton="{saveButton}">
 	 
     <mx:HTTPService 
@@ -27,15 +27,47 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.collections.XMLListCollection;
 		import views.util.AboutView;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.managers.PopUpManager;
 		import mx.controls.Alert;
+		import mx.events.CloseEvent;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
+
 		
+		public function initializeData():void {
+			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
+			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
+			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;		
+			filteredGenomeBuildList.refresh();						
+			
+		}
+		
+
+	 	
+		private function validateAndSave():void {
+			
+			if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
+				Alert.show( "The genome build is not specified.  Continue anyways?",
+							"Warning",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToContinueSave,						
+							parentApplication.iconWarning);
+			} else {
+				save();
+			}
+			
+		}
+		
+		private function onPromptToContinueSave(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	save();
+            }
+        }	 	
 		private function save():void {
 			var params:Object = new Object();
 			
@@ -43,10 +75,10 @@
 			params.idLab = labCombo.selectedItem.@idLab;
 			params.name = analysisName.text;
 			params.idOrganism = organismCombo.selectedItem.@idOrganism;
+			params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
 			if (currentState == "NewAnalysisGroupState") {
 				params.analysisGroupsXMLString = "<analysisGroups/>";
 				params.newAnalysisGroupName = newAnalysisGroupName.text;
-				params.newAnalysisGroupDescription = newAnalysisGroupDescription.text;
 			
 			} else {
 				if (analysisGroupCombo.selectedItem != null) {
@@ -128,9 +160,27 @@
 			callLater(parentApplication.navAnalysisView.refreshAnalysis);
 			
 		}
+		
+        private function filterGenomeBuild(item:Object):Boolean {
+        	if (item.@value == "") {
+        		return true;
+        	}
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	var doesMatch:Boolean = false;
+        	if (this.organismCombo.selectedItem != null && 
+        	    this.organismCombo.selectedItem.@value != null  &&
+        	    this.organismCombo.selectedItem.@value != "") {
+        	    if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@value.toString()) {
+        	    	doesMatch = true;
+        	    }
+        	}
+    	   	return doesMatch;
+    	}		
 	]]>
 </mx:Script>
-
+<mx:XMLListCollection  id="filteredGenomeBuildList"/>
 	<mx:VBox width="100%"  verticalGap="20">
 		<mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Group"/>
@@ -157,13 +207,20 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Organism" width="100">
 			</mx:Label>
-			<mx:ComboBox  width="100%" id="organismCombo" labelField="@display"  change="checkCompleteness()">
+			<mx:ComboBox  width="100%" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
 				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+			</mx:ComboBox>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Genome Build:" width="100">
+			</mx:Label>
+			<mx:ComboBox  width="100%" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
+				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:VBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
@@ -172,20 +229,13 @@
 		<mx:State name="NewAnalysisGroupState">
 			<mx:RemoveChild target="{analysisGroupCombo}"/>
 			<mx:RemoveChild target="{newAnalysisGroupButton}"/>
-			<mx:AddChild relativeTo="{hbox1}" position="before">
-				<mx:TextArea height="76" width="100%" id="newAnalysisGroupDescription"/>
-			</mx:AddChild>
-			<mx:SetProperty name="width" value="358"/>
-			<mx:SetProperty name="height" value="406"/>
 			<mx:SetProperty target="{label1}" name="text" value="New analysis group name"/>
-			<mx:AddChild relativeTo="{newAnalysisGroupDescription}" position="before">
+			<mx:AddChild relativeTo="{analysisGroupBox}" position="lastChild">
 				<mx:TextInput width="100%" id="newAnalysisGroupName" change="checkCompleteness()"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{newAnalysisGroupDescription}" position="before">
-				<mx:Label text="New analysis group description"/>
 			</mx:AddChild>
 			<mx:SetProperty target="{saveButton}" name="enabled" value="true">
 			</mx:SetProperty>
+			<mx:RemoveChild target="{hbox1}"/>
 		
 		</mx:State>
 	</mx:states>
