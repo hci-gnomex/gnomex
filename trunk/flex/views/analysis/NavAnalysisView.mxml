@@ -583,6 +583,8 @@
 		private function showNewAnalysisWindow():void {  
 			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
 		 	PopUpManager.centerPopUp(this.analysisAddWindow);		
+		 	
+		 	analysisAddWindow.initializeData();
 		 
 		 	var selectedLabNode:Object = null;
 		 	if (this.selectedIdLab != null) {
