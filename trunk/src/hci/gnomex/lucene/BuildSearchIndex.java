@@ -571,6 +571,20 @@ public class BuildSearchIndex extends DetailObject {
       protocolMap.put(key, row);      
     }
 
+    buf = new StringBuffer();
+    buf.append("SELECT prot.idAnalysisProtocol, ");
+    buf.append("       prot.analysisProtocol, ");
+    buf.append("       prot.description, ");
+    buf.append("       'hci.gnomex.model.AnalysisProtocol' ");
+    buf.append("FROM   AnalysisProtocol as prot");
+
+    results = sess.createQuery(buf.toString()).list();    
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();      
+      String key = "Analysis Protocol"  + KEY_DELIM + row[0];      
+      protocolMap.put(key, row);      
+    }
+
 
 
   }
