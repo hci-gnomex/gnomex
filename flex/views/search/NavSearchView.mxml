@@ -65,6 +65,18 @@
 	        	                               this.resultsAnalysisTree.selectedItem.@idLab);    		
         	}
         }
+        private function onProtocolRowSelected():void  {
+        	parentApplication.showProtocol(resultsProtocolGrid.selectedItem.@idProtocol, 
+        	                               this.resultsProtocolGrid.selectedItem.@className);
+        }
+        
+                
+        private function onProtocolNodeSelected():void  {
+        	if (resultsProtocolTree.selectedItem.name() == "Protocol") {
+	        	parentApplication.showProtocol(resultsProtocolTree.selectedItem.@idProtocol, 
+	        	                               resultsProtocolTree.selectedItem.@className);    		
+        	}
+        }
         
 	    public function expandAllNodes():void
   		{   
@@ -264,7 +276,7 @@
 			  
 			  <mx:VBox id="resultsProtocolView" label="{protocolHitLabel}" width="100%" height="100%" left="4" right="4" top="4" bottom="4" verticalGap="0">
 	             <mx:VBox id="listProtocolView" width="100%" height="100%">
-	  		       <mx:DataGrid  dataProvider="{searchProtocolList}"  width="100%" height="100%"  id="resultsProtocolGrid" doubleClickEnabled="true">
+	  		       <mx:DataGrid  dataProvider="{searchProtocolList}"  width="100%" height="100%"  id="resultsProtocolGrid" doubleClickEnabled="true" doubleClick="onProtocolRowSelected()">
 			       <mx:columns>
 			       	<mx:DataGridColumn headerText="Rank" width="20" dataField="@searchRank"/>
 			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
@@ -321,6 +333,7 @@
 			     	<mx:Tree id="resultsProtocolTree" width="100%" height="100%" 
 		    	 		dataProvider="{searchView.searchGNomEx.lastResult.ProtocolList}"
 		     			labelField="@label" 
+		     		 	doubleClickEnabled="true" doubleClick="onProtocolNodeSelected()"
 		     		 	iconFunction="getTreeIcon"
 		     		 	labelFunction="getTreeLabel"
 		     			showRoot="true" >
