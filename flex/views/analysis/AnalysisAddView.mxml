@@ -52,7 +52,7 @@
 		private function validateAndSave():void {
 			
 			if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
-				Alert.show( "The genome build is not specified.  Continue anyways?",
+				Alert.show( "The genome build is not specified.  Create new analysis anyways?",
 							"Warning",
 							(Alert.YES | Alert.NO), this, 
 							onPromptToContinueSave,						
