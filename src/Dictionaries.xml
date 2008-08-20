@@ -101,5 +101,5 @@
 	<Dictionary displayName="Vendor" className="hci.gnomex.model.Vendor" />
 	<Dictionary displayName="Visibility" className="hci.gnomex.model.Visibility" />
 	<Dictionary displayName="Slide Design (not editable)" className="hci.gnomex.model.SlideDesign" editable="N" />
-	<Dictionary displayName="Owner" className="hci.gnomex.model.AppUserLite"  editable="N"  />
+	<Dictionary displayName="Owner" className="hci.gnomex.model.AppUserLite"  editable="N"  scrub="Y" />
 	</Dictionaries>
