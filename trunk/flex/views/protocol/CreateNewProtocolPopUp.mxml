@@ -39,6 +39,7 @@
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import hci.flex.events.DictionaryEvent;
 			
 			[Bindable]
 			public var protocolClassName:String;
@@ -64,14 +65,18 @@
 			public function resultHandler(event:ResultEvent):void {
 				var call:Object = event.token;
 				if (call.marker == "doneSaveProtocol") {
-					protocolsView.lastSavedProtocolId = createProtocol.lastResult.@idProtocolSaved;
-					protocolsView.lastSelectedProtocolClass = protocolClassName;
-					protocolsView.callGetProtocolList();
-					PopUpManager.removePopUp(this);
-
-					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
+					parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, refreshAndClose);
+					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol'); 
 					parentApplication.dictionaryManager.load();
 				}
+			}
+			
+			private function refreshAndClose(event:Event):void {
+				parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, refreshAndClose);
+				protocolsView.lastSavedProtocolId = createProtocol.lastResult.@idProtocolSaved;
+				protocolsView.lastSelectedProtocolClass = protocolClassName;
+				protocolsView.callGetProtocolList();
+				PopUpManager.removePopUp(this);
 			}
 		]]>
 	</mx:Script>
