@@ -145,6 +145,11 @@
    			if (event.columnIndex == 0) {
 	   			return;
    			}
+   			// When user clicks in the "other" text field, don't toggle (off)
+   			// the checkbox.
+   			if (sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic == "OTHER") {
+   				return;
+   			}
    			if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
 				sampleAnnotationGrid.selectedItem.@isSelected = "false";
 				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic, false);
@@ -305,7 +310,7 @@
 					                       </mx:Label>
 					                       <mx:TextInput id="scOtherLabel" fontSize="9"
 					                       	text="{data.@otherLabel}"
-					                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.confirmView.otherDataColumnConfirm.headerText = scOtherLabel.text}" 
+					                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.confirmView.otherDataColumnConfirm.headerText = scOtherLabel.text; ; scOtherLabel.text != '' ? data.@isSelected = 'true' : data.@isSelected = 'false'}" 
 					                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
 					                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
 					                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 
