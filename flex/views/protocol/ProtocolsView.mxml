@@ -307,8 +307,10 @@
 					protocolViews.selectedChild = editProtocol;
 					if (fullProtocol.protocolClassName == "hci.gnomex.model.AnalysisProtocol") {
 						currentState = "AnalysisEditState";
+						this.analysisTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.AnalysisType", fullProtocol.idAnalysisType);
 					} else {
 						currentState = "";
+						this.codeRequestCategory.selectedItem = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategory", fullProtocol.codeRequestCategory);
 					}
 					testForURL();
 				} else {
@@ -320,6 +322,8 @@
 					}
 					testForURL();
 				}
+				
+			
 			}
 			
 			public function testForURL():void {
@@ -423,13 +427,12 @@
 			</mx:VBox>
 			<mx:VBox height="46" top="10" width="100%" right="121" id="vbox1">
 				<mx:Label text="Kind of Request:" width="100" id="label1"/>
-				<hci:DictionaryComboBox
+				<mx:ComboBox
 					id="codeRequestCategory"
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
 					labelField="@display"
-					data="{fullProtocol.codeRequestCategory}"
 					width="100%" change="dirty.setDirty()">
-					</hci:DictionaryComboBox>
+				</mx:ComboBox>
 			</mx:VBox>
 			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637" id="vbox2">
 				<hci:CheckBoxYN  id="isActive" data="{fullProtocol.isActive.toString()}" label="Active" click="dirty.setDirty()"/>
