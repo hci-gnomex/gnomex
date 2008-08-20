@@ -56,9 +56,6 @@
 	fault="parentApplication.onFailHttpRequest('Failed to get download estimated size', event)"
     method="POST"
     useProxy="false">
-    <mx:request>
-    	<resultKeys>{resultKeys}</resultKeys>
-    </mx:request>
     </mx:HTTPService>
   
 
@@ -111,7 +108,13 @@
     
     public function downloadFolders():void {
     	getSelectedFolders();
-    	getDownloadEstimatedSize.send();
+		
+		var parms:Object = new Object();
+        parms.resultKeys = resultKeys;
+        parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
+        parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
+
+    	getDownloadEstimatedSize.send(parms);
     	
  	}
             
