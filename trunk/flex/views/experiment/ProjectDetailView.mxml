@@ -251,6 +251,12 @@
    			if (event.columnIndex == 0) {
 	   			return;
    			}
+   			// When user clicks in the "other" text field, don't toggle (off)
+   			// the checkbox.
+   			if (experimentDesignEntryGrid.selectedItem.@codeExperimentDesign == "OTHER") {
+   				return;
+   			}
+   			
    			if (experimentDesignEntryGrid.selectedItem.@isSelected == "true") {
 				experimentDesignEntryGrid.selectedItem.@isSelected = "false";
 			} else {
@@ -260,6 +266,11 @@
 		private function toggleExperimentFactorCheck(event:ListEvent):void {
    			if (event.columnIndex == 0) {
 	   			return;
+   			}
+   			// When user clicks in the "other" text field, don't toggle (off)
+   			// the checkbox.
+   			if (experimentFactorEntryGrid.selectedItem.@codeExperimentFactor == "OTHER") {
+   				return;
    			}
    			if (experimentFactorEntryGrid.selectedItem.@isSelected == "true") {
 				experimentFactorEntryGrid.selectedItem.@isSelected = "false";
@@ -376,7 +387,7 @@
 	                           </mx:Label>
 	                           <mx:TextInput id="edOtherLabel" fontSize="9"
 	                           	text="{data.@otherLabel}"
-	                           	change="{data.@otherLabel = edOtherLabel.text}" 
+	                           	change="{data.@otherLabel = edOtherLabel.text; edOtherLabel.text != '' ? data.@isSelected = 'true' : data.@isSelected = 'false'}" 
 	                           	width="{data.@experimentDesign == 'Other' ? 130 : 0}"  
 	                           	height="{data.@experimentDesign == 'Other' ? 20 : 0}"  
 	                           	visible="{data.@experimentDesign == 'Other' ? true : false}" 
@@ -414,7 +425,7 @@
 	                           </mx:Label>
 	                           <mx:TextInput id="efOtherLabel" fontSize="9"
 	                           	text="{data.@otherLabel}"
-	                           	change="{data.@otherLabel = efOtherLabel.text}" 
+	                           	change="{data.@otherLabel = efOtherLabel.text; efOtherLabel.text != '' ? data.@isSelected = 'true' : data.@isSelected = 'false'}" 
 	                           	width="{data.@experimentFactor == 'Other' ? 130 : 0}"  
 	                           	height="{data.@experimentFactor == 'Other' ? 20 : 0}"  
 	                           	visible="{data.@experimentFactor == 'Other' ? true : false}" 
