@@ -871,7 +871,7 @@
 			<key column="idSlideProduct"/>
 			<many-to-many column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory"/>
 		</set>
-		<set name="slideDesigns" table="SlideDesign" lazy="true" cascade="delete">
+		<set name="slideDesigns" table="SlideDesign" lazy="true" cascade="delete" order-by="name">
 			<key column="idSlideProduct"/>
 			<one-to-many class="hci.gnomex.model.SlideDesign" />
 		</set>
