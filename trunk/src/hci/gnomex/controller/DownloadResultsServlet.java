@@ -147,7 +147,6 @@ public class DownloadResultsServlet extends HttpServlet {
         }
         
         response.setContentLength(totalZipSize);
-        System.out.println("actual content length = " + totalZipSize + "   estimated content length = " + estimatedCompressedSize);
         
         zout.finish();
         zout.flush();
