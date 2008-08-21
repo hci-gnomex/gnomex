@@ -168,8 +168,11 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
             }
           }
         } else {
-          slideProduct = (SlideProduct)sess.load(SlideProduct.class, idSlideProductScreen);          
-          initializeSlideProduct();
+          slideProduct = (SlideProduct)sess.load(SlideProduct.class, idSlideProductScreen);
+          
+          if (isInSlideSet.equals("N")) {
+            initializeSlideProduct();            
+          }
           if (slideProduct.getIsSlideSet().equals("N")) {
             slideProduct.setName(slideDesignScreen.getName());              
           }
@@ -224,7 +227,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
           }        
         }
         
-        if (mcParser != null) {
+        if (mcParser != null && isInSlideSet.equals("N")) {
           //
           // Save microarrayCategories
           //
