@@ -135,10 +135,15 @@
 			public function checkDirty():void {
 			}
 			
+			
 			public function initializeData(targetProtocolClassName:String=null):void {
 				this.targetProtocolClassName = targetProtocolClassName;
 				currentState = "";
 				callGetProtocolList();
+			}
+			
+			public function refreshDictionaries():void {
+				parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
 			}
 			
 			public function callGetProtocolList():void {
@@ -195,14 +200,10 @@
 					fullProtocol = getProtocol.lastResult;
 					showProtocol();
 					dirty.resetDirty();
-					
-
 				} else if (call.marker == "doneSaveProtocol") {
 					lastSavedProtocolId = saveProtocol.lastResult.@idProtocolSaved;
 					callGetProtocolList();
 					dirty.resetDirty();
-					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
-					parentApplication.dictionaryManager.load();
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
 					lastSavedProtocolId = null;
@@ -212,8 +213,6 @@
 					bodyPanel.title = "Protocol: ";
 					callGetProtocolList();
 					dirty.resetDirty();
-					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
-					parentApplication.dictionaryManager.load();
 				}
 			}
 			

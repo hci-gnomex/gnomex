@@ -152,6 +152,11 @@
 		public function initializeData():void {
           	callGetSlideList();
           }
+          
+        public function refreshDictionaries():void {
+			parentApplication.dictionaryManager.reload("hci.gnomex.model.SlideDesign");
+			parentApplication.getSlideProductList.send();
+        }
 		
 		public function resultHandler(event:ResultEvent):void {
 			var call:Object = event.token;
@@ -196,9 +201,6 @@
 				browseSlides.selectedIndex = -1;
 				selectSlideView(null);
 				dirty.resetDirty();
-				parentApplication.dictionaryManager.call("reload", "hci.gnomex.model.SlideDesign");
-				parentApplication.dictionaryManager.call("load", "");
-				parentApplication.getSlideProductList.send();
 			}  else if (call.marker == "doneSaveSlideProduct") {
 				lastSavedSlideProductId = saveSlideProduct.lastResult.@idSlideProduct.toString();
 				callGetSlideList();
@@ -206,9 +208,6 @@
 				params.idSlideProduct = lastSavedSlideProductId;
 				callGetSlideProduct(params);
 				dirty.resetDirty();
-				parentApplication.dictionaryManager.call("reload", "hci.gnomex.model.SlideDesign");
-				parentApplication.dictionaryManager.call("load", "");
-				parentApplication.getSlideProductList.send();
 			} else if (call.marker == "doneSaveSlideDesign") {
 				lastSavedSlideDesignId = saveSlideDesign.lastResult.@idSlideDesign.toString();
 				callGetSlideList();
@@ -216,9 +215,6 @@
 				params.idSlideDesign = lastSavedSlideDesignId;
 				callGetSlideDesign(params);
 				dirty.resetDirty();
-				parentApplication.dictionaryManager.call("reload", "hci.gnomex.model.SlideDesign");
-				parentApplication.dictionaryManager.call("load", "");
-				parentApplication.getSlideProductList.send();
 			}
 		}
 		
@@ -227,7 +223,8 @@
 				this.browseSlides.expandItem(parentNode, true);
 			}
 			this.browseSlides.selectedItem = selectedNode;
-			this.browseSlides.firstVisibleItem = selectedNode;
+			this.browseSlides.firstVisibleItem = selectedNode;			
+			this.selectSlideView(selectedNode != null ? selectedNode.name() : null);
 		}		
 		
 		public function callGetSlideList():void {
@@ -385,10 +382,12 @@
 				}
 				isInSlideSet.text = "Y";
 				slideViewPanel.title = "New slide on the "+ setName+ " slide set";
+				this.currentState = "SlideOfSetState";
 			} else {
 				isInSlideSet.text = "N";
 				sdIsActive.selected = true;
 				slideViewPanel.title = "New slide";
+				this.currentState = "";
 			}
 			sdRemoveArrayCoord.enabled = false;
 			sdRemoveCategory.enabled = false;
@@ -583,6 +582,7 @@
 		}
 		
 		public function selectSlideView(view:String):void {
+			currentState = "";
 			if ((view != null && view == "SlideProduct") || (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct" && fullSlideProduct != null)) {
 				slideViews.selectedChild = slideProductView;
 				slideViewPanel.title = "Slide Set: "+fullSlideProduct.@name;
@@ -597,6 +597,10 @@
 				newArrayName.text = null;
 				sdRemoveCategory.enabled = false;
 				sdRemoveArrayCoord.enabled = false;
+				
+				if (browseSlides.selectedItem != null && browseSlides.selectedItem.@isInSlideSet == "Y") {
+					this.currentState = "SlideOfSetState";
+				}
 			} else {
 				slideViews.selectedChild = blankSlide;
 				deleteSlideButton.enabled = false;
@@ -670,10 +674,10 @@
 					<hci:CheckBoxYN id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 				</mx:HBox>
 		
-				<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
+				<mx:HBox y="40" verticalAlign="middle" right="10" left="10" id="hbox2">
 					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 				
-					<mx:Label text="For Group:" top="59" left="121" width="20%"/>
+					<mx:Label text="For Group:" top="59" left="121" width="20%" id="label1"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
 						id="sdIdLab"
 						dataProvider="{parentApplication.promptedLabList}"
@@ -683,8 +687,8 @@
 					</util:ComboBoxLabList>
 				</mx:HBox>
 				<mx:HBox y="70" right="10" left="10">
-						<mx:VBox left="10" top="79" width="25%">
-							<mx:Label text="Vendor:" top="85" left="10" width="100%"/>
+						<mx:VBox left="10" top="79" width="25%" id="vbox3">
+							<mx:Label text="Vendor:" top="85" left="10" width="100%" id="label2"/>
 							<hci:DictionaryComboBox top="102" left="10" width="100%" 
 								id="sdIdVendor"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
@@ -694,8 +698,8 @@
 								change="dirty.setDirty()">
 								</hci:DictionaryComboBox>
 						</mx:VBox>
-						<mx:VBox left="213" top="79" width="25%">
-							<mx:Label text="Organism:" top="85" left="188" width="100%"/>
+						<mx:VBox left="213" top="79" width="25%" id="vbox2">
+							<mx:Label text="Organism:" top="85" left="188" width="100%" id="label3"/>
 							<hci:DictionaryComboBox top="102" left="188"
 								id="sdIdOrganism"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
@@ -705,21 +709,21 @@
 								width="100%" change="dirty.setDirty()">
 								</hci:DictionaryComboBox>
 						</mx:VBox>
-						<mx:VBox left="589" top="79" width="25%">
-							<mx:Label text="Design Protocol:" top="85" right="72" width="100%"/>
-							<mx:TextInput top="102" right="10" width="100%" id="sdDesignProtocol" text="{fullSlideDesign.@slideDesignProtocolName}" change="dirty.setDirty()"/>
-						</mx:VBox>
-						<mx:VBox width="25%" top="79" x="416">
-							<mx:Label text="Catalog Number:" top="85" right="211" width="100%"/>
+						<mx:VBox width="25%" top="79" id="vbox1">
+							<mx:Label text="Catalog Number:" top="85" right="211" width="100%" id="label4"/>
 							<mx:TextInput id="sdCatalogNumber" right="196" top="102" width="100%" change="dirty.setDirty()">
 								<mx:text>{fullSlideDesign.SlideProduct.@catalogNumber}</mx:text>
 							</mx:TextInput>
 						</mx:VBox>
+						<mx:VBox left="589" top="79" width="25%">
+							<mx:Label text="Design Protocol:" top="85" right="72" width="100%"/>
+							<mx:TextInput top="102" right="10" width="100%" id="sdDesignProtocol" text="{fullSlideDesign.@slideDesignProtocolName}" change="dirty.setDirty()"/>
+						</mx:VBox>
 					</mx:HBox>
 					<mx:HRule right="10" left="10" height="1" strokeColor="#A1A79D" styleName="formrule" y="128"/>
-					<mx:HBox y="137" right="10" left="10" height="141">
+					<mx:HBox y="137" right="10" left="10" height="141" id="hbox1">
 					<mx:VBox x="10" y="142" width="100%">
-						<mx:Label text="Category:" left="10" top="142" height="18" width="100%"/>
+						<mx:Label text="Category:" left="10" top="142" height="18" width="100%" id="label5"/>
 						<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
 							 id="sdMicroarrayCategory"
 							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
@@ -735,7 +739,7 @@
 						<mx:Button id="sdRemoveCategory" click="removeMicroarrayCategory(event)" icon="@Embed(source='../../assets/delete.png')" width="25" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="false" y="189" x="279"/>
 					</mx:VBox>
 					<mx:VBox right="10" left="312" y="142" height="100%" width="100%">
-						<mx:Label text="Category List:" left="312" top="142" height="18" width="135"/>
+						<mx:Label text="Category List:" left="312" top="142" height="18" width="135" id="label6"/>
 						<mx:List left="312" right="10" top="159" height="100%" 
 							id="sdMicroarrayCategoriesList"
 							dataProvider="{sdMicroarrayCategories}"
@@ -871,5 +875,17 @@
 			
 		</mx:Panel>
 	</mx:HDividedBox>
+	
+	
+	<mx:states>
+		<mx:State name="SlideOfSetState">
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:RemoveChild target="{vbox3}"/>
+			<mx:RemoveChild target="{vbox2}"/>
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:RemoveChild target="{hbox1}"/>
+		</mx:State>
+		
+	</mx:states>
 	
 </mx:Canvas>

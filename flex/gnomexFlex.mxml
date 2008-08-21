@@ -385,6 +385,16 @@
             private function onViewSelection():void {
             	if (currentView != null) {
 	            	currentView.checkDirty();
+	            	
+	            	// if we are leaving slide view, refresh dictionaries
+	            	if (currentView == this.slideManagementView) {
+	            		slideManagementView.refreshDictionaries();
+	            	}
+	            	// if we are leaving protocol view, refresh dictionaries
+	            	else if (currentView == this.protocolsView) {
+	            		protocolsView.refreshDictionaries();
+	            	}
+	            	
             	}
             	
             	theViews.creationPolicy="all";
@@ -660,6 +670,9 @@
 	        	filteredSlideProductList.addItemAt(emptyNode, 0);
 	        	
 	        	filteredSlideProductListForSubmitRequests = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
+	        	filteredSlideProductListForSubmitRequests.filterFunction = submitRequestView.filterSlideProduct;
+				filteredSlideProductListForSubmitRequests.refresh();
+
 
 	        	enableApp();
 	            
@@ -875,7 +888,7 @@
 	    	height="100%" paddingTop="4" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0">
           
- 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="all" paddingTop="0" paddingBottom="0">
+ 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="all" paddingTop="0" paddingBottom="0" >
 		
 					<mx:Canvas>
 					</mx:Canvas>
