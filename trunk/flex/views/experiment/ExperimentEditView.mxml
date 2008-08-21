@@ -771,7 +771,7 @@
     	   	return doesMatch;
     	}
        
-        private function filterSlideProduct(item:Object):Boolean {
+        public function filterSlideProduct(item:Object):Boolean {
         	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
         		return true;
         	}

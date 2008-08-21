@@ -65,19 +65,13 @@
 			public function resultHandler(event:ResultEvent):void {
 				var call:Object = event.token;
 				if (call.marker == "doneSaveProtocol") {
-					parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, refreshAndClose);
-					parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol'); 
-					parentApplication.dictionaryManager.load();
+					protocolsView.lastSavedProtocolId = createProtocol.lastResult.@idProtocolSaved;
+					protocolsView.lastSelectedProtocolClass = protocolClassName;
+					protocolsView.callGetProtocolList();
+					PopUpManager.removePopUp(this);
 				}
 			}
 			
-			private function refreshAndClose(event:Event):void {
-				parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, refreshAndClose);
-				protocolsView.lastSavedProtocolId = createProtocol.lastResult.@idProtocolSaved;
-				protocolsView.lastSelectedProtocolClass = protocolClassName;
-				protocolsView.callGetProtocolList();
-				PopUpManager.removePopUp(this);
-			}
 		]]>
 	</mx:Script>
 			<mx:VBox width="100%" verticalGap="0">

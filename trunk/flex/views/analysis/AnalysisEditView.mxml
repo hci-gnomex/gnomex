@@ -615,18 +615,6 @@
         //
         // Edit analysis protocol dictionary
         //
-        /*
-		private function editAnalysisProtocolDE():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-			                                  onDictionaryAnalysisProtocolInitialized);
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-			                                   onDictionaryAnalysisProtocolSelected);			
-			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-			                                                     onDictionaryAnalysisProtocolRefreshed);
-			PopUpManager.centerPopUp(dictionaryEditor);
-		}
-		*/
 		private function editAnalysisProtocol():void {
 			protocolEditor = views.protocol.ProtocolsView(PopUpManager.createPopUp(this, views.protocol.ProtocolsView, true));
 			protocolEditor.width = 800;
@@ -634,32 +622,20 @@
 			protocolEditor.bodyPanel.showCloseButton = true;
 			protocolEditor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
 			protocolEditor.initializeData('hci.gnomex.model.AnalysisProtocol');
-//			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
-//			                                  onDictionaryAnalysisProtocolInitialized);
-//			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
-//			                                   onDictionaryAnalysisProtocolSelected);			
-//			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
-//			                                                     onDictionaryAnalysisProtocolRefreshed);
 			PopUpManager.centerPopUp(protocolEditor);
 		}
 		
 		public function onCloseProtocolEditWindow(event:Event):void {
+			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onRefreshAnalysisProtocol);
+			parentApplication.dictionaryManager.reload('hci.gnomex.model.AnalysisProtocol');
+		}
+		
+		public function onRefreshAnalysisProtocol(event:Event):void {
 			PopUpManager.removePopUp(protocolEditor);
 			analysisProtocolCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');							
-			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);				
+			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
+			parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onRefreshAnalysisProtocol);				
 		}
-//       	private function onDictionaryAnalysisProtocolInitialized(event:Event):void{
-//			dictionaryEditor.selectDictionary("hci.gnomex.model.AnalysisProtocol");
-//        }          
-//       	private function onDictionaryAnalysisProtocolRefreshed(event:Event):void{
-//			analysisProtocolCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');							
-//			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);				
-//        }	
-//       	private function onDictionaryAnalysisProtocolSelected(event:Event):void{
-//       		if (this.analysisProtocolCombo.selectedItem != null && this.analysisProtocolCombo.selectedItem.@value != "") {
-//       			dictionaryEditor.selectDictionaryEntry(analysisProtocolCombo.selectedItem);
-//       		}
-//        }
 
 	]]>
 </mx:Script>
