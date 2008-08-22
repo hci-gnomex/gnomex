@@ -79,6 +79,8 @@
 
        public function initializeData():void {
        	parentApplication.filteredSlideProductList.filterFunction = filterSlideProduct;
+       	parentApplication.filteredSlideProductList.refresh();
+       	microarrayCombo.dataProvider = parentApplication.filteredSlideProductList;
        	
        	microarrayCategoryCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.MicroarrayCategory');
        	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');
@@ -198,6 +200,7 @@
 			this.searchOrganismOnSampleCheck.selected = false;
 			this.searchOrganismOnSlideProductCheck.selected = false;
 			
+			parentApplication.filteredSlideProductList.refresh();
 			
 			for each (var item:Object in parentApplication.experimentDesignList) {
 				item.@isSelected = "false";
@@ -354,7 +357,6 @@
              <mx:Label text="Experiment Microarray:" textAlign="left" width="190" id="label9"/>
              <mx:ComboBox id="microarrayCombo"  
              	labelField="@name" 
-             	dataProvider="{parentApplication.filteredSlideProductList}" 
              	 width="340" change="scopeSearch()">
              </mx:ComboBox>
             </mx:HBox>
