@@ -112,7 +112,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append(" JOIN           project.requests as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as lane ");
     queryBuf.append(" JOIN           lane.sample as s ");
-    queryBuf.append(" JOIN           lane.flowCell as fc ");
+    queryBuf.append(" LEFT JOIN      lane.flowCell as fc ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
 
 
