@@ -430,10 +430,12 @@
 					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true"/>
 				    	
 				    </mx:VBox>
-					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle">
+					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2">
 					<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="300" id="projectCombo" change="{checkSetupCompleteness()}">
 					</mx:ComboBox>
-						<mx:Button id="editProjectButton" label="New/Edit..." icon="@Embed('../../assets/folder.png')" click="showEditProjectWindow()"/>
+						<mx:LinkButton id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
+							<mx:enabled>{projectCombo.selectedItem != null &amp;&amp; projectCombo.selectedItem.@idProject != &quot;&quot;}</mx:enabled>
+						</mx:LinkButton>
 					</mx:HBox>					
 				</mx:HBox>
 			</mx:HBox>
