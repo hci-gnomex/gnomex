@@ -107,6 +107,7 @@ LinkBar {
 	     
 }
 
+
 Button {
         fillAlphas: 1, 1;
         fontWeight: normal;
@@ -182,7 +183,11 @@ TextArea {
 	textDecoration: underline;
 }
 
-
+.formLinkButton {
+	textDecoration: underline;
+	color: #0000ff;
+	
+}
 .navTabNavigator {
 	 backgroundAlpha:            1.0;
 	 backgroundColor: #CBCAC1;
