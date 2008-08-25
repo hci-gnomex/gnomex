@@ -25,7 +25,7 @@ import org.jdom.output.XMLOutputter;
 
 public class GetAnalysisGroupList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectRequestList.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroupList.class);
   
   private AnalysisGroupFilter filter;
   private Element              rootNode = null;
