@@ -22,7 +22,7 @@ import org.jdom.output.XMLOutputter;
 
 public class GetAnalysisGroup extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProject.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroup.class);
   
   private Integer idAnalysisGroup;
 

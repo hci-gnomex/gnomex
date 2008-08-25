@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
@@ -34,7 +35,7 @@ import hci.gnomex.model.Project;
 
 public class GetAnalysis extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProject.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysis.class);
   
   private Integer idAnalysis;
 
@@ -76,6 +77,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       
         Document doc = new Document(new Element("OpenAnalysisList"));
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        
+        
+        
         doc.getRootElement().addContent(aNode);
       
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -118,6 +122,39 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  /**
+   *  The callback method allowing you to manipulate the HttpServletRequest
+   *  prior to forwarding to the response JSP. This can be used to put the
+   *  results from the execute method into the request object for display in the
+   *  JSP.
+   *
+   *@param  request  The new requestState value
+   *@return          Description of the Return Value
+   */
+  public HttpServletRequest setRequestState(HttpServletRequest request) {
+    // load any result objects into request attributes, keyed by the useBean id in the jsp
+    request.setAttribute("xmlResult",this.xmlResult);
+    
+    // Garbage collect
+    this.xmlResult = null;
+    System.gc();
+    
+    return request;
+  }
+
+  /**
+   *  The callback method called after the loadCommand, and execute methods,
+   *  this method allows you to manipulate the HttpServletResponse object prior
+   *  to forwarding to the result JSP (add a cookie, etc.)
+   *
+   *@param  request  The HttpServletResponse for the command
+   *@return          The processed response
+   */
+  public HttpServletResponse setResponseState(HttpServletResponse response) {
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
+    return response;
   }
 
 }
