@@ -641,8 +641,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("slideProductName", doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) : "");
     node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
     node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
-    node.setAttribute("requestLabName", doc.get(ExperimentIndexHelper.LAB_NAME));
-    node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME));
+    node.setAttribute("requestLabName", doc.get(ExperimentIndexHelper.LAB_NAME) != null ? doc.get(ExperimentIndexHelper.LAB_NAME) : "");
+    node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     node.setAttribute("idSlideProduct", doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) : "");
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());          
