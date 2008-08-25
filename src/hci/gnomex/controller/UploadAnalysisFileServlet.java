@@ -5,6 +5,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +38,31 @@ public class UploadAnalysisFileServlet extends HttpServlet {
 
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
+      Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      if (secAdvisor == null) {
+        secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
+      }
+      
+      //
+      // To work around flex upload problem with FireFox and Safari, create security advisor since
+      // we loose session and thus don't have security advisor in session attribute.
+      //
+      // Note from Flex developer forum (http://www.kahunaburger.com/2007/10/31/flex-uploads-via-httphttps/):
+      // Firefox uses two different processes to upload the file.
+      // The first one is the one that hosts your Flex (Flash) application and communicates with the server on one channel.
+      // The second one is the actual file-upload process that pipes multipart-mime data to the server. 
+      // And, unfortunately, those two processes do not share cookies. So any sessionid-cookie that was established in the first channel 
+      // is not being transported to the server in the second channel. This means that the server upload code cannot associate the posted 
+      // data with an active session and rejects the data, thus failing the upload.
+      //
+      if (secAdvisor == null) {
+        System.out.println("UploadAnalysisFileServlet error - Unable to find or create security advisor.");
+        throw new ServletException("Unable to upload analysis file.  Servlet unable to obtain security information. Please contact GNomEx support.");
+      }
+      
 
       PrintWriter out = res.getWriter();
             
@@ -58,7 +82,6 @@ public class UploadAnalysisFileServlet extends HttpServlet {
       }
       
       if (idAnalysis != null) {
-        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal().getName());
         
         analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
         if (secAdvisor.canUpdate(analysis)) {
@@ -129,6 +152,13 @@ public class UploadAnalysisFileServlet extends HttpServlet {
       System.out.println(e.toString());
       e.printStackTrace();
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
-    }
+    }  finally {
+      try {
+        HibernateSession.closeSession();        
+      } catch (Exception e1) {
+        System.out.println("UploadAnalysisFileServlet warning - cannot close hibernate session");
+      }
+    } 
+    
   }
 }
