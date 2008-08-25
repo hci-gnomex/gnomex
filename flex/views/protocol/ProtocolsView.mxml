@@ -479,8 +479,8 @@
 				<mx:VBox height="46" width="100%" id="vbox0">
 					<mx:Label text="Owner:" width="100" id="label0"/>
 					<hci:DictionaryComboBox
-						id="appUserCombo"
-						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@canRead == 'Y')}"
+						id="appUserCombo" 
+						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry}"
 						labelField="@display"
 						data="{fullProtocol.idAppUser}"
 						width="100%" change="dirty.setDirty()">
