@@ -3,7 +3,7 @@
     xmlns:views="views.*" 
     xmlns:util="views.util.*" 
     xmlns:analysis="views.analysis.*"
-    close="{PopUpManager.removePopUp(this)}"
+    close="{onCloseWindow()}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	label="Add Analysis" 
 	title="Analysis Detail" 
@@ -62,9 +62,12 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+  
+
      	 
 <mx:Script>
 	<![CDATA[
+		import mx.events.CollectionEvent;
 		import views.protocol.ProtocolsView;
 		import views.experiment.ExperimentDetailView;
 		import mx.managers.PopUpManager;
@@ -82,7 +85,8 @@
         import hci.flex.events.DictionaryEvent;
         import hci.flex.components.DictionaryEditor;
         import hci.flex.renderers.LabelDictionary;
-        
+        import mx.events.CollectionEventKind;
+        import mx.events.PropertyChangeEvent;
         	
 	    [Bindable]
 		private var analysis:Object;
@@ -98,6 +102,39 @@
         private var dictionaryEditor:DictionaryEditor; 
         
         private var protocolEditor:views.protocol.ProtocolsView;
+        
+        private function onCloseWindow():void {
+        	if (dirty.isDirty()) {
+        		promptToCloseOnDirty();
+        	} else if (uploadButton.enabled) {
+        		promptToCloseOnUploadPending();
+        	}else {
+        		PopUpManager.removePopUp(this);
+        	}
+        }
+		private function promptToCloseOnDirty():void {
+			Alert.show( "The analysis has not been saved.  Do you want the changes to be saved before closing window?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToSaveAndClose,						
+						parentApplication.iconWarning);
+		}
+		private function promptToCloseOnUploadPending():void {
+			Alert.show( "Some analysis files have not been uploaded. Upload files before closing window?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToSaveAndClose,						
+						parentApplication.iconWarning);
+		}
+		
+		private function onPromptToSaveAndClose(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	this.validateAndSaveAnalysis();
+            	PopUpManager.removePopUp(this);            	
+            } else {
+            	PopUpManager.removePopUp(this);            	
+            }
+        }	
 		
 		public function setupEditForm(analysis:Object):void {
 			initializeDataProviders();
@@ -132,10 +169,14 @@
 			
 			this.getExperimentPickList.send();			
 			
-			callLater(this.initializeFileUploadControl);
 			
+			files.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingFilesChange);
+			
+			callLater(initializeFileUploadControl);
 			
 		}
+		
+		
 		public function initializeDataProviders():void {
 			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
@@ -455,7 +496,6 @@
             
             var postVariables:URLVariables = new URLVariables;
             postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
-            trace("idAnalysis = " + postVariables.idAnalysis);
                 
             multiFileUpload = new MultiFileUpload(
                 this.uploadFilesGrid,
@@ -464,7 +504,7 @@
                 this.uploadDeleteButton,
                 this.uploadButton,
                 this.uploadProgressBar,
-                UPLOAD_SERVLET_URL,
+                this.UPLOAD_SERVLET_URL,
                 postVariables,
                 0,
                 null
@@ -484,7 +524,7 @@
        }	
        
        public function onChooseFileToUpload(event:Event):void {
-       		dirty.setDirty();
+       		//dirty.setDirty();
        }
        
         private function filterGenomeBuild(item:Object):Boolean {
@@ -526,6 +566,29 @@
 		 	PopUpManager.centerPopUp(this.experimentDetailWindow);	
 		 	this.experimentDetailWindow.buttonBar.visible = false;	
 		}
+		
+		private function underlyingFilesChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
+			
+			var commentEdit:Boolean = false;
+			for each(var e:Object in event.items) {
+				if (e is PropertyChangeEvent) {
+					var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+					if (pe.property == "@comments") {
+						commentEdit = true;
+						break;
+					}
+				}
+			}
+			// Only process comment edits
+			if (commentEdit) {
+				dirty.setDirty();
+			}			
+		}
+
 		
         //
         // Edit organism dictionary
@@ -865,7 +928,7 @@
   		    	<mx:Button id="saveButton" label="Save" 
 		             	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
 		        </mx:Button>
-		    	<mx:Button label="Close" enabled="true" visible="true" click="PopUpManager.removePopUp(this)"/>								
+		    	<mx:Button label="Close" enabled="true" visible="true" click="onCloseWindow()"/>								
 		    
 		    </mx:HBox>
 		
