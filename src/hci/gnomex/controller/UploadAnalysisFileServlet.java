@@ -34,7 +34,8 @@ public class UploadAnalysisFileServlet extends HttpServlet {
   private Analysis analysis;
   private String   fileName;
 
-  protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {;}
+  protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+  }
 
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
@@ -43,6 +44,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
       if (secAdvisor == null) {
+        System.out.println("UploadAnalysisFileServlet:  Warning - unable to find existing session. Creating security advisor.");
         secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
       }
       
@@ -59,12 +61,13 @@ public class UploadAnalysisFileServlet extends HttpServlet {
       // data with an active session and rejects the data, thus failing the upload.
       //
       if (secAdvisor == null) {
-        System.out.println("UploadAnalysisFileServlet error - Unable to find or create security advisor.");
+        System.out.println("UploadAnalysisFileServlet: Error - Unable to find or create security advisor.");
         throw new ServletException("Unable to upload analysis file.  Servlet unable to obtain security information. Please contact GNomEx support.");
       }
       
 
       PrintWriter out = res.getWriter();
+      res.setHeader("Cache-Control", "max-age=0, must-revalidate");
             
       MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE); 
       Part part;

@@ -105,6 +105,11 @@
 		<servlet-class>hci.gnomex.controller.UploadAnalysisFileServlet</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>UploadAnalysisURLServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.UploadAnalysisURLServlet</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
 		<url-pattern>*.gx</url-pattern>
@@ -136,6 +141,10 @@
 		<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
 	
+  <servlet-mapping>
+		<servlet-name>UploadAnalysisURLServlet</servlet-name>
+		<url-pattern>UploadAnalysisURLServlet.gx</url-pattern>
+	</servlet-mapping>
 		
 	<servlet-mapping>
 		<servlet-name>Captcha</servlet-name>
@@ -191,5 +200,5 @@
 		<role-name>GNomExUser</role-name>
 	</security-role>
 	
-
+  
 </web-app>
