@@ -63,7 +63,16 @@
     useProxy="false">
   </mx:HTTPService>
   
-
+  <mx:HTTPService  
+    id="getAnalysisUploadURL" 
+    url="UploadAnalysisURLServlet.gx"
+    resultFormat="e4x"
+    showBusyCursor="true" 
+    result="onGetAnalysisUploadURL(event)" 
+	fault="parentApplication.onFailHttpRequest('Failed to get analysis upload URL', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
      	 
 <mx:Script>
 	<![CDATA[
@@ -172,10 +181,16 @@
 			
 			files.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingFilesChange);
 			
-			callLater(initializeFileUploadControl);
+			getAnalysisUploadURL.send();
 			
 		}
 		
+		private function onGetAnalysisUploadURL(event:ResultEvent):void {
+			if (getAnalysisUploadURL.lastResult.name() == "UploadAnalysisURL") {
+				var url:String = getAnalysisUploadURL.lastResult.@url;
+				initializeFileUploadControl(url);
+			}
+		}
 		
 		public function initializeDataProviders():void {
 			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
@@ -396,7 +411,7 @@
 			 	parms.idAnalysis = analysis.@idAnalysis;
 			 	getAnalysis.send(parms);
 			 	
-				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis();			 				
+				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
 			} else {
 				Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -492,7 +507,7 @@
 	       
 		}
 		
-		public function initializeFileUploadControl():void{
+		public function initializeFileUploadControl(uploadServletURL:String):void{
             
             var postVariables:URLVariables = new URLVariables;
             postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
@@ -504,7 +519,7 @@
                 this.uploadDeleteButton,
                 this.uploadButton,
                 this.uploadProgressBar,
-                this.UPLOAD_SERVLET_URL,
+                uploadServletURL,
                 postVariables,
                 0,
                 null
