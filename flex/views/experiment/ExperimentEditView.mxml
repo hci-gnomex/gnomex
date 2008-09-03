@@ -1654,7 +1654,7 @@
 			 	parms.idRequest = request.@idRequest;
 			 	getRequest.send(parms);
 			 				
-				parentApplication.navExperimentView.detailView.refreshSavedExperiment();
+				parentApplication.navExperimentView.detailView.refreshSavedExperiment(request.@idRequest); 
 			} else {
 				Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
