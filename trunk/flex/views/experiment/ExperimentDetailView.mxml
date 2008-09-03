@@ -203,8 +203,8 @@
            	 callLater(editWindow.setupDataListeners); 
 		}
 		
-		public function refreshSavedExperiment():void {
-			 parentDocument.selectedIdRequest = parentDocument.browseTree.selectedItem.@idRequest;
+		public function refreshSavedExperiment(idRequest:Object):void {
+			 parentDocument.selectedIdRequest = idRequest;
 			 var parms:Object = new Object();
 			 parms.idRequest = parentDocument.selectedIdRequest;
 			 parentDocument.getRequest.send(parms);

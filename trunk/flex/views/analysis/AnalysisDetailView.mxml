@@ -108,14 +108,11 @@
              editWindow.setupEditForm(parentDocument.selectedAnalysis);
 		}
 		
-		public function refreshSavedAnalysis():void {
-			if (parentDocument.browseTree.selectedItem != null) {
-				 parentDocument.selectedIdAnalysis = parentDocument.browseTree.selectedItem.@idAnalysis;
-				 var parms:Object = new Object();
-				 parms.idAnalysis = parentDocument.selectedIdAnalysis;
-				 parentDocument.getAnalysis.send(parms);
-			}
-			
+		public function refreshSavedAnalysis(idAnalysis:Object):void {
+			parentDocument.selectedIdAnalysis = idAnalysis;
+			var parms:Object = new Object();
+			parms.idAnalysis = parentDocument.selectedIdAnalysis;
+			parentDocument.getAnalysis.send(parms);
 		}
 
 
