@@ -50,6 +50,18 @@
     useProxy="false">
   </mx:HTTPService>
   
+     <mx:HTTPService  
+    id="getAnalysisAfterUpload" 
+    url="GetAnalysis.gx"
+    destination="getAnalysis"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysisAfterUpload(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get analysis after upload', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+  
   <mx:HTTPService  
     id="getRequest" 
     url="GetRequest.gx"
@@ -460,6 +472,11 @@
 		private function onGetAnalysis(event:ResultEvent):void {
 			analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
 		}
+
+		private function onGetAnalysisAfterUpload(event:ResultEvent):void {
+			analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).files;
+			files.source = analysis..AnalysisFile;
+		}
 		        
         private function validateAndSubmitAnalysis():void {        	
         }   	
@@ -576,10 +593,8 @@
 				// refresh analysis
 			 	var parms:Object = new Object();
 			 	parms.idAnalysis = analysis.@idAnalysis;
-			 	getAnalysis.send(parms);
+			 	getAnalysisAfterUpload.send(parms);
 			 	
-			 	parentApplication.navAnalysisView.showEditView = true;
-				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
        }	
        
        public function onChooseFileToUpload(event:Event):void {
@@ -653,7 +668,7 @@
         // Edit organism dictionary
         //
 		private function editOrganism():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                          onDictionaryOrganismInitialized);
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
@@ -680,7 +695,7 @@
         // Edit genome build dictionary
         //
 		private function editGenomeBuild():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                  onDictionaryGenomeBuildInitialized);
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
@@ -712,7 +727,7 @@
         // Edit analysis type dictionary
         //
 		private function editAnalysisType():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                   onDictionaryAnalysisTypeInitialized);
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
@@ -738,7 +753,7 @@
         // Edit analysis protocol dictionary
         //
 		private function editAnalysisProtocol():void {
-			protocolEditor = views.protocol.ProtocolsView(PopUpManager.createPopUp(this, views.protocol.ProtocolsView, true));
+			protocolEditor = views.protocol.ProtocolsView(PopUpManager.createPopUp(parentApplication.mainArea, views.protocol.ProtocolsView, true));
 			protocolEditor.width = 800;
 			protocolEditor.height = 500;
 			protocolEditor.bodyPanel.showCloseButton = true;
