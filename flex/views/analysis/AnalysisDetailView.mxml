@@ -93,7 +93,7 @@
 			genomeBuildName = dict.@display.toString();
 		}		
 		
-		private function showDownloads():void {
+		public function showDownloads():void {
 			parentDocument.showAnalysisDownloads();
 		}
 
