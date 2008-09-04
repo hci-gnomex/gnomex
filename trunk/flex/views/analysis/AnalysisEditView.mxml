@@ -5,10 +5,9 @@
     xmlns:analysis="views.analysis.*"
     close="{onCloseWindow()}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
-	label="Add Analysis" 
-	title="Analysis Detail" 
+	title="Edit Analysis" 
 	width="100%" height="100%" 
-	headerHeight="24" paddingBottom="2" paddingLeft="1" paddingRight="1">
+	headerHeight="22" paddingBottom="2" paddingLeft="1" paddingRight="1">
 
   <mx:HTTPService  
     id="getExperimentPickList" 
@@ -145,26 +144,32 @@
             }
         }	
 		
-		public function setupEditForm(analysis:Object):void {
+		public function setupEditForm(theAnalysis:Object):void {
 			initializeDataProviders();
 
 			
-			this.analysis = analysis;
-			this.buttonStack.selectedChild = this.editButtonView;
+			this.analysis = theAnalysis;
+
 			
 			// Build hybs & lanes collection.  Assign the idRequest to the Hybridization
 			// and SequenceLane node.
+
+			hybs = new XMLListCollection();
+			hybs.source = analysis..AnalysisExperimentItem..Hybridization;			
+
+			lanes = new XMLListCollection();
+			lanes.source = analysis..AnalysisExperimentItem..SequenceLane;
+
 			var item:Object;
 			for each(item in analysis..AnalysisExperimentItem) {
 				for each (var hyb:Object in item..Hybridization) {
 						hyb.@idRequest = item.@idRequest;
-						hybs.addItem(hyb);
 				}
 				for each (var lane:Object in item..SequenceLane) {
 						lane.@idRequest = item.@idRequest;
-						lanes.addItem(lane);
 				}
 			}
+
 			
 
 			
@@ -289,6 +294,24 @@
 				this.experimentItemStack.selectedChild = hybsView;	
 			}
 		}
+		
+		private function promptToRemoveAllExperimentItems():void {
+			Alert.show( "Remove all links to experiment items?",
+						"Confirm",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToRemoveAllExperimentItems,						
+						parentApplication.iconWarning);
+		}
+		private function onPromptToRemoveAllExperimentItems(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				removeAllExperimentItems();
+			}
+		}
+		private function removeAllExperimentItems():void {
+			this.dirty.setDirty();
+			hybs.removeAll();
+			lanes.removeAll();
+		}
 		private function removeExperimentItem():void {
 			dirty.setDirty();
 			if (hybsGrid.selectedItem != null) {
@@ -296,6 +319,22 @@
 			} else if (lanesGrid.selectedItem != null) {
 				lanes.removeItemAt(lanesGrid.selectedIndex);								
 			}
+		}
+		private function promptToRemoveAllAnalysisFiles():void {
+			Alert.show( "Remove all analysis files from server?",
+						"Confirm",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToRemoveAllAnalysisFiles,						
+						parentApplication.iconWarning);
+		}
+		private function onPromptToRemoveAllAnalysisFiles(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				removeAllAnalysisFiles();
+			}
+		}
+		private function removeAllAnalysisFiles():void {
+			this.dirty.setDirty();
+			files.removeAll();
 		}
 		private function removeAnalysisFile():void {
 			dirty.setDirty();
@@ -411,6 +450,7 @@
 			 	parms.idAnalysis = analysis.@idAnalysis;
 			 	getAnalysis.send(parms);
 			 	
+			 	parentApplication.navAnalysisView.showEditView = true;
 				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
 			} else {
 				Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
@@ -509,24 +549,27 @@
 		
 		public function initializeFileUploadControl(uploadServletURL:String):void{
             
-            var postVariables:URLVariables = new URLVariables;
-            postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
-                
-            multiFileUpload = new MultiFileUpload(
-                this.uploadFilesGrid,
-                this.uploadBrowseButton,
-                this.uploadClearButton,
-                this.uploadDeleteButton,
-                this.uploadButton,
-                this.uploadProgressBar,
-                uploadServletURL,
-                postVariables,
-                0,
-                null
-                );
-            
-           multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
-           multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+            if (multiFileUpload == null) {
+		        var postVariables:URLVariables = new URLVariables;
+		        postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
+		            
+		        multiFileUpload = new MultiFileUpload(
+		            this.uploadFilesGrid,
+		            this.uploadBrowseButton,
+		            this.uploadClearButton,
+		            this.uploadDeleteButton,
+		            this.uploadButton,
+		            this.uploadProgressBar,
+		            uploadServletURL,
+		            postVariables,
+		            0,
+		            null
+		            );
+		        
+		       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+		       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+            	
+            }
           
        }
        public function onUploadFinished(event:Event):void{
@@ -535,13 +578,14 @@
 			 	parms.idAnalysis = analysis.@idAnalysis;
 			 	getAnalysis.send(parms);
 			 	
-				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis();			 				
+			 	parentApplication.navAnalysisView.showEditView = true;
+				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
        }	
        
        public function onChooseFileToUpload(event:Event):void {
        		//dirty.setDirty();
        }
-       
+        
         private function filterGenomeBuild(item:Object):Boolean {
         	if (item.@value == "") {
         		return true;
@@ -573,7 +617,7 @@
 		private function onGetRequest(event:ResultEvent):void {
 			selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.experimentTree.selectedItem.@idRequest);
 
-			this.experimentDetailWindow = ExperimentDetailView(PopUpManager.createPopUp(this, ExperimentDetailView, false));
+			this.experimentDetailWindow = ExperimentDetailView(PopUpManager.createPopUp(parentApplication.mainArea, ExperimentDetailView, false));
 			this.experimentDetailWindow.showCloseButton = true;
 			experimentDetailWindow.width  = 800;
 			experimentDetailWindow.height = 500;			
@@ -714,6 +758,12 @@
 			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
 			parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onRefreshAnalysisProtocol);				
 		}
+		
+		private function showViewWindow():void {
+            parentDocument.theViews.selectedChild = parentDocument.detailView;
+            parentDocument.detailView.setupForm();
+		}
+		
 
 	]]>
 </mx:Script>
@@ -726,84 +776,92 @@
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFile}"/>
 
 	<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="200" creationPolicy="all">
-		<mx:HDividedBox label="Description" width="100%" height="100%">
-			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="12" width="650">
-				<mx:HBox width="100%">
-					<mx:Label text="Group" width="90">
-					</mx:Label>
-					<mx:ComboBox  width="240" id="labCombo" 
-						dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
-						selectedIndex="-1" labelField="@name"  change="dirty.setDirty();"/>
-				</mx:HBox>
+		<mx:HDividedBox label="Description" width="100%" height="100%" horizontalGap="10">
+			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10" width="650">
 				<mx:HBox width="100%">
 					<mx:Label text="Name" width="90">
 					</mx:Label>
 					<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
+					<mx:HBox width="100%">
+						<mx:Label text="Group" width="90">
+						</mx:Label>
+						<mx:ComboBox  width="240" id="labCombo" 
+							dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+							selectedIndex="-1" labelField="@name"  change="dirty.setDirty();"/>
+					</mx:HBox>
 				</mx:HBox>
 				<mx:HBox width="100%">
 					<mx:Label text="Description" width="90">
 					</mx:Label>
 					<mx:TextArea text="{analysis.@description}" width="100%" height="110" change="dirty.setDirty();" id="description"/>
 				</mx:HBox>
-				<mx:HBox width="100%" horizontalGap="10">
-					<mx:HBox verticalGap="0">
-						<mx:Label text="Organism" width="90">
-						</mx:Label>
-						<mx:VBox verticalGap="0" horizontalAlign="right">
-							<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()"/>
-						</mx:VBox>
-					</mx:HBox>
-					<mx:HBox width="100%" verticalGap="0">
-						<mx:Label text="Genome Build" width="100">
-						</mx:Label>
-						<mx:VBox verticalGap="0" horizontalAlign="right" width="100%">
-							<mx:ComboBox  width="220" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editGenomeBuild()"/>
-						</mx:VBox>
-					</mx:HBox>
+				<mx:HBox horizontalGap="80" width="100%">
+					<mx:VBox>
+						<mx:HBox width="100%" horizontalGap="10">
+							<mx:HBox verticalGap="0">
+								<mx:Label text="Organism" width="100">
+								</mx:Label>
+								<mx:VBox verticalGap="0" horizontalAlign="right">
+									<mx:ComboBox  width="230" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();"/>
+									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()"/>
+								</mx:VBox>
+							</mx:HBox>
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0">
+							<mx:Label text="Genome Build" width="100">
+							</mx:Label>
+							<mx:VBox verticalGap="0" horizontalAlign="right">
+								<mx:ComboBox  width="230" id="genomeBuildCombo" labelField="@display" change="dirty.setDirty();"/>
+								<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editGenomeBuild()"/>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="10">
+							<mx:HBox verticalGap="0">
+								<mx:Label text="Analysis Type" width="100">
+								</mx:Label>
+								<mx:VBox verticalGap="0" horizontalAlign="right">
+									<mx:ComboBox  width="230" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+									<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()"/>							
+								</mx:VBox>
+							</mx:HBox>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Label text="Analysis Protocol" width="100">
+							</mx:Label>
+							<mx:VBox verticalGap="0"  horizontalAlign="right">
+								<mx:ComboBox  width="230" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
+								<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()"/>														
+							</mx:VBox>
+						</mx:HBox>
+				
+							
+					</mx:VBox>
+					<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%" height="100%">
+						<mx:HBox width="100%">
+							<mx:Label text="Analysis Groups"/>
+							<mx:ComboBox id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="..." width="150">						
+							</mx:ComboBox>
+						 	   	    <mx:Button icon="@Embed(source='../../assets/add.png')" 
+						 	   	    	disabledIcon="@Embed(source='../../assets/add_disable.png')" 
+						 	   	    	width="25" click="addAnalysisGroup()">
+						 	   	    	<mx:enabled>{analysisGroupCombo.selectedItem != null  ? true : false}</mx:enabled>
+						 	   	    </mx:Button>
+						 	   	    <mx:Button icon="@Embed(source='../../assets/delete.png')" 
+						 	   	    	disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+						 	   	    	enabled="{analysisGroupGrid.selectedItem != null}" 
+						 	   	    	width="25" click="removeAnalysisGroup()"/>					
+						</mx:HBox>
+						<mx:DataGrid id="analysisGroupGrid" width="100%" dataProvider="{analysisGroups}" showHeaders="false" height="100%">
+							<mx:columns>
+								<mx:DataGridColumn headerText="Name" dataField="@name"/>
+							</mx:columns>
+						</mx:DataGrid>
+						
+					</mx:VBox>
 				</mx:HBox>
-				<mx:HBox width="100%" horizontalGap="10">
-					<mx:HBox verticalGap="0">
-						<mx:Label text="Analysis Type" width="90">
-						</mx:Label>
-						<mx:VBox verticalGap="0" horizontalAlign="right">
-							<mx:ComboBox  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()"/>							
-						</mx:VBox>
-					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:Label text="Analysis Protocol" width="100">
-						</mx:Label>
-						<mx:VBox verticalGap="0"  horizontalAlign="right" width="100%">
-							<mx:ComboBox  width="220" id="analysisProtocolCombo" labelField="@display" change="dirty.setDirty();"/>
-							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()"/>														
-						</mx:VBox>
-					</mx:HBox>
-				</mx:HBox>
-			</mx:VBox>
-			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:HBox width="100%">
-					<mx:Label text="Analysis Groups"/>
-					<mx:ComboBox id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="..." width="150">						
-					</mx:ComboBox>
-		   	   	    <mx:Button icon="@Embed(source='../../assets/add.png')" 
-		   	   	    	disabledIcon="@Embed(source='../../assets/add_disable.png')" 
-		   	   	    	width="25" click="addAnalysisGroup()">
-		   	   	    	<mx:enabled>{analysisGroupCombo.selectedItem != null  ? true : false}</mx:enabled>
-		   	   	    </mx:Button>
-		   	   	    <mx:Button icon="@Embed(source='../../assets/delete.png')" 
-		   	   	    	disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-		   	   	    	enabled="{analysisGroupGrid.selectedItem != null}" 
-		   	   	    	width="25" click="removeAnalysisGroup()"/>					
-				</mx:HBox>
-				<mx:DataGrid id="analysisGroupGrid" width="100%" height="150" dataProvider="{analysisGroups}" showHeaders="false">
-					<mx:columns>
-						<mx:DataGridColumn headerText="Name" dataField="@name"/>
-					</mx:columns>
-				</mx:DataGrid>
 				
 			</mx:VBox>
+			
 		</mx:HDividedBox>
 		<mx:Canvas label="Experiments" width="100%" height="100%">
 			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
@@ -827,10 +885,14 @@
 					     <mx:HBox width="100%">
 					          <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
 					          <mx:HBox width="100%" horizontalAlign="right">
-					               <mx:Button icon="@Embed(source='../../assets/delete.png')" 
+					               <mx:LinkButton icon="@Embed(source='../../assets/delete.png')"  
+					               	label="Remove" textDecoration="underline"
 					               	disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
 					               	enabled="{hybsGrid.selectedItem != null || lanesGrid.selectedItem != null}" 
-					               	width="25" click="removeExperimentItem()"/>
+					               	click="removeExperimentItem()"/>
+					               <mx:LinkButton label="Clear all" toolTip="Clear all experiments" id="experimentClearButton"
+					               	click="promptToRemoveAllExperimentItems()" 
+					               	icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
 					          </mx:HBox>
 					     </mx:HBox>
 					     <mx:ViewStack width="100%" height="100%" id="experimentItemStack" >
@@ -889,9 +951,9 @@
 			<mx:VBox width="100%" height="100%" verticalGap="2">
 				<mx:Label text="Files to upload" fontWeight="bold"/>
 	            <mx:HBox  width="100%">
-	                <mx:LinkButton id="uploadBrowseButton" label="Choose files to upload" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
-	                <mx:LinkButton id="uploadDeleteButton" label="Remove file" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
-	                <mx:LinkButton label="Clear files from list" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
+	                <mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
+	                <mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
+	                <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
 	                <mx:HBox width="100%"  horizontalAlign="right">
 	                    <mx:VRule height="20"/>
 	                    <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
@@ -903,7 +965,10 @@
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%" verticalGap="2">
 				<mx:Label text="Uploaded Files" fontWeight="bold"/>
-				<mx:LinkButton id="removeFileButton" label="Remove file (from file system)"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()"/>
+				<mx:HBox>
+					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()"/>
+					<mx:LinkButton id="clearFileButton" label="Clear all" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png')" icon="@Embed(source='../../assets/folder_delete.png')" toolTip="Clear all files"  textDecoration="underline" click="promptToRemoveAllAnalysisFiles()"/>					
+				</mx:HBox>
 				<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
 					<mx:columns>
 					    <mx:DataGridColumn headerText="" width="25" editable="false" labelFunction="getFilesGridRowNumber"/>
@@ -915,38 +980,18 @@
 			</mx:VBox>
 		</mx:VDividedBox>
 	</mx:TabNavigator>
-	<mx:ViewStack id="buttonStack" width="100%">
-		    <mx:HBox width="100%" id="addButtonView" >
-		    	<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.PNG')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
-		    	<mx:Button id="nextButton"  label="Next" enabled="false" click="nextTab()" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" fontWeight="normal">
-		    		<mx:disabledIcon>@Embed(source='../../assets/arrow_right_disabled.png')</mx:disabledIcon>
-		    	</mx:Button>
-		    	<mx:ViewStack id="confirmButtonStack" width="100%" >
-		    			<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
-		    				<mx:Button visible="false" />
-		    			</mx:HBox>
-		    			<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
-		    				<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitAnalysis()"  visible="true"/>
-		    			</mx:HBox>
-		    			<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
-		    			</mx:HBox>
-		    	    	
-		    	</mx:ViewStack>
-		    	<mx:HBox horizontalAlign="right">
-		    		<mx:Button label="Cancel" id="cancelButton0" click="promptToCancel()"/>
-		    	</mx:HBox>
-		    </mx:HBox>
-		    
-		    <mx:HBox width="100%" horizontalAlign="right" id="editButtonView">
-		        <util:DirtyNote id="dirty"/>
-	            <mx:Button label="Upload files" id="uploadButton" enabled="false" visible="true"/>
-  		    	<mx:Button id="saveButton" label="Save" 
-		             	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
-		        </mx:Button>
-		    	<mx:Button label="Close" enabled="true" visible="true" click="onCloseWindow()"/>								
-		    
-		    </mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="right" id="editButtonView">
+        <mx:HBox width="100%" horizontalAlign="left">
+	        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
+        	</mx:LinkButton>
+        </mx:HBox>
+        <util:DirtyNote id="dirty"/>
+        <mx:Button label="Upload files" id="uploadButton" enabled="false" visible="true"/>
+      	<mx:Button id="saveButton" label="Save" 
+             	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
+        </mx:Button>
+    	
+    </mx:HBox>
 		
-	</mx:ViewStack>
 
 </mx:TitleWindow>

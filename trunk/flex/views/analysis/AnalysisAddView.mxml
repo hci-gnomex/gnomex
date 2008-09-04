@@ -137,20 +137,10 @@
           } else {
 	        parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
           }
+          parentApplication.navAnalysisView.showEditView = true;
           parentApplication.navAnalysisView.refreshAnalysis();
           
-          showEditWindow();
         }
-        
-        private function showEditWindow():void {
-			 var editWindow:AnalysisEditView = AnalysisEditView(PopUpManager.createPopUp(this.parentApplication.topArea, AnalysisEditView, true));
-			 editWindow.width= 1000;
-			 editWindow.height= 550;
-			 editWindow.showCloseButton = true;
-			 editWindow.title = "Edit Analysis " + parentApplication.navAnalysisView.selectedAnalysis.@number;
-			 PopUpManager.centerPopUp(editWindow);		
-             editWindow.setupEditForm(parentApplication.navAnalysisView.selectedAnalysis);
-		}
 
 		private function refreshAnalysisGroups():void {
 			if (parentApplication.navAnalysisView.currentState == "AdminState") {

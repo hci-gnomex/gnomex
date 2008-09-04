@@ -99,13 +99,8 @@
 
 
 		private function showEditWindow():void {
-			 var editWindow:AnalysisEditView = AnalysisEditView(PopUpManager.createPopUp(this.parentApplication.topArea, AnalysisEditView, true));
-			 editWindow.width= 1000;
-			 editWindow.height= 500;
-			 editWindow.showCloseButton = true;
-			 editWindow.title = "Edit Analysis " + this.parentDocument.selectedAnalysis.@number;
-			 PopUpManager.centerPopUp(editWindow);		
-             editWindow.setupEditForm(parentDocument.selectedAnalysis);
+            parentDocument.editView.setupEditForm(parentDocument.selectedAnalysis);
+            parentDocument.theViews.selectedChild = parentDocument.editView;
 		}
 		
 		public function refreshSavedAnalysis(idAnalysis:Object):void {
