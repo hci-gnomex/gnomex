@@ -1,3 +1,4 @@
+<%@ include file="requireSecureRemote.jsp" %>
 <%@ page import="org.jdom.*" %>
 <%@ page import="org.jdom.output.*" %>
 <%@ page import="hci.gnomex.security.SecurityAdvisor" %>
