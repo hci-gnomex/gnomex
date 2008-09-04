@@ -13,7 +13,8 @@ Panel {
    borderThicknessRight: 4;
    roundedBottomCorners: true;
    headerHeight: 22;
-   headerColors: #548db8, #97b8d2;
+   /*headerColors: #548db8, #97b8d2;*/
+   headerColors: #81817f, #b9b8ad;
    titleStyleName: panelTitle;
    border-color: #CBCAC1;
    controlBarStyleName: panelControlBar;
