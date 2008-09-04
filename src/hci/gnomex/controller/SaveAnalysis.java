@@ -232,6 +232,43 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         sess.flush();
         
         //
+        // Get rid of removed experiment items files
+        //
+        ArrayList experimentItemsToRemove = new ArrayList();
+        if (!isNewAnalysisGroup) {
+          ArrayList filesToRemove = new ArrayList();
+          for (Iterator i = analysis.getExperimentItems().iterator(); i.hasNext();) {
+            AnalysisExperimentItem ex = (AnalysisExperimentItem) i.next();
+            boolean found = false;
+            for(Iterator i1 = hybParser.getIdHybridizations().iterator(); i1.hasNext();) {
+              Integer idHybridization = (Integer)i1.next();
+              if (idHybridization.equals(ex.getIdHybridization())) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              for(Iterator i1 = laneParser.getIdSequenceLanes().iterator(); i1.hasNext();) {
+                Integer idSequenceLane = (Integer)i1.next();
+                if (idSequenceLane.equals(ex.getIdSequenceLane())) {
+                  found = true;
+                  break;
+                }
+              }
+              
+            }
+            if (!found) {
+              experimentItemsToRemove.add(ex);
+            }
+          }
+          for (Iterator i = experimentItemsToRemove.iterator(); i.hasNext();) {
+            AnalysisExperimentItem ex = (AnalysisExperimentItem) i.next();
+            sess.delete(ex);
+            analysis.getExperimentItems().remove(ex);
+          }
+        }
+        
+        //
         // Save experiment items        
         //
         TreeSet experimentItems = new TreeSet(new AnalysisExperimentItemComparator());
