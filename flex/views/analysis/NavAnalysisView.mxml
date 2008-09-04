@@ -110,6 +110,8 @@
         public var selectedIdAnalysis:Object;
         public var selectedAnalysisNumber:Object;
         
+        public var showEditView:Boolean = false;
+        
         [Bindable]
         public var selectedAnalysis:Object;
         
@@ -358,6 +360,7 @@
 			
 			if (browseTree.selectedItem.name() == 'Analysis') {
 				detailView.title = "Analysis " + browseTree.selectedItem.@number;
+				editView.title = "Edit Analysis " + browseTree.selectedItem.@number;
 				selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
 				var parms:Object = new Object();
 				parms.idAnalysis = selectedIdAnalysis;
@@ -531,8 +534,15 @@
 			    
 			    
 			}
-		    theViews.selectedChild = detailView;
-			detailView.setupForm();
+			
+			if (showEditView) {
+				editView.setupEditForm(this.selectedAnalysis);
+				theViews.selectedChild = editView;
+				showEditView = false;		
+			} else {
+			    theViews.selectedChild = detailView;				
+				detailView.setupForm();
+			}
 
 			if (selectedAnalysis.@canDelete == "Y") {
 				this.deleteButton.enabled = true;
@@ -773,6 +783,8 @@
 	        <analysis:AnalysisDetailView id="detailView" width="100%" height="100%">
 	        </analysis:AnalysisDetailView>
 	        
+	        <analysis:AnalysisEditView id="editView" width="100%" height="100%">
+	        </analysis:AnalysisEditView>
 
 
          </mx:ViewStack>
