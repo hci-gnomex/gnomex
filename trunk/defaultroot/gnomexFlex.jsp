@@ -1,3 +1,4 @@
+<%@ include file="requireSecureRemote.jsp" %>
 <!-- saved from url=(0014)about:internet -->
 <html lang="en">
 

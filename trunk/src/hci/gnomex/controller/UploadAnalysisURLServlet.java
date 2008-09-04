@@ -4,6 +4,7 @@ import hci.gnomex.model.Analysis;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,6 +20,28 @@ public class UploadAnalysisURLServlet extends HttpServlet {
   private String   fileName;
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+
+    // restrict commands to local host if request is not secure
+    if (!req.isSecure()) {
+      if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
+          || req.getRemoteAddr().equals("127.0.0.1")) {
+       
+      }
+      else {
+        
+        res.setContentType("text/html");
+        res.getOutputStream().println(
+            "<html><head><title>Error</title></head>");
+        res.getOutputStream().println("<body><b>");
+        res.getOutputStream().println(
+            "Secure connection is required. Prefix your request with 'https: "
+                + "<br>");
+        res.getOutputStream().println("</body>");
+        res.getOutputStream().println("</html>");
+        return;
+      }
+    }
+    
     try {
       
       boolean isLocalHost = req.getServerName().equalsIgnoreCase("localhost") || req.getServerName().equals("127.0.0.1");

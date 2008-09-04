@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -49,6 +50,28 @@ public class DownloadResultsServlet extends HttpServlet {
     
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
+    
+    // restrict commands to local host if request is not secure
+    if (!req.isSecure()) {
+      if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
+          || req.getRemoteAddr().equals("127.0.0.1")) {
+        log.debug("Requested from local host");
+      }
+      else {
+        log.error("Accessing secure command over non-secure line from remote host is not allowed");
+        
+        response.setContentType("text/html");
+        response.getOutputStream().println(
+            "<html><head><title>Error</title></head>");
+        response.getOutputStream().println("<body><b>");
+        response.getOutputStream().println(
+            "Secure connection is required. Prefix your request with 'https: "
+                + "<br>");
+        response.getOutputStream().println("</body>");
+        response.getOutputStream().println("</html>");
+        return;
+      }
+    }
 
     // Get input parameters
     keysString = req.getParameter("resultKeys");
