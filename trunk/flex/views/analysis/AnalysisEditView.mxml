@@ -997,6 +997,7 @@
 	</mx:TabNavigator>
     <mx:HBox width="100%" horizontalAlign="right" id="editButtonView">
         <mx:HBox width="100%" horizontalAlign="left">
+	        <mx:LinkButton label="Downloads" click="parentApplication.navAnalysisView.detailView.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 	        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
         	</mx:LinkButton>
         </mx:HBox>
