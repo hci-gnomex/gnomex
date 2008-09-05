@@ -11,6 +11,9 @@
 		import mx.controls.Alert;
 		import views.experiment.ExperimentEditView;
 		import hci.flex.renderers.LabelDictionary;
+		
+		
+		
 	
 		[Bindable]
 		private var requestCategoryName:String;
@@ -158,7 +161,7 @@
 			}
 		}
 		
-		private function showDownloads():void {
+		public function showDownloads():void {
 			parentDocument.showExperimentDownloads();
 		}
 
@@ -179,7 +182,7 @@
 			parentDocument.deleteExperiment();
 		}
 		
-		private function showPrintableRequestForm():void {
+		public function showPrintableRequestForm():void {
 			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
 			navigateToURL(url, '_blank');			
 		}
@@ -192,6 +195,7 @@
 			 //parms.idRequest = this.selectedExperiment.@idRequest;
 			 //parentDocument.getRequest.send(parms);
  
+ 			/*
 			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
 			 editWindow.width= 1000;
 			 editWindow.height= 500;
@@ -201,6 +205,13 @@
              editWindow.setupEditForm(this.selectedExperiment);
            	 editWindow.initializeData();
            	 callLater(editWindow.setupDataListeners); 
+           	 */
+           	 
+           	 parentDocument.theViews.selectedChild = parentDocument.editView;
+           	 parentDocument.editView.removeDataListeners();
+           	 parentDocument.editView.setupEditForm(this.selectedExperiment);
+           	 parentDocument.editView.initializeData();
+           	 callLater(parentDocument.editView.setupDataListeners);
 		}
 		
 		public function refreshSavedExperiment(idRequest:Object):void {
@@ -326,7 +337,7 @@
         	} 
         }
         
-        private function showRelatedAnalysis():void {
+        public function showRelatedAnalysis():void {
         	parentApplication.showAnalysisForExperiment(this.selectedExperiment);
         }
         

@@ -108,6 +108,9 @@
         public var selectedRequestNumber:Object;
         
         [Bindable]
+
+		public var showEditView:Boolean = false;
+
         public var selectedExperiment:Object;
         
         [Bindable]
@@ -380,6 +383,7 @@
 			
 			if (browseTree.selectedItem.name() == 'Request') {
 				detailView.title = "Experiment " + browseTree.selectedItem.@requestNumber;
+				editView.title = "Edit Experiment " + browseTree.selectedItem.@requestNumber;
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
@@ -590,8 +594,18 @@
 			    
 			    
 			}
-		    theViews.selectedChild = detailView;
-			detailView.setupForm(this.selectedExperiment);
+			
+			if (showEditView) {
+				theViews.selectedChild = editView;
+				editView.removeDataListeners();
+				editView.setupEditForm(this.selectedExperiment);
+				callLater(editView.setupDataListeners);
+				showEditView = false;						
+			} else {
+			    theViews.selectedChild = detailView;
+				detailView.setupForm(this.selectedExperiment);
+				
+			}
 
 		    theViews.visible = true;
 		}
@@ -869,7 +883,8 @@
 	        <experiment:ExperimentDetailView id="detailView" width="100%" height="100%">
 	        </experiment:ExperimentDetailView>
 	        
-
+			<experiment:ExperimentEditView id="editView" width="100%" height="100%">
+	        </experiment:ExperimentEditView>
 
          </mx:ViewStack>
 		

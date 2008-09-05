@@ -6,8 +6,8 @@
     xmlns:experiment="views.experiment.*"
     close="{PopUpManager.removePopUp(this)}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
-	label="Submit Request" width="100%" height="100%" 
-	  headerHeight="24" paddingBottom="2" paddingLeft="1" paddingRight="1">
+	label="Submit Request" width="100%" height="100%"  
+	  headerHeight="22" paddingBottom="2" paddingLeft="1" paddingRight="1" layout="vertical">
 
     
    <mx:HTTPService  
@@ -132,6 +132,11 @@
 
 		
 		[Bindable]
+		private var experimentCategoryName:String;
+		[Bindable]
+		private var billingAccountName:String;
+
+		[Bindable]
 		public var requestToClone:Object;
 		
 		public function checkDirty():void {
@@ -245,6 +250,31 @@
 				return false;
 			}
 		}
+		
+		private function getRequestCategoryName():void {
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.request.@codeRequestCategory);
+			requestCategoryName = requestCategory.@display.toString();
+		}
+		private function getExperimentCategoryName():void {
+			var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', this.request.@codeMicroarrayCategory);
+			experimentCategoryName = experimentCategory.@display.toString();
+		}
+		private function getBillingAccountName():void {
+			var billingAccount:Object = null;
+			for each(var lab:Object in parentApplication.promptedSubmitRequestLabList) {
+				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
+					if (ba.@idBillingAccount == this.request.@idBillingAccount) {
+						billingAccount = ba;
+						break;
+					}
+						
+				}
+			}
+			if (billingAccount != null) {
+				billingAccountName = billingAccount.@accountName;
+			}
+		}
+		
 		
 		public function checkSecurity():void {
 			setupView.checkSecurity();			
@@ -1138,16 +1168,37 @@
 				
 			}
 			
+			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+				this.analysisButton.enabled = true;
+			} else {
+				this.analysisButton.enabled = false;
+			}
+
+			this.getRequestCategoryName();
+			this.getBillingAccountName();
+			this.getExperimentCategoryName();
+			
 			callLater(postSetupEditForm);
 
 		}
 		
 		private function postSetupEditForm():void {
 			initializeControls();
-			hybSetupView.assignSlideNumbers();			
+			
+			if (this.isMicroarrayState()) {
+				hybSetupView.assignSlideNumbers();			
+			}
 			samplesView.checkSamplesCompleteness();
-			hybSetupView.checkHybSetupCompleteness();
-			hybsView.checkHybsCompleteness();
+			if (this.isMicroarrayState()) {
+				hybSetupView.checkHybSetupCompleteness();
+				hybsView.checkHybsCompleteness();
+			}
+		}
+		
+		public function removeDataListeners():void {
+			hybs.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingHybDataChange);
+			samples.removeEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+			lanes.removeEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);			
 			
 		}
 		
@@ -1653,7 +1704,8 @@
 			 	var parms:Object = new Object();
 			 	parms.idRequest = request.@idRequest;
 			 	getRequest.send(parms);
-			 				
+			 			
+			 	parentApplication.navExperimentView.showEditView = true;	
 				parentApplication.navExperimentView.detailView.refreshSavedExperiment(request.@idRequest); 
 			} else {
 				Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
@@ -1776,11 +1828,13 @@
 			}			
 		}			
 		
+		private function showViewWindow():void {
+		     parentDocument.theViews.selectedChild = parentDocument.detailView;
+           	 parentDocument.detailView.setupForm(this.request);
+		}
 
 
 		]]>
-		
-		
 	</mx:Script>
 	
   	<mx:XMLListCollection id="sampleCharacteristicEntries" source="{request.SampleCharacteristicEntries.SampleCharacteristicEntry}" 
@@ -1795,7 +1849,7 @@
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
   
- 	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
+ 	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
 		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab"  styleName="form" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 		    <experiment:TabSetupView id="setupView">		    	
@@ -1844,11 +1898,20 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%" horizontalAlign="right">
+			    <mx:HBox width="100%" horizontalAlign="left">
+			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
+					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.showRelatedAnalysis()">
+					</mx:LinkButton>
+			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
+			    	</mx:LinkButton>
+			    </mx:HBox>
+
 	 	        <util:DirtyNote id="dirty"/>
  				<mx:Button id="saveButton" label="Save" 
 	            	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveRequest()">
 	            </mx:Button>
-				<mx:Button label="Close" enabled="true" visible="true" click="PopUpManager.removePopUp(this)"/>								
 
 	 	    </mx:HBox>
  			
@@ -1857,6 +1920,59 @@
  	   </mx:ControlBar>
 	
     <mx:states>
+    	<mx:State name="EditState">
+    		<mx:AddChild relativeTo="{vbox1}" position="before">
+    			<mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
+    				<mx:VBox verticalGap="0">
+    					<mx:HBox horizontalGap="0">
+    					          <mx:Label text="#"  width="90" fontWeight="bold">
+    					          </mx:Label>
+    					          <mx:Text  id="requestNumber" text="{this.request.@number}"  width="130" />
+    					      </mx:HBox>
+    				       <mx:HBox verticalGap="0" horizontalGap="0">
+    				         <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
+    				         <mx:Text text="{this.request.@createDate}" width="120"/>
+    				       </mx:HBox>
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					   <mx:Label text="Submitted by"  width="90" fontWeight="bold"/>
+    					   <mx:Text text="{this.request.@ownerName}" width="130" />
+    					 </mx:HBox>			            
+    				</mx:VBox>
+    				<mx:VBox verticalGap="0">
+    					 
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
+    					       <mx:Text text="{requestCategoryName}" width="120" />
+    					   </mx:HBox>
+    				    <mx:HBox verticalGap="0" horizontalGap="0">
+    				        <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
+    				       <mx:Text  text="{experimentCategoryName}" width="120" />
+    				    </mx:HBox>
+    				       <mx:HBox verticalGap="0" horizontalGap="0">
+    				         <mx:Label width="105" text="Completed on" fontWeight="bold"/>
+    				         <mx:Text  text="{this.request.@completedDate}" width="120" />
+    				       </mx:HBox>
+    				</mx:VBox>
+    				<mx:VBox width="100%" verticalGap="0">
+    				    
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				           <mx:Label text="Group"  width="55" fontWeight="bold"/>
+    				           <mx:Text text="{this.request.@labName}" width="100%"/>
+    				       </mx:HBox>
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				        <mx:Label text="Account"  width="55" fontWeight="bold"/>
+    				        <mx:Text text="{billingAccountName}" width="100%" />
+    				    </mx:HBox>
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
+    				        <mx:Text  text="{this.request.@projectName}" width="100%"/>
+    				    </mx:HBox>
+    				</mx:VBox>
+    				
+    			</mx:HBox>
+    		</mx:AddChild>
+    		
+    	</mx:State>
         <mx:State name="MicroarrayState"/>
         <mx:State name="QCState">
             <mx:RemoveChild target="{hybSetupView}"/>
@@ -1896,8 +2012,58 @@
             	<experiment:TabLanesView id="lanesView">            		
             	</experiment:TabLanesView>
             </mx:AddChild>
+    		<mx:AddChild relativeTo="{vbox1}" position="before">
+    			<mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
+    				<mx:VBox verticalGap="0">
+    					<mx:HBox horizontalGap="0">
+    					          <mx:Label text="#"  width="90" fontWeight="bold">
+    					          </mx:Label>
+    					          <mx:Text   text="{this.request.@number}"  width="130" />
+    					      </mx:HBox>
+    				       <mx:HBox verticalGap="0" horizontalGap="0">
+    				         <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
+    				         <mx:Text text="{this.request.@createDate}" width="120"/>
+    				       </mx:HBox>
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					   <mx:Label text="Submitted by"  width="90" fontWeight="bold"/>
+    					   <mx:Text text="{this.request.@ownerName}" width="130" />
+    					 </mx:HBox>			            
+    				</mx:VBox>
+    				<mx:VBox verticalGap="0">
+    					 
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
+    					       <mx:Text text="{requestCategoryName}" width="120" />
+    					   </mx:HBox>
+    				    <mx:HBox verticalGap="0" horizontalGap="0">
+    				        <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
+    				       <mx:Text  text="{experimentCategoryName}" width="120" />
+    				    </mx:HBox>
+    				       <mx:HBox verticalGap="0" horizontalGap="0">
+    				         <mx:Label width="105" text="Completed on" fontWeight="bold"/>
+    				         <mx:Text  text="{this.request.@completedDate}" width="120" />
+    				       </mx:HBox>
+    				</mx:VBox>
+    				<mx:VBox width="100%" verticalGap="0">
+    				    
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				           <mx:Label text="Group"  width="55" fontWeight="bold"/>
+    				           <mx:Text text="{this.request.@labName}" width="100%"/>
+    				       </mx:HBox>
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				        <mx:Label text="Account"  width="55" fontWeight="bold"/>
+    				        <mx:Text text="{billingAccountName}" width="100%" />
+    				    </mx:HBox>
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
+    				        <mx:Text  text="{this.request.@projectName}" width="100%"/>
+    				    </mx:HBox>
+    				</mx:VBox>
+    				
+    			</mx:HBox>
+    		</mx:AddChild>
          </mx:State>
-        <mx:State name="QCEditState">
+        <mx:State name="QCEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>
             <mx:RemoveChild target="{annotationView}"/>
             <mx:RemoveChild target="{sampleSetupView}"/>
@@ -1905,7 +2071,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView}"/>
          </mx:State>
-        <mx:State name="MicroarrayEditState">
+        <mx:State name="MicroarrayEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{confirmView}"/>
