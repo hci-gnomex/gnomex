@@ -330,15 +330,15 @@
 			    </mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox width="100%" height="100%" verticalGap="2">
-				<mx:HBox>
+			<mx:VBox height="100%" verticalGap="2" width="230">
+				<mx:HBox width="100%">
 					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%" height="100%"/>
+					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%"/>
 					
 				</mx:HBox>
-				<mx:HBox width="100%" height="100%">
+				<mx:HBox height="100%" width="100%">
 					<mx:Spacer width="18"/>
-					<mx:TextArea width="100%" height="40" id="treatmentTextInput" focusOut="propagateTreatment()">
+					<mx:TextArea id="treatmentTextInput" focusOut="propagateTreatment()" width="100%" height="100%">
 					</mx:TextArea>
 					
 				</mx:HBox>

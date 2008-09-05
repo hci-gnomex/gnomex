@@ -126,6 +126,7 @@
 			
 		}
 		public function assignSlideNumbers():void {
+			
 			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
 				return;
 			}
