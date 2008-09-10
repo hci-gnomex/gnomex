@@ -252,8 +252,17 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
-					<mx:DataGridColumn headerText="Conc. ng/uL" width="15" dataField="@qualCalcConcentration"/>
+					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
+					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Conc."/>
+							    <mx:Label text="ng/uL"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"/>
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@qualStatus" 

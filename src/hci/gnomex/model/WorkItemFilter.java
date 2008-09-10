@@ -41,7 +41,7 @@ public class WorkItemFilter extends DetailObject {
     } else if (this.codeStepNext.equals(Step.HYB_STEP) ||
                 this.codeStepNext.equals(Step.SCAN_EXTRACTION_STEP)) {
       return getQuery(this.HYB_LEVEL);
-    } else if (this.codeStepNext.equals(Step.SEQ_ASSEMBLE)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
       return getQuery(this.LANE_LEVEL);
     } else if (this.codeStepNext.equals(Step.SEQ_RUN)) {
       return getQuery(this.FLOW_CELL_LEVEL);
@@ -141,7 +141,15 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    h.idFeatureExtractionProtocol, ");
       queryBuf.append("    h.extractionFailed, ");
       queryBuf.append("    h.extractionBypassed ");
-    } else if (this.codeStepNext.equals(Step.SEQ_ASSEMBLE)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_PREP)) {
+      queryBuf.append("      , ");
+      queryBuf.append("    s.idSamplePrepMethod, ");
+      queryBuf.append("    s.seqPrepByCore, ");
+      queryBuf.append("    s.seqPrepLibConcentration, ");
+      queryBuf.append("    s.seqPrepQualCodeBioanalyzerChipType, ");
+      queryBuf.append("    s.seqPrepQualFragmentSizeFrom, ");
+      queryBuf.append("    s.seqPrepQualFragmentSizeTo ");
+    }  else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
       queryBuf.append("      , ");
       queryBuf.append("    l.idSequenceLane, ");
       queryBuf.append("    l.idFlowCellType, ");

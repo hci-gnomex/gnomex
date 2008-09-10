@@ -379,8 +379,8 @@ public class RequestHTMLFormatter {
     
     Element rowh = new Element("TR");
     table.addContent(rowh);
-    this.addHeaderCell(rowh, "Lane #", "left");
-    this.addHeaderCell(rowh, "Sample #"    );
+    this.addHeaderCell(rowh, "#", "left");
+    this.addHeaderCell(rowh, "Sample name"    );
     this.addHeaderCell(rowh, "Flow Cell Type");
     this.addHeaderCell(rowh, "# Sequencing Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
@@ -400,7 +400,7 @@ public class RequestHTMLFormatter {
 
 
       this.addLeftCell(row, lane.getNumber());
-      this.addCell(row, lane.getSample() != null ? lane.getSample().getNumber() : "&nbsp;");
+      this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
       this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
       this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
       this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");

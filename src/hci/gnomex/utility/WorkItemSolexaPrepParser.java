@@ -77,7 +77,32 @@ public class WorkItemSolexaPrepParser implements Serializable {
       sample.setSeqPrepFailed("N");
       sample.setSeqPrepBypassed("N");
     }
- 
+    
+    
+    if (n.getAttributeValue("seqPrepLibConcentration") != null && !n.getAttributeValue("seqPrepLibConcentration").equals("")) {
+      sample.setSeqPrepLibConcentration(new Integer(n.getAttributeValue("seqPrepLibConcentration")));
+    } else {
+      sample.setSeqPrepLibConcentration(null);
+    }    
+    
+    if (n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType") != null && !n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType").equals("")) {
+      sample.setSeqPrepQualCodeBioanalyzerChipType(n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType"));
+    } else {
+      sample.setSeqPrepQualCodeBioanalyzerChipType(null);
+    }    
+    
+    if (n.getAttributeValue("seqPrepQualFragmentSizeFrom") != null && !n.getAttributeValue("seqPrepQualFragmentSizeFrom").equals("")) {
+      sample.setSeqPrepQualFragmentSizeFrom(new Integer(n.getAttributeValue("seqPrepQualFragmentSizeFrom")));
+    } else {
+      sample.setSeqPrepQualFragmentSizeFrom(null);
+    }    
+
+    if (n.getAttributeValue("seqPrepQualFragmentSizeTo") != null && !n.getAttributeValue("seqPrepQualFragmentSizeTo").equals("")) {
+      sample.setSeqPrepQualFragmentSizeTo(new Integer(n.getAttributeValue("seqPrepQualFragmentSizeTo")));
+    } else {
+      sample.setSeqPrepQualFragmentSizeTo(null);
+    }    
+    
   }
 
   

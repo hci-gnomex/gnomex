@@ -51,6 +51,10 @@ public class Sample extends HibernateDetailObject {
   private Date        seqPrepDate;
   private String      seqPrepFailed;
   private String      seqPrepBypassed;
+  private Integer     seqPrepLibConcentration;
+  private String      seqPrepQualCodeBioanalyzerChipType;
+  private Integer     seqPrepQualFragmentSizeFrom;
+  private Integer     seqPrepQualFragmentSizeTo;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -421,6 +425,47 @@ public class Sample extends HibernateDetailObject {
   
   public void setQualFragmentSizeTo(Integer qualFragmentSizeTo) {
     this.qualFragmentSizeTo = qualFragmentSizeTo;
+  }
+
+  
+  public Integer getSeqPrepLibConcentration() {
+    return seqPrepLibConcentration;
+  }
+
+  
+  public void setSeqPrepLibConcentration(Integer seqPrepLibConcentration) {
+    this.seqPrepLibConcentration = seqPrepLibConcentration;
+  }
+
+  
+  public String getSeqPrepQualCodeBioanalyzerChipType() {
+    return seqPrepQualCodeBioanalyzerChipType;
+  }
+
+  
+  public void setSeqPrepQualCodeBioanalyzerChipType(
+      String seqPrepQualCodeBioanalyzerChipType) {
+    this.seqPrepQualCodeBioanalyzerChipType = seqPrepQualCodeBioanalyzerChipType;
+  }
+
+  
+  public Integer getSeqPrepQualFragmentSizeFrom() {
+    return seqPrepQualFragmentSizeFrom;
+  }
+
+  
+  public void setSeqPrepQualFragmentSizeFrom(Integer seqPrepQualFragmentSizeFrom) {
+    this.seqPrepQualFragmentSizeFrom = seqPrepQualFragmentSizeFrom;
+  }
+
+  
+  public Integer getSeqPrepQualFragmentSizeTo() {
+    return seqPrepQualFragmentSizeTo;
+  }
+
+  
+  public void setSeqPrepQualFragmentSizeTo(Integer seqPrepQualFragmentSizeTo) {
+    this.seqPrepQualFragmentSizeTo = seqPrepQualFragmentSizeTo;
   }
 
 
