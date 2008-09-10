@@ -33,6 +33,7 @@ import hci.framework.control.RollBackCommandException;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -164,23 +165,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           if ((requestParser.isNewRequest()  || isNewSample)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-            boolean createWorkItem = true;
             if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+              
+              // For Solexa samples to be prepped by core, place on Solexa QC worklist.
+              // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
+              // will be recorded.
               if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
                 workItem.setCodeStepNext(Step.SEQ_QC);
               } else {
-                // Bypass creating Solexa QC work item if samples are not to be prepped by core
-                createWorkItem = false;
+                workItem.setCodeStepNext(Step.SEQ_PREP);
               }
               
             } else {
                 workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);
             }
-            if (createWorkItem) {
-              workItem.setSample(sample);
-              workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-              sess.save(workItem);
-            }
+            workItem.setSample(sample);
+            workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+            sess.save(workItem);
           }
           
           sampleCount++;
@@ -208,32 +209,35 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         
         // save sequence lanes
+        HashMap sampleToLaneMap = new HashMap();
         if (!requestParser.getSequenceLaneInfos().isEmpty()) {
-          int laneCount = 1;
+
+          // Hash lanes by sample id
           for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
             RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
-            boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-            SequenceLane lane = saveSequenceLane(laneInfo, sess, laneCount);
-
-            // if this is a new solexa request and the samples are already sequence prepped,
-            // create an Assemble work item for each sequence lane
-            if (requestParser.isNewRequest()  || isNewLane) {
-              if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-                if (lane.getSample().getSeqPrepByCore() != null && lane.getSample().getSeqPrepByCore().equalsIgnoreCase("N")) {
-                  WorkItem workItem = new WorkItem();
-                  workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-                  workItem.setCodeStepNext(Step.SEQ_ASSEMBLE);
-                  workItem.setSequenceLane(lane);
-                  workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-                  sess.save(workItem);
-                }
-              }
+            
+            List lanes = (List)sampleToLaneMap.get(laneInfo.getIdSampleString());
+            if (lanes == null) {
+              lanes = new ArrayList();
+              sampleToLaneMap.put(laneInfo.getIdSampleString(), lanes);
             }
-            laneCount++;
+            lanes.add(laneInfo);
           }
-          if (requestParser.isNewRequest()) {
-            requestParser.getRequest().setSequenceLanes(sequenceLanes);        
-          }       
+          
+          
+          for(Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
+            String idSampleString = (String)i.next();
+            List lanes = (List)sampleToLaneMap.get(idSampleString);
+            
+            int sampleSeqCount = 0;
+            for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
+              RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
+              boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+              SequenceLane lane = saveSequenceLane(laneInfo, sess, sampleSeqCount);
+
+              sampleSeqCount++;              
+            }
+          }
           
           
         }
@@ -730,7 +734,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.flush();
   }
   
-  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int laneCount) throws Exception {
+  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int sampleSeqCount) throws Exception {
 
     
     SequenceLane sequenceLane = null;
@@ -761,7 +765,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.save(sequenceLane);
     
     if (isNewSequenceLane) {
-      sequenceLane.setNumber(requestParser.getRequest().getIdRequest().toString() + "L" + laneCount);
+      Sample theSample = (Sample)sess.get(Sample.class, sequenceLane.getIdSample());
+      
+      String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", "F");
+      sequenceLane.setNumber(flowCellNumber + "_" + (sampleSeqCount + 1));
       sess.save(sequenceLane);
       sess.flush();
       

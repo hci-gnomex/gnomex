@@ -61,7 +61,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
           comparator  = new LabeledSampleComparator();
-        } else if (filter.getCodeStepNext().equals(Step.SEQ_ASSEMBLE)) {
+        } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
           comparator  = new LaneComparator();
         } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
           comparator = new FlowCellComparator();
@@ -103,6 +103,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         
         boolean alt = false;
         String prevRequestNumber = "";
+        
+        
+        
       
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
@@ -131,7 +134,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("idSample",               row[8] == null ? "" :  ((Integer)row[8]).toString());
           n.setAttribute("sampleNumber",           row[9] == null ? "" :  (String)row[9]);
           n.setAttribute("idHybridization",        row[10] == null ? "" :  ((Integer)row[10]).toString());
-          if (filter.getCodeStepNext().equals(Step.SEQ_ASSEMBLE)) {
+          if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
             n.setAttribute("laneNumber",             row[11] == null ? "" :  (String)row[11]);  
           } else {
             n.setAttribute("hybNumber",              row[11] == null ? "" :  (String)row[11]);
@@ -226,7 +229,15 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               extractionStatus = Constants.STATUS_BYPASSED;
             }
             n.setAttribute("extractionStatus", extractionStatus);
-          } else if (filter.getCodeStepNext().equals(Step.SEQ_ASSEMBLE)) {
+          }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
+            n.setAttribute("idSamplePrepMethod",                row[13] == null ? "" :  ((Integer)row[13]).toString());
+            n.setAttribute("seqPrepByCore",                     row[14] == null ? "" :  (String)row[14]);
+            n.setAttribute("seqPrepLibConcentration",           row[15] == null ? "" :  ((Integer)row[15]).toString());
+            n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[16] == null ? "" :  (String)row[16]);
+            n.setAttribute("seqPrepQualFragmentSizeFrom",       row[17] == null ? "" :  ((Integer)row[17]).toString());
+            n.setAttribute("seqPrepQualFragmentSizeTo",         row[18] == null ? "" :  ((Integer)row[18]).toString());
+          
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
             n.setAttribute("idSequenceLane",               row[13] == null ? "" :  ((Integer)row[13]).toString());
             n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("idOrganism",                   row[15] == null ? "" :  ((Integer)row[15]).toString());

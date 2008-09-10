@@ -2,7 +2,7 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
 	width="100%" height="100%" 
-	title="Solexa Assemble Flow Cell"
+	title="Solexa Cluster Gen"
 	xmlns:util="views.util.*">
 	
 	

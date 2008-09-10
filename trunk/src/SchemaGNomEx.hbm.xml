@@ -392,6 +392,10 @@
 		<property name="seqPrepDate" column="seqPrepDate" type="date"/>
 		<property name="seqPrepFailed" column="seqPrepFailed" type="string"/>
 		<property name="seqPrepBypassed" column="seqPrepBypassed" type="string"/>
+		<property name="seqPrepLibConcentration" column="seqPrepLibConcentration" type="integer"/>
+		<property name="seqPrepQualCodeBioanalyzerChipType" column="seqPrepQualCodeBioanalyzerChipType" type="string"/>
+		<property name="seqPrepQualFragmentSizeFrom" column="seqPrepQualFragmentSizeFrom" type="integer"/>
+		<property name="seqPrepQualFragmentSizeTo" column="seqPrepQualFragmentSizeTo" type="integer"/>
 		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />

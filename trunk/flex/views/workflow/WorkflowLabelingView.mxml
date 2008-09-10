@@ -216,6 +216,19 @@
     		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
     	}  
            
+		private function getLabelingProtocol(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.LabelingProtocol", item.@idLabelingProtocol);
+        }           
+		private function getLabelingReactionSize(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.LabelingReactionSize", item.@codeLabelingReactionSize);
+        }           
+		private function getLabel(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Label", item.@idLabel);
+        }           
+           
 
         ]]>
     </mx:Script> 
@@ -244,29 +257,55 @@
 		<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 			<util:columns>
 				<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
-				<mx:DataGridColumn editable="false" headerText="Req #"  width="8" dataField="@requestNumber"/>
-				<mx:DataGridColumn editable="false" headerText="Submit Date" width="12" dataField="@createDate"/>
-				<mx:DataGridColumn editable="false" headerText="Requester name"  width="15" dataField="@idAppUser" labelFunction="lookupUserName"/>
                 <mx:DataGridColumn editable="false" headerText="Sample #" width="10" dataField="@sampleNumber"/>
-				<mx:DataGridColumn editable="false"  headerText="Mod Nuc." width="8"  dataField="@idLabel"
-                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Label', '@idLabel')}"/>                 							
+				<mx:DataGridColumn editable="false" headerText="Client"  width="15" dataField="@idAppUser" labelFunction="lookupUserName"/>
+				<mx:DataGridColumn editable="false"  headerText="Mod Nuc." width="5"  dataField="@idLabel" labelFunction="getLabel">                 							
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Mod."/>
+							    <mx:Label text="Nucl."/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Labeling Protocol"  width="29" dataField="@idLabelingProtocol" 
                    editorDataField="value"
+                   labelFunction="getLabelingProtocol"
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="false"
-                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocol')}"                 							
+                   itemRenderer="mx.controls.Label"                 							
  	               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocol')}"/>			                
 	            <mx:DataGridColumn headerText="Yield" width="7" dataField="@labelingYield"/>
-				<mx:DataGridColumn headerText="Reaction Size" width="11" 
+				<mx:DataGridColumn headerText="Reaction Size" width="10" 
 					dataField="@codeLabelingReactionSize"
 					editorDataField="value"
+                   labelFunction="getLabelingReactionSize"
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="false"  
-                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSize')}"                 							
- 	               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSize')}"/>			                
-				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions"/>
+                   itemRenderer="mx.controls.Label"                 							
+ 	               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSize')}">			                
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Reaction"/>
+							    <mx:Label text="Size"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Number"/>
+							    <mx:Label text="Reactions"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+				</mx:DataGridColumn>
                 <mx:DataGridColumn headerText="Status"  width="15" dataField="@labelingStatus" 
                 	editorDataField="value"
                    sortable="false" 
