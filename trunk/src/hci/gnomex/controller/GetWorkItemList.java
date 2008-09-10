@@ -146,11 +146,13 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualFailed",                 row[14] == null ? "" :  (String)row[14]);
             n.setAttribute("qual260nmTo280nmRatio",      row[15] == null ? "" :  ((BigDecimal)row[15]).toString());
             n.setAttribute("qual260nmTo230nmRatio",      row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("qualAverageFragmentLength",  row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
-            n.setAttribute("qualCalcConcentration",      row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-            n.setAttribute("qual28sTo18sRibosomalRatio", row[19] == null ? "" :  ((BigDecimal)row[19]).toString());
-            n.setAttribute("qualRINNumber",              row[20] == null ? "" :  ((BigDecimal)row[20]).toString());
-            n.setAttribute("qualBypassed",               row[21] == null ? "" :  (String)row[21]);
+            n.setAttribute("qualCalcConcentration",      row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
+            n.setAttribute("qual28sTo18sRibosomalRatio", row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+            n.setAttribute("qualRINNumber",              row[19] == null ? "" :  ((String)row[19]));
+            n.setAttribute("qualBypassed",               row[20] == null ? "" :  (String)row[20]);
+            n.setAttribute("qualCodeBioanalyzerChipType",row[21] == null ? "" :  (String)row[21]);
+            n.setAttribute("qualFragmentSizeFrom",       row[22] == null ? "" :  ((Integer)row[22]).toString());
+            n.setAttribute("qualFragmentSizeTo",         row[23] == null ? "" :  ((Integer)row[23]).toString());
             
             String qualStatus = "";
             if (n.getAttributeValue("qualCompleted").equals("Y")) {

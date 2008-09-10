@@ -105,11 +105,13 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.qualFailed, ");
       queryBuf.append("    s.qual260nmTo280nmRatio, ");
       queryBuf.append("    s.qual260nmTo230nmRatio, ");
-      queryBuf.append("    s.qualAverageFragmentLength, ");
       queryBuf.append("    s.qualCalcConcentration, ");
       queryBuf.append("    s.qual28sTo18sRibosomalRatio, ");
       queryBuf.append("    s.qualRINNumber, ");
-      queryBuf.append("    s.qualBypassed ");
+      queryBuf.append("    s.qualBypassed, ");
+      queryBuf.append("    s.codeBioanalyzerChipType, ");
+      queryBuf.append("    s.qualFragmentSizeFrom, ");
+      queryBuf.append("    s.qualFragmentSizeTo ");
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
       queryBuf.append("      , ");
       queryBuf.append("    ls.labelingDate, ");

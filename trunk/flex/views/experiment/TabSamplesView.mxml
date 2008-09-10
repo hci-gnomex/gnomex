@@ -599,11 +599,11 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType', true)}"                
  	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
-					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
+					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
-					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 28s/18s" width="80" dataField="@qual28sTo18sRibosomalRatio"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (from)" width="87" dataField="@qualFragmentSizeFrom"/>
+					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Frag size (to)" width="87" dataField="@qualFragmentSizeTo"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{ComboBoxWorkflowStatus.create('@qualStatus')}"/>

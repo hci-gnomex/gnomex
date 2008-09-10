@@ -341,10 +341,15 @@ public class RequestParser implements Serializable {
       }
       
       
-      if (n.getAttributeValue("qualAverageFragmentLength") != null && !n.getAttributeValue("qualAverageFragmentLength").equals("")) {
-        sample.setQualAverageFragmentLength(new BigDecimal(n.getAttributeValue("qualAverageFragmentLength")));
+      if (n.getAttributeValue("qualFragmentSizeFrom") != null && !n.getAttributeValue("qualFragmentSizeFrom").equals("")) {
+        sample.setQualFragmentSizeFrom(new Integer(n.getAttributeValue("qualFragmentSizeFrom")));
       } else {
-        sample.setQualAverageFragmentLength(null);
+        sample.setQualFragmentSizeFrom(null);
+      }
+      if (n.getAttributeValue("qualFragmentSizeTo") != null && !n.getAttributeValue("qualFragmentSizeTo").equals("")) {
+        sample.setQualFragmentSizeTo(new Integer(n.getAttributeValue("qualFragmentSizeTo")));
+      } else {
+        sample.setQualFragmentSizeTo(null);
       }
       
       if (n.getAttributeValue("qualCalcConcentration") != null && !n.getAttributeValue("qualCalcConcentration").equals("")) {
@@ -360,7 +365,7 @@ public class RequestParser implements Serializable {
       }
       
       if (n.getAttributeValue("qualRINNumber") != null && !n.getAttributeValue("qualRINNumber").equals("")) {
-        sample.setQualRINNumber(new BigDecimal(n.getAttributeValue("qualRINNumber")));
+        sample.setQualRINNumber(n.getAttributeValue("qualRINNumber"));
       } else {
         sample.setQualRINNumber(null);
       }   

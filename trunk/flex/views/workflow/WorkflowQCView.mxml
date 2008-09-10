@@ -135,15 +135,6 @@
 		    		break;
 		    	}
 	    	} 
-	    	nv.maxValue = "99";
-	    	nv.precision = 2;
-	    	for each (item in dirtyItems) {
-		    	vr = nv.validate(item.@qualRINNumber);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nRIN# " + item.@qualRINNumber + " " + vr.message;
-		    		break;
-		    	}
-	    	} 	  
 
 	    	nv.maxValue = "9";
 	    	nv.precision = 1;
@@ -260,14 +251,10 @@
 			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="15" dataField="@qualCalcConcentration"/>
 					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"/>
-					<mx:DataGridColumn headerText="260/280" width="15" dataField="@qual260nmTo280nmRatio"/>
-					<mx:DataGridColumn headerText="28S/18S" width="15" dataField="@qual28sTo18sRibosomalRatio"/>
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@qualStatus" 
 	                	editorDataField="value"

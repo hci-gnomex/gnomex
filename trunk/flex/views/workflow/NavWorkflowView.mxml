@@ -58,8 +58,8 @@
 			<mx:Canvas label="Solexa Workflow" width="100%" height="100%">
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 					
-			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="navLinkBar" height="121" backgroundColor="#FFFFFF">
-			  		</mx:LinkBar>
+			  		<mx:LinkBar dataProvider="solexaViews" direction="vertical"   itemClick="onSolexaWorklistChange()" textDecoration="underline" styleName="navLinkBar" height="148" backgroundColor="#FFFFFF">
+			  		</mx:LinkBar> 
 
 					<mx:Spacer height="20"/>			  		
 			  		<mx:HRule>
@@ -92,9 +92,11 @@
 			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="4"  >
 			
 			   <workflow:WorkflowSolexaQCView label="Quality Control" id="workflowSolexaQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
-			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/bullet_wrench.png')"/> 	           
-			   <workflow:WorkflowSolexaAssembleView label="Assemble" id="workflowSolexaAssembleView" icon="@Embed('../../assets/sitemap.png')"/> 	           
-			   <workflow:WorkflowSolexaRunView label="Run" id="workflowSolexaRunView" icon="@Embed('../../assets/solexa.png')"/> 	           
+			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/chart_line.png')"/>
+			   <mx:Canvas label="Flow Cell Stock" icon="@Embed('../../assets/flask.png')">			   	
+			   </mx:Canvas>           
+			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowSolexaAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
+			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="@Embed('../../assets/solexa.png')"/> 	           
 			   <mx:Canvas label=""/>
 			   <workflow:FlowCellView id="flowCellView"/>
 			</mx:ViewStack>
