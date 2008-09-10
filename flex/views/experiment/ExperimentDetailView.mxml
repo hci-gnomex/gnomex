@@ -473,11 +473,13 @@
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
 								
 
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc." width="70" dataField="@qualCalcConcentration"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 28s/18s" width="80" dataField="@qual28sTo18sRibosomalRatio"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+				                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected}" headerText="QC Bioanalyzer method"  width="120" 
+	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
 
 								

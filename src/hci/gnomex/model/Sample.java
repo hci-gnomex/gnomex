@@ -40,10 +40,11 @@ public class Sample extends HibernateDetailObject {
   private String      qualBypassed;
   private BigDecimal  qual260nmTo280nmRatio;
   private BigDecimal  qual260nmTo230nmRatio;
-  private BigDecimal  qualAverageFragmentLength;
   private BigDecimal  qualCalcConcentration;
   private BigDecimal  qual28sTo18sRibosomalRatio;
-  private BigDecimal  qualRINNumber;
+  private String      qualRINNumber;
+  private Integer     qualFragmentSizeFrom;
+  private Integer     qualFragmentSizeTo;
   private Integer     fragmentSizeFrom;
   private Integer     fragmentSizeTo;
   private String      seqPrepByCore;
@@ -118,15 +119,6 @@ public class Sample extends HibernateDetailObject {
     this.qual28sTo18sRibosomalRatio = qual28sTo18sRibosomalRatio;
   }
   
-  public BigDecimal getQualAverageFragmentLength() {
-    return qualAverageFragmentLength;
-  }
-  
-  public void setQualAverageFragmentLength(BigDecimal qualAverageFragmentLength) {
-    this.qualAverageFragmentLength = qualAverageFragmentLength;
-  }
-  
-  
   public Date getQualDate() {
     return qualDate;
   }
@@ -143,11 +135,11 @@ public class Sample extends HibernateDetailObject {
     this.qualFailed = qualFailed;
   }
   
-  public BigDecimal getQualRINNumber() {
+  public String getQualRINNumber() {
     return qualRINNumber;
   }
   
-  public void setQualRINNumber(BigDecimal qualRINNumber) {
+  public void setQualRINNumber(String qualRINNumber) {
     this.qualRINNumber = qualRINNumber;
   }
 
@@ -409,6 +401,26 @@ public class Sample extends HibernateDetailObject {
   
   public void setSeqPrepBypassed(String seqPrepBypassed) {
     this.seqPrepBypassed = seqPrepBypassed;
+  }
+
+  
+  public Integer getQualFragmentSizeFrom() {
+    return qualFragmentSizeFrom;
+  }
+
+  
+  public void setQualFragmentSizeFrom(Integer qualFragmentSizeFrom) {
+    this.qualFragmentSizeFrom = qualFragmentSizeFrom;
+  }
+
+  
+  public Integer getQualFragmentSizeTo() {
+    return qualFragmentSizeTo;
+  }
+
+  
+  public void setQualFragmentSizeTo(Integer qualFragmentSizeTo) {
+    this.qualFragmentSizeTo = qualFragmentSizeTo;
   }
 
 

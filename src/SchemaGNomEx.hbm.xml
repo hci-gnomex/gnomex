@@ -381,10 +381,11 @@
 		<property name="qualBypassed" column="qualBypassed" type="string"/>
 		<property name="qual260nmTo280nmRatio" column="qual260nmTo280nmRatio" type="big_decimal"/>
 		<property name="qual260nmTo230nmRatio" column="qual260nmTo230nmRatio" type="big_decimal"/>
-		<property name="qualAverageFragmentLength" column="qualAverageFragmentLength" type="big_decimal"/>
+		<property name="qualFragmentSizeFrom" column="qualFragmentSizeFrom" type="integer"/>
+		<property name="qualFragmentSizeTo" column="qualFragmentSizeTo" type="integer"/>
 		<property name="qualCalcConcentration" column="qualCalcConcentration" type="big_decimal"/>
 		<property name="qual28sTo18sRibosomalRatio" column="qual28sTo18sRibosomalRatio" type="big_decimal"/>
-		<property name="qualRINNumber" column="qualRINNumber" type="big_decimal"/>
+		<property name="qualRINNumber" column="qualRINNumber" type="string"/>
 		<property name="fragmentSizeFrom" column="fragmentSizeFrom" type="integer"/>
 		<property name="fragmentSizeTo" column="fragmentSizeTo" type="integer"/>
 		<property name="seqPrepByCore" column="seqPrepByCore" type="string"/>

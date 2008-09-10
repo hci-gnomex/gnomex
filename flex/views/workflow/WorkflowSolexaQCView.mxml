@@ -51,6 +51,8 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBoxWorkflowStatus;
+        import hci.flex.renderers.LabelDictionary;
+        import hci.flex.renderers.ComboBoxDictionary;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -85,6 +87,10 @@
         	} else {
         		return "";
         	}
+        }
+		private function getBioanalyzerChipType(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@qualCodeBioanalyzerChipType);
         }
                 
         public function onEdit():void {
@@ -134,15 +140,7 @@
 		    		break;
 		    	}
 	    	} 
-	    	nv.maxValue = "99";
-	    	nv.precision = 2;
-	    	for each (item in dirtyItems) {
-		    	vr = nv.validate(item.@qualRINNumber);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nRIN# " + item.@qualRINNumber + " " + vr.message;
-		    		break;
-		    	}
-	    	} 	  
+	    	 	  
 
 	    	nv.maxValue = "9";
 	    	nv.precision = 1;
@@ -256,24 +254,29 @@
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
+			<util:DataGridAlternatingGroup height="100%"   id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
-					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Req #"  width="9" dataField="@requestNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Submit Date" width="15" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Requester name"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
-	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
-					<mx:DataGridColumn headerText="Conc. ng/uL" width="15" dataField="@qualCalcConcentration"/>
-					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"/>
-					<mx:DataGridColumn headerText="260/280" width="15" dataField="@qual260nmTo280nmRatio"/>
-					<mx:DataGridColumn headerText="28S/18S" width="15" dataField="@qual28sTo18sRibosomalRatio"/>
-					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
-	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqQualStatus" 
+					<mx:DataGridColumn editable="false"   headerText="" width="3"  labelFunction="getGridRowNumber"/>
+	                <mx:DataGridColumn editable="false" headerText="Sample #" width="8" dataField="@sampleNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Requester name"  width="15" dataField="@idAppUser" labelFunction="lookupUserName"/>
+					<mx:DataGridColumn headerText="Conc. ng/uL" width="9" dataField="@qualCalcConcentration"/>
+					<mx:DataGridColumn headerText="260/230" width="6" dataField="@qual260nmTo230nmRatio"/>
+					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="13" dataField="@qualCodeBioanalyzerChipType"
+						labelFunction="getBioanalyzerChipType" 
+		               editorDataField="value"
+		               editable="true" 
+		               rendererIsEditor="false"
+		               itemRenderer="mx.controls.Label"		                
+		               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@qualCodeBioanalyzerChipType')}"/>		                
+					<mx:DataGridColumn headerText="RIN#" width="6" dataField="@qualRINNumber"/>
+					<mx:DataGridColumn headerText="Frag size (from)" width="11" dataField="@qualFragmentSizeFrom"/>
+					<mx:DataGridColumn headerText="Frag size (to)" width="11" dataField="@qualFragmentSizeTo"/> 
+	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@seqQualStatus" 
 	                	editorDataField="value"
 	                   rendererIsEditor="false" 
 	                   itemRenderer="mx.controls.Label"  
  	                   itemEditor="{ComboBoxWorkflowStatus.create('@qualStatus')}"/>			                
-
+ 					<mx:DataGridColumn headerText="" width="0" visible="false"/>
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			
