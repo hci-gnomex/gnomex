@@ -27,12 +27,28 @@ public class RequestHTMLFormatter {
   private BillingAccount   billingAccount;
   private DictionaryHelper dictionaryHelper;
   private boolean         includeMicroarrayCoreNotes = true;
+  private boolean         dnaSamples = false;
   
  public RequestHTMLFormatter(Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper) {
    this.request = request;
    this.appUser = appUser;
    this.billingAccount = billingAccount;
    this.dictionaryHelper = dictionaryHelper;
+   
+   // Figure out if all samples are DNA samples.  This will affect what
+   // sample quality columns show
+   dnaSamples = false;
+   int dnaSampleCount = 0;
+   for(Iterator i = request.getSamples().iterator(); i.hasNext();) {
+     Sample sample = (Sample)i.next();
+     if (this.isDNASampleType(sample)) {
+       dnaSampleCount++;
+     }
+   }
+   if (dnaSampleCount == request.getSamples().size()) {
+     dnaSamples = true;
+   }
+
    
  }
  
@@ -99,10 +115,9 @@ public class RequestHTMLFormatter {
     
     Integer rowSpan = new Integer(1);
     if (includeMicroarrayCoreNotes) {
-      if (request.getCodeRequestCategory() == null || !request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-          rowSpan = new Integer(2);
-      }
+      rowSpan = new Integer(2);
     }
+    
     
     this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), "left");
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
@@ -118,21 +133,32 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Chip Type",rowSpan, new Integer(1));
     }
     if (includeMicroarrayCoreNotes ) {
-       if (request.getCodeRequestCategory() == null || !request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-         this.addHeaderCell(rowh, "Quality", new Integer(1), new Integer(5),
+      this.addHeaderCell(rowh, "Quality", new Integer(1), new Integer(4),
          "colgroup");
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+        this.addHeaderCell(rowh, "Lib Prep", new Integer(1), new Integer(2), "colgroup");        
+      }
+      
+      rowh = new Element("TR");
+      table.addContent(rowh);
+      this.addHeaderCell(rowh, "Conc. ng/uL");
+      this.addHeaderCell(rowh, "260/230");
+      this.addHeaderCell(rowh, "Bioanalyzer method");
+      if (dnaSamples) {
+        this.addHeaderCell(rowh, "Fragment size range");
+      } else {
+        this.addHeaderCell(rowh, "RIN#");                
+      }
+      
+      
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+        this.addHeaderCell(rowh, "Starting template quantity");
+        this.addHeaderCell(rowh, "Gel size range");
+      }
+        
 
-         rowh = new Element("TR");
-         table.addContent(rowh);
-         this.addHeaderCell(rowh, "Conc.");
-         this.addHeaderCell(rowh, "260/230");
-         this.addHeaderCell(rowh, "260/280");
-         this.addHeaderCell(rowh, "28S/18S");
-         this.addHeaderCell(rowh, "RIN#");
-         
-       }
     }
-    
+
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       
@@ -167,13 +193,15 @@ public class RequestHTMLFormatter {
                            dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));
       }
       if (includeMicroarrayCoreNotes) {
-        if (request.getCodeRequestCategory() == null || !request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
           this.addSmallEmptyCell(row);
           this.addSmallEmptyCell(row);              
           this.addSmallEmptyCell(row);              
           this.addSmallEmptyCell(row);              
+      }
+      if (includeMicroarrayCoreNotes ) {
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
           this.addSmallEmptyCell(row);              
-          
+          this.addSmallEmptyCell(row);                        
         }
       }
     }
@@ -204,15 +232,18 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Unit", new Integer(2), new Integer(1));;
       this.addHeaderCell(rowh, "Chip Type", new Integer(2), new Integer(1));;
     }
-    this.addHeaderCell(rowh, "Quality", new Integer(1), new Integer(5), "colgroup");
+    this.addHeaderCell(rowh, "Quality", new Integer(1), new Integer(4), "colgroup");
       
     rowh = new Element("TR");
     table.addContent(rowh);    
-    this.addHeaderCell(rowh, "Conc.");
+    this.addHeaderCell(rowh, "Conc. ng/uL");
     this.addHeaderCell(rowh, "260/230");
-    this.addHeaderCell(rowh, "260/280");
-    this.addHeaderCell(rowh, "28S/18S");
-    this.addHeaderCell(rowh, "RIN#");      
+    this.addHeaderCell(rowh, "Bioanalyzer method");
+    if (this.dnaSamples) {
+      this.addHeaderCell(rowh, "Size range");      
+    } else {
+      this.addHeaderCell(rowh, "RIN#");            
+    }
     
     
     
@@ -221,6 +252,17 @@ public class RequestHTMLFormatter {
       
       Element row = new Element("TR");
       table.addContent(row);
+      
+      
+      String qualFragmentSizeRange = "";
+      if (sample.getQualFragmentSizeFrom() != null && !sample.getQualFragmentSizeFrom().equals("")) {
+        qualFragmentSizeRange = sample.getQualFragmentSizeFrom() + "-";
+      }
+      if (sample.getQualFragmentSizeTo() != null && !sample.getQualFragmentSizeTo().equals("")) {
+        qualFragmentSizeRange += sample.getQualFragmentSizeTo();
+      } else {
+        qualFragmentSizeRange += "?";
+      }
       
 
       this.addLeftCell(row, sample.getNumber());
@@ -236,9 +278,13 @@ public class RequestHTMLFormatter {
       
       this.addCell(row, sample.getQualCalcConcentration() == null ? "&nbsp;"      : sample.getQualCalcConcentration().toString());
       this.addCell(row, sample.getQual260nmTo230nmRatio() == null ? "&nbsp;"      : sample.getQual260nmTo230nmRatio().toString());
-      this.addCell(row, sample.getQual260nmTo280nmRatio() == null ? "&nbsp;"      : sample.getQual260nmTo280nmRatio().toString());
-      this.addCell(row, sample.getQual28sTo18sRibosomalRatio() == null ? "&nbsp;" : sample.getQual28sTo18sRibosomalRatio().toString());
-      this.addCell(row, sample.getQualRINNumber() == null ? "&nbsp;"              : sample.getQualRINNumber().toString());
+      this.addCell(row, dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()) == null ? "&nbsp;" : 
+        dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));
+      if (this.dnaSamples) {
+        this.addCell(row, qualFragmentSizeRange);        
+      } else {
+        this.addCell(row, sample.getQualRINNumber() == null ? "&nbsp;"              : sample.getQualRINNumber().toString());        
+      }
         
     }
     
@@ -493,7 +539,14 @@ public class RequestHTMLFormatter {
   }
   
   
- 
+  private boolean isDNASampleType(Sample sample) {
+    String sampleType = this.dictionaryHelper.getSampleType(sample.getIdSampleType());
+    if (sampleType != null && sampleType.matches(".*DNA.*")) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 
 
