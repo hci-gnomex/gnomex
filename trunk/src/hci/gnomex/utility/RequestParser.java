@@ -392,6 +392,48 @@ public class RequestParser implements Serializable {
         sample.setQualFailed("N");
         sample.setQualBypassed("N");
       }
+      
+      
+      if (n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType") != null && !n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType").equals("")) {
+        sample.setSeqPrepQualCodeBioanalyzerChipType(n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType"));
+      } else {
+        sample.setSeqPrepQualCodeBioanalyzerChipType(null);
+      }
+      
+      if (n.getAttributeValue("seqPrepQualFragmentSizeFrom") != null && !n.getAttributeValue("seqPrepQualFragmentSizeFrom").equals("")) {
+        sample.setSeqPrepQualFragmentSizeFrom(new Integer(n.getAttributeValue("seqPrepQualFragmentSizeFrom")));
+      } else {
+        sample.setSeqPrepQualFragmentSizeFrom(null);
+      }
+      if (n.getAttributeValue("seqPrepQualFragmentSizeTo") != null && !n.getAttributeValue("seqPrepQualFragmentSizeTo").equals("")) {
+        sample.setSeqPrepQualFragmentSizeTo(new Integer(n.getAttributeValue("seqPrepQualFragmentSizeTo")));
+      } else {
+        sample.setSeqPrepQualFragmentSizeTo(null);
+      }
+
+      
+      if (n.getAttributeValue("seqPrepStatus") != null && !n.getAttributeValue("seqPrepStatus").equals("")) {
+        String status = n.getAttributeValue("seqPrepStatus");
+        if (status.equals(Constants.STATUS_COMPLETED)) {
+          sample.setSeqPrepDate(new java.sql.Date(System.currentTimeMillis()));      
+          sample.setSeqPrepFailed("N");
+          sample.setSeqPrepBypassed("N");
+          
+        } else if (status.equals(Constants.STATUS_TERMINATED)) {
+          sample.setSeqPrepDate(null);
+          sample.setSeqPrepFailed("Y");
+          sample.setSeqPrepBypassed("N");
+          
+        } else if (status.equals(Constants.STATUS_BYPASSED)) {
+          sample.setSeqPrepDate(null);
+          sample.setSeqPrepFailed("N");
+          sample.setSeqPrepBypassed("Y");        
+        }
+      } else {
+        sample.setSeqPrepDate(null);
+        sample.setSeqPrepFailed("N");
+        sample.setSeqPrepBypassed("N");
+      }
      
     }
 

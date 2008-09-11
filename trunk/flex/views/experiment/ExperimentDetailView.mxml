@@ -452,6 +452,7 @@
 							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
 							<mx:Spacer width="74"/>
 							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
+							<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Show Solexa Lib Prep columns" visible="true" click="showHideColumns()"/>
 						</mx:HBox>
 						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
@@ -481,6 +482,12 @@
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
+
+				                <mx:DataGridColumn  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
+	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
+								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Frag Size (from)" width="90" dataField="@seqPrepQualFragmentSizeFrom"/>
+								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Frag Size (to)" width="90" dataField="@seqPrepQualFragmentSizeTo"/>
+								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 
 								
 								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
