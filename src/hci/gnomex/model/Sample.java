@@ -386,6 +386,18 @@ public class Sample extends HibernateDetailObject {
   public void setSeqPrepDate(Date seqPrepDate) {
     this.seqPrepDate = seqPrepDate;
   }
+  
+  public String getSeqPrepStatus() {
+    if (seqPrepDate != null) {
+      return Constants.STATUS_COMPLETED;
+    } else if (this.getSeqPrepFailed() != null && this.getSeqPrepFailed().equals("Y")) {
+      return Constants.STATUS_TERMINATED;
+    } else if (this.getSeqPrepBypassed() != null && this.getSeqPrepBypassed().equals("Y")) {
+      return Constants.STATUS_BYPASSED;
+    } else {
+      return "";
+    }
+  }
 
   
   public String getSeqPrepFailed() {

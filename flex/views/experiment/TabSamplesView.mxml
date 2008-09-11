@@ -447,8 +447,9 @@
         	sampleNumberCol.visible = parentDocument.isEditState();
         	sampleRowNumberCol.visible = !parentDocument.isEditState();
         	this.showQCFieldsCheckBox.visible = parentDocument.isEditState();
+        	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0;
         	
-        	if (showQCFieldsCheckBox.selected) {
+        	if (showQCFieldsCheckBox.selected || showSeqPrepFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				idFlowCellTypeCol.visible = false; 
@@ -458,6 +459,12 @@
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = false;
 				preppedByCoreCol.visible = false;
+				numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible =  false;
+				preppedByCoreCol.visible =  false;
+				idFlowCellTypeCol.visible =  false;
+				fragmentSizeFromCol.visible = false;
+				fragmentSizeToCol.visible = false;
         	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
@@ -537,6 +544,8 @@
 				<mx:HBox width="100%" horizontalAlign="right">
 					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="false" click="showHideColumns()">
 					</mx:CheckBox>							
+					<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Show Solexa Lib Prep columns"  visible="false" click="showHideColumns()">
+					</mx:CheckBox>							
 				</mx:HBox>
 			</mx:HBox>
 			<mx:HBox id="buttonsContainer">
@@ -549,14 +558,14 @@
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" 
 				allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" 
 				selectionColor="#FFFFB9" rollOverColor="#C0C0C0"
-				horizontalScrollPolicy="auto">
+				horizontalScrollPolicy="auto" >
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
 					<mx:DataGridColumn headerText="Name" width="100" editorDataField="text" dataField="@name"  editable="true" rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@name')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@name', '@canChangeSampleName')}"      />          
-	 				<mx:DataGridColumn headerText="Conc." visible="{!showQCFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
+	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@concentration')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@concentration', '@canChangeSampleConcentration')}"      />          
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
@@ -583,7 +592,7 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod', true)}"                
 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod', '@canChangeSamplePrepMethod')}"/>
-	                 <mx:DataGridColumn headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected}" width="120"   dataField="@idSampleType" 
+	                 <mx:DataGridColumn id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="120"   dataField="@idSampleType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType', true)}"                 
 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType', '@canChangeSampleType', true)}"/>
@@ -607,6 +616,21 @@
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{ComboBoxWorkflowStatus.create('@qualStatus')}"/>
+
+	                <mx:DataGridColumn id="seqPrepQualBioanalyzerMethodCol" visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Lib Prep Bioanal Meth" width="100" dataField="@seqPrepQualCodeBioanalyzerChipType" 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+ 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType', true)}"                
+ 	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
+					<mx:DataGridColumn id="seqPrepQualFragmentSizeFromCol"  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Lib Size From" width="100" editorDataField="text" dataField="@seqPrepQualFragmentSizeFrom" rendererIsEditor="false"
+ 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepQualFragmentSizeFrom')}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepQualFragmentSizeFrom', '@canChangeSampleType')}"      />          
+					<mx:DataGridColumn id="seqPrepQualFragmentSizeToCol" headerText="Seq Prep Lib Size To"  visible="{showSeqPrepFieldsCheckBox.selected}"  width="100" editorDataField="text" dataField="@seqPrepQualFragmentSizeTo"  rendererIsEditor="false"
+ 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepQualFragmentSizeTo')}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepQualFragmentSizeTo', '@canChangeSampleType')}"      />          
+					<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
+   	                   itemEditor="{ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>
+
 					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"/>
 					<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="{parentDocument.request.@CELLLINE == 'Y'}"/>
 					<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="{parentDocument.request.@CELLTYPE == 'Y'}"/>
