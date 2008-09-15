@@ -34,7 +34,8 @@ public class WorkItemFilter extends DetailObject {
     
     if(this.codeStepNext.equals(Step.QUALITY_CONTROL_STEP) ||
        this.codeStepNext.equals(Step.SEQ_QC) ||
-       this.codeStepNext.equals(Step.SEQ_PREP)) {
+       this.codeStepNext.equals(Step.SEQ_PREP) ||
+       this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       return getQuery(this.SAMPLE_LEVEL);
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
       return getQuery(this.LABELED_SAMPLE_LEVEL);
@@ -148,7 +149,17 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.seqPrepLibConcentration, ");
       queryBuf.append("    s.seqPrepQualCodeBioanalyzerChipType, ");
       queryBuf.append("    s.seqPrepQualFragmentSizeFrom, ");
-      queryBuf.append("    s.seqPrepQualFragmentSizeTo ");
+      queryBuf.append("    s.seqPrepQualFragmentSizeTo, ");
+      queryBuf.append("    s.seqPrepDate, ");
+      queryBuf.append("    s.seqPrepFailed, ");
+      queryBuf.append("    s.seqPrepBypassed ");
+    }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
+      queryBuf.append("      , ");
+      queryBuf.append("    s.seqPrepStockLibVol, ");
+      queryBuf.append("    s.seqPrepStockEBVol, ");
+      queryBuf.append("    s.seqPrepStockDate, ");
+      queryBuf.append("    s.seqPrepStockFailed, ");
+      queryBuf.append("    s.seqPrepStockBypassed ");
     }  else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
       queryBuf.append("      , ");
       queryBuf.append("    l.idSequenceLane, ");

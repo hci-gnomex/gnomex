@@ -55,6 +55,11 @@ public class Sample extends HibernateDetailObject {
   private String      seqPrepQualCodeBioanalyzerChipType;
   private Integer     seqPrepQualFragmentSizeFrom;
   private Integer     seqPrepQualFragmentSizeTo;
+  private BigDecimal  seqPrepStockLibVol;
+  private BigDecimal  seqPrepStockEBVol;
+  private Date        seqPrepStockDate;
+  private String      seqPrepStockFailed;
+  private String      seqPrepStockBypassed;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -478,6 +483,56 @@ public class Sample extends HibernateDetailObject {
   
   public void setSeqPrepQualFragmentSizeTo(Integer seqPrepQualFragmentSizeTo) {
     this.seqPrepQualFragmentSizeTo = seqPrepQualFragmentSizeTo;
+  }
+
+  
+  public BigDecimal getSeqPrepStockLibVol() {
+    return seqPrepStockLibVol;
+  }
+
+  
+  public void setSeqPrepStockLibVol(BigDecimal seqPrepStockLibVol) {
+    this.seqPrepStockLibVol = seqPrepStockLibVol;
+  }
+
+  
+  public BigDecimal getSeqPrepStockEBVol() {
+    return seqPrepStockEBVol;
+  }
+
+  
+  public void setSeqPrepStockEBVol(BigDecimal seqPrepStockEBVol) {
+    this.seqPrepStockEBVol = seqPrepStockEBVol;
+  }
+
+  
+  public Date getSeqPrepStockDate() {
+    return seqPrepStockDate;
+  }
+
+  
+  public void setSeqPrepStockDate(Date seqPrepStockDate) {
+    this.seqPrepStockDate = seqPrepStockDate;
+  }
+
+  
+  public String getSeqPrepStockFailed() {
+    return seqPrepStockFailed;
+  }
+
+  
+  public void setSeqPrepStockFailed(String seqPrepStockFailed) {
+    this.seqPrepStockFailed = seqPrepStockFailed;
+  }
+
+  
+  public String getSeqPrepStockBypassed() {
+    return seqPrepStockBypassed;
+  }
+
+  
+  public void setSeqPrepStockBypassed(String seqPrepStockBypassed) {
+    this.seqPrepStockBypassed = seqPrepStockBypassed;
   }
 
 

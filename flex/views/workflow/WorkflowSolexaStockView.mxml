@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Solexa Sample Prep"  
+<mx:Panel label="Solexa Quality Control"  
 	xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
 	width="100%" height="100%" 
-	title="Solexa Sample Prep" 
+	title="Solexa Create Flow Cell Stock" 
 	borderThicknessTop="2">
 	
 	<mx:HTTPService 
@@ -17,13 +17,13 @@
     fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>SEQPREP</codeStepNext>
+        <codeStepNext>SEQSTOCK</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
     <mx:HTTPService 
     id="saveWorkItem" 
-    url="SaveWorkItemSolexaPrep.gx"
+    url="SaveWorkItemSolexaStock.gx"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveWorkItem(event)"
@@ -50,7 +50,8 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
-        import views.renderers.ComboBox;
+        import views.renderers.ComboBoxWorkflowStatus;
+        import hci.flex.renderers.LabelDictionary;
         import hci.flex.renderers.ComboBoxDictionary;
         
         [Bindable]
@@ -87,77 +88,15 @@
         		return "";
         	}
         }
+		
                 
         public function onEdit():void {
         	workList.filterFunction = null;
 	    	workListGrid.selectedItem.@isDirty = "Y";
         }
         
-        private function validate():Boolean {
-        	var message:String = "";
-        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
-        	
-    		var nv:NumberValidator = new NumberValidator();
-	    	nv.domain = "real";
-	    	nv.minValue = "0";
-	    	nv.maxValue = "99999";
-	    	nv.precision = 3;
-	    	nv.allowNegative = false;
-	    	nv.exceedsMaxError = "exceeds max.";
-	    	nv.invalidCharError = "contains invalid characters.";
-	    	nv.negativeError = "cannot be negative.";
-	    	nv.precisionError = "has too many digits beyond the decimal point";
-        	
-        	var item:Object = null;
-        	var vr:ValidationResultEvent  = null;
-		    
-		    nv.domain = "integer";
-		    nv.precision = 0;
-        	for each (item in dirtyItems) {
-		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepLibConcentration);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nLibrary Concentration - " + item.@seqPrepLibConcentration + " " + vr.message;
-		    		break;
-		    	}
-	    	}         	
 
-	    	nv.domain = "integer";
-	    	nv.precision = 0;
-        	for each (item in dirtyItems) {
-		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepQualFragmentSizeFrom);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nFragment Size (from) - " + item.@seqPrepQualFragmentSizeFrom + " " + vr.message;
-		    		break;
-		    	}
-	    	}         	
-        	
-	    	nv.domain = "integer";
-	    	nv.precision = 0;
-        	for each (item in dirtyItems) {
-		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepQualFragmentSizeTo);
-		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nFragment Size (to) - " + item.@seqPrepQualFragmentSizeTo + " " + vr.message;
-		    		break;
-		    	}
-	    	}  
-	    	       	
-        	if (message != "") {
-	    		Alert.show(message);
-	    		return false;
-	    	} else {
-	    		return true;
-	    	}
-        	
-	   		return true;
-        }
-        
         private function save():void {
-        	if (validate() == false) {
-        		return;
-        	}
         	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItem.send();
@@ -169,7 +108,8 @@
 	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
         	} else {
         		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
-        	}        
+        	}
+        	
         }
         
         private function onSaveWorkItem(event:ResultEvent):void {
@@ -225,22 +165,15 @@
     	{ 
     		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
     	}  
-           
-		private function getBioanalyzerChipType(item:Object,col:DataGridColumn):String
-        {
-        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@seqPrepQualCodeBioanalyzerChipType);
-        }
-		private function getSamplePrepMethod(item:Object,col:DataGridColumn):String
-        {
-        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SamplePrepMethod", item.@idSamplePrepMethod);
-        }
+    	
+
         ]]>
     </mx:Script> 
     
    
     <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
             <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalAlign="bottom">
-                <mx:Image source="{parentApplication.iconSamplePrep}"/>
+                <mx:Image source="{parentApplication.iconFlask}"/>
                 <mx:Label text="{requestNumberCount}"/>
             	<mx:HBox width="100%" horizontalAlign="right"  verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
@@ -253,75 +186,21 @@
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 	
-			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
+			<util:DataGridAlternatingGroup height="100%"   id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
-					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
-	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@idAppUser" labelFunction="lookupUserName"/>
-					<mx:DataGridColumn editable="false" width="9" dataField="@seqPrepByCore">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Prepped"/>
-							    <mx:Label text="by Core?"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
+					<mx:DataGridColumn editable="false"   headerText="" width="3"  labelFunction="getGridRowNumber"/>
+	                <mx:DataGridColumn editable="false" headerText="Sample  #" width="8" dataField="@sampleNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Client"  width="15" dataField="@idAppUser" labelFunction="lookupUserName"/>
+					<mx:DataGridColumn editable="false" headerText="Library vol (ul)" width="10" dataField="@seqPrepStockLibVol">
 					</mx:DataGridColumn>
-					<mx:DataGridColumn editable="false" headerText="Libarary kit"  width="20" dataField="@idSamplePrepMethod" labelFunction="getSamplePrepMethod" />		                
-					<mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Lib conc."/>
-							    <mx:Label text="ng/uL"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
+					<mx:DataGridColumn editable="false" headerText="EB vol (ul)" width="10" dataField="@seqPrepStockEBVol">
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="12" dataField="@seqPrepQualCodeBioanalyzerChipType"
-						labelFunction="getBioanalyzerChipType" 
-		               editorDataField="value"
-		               editable="true"  
-		               rendererIsEditor="false" 
-		               itemRenderer="mx.controls.Label"		                
-		               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}">		                
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Bioanalyzer"/>
-							    <mx:Label text="method"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Frag size (from)" width="11" dataField="@seqPrepQualFragmentSizeFrom">
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Frag size"/>
-							    <mx:Label text="(from)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Frag size (to)" width="11" dataField="@seqPrepQualFragmentSizeTo"> 
-						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Frag size"/>
-							    <mx:Label text="(to)"/>
-							</mx:VBox>
-						</mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-
-	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
-	                	editorDataField="value" 
-	                   rendererIsEditor="false"
+	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@seqPrepStockStatus" 
+	                	editorDataField="value"
+	                   rendererIsEditor="false" 
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>			                
-
+ 	                   itemEditor="{ComboBoxWorkflowStatus.create('@seqPrepStockStatus')}"/>			                
+ 					<mx:DataGridColumn headerText="" width="0" visible="false"/>
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

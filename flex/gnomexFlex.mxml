@@ -191,6 +191,10 @@
 	        [Bindable]
 	        [Embed(source="assets/folder.png")]
 	        public var iconFolder:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/flask.png")]
+	        public var iconFlask:Class;
 	
 	        [Bindable]
 	        [Embed(source="assets/microarray_black.png")]

@@ -396,6 +396,11 @@
 		<property name="seqPrepQualCodeBioanalyzerChipType" column="seqPrepQualCodeBioanalyzerChipType" type="string"/>
 		<property name="seqPrepQualFragmentSizeFrom" column="seqPrepQualFragmentSizeFrom" type="integer"/>
 		<property name="seqPrepQualFragmentSizeTo" column="seqPrepQualFragmentSizeTo" type="integer"/>
+		<property name="seqPrepStockDate" column="seqPrepStockDate" type="date"/>
+		<property name="seqPrepStockFailed" column="seqPrepStockFailed" type="string"/>
+		<property name="seqPrepStockBypassed" column="seqPrepStockBypassed" type="string"/>
+		<property name="seqPrepStockLibVol" column="seqPrepStockLibVol" type="big_decimal"/>
+		<property name="seqPrepStockEBVol" column="seqPrepStockEBVol" type="big_decimal"/>
 		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />
