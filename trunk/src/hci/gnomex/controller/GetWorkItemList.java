@@ -57,6 +57,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         Comparator comparator = null;
         if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
             filter.getCodeStepNext().equals(Step.SEQ_QC) ||
+            filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK) ||
             filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
@@ -85,7 +86,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           String key = null;
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC) ||
-              filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
+              filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
+              filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
             Integer idLabel         = row[16] == null || row[16].equals("") ? null : (Integer)row[16];
@@ -236,6 +238,37 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[16] == null ? "" :  (String)row[16]);
             n.setAttribute("seqPrepQualFragmentSizeFrom",       row[17] == null ? "" :  ((Integer)row[17]).toString());
             n.setAttribute("seqPrepQualFragmentSizeTo",         row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("seqPrepDate",                       row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
+            n.setAttribute("seqPrepFailed",                     row[20] == null ? "" :  (String)row[20]);
+            n.setAttribute("seqPrepBypassed",                   row[21] == null ? "" :  (String)row[21]);
+            
+
+            String seqPrepStatus = "";
+            if (!n.getAttributeValue("seqPrepDate").equals("")) {
+              seqPrepStatus = Constants.STATUS_COMPLETED;
+            } else if (n.getAttributeValue("seqPrepFailed").equals("Y")) {
+              seqPrepStatus = Constants.STATUS_TERMINATED;
+            } else if (n.getAttributeValue("seqPrepBypassed").equals("Y")) {
+              seqPrepStatus = Constants.STATUS_BYPASSED;
+            }
+            n.setAttribute("seqPrepStatus", seqPrepStatus);
+          
+          }   else if (filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
+            n.setAttribute("seqPrepStockLibVol",         row[13] == null ? "" :  ((BigDecimal)row[13]).toString());
+            n.setAttribute("seqPrepStockEBVol",          row[14] == null ? "" :  ((BigDecimal)row[14]).toString());
+            n.setAttribute("seqPrepStockDate",           row[15] == null ? "" :  this.formatDate((java.sql.Date)row[15]));
+            n.setAttribute("seqPrepStockFailed",         row[16] == null ? "" :  (String)row[16]);
+            n.setAttribute("seqPrepStockBypassed",       row[17] == null ? "" :  (String)row[17]);
+
+            String seqPrepStockStatus = "";
+            if (!n.getAttributeValue("seqPrepStockDate").equals("")) {
+              seqPrepStockStatus = Constants.STATUS_COMPLETED;
+            } else if (n.getAttributeValue("seqPrepStockFailed").equals("Y")) {
+              seqPrepStockStatus = Constants.STATUS_TERMINATED;
+            } else if (n.getAttributeValue("seqPrepStockBypassed").equals("Y")) {
+              seqPrepStockStatus = Constants.STATUS_BYPASSED;
+            }
+            n.setAttribute("seqPrepStockStatus", seqPrepStockStatus);
           
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
             n.setAttribute("idSequenceLane",               row[13] == null ? "" :  ((Integer)row[13]).toString());
@@ -394,24 +427,52 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       String[] tokens1 = key1.split(",");
       String[] tokens2 = key2.split(",");
       
+      
+      
       String reqNumber1    = tokens1[0];
       String itemNumber1 = tokens1[1];
       
       String reqNumber2    = tokens2[0];
       String itemNumber2 = tokens2[1];
 
-      String[] itemNumberTokens1 = itemNumber1.split("L");
-      String number1 = itemNumberTokens1[itemNumberTokens1.length - 1];
-
-      String[] itemNumberTokens2 = itemNumber2.split("L");
-      String number2 = itemNumberTokens2[itemNumberTokens2.length - 1];
-
-      if (reqNumber1.equals(reqNumber2)) {
-        return new Integer(number1).compareTo(new Integer(number2));        
-      } else {
-        return reqNumber1.compareTo(reqNumber2);
-      }
+     
       
+      String sampleNumber1;
+      String seqNumber1 = "";
+      // Deal with old (ex. 6142L1) and new (ex. 6142F1_1) naming scheme
+      if (itemNumber1.indexOf("F") >= 0) {
+        String[] tokens        = itemNumber1.split("F");
+        String number1         = tokens[tokens.length - 1];
+        String[] numberTokens  = number1.split("_");
+        sampleNumber1          = numberTokens[0];
+        seqNumber1             = numberTokens[1];        
+      } else {
+        String[] tokens        = itemNumber1.split("L");
+        sampleNumber1          = tokens[tokens.length - 1];
+        seqNumber1 = "-1";
+      }
+
+      String sampleNumber2;
+      String seqNumber2 = "";
+      if (itemNumber2.indexOf("F") >= 0) {
+        String[] tokens        = itemNumber2.split("F");
+        String number2         = tokens[tokens.length - 1];
+        String[] numberTokens  = number2.split("_");
+        sampleNumber2          = numberTokens[0];
+        seqNumber2             = numberTokens[1];        
+      } else {
+        String[] tokens        = itemNumber2.split("L");
+        sampleNumber2          = tokens[tokens.length - 1];
+        seqNumber2 = "-1";
+      }
+
+
+      
+      if (sampleNumber1.equals(sampleNumber2)) {
+        return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+      } else {
+        return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
+      }      
     }
   }  
   public static class  FlowCellComparator implements Comparator, Serializable {

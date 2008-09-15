@@ -10,13 +10,10 @@ import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MolarityCalculator;
-import hci.gnomex.utility.WorkItemQualityControlParser;
-import hci.gnomex.utility.WorkItemSolexaPrepParser;
+import hci.gnomex.utility.WorkItemSolexaStockParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,16 +30,16 @@ import org.jdom.output.XMLOutputter;
 
 
 
-public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializable {
+public class SaveWorkItemSolexaStock extends GNomExCommand implements Serializable {
   
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaPrep.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaStock.class);
   
   private String                       workItemXMLString;
   private Document                     workItemDoc;
-  private WorkItemSolexaPrepParser     parser;
+  private WorkItemSolexaStockParser    parser;
   
   private String                       appURL;
   
@@ -65,7 +62,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
-        parser = new WorkItemSolexaPrepParser(workItemDoc);
+        parser = new WorkItemSolexaStockParser(workItemDoc);
       } catch (JDOMException je ) {
         log.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
@@ -96,36 +93,33 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
             
             
-            
-            // If Solexa sample prep is done or bypassed for this sample, create work items for Solexa stock prep
-            // for the sample
-            if (sample.getSeqPrepDate() != null || 
-                (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
+            // If Solexa sample stock prep is done or bypassed for this sample, create work items for each sequence lane of
+            // sample for work item (Solexa assemble flow cell).
+            if (sample.getSeqPrepStockDate() != null || 
+                (sample.getSeqPrepStockBypassed() != null && sample.getSeqPrepStockBypassed().equalsIgnoreCase("Y"))) {
 
-                // Calculate the molarity, desired vol of lib stock, and desired vol of EB
-                double averageFragmentSize = (sample.getSeqPrepQualFragmentSizeFrom().doubleValue() + sample.getSeqPrepQualFragmentSizeTo().doubleValue()) / 2;
-                double molarity = MolarityCalculator.calculateConcentrationInnM(sample.getSeqPrepLibConcentration().doubleValue(), averageFragmentSize);
-                double soluteVol = MolarityCalculator.calculateDilutionVol(molarity, 10, 100);
-                double solventVol = 100 - soluteVol;
-                sample.setSeqPrepStockLibVol(new BigDecimal(soluteVol).setScale(3, BigDecimal.ROUND_HALF_DOWN));
-                sample.setSeqPrepStockEBVol(new BigDecimal(solventVol).setScale(3, BigDecimal.ROUND_HALF_DOWN));
-              
-                // Create a work item
-                WorkItem wi = new WorkItem();
-                wi.setIdRequest(sample.getIdRequest());
-                wi.setCodeStepNext(Step.SEQ_FLOWCELL_STOCK);
-                wi.setSample(sample);
-                wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-                sess.save(wi);
+              Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
+
+              for(Iterator i1 = request.getSequenceLanes().iterator(); i1.hasNext();) {
+                SequenceLane lane = (SequenceLane)i1.next();
                 
-                
+                if (lane.getIdSample().equals(sample.getIdSample())) {
+                  WorkItem wi = new WorkItem();
+                  wi.setIdRequest(sample.getIdRequest());
+                  wi.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
+                  wi.setSequenceLane(lane);
+                  wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+                  sess.save(wi);
+                }
+              }
+
             }
             
             
             // If Solexa sample prep is done or failed for this sample, delete the work item
-            if (sample.getSeqPrepDate() != null || 
-              (sample.getSeqPrepFailed() != null && sample.getSeqPrepFailed().equalsIgnoreCase("Y")) ||
-              (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
+            if (sample.getSeqPrepStockDate() != null || 
+              (sample.getSeqPrepStockFailed() != null && sample.getSeqPrepStockFailed().equalsIgnoreCase("Y")) ||
+              (sample.getSeqPrepStockBypassed() != null && sample.getSeqPrepStockBypassed().equalsIgnoreCase("Y"))) {
             
               // Delete  work item
               sess.delete(workItem);
@@ -149,7 +143,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowQualityControl ", e);
+        log.error("An exception has occurred in SaveWorkItemSolexaPrepStock ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           

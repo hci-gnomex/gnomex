@@ -22,7 +22,7 @@ import java.util.Comparator;
       } else {
         String[] tokens = l1.getNumber().split("L");
         sampleNumber1          = tokens[tokens.length - 1];
-        seqNumber1 = "";
+        seqNumber1 = "-1";
       }
 
       String sampleNumber2;
@@ -36,7 +36,7 @@ import java.util.Comparator;
       } else {
         String[] tokens        = l2.getNumber().split("L");
         sampleNumber2          = tokens[tokens.length - 1];
-        seqNumber2 = "";
+        seqNumber2 = "-1";
       }
 
 
