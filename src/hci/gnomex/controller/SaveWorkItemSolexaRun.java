@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
@@ -95,20 +96,20 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
           
           for (Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem) i.next();
-            FlowCell flowCell = (FlowCell) parser.getFlowCell(workItem.getIdWorkItem());
+            FlowCellChannel channel = (FlowCellChannel) parser.getFlowCellChannel(workItem.getIdWorkItem());
 
             // If first cycle failed or last cycle is done or failed, delete the work item
-            if ((flowCell.getFirstCycleFailed() != null && flowCell.getFirstCycleFailed().equals("Y")) ||
-                flowCell.getLastCycleDate() != null ||
-                (flowCell.getLastCycleFailed() != null && flowCell.getLastCycleFailed().equals("Y"))) {
+            if ((channel.getFirstCycleFailed() != null && channel.getFirstCycleFailed().equals("Y")) ||
+                channel.getLastCycleDate() != null ||
+                (channel.getLastCycleFailed() != null && channel.getLastCycleFailed().equals("Y"))) {
 
               // Delete work item
               sess.delete(workItem);
             }
             
             // Check to see if all of the sequence lanes for each request have been completed.
-            for(Iterator i1 = flowCell.getSequenceLanes().iterator(); i1.hasNext();) {
-              SequenceLane lane = (SequenceLane)i1.next();
+            if (channel.getSequenceLane() != null) {
+              SequenceLane lane = channel.getSequenceLane();
               
               Request request = (Request)sess.load(Request.class, lane.getIdRequest());
 

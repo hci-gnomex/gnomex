@@ -3,14 +3,14 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.Sample;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FlowCellLaneComparator;
+import hci.gnomex.utility.FlowCellChannelComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.WorkItemSolexaAssembleParser;
 
@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -105,41 +104,66 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
           flowCell.setNumber("FC" + flowCell.getIdFlowCell());
           flowCell.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
           
-          TreeSet flowCellLanes = new TreeSet(new FlowCellLaneComparator());
+          TreeSet channels = new TreeSet(new FlowCellChannelComparator());
           int laneNumber = 1;
-          Integer idNumberSequencingCycles = null;
           HashMap requestNumbers = new HashMap();
           HashMap idOrganisms = new HashMap();
           int maxCycles = 0;
-          for(Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
-            WorkItem workItem = (WorkItem)i.next();
-            SequenceLane lane = (SequenceLane)parser.getSequenceLane(workItem.getIdWorkItem());
-            lane.setIdFlowCell(flowCell.getIdFlowCell());
-            lane.setFlowCellLaneNumber(new Integer(laneNumber));
-            
-            
-            flowCell.setIdFlowCellType(lane.getIdFlowCellType());
-            Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
-            if (idNumberSequencingCycles == null ||
-                seqCycles.intValue() > maxCycles ) {
-              idNumberSequencingCycles = lane.getIdNumberSequencingCycles();
-              maxCycles = seqCycles.intValue();
-            }
-            requestNumbers.put(workItem.getRequest().getNumber(), null);
-            idOrganisms.put(lane.getSample().getIdOrganism(), null);
-            
-            sess.save(lane);
-            
-            flowCellLanes.add(lane);
+          Integer idNumberSequencingCycles = null;
+          for(Iterator i = parser.getFlowCellChannelContents().iterator(); i.hasNext();) {
+            Object content = i.next();
 
-            // Delete  work item
-            sess.delete(workItem);
+            FlowCellChannel channel = new FlowCellChannel();
+            channel.setNumber(new Integer(laneNumber));
+            channel.setIdFlowCell(flowCell.getIdFlowCell());
+            sess.save(channel);
+            sess.flush();
+
+            if (content instanceof SequenceLane) {
+              SequenceLane lane = (SequenceLane)content;
+              channel.setIdSequenceLane(lane.getIdSequenceLane());              
+
+              lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());
+              
+              flowCell.setIdFlowCellType(lane.getIdFlowCellType());
+              
+              Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
+            	if (idNumberSequencingCycles == null ||
+                	seqCycles.intValue() > maxCycles ) {
+              	idNumberSequencingCycles = lane.getIdNumberSequencingCycles();
+              	maxCycles = seqCycles.intValue();
+            	}
+              
+              
+              // Delete  work item
+              WorkItem workItem = parser.getWorkItem(lane.getIdSequenceLane());
+              sess.delete(workItem);
+              
+              
+              
+              
+            } else if (content instanceof SequencingControl) {
+              channel.setIdSequencingControl(((SequencingControl)content).getIdSequencingControl());              
+            }
+
+            // Create a work item for each channel
+            WorkItem wi = new WorkItem();
+            wi.setFlowCellChannel(channel);
+            wi.setCodeStepNext(Step.SEQ_RUN);
+            wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+            sess.save(wi);
+
+            sess.flush();
+            
+            
+            channels.add(channel);
+
             
             laneNumber++;
                         
           }
           flowCell.setIdNumberSequencingCycles(idNumberSequencingCycles);
-          flowCell.setSequenceLanes(flowCellLanes);
+          flowCell.setFlowCellChannels(channels);
           
           String notes = "";
           for(Iterator i = requestNumbers.keySet().iterator(); i.hasNext();) {
@@ -165,13 +189,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
           }
           
           sess.save(flowCell);
-          
-          // Create a work item for Solexa Sequencing
-          WorkItem wi = new WorkItem();
-          wi.setFlowCell(flowCell);
-          wi.setCodeStepNext(Step.SEQ_RUN);
-          wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-          sess.save(wi);
           
           
           sess.flush();

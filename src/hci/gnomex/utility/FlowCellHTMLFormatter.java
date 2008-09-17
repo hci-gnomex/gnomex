@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.SequenceLane;
 
 import java.util.Iterator;
@@ -35,21 +36,21 @@ public class FlowCellHTMLFormatter {
   }
   
   
-  public Element makeLaneTable(Set lanes) {
+  public Element makeFlowCellChannelTable(Set channels) {
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
     table.setAttribute("CELLPADDING", "0");
     table.setAttribute("CELLSPACING", "0");
  
     Element caption = new Element("CAPTION");
-    caption.addContent("Sequence Lanes");
+    caption.addContent("Flow Cell Channels");
     table.addContent(caption);
     
     
     Element rowh = new Element("TR");
     table.addContent(rowh);
-    this.addHeaderCell(rowh, "Lane #", "left");
-    this.addHeaderCell(rowh, "Sample #"    );
+    this.addHeaderCell(rowh, "Channel #", "left");
+    this.addHeaderCell(rowh, "Sequence Sample #"    );
     this.addHeaderCell(rowh, "Flow Cell Type");
     this.addHeaderCell(rowh, "# Cycles Requested");
     this.addHeaderCell(rowh, "Organism"    );
@@ -61,32 +62,44 @@ public class FlowCellHTMLFormatter {
     
     
     
-    for(Iterator i = lanes.iterator(); i.hasNext();) {
-      SequenceLane lane = (SequenceLane)i.next();
+    for(Iterator i = channels.iterator(); i.hasNext();) {
+      FlowCellChannel channel = (FlowCellChannel)i.next();
+      
       
       Element row = new Element("TR");
       table.addContent(row);
+      this.addLeftCell(row, channel.getNumber().toString());
+      this.addCell(row, channel.getContentNumber());
       
       String fragmentSize = "";
-      if (lane.getFragmentSizeFrom() != null) {
-        fragmentSize += lane.getFragmentSizeFrom() + "-";
-      } else {
-        fragmentSize += "?-";
-      }
-      if (lane.getFragmentSizeTo() != null) {
-        fragmentSize += lane.getFragmentSizeTo();
-      } else {
-        fragmentSize += "?";
-      }
-      
+      if (channel.getSequenceLane() != null) {
+        SequenceLane lane = channel.getSequenceLane();
+        
+        if (lane.getFragmentSizeFrom() != null) {
+          fragmentSize += lane.getFragmentSizeFrom() + "-";
+        } else {
+          fragmentSize += "?-";
+        }
+        if (lane.getFragmentSizeTo() != null) {
+          fragmentSize += lane.getFragmentSizeTo();
+        } else {
+          fragmentSize += "?";
+        }
+        
 
-      this.addLeftCell(row, lane.getNumber());
-      this.addCell(row, lane.getSample() != null ? lane.getSample().getNumber() : "&nbsp;");
-      this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
-      this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
-      this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
-      this.addCell(row, fragmentSize);
-      this.addCell(row, lane.getCalcConcentration() != null  ? lane.getCalcConcentration().toString() : "&nbsp;");
+        this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
+        this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+        this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
+        this.addCell(row, fragmentSize);
+        this.addCell(row, lane.getCalcConcentration() != null  ? lane.getCalcConcentration().toString() : "&nbsp;");
+        
+      } else {
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+      }
     }
     
     return table;

@@ -71,7 +71,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     }
     
     if (!lanes.isEmpty()) {
-      center1.addContent(formatter.makeLaneTable(lanes));          
+      center1.addContent(formatter.makeSequenceLaneTable(lanes));          
     }
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();

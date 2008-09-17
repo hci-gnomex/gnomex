@@ -124,8 +124,8 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
             Element center2 = new Element("CENTER");
             body.addContent(center2);
             
-            if (!flowCell.getSequenceLanes().isEmpty()) {
-              center2.addContent(formatter.makeLaneTable(flowCell.getSequenceLanes()));          
+            if (!flowCell.getFlowCellChannels().isEmpty()) {
+              center2.addContent(formatter.makeFlowCellChannelTable(flowCell.getFlowCellChannels()));          
             }
 
             

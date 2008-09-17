@@ -169,16 +169,33 @@
 		<property name="notes" column="notes" type="string"/>
 		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
+		<property name="barcode" column="barcode" type="string"/>
+		<set name="flowCellChannels" table="flowCellChannels" lazy="false" cascade="none" sort="hci.gnomex.utility.FlowCellChannelComparator">
+			<key column="idFlowCell"/>
+			<one-to-many class="hci.gnomex.model.FlowCellChannel" />
+		</set>
+	</class>	   
+
+	<!-- hci.gnomex.model.FlowCellChannel -->
+	<class name="hci.gnomex.model.FlowCellChannel" table="FlowCellChannel">
+		<id name="idFlowCellChannel" column="idFlowCellChannel" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="number" column="number" type="int"/>
+		<property name="idFlowCell" column="idFlowCell" type="integer"/>
+		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none" insert="false" update="false" />
+		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none" insert="false" update="false" />
+		<property name="idSequenceLane" column="idSequenceLane" type="integer"/>
+		<many-to-one name="sequencingControl" column="idSequencingControl" class="hci.gnomex.model.SequencingControl" cascade="none" insert="false" update="false" />
+		<property name="idSequencingControl" column="idSequencingControl" type="integer"/>
+		<property name="numberSequencingCyclesActual" column="numberSequencingCyclesActual" type="integer"/>
+		<property name="clustersPerTile" column="clustersPerTile" type="integer"/>
+		<property name="fileName" column="fileName" type="string"/>
 		<property name="firstCycleDate" column="firstCycleDate" type="date"/>
 		<property name="firstCycleFailed" column="firstCycleFailed" type="string"/>
 		<property name="lastCycleDate" column="lastCycleDate" type="date"/>
 		<property name="lastCycleFailed" column="lastCycleFailed" type="string"/>
-		<property name="barcode" column="barcode" type="string"/>
 		<property name="startDate" column="startDate" type="date"/>
-		<set name="sequenceLanes" table="SequenceLane" lazy="false" cascade="none" sort="hci.gnomex.utility.FlowCellLaneComparator">
-			<key column="idFlowCell"/>
-			<one-to-many class="hci.gnomex.model.SequenceLane" />
-		</set>
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->
@@ -436,13 +453,12 @@
 		<property name="idSample" column="idSample" type="integer"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
 		<property name="idRequest" column="idRequest" type="integer"/>
-		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none" insert="false" update="false" />
 		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
 		<property name="idGenomeBuildAlignTo" column="idGenomeBuildAlignTo" type="integer"/>
 		<property name="analysisInstructions" column="analysisInstructions" type="string"/>
-		<property name="idFlowCell" column="idFlowCell" type="integer"/>
-		<property name="flowCellLaneNumber" column="flowCellLaneNumber" type="integer"/>
+		<property name="idFlowCellChannel" column="idFlowCellChannel" type="integer"/>
+		<many-to-one name="flowCellChannel" column="idFlowCellChannel" class="hci.gnomex.model.FlowCellChannel" cascade="none" insert="false" update="false" />
 		
 	</class>	
 	
@@ -479,7 +495,7 @@
 		<many-to-one name="labeledSample" column="idLabeledSample" class="hci.gnomex.model.LabeledSample" cascade="none"/>
 		<many-to-one name="hybridization" column="idHybridization" class="hci.gnomex.model.Hybridization" cascade="none"/>
 		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none"/>
-		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none"/>
+		<many-to-one name="flowCellChannel" column="idFlowCellChannel" class="hci.gnomex.model.FlowCellChannel" cascade="none"/>
 	</class>
     
 <!--                       -->
@@ -849,6 +865,17 @@
 		<property name="url" column="url" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
+
+	<!-- hci.gnomex.model.SequencingControl -->
+	<class name="hci.gnomex.model.SequencingControl" table="SequencingControl">
+		<id name="idSequencingControl" column="idSequencingControl" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="sequencingControl" column="sequencingControl" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="idAppUser" column="idAppUser" type="integer"/>
+	</class>
+
 	
 	<!-- hci.gnomex.model.SlideDesign -->
 	<class name="hci.gnomex.model.SlideDesign" table="SlideDesign">

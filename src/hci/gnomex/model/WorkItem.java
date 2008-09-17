@@ -10,16 +10,16 @@ import hci.hibernate3utils.HibernateDetailObject;
 
 public class WorkItem extends HibernateDetailObject {
   
-  private Integer        idWorkItem;
-  private String         codeStepNext;
-  private Date           createDate;
-  private Integer        idRequest;
-  private Request        request;
-  private Sample         sample;
-  private LabeledSample  labeledSample;
-  private Hybridization  hybridization;
-  private SequenceLane   sequenceLane;
-  private FlowCell       flowCell;
+  private Integer         idWorkItem;
+  private String          codeStepNext;
+  private Date            createDate;
+  private Integer         idRequest;
+  private Request         request;
+  private Sample          sample;
+  private LabeledSample   labeledSample;
+  private Hybridization   hybridization;
+  private SequenceLane    sequenceLane;
+  private FlowCellChannel flowCellChannel;
   
  
   public String getCodeStepNext() {
@@ -101,16 +101,6 @@ public class WorkItem extends HibernateDetailObject {
   }
 
   
-  public FlowCell getFlowCell() {
-    return flowCell;
-  }
-
-  
-  public void setFlowCell(FlowCell flowCell) {
-    this.flowCell = flowCell;
-  }
-
-  
   public Request getRequest() {
     return request;
   }
@@ -118,5 +108,15 @@ public class WorkItem extends HibernateDetailObject {
   
   public void setRequest(Request request) {
     this.request = request;
+  }
+
+  
+  public FlowCellChannel getFlowCellChannel() {
+    return flowCellChannel;
+  }
+
+  
+  public void setFlowCellChannel(FlowCellChannel flowCellChannel) {
+    this.flowCellChannel = flowCellChannel;
   }
 }

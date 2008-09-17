@@ -9,19 +9,14 @@ import java.sql.Date;
 
 public class FlowCell extends HibernateDetailObject {
   
-  private String  number;
-  private Date    createDate;
-  private String  notes;
-  private Integer idFlowCell;
-  private Integer idFlowCellType;
-  private Integer idNumberSequencingCycles;
-  private Date    startDate;
-  private Date    firstCycleDate;
-  private String  firstCycleFailed;
-  private Date    lastCycleDate;
-  private String  lastCycleFailed;
-  private String  barcode;
-  private Set     sequenceLanes = new TreeSet();
+  private String   number;
+  private Date     createDate;
+  private String   notes;
+  private Integer  idFlowCell;
+  private Integer  idFlowCellType;
+  private Integer  idNumberSequencingCycles;
+  private String   barcode;
+  private Set      flowCellChannels = new TreeSet();
   
   public Integer getIdFlowCell() {
     return idFlowCell;
@@ -47,14 +42,6 @@ public class FlowCell extends HibernateDetailObject {
     this.idNumberSequencingCycles = idNumberSequencingCycles;
   }
   
-  public Set getSequenceLanes() {
-    return sequenceLanes;
-  }
-  
-  public void setSequenceLanes(Set sequenceLanes) {
-    this.sequenceLanes = sequenceLanes;
-  }
-
   
   public String getNumber() {
     return number;
@@ -86,46 +73,6 @@ public class FlowCell extends HibernateDetailObject {
   }
 
   
-  public Date getFirstCycleDate() {
-    return firstCycleDate;
-  }
-
-  
-  public void setFirstCycleDate(Date firstCycleDate) {
-    this.firstCycleDate = firstCycleDate;
-  }
-
-  
-  public String getFirstCycleFailed() {
-    return firstCycleFailed;
-  }
-
-  
-  public void setFirstCycleFailed(String firstCycleFailed) {
-    this.firstCycleFailed = firstCycleFailed;
-  }
-
-  
-  public Date getLastCycleDate() {
-    return lastCycleDate;
-  }
-
-  
-  public void setLastCycleDate(Date lastCycleDate) {
-    this.lastCycleDate = lastCycleDate;
-  }
-
-
-  
-  public String getLastCycleFailed() {
-    return lastCycleFailed;
-  }
-
-  
-  public void setLastCycleFailed(String lastCycleFailed) {
-    this.lastCycleFailed = lastCycleFailed;
-  }
-
   
   public String getBarcode() {
     return barcode;
@@ -137,17 +84,14 @@ public class FlowCell extends HibernateDetailObject {
   }
 
   
-  public Date getStartDate() {
-    return startDate;
+  public Set getFlowCellChannels() {
+    return flowCellChannels;
   }
 
   
-  public void setStartDate(Date startDate) {
-    this.startDate = startDate;
+  public void setFlowCellChannels(Set flowCellChannels) {
+    this.flowCellChannels = flowCellChannels;
   }
 
-  
-
-  
     
 }

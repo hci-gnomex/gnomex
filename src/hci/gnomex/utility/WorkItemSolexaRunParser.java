@@ -2,9 +2,11 @@ package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,7 +21,7 @@ import org.jdom.Element;
 public class WorkItemSolexaRunParser implements Serializable {
   
   private Document   doc;
-  private Map        flowCellMap = new HashMap();
+  private Map        flowCellChannelMap = new HashMap();
   private List       workItems = new ArrayList();
   
   
@@ -36,15 +38,15 @@ public class WorkItemSolexaRunParser implements Serializable {
     for(Iterator i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
       Element workItemNode = (Element)i.next();
       
-      String idFlowCellString   = workItemNode.getAttributeValue("idFlowCell");
+      String idFlowCellChannelString   = workItemNode.getAttributeValue("idFlowCellChannel");
       String idWorkItemString = workItemNode.getAttributeValue("idWorkItem");
       
-      FlowCell flowCell = (FlowCell)sess.load(FlowCell.class, new Integer(idFlowCellString));
+      FlowCellChannel channel = (FlowCellChannel)sess.load(FlowCellChannel.class, new Integer(idFlowCellChannelString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
-      this.initializeFlowCell(sess, workItemNode, flowCell);
+      this.initializeFlowCellChannel(sess, workItemNode, channel);
       
-      flowCellMap.put(workItem.getIdWorkItem(), flowCell);
+      flowCellChannelMap.put(workItem.getIdWorkItem(), channel);
       workItems.add(workItem);
     }
     
@@ -54,8 +56,8 @@ public class WorkItemSolexaRunParser implements Serializable {
 
 
   
-  public FlowCell getFlowCell(Integer idWorkItem) {
-    return (FlowCell)flowCellMap.get(idWorkItem);
+  public FlowCellChannel getFlowCellChannel(Integer idWorkItem) {
+    return (FlowCellChannel)flowCellChannelMap.get(idWorkItem);
   }
   
   public List getWorkItems() {
@@ -73,41 +75,61 @@ public class WorkItemSolexaRunParser implements Serializable {
   }
 
   
-  protected void initializeFlowCell(Session sess, Element n, FlowCell flowCell) throws Exception {
+  protected void initializeFlowCellChannel(Session sess, Element n, FlowCellChannel channel) throws Exception {
     if (n.getAttributeValue("firstCycleStatus") != null && !n.getAttributeValue("firstCycleStatus").equals("")) {
       String status = n.getAttributeValue("firstCycleStatus");
       if (status.equals(Constants.STATUS_IN_PROGRESS)) {
-        flowCell.setStartDate(new java.sql.Date(System.currentTimeMillis()));      
+        channel.setStartDate(new java.sql.Date(System.currentTimeMillis()));      
       } if (status.equals(Constants.STATUS_COMPLETED)) {
-        flowCell.setFirstCycleDate(new java.sql.Date(System.currentTimeMillis()));      
-        flowCell.setFirstCycleFailed("N");        
+        channel.setFirstCycleDate(new java.sql.Date(System.currentTimeMillis()));      
+        channel.setFirstCycleFailed("N");        
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        flowCell.setFirstCycleDate(null);      
-        flowCell.setFirstCycleFailed("Y");
+        channel.setFirstCycleDate(null);      
+        channel.setFirstCycleFailed("Y");
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
-        flowCell.setFirstCycleDate(null);      
-        flowCell.setFirstCycleFailed("N");
+        channel.setFirstCycleDate(null);      
+        channel.setFirstCycleFailed("N");
       }
     } else {
-      flowCell.setFirstCycleDate(null);      
-      flowCell.setFirstCycleFailed("N");
+      channel.setFirstCycleDate(null);      
+      channel.setFirstCycleFailed("N");
     }
     if (n.getAttributeValue("lastCycleStatus") != null && !n.getAttributeValue("lastCycleStatus").equals("")) {
       String status = n.getAttributeValue("lastCycleStatus");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        flowCell.setLastCycleDate(new java.sql.Date(System.currentTimeMillis()));      
-        flowCell.setLastCycleFailed("N");        
+        channel.setLastCycleDate(new java.sql.Date(System.currentTimeMillis()));      
+        channel.setLastCycleFailed("N");        
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        flowCell.setLastCycleDate(null);      
-        flowCell.setLastCycleFailed("Y");
+        channel.setLastCycleDate(null);      
+        channel.setLastCycleFailed("Y");
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
-        flowCell.setLastCycleDate(null);      
-        flowCell.setLastCycleFailed("N");
+        channel.setLastCycleDate(null);      
+        channel.setLastCycleFailed("N");
       }
     } else {
-      flowCell.setLastCycleDate(null);      
-      flowCell.setLastCycleFailed("N");
+      channel.setLastCycleDate(null);      
+      channel.setLastCycleFailed("N");
     }   
+    
+    
+    if (n.getAttributeValue("numberSequencingCyclesActual") != null && !n.getAttributeValue("numberSequencingCyclesActual").equals("")) {
+      channel.setNumberSequencingCyclesActual(new Integer(n.getAttributeValue("numberSequencingCyclesActual")));
+    } else {
+      channel.setNumberSequencingCyclesActual(null);
+    }
+    
+    if (n.getAttributeValue("clustersPerTile") != null && !n.getAttributeValue("clustersPerTile").equals("")) {
+      channel.setClustersPerTile(new Integer(n.getAttributeValue("clustersPerTile")));
+    } else {
+      channel.setClustersPerTile(null);
+    }
+
+    if (n.getAttributeValue("fileName") != null && !n.getAttributeValue("fileName").equals("")) {
+      channel.setFileName(n.getAttributeValue("fileName"));
+    } else {
+      channel.setFileName(null);
+    }
+
   }
 
 

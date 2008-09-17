@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
@@ -18,8 +19,8 @@ import org.jdom.Element;
 public class WorkItemSolexaAssembleParser implements Serializable {
   
   private Document   doc;
-  private Map        laneMap = new HashMap();
-  private List       workItems = new ArrayList();
+  private List       flowCellChannelContents = new ArrayList();
+  private Map        workItemMap = new HashMap();
   
   
   public WorkItemSolexaAssembleParser(Document doc) {
@@ -32,18 +33,25 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     Element workItemListNode = this.doc.getRootElement();
     
     
-    for(Iterator i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
-      Element workItemNode = (Element)i.next();
+    for(Iterator i = workItemListNode.getChildren().iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
       
-      String idSequenceLaneString   = workItemNode.getAttributeValue("idSequenceLane");
-      String idWorkItemString = workItemNode.getAttributeValue("idWorkItem");
+      if (node.getName().equals("WorkItem")) {
+        String idSequenceLaneString = node.getAttributeValue("idSequenceLane");
+        String idWorkItemString     = node.getAttributeValue("idWorkItem");
+        
+        SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(idSequenceLaneString));
+        WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
+        flowCellChannelContents.add(lane);
+        workItemMap.put(lane.getIdSequenceLane(), workItem);
+        
+      } else {
+        String idSequencingControlString = node.getAttributeValue("idSequencingControl");
+        SequencingControl control = (SequencingControl)sess.load(SequencingControl.class, new Integer(idSequencingControlString));
+        flowCellChannelContents.add(control);
+      }
       
-      SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(idSequenceLaneString));
-      WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
-      
-      laneMap.put(workItem.getIdWorkItem(), lane);
-      workItems.add(workItem);
     }
     
    
@@ -51,14 +59,6 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   
 
 
-  
-  public SequenceLane getSequenceLane(Integer idWorkItem) {
-    return (SequenceLane)laneMap.get(idWorkItem);
-  }
-  
-  public List getWorkItems() {
-    return workItems;
-  }
   
   
   public void resetIsDirty() {
@@ -70,7 +70,14 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     }
   }
 
+  
+  public List getFlowCellChannelContents() {
+    return flowCellChannelContents;
+  }
 
+  public WorkItem getWorkItem(Integer idSequenceLane) {
+    return (WorkItem)workItemMap.get(idSequenceLane);
+  }
   
 
 

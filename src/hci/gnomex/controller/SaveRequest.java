@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
@@ -235,6 +236,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
               SequenceLane lane = saveSequenceLane(laneInfo, sess, sampleSeqCount);
 
+              // if this is a not a new request, but these is a new sequence lane,
+              // create a work item for the Cluster Gen (Assemble) worklist.
+              if ((!requestParser.isNewRequest()  || isNewLane)) {
+                WorkItem workItem = new WorkItem();
+                workItem.setIdRequest(requestParser.getRequest().getIdRequest());
+                workItem.setSequenceLane(lane);
+                workItem.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
+                sess.save(workItem);
+              }
+
+              
               sampleSeqCount++;              
             }
           }
@@ -774,6 +786,30 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
       sequenceLanes.add(sequenceLane);
     }
+  
+    // Update workflow fields (for flow cell channel)
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
+      if (sequenceLane.getFlowCellChannel() != null) {
+        FlowCellChannel channel = sequenceLane.getFlowCellChannel();
+        channel.setClustersPerTile(sequenceLaneInfo.getClustersPerTile());
+        channel.setNumberSequencingCyclesActual(sequenceLaneInfo.getNumberSequencingCyclesActual());
+        channel.setFileName(sequenceLaneInfo.getFileName());
+
+        if (sequenceLaneInfo.getSeqRunFirstCycleCompleted().equals("Y") && channel.getFirstCycleDate() == null) {
+          channel.setFirstCycleDate(new java.sql.Date(System.currentTimeMillis())); 
+        }
+        channel.setFirstCycleFailed(sequenceLaneInfo.getSeqRunFirstCycleFailed());
+
+        if (sequenceLaneInfo.getSeqRunLastCycleCompleted().equals("Y") && channel.getLastCycleDate() == null) {
+          channel.setLastCycleDate(new java.sql.Date(System.currentTimeMillis())); 
+        }
+        channel.setLastCycleFailed(sequenceLaneInfo.getSeqRunLastCycleFailed());
+        
+        
+      }
+    }
+
+    
     
     sess.flush();
     sess.refresh(sequenceLane);

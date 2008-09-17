@@ -11,19 +11,18 @@ import hci.hibernate3utils.HibernateDetailObject;
 
 public class SequenceLane extends HibernateDetailObject {
   
-  private Integer idSequenceLane;
-  private String  number;
-  private Date    createDate;
-  private Integer idSample;
-  private Sample  sample;
-  private Integer idRequest;
-  private Integer idFlowCellType;
-  private Integer idNumberSequencingCycles;
-  private Integer idGenomeBuildAlignTo;
-  private String  analysisInstructions;
-  private Integer idFlowCell;
-  private FlowCell flowCell;
-  private Integer flowCellLaneNumber;
+  private Integer         idSequenceLane;
+  private String          number;
+  private Date            createDate;
+  private Integer         idSample;
+  private Sample          sample;
+  private Integer         idRequest;
+  private Integer         idFlowCellType;
+  private Integer         idNumberSequencingCycles;
+  private Integer         idGenomeBuildAlignTo;
+  private String          analysisInstructions;
+  private Integer         idFlowCellChannel;
+  private FlowCellChannel flowCellChannel;
   
   public Integer getIdSample() {
     return idSample;
@@ -122,72 +121,50 @@ public class SequenceLane extends HibernateDetailObject {
   public void setAnalysisInstructions(String analysisInstructions) {
     this.analysisInstructions = analysisInstructions;
   }
-
   
-  public Integer getIdFlowCell() {
-    return idFlowCell;
-  }
-
-  
-  public void setIdFlowCell(Integer idFlowCell) {
-    this.idFlowCell = idFlowCell;
-  }
-
-  
-  public Integer getFlowCellLaneNumber() {
-    return flowCellLaneNumber;
-  }
-
-  
-  public void setFlowCellLaneNumber(Integer flowCellLaneNumber) {
-    this.flowCellLaneNumber = flowCellLaneNumber;
-  }
-
-  
-  public FlowCell getFlowCell() {
-    return flowCell;
-  }
-
-  
-  public void setFlowCell(FlowCell flowCell) {
-    this.flowCell = flowCell;
-  }
-
   public String getFlowCellNumber() {
-    if (flowCell != null) {
-      return flowCell.getNumber();
+    if (flowCellChannel != null) {
+      return flowCellChannel.getFlowCell().getNumber().toString();
+    } else {
+      return "";
+    }
+  }
+
+  public String getFlowCellChannelNumber() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getNumber() != null ? flowCellChannel.getNumber().toString() : "";
     } else {
       return "";
     }
   }
   
-  public Date getFlowCellFirstCycleDate() {
-    if (flowCell != null) {
-      return flowCell.getFirstCycleDate();
+  public Date getFlowCellChannelFirstCycleDate() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getFirstCycleDate();
     } else {
       return null;
     }
     
   }
-  public String getFlowCellFirstCycleFailed() {
-    if (flowCell != null) {
-      return flowCell.getFirstCycleFailed();
+  public String getFlowCellChannelFirstCycleFailed() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getFirstCycleFailed();
     } else {
       return null;
     }
     
   }
-  public Date getFlowCellLastCycleDate() {
-    if (flowCell != null) {
-      return flowCell.getLastCycleDate();
+  public Date getFlowCellChannelLastCycleDate() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getLastCycleDate();
     } else {
       return null;
     }
     
   }
-  public String getFlowCellLastCycleFailed() {
-    if (flowCell != null) {
-      return flowCell.getLastCycleFailed();
+  public String getFlowCellChannelLastCycleFailed() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getLastCycleFailed();
     } else {
       return null;
     }
@@ -195,9 +172,9 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
   public String getFirstCycleStatus() {
-    if (getFlowCellFirstCycleDate() != null) {
+    if (getFlowCellChannelFirstCycleDate() != null) {
       return Constants.STATUS_COMPLETED;
-    } else if (this.getFlowCellFirstCycleFailed() != null && this.getFlowCellFirstCycleFailed().equals("Y")) {
+    } else if (this.getFlowCellChannelFirstCycleFailed() != null && this.getFlowCellChannelFirstCycleFailed().equals("Y")) {
       return Constants.STATUS_TERMINATED;
     } else {
       return "";
@@ -205,23 +182,48 @@ public class SequenceLane extends HibernateDetailObject {
   }
   
   public String getLastCycleStatus() {
-    if (getFlowCellLastCycleDate() != null) {
+    if (getFlowCellChannelLastCycleDate() != null) {
       return Constants.STATUS_COMPLETED;
-    } else if (this.getFlowCellLastCycleFailed() != null && this.getFlowCellLastCycleFailed().equals("Y")) {
+    } else if (this.getFlowCellChannelLastCycleFailed() != null && this.getFlowCellChannelLastCycleFailed().equals("Y")) {
       return Constants.STATUS_TERMINATED;
     } else {
       return "";
     }
   }  
   
-  public Date getFlowCellStartDate() {
-    if (flowCell != null) {
-      return flowCell.getStartDate();
+  public Date getFlowCellChannelStartDate() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getStartDate();
     } else {
       return null;
     }
   }
   
+  public Integer getNumberSequencingCyclesActual() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getNumberSequencingCyclesActual();
+    } else {
+      return null;
+    }
+  }
+  
+  public Integer getClustersPerTile() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getClustersPerTile();
+    } else {
+      return null;
+    }
+  }
+
+  
+  public String getFileName() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getFileName();
+    } else {
+      return null;
+    }
+  }
+
   public String getWorkflowStatus() {
     if (getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
       return "Sequenced";
@@ -229,11 +231,11 @@ public class SequenceLane extends HibernateDetailObject {
       return "Failed sequencing";
     } else if (getFirstCycleStatus().equals(Constants.STATUS_TERMINATED)) {
       return "Failed 1st cycle sequencing";
-    } else if (getFlowCellFirstCycleDate() != null) {
+    } else if (getFlowCellChannelFirstCycleDate() != null) {
       return  "1st cycle sequenced";
-    } else if (this.getFlowCellStartDate() != null) {
+    } else if (this.getFlowCellChannelStartDate() != null) {
       return  "1st cycle sequencing in progress";
-    } else if (getFlowCell() != null) {
+    } else if (getFlowCellChannel() != null) {
       return "Ready for sequencing";
     } else if (getSample().getSeqPrepByCore() != null && !getSample().getSeqPrepByCore().equals("Y")) {
       return "Ready to place on flow cell";
@@ -296,8 +298,47 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
   public void registerMethodsToExcludeFromXML() {
-    this.excludeMethodFromXML("getFlowCell");
+    this.excludeMethodFromXML("getFlowCellChannel");
     this.excludeMethodFromXML("getSample");
+  }
+
+  
+  public Integer getIdFlowCellChannel() {
+    return idFlowCellChannel;
+  }
+
+  
+  public void setIdFlowCellChannel(Integer idFlowCellChannel) {
+    this.idFlowCellChannel = idFlowCellChannel;
+  }
+
+  
+  public FlowCellChannel getFlowCellChannel() {
+    return flowCellChannel;
+  }
+
+  
+  public void setFlowCellChannel(FlowCellChannel flowCellChannel) {
+    this.flowCellChannel = flowCellChannel;
+  }
+
+  
+  public String getCanChangeFlowCellType() {
+    if (this.getFlowCellChannel() != null) {
+      return "N";
+    } else {
+      return "Y";
+    }
+  }
+  public String getCanChangeNumberSequencingCycles() {
+    if (this.getFlowCellChannel() != null) {
+      return "N";
+    } else {
+      return "Y";
+    }
+  }
+  public String getCanChangeGenomeBuildAlignTo() {
+    return "Y";
   }
 
   

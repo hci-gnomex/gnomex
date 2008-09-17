@@ -168,17 +168,22 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    l.idNumberSequencingCycles ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN)) {
       queryBuf.append("      , ");
-      queryBuf.append("    fc.idFlowCell, ");
-      queryBuf.append("    fc.idFlowCellType, ");
-      queryBuf.append("    fc.idNumberSequencingCycles, ");
+      queryBuf.append("    ch.idFlowCellChannel, ");
+      queryBuf.append("    lane.idFlowCellType, ");
+      queryBuf.append("    lane.idNumberSequencingCycles, ");
+      queryBuf.append("    lane.number, ");
+      queryBuf.append("    ch.number, ");
+      queryBuf.append("    control.sequencingControl, ");
+      queryBuf.append("    ch.firstCycleDate, ");
+      queryBuf.append("    ch.firstCycleFailed, ");
+      queryBuf.append("    ch.lastCycleDate, ");
+      queryBuf.append("    ch.lastCycleFailed, ");
+      queryBuf.append("    ch.startDate, ");
       queryBuf.append("    fc.number, ");
-      queryBuf.append("    fc.createDate, ");
-      queryBuf.append("    fc.notes, ");
-      queryBuf.append("    fc.firstCycleDate, ");
-      queryBuf.append("    fc.firstCycleFailed, ");
-      queryBuf.append("    fc.lastCycleDate, ");
-      queryBuf.append("    fc.lastCycleFailed, ");
-      queryBuf.append("    fc.startDate ");
+      queryBuf.append("    ch.numberSequencingCyclesActual, ");
+      queryBuf.append("    ch.clustersPerTile, ");
+      queryBuf.append("    ch.fileName ");
+      
     }
 
     
@@ -206,7 +211,10 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append(" LEFT JOIN    h.arrayCoordinate ac ");
     } else if (level == FLOW_CELL_LEVEL) {
       queryBuf.append(" LEFT JOIN    wi.request as req ");
-      queryBuf.append(" JOIN         wi.flowCell fc ");      
+      queryBuf.append(" LEFT JOIN    wi.flowCellChannel as ch ");
+      queryBuf.append(" LEFT JOIN    ch.flowCell as fc ");
+      queryBuf.append(" LEFT JOIN    ch.sequenceLane as lane ");
+      queryBuf.append(" LEFT JOIN    ch.sequencingControl as control ");
     }
   }
   
