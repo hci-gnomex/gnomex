@@ -97,7 +97,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append("        s.number, ");
-    queryBuf.append("        fc.lastCycleDate, ");
+    queryBuf.append("        ch.lastCycleDate, ");
     queryBuf.append("        count(s.number) ");
     getSolexaLaneSeqStatusQueryBody(queryBuf);
     
@@ -109,7 +109,8 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
-    queryBuf.append(" LEFT JOIN      l.flowCell as fc ");
+    queryBuf.append(" LEFT JOIN      l.flowCellChannel as ch ");
+    queryBuf.append(" LEFT JOIN      ch.flowCell as fc ");
 
     addRequestCriteria();
     addSecurityCriteria();
@@ -119,9 +120,9 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
     queryBuf.append("'");
 
-    queryBuf.append("        group by s.number, fc.lastCycleDate ");
+    queryBuf.append("        group by s.number, ch.lastCycleDate ");
     
-    queryBuf.append("        having fc.lastCycleDate != null");      
+    queryBuf.append("        having ch.lastCycleDate != null");      
 
   } 
 

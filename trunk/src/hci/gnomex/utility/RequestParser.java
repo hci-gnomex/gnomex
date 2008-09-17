@@ -647,8 +647,49 @@ public class RequestParser implements Serializable {
     }
     
     sequenceLaneInfo.setAnalysisInstructions(unEscape(n.getAttributeValue("analysisInstructions")));
+
+    //
+    // workflow fields
+    //
+    if (n.getAttributeValue("numberSequencingCyclesActual") != null && !n.getAttributeValue("numberSequencingCyclesActual").equals("")) {
+      sequenceLaneInfo.setNumberSequencingCyclesActual(new Integer(n.getAttributeValue("numberSequencingCyclesActual")));
+    }
+    if (n.getAttributeValue("clustersPerTile") != null && !n.getAttributeValue("clustersPerTile").equals("")) {
+      sequenceLaneInfo.setClustersPerTile(new Integer(n.getAttributeValue("clustersPerTile")));
+    }
+    if (n.getAttributeValue("fileName") != null && !n.getAttributeValue("fileName").equals("")) {
+      sequenceLaneInfo.setFileName(n.getAttributeValue("fileName"));
+    }
     
-    
+    // first cycle status
+    if (n.getAttributeValue("firstCycleStatus") != null && !n.getAttributeValue("firstCycleStatus").equals("")) {
+      String status = n.getAttributeValue("firstCycleStatus");
+      if (status.equals(Constants.STATUS_COMPLETED)) {
+        sequenceLaneInfo.setSeqRunFirstCycleCompleted("Y");      
+        sequenceLaneInfo.setSeqRunFirstCycleFailed("N");
+      } else if (status.equals(Constants.STATUS_TERMINATED)) {
+        sequenceLaneInfo.setSeqRunFirstCycleCompleted("N");      
+        sequenceLaneInfo.setSeqRunFirstCycleFailed("Y");
+      } 
+    } else {
+      sequenceLaneInfo.setSeqRunFirstCycleCompleted("N");      
+      sequenceLaneInfo.setSeqRunFirstCycleFailed("N");
+    }
+
+    // last cycle status
+    if (n.getAttributeValue("lastCycleStatus") != null && !n.getAttributeValue("lastCycleStatus").equals("")) {
+      String status = n.getAttributeValue("lastCycleStatus");
+      if (status.equals(Constants.STATUS_COMPLETED)) {
+        sequenceLaneInfo.setSeqRunLastCycleCompleted("Y");      
+        sequenceLaneInfo.setSeqRunLastCycleFailed("N");
+      } else if (status.equals(Constants.STATUS_TERMINATED)) {
+        sequenceLaneInfo.setSeqRunLastCycleCompleted("N");      
+        sequenceLaneInfo.setSeqRunLastCycleFailed("Y");
+      } 
+    } else {
+      sequenceLaneInfo.setSeqRunLastCycleCompleted("N");      
+      sequenceLaneInfo.setSeqRunLastCycleFailed("N");
+    }
     
     sequenceLaneInfos.add(sequenceLaneInfo);
 }
@@ -1077,6 +1118,13 @@ public class RequestParser implements Serializable {
     private Integer  idNumberSequencingCycles;
     private Integer  idGenomeBuildAlignTo;
     private String   analysisInstructions;
+    private Integer  numberSequencingCyclesActual;
+    private Integer  clustersPerTile;
+    private String   fileName;
+    private String   seqRunFirstCycleCompleted = "N";
+    private String   seqRunFirstCycleFailed = "N";
+    private String   seqRunLastCycleCompleted = "N";
+    private String   seqRunLastCycleFailed = "N";
     
     
 
@@ -1152,6 +1200,90 @@ public class RequestParser implements Serializable {
     
     public void setAnalysisInstructions(String analysisInstructions) {
       this.analysisInstructions = analysisInstructions;
+    }
+
+
+    
+    public Integer getNumberSequencingCyclesActual() {
+      return numberSequencingCyclesActual;
+    }
+
+
+    
+    public void setNumberSequencingCyclesActual(Integer numberSequencingCyclesActual) {
+      this.numberSequencingCyclesActual = numberSequencingCyclesActual;
+    }
+
+
+    
+    public Integer getClustersPerTile() {
+      return clustersPerTile;
+    }
+
+
+    
+    public void setClustersPerTile(Integer clustersPerTile) {
+      this.clustersPerTile = clustersPerTile;
+    }
+
+
+    
+    public String getFileName() {
+      return fileName;
+    }
+
+
+    
+    public void setFileName(String fileName) {
+      this.fileName = fileName;
+    }
+
+
+    
+    public String getSeqRunFirstCycleCompleted() {
+      return seqRunFirstCycleCompleted;
+    }
+
+
+    
+    public void setSeqRunFirstCycleCompleted(String seqRunFirstCycleCompleted) {
+      this.seqRunFirstCycleCompleted = seqRunFirstCycleCompleted;
+    }
+
+
+    
+    public String getSeqRunFirstCycleFailed() {
+      return seqRunFirstCycleFailed;
+    }
+
+
+    
+    public void setSeqRunFirstCycleFailed(String seqRunFirstCycleFailed) {
+      this.seqRunFirstCycleFailed = seqRunFirstCycleFailed;
+    }
+
+
+    
+    public String getSeqRunLastCycleCompleted() {
+      return seqRunLastCycleCompleted;
+    }
+
+
+    
+    public void setSeqRunLastCycleCompleted(String seqRunLastCycleCompleted) {
+      this.seqRunLastCycleCompleted = seqRunLastCycleCompleted;
+    }
+
+
+    
+    public String getSeqRunLastCycleFailed() {
+      return seqRunLastCycleFailed;
+    }
+
+
+    
+    public void setSeqRunLastCycleFailed(String seqRunLastCycleFailed) {
+      this.seqRunLastCycleFailed = seqRunLastCycleFailed;
     }
     
     

@@ -94,7 +94,10 @@
 	<Dictionary displayName="Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="State" className="hci.gnomex.model.State" />
+	<Dictionary displayName="Sequencing Control" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+	</Dictionary>
+  <Dictionary displayName="State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Slide Source" className="hci.gnomex.model.SlideSource" />
 	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" />
 	<Dictionary displayName="User Permission Kind" className="hci.gnomex.model.UserPermissionKind" />

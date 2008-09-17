@@ -154,7 +154,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             }
 
             if (!request.getSequenceLanes().isEmpty()) {
-              center1.addContent(formatter.makeLaneTable(request.getSequenceLanes()));          
+              center1.addContent(formatter.makeSequenceLaneTable(request.getSequenceLanes()));          
             }
 
             

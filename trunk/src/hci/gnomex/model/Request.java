@@ -413,12 +413,12 @@ public class Request extends HibernateDetailObject {
       int doneLaneCount = 0;
       for(Iterator i1 = this.getSequenceLanes().iterator(); i1.hasNext();) {
         SequenceLane l = (SequenceLane)i1.next();
-        if (l.getFlowCell() != null) {
-          if (l.getFlowCell().getFirstCycleFailed() != null && l.getFlowCell().getFirstCycleFailed().equals("Y")) {
+        if (l.getFlowCellChannel() != null) {
+          if (l.getFlowCellChannel().getFirstCycleFailed() != null && l.getFlowCellChannel().getFirstCycleFailed().equals("Y")) {
             doneLaneCount++;
-          } else if (l.getFlowCell().getLastCycleDate() != null) {
+          } else if (l.getFlowCellChannel().getLastCycleDate() != null) {
             doneLaneCount++;
-          } else if (l.getFlowCell().getLastCycleFailed() != null && l.getFlowCell().getLastCycleFailed().equals("Y")) {
+          } else if (l.getFlowCellChannel().getLastCycleFailed() != null && l.getFlowCellChannel().getLastCycleFailed().equals("Y")) {
             doneLaneCount++;
           } 
         }

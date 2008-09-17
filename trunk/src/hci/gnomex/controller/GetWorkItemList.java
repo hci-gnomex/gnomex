@@ -65,7 +65,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
           comparator  = new LaneComparator();
         } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
-          comparator = new FlowCellComparator();
+          comparator = new FlowCellChannelComparator();
         } else {
           comparator =  new HybComparator();
         }
@@ -94,8 +94,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             Integer idLabeledSample = row[18] == null || row[18].equals("") ? null : (Integer)row[18];
             key = requestNumber + "," + sampleNumber + "," + idLabel  + "," + idLabeledSample;
           } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
-            Integer idFlowCellType = (Integer)row[13];
-            key = idFlowCellType.toString();
+            String flowCellNumber              = (String) row[24];
+            Integer flowCellChannelNumber      = (Integer) row[17];
+            key = flowCellNumber + "," + flowCellChannelNumber;
           } else {
             key = requestNumber + "," + itemNumber;
           }
@@ -105,6 +106,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         
         boolean alt = false;
         String prevRequestNumber = "";
+        String prevFlowCellNumber = "";
         
         
         
@@ -114,10 +116,23 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           String key = (String)i.next();
           Object[] row = (Object[])allRows.get(key);
           
+          
           String requestNumber = (String)row[1];
-          if (requestNumber != null && !requestNumber.equals(prevRequestNumber)) {
-            alt = !alt;
+          String flowCellNumber = null; 
+          
+          if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
+            flowCellNumber            = (String) row[24];
+            if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
+              alt = !alt;
+            }
+            
+          } else {
+            if (requestNumber != null && !requestNumber.equals(prevRequestNumber)) {
+              alt = !alt;
+            }
+            
           }
+            
           
           Element n = new Element("WorkItem");
           n.setAttribute("key",                    key);
@@ -277,12 +292,14 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("idNumberSequencingCycles",     row[16] == null ? "" :  ((Integer)row[16]).toString());
           
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
-            n.setAttribute("idFlowCell",                   row[13] == null ? "" :  ((Integer)row[13]).toString());
+            
+           
+            n.setAttribute("idFlowCellChannel",            row[13] == null ? "" :  ((Integer)row[13]).toString());
             n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("number",                       row[16] == null ? "" :  ((String)row[16]));
-            n.setAttribute("createDate",                   row[17] == null ? "" :  this.formatDate((java.sql.Date)row[17]));
-            n.setAttribute("notes",                        row[18] == null ? "" :  ((String)row[18]));
+            n.setAttribute("channelNumber",                row[17] == null ? "" :  ((Integer)row[17]).toString());
+            n.setAttribute("sequencingControl",            row[18] == null ? "" :  ((String)row[18]));
             n.setAttribute("firstCycleDate",               row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
             n.setAttribute("firstCycleCompleted",          row[19] == null ? "N" : "Y");
             n.setAttribute("firstCycleFailed",             row[20] == null ? "" :  ((String)row[20]));
@@ -290,6 +307,14 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("lastCycleCompleted",           row[21] == null ? "N" : "Y");
             n.setAttribute("lastCycleFailed",              row[22] == null ? "" :  ((String)row[22]));
             n.setAttribute("firstCycleStartDate",          row[23] == null ? "" :   this.formatDate((java.sql.Date)row[23]));
+            n.setAttribute("flowCellNumber",               row[24] == null ? "" :  ((String)row[24]));
+            n.setAttribute("numberSequencingCyclesActual", row[25] == null ? "" :  ((Integer)row[25]).toString());
+            n.setAttribute("clustersPerTile",              row[26] == null ? "" :  ((Integer)row[26]).toString());
+            n.setAttribute("fileName",                     row[27] == null ? "" :  ((String)row[27]));
+            
+            if (!n.getAttributeValue("sequencingControl").equals("")) {
+              n.setAttribute("number", n.getAttributeValue("sequencingControl"));
+            }
 
             String firstCycleStatus = "";
             if (n.getAttributeValue("firstCycleCompleted").equals("Y")) {
@@ -318,6 +343,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           doc.getRootElement().addContent(n);
           
           prevRequestNumber = requestNumber;
+          if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
+            prevFlowCellNumber = flowCellNumber;
+          }
           
         }
       
@@ -475,11 +503,33 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }      
     }
   }  
-  public static class  FlowCellComparator implements Comparator, Serializable {
+  public static class  FlowCellChannelComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;
       String key2 = (String)o2;
-      return new Integer(key1).compareTo(new Integer(key2));        
+
+      
+      
+      String[] tokens1 = key1.split(",");
+      String[] tokens2 = key2.split(",");
+      
+      
+      
+      String fcNumber1    = tokens1[0];
+      String fcTokens1[] = fcNumber1.split("FC");
+      String fcOrdinal1 = fcTokens1[1];
+      String channelNumber1 = tokens1[1];
+      
+      String fcNumber2    = tokens2[0];
+      String fcTokens2[] = fcNumber2.split("FC");
+      String fcOrdinal2 = fcTokens2[1];
+      String channelNumber2 = tokens2[1];
+      
+      if (fcNumber1.equals(fcNumber2)) {
+        return new Integer(channelNumber1).compareTo(new Integer(channelNumber2));
+      } else {
+        return new Integer(fcOrdinal1).compareTo(new Integer(fcOrdinal2));        
+      }      
       
     }
   }  
