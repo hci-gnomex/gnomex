@@ -219,6 +219,48 @@ public class FlowCellChannel extends HibernateDetailObject {
     }
   }
   
+  public Integer getSeqPrepLibConcentration() {
+    if (sequenceLane != null && sequenceLane.getSample() != null) {
+      return sequenceLane.getSample().getSeqPrepLibConcentration();
+    } else {
+      return null;
+    }
+  }  
+ 
+  public Integer getSeqPrepQualFragmentSizeFrom() {
+    if (sequenceLane != null && sequenceLane.getSample() != null) {
+      return sequenceLane.getSample().getSeqPrepQualFragmentSizeFrom();
+    } else {
+      return null;
+    }
+  }
+
+  public Integer getSeqPrepQualFragmentSizeTo() {
+    if (sequenceLane != null && sequenceLane.getSample() != null) {
+      return sequenceLane.getSample().getSeqPrepQualFragmentSizeTo();
+    } else {
+      return null;
+    }
+  }
+  
+  public BigDecimal getSeqPrepStockLibVol() {
+    if (sequenceLane != null && sequenceLane.getSample() != null) {
+      return sequenceLane.getSample().getSeqPrepStockLibVol();
+    } else {
+      return null;
+    }
+  }
+ 
+  
+  public BigDecimal getSeqPrepStockEBVol() {
+    if (sequenceLane != null && sequenceLane.getSample() != null) {
+      return sequenceLane.getSample().getSeqPrepStockEBVol();
+    } else {
+      return null;
+    }
+  }
+ 
+  
   public String getWorkflowStatus() {
     if (sequenceLane != null) {
       return sequenceLane.getWorkflowStatus();
