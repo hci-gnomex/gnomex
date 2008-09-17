@@ -90,8 +90,54 @@
         }
         
         private function validate():Boolean {
+        	var message:String = "";
+        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+        	
+    		var nv:NumberValidator = new NumberValidator();
+	    	nv.domain = "real";
+	    	nv.minValue = "0";
+	    	nv.maxValue = "99999";
+	    	nv.precision = 3;
+	    	nv.required = false;
+	    	nv.allowNegative = false;
+	    	nv.exceedsMaxError = "exceeds max.";
+	    	nv.invalidCharError = "contains invalid characters.";
+	    	nv.negativeError = "cannot be negative.";
+	    	nv.precisionError = "has too many digits beyond the decimal point";
+        	
+        	var item:Object = null;
+        	var vr:ValidationResultEvent  = null;
+		    
+		    nv.domain = "integer";
+		    nv.precision = 0;
+        	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@clustersPerTile);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\nClusters per tile - " + item.@clustersPerTile + " " + vr.message;
+		    		break;
+		    	}
+	    	}         	
+
+	    	nv.domain = "integer";
+	    	nv.precision = 0;
+        	for each (item in dirtyItems) {
+		    	vr = nv.validate(item.@numberSequencingCyclesActual);
+		    	if (vr.type == ValidationResultEvent.INVALID) {
+		    		message += "\nActual Number of sequencing cycles - " + item.@numberSequencingCyclesActual + " " + vr.message;
+		    		break;
+		    	}
+	    	}         	
+         	
+        	if (message != "") {
+	    		Alert.show(message);
+	    		return false;
+	    	} else {
+	    		return true;
+	    	}
+        	
 	   		return true;
         }
+
         
         private function save():void {
         	if (validate() == false) {
@@ -141,23 +187,69 @@
 			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="10" labelFunction="getGridRowNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Flow Cell #"  width="25" dataField="@number"/>
-					<mx:DataGridColumn editable="false" headerText="Submit Date" width="30" dataField="@createDate"/>
-					<mx:DataGridColumn editable="false" headerText="Flow Cell Type"  width="50" dataField="@idFlowCellType" 
-                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 											
-					<mx:DataGridColumn editable="false" headerText="# Cycles"  width="25" dataField="@idNumberSequencingCycles" 
-                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
-					<mx:DataGridColumn editable="false" headerText="Contents"  width="120" dataField="@notes"/>
-	                <mx:DataGridColumn headerText="First Cycle Status"  width="42" dataField="@firstCycleStatus" 
+					<mx:DataGridColumn editable="false" headerText="Flow Cell #"  width="23" dataField="@flowCellNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Channel"  width="18" dataField="@channelNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Sample Seq #"  width="28" dataField="@number"/>
+					<mx:DataGridColumn editable="false" headerText="Requested # Cycles"  width="25" dataField="@idNumberSequencingCycles" 
+                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}">                 											
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Requested"/>
+							    <mx:Label text="# Cycles"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+	                <mx:DataGridColumn headerText="First Cycle Status"  width="30" dataField="@firstCycleStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@firstCycleStatus', true, true, true, false)}"/>			                
-	                <mx:DataGridColumn headerText="Last Cycle Status"  width="42" dataField="@lastCycleStatus" 
+ 	                   itemEditor="{ComboBoxWorkflowStatus.create('@firstCycleStatus', true, true, true, false)}">			                
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="First Cycle"/>
+							    <mx:Label text="Status"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+ 	                <mx:DataGridColumn headerText="Clusters per tile" width="23" dataField="@clustersPerTile" editable="true">			                
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Clusters per"/>
+							    <mx:Label text="Tile"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+ 	                <mx:DataGridColumn headerText="File name" width="35" dataField="@fileName" editable="true"/>			                
+ 	                <mx:DataGridColumn headerText="Actual # Cycles"  width="25" dataField="@numberSequencingCyclesActual" editable="true">			                
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Actual"/>
+							    <mx:Label text="# Cycles"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+	                <mx:DataGridColumn headerText="Last Cycle Status"  width="30" dataField="@lastCycleStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@lastCycleStatus', false, true, true, false)}"/>			                
+ 	                   itemEditor="{ComboBoxWorkflowStatus.create('@lastCycleStatus', false, true, true, false)}">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Last Cycle"/>
+							    <mx:Label text="Status"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

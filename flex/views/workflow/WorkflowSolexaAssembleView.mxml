@@ -48,7 +48,6 @@
     <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
     <mx:XMLListCollection id="dirtyWorkList" />
     <mx:XMLListCollection id="nextWorkList" source="{getNextWorkList.lastResult.WorkItem}"/>
-    <mx:XMLListCollection id="controlsList"/>
     
 <mx:Script>
 	<![CDATA[
@@ -66,8 +65,12 @@
 		
 		private var warningMessage:String = "";
 		
+		public function initializeData():void {
+			controlsGrid.dataProvider = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SequencingControl'); 
+        }
+		
 		private function onGetWorkList(event:ResultEvent):void {
-        	if (event.result.name() == "WorkItemList") {
+			if (event.result.name() == "WorkItemList") {
     	    	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
         	} else {
         		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
@@ -265,13 +268,15 @@
 	       // Disallow operation if flow cell is of different type
 	       for each (var dragItem:Object in items) {
 	       		for each (var item:Object in dirtyWorkList) {
-	       			if (dragItem.@idFlowCellType != item.@idFlowCellType) {
-	       				Alert.show("Incompatible flow cell type.");
-			       		event.preventDefault();
-			       		event.target.hideDropFeedback(event);
-			       		DragManager.showFeedback(DragManager.NONE);
-						return;	       	  	
-	       			}
+	       			if (item.name() == "SequenceLane") {
+		       			if (dragItem.@idFlowCellType != item.@idFlowCellType) {
+		       				Alert.show("Incompatible flow cell type.");
+				       		event.preventDefault();
+				       		event.target.hideDropFeedback(event);
+				       		DragManager.showFeedback(DragManager.NONE);
+							return;	       	  	
+		       			}
+		       		}
 	       		}
 	       }
 	       
@@ -284,6 +289,8 @@
 	       	if (items[i].name() == "WorkItem") {
 		    	dirtyWorkList.addItemAt(items[i], row);
 		    	workList.removeItemAt(workList.getItemIndex(items[i]));	       			
+	       	} else if (items[i].name() == "DictionaryEntry") {
+		    	dirtyWorkList.addItemAt(items[i], row);
 	       	} 
 	       }
 	       
@@ -331,6 +338,17 @@
 </mx:Script>    	
 	<mx:HDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 	    <mx:VDividedBox width="100%" height="100%"  >
+			<mx:VBox width="100%" height="74"   verticalGap="0">	
+			
+				<mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
+					<mx:Label text="Controls" fontWeight="bold"/>
+			    </mx:HBox>
+				<mx:DataGrid id="controlsGrid" width="100%" height="100%" dragEnabled="true" showHeaders="false">
+					<mx:columns>
+						<mx:DataGridColumn  dataField="@display"             headerText="Control Name" width="40"/>
+					</mx:columns>				
+				</mx:DataGrid>			
+			</mx:VBox>
 			<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			    <mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
 					<mx:Label text="{'Pending Sequence Requests (' + workList.length + ')' }" fontWeight="bold"/>
@@ -343,36 +361,33 @@
 						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"          width="35"  labelFunction="lookupNumberSequencingCycles"/>
 					</mx:columns>				
 				</mx:DataGrid>		
-			</mx:VBox>
+			</mx:VBox> 
 			
-			<mx:VBox width="100%" height="100"   verticalGap="0">	
-			
-				<mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
-					<mx:Label text="Controls" fontWeight="bold"/>
-			    </mx:HBox>
-				<mx:DataGrid id="controlsGrid" width="100%" height="100%" dataProvider="{controlsList}" dragEnabled="true">
-					<mx:columns>
-						<mx:DataGridColumn  dataField="@controlName"             headerText="Control Name" width="40"/>
-					</mx:columns>				
-				</mx:DataGrid>			
-			</mx:VBox>
 	    	
 	    </mx:VDividedBox>
-		<mx:VBox width="100%" height="100%" verticalGap="1">			
-			    <mx:HBox paddingTop="3" width="100%" verticalAlign="bottom" paddingBottom="1">
-					<mx:Label text="Flow Cell to Assemble" fontWeight="bold"/>
-					<mx:Spacer width="20"/>
-					<mx:Label text="Barcode:"/>
-					<mx:TextInput id="flowCellBarcode"/>
-					<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0">
-						<mx:Button click="moveAssembleLaneUp()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
-						<mx:Button click="moveAssembleLaneDown()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
-						<mx:VRule height="20"/>
-						<mx:Button id="removeFlowCellButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeAssembleLane()">
-							<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
-						</mx:Button>
+	    <mx:VBox height="100%">
+	    	<mx:Spacer height="45"/>
+	        <mx:Image source="assets/arrow_right.png"/>
+	    	<mx:Spacer height="100"/>
+	        <mx:Image source="assets/arrow_right.png"/>
+	    	
+	    </mx:VBox>
+		<mx:VBox width="100%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
+			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88">
+					<mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
+					<mx:HBox width="100%">
+						<mx:Label text="Barcode:"/>
+						<mx:TextInput id="flowCellBarcode"/>
+						<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0">
+							<mx:Button click="moveAssembleLaneUp()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
+							<mx:Button click="moveAssembleLaneDown()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
+							<mx:VRule height="20"/>
+							<mx:Button id="removeFlowCellButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeAssembleLane()">
+								<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
+							</mx:Button>
+						</mx:HBox>
+						
 					</mx:HBox>
-			    </mx:HBox>
 			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="200" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
 				<mx:columns>
 					<mx:DataGridColumn  headerText="Lane" labelFunction="getAssembleLaneRowNumber" width="21"/>
@@ -385,9 +400,10 @@
                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 				</mx:columns>			
 			</mx:DataGrid>		
-			<mx:Spacer height="20"/>
+			    </mx:VBox> 
+			<mx:Spacer height="40"/>
 			<mx:VBox width="100%" height="100%" verticalGap="1">			
-				<mx:Label text="Flow Cells ready for Sequencing" fontWeight="bold"/>
+				<mx:Label text="Flow Cells ready for Sequencing" fontWeight="bold" color="#666D6E" fontStyle="italic"/>
 				<mx:DataGrid width="100%" height="100%" dataProvider="{nextWorkList}">
 					<mx:columns>
 						<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>

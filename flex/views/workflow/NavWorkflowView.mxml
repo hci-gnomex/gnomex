@@ -33,6 +33,7 @@
         	} else if (solexaViews.selectedChild == workflowSolexaStockView) {
         		workflowSolexaStockView.getWorkList.send();
         	} else if (solexaViews.selectedChild == workflowSolexaAssembleView) {
+        		workflowSolexaAssembleView.initializeData();
         		workflowSolexaAssembleView.getWorkList.send();
         		workflowSolexaAssembleView.getNextWorkList.send();
         	} else if (solexaViews.selectedChild == workflowSolexaRunView) {
