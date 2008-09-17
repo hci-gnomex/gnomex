@@ -10,7 +10,7 @@
 		import mx.events.CloseEvent;
 		import mx.controls.Alert;
 		import views.experiment.ExperimentEditView;
-		import hci.flex.renderers.LabelDictionary;
+		import hci.flex.renderers.LabelDictionary; 
 		
 		
 		
@@ -717,10 +717,49 @@
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
                                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
-				            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
-				            <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
-							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus"/>
-							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"/>
+				            <mx:DataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
+				            <mx:DataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
+							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus">
+							   <mx:headerRenderer > 
+							    <mx:Component>
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								        <mx:Label text="First Cycle"/>
+								        <mx:Label text="Status"/>
+					    			</mx:VBox>
+							    </mx:Component>
+							   </mx:headerRenderer>
+						    </mx:DataGridColumn>
+				            <mx:DataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
+							   <mx:headerRenderer > 
+							    <mx:Component>
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								        <mx:Label text="# Seq Cycles"/>
+								        <mx:Label text="(actual)"/>
+					    			</mx:VBox>
+							    </mx:Component>
+							   </mx:headerRenderer>
+						    </mx:DataGridColumn>
+				            <mx:DataGridColumn  width="90" headerText="Clusters per Tile"  editable="false" dataField="@clustersPerTile"> 						             						             
+							   <mx:headerRenderer > 
+							    <mx:Component>
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								        <mx:Label text="Clusters per"/>
+								        <mx:Label text="Tile"/>
+					    			</mx:VBox>
+							    </mx:Component>
+							   </mx:headerRenderer>
+						    </mx:DataGridColumn>
+				            <mx:DataGridColumn  width="90"  headerText="File name"  editable="false" dataField="@fileName"/> 						             						             
+							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
+							   <mx:headerRenderer > 
+							    <mx:Component>
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								        <mx:Label text="Last Cycle"/>
+								        <mx:Label text="Status"/>
+					    			</mx:VBox>
+							    </mx:Component>
+							   </mx:headerRenderer>
+						    </mx:DataGridColumn>
 				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
                                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild','@idGenomeBuildAlignTo')}"/>                 											
 							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
