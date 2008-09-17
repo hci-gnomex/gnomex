@@ -45,7 +45,19 @@
 			return (item.@fragmentSizeFrom != "" ? item.@fragmentSizeFrom : "?") + " - " + 
 			       (item.@fragmentSizeTo != "" ? item.@fragmentSizeTo : "?");
 		}
-    	
+		private function getSeqPrepLibFragmentSizeRange(item:Object, col:DataGridColumn):String {
+			return (item.@seqPrepQualFragmentSizeFrom != "" ? item.@seqPrepQualFragmentSizeFrom : "?") + " - " + 
+			       (item.@seqPrepQualFragmentSizeTo != "" ? item.@seqPrepQualFragmentSizeTo : "?");
+		}    	
+		private function getOrganism(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.Organism', item.@idOrganism);
+		}
+		private function getNumberSequencingCycles(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
+		}
+		private function getFlowCellType(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.FlowCellType', item.@idFlowCellType);
+		}
 	]]>
 </mx:Script>    	
 	<mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
@@ -57,16 +69,11 @@
 					<mx:Label text="Flow Cells" fontWeight="bold"/>
 					<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" dataProvider="{flowCells}">
 						<mx:columns>
-							<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
-							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="50"/>
-							<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80"
+							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
+							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
+							<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="120"
  	                            itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 							
-							<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="36"
- 	                            itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 							
 							<mx:DataGridColumn  dataField="@notes" headerText="Content" />
-							<mx:DataGridColumn  dataField="@startDate" headerText="Start Date" width="55"/>
-							<mx:DataGridColumn  dataField="@firstCycleDate" headerText="1st Cycle Date" width="55"/>
-							<mx:DataGridColumn  dataField="@lastCycleDate" headerText="Last Cycle Date" width="55"/>
 						</mx:columns>				
 					</mx:DataGrid>		
 				</mx:VBox>
@@ -74,23 +81,108 @@
 		</mx:VBox>
 		<mx:VBox width="100%"  verticalGap="1">
 			<mx:HBox width="100%" verticalAlign="middle">
-				<mx:Label text="Flow Cell Detail" fontWeight="bold"/>
+				<mx:Label text="{'Flow Cell ' + flowCellsGrid.selectedItem.@number}"  fontWeight="bold"/>
 				<mx:LinkButton label="Printable form" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
 			</mx:HBox>
 
-			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="178" maxHeight="178" >	
+			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="250" horizontalScrollPolicy="auto">	
 				<mx:columns>
-					<mx:DataGridColumn  headerText="Channel" dataField="@number" width="10"/>
-					<mx:DataGridColumn  dataField="@contentNumber" width="35" headerText="Sequence Sample #"/> 
-					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 							
-					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 							
-					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles Requested"  width="35" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 							
-					<mx:DataGridColumn  dataField="@fragmentSizeFrom" labelFunction="getFragmentSizeRange" width="35" headerText="Fragment Size"/>
-					<mx:DataGridColumn  dataField="@calcConcentration" width="35" headerText="Conc."/>
-					<mx:DataGridColumn  dataField="@workflowStatus" width="55" headerText="Status"/>
+					<mx:DataGridColumn  headerText="Channel" dataField="@number" width="55"/>
+					<mx:DataGridColumn  dataField="@contentNumber" width="80" headerText="Seq Sample #"/> 
+					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="100" labelFunction="getFlowCellType"/>                 							
+					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="90" labelFunction="getOrganism"/>                 							
+					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles Requested"  width="90" labelFunction="getNumberSequencingCycles">                 							
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="# Cycles"/>
+							        <mx:Label text="(requested)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn   labelFunction="getFragmentSizeRange" width="90" headerText="Est. Fragment Size">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Frag Size"/>
+							        <mx:Label text="(estimated)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@calcConcentration" width="90" headerText="Est. Conc.">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Conc. ng/uL"/>
+							        <mx:Label text="(estimated)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn   labelFunction="getSeqPrepLibFragmentSizeRange" width="90" headerText="Lib Fragment Size">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Frag Size"/>
+							        <mx:Label text="(library)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@seqPrepLibConcentration" width="90" headerText="Lib Conc.">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Conc. ng/uL"/>
+							        <mx:Label text="(library)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@seqPrepStockLibVol" width="90" headerText="Flow Cell Stock Lib Vol">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Flow Cell Stock"/>
+							        <mx:Label text="Lib Vol (uL)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@seqPrepStockEBVol" width="90" headerText="Flow Cell Stock EB Vol">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Flow Cell Stock"/>
+							        <mx:Label text="EB Vol (uL)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@numberSequencingCyclesActual" width="90" headerText="# Cycles (actual)">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="# Cycles"/>
+							        <mx:Label text="(actual)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@clustersPerTile" width="90" headerText="Clusters per Tile">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Clusters per"/>
+							        <mx:Label text="Tile"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@fileName" width="100" headerText="File name"/>
+					<mx:DataGridColumn  dataField="@workflowStatus" width="100" headerText="Status"/>
 				</mx:columns>			
 			</mx:DataGrid>			
 		</mx:VBox>

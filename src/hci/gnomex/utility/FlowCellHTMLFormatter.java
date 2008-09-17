@@ -52,15 +52,14 @@ public class FlowCellHTMLFormatter {
     this.addHeaderCell(rowh, "Channel #", "left");
     this.addHeaderCell(rowh, "Sequence Sample #"    );
     this.addHeaderCell(rowh, "Flow Cell Type");
-    this.addHeaderCell(rowh, "# Cycles Requested");
     this.addHeaderCell(rowh, "Organism"    );
-    this.addHeaderCell(rowh, "Fragment Size"    );
-    this.addHeaderCell(rowh, "Conc. (ng/uL)"    );
+    this.addHeaderCell(rowh, "# Cycles");
+    this.addHeaderCell(rowh, "Est. Fragment Size"    );
+    this.addHeaderCell(rowh, "Lib Fragment Size"    );
+    this.addHeaderCell(rowh, "Lib Conc. (ng/uL)"    );
+    this.addHeaderCell(rowh, "Flow Cell Stock Lib vol (uL)"    );
+    this.addHeaderCell(rowh, "Flow Cell Stock EB vol (uL)"    );
 
- 
-    
-    
-    
     
     for(Iterator i = channels.iterator(); i.hasNext();) {
       FlowCellChannel channel = (FlowCellChannel)i.next();
@@ -72,6 +71,7 @@ public class FlowCellHTMLFormatter {
       this.addCell(row, channel.getContentNumber());
       
       String fragmentSize = "";
+      String libFragmentSize = "";
       if (channel.getSequenceLane() != null) {
         SequenceLane lane = channel.getSequenceLane();
         
@@ -86,14 +86,31 @@ public class FlowCellHTMLFormatter {
           fragmentSize += "?";
         }
         
-
+        
+        if (lane.getSample().getSeqPrepQualFragmentSizeFrom() != null) {
+          libFragmentSize += lane.getSample().getSeqPrepQualFragmentSizeFrom() + "-";
+        } else {
+          libFragmentSize += "?-";
+        }
+        if (lane.getSample().getSeqPrepQualFragmentSizeTo() != null) {
+          libFragmentSize += lane.getSample().getSeqPrepQualFragmentSizeTo();
+        } else {
+          libFragmentSize += "?";
+        }
+        
         this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
-        this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
+        this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addCell(row, fragmentSize);
-        this.addCell(row, lane.getCalcConcentration() != null  ? lane.getCalcConcentration().toString() : "&nbsp;");
+        this.addCell(row, libFragmentSize);
+        this.addCell(row, lane.getSample().getSeqPrepLibConcentration() != null  ? lane.getSample().getSeqPrepLibConcentration().toString() : "&nbsp;");
+        this.addCell(row, lane.getSample().getSeqPrepStockLibVol() != null  ? lane.getSample().getSeqPrepStockLibVol().toString() : "&nbsp;");
+        this.addCell(row, lane.getSample().getSeqPrepStockEBVol() != null  ? lane.getSample().getSeqPrepStockEBVol().toString() : "&nbsp;");
         
       } else {
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
