@@ -311,6 +311,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("numberSequencingCyclesActual", row[25] == null ? "" :  ((Integer)row[25]).toString());
             n.setAttribute("clustersPerTile",              row[26] == null ? "" :  ((Integer)row[26]).toString());
             n.setAttribute("fileName",                     row[27] == null ? "" :  ((String)row[27]));
+            n.setAttribute("flowCellBarcode",              row[28] == null ? "" :  ((String)row[28]));
             
             if (!n.getAttributeValue("sequencingControl").equals("")) {
               n.setAttribute("number", n.getAttributeValue("sequencingControl"));

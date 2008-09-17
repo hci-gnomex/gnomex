@@ -338,7 +338,7 @@
 </mx:Script>    	
 	<mx:HDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 	    <mx:VDividedBox width="100%" height="100%"  >
-			<mx:VBox width="100%" height="74"   verticalGap="0">	
+			<mx:VBox width="100%" height="104"   verticalGap="0">	
 			
 				<mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
 					<mx:Label text="Controls" fontWeight="bold"/>
@@ -355,7 +355,16 @@
 			    </mx:HBox>
 				<mx:DataGrid id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true">
 					<mx:columns>
-						<mx:DataGridColumn  dataField="@laneNumber"             headerText="Flow Cell Sample #" width="40"/>
+						<mx:DataGridColumn  dataField="@laneNumber"             headerText="Flow Cell Sample #" width="50">
+							<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Flow Cell"/>
+								    <mx:Label text="Sample #"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+	  					</mx:DataGridColumn>					
 						<mx:DataGridColumn  dataField="@idFlowCellType"           headerText="Flow Cell Type"   width="80" labelFunction="lookupFlowCellType"/>
 	                    <mx:DataGridColumn  dataField="@idOrganism"               headerText="Organism"         width="35"  labelFunction="lookupOrganism"/>
 						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"          width="35"  labelFunction="lookupNumberSequencingCycles"/>
@@ -373,7 +382,7 @@
 	    	
 	    </mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
-			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88">
+			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4">
 					<mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
 					<mx:HBox width="100%">
 						<mx:Label text="Barcode:"/>
@@ -388,10 +397,19 @@
 						</mx:HBox>
 						
 					</mx:HBox>
-			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="200" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
+			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="220" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
 				<mx:columns>
-					<mx:DataGridColumn  headerText="Lane" labelFunction="getAssembleLaneRowNumber" width="21"/>
-					<mx:DataGridColumn  dataField="@laneNumber" width="35" headerText="Flow Cell Sample #"/>
+					<mx:DataGridColumn  headerText="Channel" labelFunction="getAssembleLaneRowNumber" width="21"/>
+					<mx:DataGridColumn  dataField="@laneNumber" width="35" headerText="Flow Cell Sample #">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Flow Cell"/>
+							    <mx:Label text="Sample #"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>					
 					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" 
                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 											
 					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  
@@ -399,21 +417,20 @@
 					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" 
                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 				</mx:columns>			
-			</mx:DataGrid>		
+			</mx:DataGrid>		 
 			    </mx:VBox> 
-			<mx:Spacer height="40"/>
+			<mx:Spacer height="10"/>
 			<mx:VBox width="100%" height="100%" verticalGap="1">			
 				<mx:Label text="Flow Cells ready for Sequencing" fontWeight="bold" color="#666D6E" fontStyle="italic"/>
-				<mx:DataGrid width="100%" height="100%" dataProvider="{nextWorkList}">
-					<mx:columns>
-						<mx:DataGridColumn  dataField="@number" headerText="#" width="30"/>
-						<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="100"
-                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 											
-						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="47"
-                           itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
-						<mx:DataGridColumn  dataField="@notes" headerText="Content" />
-					</mx:columns>				
-				</mx:DataGrid>		
+				<util:DataGridAlternatingGroup width="100%" height="100%" dataProvider="{nextWorkList}">
+					<util:columns>
+						<mx:DataGridColumn  dataField="@flowCellNumber" headerText="Flow Cell #" width="18"/>
+						<mx:DataGridColumn  dataField="@channelNumber" headerText="Channel" width="15"/>
+						<mx:DataGridColumn  dataField="@flowCellBarcode" headerText="Barcode" width="18"/>
+						<mx:DataGridColumn  dataField="@number" headerText="Flow Cell Sample #" width="40"/>
+						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="30" labelFunction="lookupNumberSequencingCycles"/>
+					</util:columns>				
+				</util:DataGridAlternatingGroup>		
 			</mx:VBox>
 		</mx:VBox>
 	</mx:HDividedBox>

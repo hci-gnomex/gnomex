@@ -182,7 +182,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    fc.number, ");
       queryBuf.append("    ch.numberSequencingCyclesActual, ");
       queryBuf.append("    ch.clustersPerTile, ");
-      queryBuf.append("    ch.fileName ");
+      queryBuf.append("    ch.fileName, ");
+      queryBuf.append("    fc.barcode ");
       
     }
 

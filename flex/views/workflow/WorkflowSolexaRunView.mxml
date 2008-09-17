@@ -54,7 +54,7 @@
         import views.renderers.ComboBoxWorkflowStatus;
         
         [Bindable]
-        private var flowCellCount:String;
+        private var flowCellChannelCount:String;
         
         [Bindable]
         private var inputNumber:String;
@@ -150,7 +150,7 @@
         
         private function onGetWorkList(event:ResultEvent):void {
         	if (event.result.name() == "WorkItemList") {
-    	    	flowCellCount = workList.length + ' flow cells on work list.';
+    	    	flowCellChannelCount = workList.length + ' flow cells channels on work list.';
 	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
         	} else {
         		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
@@ -166,7 +166,11 @@
         	}
         }
         
-        
+                
+		public function getFullFlowCellChannelNumber(item:Object, col:DataGridColumn):String 
+    	{ 
+    		return item.@flowCellNumber + "-" + item.@channelNumber;
+    	}  
 
         ]]>
     </mx:Script> 
@@ -175,7 +179,7 @@
     <mx:VBox width="100%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
             <mx:HBox width="100%" horizontalAlign="left" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalAlign="bottom">
                 <mx:Image source="{parentApplication.iconSolexa}"/>
-                <mx:Label text="{flowCellCount}"/>
+                <mx:Label text="{flowCellChannelCount}"/>
             	<mx:HBox width="100%" horizontalAlign="right"  verticalAlign="middle">
             	</mx:HBox>
             	
@@ -187,9 +191,26 @@
 			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="10" labelFunction="getGridRowNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Flow Cell #"  width="23" dataField="@flowCellNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Channel"  width="18" dataField="@channelNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Sample Seq #"  width="28" dataField="@number"/>
+					<mx:DataGridColumn editable="false" headerText="Flow Cell Channel #"  width="23" dataField="@flowCellNumber" labelFunction="getFullFlowCellChannelNumber">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Flow Cell"/>
+							    <mx:Label text="Channel #"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn editable="false" headerText="Sample Seq #"  width="28" dataField="@number">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Flow Cell"/>
+							    <mx:Label text="Sample #"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
 					<mx:DataGridColumn editable="false" headerText="Requested # Cycles"  width="25" dataField="@idNumberSequencingCycles" 
                            itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}">                 											
 						<mx:headerRenderer > 
@@ -215,7 +236,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
- 	                <mx:DataGridColumn headerText="Clusters per tile" width="23" dataField="@clustersPerTile" editable="true">			                
+ 	                <mx:DataGridColumn headerText="Clusters per tile" width="30" dataField="@clustersPerTile" editable="true">			                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
