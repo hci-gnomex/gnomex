@@ -792,15 +792,15 @@
 
 	<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="200" creationPolicy="all">
 		<mx:HDividedBox label="Description" width="100%" height="100%" horizontalGap="10">
-			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10" width="650">
+			<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10" width="100%" height="100%">
 				<mx:HBox width="100%">
 					<mx:Label text="Name" width="90">
 					</mx:Label>
 					<mx:TextInput text="{analysis.@name}" width="100%" change="dirty.setDirty();" id="analysisName"/>
 					<mx:HBox width="100%">
-						<mx:Label text="Group" width="90">
+						<mx:Label text="Group" width="90" textAlign="right">
 						</mx:Label>
-						<mx:ComboBox  width="240" id="labCombo" 
+						<mx:ComboBox  width="100%" id="labCombo" 
 							dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 							selectedIndex="-1" labelField="@name"  change="dirty.setDirty();"/>
 					</mx:HBox>
@@ -810,7 +810,7 @@
 					</mx:Label>
 					<mx:TextArea text="{analysis.@description}" width="100%" height="110" change="dirty.setDirty();" id="description"/>
 				</mx:HBox>
-				<mx:HBox horizontalGap="80" width="100%">
+				<mx:HBox horizontalGap="10" width="100%">
 					<mx:VBox>
 						<mx:HBox width="100%" horizontalGap="10">
 							<mx:HBox verticalGap="0">
@@ -851,8 +851,8 @@
 				
 							
 					</mx:VBox>
-					<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%" height="100%">
-						<mx:HBox width="100%">
+					<mx:VBox paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0" width="100%" height="100%" verticalGap="1">
+						<mx:HBox width="100%" paddingBottom="3" horizontalGap="2">
 							<mx:Label text="Analysis Groups"/>
 							<mx:ComboBox id="analysisGroupCombo" dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" labelField="@name" selectedIndex="-1" prompt="..." width="150">						
 							</mx:ComboBox>
@@ -866,6 +866,7 @@
 						 	   	    	enabled="{analysisGroupGrid.selectedItem != null}" 
 						 	   	    	width="25" click="removeAnalysisGroup()"/>					
 						</mx:HBox>
+					  	
 						<mx:DataGrid id="analysisGroupGrid" width="100%" dataProvider="{analysisGroups}" showHeaders="false" height="100%">
 							<mx:columns>
 								<mx:DataGridColumn headerText="Name" dataField="@name"/>
@@ -899,7 +900,7 @@
 					     <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
 					     <mx:HBox width="100%">
 					          <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
-					          <mx:HBox width="100%" horizontalAlign="right">
+					          <mx:HBox width="100%" horizontalAlign="right" horizontalGap="0">
 					               <mx:LinkButton icon="@Embed(source='../../assets/delete.png')"  
 					               	label="Remove" textDecoration="underline"
 					               	disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
