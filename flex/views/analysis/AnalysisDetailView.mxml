@@ -166,19 +166,19 @@
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Analysis Type"  width="85" fontWeight="bold"/>
-			        	       <mx:Text text="{analysisTypeName}" width="200" />
+			        	       <mx:Text text="{analysisTypeName}" width="150" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Protocol"  width="85" fontWeight="bold"/>
-			                <mx:Text  text="{analysisProtocolName}" width="200" />
+			                <mx:Text  text="{analysisProtocolName}" width="150" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Organism"  width="85" fontWeight="bold"/>
-			                <mx:Text  text="{organismName}" width="200" />
+			                <mx:Text  text="{organismName}" width="150" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Genome Build"  width="85" fontWeight="bold"/>
-			                <mx:Text  text="{genomeBuildName}" width="200" />
+			                <mx:Text  text="{genomeBuildName}" width="150" />
 			            </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
