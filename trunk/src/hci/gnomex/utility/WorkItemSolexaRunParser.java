@@ -119,7 +119,7 @@ public class WorkItemSolexaRunParser implements Serializable {
     }
     
     if (n.getAttributeValue("clustersPerTile") != null && !n.getAttributeValue("clustersPerTile").equals("")) {
-      channel.setClustersPerTile(new Integer(n.getAttributeValue("clustersPerTile")));
+      channel.setClustersPerTile(new Integer(n.getAttributeValue("clustersPerTile").replaceAll(",", "")));
     } else {
       channel.setClustersPerTile(null);
     }
