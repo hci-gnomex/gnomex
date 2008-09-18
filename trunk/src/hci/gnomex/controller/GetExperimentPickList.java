@@ -358,34 +358,60 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       String hybNumber2    = tokens2[4];
       
       
-      String number1 = null;
+      String itemNumber1 = null;
+      String seq1 = null;
       
       String splitLetter = "";
       if (hybNumber1.indexOf("E") >= 0) {
         splitLetter = "E";
-      } else {
-       splitLetter = "L";
-      }
+      } else if (hybNumber1.indexOf("L") >= 0) {
+        splitLetter = "L";
+      } else if (hybNumber1.indexOf("F") >= 0) {
+        splitLetter = "F";
+      } 
       String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
-      number1 = hybNumberTokens1[hybNumberTokens1.length - 1];        
+      itemNumber1 = hybNumberTokens1[hybNumberTokens1.length - 1];     
+      
+      if (splitLetter.equals("F")) {
+        String[] numberTokens  = itemNumber1.split("_");
+        itemNumber1            = numberTokens[0];
+        seq1                   = numberTokens[1];                
+      } else {
+        seq1 = "0";
+      }
       
       
-      String number2 = null;
+      String itemNumber2 = null;
+      String seq2 = null;
       splitLetter = "";
       if (hybNumber2.indexOf("E") >= 0) {
         splitLetter = "E";
-      } else {
+      } else if (hybNumber2.indexOf("L") >= 0) {
         splitLetter = "L";
-      }
+      } else if (hybNumber2.indexOf("F") >= 0) {
+        splitLetter = "F";
+      } 
 
       String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
-      number2 = hybNumberTokens2[hybNumberTokens2.length - 1];        
+      itemNumber2 = hybNumberTokens2[hybNumberTokens2.length - 1];     
+      if (splitLetter.equals("F")) {
+        String[] numberTokens  = itemNumber2.split("_");
+        itemNumber2            = numberTokens[0];
+        seq2                   = numberTokens[1];                
+      } else {
+        seq2 = "0";
+      }
+     
      
 
       if (proj1.equals(proj2)) {
         if (date1.equals(date2)) {
           if (reqNumber1.equals(reqNumber2)) {
-            return new Integer(number1).compareTo(new Integer(number2));        
+            if (itemNumber1.equals(itemNumber2)) {
+              return new Integer(seq1).compareTo(new Integer(seq2));
+            } else {
+              return new Integer(itemNumber1).compareTo(new Integer(itemNumber2));                      
+            }
           } else {
             return reqNumber2.compareTo(reqNumber1);
           }  
