@@ -134,9 +134,15 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               	maxCycles = seqCycles.intValue();
             	}
               
+
+              WorkItem workItem = parser.getWorkItem(lane.getIdSequenceLane());
+
+              // Keep track of request numbers, organisms on flow cells
+            	requestNumbers.put(workItem.getRequest().getNumber(), null);
+              idOrganisms.put(lane.getSample().getIdOrganism(), null);
+              
               
               // Delete  work item
-              WorkItem workItem = parser.getWorkItem(lane.getIdSequenceLane());
               sess.delete(workItem);
               
               
