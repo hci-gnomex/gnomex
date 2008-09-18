@@ -4,7 +4,7 @@
 	width="100%" height="100%" 
 	title="Solexa Flow Cells"
 	xmlns:util="views.util.*">
-	
+	 
    <mx:HTTPService  
     id="getFlowCellList" 
     url="GetFlowCellList.gx"

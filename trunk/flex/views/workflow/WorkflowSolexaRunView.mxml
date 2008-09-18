@@ -96,10 +96,11 @@
     		var nv:NumberValidator = new NumberValidator();
 	    	nv.domain = "real";
 	    	nv.minValue = "0";
-	    	nv.maxValue = "99999";
+	    	nv.maxValue = "999999";
 	    	nv.precision = 3;
 	    	nv.required = false;
 	    	nv.allowNegative = false;
+	    	nv.thousandsSeparator = ",";
 	    	nv.exceedsMaxError = "exceeds max.";
 	    	nv.invalidCharError = "contains invalid characters.";
 	    	nv.negativeError = "cannot be negative.";
@@ -108,7 +109,7 @@
         	var item:Object = null;
         	var vr:ValidationResultEvent  = null;
 		    
-		    nv.domain = "integer";
+		    nv.domain = "int";
 		    nv.precision = 0;
         	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@clustersPerTile);
@@ -118,8 +119,9 @@
 		    	}
 	    	}         	
 
-	    	nv.domain = "integer";
+	    	nv.domain = "int";
 	    	nv.precision = 0;
+	    	nv.maxValue = 99;
         	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@numberSequencingCyclesActual);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
@@ -127,7 +129,7 @@
 		    		break;
 		    	}
 	    	}         	
-         	
+         	 
         	if (message != "") {
 	    		Alert.show(message);
 	    		return false;
