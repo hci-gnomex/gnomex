@@ -347,29 +347,29 @@
 					<mx:columns>
 						<mx:DataGridColumn  dataField="@display"             headerText="Control Name" width="40"/>
 					</mx:columns>				
-				</mx:DataGrid>			
+				</mx:DataGrid>			 
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			    <mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
 					<mx:Label text="{'Pending Sequence Requests (' + workList.length + ')' }" fontWeight="bold"/>
 			    </mx:HBox>
-				<mx:DataGrid id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true">
-					<mx:columns>
+				<util:DataGridAlternatingGroup id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true">
+					<util:columns>
 						<mx:DataGridColumn  dataField="@laneNumber"             headerText="Flow Cell Sample #" width="50">
 							<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
 								    <mx:Label text="Flow Cell"/>
 								    <mx:Label text="Sample #"/>
-								</mx:VBox>
+								</mx:VBox> 
 							</mx:Component>
 							</mx:headerRenderer>
 	  					</mx:DataGridColumn>					
 						<mx:DataGridColumn  dataField="@idFlowCellType"           headerText="Flow Cell Type"   width="80" labelFunction="lookupFlowCellType"/>
 	                    <mx:DataGridColumn  dataField="@idOrganism"               headerText="Organism"         width="35"  labelFunction="lookupOrganism"/>
 						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"          width="35"  labelFunction="lookupNumberSequencingCycles"/>
-					</mx:columns>				
-				</mx:DataGrid>		
+					</util:columns>				
+				</util:DataGridAlternatingGroup>		
 			</mx:VBox> 
 			
 	    	
