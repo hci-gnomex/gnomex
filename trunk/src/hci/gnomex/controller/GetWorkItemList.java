@@ -13,6 +13,7 @@ import hci.framework.control.RollBackCommandException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -109,6 +110,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         String prevFlowCellNumber = "";
         
         
+        DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
         
       
         Document doc = new Document(new Element("WorkItemList"));
@@ -309,7 +311,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("firstCycleStartDate",          row[23] == null ? "" :   this.formatDate((java.sql.Date)row[23]));
             n.setAttribute("flowCellNumber",               row[24] == null ? "" :  ((String)row[24]));
             n.setAttribute("numberSequencingCyclesActual", row[25] == null ? "" :  ((Integer)row[25]).toString());
-            n.setAttribute("clustersPerTile",              row[26] == null ? "" :  ((Integer)row[26]).toString());
+            n.setAttribute("clustersPerTile",              row[26] == null ? "" :  clustersPerTileFormat.format((Integer)row[26]));
             n.setAttribute("fileName",                     row[27] == null ? "" :  ((String)row[27]));
             n.setAttribute("flowCellBarcode",              row[28] == null ? "" :  ((String)row[28]));
             
@@ -496,12 +498,15 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }
 
 
-      
-      if (sampleNumber1.equals(sampleNumber2)) {
-        return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+      if (reqNumber1.equals(reqNumber2)) {
+        if (sampleNumber1.equals(sampleNumber2)) {
+          return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+        } else {
+          return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
+        }              
       } else {
-        return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
-      }      
+        return reqNumber1.compareTo(reqNumber2);
+      }
     }
   }  
   public static class  FlowCellChannelComparator implements Comparator, Serializable {
