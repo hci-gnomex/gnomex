@@ -485,6 +485,7 @@
 
 				                <mx:DataGridColumn  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
+								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Frag Size (from)" width="90" dataField="@seqPrepQualFragmentSizeFrom"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Frag Size (to)" width="90" dataField="@seqPrepQualFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
