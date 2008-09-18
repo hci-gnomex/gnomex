@@ -95,7 +95,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        s.idSampleType, ");
     queryBuf.append("        lane.idGenomeBuildAlignTo, ");
     queryBuf.append("        lane.analysisInstructions, ");
-    queryBuf.append("        lane.flowCellLaneNumber, ");
+    queryBuf.append("        ch.number, ");
     queryBuf.append("        fc.number, ");
     queryBuf.append("        lane.idSequenceLane ");
 
@@ -112,7 +112,8 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append(" JOIN           project.requests as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as lane ");
     queryBuf.append(" JOIN           lane.sample as s ");
-    queryBuf.append(" LEFT JOIN      lane.flowCell as fc ");
+    queryBuf.append(" LEFT JOIN      lane.flowCellChannel as ch ");
+    queryBuf.append(" LEFT JOIN      ch.flowCell as fc ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
 
 
