@@ -272,11 +272,14 @@
 	        	}
         	}
         	
-    		parentDocument.samplesView.enabled = isComplete && 
-    			this.validNumberOfSamples && 
-    			this.validConcentration &&
-    			this.validFragmentSizeTo && 
-    			this.validFragmentSizeFrom;
+        	if (!this.validNumberOfSamples ||
+        	    !this.validConcentration ||
+        	    !this.validFragmentSizeFrom ||
+        	    !this.validFragmentSizeTo) {
+        		isComplete = false;    	
+        	}
+        	
+    		parentDocument.samplesView.enabled = isComplete; 
     			
 			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 				parentDocument.annotationView.enabled = isComplete;        			
