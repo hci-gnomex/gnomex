@@ -250,7 +250,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     itemNode.setAttribute("sampleName2",              row[17] == null ? ""  : (String)row[17]);
     itemNode.setAttribute("idGenomeBuildAlignTo",     row[19] == null ? ""  : ((Integer)row[19]).toString());
     itemNode.setAttribute("analysisInstructions",     row[20] == null ? ""  : (String)row[20]);
-    itemNode.setAttribute("flowCellLaneNumber",       row[21] == null ? ""  : ((Integer)row[21]).toString());
+    itemNode.setAttribute("flowCellChannelNumber",    row[21] == null ? ""  : ((Integer)row[21]).toString());
     itemNode.setAttribute("flowCellNumber",           row[22] == null ? ""  : (String)row[22]);
 
     
