@@ -920,7 +920,19 @@
    				sample.@concentration = '';
    				sample.@fragmentSizeFrom = '';
    				sample.@fragmentSizeTo = '';
+   				sample.@seqPrepDate = '';
+   				sample.@seqPrepLibConcentration = '';
+   				sample.@seqPrepQualFragmentSizeFrom = '';
+   				sample.@seqPrepQualFragmentSizeTo = '';
+   				sample.@seqPrepStockLibVol = '';
+   				sample.@seqPrepStockEBVol = '';
+   				sample.@seqPrepStockEBVol = '';
+   				sample.@qualFragmentSizeFrom =""; 
+   				sample.@qualFragmentSizeTo="";
+   				sample.@seqPrepQualCodeBioanalyzerChipType=""; 
+   				sample.@seqPrepStockDate="";
    				
+		
    				
    				if (isQCState()) {
    					sample.@idSampleSource  = '';
