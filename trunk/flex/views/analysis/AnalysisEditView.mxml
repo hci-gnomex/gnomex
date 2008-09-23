@@ -260,7 +260,7 @@
 			    	" idFlowCellType ='" + item.@idFlowCellType + "'" +
 			    	" sampleNumber ='" + item.@sampleNumber1 + "'" +
 			    	" flowCellNumber ='" + item.@flowCellNumber + "'" +
-			    	" flowCellLaneNumber ='" + item.@flowCellLaneNumber  + "'" +
+			    	" flowCellChannelNumber ='" + item.@flowCellChannelNumber  + "'" +
 			    	" idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
 			    	"/>");
 			    // Sample names and other text may have special characters.  Assign this
@@ -897,9 +897,11 @@
 				</mx:VBox>
 				<mx:VBox width="100%" height="100%">
 					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
-					     <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
+						<mx:HBox>
+   					        <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
+   					        <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
+						</mx:HBox>
 					     <mx:HBox width="100%">
-					          <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
 					          <mx:HBox width="100%" horizontalAlign="right" horizontalGap="0">
 					               <mx:LinkButton icon="@Embed(source='../../assets/delete.png')"  
 					               	label="Remove" textDecoration="underline"
@@ -951,7 +953,7 @@
 					     		    <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
 					     		                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 					     		    <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
-					     		    <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Lane"  editable="false" dataField="@flowCellLaneNumber"/> 						             						             
+					     		    <mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
 					     		    <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
 					     		                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo')}"/>                 											
 					     		  <mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
