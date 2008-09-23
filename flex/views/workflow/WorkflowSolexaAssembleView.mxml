@@ -117,6 +117,8 @@
     		warningMessage = "";
     		isValid = true;
     		validateNumberOfLanes();
+    		validateSequencingControl();
+    		validateFlowCellType();
     		validateOrganism();
 	    	validateNumberSequencingCycles();
     		if (isValid) {
@@ -159,11 +161,53 @@
         	}        	
         }    
     	private function validateNumberOfLanes():void {
-    		if (dirtyWorkList.length < 7) {
-    			warningMessage = "Not all 7 lanes are populated.\n";
+    		if (dirtyWorkList.length < 8) {
+    			warningMessage = "Not all 8 channels are populated.\n\n";
     			isValid = false;
     		}
     	}
+    	
+    	private function validateSequencingControl():void {
+    		var theItem:Object;
+    		var item:Object;
+    		var controlCount:int = 0;
+	       // Make sure at least one sequencing control specified
+	       for each (theItem in dirtyWorkList) {
+	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
+	       			controlCount++;
+	       		}
+	       }
+   			if (controlCount == 0) {
+   				warningMessage += "No sequencing control specified fpr any of the channels.\n\n";
+   			}
+    	}
+    	
+    	private function validateFlowCellType():void {
+    		var theItem:Object;
+    		var item:Object;
+    		var invalidCount:int = 0;
+	       //Warn if different flow cell type 
+	       for each (theItem in dirtyWorkList) {
+	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
+	       			continue;
+	       		}
+	       		for each (item in dirtyWorkList) {
+	       			if (item.hasOwnProperty("@idSequencingControl")) {
+	       				continue;
+	       			}
+	       			if (theItem.@idFlowCellType != item.@idFlowCellType) {
+	       				warningMessage += "The flow cell channels have samples destined for different flow cell types.\n\n";
+	       				isValid = false;
+	       				invalidCount++;
+	       				break;
+	       			}
+	       		}
+	       		if (invalidCount > 0) {
+	       			break;
+	       		}
+	       }
+
+    	}    	
     	        	
     	private function validateOrganism():void {
     		var theItem:Object;
@@ -171,9 +215,15 @@
     		var invalidCount:int = 0;
 	       //Warn if different organism or number of seq cycles
 	       for each (theItem in dirtyWorkList) {
+	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
+	       			continue;
+	       		}
 	       		for each (item in dirtyWorkList) {
+	       			if (item.hasOwnProperty("@idSequencingControl")) {
+	       				continue;
+	       			}
 	       			if (theItem.@idOrganism != item.@idOrganism) {
-	       				warningMessage = "Different organisms are used on the flow cell.\n";
+	       				warningMessage += "Flow cell channels contain samples from different organisms.\n\n";
 	       				isValid = false;
 	       				invalidCount++;
 	       				break;
@@ -192,10 +242,16 @@
     		var item:Object;
     		var invalidCount:int = 0;
 	       for each (theItem in dirtyWorkList) {
+	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
+	       			continue;
+	       		}
 	       		for each (item in dirtyWorkList) {
+	       			if (item.hasOwnProperty("@idSequencingControl")) {
+	       			continue;
+	       			}
 	       			if (theItem.@idNumberSequencingCycles != item.@idNumberSequencingCycles) {
 	       				isValid = false;
-	       				warningMessage += "Different number of sequencing cycles are used on the flow cell.\n";
+	       				warningMessage += "Flow cell channels have different number of sequencing cycles requested.\n\n";
 	       				invalidCount++;
 	       				break;
 	       			}
@@ -266,11 +322,15 @@
 	       }
 	       
 	       // Disallow operation if flow cell is of different type
+	       /*
 	       for each (var dragItem:Object in items) {
+	       		if (dragItem.name() == "DictionaryEntry") {
+	       			continue;
+    	   		}
 	       		for each (var item:Object in dirtyWorkList) {
-	       			if (item.name() == "SequenceLane") {
+	       			if (item.name() == "WorkItem") {	       				
 		       			if (dragItem.@idFlowCellType != item.@idFlowCellType) {
-		       				Alert.show("Incompatible flow cell type.");
+		       				Alert.show("Warning - Incompatible flow cell type.");
 				       		event.preventDefault();
 				       		event.target.hideDropFeedback(event);
 				       		DragManager.showFeedback(DragManager.NONE);
@@ -279,6 +339,7 @@
 		       		}
 	       		}
 	       }
+	       */
 	       
 
 	       
@@ -290,7 +351,8 @@
 		    	dirtyWorkList.addItemAt(items[i], row);
 		    	workList.removeItemAt(workList.getItemIndex(items[i]));	       			
 	       	} else if (items[i].name() == "DictionaryEntry") {
-		    	dirtyWorkList.addItemAt(items[i], row);
+	       		var newItem:Object = new XML(XML(items[i]).toXMLString());
+		    	dirtyWorkList.addItemAt(newItem, row); 
 	       	} 
 	       }
 	       
@@ -315,7 +377,7 @@
         	if (d != null) {
         		return d.@display;
         	} else {
-        		return "";
+        		return ""; 
         	}
         }		
         private function lookupFlowCellType(item:Object, col:DataGridColumn):String {
@@ -399,7 +461,7 @@
 					</mx:HBox>
 			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="220" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
 				<mx:columns>
-					<mx:DataGridColumn  headerText="Channel" labelFunction="getAssembleLaneRowNumber" width="21"/>
+					<mx:DataGridColumn  headerText="Channel"  labelFunction="getAssembleLaneRowNumber" width="21"/>
 					<mx:DataGridColumn  dataField="@laneNumber" width="35" headerText="Flow Cell Sample #">
 						<mx:headerRenderer > 
 						<mx:Component>
