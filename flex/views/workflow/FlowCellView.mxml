@@ -189,7 +189,7 @@
 	</mx:VDividedBox>
 	<mx:ControlBar horizontalAlign="right">
 	    <mx:HBox width="100%" horizontalAlign="left">
-			<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
+			<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
 				 toolTip="Refresh worklist"/>
 	    </mx:HBox>
 	</mx:ControlBar>	

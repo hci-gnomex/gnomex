@@ -325,14 +325,14 @@
 </mx:Script>
     <mx:VBox width="100%" height="100%" verticalGap="0">
 	    <mx:HDividedBox height="100%" width="100%">
-	        <mx:VBox  height="100%" verticalGap="4"  borderStyle="outset">
+	        <mx:VBox  height="100%" verticalGap="4"   width="100" borderStyle="outset">
 	            <mx:Label text="Samples"/>
 	        	<mx:DataGrid
 	        		 height="100%" width="100%" 
 	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
 	        		 dragEnabled="true" id="sampleDragGrid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" showHeaders="false">
 					<mx:columns>
-						<mx:DataGridColumn headerText = "Samples" width="90" dataField="@name"/>
+						<mx:DataGridColumn headerText = "Samples" dataField="@name"/>
 			            <mx:DataGridColumn id="channelCountCol" width="30"  labelFunction="getChannelCountLabelFunction" headerText="">
 			                <mx:itemRenderer>
 			                    <mx:Component >
@@ -350,27 +350,26 @@
 	         	</mx:DataGrid>
 	        </mx:VBox>
 			<mx:VBox  id="hybsContainer" width="100%" height="100%" borderStyle="outset">
-			   <mx:Label text="Hybridizations    (Drag sample onto Cy3 or Cy5 Sample cell)"></mx:Label>
-					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4">
-						<mx:HBox id="buttonContainer">
-							<mx:Button click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addHybButton" width="24" toolTip="Add hyb"/>
-							<mx:Button click="copyHyb();checkHybsCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyHybButton" width="24" toolTip="Copy hyb"/>
-							<mx:Button click="deleteHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteHybButton" width="24" toolTip="Delete hyb(s)"/>
-							<mx:Button click="promptToClearAllHybs()" icon="@Embed('../../assets/folder_delete.png')" id="clearHybsButton" width="24" toolTip="Clear all hybs"/>
+			   <mx:HBox width="100%"> 
+				   <mx:Label text="Hybridizations (Drag sample onto Cy3 or Cy5 Sample cell)"></mx:Label>
+			   	
+			   </mx:HBox>
+					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" horizontalGap="10">
+						<mx:HBox id="buttonContainer" horizontalGap="0">
+							<mx:LinkButton textDecoration="underline" label="Add hyb" click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addHybButton" toolTip="Add hyb"/>
+							<mx:LinkButton textDecoration="underline" label="Copy hyb" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyHybButton"  toolTip="Copy hyb"/>
+							<mx:LinkButton textDecoration="underline" label="Delete hyb" click="deleteHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteHybButton" toolTip="Delete hyb(s)"/>
+							<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllHybs()" icon="@Embed('../../assets/folder_delete.png')" id="clearHybsButton"  toolTip="Clear all hybs"/>
 						</mx:HBox>
-						
-						<mx:HBox horizontalAlign="right" width="100%">
-							<mx:HBox width="100%" horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="8" paddingTop="2" id="workflowCheckBoxContainer">
-								<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
-								<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
-								<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
-								<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" paddingLeft="0" paddingRight="0"/>
-								<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE data" paddingLeft="0" paddingRight="0"/>
-							</mx:HBox>
-						</mx:HBox>
+						<mx:HBox  horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="4" paddingTop="2" id="workflowCheckBoxContainer">
+						 <mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
+						 <mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
+							<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" paddingLeft="0" paddingRight="0"/>
+						    <mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE" paddingLeft="0" paddingRight="0"/>
+						   </mx:HBox>
 							
 					</mx:HBox>
-				<util:DataGridAlternatingGroup width="100%" height="100%" id="hybsGrid"  editable="true" dataProvider="{parentDocument.hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+				<util:DataGridAlternatingGroup height="100%" id="hybsGrid"   editable="true" dataProvider="{parentDocument.hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9"  width="100%">
 					<util:columns>
 					    <mx:DataGridColumn id="hybRowNumberCol" editable="false" visible="{currentState == 'HybsState'}" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getHybsGridRowNumber"/>
   					    <mx:DataGridColumn id="hybNumberCol"  headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"   dataField="@number"  editable="false"/>
@@ -386,18 +385,35 @@
 			                    </mx:Component>
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
-					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="122" 
+					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="100" 
 					    	labelFunction="parentDocument.getSampleChannel1Name" 
-                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel1" itemRenderer="views.renderers.LabelSampleChannel1" />								    	
-  					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel1Number" editable="false"/>
-					    <mx:DataGridColumn id="channel2SampleColumn" headerText="Cy5 Sample (red)"  width="122" 
+                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" 
+                            itemEditor="views.renderers.TextInputSampleChannel1"
+                            itemRenderer="views.renderers.LabelSampleChannel1" >
+					    </mx:DataGridColumn>
+  					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  
+  					    	labelFunction="parentDocument.getSampleChannel1Number" editable="false"/>
+					    <mx:DataGridColumn id="channel2SampleColumn" headerText="Cy5 Sample (red)"  width="100" 
 					    	labelFunction="parentDocument.getSampleChannel2Name" 
-                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputSampleChannel2" itemRenderer="mx.controls.Label" />								    	
+                            editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" 
+                            itemEditor="views.renderers.TextInputSampleChannel2" 
+                            itemRenderer="mx.controls.Label" >								    	
+					    </mx:DataGridColumn>
   					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel2Number" editable="false"/>
                             
-                            
+                        <mx:DataGridColumn id="slideDesignColumn" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide"  width="280" dataField="@idSlideDesign" 						             						             
+			                editorDataField="value" sortable="false"  editable="true" rendererIsEditor="false" 
+ 	                        itemEditor="{views.renderers.ComboBoxSlideDesign.create('@idSlideDesign', '@idSlideDesign', '@name' ,'@canChangeSlideDesign')}"			                
+    	                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideDesign', '@idSlideDesign', true)}"/>                 			                
+			             <mx:DataGridColumn visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="70" dataField="@codeSlideSource" 
+			                editorDataField="value" sortable="false" editable="true"  rendererIsEditor="false" 
+ 	                        itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource', true)}"
+ 	                        itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource', '@canChangeSlideSource')}"/>			                
+			                
+						<mx:DataGridColumn headerText="Notes" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="200" dataField="@notes"/>
+
 					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel1"
-        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+        	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
   	                  	       itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel1')}"
 	    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel1', '', false, true)}">
 						<mx:headerRenderer >
@@ -546,16 +562,6 @@
                             
                             
                             
-			             <mx:DataGridColumn id="slideDesignColumn" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide"  width="250" dataField="@idSlideDesign" 						             						             
-			                editorDataField="value" sortable="false"  editable="true" rendererIsEditor="false" 
- 	                        itemEditor="{views.renderers.ComboBoxSlideDesign.create('@idSlideDesign', '@idSlideDesign', '@name' ,'@canChangeSlideDesign')}"			                
-    	                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideDesign', '@idSlideDesign', true)}"/>                 			                
-			             <mx:DataGridColumn visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="78" dataField="@codeSlideSource" 
-			                editorDataField="value" sortable="false" editable="true"  rendererIsEditor="false" 
- 	                        itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource', true)}"
- 	                        itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource', '@canChangeSlideSource')}"/>			                
-			                
-						<mx:DataGridColumn headerText="Notes" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="100" dataField="@notes"/>
 					</util:columns>
 				</util:DataGridAlternatingGroup>
 				
@@ -567,7 +573,6 @@
     
     <mx:states>
     	<mx:State name="HybsState">
-    	    <mx:RemoveChild target="{workflowCheckBoxContainer}"/>
     	</mx:State>
     	<mx:State name="HybsEditState">
     		<mx:RemoveChild target="{buttonContainer}"/>

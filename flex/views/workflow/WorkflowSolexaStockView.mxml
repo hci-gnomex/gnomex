@@ -209,7 +209,7 @@
 	  </mx:VBox>
 					
  <mx:ControlBar>
- 	            	<mx:Button icon="@Embed('../../assets/action_refresh.gif')" 
+ 	            	<mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
  	            		click="refreshWorkList();" toolTip="Refresh worklist"/>
 	 	            <mx:HBox width="100%" horizontalAlign="right">
 	 	            	<util:DirtyNote id="dirty"/>
