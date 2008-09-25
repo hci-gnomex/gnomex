@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequencing Lanes" enabled="false" width="100%" height="100%">
 <mx:Script>	
 	<![CDATA[
+		import mx.events.CloseEvent;
 		import mx.events.DragEvent;
 		import mx.events.DragEvent;
 		import mx.managers.DragManager;
@@ -11,6 +12,8 @@
         import hci.flex.renderers.LabelDictionary;
         import views.renderers.ComboBoxDictionary;
         import views.renderers.ComboBoxWorkflowStatus;
+        
+        private var laneToDelete:Object = null;
         		
 		private function addLane():void {
 			var emptyNode:XML = new XML("<SequenceLane " +
@@ -47,21 +50,45 @@
 		private function deleteLane():void {
 			if (lanesGrid.selectedItems.length > 0) {
 				for each(var lane:Object in lanesGrid.selectedItems) {
-					if (lane.@idSequenceLane.indexOf("SequenceLane") < 0) {
-						Alert.show("Existing lane " + lane.@number + " cannot be deleted.");
-						continue;
-					}		
-					var index:int = parentDocument.lanes.getItemIndex(lane);			
-					parentDocument.lanes.removeItemAt(index);
+					promptToDeleteLane(lane);
 				}
-			}
+			} 
 		}
+		
+		public function promptToDeleteLane(lane:Object):void {
+			laneToDelete = lane;
+			if (lane.@idFlowCellChannel != "") {
+				Alert.show("Warning: Lane " + lane.@number + " is already loaded on flow cell " + lane.@flowCellNumber + "-" + lane.@flowCellChannelNumber +  
+				           " Remove lane anyway?",
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteLane);
+			 
+			} else {
+				Alert.show("Remove lane " + lane.@number + "?",
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteLane);
+				
+			}
+			
+		}
+		
+		
+		private function onPromptToDeleteLane(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				var index:int = parentDocument.lanes.getItemIndex(laneToDelete);			
+				parentDocument.lanes.removeItemAt(index);
+			}
+			laneToDelete = null;
+		}
+		
+		
 		public function promptToClearAllLanes():void {
 			Alert.show("Remove all sequence lanes currently showing in list?",
 						null, 
 						(Alert.YES | Alert.NO), this, 
 						onPromptToClearAllLanes);
-			
 		}
 				
         public function initializeLanesGrid():void {
@@ -113,7 +140,7 @@
 
 		private function onPromptToClearAllLanes(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
-            	parentDocument.lanes.removeAll();
+            	parentDocument.lanes.removeAll(); 
             	checkLanesCompleteness();
             }
         }
@@ -331,8 +358,8 @@
 			<mx:AddChild relativeTo="{lanesGrid}"  position="before">
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" id="buttonContainer">
 						<mx:HBox>
-							<mx:Button click="copyLane();checkLanesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyLaneButton" toolTip="Copy lane" width="24"/>
-							<mx:Button click="deleteLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteLaneButton" toolTip="Delete lane(s)" width="24"/>
+							<mx:LinkButton textDecoration="underline" label="Copy lane" click="copyLane();checkLanesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyLaneButton" toolTip="Copy lane" />
+							<mx:LinkButton textDecoration="underline" label="Delete lane" click="deleteLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteLaneButton" toolTip="Delete lane(s)" />
 						</mx:HBox>
 						
 					</mx:HBox>
