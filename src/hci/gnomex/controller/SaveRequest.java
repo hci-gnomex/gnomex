@@ -211,6 +211,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         // save sequence lanes
         HashMap sampleToLaneMap = new HashMap();
+        HashMap existingLanesSaved = new HashMap();
         if (!requestParser.getSequenceLaneInfos().isEmpty()) {
 
           // Hash lanes by sample id
@@ -231,10 +232,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             List lanes = (List)sampleToLaneMap.get(idSampleString);
             
             int sampleSeqCount = 0;
+            
             for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
               RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
               boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
               SequenceLane lane = saveSequenceLane(laneInfo, sess, sampleSeqCount);
+              
+              if (!isNewLane) {
+                existingLanesSaved.put(lane.getIdSequenceLane(), lane);
+              }
 
               // if this is a not a new request, but these is a new sequence lane,
               // create a work item for the Cluster Gen (Assemble) worklist.
@@ -253,6 +259,45 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
           
         }
+        
+        // Delete sequence lanes
+        for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
+          SequenceLane lane = (SequenceLane)i.next();
+          if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
+            boolean canDeleteLane = true;
+            
+            StringBuffer buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
+            List analysis = sess.createQuery(buf.toString()).list();
+            if (analysis != null && analysis.size() > 0) {
+              canDelete = false;
+              this.addInvalidField("deleteLaneError1", "Cannot delete lane " + 
+                  lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
+              
+            }
+            if (lane.getFlowCellChannel() != null) {
+              canDelete = false;
+              this.addInvalidField("deleteLaneError2", "Cannot delete lane " + 
+                  lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
+            }
+            if (lane.getFlowCellChannel() != null) {
+              buf = new StringBuffer("SELECT wi.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
+              List workItems = sess.createQuery(buf.toString()).list();
+              if (workItems != null && workItems.size() > 0) {
+                canDelete = false;
+                this.addInvalidField("deleteLaneError3", "Cannot delete lane " + 
+                    lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
+              }
+              
+            }
+            
+            if (canDeleteLane) {              
+              sess.delete(lane);
+            }
+            
+            
+          }          
+        }
+        
         
         
         sess.save(requestParser.getRequest());
