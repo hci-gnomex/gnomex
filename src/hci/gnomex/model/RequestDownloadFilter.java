@@ -168,10 +168,10 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append(" SELECT DISTINCT req.idRequest, ");
     queryBuf.append("        s.idSample, ");
     queryBuf.append("        s.number, ");
-    queryBuf.append("        max(fc.firstCycleDate), ");
-    queryBuf.append("        max(fc.firstCycleFailed), ");
-    queryBuf.append("        max(fc.lastCycleDate), ");
-    queryBuf.append("        max(fc.lastCycleFailed) "); 
+    queryBuf.append("        max(ch.firstCycleDate), ");
+    queryBuf.append("        max(ch.firstCycleFailed), ");
+    queryBuf.append("        max(ch.lastCycleDate), ");
+    queryBuf.append("        max(ch.lastCycleFailed) "); 
     getSolexaLaneStatusQueryBody(queryBuf);
     
     return queryBuf;
@@ -182,7 +182,8 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
-    queryBuf.append(" JOIN           l.flowCell as fc ");
+    queryBuf.append(" JOIN           l.flowCellChannel as ch ");
+    queryBuf.append(" JOIN           ch.flowCell as fc ");
 
     addRequestCriteria();
     addLaneCriteria();
