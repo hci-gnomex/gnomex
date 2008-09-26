@@ -266,6 +266,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
             boolean canDeleteLane = true;
             
+            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+              this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
+              canDelete = false;
+            }
+            
             StringBuffer buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
             List analysis = sess.createQuery(buf.toString()).list();
             if (analysis != null && analysis.size() > 0) {
@@ -280,7 +285,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
             }
             if (lane.getFlowCellChannel() != null) {
-              buf = new StringBuffer("SELECT wi.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
+              buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
               List workItems = sess.createQuery(buf.toString()).list();
               if (workItems != null && workItems.size() > 0) {
                 canDelete = false;
