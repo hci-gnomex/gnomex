@@ -385,7 +385,7 @@
 			                    </mx:Component>
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
-					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="100" 
+					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="100"  
 					    	labelFunction="parentDocument.getSampleChannel1Name" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" 
                             itemEditor="views.renderers.TextInputSampleChannel1"
