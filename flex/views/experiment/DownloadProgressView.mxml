@@ -37,6 +37,7 @@
 	    private var theParent:DisplayObject;
 	    private var estimatedDownloadSize:int;
 	    private var suggestedFileName:String = "gnomex-data";
+	    private var finalizeProgressCount:int = 0;
 	    
 	    private static var downloadWindowCount:int = 0;
 	    
@@ -49,6 +50,7 @@
 			this.theParent = parent;
 			this.estimatedDownloadSize = estimatedDownloadSize;
 			this.suggestedFileName = suggestedFileName;
+			this.finalizeProgressCount = 0;
 			
 			fr = new FileReference();
 	        fr.addEventListener(Event.OPEN, openHandler);
@@ -111,17 +113,37 @@
 	        	// line commented out.
 		        //btn.enabled = false;
 	        }
-	    }
+	    } 
 	    /**
 	     * While the file is downloading, update the progress bar's status.
 	     */
 	    private function progressHandler(event:ProgressEvent):void
-	    {
+	    {  
 	    	if (event.bytesTotal == 0 || event.bytesTotal <= event.bytesLoaded) {
+	    		if (event.bytesLoaded >= estimatedDownloadSize) {
+	    			showFinalizeProgress();
+	    		}
 				downloadProgress.setProgress(event.bytesLoaded, estimatedDownloadSize);    		
-	    	} else {
+	    	} else { 
+	    		if (event.bytesLoaded >= event.bytesTotal) {
+	    			showFinalizeProgress();
+	    		}
 				downloadProgress.setProgress(event.bytesLoaded, event.bytesTotal);    		
 	    	}
+	    }
+	    
+	    private function showFinalizeProgress():void {
+			if (finalizeProgressCount == 0) {
+		    	downloadProgress.label = "Finalizing download.";    					    				
+	    	} else {
+	    		if (finalizeProgressCount % 10 == 0 && finalizeProgressCount < 200) {
+	    			downloadProgress.label += ".";
+	    		} else if (finalizeProgressCount >= 200) {
+	    			downloadProgress.label = "Finalizing download.";
+	    			finalizeProgressCount = 0;
+	    		}
+	    	}
+	    	finalizeProgressCount++;	    	
 	    }
 	    
 	      /**
