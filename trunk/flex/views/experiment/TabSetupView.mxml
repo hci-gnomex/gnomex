@@ -261,10 +261,13 @@
 	        appUsers.refresh();
 	        
 	        this.appUserCombo.selectedIndex = 0;
-	        
-	        billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+
+			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 	        billingAccounts.filterFunction = this.filterBillingAccount;
 	        billingAccounts.refresh();
+	        if (billingAccounts.length == 1) {
+	        	this.billingAccountCombo.selectedIndex = 0;	        	
+	        } 
 	        
 	        parentApplication.filteredProjectListForSubmitRequests.refresh();
 
@@ -396,7 +399,7 @@
 				<mx:HBox width="100%" horizontalGap="0">
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the account to be billed:" width="220"/>
-					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" change="checkSetupCompleteness()">
+					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>
