@@ -211,6 +211,16 @@
 		    				pos++;
 		    				if (analysis.@number == selectedAnalysisNumber) {
 		    					idx = --pos;
+		    					
+								// We came from the main gnomex app, so select the lab from the lab combo
+		    					if (this.currentState == "AdminState") {
+		    						for each(var l:Object in  parentApplication.promptedLabList) {
+		    							if (l.@idLab == analysis.@idLab) {
+		    								this.browseLabCombo.selectedItem = l;
+		    								break;	
+		    							}
+		    						}
+		    					}		    					
 		    					break;
 		    				} 
 		    			}
@@ -363,10 +373,11 @@
 				editView.title = "Edit Analysis " + browseTree.selectedItem.@number;
 				selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
 				var parms:Object = new Object();
-				parms.idAnalysis = selectedIdAnalysis;
+				parms.idAnalysis = selectedIdAnalysis; 
 				getAnalysis.send(parms);
 				selectedIdLab = browseTree.selectedItem.@idLab;
 				selectedIdAnalysisGroup = browseTree.selectedItem.parent().@idAnalysisGroup;
+				selectedAnalysisNumber = null;
 				
 			} else {												
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
@@ -524,10 +535,11 @@
 				selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
 				
 				var params:Object = new Object();
-				params.idProject = selectedAnalysis.@idProject;
+				params.idAnalysisGroup = selectedAnalysis.@idAnalysisGroup;
+				params.idLab = selectedAnalysis.@idLab;
 				params.showSamples = "N";
 				params.showCategory = "N";
-				params.searchPublicProjects = 'N';
+				params.searchPublicProjects = 'N'; 
 				getAnalysisGroupList.send(params);
 				
 			    detailView.title = "Analysis " + selectedAnalysisNumber;

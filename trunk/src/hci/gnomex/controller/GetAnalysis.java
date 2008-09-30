@@ -31,6 +31,7 @@ import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
 import hci.gnomex.model.Project;
+import hci.gnomex.model.Request;
 
 
 public class GetAnalysis extends GNomExCommand implements Serializable {
@@ -38,6 +39,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysis.class);
   
   private Integer idAnalysis;
+  private String  analysisNumber;
 
   
   public void validate() {
@@ -47,8 +49,14 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
 
     if (request.getParameter("idAnalysis") != null) {
       idAnalysis = new Integer(request.getParameter("idAnalysis"));
-    } else {
-      this.addInvalidField("idAnalysis", "idAnalysis is required");
+    }     
+    if (request.getParameter("analysisNumber") != null && !request.getParameter("analysisNumber").equals("")) {
+      analysisNumber = request.getParameter("analysisNumber");
+    } 
+    
+    
+    if (idAnalysis == null && analysisNumber == null) {
+      this.addInvalidField("idAnalysi or analysisNumber", "Either idAnalysis or analysisNumber must be provided");
     }
   }
 
@@ -58,18 +66,32 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       Analysis a = null;
-      if (idAnalysis.intValue() == 0) {
+      if (idAnalysis != null && idAnalysis.intValue() == 0) {
         a = new Analysis();
         a.setIdAnalysis(new Integer(0));
-      } else {
+      } else if (idAnalysis != null){
         a = (Analysis)sess.get(Analysis.class, idAnalysis);
         Hibernate.initialize(a.getAnalysisGroups());
+        
+      }else {
+        analysisNumber = analysisNumber.replaceAll("#", "");
+        StringBuffer buf = new StringBuffer("SELECT a from Analysis as a where a.number = '" + analysisNumber.toUpperCase() + "'");
+        List analyses = (List)sess.createQuery(buf.toString()).list();
+        if (analyses.size() > 0) {
+          a = (Analysis)analyses.get(0);
+          Hibernate.initialize(a.getAnalysisGroups());
+        }
+      }
+      
+      if (a == null) {
+        this.addInvalidField("missingAnalysis", "Cannot find analysis idAnalysis=" + idAnalysis + " analysisNumber=" + analysisNumber);
+      } else {
         if (!this.getSecAdvisor().canRead(a)) {
           this.addInvalidField("permissionerror", "Insufficient permissions to access this analysis Group.");
         } else {
           this.getSecAdvisor().flagPermissions(a);
           
-        }
+        }         
       }
    
     
