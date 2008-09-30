@@ -492,9 +492,9 @@
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Label text="Select the desired number of sequencing cycles:" width="330" />
 					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
-						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry}</mx:dataProvider>
+						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}</mx:dataProvider>
 					</mx:ComboBox>
-				</mx:HBox>            	
+				</mx:HBox>            	  
             </mx:AddChild>
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
             <mx:SetEventHandler target="{sampleConcentration}" name="change">
