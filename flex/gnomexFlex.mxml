@@ -300,6 +300,7 @@
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 
+				navExperimentView.checkSecurity();
 
 				var parms:Object = new Object();
 				parms.requestNumber = requestNumber;
@@ -348,6 +349,8 @@
 				navAnalysisView.selectedIdLab = idLab;
 				navAnalysisView.selectedAnalysisNumber = analysisNumber;
 
+				navAnalysisView.checkSecurity();
+
 				var parms:Object = new Object();
 				parms.idLab = idLab;
 				parms.idAnalysis = idAnalysis;
@@ -355,6 +358,23 @@
 
 				theViews.visible = true;
 				navAnalysisView.checkSecurity();
+				theViews.selectedChild = navAnalysisView;
+				
+			}
+			
+			public function showAnalysisForNumber(analysisNumber:String):void {
+				navAnalysisView.selectedAnalysisNumber = analysisNumber;
+				navAnalysisView.selectedIdAnalysis = null;
+				navAnalysisView.selectedIdLab = null;
+				navAnalysisView.selectedIdAnalysisGroup = null;
+
+				navAnalysisView.checkSecurity();
+
+				var parms:Object = new Object();
+				parms.analysisNumber = analysisNumber;
+				navAnalysisView.getAnalysis.send(parms);
+
+				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
 				
 			}
@@ -458,6 +478,15 @@
             	    Application.application.parameters.launchWindow == "ExperimentDetail" &&
             	    Application.application.parameters.requestNumber != null ) {
        				return true;
+            	} else { 
+            		return false;
+            	}
+            }
+            public function launchAnalysisDetail():Boolean { 
+            	if (Application.application.parameters.launchWindow != null &&
+            	    Application.application.parameters.launchWindow == "AnalysisDetail" &&
+            	    Application.application.parameters.analysisNumber != null ) {
+       				return true;
             	} else {
             		return false;
             	}
@@ -466,6 +495,13 @@
             public function getLaunchRequestNumber():String {
             	if (Application.application.parameters.requestNumber != null) {
        				return Application.application.parameters.requestNumber;
+            	} else {
+            		return "";
+            	}
+            }
+            public function getLaunchAnalysisNumber():String {
+            	if (Application.application.parameters.analysisNumber != null) {
+       				return Application.application.parameters.analysisNumber;
             	} else {
             		return "";
             	}
@@ -735,10 +771,15 @@
 	        		
 					theViews.visible = true;
 					theViews.selectedChild = navExperimentView;
-
+ 
 	        		this.showExperiment(getLaunchRequestNumber());
-	        	}
-	        	
+	        	} else if (launchAnalysisDetail()) {
+					theViews.visible = true;
+					theViews.selectedChild = navAnalysisView;
+
+	        		this.showAnalysisForNumber(getLaunchAnalysisNumber());
+	        	} 
+	        	 
 	        }
 	        
 		public function sortExperimentDesigns(obj1:Object, obj2:Object, fields:Array=null):int {
