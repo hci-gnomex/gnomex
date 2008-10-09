@@ -81,7 +81,12 @@ public class SaveProject extends GNomExCommand implements Serializable {
       Element projectNode = projectDoc.getRootElement();
       initializeProject(projectNode, sess);      
       
-      if (this.getSecAdvisor().canUpdate(project)) {
+      if (project.getName() == null || project.getName().equals("")) {
+        this.addInvalidField("projectName", "Project name is required.");
+        this.setResponsePage(this.ERROR_JSP);
+      }
+      
+      if (this.isValid() && this.getSecAdvisor().canUpdate(project)) {
 
         sess.save(project);
         sess.flush();
@@ -395,7 +400,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
      text = text.replaceAll("&apos;",   "'");
      text = text.replaceAll("&gt;",     ">");
      text = text.replaceAll("&lt;",     "<");
-     text = text.replaceAll("&#181;",   "µ");
+     text = text.replaceAll("&#181;",   "ï¿½");
      return text;
    }
 
