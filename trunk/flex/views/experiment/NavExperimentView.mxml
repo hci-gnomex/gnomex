@@ -36,6 +36,17 @@
     useProxy="false">
   </mx:HTTPService>
 
+   <mx:HTTPService  
+    id="getRequestFromNav" 
+    url="GetRequest.gx"
+    destination="getRequest"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    result="onGetRequestFromNav(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
    
    <mx:HTTPService  
     id="getRequestForDownload" 
@@ -623,6 +634,39 @@
 			params.showCategory = "N";
 			var call:Object = getProjectRequestList.send(params);
 			call.marker = "showDownloads";
+		    theViews.visible = true;
+		}
+		
+		private function onGetRequestFromNav(event:ResultEvent):void {
+			if (getRequestFromNav.lastResult.name() == "SUCCESS") {
+				Alert.show("Experiment not found");
+				parentApplication.theViews.selectedIndex = 0;
+        		return;
+        	}
+			if (getRequestFromNav.lastResult.name() != "OpenRequestList") {
+        		Alert.show(getRequest.lastResult..ACTMESSAGE.@TEXT);
+        		return;
+        	}
+        	
+
+			if (selectedIdRequest != null) {
+				selectedExperiment = getRequestFromNav.lastResult.Request.(@idRequest == selectedIdRequest);			
+			} else {
+				selectedExperiment = getRequestFromNav.lastResult.Request.(@number == selectedRequestNumber);
+			}
+				
+			var params:Object = new Object();
+			params.idProject = selectedExperiment.@idProject;
+			params.showSamples = "N";
+			params.showCategory = "N";
+			params.searchPublicProjects = 'N';
+			getProjectRequestList.send(params);
+				
+			detailView.title = "Experiment " + selectedRequestNumber;
+			
+			theViews.selectedChild = detailView;
+			detailView.setupForm(this.selectedExperiment);
+			
 		    theViews.visible = true;
 		}
 		

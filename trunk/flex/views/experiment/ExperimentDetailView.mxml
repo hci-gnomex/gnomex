@@ -32,7 +32,6 @@
 				this.showExtFieldsCheckBox.visible = false;
 				this.showHybFieldsCheckBox.visible = false;
 				this.showQCFieldsCheckBox.visible = false;
-				this.showWorkflowLabel.visible = false;
 				this.requestFormButton.visible = false;
 			}
 		}
@@ -450,9 +449,11 @@
 					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
-							<mx:Spacer width="74"/>
-							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
-							<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Show Solexa Lib Prep columns" visible="true" click="showHideColumns()"/>
+							<mx:HBox width="100%" horizontalAlign="right" paddingRight="4">
+								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
+								<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Solexa Lib Prep" visible="true" click="showHideColumns()"/>
+							</mx:HBox>
+								
 						</mx:HBox>
 						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
@@ -520,12 +521,12 @@
 					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 							<mx:Label text="{'Hybridizations (' + hybsGridConfirm.dataProvider.length + ')' }" fontWeight="bold"/>
-							<mx:Spacer width="40"/>
-							<mx:Label text="Show other columns:" id="showWorkflowLabel"/>
-							<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
-							<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
-							<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
-							<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
+							<mx:HBox width="100%"  horizontalAlign="right" paddingRight="4">
+								<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling columns" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
+								<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
+								<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
+								<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
+							</mx:HBox>
 						</mx:HBox>
 						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{this.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
 							<mx:columns>
@@ -698,10 +699,10 @@
 </mx:ControlBar>
 
 <mx:states>
-	<mx:State name="MicroarrayState">		
+	<mx:State name="MicroarrayState">		 
 	</mx:State>
 	<mx:State name="QCState">		
-		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
+		<mx:RemoveChild target="{hybsConfirmContainer}"/>	 
 	</mx:State>
 	<mx:State name="SolexaState">
 		<mx:RemoveChild target="{hybsConfirmContainer}"/>	

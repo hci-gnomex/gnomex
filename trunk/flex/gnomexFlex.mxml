@@ -304,7 +304,24 @@
 
 				var parms:Object = new Object();
 				parms.requestNumber = requestNumber;
-				navExperimentView.getRequest.send(parms);
+				navExperimentView.getRequestFromNav.send(parms);
+
+				theViews.visible = true;
+				theViews.selectedChild = navExperimentView;
+				
+			}
+			
+			public function showExperimentById(idRequest:String):void {
+				navExperimentView.selectedRequestNumber = null;
+				navExperimentView.selectedIdRequest = idRequest;
+				navExperimentView.selectedIdLab = null;
+				navExperimentView.selectedIdProject = null;
+
+				navExperimentView.checkSecurity();
+
+				var parms:Object = new Object();
+				parms.idRequest = idRequest;
+				navExperimentView.getRequestFromNav.send(parms);
 
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
