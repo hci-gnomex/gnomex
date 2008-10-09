@@ -126,6 +126,17 @@
 	    	var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
 	       	return String(x);
 	    } 
+	    
+	    private function showExperimentForSelectedHyb():void {
+	    	
+	    	var ei:Object = parentDocument.selectedAnalysis.experimentItems.AnalysisExperimentItem..Hybridization.(@idHybridization == hybsGrid.selectedItem.@idHybridization).parent().parent();
+	    	parentApplication.showExperimentById(ei.@idRequest);
+	    	
+	    }
+	    
+	    private function showExperimentForSelectedLane():void {
+	    	parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
+	    }
 
         
 
@@ -206,13 +217,16 @@
 							<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
 								<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 									<mx:Spacer width="74"/>
-								</mx:HBox>
+								</mx:HBox> 
 				        <mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0" paddingTop="0"/>
 				        <mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0" paddingBottom="0"/>
 				        <mx:ViewStack width="100%" height="100%" id="experimentItemStack">
-				        	<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%">
+				        	<mx:Canvas label="{'Microarray Hybridizations (' + hybsGrid.dataProvider.length + ')'}" width="100%" height="100%">
 		
-								<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="false" dataProvider="{parentDocument.selectedAnalysis..Hybridization}">
+								<mx:DataGrid width="100%" height="100%" id="hybsGrid"  editable="false" 
+									dataProvider="{parentDocument.selectedAnalysis..Hybridization}"
+									doubleClickEnabled="true"
+									doubleClick="showExperimentForSelectedHyb()">
 									<mx:columns>
 									    <mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
 										<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
@@ -226,8 +240,12 @@
 								</mx:DataGrid>
 		
 				        	</mx:Canvas>
-				        	<mx:Canvas label="Solexa Sequence Lanes" width="100%" height="100%">
-				        		<mx:DataGrid width="100%" height="100%" dataProvider="{parentDocument.selectedAnalysis..SequenceLane}" id="lanesGrid">
+				        	<mx:Canvas label="{'Solexa Sequencing Lanes (' +  lanesGrid.dataProvider.length + ')'}" width="100%" height="100%">
+				        		<mx:DataGrid width="100%" height="100%" 
+				        			dataProvider="{parentDocument.selectedAnalysis..SequenceLane}" 
+				        			id="lanesGrid"
+				        			doubleClickEnabled="true"
+									doubleClick="showExperimentForSelectedLane()">									
 				        		  <mx:columns>
 									<mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
 									<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/> 
