@@ -184,6 +184,16 @@ TextArea {
 	textDecoration: underline;
 }
 
+.navLinkBar {
+	disabledColor: #0F24E6; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #000000;
+	fontWeight: normal;
+	textDecoration: underline;
+}
+
 .formLinkButton {
 	textDecoration: underline;
 	color: #0000ff;
@@ -195,27 +205,29 @@ TextArea {
 	 borderColor: #CBCAC1;
 	 borderStyle: solid;
 	 color: #74878B;
-	 tabStyleName:      navTabHeader;
 	 tabStyleName: navTabHeader;
 	 firstTabStyleName: navTabHeader;
 	 middleTabStyleName: navTabHeader;
 	 lastTabStyleName: navTabHeader;
-	 selectedTabTextStyleName: navTabHeaderTextSelected;
+	 
 }
 
 .navTabHeader {
-	fill-colors :#548db8, #97b8d2;	
+	fill-colors: #81817f, #b9b8ad;
 	color: #5D5252;
 	backgroundColor: #97b8d2;
 	fillAlphas:  1, 1;
- 	fontWeight: 		normal;		
+ 	fontWeight: 		normal;
+ 	
 
 }
 
 .navTabHeaderTextSelected {
 	color: #FFFFFF;
-	fontWeight: normal;
+	errorColor: #FFFFFF;
 }
+
+
 
 .navLinkBar {
 	disabledColor: #1728CF; 
@@ -273,6 +285,17 @@ TextArea {
 
 .blueLinkButton {
 	color: #0F19DF;
+}
+.tabBarSelectedTabText
+{
+	fontFamily: "Arial Narrow";
+}
+@font-face
+{
+	fontFamily: "Arial Narrow";
+	fontWeight: normal;
+	fontStyle: normal;
+	src: local("Arial Narrow");
 }
 
 
