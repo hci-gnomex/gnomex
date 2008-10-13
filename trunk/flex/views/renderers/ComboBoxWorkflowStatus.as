@@ -20,9 +20,9 @@ package views.renderers
 	 			<statusDictionary>
                     <dictionary value="" display="" />
                     <dictionary value="In Progress"  display="In Progress" />
-                    <dictionary value="Completed"  display="Completed" />
-                    <dictionary value="Terminated" display="Terminated" />
-                    <dictionary value="Bypassed"   display="Bypassed" />
+                    <dictionary value="Completed"  display="Complete" />
+                    <dictionary value="Terminated" display="Terminate" />
+                    <dictionary value="Bypassed"   display="Bypass" />
                 </statusDictionary>;
 		
 		public static function create(dataField:String,
