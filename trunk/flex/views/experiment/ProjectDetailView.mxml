@@ -106,9 +106,16 @@
 		}
 		
 		public function save():void {
-			parentApplication.navExperimentView.selectedProject.@name = projectName.text;
-			parentApplication.navExperimentView.selectedProject.@description = projectDescription.text;
+			// Make sure that project name has been entered.
+			if (projectName.text == null || projectName.text == '') {
+				projectName.setFocus();
+				Alert.show("Please enter a project name.");
+				return;
+			}
 			
+			// Save project 
+			parentApplication.navExperimentView.selectedProject.@name = projectName.text;
+			parentApplication.navExperimentView.selectedProject.@description = projectDescription.text;			
 			var params:Object = new Object();
 			params.projectXMLString = parentApplication.navExperimentView.selectedProject.toXMLString();
 			params.parseEntries = 'Y';
