@@ -237,7 +237,7 @@
 		    			pos++;
 		    			for each( request in project.Request) {
 		    				pos++;
-		    				if (request.@requestNumber == selectedRequestNumber) {
+		    				if (request.@requestNumber == String(selectedRequestNumber).toUpperCase()) {
 		    					idx = --pos;
 		    					
 		    					// We came from the main gnomex app, so select the lab from the lab combo
@@ -652,7 +652,7 @@
 			if (selectedIdRequest != null) {
 				selectedExperiment = getRequestFromNav.lastResult.Request.(@idRequest == selectedIdRequest);			
 			} else {
-				selectedExperiment = getRequestFromNav.lastResult.Request.(@number == selectedRequestNumber);
+				selectedExperiment = getRequestFromNav.lastResult.Request.(@number == String(selectedRequestNumber).toUpperCase());
 			}
 				
 			var params:Object = new Object();
