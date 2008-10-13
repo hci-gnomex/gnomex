@@ -295,22 +295,22 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Frag size (from)" width="11" dataField="@seqPrepQualFragmentSizeFrom">
+					<mx:DataGridColumn headerText="Gel size rangee (from)" width="11" dataField="@seqPrepQualFragmentSizeFrom">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Frag size"/>
-							    <mx:Label text="(from)"/>
+							    <mx:Label text="Gel size"/>
+							    <mx:Label text="range (from)"/>
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Frag size (to)" width="11" dataField="@seqPrepQualFragmentSizeTo"> 
+					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepQualFragmentSizeTo"> 
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Frag size"/>
-							    <mx:Label text="(to)"/>
+							    <mx:Label text="Gel size"/>
+							    <mx:Label text="range (to)"/>
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
