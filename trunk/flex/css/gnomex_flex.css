@@ -75,7 +75,7 @@ ApplicationControlBar {
 	fillColors: #548db8, #97b8d2; 
 	dropShadowEnabled: true;
 }
-Accordion {
+.accordion {
 
 	headerStyleName: accordionHeader;
 	headerHeight: 24;
