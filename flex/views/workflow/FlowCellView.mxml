@@ -14,9 +14,9 @@
 	fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
     method="POST"
     useProxy="false">
-  </mx:HTTPService>
+  </mx:HTTPService> 
       
-<mx:Script>
+<mx:Script> 
 	<![CDATA[
 		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.controls.Alert;
@@ -40,12 +40,19 @@
 			var url:URLRequest = new URLRequest('ShowFlowCellForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
 			navigateToURL(url, '_blank');			
 		}
+		private function showPrintablePrepForm():void {
+			var url:URLRequest = new URLRequest('ShowFlowCellPrepForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
+			navigateToURL(url, '_blank');			
+		}
 		
 		private function getFragmentSizeRange(item:Object, col:DataGridColumn):String {
 			return (item.@fragmentSizeFrom != "" ? item.@fragmentSizeFrom : "?") + " - " + 
 			       (item.@fragmentSizeTo != "" ? item.@fragmentSizeTo : "?");
 		}
 		private function getSeqPrepLibFragmentSizeRange(item:Object, col:DataGridColumn):String {
+			if (item.@idSequencingControl != '') {
+				return '';
+			}
 			return (item.@seqPrepQualFragmentSizeFrom != "" ? item.@seqPrepQualFragmentSizeFrom : "?") + " - " + 
 			       (item.@seqPrepQualFragmentSizeTo != "" ? item.@seqPrepQualFragmentSizeTo : "?");
 		}    	
@@ -61,7 +68,7 @@
 	]]>
 </mx:Script>    	
 	<mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
-	
+	 
 	<mx:VDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			<mx:VBox width="100%" height="100%" verticalGap="1">			
@@ -82,51 +89,21 @@
 		<mx:VBox width="100%"  verticalGap="1">
 			<mx:HBox width="100%" verticalAlign="middle">
 				<mx:Label text="{'Flow Cell ' + flowCellsGrid.selectedItem.@number}"  fontWeight="bold"/>
-				<mx:LinkButton label="Printable form" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				<mx:LinkButton label="Preparation report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintablePrepForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				<mx:LinkButton label="Run report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
 			</mx:HBox>
 
 			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="250" horizontalScrollPolicy="auto">	
 				<mx:columns>
-					<mx:DataGridColumn  headerText="Channel" dataField="@number" width="55"/>
+					<mx:DataGridColumn  headerText="Chan #" dataField="@number" width="35"/>
 					<mx:DataGridColumn  dataField="@contentNumber" width="80" headerText="Seq Sample #"/> 
-					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="100" labelFunction="getFlowCellType"/>                 							
 					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="90" labelFunction="getOrganism"/>                 							
-					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles Requested"  width="90" labelFunction="getNumberSequencingCycles">                 							
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="# Cycles"/>
-							        <mx:Label text="(requested)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn   labelFunction="getFragmentSizeRange" width="90" headerText="Est. Fragment Size">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Frag Size"/>
-							        <mx:Label text="(estimated)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@calcConcentration" width="90" headerText="Est. Conc.">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Conc. ng/uL"/>
-							        <mx:Label text="(estimated)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
 					<mx:DataGridColumn   labelFunction="getSeqPrepLibFragmentSizeRange" width="90" headerText="Lib Fragment Size">
                        <mx:headerRenderer > 
 						    <mx:Component>
 						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Frag Size"/>
-							        <mx:Label text="(library)"/>
+							        <mx:Label text="Gel Size"/>
+							        <mx:Label text="range"/>
 				    			</mx:VBox>
 						    </mx:Component>
 						</mx:headerRenderer>
@@ -135,28 +112,8 @@
                        <mx:headerRenderer > 
 						    <mx:Component>
 						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Conc. ng/uL"/>
-							        <mx:Label text="(library)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@seqPrepStockLibVol" width="90" headerText="Flow Cell Stock Lib Vol">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Flow Cell Stock"/>
-							        <mx:Label text="Lib Vol (uL)"/>
-				    			</mx:VBox>
-						    </mx:Component>
-						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@seqPrepStockEBVol" width="90" headerText="Flow Cell Stock EB Vol">
-                       <mx:headerRenderer > 
-						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Flow Cell Stock"/>
-							        <mx:Label text="EB Vol (uL)"/>
+							        <mx:Label text="Lib Conc."/>
+							        <mx:Label text="(ng/uL)"/>
 				    			</mx:VBox>
 						    </mx:Component>
 						</mx:headerRenderer>
@@ -181,7 +138,7 @@
 						    </mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@fileName" width="100" headerText="File name"/>
+					<mx:DataGridColumn  dataField="@fileName" width="100" headerText="Folder name"/>
 					<mx:DataGridColumn  dataField="@workflowStatus" width="100" headerText="Status"/>
 				</mx:columns>			
 			</mx:DataGrid>			
