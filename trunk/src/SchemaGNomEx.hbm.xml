@@ -196,6 +196,7 @@
 		<property name="lastCycleDate" column="lastCycleDate" type="date"/>
 		<property name="lastCycleFailed" column="lastCycleFailed" type="string"/>
 		<property name="startDate" column="startDate" type="date"/>
+		<property name="sampleConcentrationpM" column="sampleConcentrationpM" type="integer"/>
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->
@@ -411,8 +412,8 @@
 		<property name="seqPrepBypassed" column="seqPrepBypassed" type="string"/>
 		<property name="seqPrepLibConcentration" column="seqPrepLibConcentration" type="integer"/>
 		<property name="seqPrepQualCodeBioanalyzerChipType" column="seqPrepQualCodeBioanalyzerChipType" type="string"/>
-		<property name="seqPrepQualFragmentSizeFrom" column="seqPrepQualFragmentSizeFrom" type="integer"/>
-		<property name="seqPrepQualFragmentSizeTo" column="seqPrepQualFragmentSizeTo" type="integer"/>
+		<property name="seqPrepGelFragmentSizeFrom" column="seqPrepGelFragmentSizeFrom" type="integer"/>
+		<property name="seqPrepGelFragmentSizeTo" column="seqPrepGelFragmentSizeTo" type="integer"/>
 		<property name="seqPrepStockDate" column="seqPrepStockDate" type="date"/>
 		<property name="seqPrepStockFailed" column="seqPrepStockFailed" type="string"/>
 		<property name="seqPrepStockBypassed" column="seqPrepStockBypassed" type="string"/>

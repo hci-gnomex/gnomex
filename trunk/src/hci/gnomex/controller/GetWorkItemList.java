@@ -253,8 +253,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("seqPrepByCore",                     row[14] == null ? "" :  (String)row[14]);
             n.setAttribute("seqPrepLibConcentration",           row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[16] == null ? "" :  (String)row[16]);
-            n.setAttribute("seqPrepQualFragmentSizeFrom",       row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("seqPrepQualFragmentSizeTo",         row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("seqPrepGelFragmentSizeFrom",        row[17] == null ? "" :  ((Integer)row[17]).toString());
+            n.setAttribute("seqPrepQGelFragmentSizeTo",         row[18] == null ? "" :  ((Integer)row[18]).toString());
             n.setAttribute("seqPrepDate",                       row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
             n.setAttribute("seqPrepFailed",                     row[20] == null ? "" :  (String)row[20]);
             n.setAttribute("seqPrepBypassed",                   row[21] == null ? "" :  (String)row[21]);

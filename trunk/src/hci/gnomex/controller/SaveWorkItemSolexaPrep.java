@@ -103,12 +103,12 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                 (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
 
                 // Calculate the molarity, desired vol of lib stock, and desired vol of EB
-                double averageFragmentSize = (sample.getSeqPrepQualFragmentSizeFrom().doubleValue() + sample.getSeqPrepQualFragmentSizeTo().doubleValue()) / 2;
+                double averageFragmentSize = (sample.getSeqPrepGelFragmentSizeFrom().doubleValue() + sample.getSeqPrepGelFragmentSizeTo().doubleValue()) / 2;
                 double molarity = MolarityCalculator.calculateConcentrationInnM(sample.getSeqPrepLibConcentration().doubleValue(), averageFragmentSize);
                 double soluteVol = MolarityCalculator.calculateDilutionVol(molarity, 10, 100);
                 double solventVol = 100 - soluteVol;
-                sample.setSeqPrepStockLibVol(new BigDecimal(soluteVol).setScale(3, BigDecimal.ROUND_HALF_DOWN));
-                sample.setSeqPrepStockEBVol(new BigDecimal(solventVol).setScale(3, BigDecimal.ROUND_HALF_DOWN));
+                sample.setSeqPrepStockLibVol(new BigDecimal(soluteVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));
+                sample.setSeqPrepStockEBVol(new BigDecimal(solventVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));
               
                 // Create a work item
                 WorkItem wi = new WorkItem();

@@ -121,7 +121,8 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
 
             if (content instanceof SequenceLane) {
               SequenceLane lane = (SequenceLane)content;
-              channel.setIdSequenceLane(lane.getIdSequenceLane());              
+              channel.setIdSequenceLane(lane.getIdSequenceLane());
+              channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(lane.getIdSequenceLane()));
 
               lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());
               
@@ -133,6 +134,8 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               	idNumberSequencingCycles = lane.getIdNumberSequencingCycles();
               	maxCycles = seqCycles.intValue();
             	}
+            	
+            	
               
 
               WorkItem workItem = parser.getWorkItem(lane.getIdSequenceLane());
