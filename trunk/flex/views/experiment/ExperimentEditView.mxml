@@ -922,8 +922,8 @@
    				sample.@fragmentSizeTo = '';
    				sample.@seqPrepDate = '';
    				sample.@seqPrepLibConcentration = '';
-   				sample.@seqPrepQualFragmentSizeFrom = '';
-   				sample.@seqPrepQualFragmentSizeTo = '';
+   				sample.@seqPrepGelFragmentSizeFrom = '';
+   				sample.@seqPrepGelFragmentSizeTo = '';
    				sample.@seqPrepStockLibVol = '';
    				sample.@seqPrepStockEBVol = '';
    				sample.@seqPrepStockEBVol = '';
