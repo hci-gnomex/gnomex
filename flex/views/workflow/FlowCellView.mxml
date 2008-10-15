@@ -53,8 +53,8 @@
 			if (item.@idSequencingControl != '') {
 				return '';
 			}
-			return (item.@seqPrepQualFragmentSizeFrom != "" ? item.@seqPrepQualFragmentSizeFrom : "?") + " - " + 
-			       (item.@seqPrepQualFragmentSizeTo != "" ? item.@seqPrepQualFragmentSizeTo : "?");
+			return (item.@seqPrepGelFragmentSizeFrom != "" ? item.@seqPrepGelFragmentSizeFrom : "?") + " - " + 
+			       (item.@seqPrepGelFragmentSizeTo != "" ? item.@seqPrepGelFragmentSizeTo : "?");
 		}    	
 		private function getOrganism(item:Object, col:DataGridColumn):String {
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.Organism', item.@idOrganism);
@@ -102,7 +102,7 @@
                        <mx:headerRenderer > 
 						    <mx:Component>
 						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-							        <mx:Label text="Gel Size"/>
+						 	        <mx:Label text="Gel Size"/>
 							        <mx:Label text="range"/>
 				    			</mx:VBox>
 						    </mx:Component>
@@ -114,6 +114,16 @@
 						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
 							        <mx:Label text="Lib Conc."/>
 							        <mx:Label text="(ng/uL)"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn  dataField="@sampleConcentrationpM" width="90" headerText="Final Sample Conc. pm">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="Final Sample"/>
+							        <mx:Label text="Conc. (pM)"/>
 				    			</mx:VBox>
 						    </mx:Component>
 						</mx:headerRenderer>
