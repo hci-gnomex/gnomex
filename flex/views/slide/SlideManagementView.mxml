@@ -175,6 +175,7 @@
 					selectedNode = getSlideList.lastResult..SlideProduct.(@id == fullSlideProduct.@idSlideProduct);
 					callLater(selectBrowseTreeNode, [selectedNode[0], null]);
 				}
+				callLater(this.expandAllNodes);
 				
 			} else if (call.marker == "doneGetSlideProduct") {
 				this.fullSlideProduct = getSlideProduct.lastResult;
@@ -217,6 +218,14 @@
 				dirty.resetDirty();
 			}
 		}
+		
+	    public function expandAllNodes():void
+  		{
+  			for each(var n:Object in slideList) {
+  				browseSlides.expandItem(n, true);
+  			}
+  		}
+
 		
 		private function selectBrowseTreeNode(selectedNode:Object, parentNode:Object):void {
 			if (parentNode != null) {
@@ -640,8 +649,9 @@
 		<!--mx:Label x="0" y="0" text="Type slide name here to find in list." fontSize="9" width="292" textAlign="right" height="17" visible="false"/>
 		<mx:TextInput id="slideSearchText" editable="true" 
 		       	      	change="slideList.refresh()" width="100%" toolTip="Type slide name here to find in list" y="16" visible="false"/-->
-			<mx:TextInput id="searchText" x="0" y="0" width="100%" change="slideList.refresh();browseSlides.dataProvider=null;browseSlides.dataProvider=slideList;"/>
-			<mx:Tree left="0" right="0" top="24" bottom="0"
+			<mx:Label x="0" y="2" text="Search slides:"/>
+			<mx:TextInput id="searchText" backgroundColor="#FFFFFF" x="84" y="0" width="100%" change="slideList.refresh();browseSlides.dataProvider=null;browseSlides.dataProvider=slideList;callLater(expandAllNodes)" backgroundAlpha="1.0"/>
+			<mx:Tree left="0" right="0" top="27" bottom="0"
 				id="browseSlides"
 				labelField="@name"
 				iconFunction="getTreeIcon"
