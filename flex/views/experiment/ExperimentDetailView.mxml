@@ -480,15 +480,15 @@
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
 				                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected}" headerText="QC Bioanalyzer method"  width="120" 
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
+					 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
 
 				                <mx:DataGridColumn  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
-								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Frag Size (from)" width="90" dataField="@seqPrepQualFragmentSizeFrom"/>
-								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Frag Size (to)" width="90" dataField="@seqPrepQualFragmentSizeTo"/>
+								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
+								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 
 								

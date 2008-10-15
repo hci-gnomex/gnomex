@@ -621,12 +621,12 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType', true)}"                
  	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
-					<mx:DataGridColumn id="seqPrepQualFragmentSizeFromCol"  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Lib Size From" width="100" editorDataField="text" dataField="@seqPrepQualFragmentSizeFrom" rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepQualFragmentSizeFrom')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepQualFragmentSizeFrom', '@canChangeSampleType')}"      />          
-					<mx:DataGridColumn id="seqPrepQualFragmentSizeToCol" headerText="Seq Prep Lib Size To"  visible="{showSeqPrepFieldsCheckBox.selected}"  width="100" editorDataField="text" dataField="@seqPrepQualFragmentSizeTo"  rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepQualFragmentSizeTo')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepQualFragmentSizeTo', '@canChangeSampleType')}"      />          
+					<mx:DataGridColumn id="SeqPrepGelFragmentSizeFromCol"  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="100" editorDataField="text" dataField="@seqPrepGelFragmentSizeFrom" rendererIsEditor="false"
+ 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepGelFragmentSizeFrom')}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepGelFragmentSizeFrom', '@canChangeSampleType')}"      />          
+					<mx:DataGridColumn id="SeqPrepGelFragmentSizeToCol" headerText="Gel size (to)"  visible="{showSeqPrepFieldsCheckBox.selected}"  width="100" editorDataField="text" dataField="@seqPrepGelFragmentSizeTo"  rendererIsEditor="false"
+ 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepGelFragmentSizeTo')}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepGelFragmentSizeTo', '@canChangeSampleType')}"      />          
 					<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>

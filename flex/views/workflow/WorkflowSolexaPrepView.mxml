@@ -121,14 +121,14 @@
 		    		break;
 		    	}
 	    	}         	
-
+ 
 	    	nv.domain = "integer";
 	    	nv.precision = 0;
         	for each (item in dirtyItems) {
 		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepQualFragmentSizeFrom);
+		    	vr = nv.validate(item.@seqPrepGelFragmentSizeFrom);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nFragment Size (from) - " + item.@seqPrepQualFragmentSizeFrom + " " + vr.message;
+		    		message += "\nFragment Size (from) - " + item.@seqPrepGelFragmentSizeFrom + " " + vr.message;
 		    		break;
 		    	}
 	    	}         	
@@ -137,9 +137,9 @@
 	    	nv.precision = 0;
         	for each (item in dirtyItems) {
 		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
-		    	vr = nv.validate(item.@seqPrepQualFragmentSizeTo);
+		    	vr = nv.validate(item.@seqPrepGelFragmentSizeTo);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nFragment Size (to) - " + item.@seqPrepQualFragmentSizeTo + " " + vr.message;
+		    		message += "\nFragment Size (to) - " + item.@seqPrepGelFragmentSizeTo + " " + vr.message;
 		    		break;
 		    	}
 	    	}  
@@ -295,7 +295,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size rangee (from)" width="11" dataField="@seqPrepQualFragmentSizeFrom">
+					<mx:DataGridColumn headerText="Gel size rangee (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -305,7 +305,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepQualFragmentSizeTo"> 
+					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepGelFragmentSizeTo"> 
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
