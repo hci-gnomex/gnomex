@@ -4,14 +4,12 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FlowCellHTMLFormatter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +22,9 @@ import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
 
-public class ShowFlowCellForm extends GNomExCommand implements Serializable {
+public class ShowFlowCellPrepForm extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowFlowCellForm.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowFlowCellPrepForm.class);
   
   public String SUCCESS_JSP = "/getHTML.jsp";
   
@@ -63,7 +61,7 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
     
       flowCell = (FlowCell)sess.get(FlowCell.class, idFlowCell);
       if (flowCell == null) {
-        this.addInvalidField("no flow cell", "Flow Cell not found");
+        this.addInvalidField("no flow cell", "Flow cell not found");
       }
       
 
@@ -85,7 +83,7 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
             head.addContent(link);
             
             Element title = new Element("TITLE");
-            title.addContent("Flow Cell Run Report - " + flowCell.getNumber());
+            title.addContent("Flow Cell Preparation - " + flowCell.getNumber());
             head.addContent(title);
             
             Element body = new Element("BODY");
@@ -109,23 +107,22 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
             center.addContent(printTable);
             
             Element h3 = new Element("H3");
-            h3.addContent("Flow Cell Run Report - " + flowCell.getNumber());
+            h3.addContent("Flow Cell Preparation Report - " + flowCell.getNumber());
             center.addContent(h3);
 
+            
             Element center1 = new Element("CENTER");
             body.addContent(center1);
             
             
-;
-            
-            center1.addContent(formatter.makeFlowCellTable());
+            center1.addContent(formatter.makeFlowCellPrepTable());
 
             
             Element center2 = new Element("CENTER");
             body.addContent(center2);
             
             if (!flowCell.getFlowCellChannels().isEmpty()) {
-              center2.addContent(formatter.makeFlowCellChannelTable(flowCell.getFlowCellChannels()));          
+              center2.addContent(formatter.makeFlowCellPrepChannelTable(flowCell.getFlowCellChannels()));          
             }
 
             
@@ -149,17 +146,17 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
       }
     
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowFlowCellForm ", e);
+      log.error("An exception has occurred in ShowFlowCellPrepForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
-      log.error("An exception has occurred in ShowFlowCellForm ", e);
+      log.error("An exception has occurred in ShowFlowCellPrepForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in ShowFlowCellForm ", e);
+      log.error("An exception has occurred in ShowFlowCellPrepForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
       
@@ -177,9 +174,6 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
     
     return this;
   }
-  
-  
-
   
 
   /**
