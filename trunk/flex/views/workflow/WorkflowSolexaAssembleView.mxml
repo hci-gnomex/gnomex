@@ -60,6 +60,8 @@
 		import mx.events.CloseEvent;
 		import hci.flex.renderers.ComboBoxDictionary;
 		import hci.flex.renderers.LabelDictionary;
+		import views.renderers.FlowCellSampleConcentrationLabel;
+		import views.renderers.FlowCellSampleConcentrationTextInput;
 		
 		private var isValid:Boolean = true;
 		
@@ -114,6 +116,19 @@
     			Alert.show("Please enter the flow cell barcode");
     			return;
     		}
+    		
+    		// Prevent save if sample concentration not entered on all
+    		// flow cell channels (other than sequencing control).
+	       	for each (var item:Object in dirtyWorkList) {
+	       		if (item.name() == "WorkItem") {
+	       			if (item.@sampleConcentrationpM == '') {
+	       				Alert.show("Please enter sample concentration for hilighted flow cell channels");
+	       				return;
+	       			}
+	       		}
+	       	}
+	       	
+    		
     		warningMessage = "";
     		isValid = true;
     		validateNumberOfLanes();
@@ -348,9 +363,11 @@
 	       // to the dirtyWorkItems list
 	       for(var i:Number=0; i < items.length; i++) {
 	       	if (items[i].name() == "WorkItem") {
+	       		items[i].@sampleConcentrationpM = '';
 		    	dirtyWorkList.addItemAt(items[i], row);
 		    	workList.removeItemAt(workList.getItemIndex(items[i]));	       			
 	       	} else if (items[i].name() == "DictionaryEntry") {
+	       		items[i].@sampleConcentrationpM = '';
 	       		var newItem:Object = new XML(XML(items[i]).toXMLString());
 		    	dirtyWorkList.addItemAt(newItem, row); 
 	       	} 
@@ -441,7 +458,7 @@
 	        <mx:Image source="assets/arrow_right.png"/>
 	    	<mx:Spacer height="100"/>
 	        <mx:Image source="assets/arrow_right.png"/>
-	    	
+	    	 
 	    </mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
 			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4">
@@ -457,27 +474,51 @@
 								<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
 							</mx:Button>
 						</mx:HBox>
-						
-					</mx:HBox>
-			<mx:DataGrid  id="assembleLanesGrid" dataProvider="{dirtyWorkList}" width="100%" height="220" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
+						 
+					</mx:HBox> 
+			<mx:DataGrid  id="assembleLanesGrid"  editable="true" dataProvider="{dirtyWorkList}" width="100%" height="220" maxHeight="178" dropEnabled="true" dragDrop="onDragDropLane(event)">	
 				<mx:columns>
-					<mx:DataGridColumn  headerText="Channel"  labelFunction="getAssembleLaneRowNumber" width="21"/>
-					<mx:DataGridColumn  dataField="@laneNumber" width="35" headerText="Flow Cell Sample #">
+					<mx:DataGridColumn  editable="false" headerText="Channel"  labelFunction="getAssembleLaneRowNumber" width="21"/>
+					<mx:DataGridColumn  editable="false" dataField="@laneNumber" width="45" headerText="Flow Cell Sample #">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Flow Cell"/>
 							    <mx:Label text="Sample #"/>
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>					
-					<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="80" 
+					<mx:DataGridColumn  editable="false"  dataField="@idFlowCellType" headerText="Flow Cell Type" width="65" 
                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 											
-					<mx:DataGridColumn  dataField="@idOrganism" headerText="Organism" width="40"  
+					<mx:DataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="40"  
                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 											
-					<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="35" 
-                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
+					<mx:DataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="32" 
+                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="#"/>
+							    <mx:Label text="Cycles"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>					
+
+                     <mx:DataGridColumn dataField="@sampleConcentrationpM" editable="true" 
+                     	headerText="Sample conc. (pM)" width="45"
+                     	rendererIsEditor="false"
+                     	itemRenderer="{FlowCellSampleConcentrationLabel.create('@sampleConcentrationpM')}"
+                     	itemEditor="{FlowCellSampleConcentrationTextInput.create('@sampleConcentrationpM')}">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Sample"/>
+							    <mx:Label text="conc. (pM)"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+                    </mx:DataGridColumn>                 											
 				</mx:columns>			
 			</mx:DataGrid>		 
 			    </mx:VBox> 
