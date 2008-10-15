@@ -407,8 +407,11 @@
 	
 		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
-		       	      <mx:TextInput id="userSearchText" editable="true" 
-		       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list" backgroundColor="#FFFFFF"/>
+			          <mx:HBox width="100%">
+			       	      <mx:Label text="Search users:"/>
+			       	      <mx:TextInput id="userSearchText" editable="true" 
+			       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list" backgroundColor="#FFFFFF"/>			          	
+			          </mx:HBox>
 			    
 		
 		    	      <mx:DataGrid id="usersGrid" 
@@ -441,8 +444,10 @@
 		      
 		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
-		       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
-			    
+			    	  <mx:HBox width="100%">
+			       	      <mx:Label text="Search groups:"/>
+			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
+			          </mx:HBox>
 			         
 		    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false">
 						<mx:columns>
