@@ -224,7 +224,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-	                <mx:DataGridColumn headerText="First Cycle Status"  width="30" dataField="@firstCycleStatus" 
+	                <!--<mx:DataGridColumn headerText="First Cycle Status"  width="30" dataField="@firstCycleStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
@@ -237,7 +237,7 @@
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
-					</mx:DataGridColumn>
+					</mx:DataGridColumn>-->
  	                <mx:DataGridColumn headerText="Clusters per tile" width="30" dataField="@clustersPerTile" editable="true">			                
 						<mx:headerRenderer > 
 						<mx:Component>
@@ -248,7 +248,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
- 	                <mx:DataGridColumn headerText="File name" width="35" dataField="@fileName" editable="true"/>			                
+ 	                <mx:DataGridColumn headerText="Folder name" width="80" dataField="@fileName" editable="true"/>			                
  	                <mx:DataGridColumn headerText="Actual # Cycles"  width="25" dataField="@numberSequencingCyclesActual" editable="true">			                
 						<mx:headerRenderer > 
 						<mx:Component>
