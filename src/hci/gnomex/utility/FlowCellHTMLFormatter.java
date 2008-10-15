@@ -135,13 +135,13 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         
         
         
-        if (lane.getSample().getSeqPrepQualFragmentSizeFrom() != null) {
-          gelSize += lane.getSample().getSeqPrepQualFragmentSizeFrom() + "-";
+        if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
+          gelSize += lane.getSample().getSeqPrepGelFragmentSizeFrom() + "-";
         } else {
           gelSize += "?-";
         }
-        if (lane.getSample().getSeqPrepQualFragmentSizeTo() != null) {
-          gelSize += lane.getSample().getSeqPrepQualFragmentSizeTo();
+        if (lane.getSample().getSeqPrepGelFragmentSizeTo() != null) {
+          gelSize += lane.getSample().getSeqPrepGelFragmentSizeTo();
         } else {
           gelSize += "?";
         }
@@ -185,8 +185,8 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (requested)");
     this.addHeaderCell(rowh, "Gel Size Range"    );
-    this.addHeaderCell(rowh, "Flow Cell Conc. (pM)"    );
-    this.addHeaderCell(rowh, "Vol 2nM Stock added to Hyb Buffer (uL)"    );
+    this.addHeaderCell(rowh, "Flow Cell 10nM Stock Vol (uL)"    );
+    this.addHeaderCell(rowh, "Flow Cell Final Sample Conc. (pM)"    );
 
     
     Session sess = HibernateGuestSession.currentGuestSession();
@@ -213,13 +213,13 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         SequenceLane lane = channel.getSequenceLane();
         
         
-        if (lane.getSample().getSeqPrepQualFragmentSizeFrom() != null) {
-          gelSize += lane.getSample().getSeqPrepQualFragmentSizeFrom() + "-";
+        if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
+          gelSize += lane.getSample().getSeqPrepGelFragmentSizeFrom() + "-";
         } else {
           gelSize += "?-";
         }
-        if (lane.getSample().getSeqPrepQualFragmentSizeTo() != null) {
-          gelSize += lane.getSample().getSeqPrepQualFragmentSizeTo();
+        if (lane.getSample().getSeqPrepGelFragmentSizeTo() != null) {
+          gelSize += lane.getSample().getSeqPrepGelFragmentSizeTo();
         } else {
           gelSize += "?";
         }
@@ -229,7 +229,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addCell(row, gelSize);
         this.addCell(row, lane.getSample().getSeqPrepStockLibVol() != null  ? lane.getSample().getSeqPrepStockLibVol().toString() : "&nbsp;");
-        this.addCell(row, "&nbsp;");
+        this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpM().toString() : "&nbsp;");
         
       } else {
         this.addCell(row, "&nbsp;");

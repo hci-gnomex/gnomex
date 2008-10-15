@@ -91,16 +91,16 @@ public class WorkItemSolexaPrepParser implements Serializable {
       sample.setSeqPrepQualCodeBioanalyzerChipType(null);
     }    
     
-    if (n.getAttributeValue("seqPrepQualFragmentSizeFrom") != null && !n.getAttributeValue("seqPrepQualFragmentSizeFrom").equals("")) {
-      sample.setSeqPrepQualFragmentSizeFrom(new Integer(n.getAttributeValue("seqPrepQualFragmentSizeFrom")));
+    if (n.getAttributeValue("seqPrepGelFragmentSizeFrom") != null && !n.getAttributeValue("seqPrepGelFragmentSizeFrom").equals("")) {
+      sample.setSeqPrepGelFragmentSizeFrom(new Integer(n.getAttributeValue("seqPrepGelFragmentSizeFrom")));
     } else {
-      sample.setSeqPrepQualFragmentSizeFrom(null);
+      sample.setSeqPrepGelFragmentSizeFrom(null);
     }    
 
-    if (n.getAttributeValue("seqPrepQualFragmentSizeTo") != null && !n.getAttributeValue("seqPrepQualFragmentSizeTo").equals("")) {
-      sample.setSeqPrepQualFragmentSizeTo(new Integer(n.getAttributeValue("seqPrepQualFragmentSizeTo")));
+    if (n.getAttributeValue("seqPrepGelFragmentSizeTo") != null && !n.getAttributeValue("seqPrepGelFragmentSizeTo").equals("")) {
+      sample.setSeqPrepGelFragmentSizeTo(new Integer(n.getAttributeValue("seqPrepGelFragmentSizeTo")));
     } else {
-      sample.setSeqPrepQualFragmentSizeTo(null);
+      sample.setSeqPrepGelFragmentSizeTo(null);
     }    
     
   }

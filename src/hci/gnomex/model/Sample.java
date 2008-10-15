@@ -53,8 +53,8 @@ public class Sample extends HibernateDetailObject {
   private String      seqPrepBypassed;
   private Integer     seqPrepLibConcentration;
   private String      seqPrepQualCodeBioanalyzerChipType;
-  private Integer     seqPrepQualFragmentSizeFrom;
-  private Integer     seqPrepQualFragmentSizeTo;
+  private Integer     seqPrepGelFragmentSizeFrom;
+  private Integer     seqPrepGelFragmentSizeTo;
   private BigDecimal  seqPrepStockLibVol;
   private BigDecimal  seqPrepStockEBVol;
   private Date        seqPrepStockDate;
@@ -466,26 +466,6 @@ public class Sample extends HibernateDetailObject {
   }
 
   
-  public Integer getSeqPrepQualFragmentSizeFrom() {
-    return seqPrepQualFragmentSizeFrom;
-  }
-
-  
-  public void setSeqPrepQualFragmentSizeFrom(Integer seqPrepQualFragmentSizeFrom) {
-    this.seqPrepQualFragmentSizeFrom = seqPrepQualFragmentSizeFrom;
-  }
-
-  
-  public Integer getSeqPrepQualFragmentSizeTo() {
-    return seqPrepQualFragmentSizeTo;
-  }
-
-  
-  public void setSeqPrepQualFragmentSizeTo(Integer seqPrepQualFragmentSizeTo) {
-    this.seqPrepQualFragmentSizeTo = seqPrepQualFragmentSizeTo;
-  }
-
-  
   public BigDecimal getSeqPrepStockLibVol() {
     return seqPrepStockLibVol;
   }
@@ -533,6 +513,26 @@ public class Sample extends HibernateDetailObject {
   
   public void setSeqPrepStockBypassed(String seqPrepStockBypassed) {
     this.seqPrepStockBypassed = seqPrepStockBypassed;
+  }
+
+  
+  public Integer getSeqPrepGelFragmentSizeFrom() {
+    return seqPrepGelFragmentSizeFrom;
+  }
+
+  
+  public void setSeqPrepGelFragmentSizeFrom(Integer seqPrepGelFragmentSizeFrom) {
+    this.seqPrepGelFragmentSizeFrom = seqPrepGelFragmentSizeFrom;
+  }
+
+  
+  public Integer getSeqPrepGelFragmentSizeTo() {
+    return seqPrepGelFragmentSizeTo;
+  }
+
+  
+  public void setSeqPrepGelFragmentSizeTo(Integer seqPrepGelFragmentSizeTo) {
+    this.seqPrepGelFragmentSizeTo = seqPrepGelFragmentSizeTo;
   }
 
 

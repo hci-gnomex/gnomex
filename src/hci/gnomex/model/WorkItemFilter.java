@@ -148,8 +148,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.seqPrepByCore, ");
       queryBuf.append("    s.seqPrepLibConcentration, ");
       queryBuf.append("    s.seqPrepQualCodeBioanalyzerChipType, ");
-      queryBuf.append("    s.seqPrepQualFragmentSizeFrom, ");
-      queryBuf.append("    s.seqPrepQualFragmentSizeTo, ");
+      queryBuf.append("    s.seqPrepGelFragmentSizeFrom, ");
+      queryBuf.append("    s.seqPrepGelFragmentSizeTo, ");
       queryBuf.append("    s.seqPrepDate, ");
       queryBuf.append("    s.seqPrepFailed, ");
       queryBuf.append("    s.seqPrepBypassed ");

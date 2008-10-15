@@ -20,6 +20,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   
   private Document   doc;
   private List       flowCellChannelContents = new ArrayList();
+  private Map        sampleConcentrationMap = new HashMap();
   private Map        workItemMap = new HashMap();
   
   
@@ -44,6 +45,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
         WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
         flowCellChannelContents.add(lane);
         workItemMap.put(lane.getIdSequenceLane(), workItem);
+        sampleConcentrationMap.put(lane.getIdSequenceLane(), node.getAttributeValue("sampleConcentrationpM"));
         
       } else {
         String idSequencingControlString = node.getAttributeValue("idSequencingControl");
@@ -77,6 +79,15 @@ public class WorkItemSolexaAssembleParser implements Serializable {
 
   public WorkItem getWorkItem(Integer idSequenceLane) {
     return (WorkItem)workItemMap.get(idSequenceLane);
+  }
+  
+  public Integer getSampleConcentrationpm(Integer idSequenceLane) {
+    String sc = (String)sampleConcentrationMap.get(idSequenceLane);
+    if (sc != null && !sc.equals("")) {
+      return new Integer(sc);
+    } else {
+      return null;
+    }
   }
   
 
