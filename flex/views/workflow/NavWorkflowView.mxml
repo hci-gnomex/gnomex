@@ -92,7 +92,7 @@
                </mx:Canvas>
                
             </mx:ViewStack>
-			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="4"  >
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="5"  >
 			
 			   <workflow:WorkflowSolexaQCView label="Sample QC" id="workflowSolexaQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
 			   
