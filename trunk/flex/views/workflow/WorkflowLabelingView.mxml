@@ -262,7 +262,7 @@
 				<mx:DataGridColumn editable="false"  headerText="Mod Nuc." width="5"  dataField="@idLabel" labelFunction="getLabel">                 							
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Mod."/>
 							    <mx:Label text="Nucl."/>
 							</mx:VBox>
@@ -289,7 +289,7 @@
  	               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSize')}">			                
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Reaction"/>
 							    <mx:Label text="Size"/>
 							</mx:VBox>
@@ -299,7 +299,7 @@
 				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Number"/>
 							    <mx:Label text="Reactions"/>
 							</mx:VBox>

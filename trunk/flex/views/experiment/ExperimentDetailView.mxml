@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:views="views.*"  
-	 headerHeight="20"
+	xmlns:views="views.*"   
+	 headerHeight="20"  
 	close="{PopUpManager.removePopUp(this);}">
 <mx:Script>
 	<![CDATA[
@@ -721,16 +721,6 @@
 							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				            <mx:DataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 				            <mx:DataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
-							<mx:DataGridColumn  headerText="First Cycle Status" width="90" dataField="@firstCycleStatus">
-							   <mx:headerRenderer > 
-							    <mx:Component>
-							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-								        <mx:Label text="First Cycle"/>
-								        <mx:Label text="Status"/>
-					    			</mx:VBox>
-							    </mx:Component>
-							   </mx:headerRenderer>
-						    </mx:DataGridColumn>
 				            <mx:DataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>

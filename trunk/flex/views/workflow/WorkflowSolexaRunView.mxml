@@ -206,7 +206,7 @@
 					<mx:DataGridColumn editable="false" headerText="Sample Seq #"  width="28" dataField="@number">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Flow Cell"/>
 							    <mx:Label text="Sample #"/>
 							</mx:VBox>
@@ -217,7 +217,7 @@
                            itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}">                 											
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Requested"/>
 							    <mx:Label text="# Cycles"/>
 							</mx:VBox>
@@ -241,7 +241,7 @@
  	                <mx:DataGridColumn headerText="Clusters per tile" width="30" dataField="@clustersPerTile" editable="true">			                
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Clusters per"/>
 							    <mx:Label text="Tile"/>
 							</mx:VBox>
@@ -252,7 +252,7 @@
  	                <mx:DataGridColumn headerText="Actual # Cycles"  width="25" dataField="@numberSequencingCyclesActual" editable="true">			                
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Actual"/>
 							    <mx:Label text="# Cycles"/>
 							</mx:VBox>
@@ -266,7 +266,7 @@
  	                   itemEditor="{ComboBoxWorkflowStatus.create('@lastCycleStatus', false, true, true, false)}">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Last Cycle"/>
 							    <mx:Label text="Status"/>
 							</mx:VBox>

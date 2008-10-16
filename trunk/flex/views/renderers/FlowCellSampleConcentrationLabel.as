@@ -20,6 +20,8 @@ package views.renderers
           	return;
           }
           
+          toolTip = data.@relatedFlowCellInfo;
+          
 	      var g:Graphics = graphics;
     	  g.clear();
        	  g.beginFill( data.name() == "WorkItem" && data[_dataField] == '' ? missingRequiredFieldBackground : 0xffffff );

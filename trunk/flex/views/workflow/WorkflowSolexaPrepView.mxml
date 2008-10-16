@@ -261,7 +261,7 @@
 					<mx:DataGridColumn editable="false" width="9" dataField="@seqPrepByCore">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Prepped"/>
 							    <mx:Label text="by Core?"/>
 							</mx:VBox>
@@ -272,7 +272,7 @@
 					<mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Lib conc."/>
 							    <mx:Label text="ng/uL"/>
 							</mx:VBox>
@@ -288,7 +288,7 @@
 		               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}">		                
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Bioanalyzer"/>
 							    <mx:Label text="method"/>
 							</mx:VBox>
@@ -308,7 +308,7 @@
 					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepGelFragmentSizeTo"> 
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Gel size"/>
 							    <mx:Label text="range (to)"/>
 							</mx:VBox>

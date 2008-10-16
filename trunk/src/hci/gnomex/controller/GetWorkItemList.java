@@ -75,7 +75,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
         log.info("GetWorkItemList query: " + queryBuf.toString());
         List rows = (List) sess.createQuery(queryBuf.toString()).list();
+        
+        
+        Map relatedFlowCellInfoMap = new HashMap();
 
+
+        Map idSamples = new HashMap();
         for (Iterator i1 = rows.iterator(); i1.hasNext();) {
           Object[] row = (Object[]) i1.next();
           
@@ -101,8 +106,34 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           } else {
             key = requestNumber + "," + itemNumber;
           }
+          
+          if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
+            Integer idSample = (Integer)row[8];
+            idSamples.put(idSample, null);
+          }
 
           allRows.put(key, row);
+        }
+        
+        if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) && !idSamples.isEmpty()) {
+          List flowCells = sess.createQuery(filter.getRelatedFlowCellQuery(idSamples.keySet()).toString()).list();
+          for(Iterator i = flowCells.iterator(); i.hasNext();) {
+            Object[] row = (Object[])i.next();
+            Integer idSample              = (Integer)row[0];
+            Integer clustersPerTile       = (Integer)row[1];
+            Integer sampleConcentrationpM = (Integer)row[2];
+            String  seqLaneNumber         = (String)row[3];
+            Integer idSequenceLane        = (Integer)row[4];
+            
+            List infoList = (List)relatedFlowCellInfoMap.get(idSample);
+            if (infoList == null) {
+              infoList = new ArrayList();
+            }
+            infoList.add(new RelatedFlowCellInfo(clustersPerTile, sampleConcentrationpM, seqLaneNumber, idSequenceLane));
+            
+            relatedFlowCellInfoMap.put(idSample, infoList);
+          }
+          
         }
         
         boolean alt = false;
@@ -292,6 +323,29 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("idOrganism",                   row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[16] == null ? "" :  ((Integer)row[16]).toString());
+            
+            
+            
+            Integer idSample = (Integer)row[8];
+            Integer idSequenceLane = (Integer)row[13];
+            
+            StringBuffer infoBuf = new StringBuffer();
+            List infoList = (List)relatedFlowCellInfoMap.get(idSample);
+            if (infoList != null) {
+              for(Iterator i2 = infoList.iterator(); i2.hasNext();) {
+                RelatedFlowCellInfo info = (RelatedFlowCellInfo)i2.next();
+                if (info.idSequenceLane.equals(idSequenceLane)) {
+                  continue;
+                } 
+                
+                infoBuf.append(info.toString());
+                if (i2.hasNext()) { 
+                  infoBuf.append("\n");
+                }
+                
+              }  
+              n.setAttribute("relatedFlowCellInfo", infoBuf.toString());             
+            }
           
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
             
@@ -583,6 +637,29 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }
       
     }
+  }
+  
+  public static class RelatedFlowCellInfo {
+    private Integer clustersPerTile;
+    private Integer sampleConcentrationpM;
+    private String  sequenceLaneNumber;
+    private Integer idSequenceLane;
+    
+    public RelatedFlowCellInfo(Integer clustersPerTile, Integer sampleConcentrationpM, String seqLaneNumber, Integer idSequenceLane) {
+      this.clustersPerTile = clustersPerTile;
+      this.sampleConcentrationpM = sampleConcentrationpM;
+      this.sequenceLaneNumber = seqLaneNumber;
+      this.idSequenceLane = idSequenceLane;
+    }
+    
+    public String toString() {
+      return sequenceLaneNumber + " - " +
+      (sampleConcentrationpM != null ? sampleConcentrationpM + " pM, " : "") + 
+      (clustersPerTile != null ? clustersPerTile + " clusters/tile " : "");          
+    }
+    
+    
+    
   }
 
 }
