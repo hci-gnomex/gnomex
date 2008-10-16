@@ -244,7 +244,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
               // if this is a not a new request, but these is a new sequence lane,
               // create a work item for the Cluster Gen (Assemble) worklist.
-              if ((!requestParser.isNewRequest()  || isNewLane)) {
+              if ((!requestParser.isNewRequest()  && isNewLane)) {
                 WorkItem workItem = new WorkItem();
                 workItem.setIdRequest(requestParser.getRequest().getIdRequest());
                 workItem.setSequenceLane(lane);
