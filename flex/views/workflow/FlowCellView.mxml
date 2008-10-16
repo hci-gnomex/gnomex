@@ -101,7 +101,7 @@
 					<mx:DataGridColumn   labelFunction="getSeqPrepLibFragmentSizeRange" width="90" headerText="Lib Fragment Size">
                        <mx:headerRenderer > 
 						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 						 	        <mx:Label text="Gel Size"/>
 							        <mx:Label text="range"/>
 				    			</mx:VBox>
@@ -111,7 +111,7 @@
 					<mx:DataGridColumn  dataField="@seqPrepLibConcentration" width="90" headerText="Lib Conc.">
                        <mx:headerRenderer > 
 						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							        <mx:Label text="Lib Conc."/>
 							        <mx:Label text="(ng/uL)"/>
 				    			</mx:VBox>
@@ -121,7 +121,7 @@
 					<mx:DataGridColumn  dataField="@sampleConcentrationpM" width="90" headerText="Final Sample Conc. pm">
                        <mx:headerRenderer > 
 						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							        <mx:Label text="Final Sample"/>
 							        <mx:Label text="Conc. (pM)"/>
 				    			</mx:VBox>
@@ -131,7 +131,7 @@
 					<mx:DataGridColumn  dataField="@numberSequencingCyclesActual" width="90" headerText="# Cycles (actual)">
                        <mx:headerRenderer > 
 						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							        <mx:Label text="# Cycles"/>
 							        <mx:Label text="(actual)"/>
 				    			</mx:VBox>
@@ -141,7 +141,7 @@
 					<mx:DataGridColumn  dataField="@clustersPerTile" width="90" headerText="Clusters per Tile">
                        <mx:headerRenderer > 
 						    <mx:Component>
-						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							        <mx:Label text="Clusters per"/>
 							        <mx:Label text="Tile"/>
 				    			</mx:VBox>

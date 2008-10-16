@@ -262,7 +262,7 @@
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="7" dataField="@qualCalcConcentration">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Conc."/>
 							    <mx:Label text="ng/uL"/>
 							</mx:VBox>
@@ -290,7 +290,7 @@
 					<mx:DataGridColumn headerText="Frag size (from)" width="7" dataField="@qualFragmentSizeFrom">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Frag size"/>
 							    <mx:Label text="(from)"/>
 							</mx:VBox>
@@ -300,7 +300,7 @@
 					<mx:DataGridColumn headerText="Frag size (to)" width="7" dataField="@qualFragmentSizeTo"> 
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Frag size"/>
 							    <mx:Label text="(to)"/>
 							</mx:VBox>

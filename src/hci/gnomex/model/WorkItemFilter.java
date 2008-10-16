@@ -51,6 +51,7 @@ public class WorkItemFilter extends DetailObject {
     }
 
   }
+
     
   
   private StringBuffer getQuery(int level) {
@@ -66,6 +67,33 @@ public class WorkItemFilter extends DetailObject {
     addSecurityCriteria();
     
     
+    return queryBuf;
+    
+  }
+  
+  public StringBuffer getRelatedFlowCellQuery(Set idSampleList) {
+    queryBuf = new StringBuffer();
+    addWhere = true;
+    
+    queryBuf.append("SELECT lane.idSample, ");
+    queryBuf.append("       ch.clustersPerTile, ");
+    queryBuf.append("       ch.sampleConcentrationpM, " );
+    queryBuf.append("       lane.number, " );
+    queryBuf.append("       lane.idSequenceLane " );
+    queryBuf.append("FROM   FlowCell fc ");
+    queryBuf.append("JOIN   fc.flowCellChannels ch ");
+    queryBuf.append("JOIN   ch.sequenceLane lane ");
+    queryBuf.append("WHERE  lane.idSample in (");
+    for(Iterator i = idSampleList.iterator(); i.hasNext();) {
+      Integer idSample = (Integer)i.next();
+      queryBuf.append(idSample.toString());
+      if (i.hasNext()) {
+        queryBuf.append(", ");
+      }
+    }
+    queryBuf.append(") ");
+    queryBuf.append("ORDER BY ch.idFlowCellChannel asc");
+        
     return queryBuf;
     
   }

@@ -170,6 +170,9 @@
 	        [Embed(source="assets/tick.png")]
 	        public var iconCheck:Class;
 	        
+	        [Bindable]
+	        [Embed(source="assets/information.png")]
+	        public var iconInformation:Class;
 	                    
 	        [Bindable]
 	        [Embed(source="assets/flag_yellow.png")]

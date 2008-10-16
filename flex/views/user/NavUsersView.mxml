@@ -103,7 +103,7 @@
 
     <mx:Script>
         <![CDATA[
-        	import mx.events.ItemClickEvent;
+          import mx.events.ItemClickEvent;
           import views.user.GroupAddView;
           import views.user.UserAddView;
 	      import mx.managers.PopUpManager;
