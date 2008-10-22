@@ -16,7 +16,7 @@
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
     </Dictionary>
     <Dictionary displayName="Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
-  <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
+  <Dictionary displayName="Seq Run Type" className="hci.gnomex.model.SeqRunType" />
 	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
@@ -26,7 +26,6 @@
 	<Dictionary displayName="Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-  <Dictionary displayName="Flow Cell Type" className="hci.gnomex.model.FlowCellType" />
 	<Dictionary displayName="Funding Agency" className="hci.gnomex.model.FundingAgency"  >
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
@@ -71,9 +70,9 @@
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Flow Cell Types for a given Sample Prep Method" className="hci.gnomex.model.SamplePrepMethodFlowCellType" >
+	<Dictionary displayName="Seq Run Types for a given Sample Prep Method" className="hci.gnomex.model.SamplePrepMethodSeqRunType" >
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
-  	  <Filter className="hci.gnomex.model.FlowCellType"         filterField="idFlowCellType"/>
+  	  <Filter className="hci.gnomex.model.SeqRunType"         filterField="idSeqRunType"/>
 	</Dictionary>
 	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
 	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType">

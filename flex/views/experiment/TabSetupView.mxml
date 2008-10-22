@@ -127,7 +127,7 @@
 		
 		public function getRequestCategory():Object {
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestTypeGroup.selectedValue);
-			return requestCategory;			
+			return requestCategory;			 
 		}
 		
 				

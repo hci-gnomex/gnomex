@@ -24,7 +24,7 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" width="100%">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="Web tools to browse, search, mondify, and download data fiels associated with the aforementioned"/>				
+				<mx:Text text="Web tools to browse, search, modify, and download data fiels associated with the aforementioned"/>				
 			</mx:HBox>
 			
 		</mx:VBox>

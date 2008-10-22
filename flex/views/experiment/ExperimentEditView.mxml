@@ -121,7 +121,7 @@
 		[Bindable]
 		public var filteredSampleTypeList:XMLListCollection;
 		[Bindable]
-		public var filteredFlowCellTypeList:XMLListCollection;
+		public var filteredSeqRunTypeList:XMLListCollection;
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
@@ -163,7 +163,7 @@
         	filteredSampleTypeList.refresh();
 			
         	
-	        filteredFlowCellTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.FlowCellType'));
+	        filteredSeqRunTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqRunType'));
         	
         	
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild'));
@@ -191,8 +191,8 @@
 			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
 			samplePrepMethodList.refresh();
 			
-			filteredFlowCellTypeList.filterFunction = filterFlowCellType;
-			filteredFlowCellTypeList.refresh();
+			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
+			filteredSeqRunTypeList.refresh();
 
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			filteredGenomeBuildList.refresh();
@@ -496,7 +496,7 @@
 				for each (var sample:Object in samples) {
 					sample.@seqPrepByCore = 'Y';
 					sample.@numberSequencingLanes = '';
-					sample.@idFlowCellType = '';
+					sample.@idSeqRunType = '';
 				}
 				this.samplesView.showHideColumns();		
 				this.samplesView.checkSamplesCompleteness();	
@@ -704,8 +704,27 @@
 	    	   		    break;
         	   		}
         	   	}
+        	} 
+        	
+        	// If this is a solexa request, additionally filter on sequence run type
+        	// (if specified).
+        	var doesMatchSeqRunType:Boolean = true;
+        	if (isSolexaState()) {
+        		if (sampleSetupView.seqRunTypeCombo.selectedItem != null &&
+        		    sampleSetupView.seqRunTypeCombo.selectedItem.@value != "") {
+        			doesMatchSeqRunType = false;
+	        	   	var matchingSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSeqRunType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
+    	    	   	for each (var matchingEntry:Object in matchingSamplePrepMethods) {
+        		   		if (matchingEntry.@idSeqRunType.toString() == sampleSetupView.seqRunTypeCombo.selectedItem.@value.toString()) {
+    	   					doesMatchSeqRunType = true;
+	    	   			    break;
+        	   			}
+        	   		}
+        		}
+        		
+        		
         	}
-        	return doesMatchRequestCategory && doesMatchSampleType;
+        	return doesMatchRequestCategory && doesMatchSampleType && doesMatchSeqRunType;
         }  
         
         private function filterSampleType(item:Object):Boolean {
@@ -773,7 +792,7 @@
     	   	return doesMatch;
     	}
 
-        private function filterFlowCellType(item:Object):Boolean {
+        private function filterSeqRunType(item:Object):Boolean {
         	if (item.@value == "") {
         		return true;
         	}
@@ -784,20 +803,26 @@
         	if (item.@isActive == 'N') {
         		return false;
         	}
+        	
+        	if (item.@value == "") {
+        		return false;
+        	}
         	var doesMatch:Boolean = true;
+        	/*
         	if (sampleSetupView.samplePrepMethodCombo.selectedItem != null && 
         	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != null  &&
         	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != "" && 
         	    sampleSetupView.samplePrepMethodCombo.selectedItem.@display.toString().indexOf("Other") < 0) {
         	    doesMatch = false;
-	        	var theFlowCellTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idFlowCellType == item.@value.toString());
-	    	   	for each (var xref1:Object in theFlowCellTypes) {
+	        	var theSeqRunTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSeqRunType').DictionaryEntry.(@value != '' && @idSeqRunType == item.@value.toString());
+	    	   	for each (var xref1:Object in theSeqRunTypes) {
 	    	   		if (xref1.@idSamplePrepMethod.toString() == sampleSetupView.samplePrepMethodCombo.selectedItem.@value.toString()) {
 		   				doesMatch = true;
 	    	   		    break;
 	    	   		}
 	    	   	}
     	   	}
+    	   	*/
     	   	return doesMatch;
     	}
        
@@ -948,6 +973,7 @@
    					sample.@isAlreadyPrepped = 'Y';
    				} else  {
    					sample.@isAlreadyPrepped = 'N';
+   					sample.@idSamplePrepMethod = '';
    				}
 			}
 			
@@ -1001,13 +1027,13 @@
 			     hyb.@canChangeSlideDesign='Y';
 			}
 
-			// Initialize the flow cell on the sample
-			// to the default flow cell of the sample prep method
+			// Initialize the seq run type on the sample
+			// to the default seq run type of the sample prep method
 			if (this.isSolexaState()) {
-				var idFlowCellType:String = this.getDefaultIdFlowCellType();
-				if (idFlowCellType != null) {
+				var idSeqRunType:String = this.sampleSetupView.getDefaultIdSeqRunType();
+				if (idSeqRunType != null) {
 					for each(var s:Object in samples) {
-						s.@idFlowCellType = idFlowCellType;
+						s.@idSeqRunType = idSeqRunType;
 					}
 				}
 			}
@@ -1032,14 +1058,6 @@
 			
 		}
 		
-		public function getDefaultIdFlowCellType():String {
-			var idFlowCellType:String = "";
-			var applicableFlowCellTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == this.request.@idSamplePrepMethodDefault);
-			if (applicableFlowCellTypes.length() > 0) {
-				idFlowCellType =  applicableFlowCellTypes[0].@idFlowCellType;
-			} 
-			return idFlowCellType;
-		}
 
 		
 		public function clearOutSampleAnnotations():void {
@@ -1558,9 +1576,10 @@
 				request.@idSampleSourceDefault = sampleSetupView.sampleSourceCombo.selectedItem.@value;
 				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 			}
-			if (sampleSetupView.currentState != 'SampleSetupPreppedState') {
+			if (!isSolexaState()) {
 				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;				
 			}
+			
 
 			if (currentState == 'MicroarrayState') {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
@@ -2003,8 +2022,8 @@
 						<mx:columns>
 						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
 						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
-				            <mx:DataGridColumn  width="200" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
-	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType','@idFlowCellType', true)}"/>
+				            <mx:DataGridColumn  width="200" id="seqRunTypeCol" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
+	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType','@idSeqRunType', true)}"/>
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
 	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"/>
 				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 

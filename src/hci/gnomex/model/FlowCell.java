@@ -13,7 +13,7 @@ public class FlowCell extends HibernateDetailObject {
   private Date     createDate;
   private String   notes;
   private Integer  idFlowCell;
-  private Integer  idFlowCellType;
+  private Integer  idSeqRunType;
   private Integer  idNumberSequencingCycles;
   private String   barcode;
   private Set      flowCellChannels = new TreeSet();
@@ -26,12 +26,12 @@ public class FlowCell extends HibernateDetailObject {
     this.idFlowCell = idFlowCell;
   }
   
-  public Integer getIdFlowCellType() {
-    return idFlowCellType;
+  public Integer getIdSeqRunType() {
+    return idSeqRunType;
   }
   
-  public void setIdFlowCellType(Integer idFlowCellType) {
-    this.idFlowCellType = idFlowCellType;
+  public void setIdSeqRunType(Integer idSeqRunType) {
+    this.idSeqRunType = idSeqRunType;
   }
   
   public Integer getIdNumberSequencingCycles() {

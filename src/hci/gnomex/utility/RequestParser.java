@@ -639,8 +639,8 @@ public class RequestParser implements Serializable {
     }
     
 
-    if (n.getAttributeValue("idFlowCellType") != null && !n.getAttributeValue("idFlowCellType").equals("")) {
-      sequenceLaneInfo.setIdFlowCellType(new Integer(n.getAttributeValue("idFlowCellType")));
+    if (n.getAttributeValue("idSeqRunType") != null && !n.getAttributeValue("idSeqRunType").equals("")) {
+      sequenceLaneInfo.setIdSeqRunType(new Integer(n.getAttributeValue("idSeqRunType")));
     }
 
     if (n.getAttributeValue("idGenomeBuildAlignTo") != null && !n.getAttributeValue("idGenomeBuildAlignTo").equals("")) {
@@ -1115,7 +1115,7 @@ public class RequestParser implements Serializable {
     private String   idSequenceLane;
     private String   idSampleString;
     private Sample   sample;
-    private Integer  idFlowCellType;
+    private Integer  idSeqRunType;
     private Integer  idNumberSequencingCycles;
     private Integer  idGenomeBuildAlignTo;
     private String   analysisInstructions;
@@ -1130,13 +1130,13 @@ public class RequestParser implements Serializable {
     
 
     
-    public Integer getIdFlowCellType() {
-      return idFlowCellType;
+    public Integer getIdSeqRunType() {
+      return idSeqRunType;
     }
 
     
-    public void setIdFlowCellType(Integer idFlowCellType) {
-      this.idFlowCellType = idFlowCellType;
+    public void setIdSeqRunType(Integer idSeqRunType) {
+      this.idSeqRunType = idSeqRunType;
     }
 
     

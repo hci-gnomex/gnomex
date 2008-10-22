@@ -17,7 +17,7 @@ public class SequenceLane extends HibernateDetailObject {
   private Integer         idSample;
   private Sample          sample;
   private Integer         idRequest;
-  private Integer         idFlowCellType;
+  private Integer         idSeqRunType;
   private Integer         idNumberSequencingCycles;
   private Integer         idGenomeBuildAlignTo;
   private String          analysisInstructions;
@@ -93,13 +93,13 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
   
-  public Integer getIdFlowCellType() {
-    return idFlowCellType;
+  public Integer getIdSeqRunType() {
+    return idSeqRunType;
   }
 
   
-  public void setIdFlowCellType(Integer idFlowCellType) {
-    this.idFlowCellType = idFlowCellType;
+  public void setIdSeqRunType(Integer idSeqRunType) {
+    this.idSeqRunType = idSeqRunType;
   }
 
   
@@ -323,7 +323,7 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
   
-  public String getCanChangeFlowCellType() {
+  public String getCanChangeSeqRunType() {
     if (this.getFlowCellChannel() != null) {
       return "N";
     } else {

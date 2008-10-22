@@ -251,8 +251,8 @@
 									<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/> 
 								    <mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 								    <mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
-						            <mx:DataGridColumn  width="150" id="flowCellTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType" 						             						             
-		                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType',  '@idFlowCellType')}"/>                 											
+						            <mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
+		                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType',  '@idSeqRunType')}"/>                 											
 						            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
 		                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
 						            <mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             

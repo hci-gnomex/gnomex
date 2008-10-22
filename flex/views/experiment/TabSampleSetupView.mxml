@@ -49,14 +49,14 @@
 				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem != null ? this.samplePrepMethodCombo.selectedItem.@value : '';
 			}
 			if (currentState == 'SolexaSetupState') {
-				propagateDefaultFlowCellType();
+				propagateDefaultSeqRunType();
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
-		private function propagateDefaultFlowCellType():void {
-			var idFlowCellType:String = this.getDefaultIdFlowCellType();
+		private function propagateDefaultSeqRunType():void {
+			var idSeqRunType:String = this.getDefaultIdSeqRunType();
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idFlowCellType = idFlowCellType;
+				sample.@idSeqRunType = idSeqRunType;
 			}			
 		}
        	private function propagateSampleSource():void {
@@ -90,20 +90,17 @@
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	
-       	private function propagateFlowCellType():void {
+       	private function propagateSeqRunType():void {
 
-			var idFlowCellType:String = '';
+			var idSeqRunType:String = ''; 
 			if (parentDocument.isSolexaState()) {
-	       		if (currentState == 'SolexaSetupPreppedState') {
-	       			idFlowCellType = this.flowCellTypeCombo.selectedItem.@value;
-	       		} else {
-	       			idFlowCellType = this.getDefaultIdFlowCellType();
-	       		}
+	       		idSeqRunType = this.seqRunTypeCombo.selectedItem.@value;
+	       		
 				for each (var sample:Object in parentDocument.samples) {
-					sample.@idFlowCellType = idFlowCellType;
+					sample.@idSeqRunType = idSeqRunType;
 				}
 				for each (var lane:Object in parentDocument.lanes) {
-					lane.@idFlowCellType = idFlowCellType;
+					lane.@idSeqRunType = idSeqRunType;
 				}
 				callLater(parentDocument.samplesView.checkSamplesCompleteness);
 				
@@ -162,7 +159,9 @@
 			if (sampleTypeCombo.selectedItem == null || sampleTypeCombo.selectedItem.@value == '') {
 				return;
 			}
-			if (samplePrepMethodCombo.dataProvider.length > 1) {
+			if (samplePrepMethodCombo.dataProvider.length == 2) {
+				samplePrepMethodCombo.selectedIndex = 1;
+			} else if (samplePrepMethodCombo.dataProvider.length > 2) {
 				for each(var item:Object in samplePrepMethodCombo.dataProvider) {
 
 					var applicableSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSampleType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
@@ -170,10 +169,8 @@
 	        	   		if (xref.@idSampleType.toString() == sampleTypeCombo.selectedItem.@value.toString()) {
 	    	   				if (xref.@isDefaultForSampleType == 'Y') {
 	    	   					samplePrepMethodCombo.selectedItem = item;
-	    	   					parentDocument.filteredFlowCellTypeList.refresh();
-	    	   					selectDefaultFlowCellType();
 	    	   					this.propagateSamplePrepMethod();
-	    	   					this.propagateFlowCellType();
+	    	   					this.propagateSeqRunType();
 	    	   					this.checkSampleSetupCompleteness();
 	    	   					break;
 	    	   				}
@@ -182,30 +179,32 @@
 
 				}
 			}
-		}
+		} 
 
-		private function selectDefaultFlowCellType():void {
-			if (currentState != "SolexaSetupPreppedState") {
+		private function selectDefaultSeqRunType():void {
+			if (currentState != "SolexaSetupPreppedState" && currentState != 'SolexaSetupState') {
 				return;
 			}
-			if (flowCellTypeCombo.dataProvider.length == 2) {
-				flowCellTypeCombo.selectedIndex = 1;
-			} else {
-				flowCellTypeCombo.selectedIndex = 0;
+			for each(var item:Object in seqRunTypeCombo.dataProvider) {
+				if (item.@display.toUpperCase().indexOf("SINGLE") > -1) {
+					seqRunTypeCombo.selectedItem = item;
+					propagateSeqRunType();
+					break;
+				}
 			}
-			this.propagateFlowCellType();
+			this.propagateSeqRunType();
 			this.checkSampleSetupCompleteness();
 		}
 		
-		public function getDefaultIdFlowCellType():String {
-			var idFlowCellType:String = "";
-			if (samplePrepMethodCombo.selectedItem != null && samplePrepMethodCombo.selectedItem.@value != '') {
-				var applicableFlowCellTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodFlowCellType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == this.samplePrepMethodCombo.selectedItem.@value.toString());
-				if (applicableFlowCellTypes.length() == 1) {
-					idFlowCellType =  applicableFlowCellTypes.@idFlowCellType;
-				} 
+		public function getDefaultIdSeqRunType():String {
+			var idSeqRunType:String = "";
+			for each(var item:Object in seqRunTypeCombo.dataProvider) {
+				if (item.@display.toUpperCase().indexOf("SINGLE") > -1) {
+					idSeqRunType = item.@value;
+					break;
+				}
 			}
-			return idFlowCellType;
+			return idSeqRunType;
 		}
 		
 		private function toggleChipTypeCheck(event:ListEvent):void {
@@ -236,14 +235,14 @@
 	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
-	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&	        	    
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' &&
 	        	    this.fragmentSizeFrom.text != "" && this.fragmentSizeTo.text != "" && 
+	        	    this.seqRunTypeCombo.selectedItem != null && this.seqRunTypeCombo.selectedItem.@value != '' &&
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
- 						if (this.flowCellTypeCombo.selectedItem != null && this.flowCellTypeCombo.selectedItem.@value != '') {
+ 						if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
  							isComplete = true;
  						}	        	    	
 	        	    } else {
@@ -364,7 +363,7 @@
 		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="How many samples will you be submitting?" width="340"  id="label5"/>
+				<mx:Label text="How many samples will you be submitting?" width="310"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
 					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
 >
@@ -373,27 +372,27 @@
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Which category best describes your samples?" width="340" id="label8"/>
+				<mx:Label text="Which category best describes your samples?" width="310" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
 					change="samplePrepMethodCombo.selectedIndex=0;parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();propagateSampleType();parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();" dataProvider="{parentDocument.filteredSampleTypeList}">							
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Which organism is the source for these samples?" width="340" id="label7"/>
+				<mx:Label text="Which organism is the source for these samples?" width="310" id="label7"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentDocument.filteredGenomeBuildList.refresh()">							
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Which term best describes the sample source?" width="340" id="label6"/>
+				<mx:Label text="Which term best describes the sample source?" width="310" id="label6"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()" dataProvider="{parentDocument.sampleSourceList}">							
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Enter an approximate concentration of the samples:" width="340" id="label4"/>
+				<mx:Label text="Enter an approximate concentration of the samples:" width="310" id="label4"/>
 				<mx:TextInput width="40" id="sampleConcentration"
 					 valid="handleValidConcentration(event)" invalid="handleInvalidConcentration(event)" 
 >
@@ -403,8 +402,8 @@
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Select the nucleic acid purification/extraction method:" width="340" id="label2"/>
-				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.filteredFlowCellTypeList.refresh();selectDefaultFlowCellType();parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();" dataProvider="{parentDocument.samplePrepMethodList}">															
+				<mx:Label text="Select the nucleic acid purification/extraction method:" width="310" id="label2"/>
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();" dataProvider="{parentDocument.samplePrepMethodList}">															
 				</mx:ComboBox>
 			</mx:HBox>
 			
@@ -472,18 +471,21 @@
             <mx:AddChild relativeTo="{concentrationContainer}" position="after">
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
 					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text text="Do you want the Core Facility to perform library preparation on the samples?" width="330" />
-					<mx:HBox width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes" selected="true"
-							change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
-						</mx:RadioButton>			
-						<mx:VBox id="vbox1">
-							<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, library preparation has been completed"
-								change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredFlowCellTypeList.refresh();checkSampleSetupCompleteness();}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
+					<mx:Text text="Do you want the Core Facility to perform library preparation on the samples?" width="310" />
+					<mx:VBox width="100%">
+					    <mx:HBox id="hbox2" width="100%">
+							<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please prep library" selected="true"
+								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
+							</mx:RadioButton>									    	
+					    </mx:HBox>
+					    
+						<mx:HBox id="vbox1">
+							<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, library has already been prepped "
+								change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
 							</mx:RadioButton>							
 								
-						</mx:VBox>				
-					</mx:HBox>
+						</mx:HBox>				
+					</mx:VBox>
 				</mx:HBox>            	
             </mx:AddChild>
             <mx:AddChild relativeTo="{sampleOrganismContainer}" >
@@ -491,12 +493,11 @@
                 		    <mx:Spacer width="15"/>
                 </mx:HBox>
             </mx:AddChild>
-            <mx:SetProperty target="{label2}" name="text" value="Select a prep kit to be used by the Core Facility:"/>
             <mx:AddChild relativeTo="{sampleSetupContainer}" >
 				<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
 					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Label text="Select the desired number of sequencing cycles:" width="330" />
-					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
+					<mx:Label text="Select the desired number of sequencing cycles:" width="310" />
+					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>            	  
@@ -509,15 +510,15 @@
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod()</mx:handler>
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();selectDefaultSeqRunType()</mx:handler>
             </mx:SetEventHandler>
             <mx:SetEventHandler target="{samplePrepMethodCombo}" name="change">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.filteredFlowCellTypeList.refresh()</mx:handler>
+                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.filteredSeqRunTypeList.refresh();</mx:handler>
             </mx:SetEventHandler>
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0">
                 	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Do you want the sequence data to be aligned?" width="330" />
+                	<mx:Label text="Do you want the sequence data to be aligned?" width="310" />
                 	<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
                 		<mx:HBox width="100%" horizontalGap="2">
                 			<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;};checkSampleSetupCompleteness();}" selected="true"/>
@@ -533,20 +534,20 @@
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="numberOfCyclesContainer1" width="100%" horizontalGap="0">
                 	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Provide any special analysis instructions:" width="330" />
+                	<mx:Label text="Provide any special analysis instructions:" width="310" />
                 	<mx:TextArea id="analysisInstructions" width="100%" focusOut="propagateAnalysisInstructions()" height="32"/>
                 </mx:HBox>
             </mx:AddChild>
             <mx:AddChild relativeTo="{isPreppedContainer}" position="before">
                 <mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer0">
                 	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Enter the approximate size range of your samples:" width="330" id="label0"/>
+                	<mx:Label text="Enter the approximate size range of your samples:" width="310" id="label0"/>
                 	<mx:TextInput id="fragmentSizeFrom" width="50" 
                 		valid="handleValidFragmentSizeFrom(event)" invalid="handleInvalidFragmentSizeFrom(event)"
                 		change="propagateFragmentSizeFrom();checkSampleSetupCompleteness();"/>
                 	<mx:Label text="-" textAlign="center"/>
                 	<mx:TextInput id="fragmentSizeTo" width="50" 
-                		valid="handleValidFragmentSizeTo(event)" invalid="handleInvalidFragmentSizeTo(event)"
+                		valid="handleValidFragmentSizeTo(event)" invalid="handleInvalidFragmentSizeTo(event)" 
                 		change="propagateFragmentSizeTo();checkSampleSetupCompleteness();"/>
                 </mx:HBox>
             </mx:AddChild>
@@ -554,36 +555,34 @@
             <mx:SetEventHandler target="{sampleOrganismCombo}" name="change">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentDocument.filteredGenomeBuildList.refresh();selectDefaultGenomeBuild()</mx:handler>
             </mx:SetEventHandler>
-            <mx:SetProperty target="{label5}" name="width" value="330"/>
-            <mx:SetProperty target="{label2}" name="width" value="330"/>
-            <mx:SetProperty target="{label4}" name="width" value="330"/>
-            <mx:SetProperty target="{label6}" name="width" value="330"/>
-            <mx:SetProperty target="{label7}" name="width" value="330"/>
-            <mx:SetProperty target="{label8}" name="width" value="330"/>
-        </mx:State>
-        <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
-            <mx:SetStyle target="{alignMoreContainer}" name="verticalGap" value="0"/>
-            <mx:SetEventHandler target="{samplesAlreadyPreppedCheckbox}" name="change">
-                <mx:handler>{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;fragmentSizeFrom.text = '';fragmentSizeTo.text = '';checkSampleSetupCompleteness();parentDocument.filteredFlowCellTypeList.refresh()}</mx:handler>
-            </mx:SetEventHandler>
-            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
-            <mx:SetProperty target="{analysisInstructions}" name="height" value="32"/>
-            <mx:AddChild relativeTo="{vbox1}" position="lastChild">
-                <mx:HBox id="hbox1">
-                	<mx:Label text="using the kit" width="170"/>
+            <mx:AddChild relativeTo="{numberOfCyclesContainer}" position="before">
+                <mx:HBox id="seqRunTypeContainer" width="100%" horizontalGap="0">
+                	<mx:Image source="{parentApplication.iconBullet}"/>
+                	<mx:Label text="Select the sequencing run type:" width="310" />
+                	<mx:ComboBox id="seqRunTypeCombo" labelField="@display" 
+                		change="parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();propagateSeqRunType();checkSampleSetupCompleteness();" 
+                		width="300" 
+                		dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@value != &quot;&quot; &amp;&amp; @isActive != &quot;N&quot;)}">
+                	</mx:ComboBox>
                 </mx:HBox>
             </mx:AddChild>
             <mx:RemoveChild target="{samplePrepMethodCombo}"/>
-            <mx:AddChild relativeTo="{hbox1}" position="lastChild" target="{samplePrepMethodCombo}"/>
-            <mx:AddChild relativeTo="{hbox1}" position="after">
-            	<mx:HBox>
-	                <mx:Label text="to be loaded on the flow cell" width="170"/>
-	                <mx:ComboBox id="flowCellTypeCombo" labelField="@display" change="parentDocument.samplesView.initializeSamplesGrid();propagateFlowCellType();checkSampleSetupCompleteness();" width="300" dataProvider="{parentDocument.filteredFlowCellTypeList}">
-	                </mx:ComboBox>
-            		
-            	</mx:HBox>
-            </mx:AddChild>
+            <mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{samplePrepMethodCombo}"/>
+            <mx:RemoveChild target="{label2}"/>
             <mx:RemoveChild target="{samplePrepContainer}"/>
+            <mx:SetProperty target="{samplePrepMethodCombo}" name="width" value="400"/>
+            <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="false"/>
+        </mx:State>
+        <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
+            <mx:SetStyle target="{alignMoreContainer}" name="verticalGap" value="0"/>
+            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
+            <mx:SetProperty target="{analysisInstructions}" name="height" value="32"/>
+            <mx:SetProperty target="{samplesAlreadyPreppedCheckbox}" name="label">
+                <mx:value>No, library has already been prepped using kit</mx:value>
+            </mx:SetProperty>
+            <mx:RemoveChild target="{samplePrepMethodCombo}"/>
+            <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{samplePrepMethodCombo}"/>
+            <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="true"/>
         </mx:State>
    	
    </mx:states>

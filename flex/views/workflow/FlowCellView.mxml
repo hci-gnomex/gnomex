@@ -62,8 +62,8 @@
 		private function getNumberSequencingCycles(item:Object, col:DataGridColumn):String {
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
 		}
-		private function getFlowCellType(item:Object, col:DataGridColumn):String {
-			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.FlowCellType', item.@idFlowCellType);
+		private function getSeqRunType(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
 		}
 	]]>
 </mx:Script>    	
@@ -78,8 +78,8 @@
 						<mx:columns>
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
 							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
-							<mx:DataGridColumn  dataField="@idFlowCellType" headerText="Flow Cell Type" width="120"
- 	                            itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType')}"/>                 							
+							<mx:DataGridColumn  dataField="@idSeqRunType" headerText="Seq Run Type" width="120"
+ 	                            itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType')}"/>                 							
 							<mx:DataGridColumn  dataField="@notes" headerText="Content" />
 						</mx:columns>				
 					</mx:DataGrid>		

@@ -171,9 +171,9 @@ public class FlowCellChannel extends HibernateDetailObject {
     }
   }
   
-  public Integer getIdFlowCellType() {
+  public Integer getIdSeqRunType() {
     if (sequenceLane != null) {
-      return sequenceLane.getIdFlowCellType();
+      return sequenceLane.getIdSeqRunType();
     } else {
       return null;
     }

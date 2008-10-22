@@ -19,7 +19,7 @@
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
 			    " analysisInstructions='' " + 
-				" idFlowCellType=''" + 
+				" idSeqRunType=''" + 
 				" idNumberSequencingCycles=''" +
 				" idGenomeBuildAlignTo=''" +
 				" idSample='0'" +
@@ -37,7 +37,7 @@
     			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
 					" analysisInstructions='" + laneToCopy.@analysisInstructions + "'" + 
 					" idSample='" + laneToCopy.@idSample + "'" +
-					" idFlowCellType='" + laneToCopy.@idFlowCellType + "'" +			
+					" idSeqRunType='" + laneToCopy.@idSeqRunType + "'" +			
 					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
 					" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +			
 					"/>");
@@ -116,9 +116,9 @@
     		}
     		
         }
-		public function propagateFlowCellType(idFlowCellType:String):void {
+		public function propagateSeqRunType(idSeqRunType:String):void {
 			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idFlowCellType = idFlowCellType;
+				lane.@idSeqRunType = idSeqRunType;
 			}
 			callLater(checkLanesCompleteness);
 		}
@@ -164,7 +164,7 @@
         	var completeCount:int = 0;
         	for each(var lane:Object in parentDocument.lanes) {
         		if (lane.@idSample != null && lane.@idSample!= '0'  &&
-        			lane.@idFlowCellType != null && lane.@idFlowCellType != '' &&
+        			lane.@idSeqRunType != null && lane.@idSeqRunType != '' &&
         			lane.@idNumberSequencingCycles != null && lane.@idNumberSequencingCycles != '') {
         			completeCount++;       				
         		}
@@ -257,11 +257,11 @@
 					    	labelFunction="parentDocument.getLaneSampleName" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
                             itemRenderer="views.renderers.LabelLaneSample" />                 
-			             <mx:DataGridColumn  width="120" headerText="Flow Cell Type"  editable="false" dataField="@idFlowCellType"
+			             <mx:DataGridColumn  width="120" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType"
 			             	editorDataField="value"  
 			             	rendererIsEditor="false" 
-			             	itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType', true)}"                 
-	 	                    itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType', '@canChangeFlowCellType')}"/>
+			             	itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType', true)}"                 
+	 	                    itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType', '@canChangeSeqRunType')}"/>
 			             <mx:DataGridColumn width="65"  headerText="# Cycles"   editable="true" dataField="@idNumberSequencingCycles" 						             						             
 			             	  editorDataField="value"  
 			             	  rendererIsEditor="false"  

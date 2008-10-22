@@ -390,7 +390,7 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
     this.addHeaderCell(rowh, "Sample name"    );
-    this.addHeaderCell(rowh, "Flow Cell Type");
+    this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "# Sequencing Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
@@ -410,7 +410,7 @@ public class RequestHTMLFormatter {
 
       this.addLeftCell(row, lane.getNumber());
       this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-      this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
+      this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
       this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
       this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
       this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
@@ -436,7 +436,7 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
     this.addHeaderCell(rowh, "Sample name"    );
-    this.addHeaderCell(rowh, "Flow Cell Type");
+    this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "# Sequencing Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
@@ -457,7 +457,7 @@ public class RequestHTMLFormatter {
         SequenceLane lane = channel.getSequenceLane();
 
         this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-        this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
+        this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
         this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
         this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");

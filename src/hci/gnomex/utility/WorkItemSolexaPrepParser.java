@@ -102,6 +102,11 @@ public class WorkItemSolexaPrepParser implements Serializable {
     } else {
       sample.setSeqPrepGelFragmentSizeTo(null);
     }    
+    if (n.getAttributeValue("idSamplePrepMethod") != null && !n.getAttributeValue("idSamplePrepMethod").equals("")) {
+      sample.setIdSamplePrepMethod(new Integer(n.getAttributeValue("idSamplePrepMethod")));
+    } else {
+      sample.setIdSamplePrepMethod(null);
+    }    
     
   }
 
