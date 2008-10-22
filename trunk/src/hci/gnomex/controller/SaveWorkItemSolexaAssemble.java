@@ -126,7 +126,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
 
               lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());
               
-              flowCell.setIdFlowCellType(lane.getIdFlowCellType());
+              flowCell.setIdSeqRunType(lane.getIdSeqRunType());
               
               Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
             	if (idNumberSequencingCycles == null ||

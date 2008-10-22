@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.FlowCellType;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SlideDesign;
@@ -33,7 +33,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   
   private RequestDownloadFilter          filter;
   private HashMap                        slideDesignMap = new HashMap();
-  private HashMap                        flowCellTypeMap = new HashMap();
+  private HashMap                        seqRunTypeMap = new HashMap();
   private static final String          QUALITY_CONTROL_DIRECTORY = "bioanalysis";
 
   public void validate() {
@@ -76,10 +76,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         slideDesignMap.put(sd.getIdSlideDesign(), sd.getName());
       }
       
-      List flowCellTypes = sess.createQuery("SELECT fct from FlowCellType fct ").list();
-      for(Iterator i = flowCellTypes.iterator(); i.hasNext();) {
-        FlowCellType fct = (FlowCellType)i.next();
-        flowCellTypeMap.put(fct.getIdFlowCellType(), fct.getFlowCellType());
+      List seqRunTypes = sess.createQuery("SELECT fct from SeqRunType fct ").list();
+      for(Iterator i = seqRunTypes.iterator(); i.hasNext();) {
+        SeqRunType fct = (SeqRunType)i.next();
+        seqRunTypeMap.put(fct.getIdSeqRunType(), fct.getSeqRunType());
       }
       
     

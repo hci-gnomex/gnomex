@@ -285,10 +285,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("seqPrepLibConcentration",           row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[16] == null ? "" :  (String)row[16]);
             n.setAttribute("seqPrepGelFragmentSizeFrom",        row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("seqPrepGelFragmentSizeTo",         row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("seqPrepGelFragmentSizeTo",          row[18] == null ? "" :  ((Integer)row[18]).toString());
             n.setAttribute("seqPrepDate",                       row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
             n.setAttribute("seqPrepFailed",                     row[20] == null ? "" :  (String)row[20]);
             n.setAttribute("seqPrepBypassed",                   row[21] == null ? "" :  (String)row[21]);
+            n.setAttribute("idSampleType",                      row[22] == null ? "" :  ((Integer)row[22]).toString());
             
 
             String seqPrepStatus = "";
@@ -320,7 +321,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
             n.setAttribute("idSequenceLane",               row[13] == null ? "" :  ((Integer)row[13]).toString());
-            n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
+            n.setAttribute("idSeqRunType",                row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("idOrganism",                   row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[16] == null ? "" :  ((Integer)row[16]).toString());
             
@@ -351,7 +352,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             
            
             n.setAttribute("idFlowCellChannel",            row[13] == null ? "" :  ((Integer)row[13]).toString());
-            n.setAttribute("idFlowCellType",               row[14] == null ? "" :  ((Integer)row[14]).toString());
+            n.setAttribute("idSeqRunType",                 row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("number",                       row[16] == null ? "" :  ((String)row[16]));
             n.setAttribute("channelNumber",                row[17] == null ? "" :  ((Integer)row[17]).toString());

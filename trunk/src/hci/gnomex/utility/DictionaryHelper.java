@@ -3,7 +3,7 @@ package hci.gnomex.utility;
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.FlowCellType;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.MicroarrayCategory;
 import hci.gnomex.model.NumberSequencingCycles;
@@ -39,7 +39,7 @@ public class DictionaryHelper implements Serializable {
   private Map              slideSourceMap = new HashMap();
   private Map              sampleSourceMap = new HashMap();
   private Map              organismMap = new HashMap();
-  private Map              flowCellTypeMap = new HashMap();
+  private Map              seqRunTypeMap = new HashMap();
   private Map              numberSequencingCyclesMap = new HashMap();
   private Map              genomeBuildMap = new HashMap();  
   private Map              analysisProtocolMap = new HashMap();
@@ -106,10 +106,10 @@ public class DictionaryHelper implements Serializable {
       Organism org = (Organism)i.next();
       organismMap.put(org.getIdOrganism(), org.getOrganism());
     }
-    List flowCells = sess.createQuery("SELECT fc from FlowCellType as fc").list();
+    List flowCells = sess.createQuery("SELECT fc from SeqRunType as fc").list();
     for(Iterator i = flowCells.iterator(); i.hasNext();) {
-      FlowCellType fc = (FlowCellType)i.next();
-      flowCellTypeMap.put(fc.getIdFlowCellType(), fc.getFlowCellType());
+      SeqRunType fc = (SeqRunType)i.next();
+      seqRunTypeMap.put(fc.getIdSeqRunType(), fc.getSeqRunType());
     }    
     List numberSequencingCycles = sess.createQuery("SELECT sc from NumberSequencingCycles as sc").list();
     for(Iterator i = numberSequencingCycles.iterator(); i.hasNext();) {
@@ -244,10 +244,10 @@ public class DictionaryHelper implements Serializable {
   public RequestCategory getRequestCategoryObject(String code) {
     return (RequestCategory)requestCategoryMap.get(code);
   }
-  public String getFlowCellType(Integer id) {
+  public String getSeqRunType(Integer id) {
     String name = "";
     if (id != null) {
-      name = (String)flowCellTypeMap.get(id);
+      name = (String)seqRunTypeMap.get(id);
     }
     return name;
   }

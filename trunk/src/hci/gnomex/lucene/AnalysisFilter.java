@@ -14,7 +14,7 @@ public class AnalysisFilter extends DetailObject {
   
   
   // Criteria
-  private Integer               idLab;
+  private Integer               idLab; 
   private Integer               idAnalysisType;
   private Integer               idAnalysisProtocol;
   private Integer               idOrganism;

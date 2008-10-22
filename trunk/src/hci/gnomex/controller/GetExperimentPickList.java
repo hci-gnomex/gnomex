@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentPickListFilter;
-import hci.gnomex.model.FlowCellType;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
@@ -33,11 +33,11 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   
   private ExperimentPickListFilter       filter;
   private HashMap                        slideDesignMap = new HashMap();
-  private HashMap                        flowCellTypeMap = new HashMap();
+  private HashMap                        seqRunTypeMap = new HashMap();
   private HashMap                        sampleTypeMap = new HashMap();
   private HashMap                        numberSeqCyclesMap = new HashMap();
   
-  private HashMap                        requestFlowCellTypeMap = new HashMap();
+  private HashMap                        requestSeqRunTypeMap = new HashMap();
   private HashMap                        requestSampleTypeMap = new HashMap();
 
   private Element                        rootNode = null;
@@ -74,10 +74,10 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         slideDesignMap.put(sd.getIdSlideDesign(), sd.getName());
       }
       
-      List flowCellTypes = sess.createQuery("SELECT fct from FlowCellType fct ").list();
-      for(Iterator i = flowCellTypes.iterator(); i.hasNext();) {
-        FlowCellType fct = (FlowCellType)i.next();
-        flowCellTypeMap.put(fct.getIdFlowCellType(), fct.getFlowCellType());
+      List seqRunTypes = sess.createQuery("SELECT fct from SeqRunType fct ").list();
+      for(Iterator i = seqRunTypes.iterator(); i.hasNext();) {
+        SeqRunType fct = (SeqRunType)i.next();
+        seqRunTypeMap.put(fct.getIdSeqRunType(), fct.getSeqRunType());
       }
       List sampleTypes = sess.createQuery("SELECT st from SampleType st ").list();
       for(Iterator i = sampleTypes.iterator(); i.hasNext();) {
@@ -233,7 +233,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
     projectNode.addContent(requestNode);
     
-    this.requestFlowCellTypeMap = new HashMap();
+    this.requestSeqRunTypeMap = new HashMap();
     this.requestSampleTypeMap = new HashMap();
   }
 
@@ -243,7 +243,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
     itemNode.setAttribute("idSlideDesign",            row[11] == null ? ""  : ((Integer)row[11]).toString());
     itemNode.setAttribute("idNumberSequencingCycles", row[12] == null ? ""  : ((Integer)row[12]).toString());
-    itemNode.setAttribute("idFlowCellType",           row[13] == null ? ""  : ((Integer)row[13]).toString());
+    itemNode.setAttribute("idSeqRunType",           row[13] == null ? ""  : ((Integer)row[13]).toString());
     itemNode.setAttribute("sampleNumber1",            row[14] == null ? ""  : (String)row[14]);
     itemNode.setAttribute("sampleName1",              row[15] == null ? ""  : (String)row[15]);
     itemNode.setAttribute("sampleNumber2",            row[16] == null ? ""  : (String)row[16]);
@@ -269,11 +269,11 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       itemNode.setAttribute("numberSequencingCycles", numberSeqCycles.toString());      
     }    
 
-    Integer idFlowCellType = (Integer)row[13];
-    if (idFlowCellType.intValue() != -1) {
-      String flowCellType = (String)this.flowCellTypeMap.get(idFlowCellType);
-      itemNode.setAttribute("flowCellType", flowCellType);      
-      this.requestFlowCellTypeMap.put(flowCellType, null);
+    Integer idSeqRunType = (Integer)row[13];
+    if (idSeqRunType.intValue() != -1) {
+      String seqRunType = (String)this.seqRunTypeMap.get(idSeqRunType);
+      itemNode.setAttribute("seqRunType", seqRunType);      
+      this.requestSeqRunTypeMap.put(seqRunType, null);
     }    
 
     Integer idSampleType = (Integer)row[18];
@@ -288,7 +288,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     if (requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
       label.append(" -  ");
       label.append(itemNode.getAttributeValue("sampleName1"));
-      requestNode.setAttribute("flowCellType", itemNode.getAttributeValue("flowCellType"));
+      requestNode.setAttribute("seqRunType", itemNode.getAttributeValue("seqRunType"));
     } else {
       label.append(" - ");
       label.append(itemNode.getAttributeValue("sampleName1"));
@@ -307,7 +307,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     // Set the solexa request label to the concatenation of sample types and flow cell types
     if (requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
       StringBuffer buf = new StringBuffer();
-      for (Iterator i = requestFlowCellTypeMap.keySet().iterator(); i.hasNext();) {
+      for (Iterator i = requestSeqRunTypeMap.keySet().iterator(); i.hasNext();) {
         buf.append(i.next());
         if (i.hasNext()) {
           buf.append(", ");

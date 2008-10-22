@@ -103,7 +103,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Channel #", "left");
     this.addHeaderCell(rowh, "Client");
     this.addHeaderCell(rowh, "Sequence Sample #"    );
-    this.addHeaderCell(rowh, "Flow Cell Type");
+    this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (actual)");
     this.addHeaderCell(rowh, "Gel Size Range"    );
@@ -146,7 +146,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
           gelSize += "?";
         }
         
-        this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
+        this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
         this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
         this.addCell(row, channel.getNumberSequencingCyclesActual() != null && !channel.getNumberSequencingCyclesActual().equals("") ? channel.getNumberSequencingCyclesActual().toString() : "&nbsp;");
         this.addCell(row, gelSize);
@@ -181,7 +181,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Channel #", "left");
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Sequence Sample #"    );
-    this.addHeaderCell(rowh, "Flow Cell Type");
+    this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (requested)");
     this.addHeaderCell(rowh, "Gel Size Range"    );
@@ -224,7 +224,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
           gelSize += "?";
         }
         
-        this.addCell(row, lane.getIdFlowCellType() != null ? dictionaryHelper.getFlowCellType(lane.getIdFlowCellType()) : "&nbsp;");
+        this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
         this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
         this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addCell(row, gelSize);

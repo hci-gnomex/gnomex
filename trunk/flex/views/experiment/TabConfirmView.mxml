@@ -12,10 +12,17 @@
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				sampleSourceConfirmColumn.visible = true;
-				samplePrepMethodConfirmCol.visible = true;
+				
 				fragmentSizeFromConfirmCol.visible = true;
 				fragmentSizeFromConfirmCol.visible = true;
 				preppedByCoreCol.visible = true;
+				
+				if (!parentDocument.isEditState() &&
+				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
+					samplePrepMethodConfirmCol.visible = false;
+				} else {
+					samplePrepMethodConfirmCol.visible = true;
+				}
 			} else if (parentDocument.currentState == 'QCState') {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = false;

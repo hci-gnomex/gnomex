@@ -167,7 +167,7 @@
 		<property name="number" column="number" type="string"/>
 		<property name="createDate" column="createDate" type="date"/>
 		<property name="notes" column="notes" type="string"/>
-		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
+		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
 		<property name="barcode" column="barcode" type="string"/>
 		<set name="flowCellChannels" table="flowCellChannels" lazy="false" cascade="none" sort="hci.gnomex.utility.FlowCellChannelComparator">
@@ -454,7 +454,7 @@
 		<property name="idSample" column="idSample" type="integer"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
 		<property name="idRequest" column="idRequest" type="integer"/>
-		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
+		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
 		<property name="idGenomeBuildAlignTo" column="idGenomeBuildAlignTo" type="integer"/>
 		<property name="analysisInstructions" column="analysisInstructions" type="string"/>
@@ -619,12 +619,12 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
-	<!-- hci.gnomex.model.FlowCellType -->
-	<class name="hci.gnomex.model.FlowCellType" table="FlowCellType">
-		<id name="idFlowCellType" column="idFlowCellType" type="integer">
+	<!-- hci.gnomex.model.SeqRunType -->
+	<class name="hci.gnomex.model.SeqRunType" table="SeqRunType">
+		<id name="idSeqRunType" column="idSeqRunType" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="flowCellType" column="flowCellType" type="string"/>
+		<property name="seqRunType" column="seqRunType" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
@@ -836,13 +836,13 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
-	<!-- hci.gnomex.model.SamplePrepMethodFlowCellType -->
-	<class name="hci.gnomex.model.SamplePrepMethodFlowCellType" table="SamplePrepMethodFlowCellType">
-		<id name="idSamplePrepMethodFlowCellType" column="idSamplePrepMethodFlowCellType" type="integer">
+	<!-- hci.gnomex.model.SamplePrepMethodSeqRunType -->
+	<class name="hci.gnomex.model.SamplePrepMethodSeqRunType" table="SamplePrepMethodSeqRunType">
+		<id name="idSamplePrepMethodSeqRunType" column="idSamplePrepMethodSeqRunType" type="integer">
 			<generator class="native"/>
 		</id>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
-		<property name="idFlowCellType" column="idFlowCellType" type="integer"/>
+		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
 	</class>
 
 

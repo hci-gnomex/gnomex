@@ -89,7 +89,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        lane.number, ");
     queryBuf.append("        -1, ");
     queryBuf.append("        lane.idNumberSequencingCycles,  ");
-    queryBuf.append("        lane.idFlowCellType,  ");
+    queryBuf.append("        lane.idSeqRunType,  ");
     queryBuf.append("        s.number, s.name, ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        s.idSampleType, ");

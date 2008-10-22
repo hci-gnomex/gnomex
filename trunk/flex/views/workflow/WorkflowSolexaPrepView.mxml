@@ -107,6 +107,7 @@
 	    	nv.invalidCharError = "contains invalid characters.";
 	    	nv.negativeError = "cannot be negative.";
 	    	nv.precisionError = "has too many digits beyond the decimal point";
+	    	nv.requiredFieldError = "is required.";
         	
         	var item:Object = null;
         	var vr:ValidationResultEvent  = null;
@@ -117,7 +118,7 @@
 		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
 		    	vr = nv.validate(item.@seqPrepLibConcentration);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nLibrary Concentration - " + item.@seqPrepLibConcentration + " " + vr.message;
+		    		message += "\n" + item.@sampleNumber + " Library Concentration " + item.@seqPrepLibConcentration + " " + vr.message;
 		    		break;
 		    	}
 	    	}         	
@@ -128,7 +129,7 @@
 		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
 		    	vr = nv.validate(item.@seqPrepGelFragmentSizeFrom);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nFragment Size (from) - " + item.@seqPrepGelFragmentSizeFrom + " " + vr.message;
+		    		message += "\n" + item.@sampleNumber + " Fragment Size (from) " + item.@seqPrepGelFragmentSizeFrom + " " + vr.message;
 		    		break;
 		    	}
 	    	}         	
@@ -139,11 +140,20 @@
 		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
 		    	vr = nv.validate(item.@seqPrepGelFragmentSizeTo);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nFragment Size (to) - " + item.@seqPrepGelFragmentSizeTo + " " + vr.message;
+		    		message += "\n" + item.@sampleNumber + " Fragment Size (to) " + item.@seqPrepGelFragmentSizeTo + " " + vr.message;
 		    		break;
 		    	}
 	    	}  
-	    	       	
+
+
+			// Make sure sample prep method is entered.
+        	for each (item in dirtyItems) {
+        		if (item.@seqPrepStatus == 'Completed' && item.@idSamplePrepMethod == '') {
+        			message += "\n" + item.@sampleNumber + " Sample prep method is required.";
+        			break;
+        		}
+	    	} 	    	       	
+	    	
         	if (message != "") {
 	    		Alert.show(message);
 	    		return false;
@@ -219,7 +229,7 @@
         		}
         	}        	
         	return keep;
-        }
+        } 
         
 		public function lookupUserName(item:Object, col:DataGridColumn):String 
     	{ 
@@ -233,6 +243,10 @@
 		private function getSamplePrepMethod(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SamplePrepMethod", item.@idSamplePrepMethod);
+        }
+		private function getSampleType(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
         }
         ]]>
     </mx:Script> 
@@ -268,8 +282,17 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn editable="false" headerText="Libarary kit"  width="20" dataField="@idSamplePrepMethod" labelFunction="getSamplePrepMethod" />		                
-					<mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
+					<mx:DataGridColumn editable="false" width="15" dataField="@idSampleType"  headerText="Sample Type" labelFunction="getSampleType">
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Libarary kit"  width="45" 
+					dataField="@idSamplePrepMethod" 
+					   editorDataField="value"
+		               editable="true"  
+		               rendererIsEditor="false" 
+		               itemRenderer="mx.controls.Label"		
+		               labelFunction="getSamplePrepMethod"                
+		               itemEditor="{views.renderers.ComboBoxSolexaSamplePrepMethod.create(parentApplication.dictionaryManager)}"/>		                
+				    <mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -284,8 +307,7 @@
 		               editorDataField="value"
 		               editable="true"  
 		               rendererIsEditor="false" 
-		               itemRenderer="mx.controls.Label"		                
-		               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}">		                
+					   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}">		                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -298,7 +320,7 @@
 					<mx:DataGridColumn headerText="Gel size rangee (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom">
 						<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 							    <mx:Label text="Gel size"/>
 							    <mx:Label text="range (from)"/>
 							</mx:VBox>

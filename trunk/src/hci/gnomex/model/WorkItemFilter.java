@@ -180,7 +180,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.seqPrepGelFragmentSizeTo, ");
       queryBuf.append("    s.seqPrepDate, ");
       queryBuf.append("    s.seqPrepFailed, ");
-      queryBuf.append("    s.seqPrepBypassed ");
+      queryBuf.append("    s.seqPrepBypassed, ");
+      queryBuf.append("    s.idSampleType ");
     }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.seqPrepStockLibVol, ");
@@ -191,13 +192,13 @@ public class WorkItemFilter extends DetailObject {
     }  else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
       queryBuf.append("      , ");
       queryBuf.append("    l.idSequenceLane, ");
-      queryBuf.append("    l.idFlowCellType, ");
+      queryBuf.append("    l.idSeqRunType, ");
       queryBuf.append("    s.idOrganism, ");
       queryBuf.append("    l.idNumberSequencingCycles ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN)) {
       queryBuf.append("      , ");
       queryBuf.append("    ch.idFlowCellChannel, ");
-      queryBuf.append("    lane.idFlowCellType, ");
+      queryBuf.append("    lane.idSeqRunType, ");
       queryBuf.append("    lane.idNumberSequencingCycles, ");
       queryBuf.append("    lane.number, ");
       queryBuf.append("    ch.number, ");

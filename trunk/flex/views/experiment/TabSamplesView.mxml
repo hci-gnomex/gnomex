@@ -30,7 +30,7 @@
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
-					" idFlowCellType='" + parentDocument.sampleSetupView.flowCellTypeCombo.selectedItem.@value + "'" +				
+					" idSeqRunType='" + parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes=''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
@@ -58,13 +58,13 @@
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
-					" idFlowCellType='" +	parentDocument.sampleSetupView.getDefaultIdFlowCellType() + "'" +			
+					" idSeqRunType='" +	parentDocument.sampleSetupView.getDefaultIdSeqRunType() + "'" +			
 					" numberSequencingLanes=''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.sampleSetupView.analysisInstructions.text + "'" +				
-					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+					" idSamplePrepMethod=''"  +				
 					" seqPrepByCore = 'Y'" +
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
 					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
@@ -179,7 +179,7 @@
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
 					" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
-					" idFlowCellType='" + sampleToCopy.@idFlowCellType + "'" +				
+					" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
 					" AGE='" + sampleToCopy.@AGE + "'" +				
 					" CELLLINE='" + sampleToCopy.@CELLLINE + "'" +				
@@ -247,25 +247,47 @@
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
         		if (currentState.indexOf('SolexaSamples') >= 0) {
-        			if (sample.@name != null && sample.@name != '' &&
-		        		sample.@idSampleType != null && sample.@idSampleType != '' &&
-		        		sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-		        		sample.@concentration != null && sample.@concentration != '' &&
-		        		sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
-		        		sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
-		        		sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-		        		sample.@idOrganism != null && sample.@idOrganism != '' &&
-		        		sample.@idFlowCellType != null && sample.@idFlowCellType != '' &&
-		        		sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
-		        				
-		        		if (!parentDocument.isEditState()) {
-	        				if (sample.@numberSequencingLanes != '') {
-	        					completeCount++;
-	        				}		
-	        			} else {
-	        				completeCount++;
-	        			}
+        			
+        			if (!parentDocument.isEditState() &&
+		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
+	        			if (sample.@name != null && sample.@name != '' &&
+			        		sample.@idSampleType != null && sample.@idSampleType != '' &&		        		
+			        		sample.@concentration != null && sample.@concentration != '' &&
+			        		sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
+			        		sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
+			        		sample.@idSampleSource != null && sample.@idSampleSource != '' &&
+			        		sample.@idOrganism != null && sample.@idOrganism != '' &&
+			        		sample.@idSeqRunType != null && sample.@idSeqRunType != '' &&
+			        		sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '' &&
+			        		sample.@numberSequencingLanes != '' && sample.@numberSequencingLanes != '') {
+			        		
+		        			completeCount++;
+		        		}
+		        			   	
+		        	} else {
+	        			if (sample.@name != null && sample.@name != '' &&
+			        		sample.@idSampleType != null && sample.@idSampleType != '' &&		        		
+			        		sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&		        		
+			        		sample.@concentration != null && sample.@concentration != '' &&
+			        		sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
+			        		sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
+			        		sample.@idSampleSource != null && sample.@idSampleSource != '' &&
+			        		sample.@idOrganism != null && sample.@idOrganism != '' &&
+			        		sample.@idSeqRunType != null && sample.@idSeqRunType != '' &&
+			        		sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
+			        			
+			        			
+			        		if (!parentDocument.isEditState()) {
+		        				if (sample.@numberSequencingLanes != '') {
+		        					completeCount++;
+		        				}		
+		        			} else {
+		        				completeCount++;
+		        			}
+		        		 }
+		        		
 		        	}
+			   	
 		        } else if (currentState.indexOf('QCSamples') >= 0){
 	        		if (sample.@name != null && sample.@name != '' &&
 	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
@@ -383,7 +405,7 @@
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
 			    " notes='' " + 
-				" idFlowCellType='" + sample.@idFlowCellType + "'" +
+				" idSeqRunType='" + sample.@idSeqRunType + "'" +
 				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
 				" idSample='" + sample.@idSample + "'" +
 				" idGenomeBuildAlignTo='" + sample.@idGenomeBuildAlignTo + "'" +
@@ -397,7 +419,11 @@
 		public function propagateSamplePrepMethod(idSamplePrepMethod:String):void {
 			if (currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
-					sample.@idSamplePrepMethod = idSamplePrepMethod;
+					if (parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
+						sample.@idSamplePrepMethod = "";
+					} else if (parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState") {
+						sample.@idSamplePrepMethod = idSamplePrepMethod;
+					}
 				}
 			}
 		}
@@ -408,10 +434,10 @@
 				}
 			}
 		}
-		public function propagateFlowCellType(idFlowCellType:String):void {
+		public function propagateSeqRunType(idSeqRunType:String):void {
 			if (currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
-					sample.@idFlowCellType = idFlowCellType;
+					sample.@idSeqRunType = idSeqRunType;
 				}
 			}
 		}
@@ -452,7 +478,7 @@
         	if (showQCFieldsCheckBox.selected || showSeqPrepFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
-				idFlowCellTypeCol.visible = false; 
+				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = false;
 				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
@@ -462,14 +488,14 @@
 				numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible =  false;
 				preppedByCoreCol.visible =  false;
-				idFlowCellTypeCol.visible =  false;
+				idSeqRunTypeCol.visible =  false;
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
         	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
-				idFlowCellTypeCol.visible = !parentDocument.isEditState(); 
+				idSeqRunTypeCol.visible = !parentDocument.isEditState(); 
 				concentrationUnitColumn.visible = false;
 				sampleOrganismColumn.visible = true;
 				sampleSourceColumn.visible = true;
@@ -477,12 +503,20 @@
 				samplePrepMethodCol.visible = true;
 				fragmentSizeFromCol.visible = true;
 				fragmentSizeToCol.visible = true;
+				
+				if (!parentDocument.isEditState() &&
+				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
+					samplePrepMethodCol.visible = false;
+				} else {
+					samplePrepMethodCol.visible = true;
+				}
+        		
 
 			} else if (currentState.indexOf('QCSamples') >= 0) {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
-				idFlowCellTypeCol.visible = false; 
+				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = true;
 				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
@@ -494,7 +528,7 @@
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
-				idFlowCellTypeCol.visible = false; 
+				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = false;
 				sampleSourceColumn.visible = true;
 				sampleOrganismColumn.visible = true;
@@ -578,8 +612,8 @@
 					<mx:DataGridColumn id="fragmentSizeToCol" headerText="Size To" width="54" editorDataField="text" dataField="@fragmentSizeTo"  rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@fragmentSizeTo')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@fragmentSizeTo', '@canChangeSampleType')}"      />          
-	 				<mx:DataGridColumn headerText="Flow Cell Type" id="idFlowCellTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idFlowCellType"
-                        itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FlowCellType', '@idFlowCellType', true)}"/>                 											
+	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
+                        itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType', true)}"/>                 											
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"                
