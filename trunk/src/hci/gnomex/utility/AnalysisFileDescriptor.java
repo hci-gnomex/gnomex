@@ -46,8 +46,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");
-    if (fileParts != null && fileParts.length == 2) {
-      ext = fileParts[1];
+    if (fileParts != null && fileParts.length >= 2) {
+      ext = fileParts[fileParts.length - 1];
     }
     type = ext;
     

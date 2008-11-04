@@ -46,9 +46,8 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
     try {
       
       Map fileNameMap = new HashMap();
-      long fileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
-      int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
-      this.xmlResult = "<DownloadEstimatedSize size='" + estimatedCompressedSize + "'/>";
+      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+      this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
       
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);

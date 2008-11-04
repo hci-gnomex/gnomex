@@ -69,11 +69,9 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         
        
         Map fileNameMap = new HashMap();
-        long fileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap);
+        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap);
 
-        // Set content length to estimated zip (compressed) size.
-        int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
-
+        
         
         ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
         byte b[] = new byte[102400];
@@ -140,7 +138,6 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         }
         
         response.setContentLength(totalZipSize);
-        System.out.println("actual content length = " + totalZipSize + "   estimated content length = " + estimatedCompressedSize);
         
         zout.finish();
         zout.flush();
@@ -218,7 +215,8 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         } else {
           boolean include = true;
           if (include) {
-            fileSizeTotal += f1.length();
+            long fileSize = f1.length();
+            fileSizeTotal += DownloadResultsServlet.getEstimatedCompressedFileSize(fileName, fileSize);
             
             
             List fileNames = (List)fileNameMap.get(analysisNumber);
