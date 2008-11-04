@@ -49,20 +49,19 @@ package views.util
 
 
 	// Imported Class Definitions
-    import mx.controls.DataGrid;
-    import mx.controls.Button;
-    import mx.controls.ProgressBar;
-    import mx.controls.ProgressBarMode;
-    import mx.controls.dataGridClasses.*;
-    import mx.controls.Alert;
-    import mx.events.CollectionEvent;
-    import mx.collections.ArrayCollection;
     import flash.events.*;
-    import flash.net.FileReferenceList;
-    import flash.net.FileFilter;
     import flash.net.FileReference;
+    import flash.net.FileReferenceList;
     import flash.net.URLRequest;
     import flash.net.URLVariables;
+    
+    import mx.collections.ArrayCollection;
+    import mx.controls.Alert;
+    import mx.controls.Button;
+    import mx.controls.DataGrid;
+    import mx.controls.ProgressBar;
+    import mx.controls.dataGridClasses.*;
+    import mx.events.CollectionEvent;
 
     
     
@@ -225,6 +224,10 @@ package views.util
                 _file.upload(_uploadURL);
                  setupCancelButton(true);
             }
+        }
+        
+        public function setUploadURLParameters(params:URLVariables):void {
+        	this._uploadURL.data = params;
         }
         
         //Remove Selected File From Cue

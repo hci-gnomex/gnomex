@@ -23,7 +23,7 @@
     url="CacheFileDownloadList.gx"
     destination="cacheFileDownloadList"
     resultFormat="e4x"
-    showBusyCursor="true"
+    showBusyCursor="false"
     result="onCacheFileDownloadList(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
     method="POST"
@@ -61,6 +61,7 @@
 
  <mx:Script>
  <![CDATA[
+ 	import mx.events.CloseEvent;
  	import views.experiment.DownloadProgressView;
  	import mx.formatters.DateFormatter;
     import mx.rpc.events.ResultEvent;
@@ -72,8 +73,10 @@
     import mx.managers.PopUpManager;
     import mx.events.ListEvent;
     import mx.controls.Alert;
-   
-	
+    
+    public var downloadProgressWindow:DownloadProgressView;
+
+
  	[Bindable]
     private var rowCountMessage:String = new String();
  	[Bindable]
@@ -86,10 +89,15 @@
     
     private const DOWNLOAD_FOLDERS_URL:String  = "DownloadResultsServlet.gx"; 
     private const DOWNLOAD_FILES_URL:String    = "DownloadFileServlet.gx"; 
- private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-data";  
+	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-data";  
        
     [Bindable]
-    public var resultKeys:String;  
+    public var resultKeys:String;
+    
+  	private static const  KB:Number = Math.pow(2, 10);
+  	private static const  MB:Number = Math.pow(2, 20);
+  	private static const  GB:Number = Math.pow(2, 30);
+      
     
     private var dateFormatter:DateFormatter = new DateFormatter();
         
@@ -108,40 +116,29 @@
     
     public function downloadFolders():void {
     	getSelectedFolders();
-		
-		var parms:Object = new Object();
-        parms.resultKeys = resultKeys;
-        parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
-        parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
 
-    	getDownloadEstimatedSize.send(parms);
+		var parms1:Object = new Object();
+        parms1.resultKeys = resultKeys;
+        parms1.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
+        parms1.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
+
+    	getDownloadEstimatedSize.send(parms1);
     	
  	}
             
-    public function downloadFoldersAndShowProgress():void { 
-    	
-        var parms:URLVariables = new URLVariables();
-        parms.resultKeys = resultKeys;
-        parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
-        parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
-    	var progressWindow:DownloadProgressView = new DownloadProgressView();
-    	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
-    	
-    	
- 	}
- 	
+
  	public function downloadFiles():void {
 		var selectedFiles:XMLList = getExpandedFileList.lastResult..FileDescriptor.(@isSelected == "true");        	
     	selectedFileList = new XMLListCollection(selectedFiles);
     	estimatedDownloadSize = 0;
     	for each (var item:Object in selectedFileList) {
-    		var fileSize:Number = item.@fileSize;
-			estimatedDownloadSize += fileSize;
+			estimatedDownloadSize += getEstimatedCompressedSize(item);
 		}
-		estimatedDownloadSize = estimatedDownloadSize / 2.5;
     	
-    	cacheFileDownloadList.send();
+    	var call:Object = cacheFileDownloadList.send();
+    	call.marker = estimatedDownloadSize;
  	}
+ 	
  	
  	
  	
@@ -204,18 +201,50 @@
     private function onGetExpandedFileList(event:ResultEvent):void {
     	setFileCount();
     	theTab.selectedIndex = 1;
-    }
+    } 
     
     private function onGetDownloadEstimatedSize(event:ResultEvent):void {
     	estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
-    	downloadFoldersAndShowProgress();
+    	
+    	var call:Object = event.token;
+		Alert.show( "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+						"",
+						(Alert.YES | Alert.NO), this, 
+						onDownloadFolders,						
+						parentApplication.iconWarning);
     }
+
+	private function onDownloadFolders(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+	        var parms:URLVariables = new URLVariables();
+	        parms.resultKeys = resultKeys;
+        	parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
+        	parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
+    		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
+    		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
+		}
+
+	}    
     
     private function onCacheFileDownloadList(event:ResultEvent):void {
-    	var progressWindow:DownloadProgressView = new DownloadProgressView();
-    	progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
+    	var call:Object = event.token;
+		Alert.show( "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?",
+						"",
+						(Alert.YES | Alert.NO), this, 
+						onDownloadFiles,						
+						parentApplication.iconWarning);
+    	
     }
     
+
+	private function onDownloadFiles(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+	        var progressWindow:DownloadProgressView = new DownloadProgressView();
+    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+		}
+	}    
+
+
     private function onTabSwitch():void {
     	if (theTab.selectedChild == exploreView) {
     		exploreFolders();
@@ -250,6 +279,44 @@
     { 
     	return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
     }
+ 	public static function getEstimatedCompressedSize(item:Object):Number {
+ 		var compressionRatio:Number = 1;
+ 		if (item.@type == 'fep') {
+ 			compressionRatio = 1.6;
+ 		} else if (item.@type == 'pdf') {
+ 			compressionRatio = 1;
+ 		} else if (item.@type == 'tif') {
+ 			compressionRatio = 1.9;
+ 		} else if (item.@type == 'jpg') {
+ 			compressionRatio = 1;
+ 		} else if (item.@type == 'txt') {
+ 			compressionRatio = 2.7;  
+ 		} else if (item.@type == 'rtf') {
+ 			compressionRatio = 2.7;
+ 		} else if (item.@type == 'zip') {
+ 			compressionRatio = 1;
+ 		}
+ 		
+ 		return (item.@fileSize / compressionRatio);
+ 	}
+    
+    public static function getFileSizeText(theFileSize:Number):String {
+    	var size:Number = 0;
+    	var sizeTxt:String = "";
+    	if (theFileSize > GB ) {
+      		size = Math.round(theFileSize / GB);
+      		sizeTxt = size + " GB";
+    	}  else if (theFileSize > MB ) {
+      		size = Math.round(theFileSize / MB);
+      		sizeTxt = size + " MB";
+    	} else if (theFileSize > KB ) {
+      		size = Math.round(theFileSize / KB);
+      		sizeTxt = size + " KB";
+    	} else {
+      		sizeTxt = Math.round(theFileSize) + " bytes";
+    	}
+    	return sizeTxt;
+  }
 
     
  ]]>

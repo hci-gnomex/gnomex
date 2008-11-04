@@ -562,7 +562,7 @@
                 	<mx:ComboBox id="seqRunTypeCombo" labelField="@display" 
                 		change="parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();propagateSeqRunType();checkSampleSetupCompleteness();" 
                 		width="300" 
-                		dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@value != &quot;&quot; &amp;&amp; @isActive != &quot;N&quot;)}">
+                		dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive != &quot;N&quot;)}">
                 	</mx:ComboBox>
                 </mx:HBox>
             </mx:AddChild>

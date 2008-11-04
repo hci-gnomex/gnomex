@@ -52,6 +52,7 @@
 
  <mx:Script>
  <![CDATA[
+ 	import views.experiment.ExperimentDownloadView;
  	import views.experiment.DownloadProgressView;
  	import mx.formatters.DateFormatter;
     import mx.rpc.events.ResultEvent;
@@ -64,6 +65,8 @@
     import mx.events.ListEvent;
     import mx.controls.Alert;
     import hci.flex.renderers.LabelDictionary;
+    import mx.events.CloseEvent;
+    import mx.controls.Alert;
    
 	
  	[Bindable]
@@ -105,26 +108,17 @@
     	
  	}
             
-    public function downloadFoldersAndShowProgress():void { 
-    	
-        var parms:String = "resultKeys="+ resultKeys;
-    	var progressWindow:DownloadProgressView = new DownloadProgressView();
-    	progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
-    	
-    	
- 	}
  	
  	public function downloadFiles():void {
 		var selectedFiles:XMLList = getExpandedFileList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");        	
     	selectedFileList = new XMLListCollection(selectedFiles);
     	estimatedDownloadSize = 0;
-    	for each (var item:Object in selectedFileList) {
-    		var fileSize:Number = item.@fileSize;
-			estimatedDownloadSize += fileSize;
+		for each (var item:Object in selectedFileList) {
+			estimatedDownloadSize += views.experiment.ExperimentDownloadView.getEstimatedCompressedSize(item);
 		}
-		estimatedDownloadSize = estimatedDownloadSize / 2.5;
     	
-    	cacheFileDownloadList.send();
+    	var call:Object = cacheFileDownloadList.send();
+    	call.marker = estimatedDownloadSize;
  	}
  	
  	
@@ -190,15 +184,48 @@
     	
     }
     
+
+    
     private function onGetDownloadEstimatedSize(event:ResultEvent):void {
     	estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
-    	downloadFoldersAndShowProgress();
+    	
+    	var call:Object = event.token;
+		Alert.show( "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+						"",
+						(Alert.YES | Alert.NO), this, 
+						onDownloadFolders,						
+						parentApplication.iconWarning); 
     }
+
+	private function onDownloadFolders(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+	        var parms:URLVariables = new URLVariables();
+	        parms.resultKeys = resultKeys;
+    		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
+    		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
+		}
+
+	}        
     
     private function onCacheFileDownloadList(event:ResultEvent):void {
-    	var progressWindow:DownloadProgressView = new DownloadProgressView();
-    	progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
+    	var call:Object = event.token;
+		Alert.show( "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?",
+						"",
+						(Alert.YES | Alert.NO), this, 
+						onDownloadFiles,						
+						parentApplication.iconWarning);
+    	
     }
+    
+
+	private function onDownloadFiles(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+	        var progressWindow:DownloadProgressView = new DownloadProgressView();
+    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+		}
+	}    
+    
+
     
     private function onTabSwitch():void {
     	if (theTab.selectedChild == exploreView) {
