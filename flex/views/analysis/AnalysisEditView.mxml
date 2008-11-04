@@ -404,6 +404,7 @@
         }     
         
         private function validateAndSaveAnalysis():void {
+        	initializeFileUploadParameters();
         	
         	// Check for required fields
         	if (analysisName.text == "") {
@@ -563,13 +564,16 @@
 	       event.preventDefault();
 	       
 		}
+		public function initializeFileUploadParameters():void{
+           var postVariables:URLVariables = new URLVariables;
+		   postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
+		   multiFileUpload.setUploadURLParameters(postVariables);  
+		}
 		
 		public function initializeFileUploadControl(uploadServletURL:String):void{
             
             if (multiFileUpload == null) {
-		        var postVariables:URLVariables = new URLVariables;
-		        postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
-		            
+		         
 		        multiFileUpload = new MultiFileUpload(
 		            this.uploadFilesGrid,
 		            this.uploadBrowseButton,
@@ -586,6 +590,10 @@
 		       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
 		       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
             	
+            } else {
+            	var postVariables:URLVariables = new URLVariables;
+		        postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
+		        multiFileUpload.setUploadURLParameters(postVariables);  
             }
           
        }
@@ -1005,7 +1013,7 @@
         	</mx:LinkButton>
         </mx:HBox>
         <util:DirtyNote id="dirty"/>
-        <mx:Button label="Upload files" id="uploadButton" enabled="false" visible="true"/>
+        <mx:Button label="Upload files" id="uploadButton" click="initializeFileUploadParameters()" enabled="false" visible="true"/>
       	<mx:Button id="saveButton" label="Save" 
              	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
         </mx:Button>

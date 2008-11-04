@@ -13,7 +13,7 @@
 
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
     
-    <mx:Script>
+    <mx:Script> 
     	<![CDATA[
     		import mx.core.IFlexDisplayObject;
 
@@ -35,7 +35,7 @@
 	    private var url:String = "";
 	    private var params:Object;
 	    private var theParent:DisplayObject;
-	    private var estimatedDownloadSize:int;
+	    public var estimatedDownloadSize:int;
 	    private var suggestedFileName:String = "gnomex-data";
 	    private var finalizeProgressCount:int = 0;
 	    
@@ -57,7 +57,7 @@
 	        fr.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 	        fr.addEventListener(Event.COMPLETE, completeHandler);
 
-	        this.startDownload();
+	        this.startDownload(); 
 		}
 		
 		private function centerPopup():void {
@@ -94,7 +94,7 @@
 	            '-' + (date.getMonth()+1).toString() + '-' + date.getDate();
 	    }
 	    
-	
+	 
 	
 	   /**
 	     * When the OPEN event has dispatched, change the progress bar's label 
@@ -107,7 +107,7 @@
 	    	this.title = "Downloading " + fr.name;
 	    	PopUpManager.addPopUp(this, theParent, false);
 	    	centerPopup();
-	        downloadProgress.label = "Downloading %3%%";
+	        downloadProgress.label = "Downloading %3%%"; 
 	        if (btn != null) {
 	        	// We won't force single-threaded downloads, so next
 	        	// line commented out.
