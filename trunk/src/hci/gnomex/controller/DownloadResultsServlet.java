@@ -295,6 +295,10 @@ public class DownloadResultsServlet extends HttpServlet {
       compressionRatio = 2.7; 
     } else if (fileName.toUpperCase().endsWith("RTF")) {
       compressionRatio = 2.7;
+    } else if (fileName.toUpperCase().endsWith("DAT")) {
+      compressionRatio = 1.6;
+    } else if (fileName.toUpperCase().endsWith("CEL")) {
+      compressionRatio = 2.8;
     } else if (fileName.toUpperCase().endsWith("ZIP")) {
       compressionRatio = 1;
     }     

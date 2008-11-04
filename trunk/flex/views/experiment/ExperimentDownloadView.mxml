@@ -282,18 +282,23 @@
  	public static function getEstimatedCompressedSize(item:Object):Number {
  		var compressionRatio:Number = 1;
  		if (item.@type == 'fep') {
- 			compressionRatio = 1.6;
- 		} else if (item.@type == 'pdf') {
+ 			compressionRatio = 1.6; 
+ 		} else if (item.@type.toString().toUpperCase() == 'PDF') {
  			compressionRatio = 1;
- 		} else if (item.@type == 'tif') {
+ 		} else if (item.@type.toString().toUpperCase() == 'TIF' ||
+ 		           item.@type.toString().toUpperCase() == 'TIFF') {
  			compressionRatio = 1.9;
- 		} else if (item.@type == 'jpg') {
+ 		} else if (item.@type.toString().toUpperCase() == 'JPG') {
  			compressionRatio = 1;
- 		} else if (item.@type == 'txt') {
+ 		} else if (item.@type.toString().toUpperCase() == 'TXT') {
  			compressionRatio = 2.7;  
- 		} else if (item.@type == 'rtf') {
+ 		} else if (item.@type.toString().toUpperCase() == 'RTF') {
  			compressionRatio = 2.7;
- 		} else if (item.@type == 'zip') {
+ 		} else if (item.@type.toString().toUpperCase() == 'DAT') {
+ 			compressionRatio = 1.6;
+ 		} else if (item.@type.toString().toUpperCase() == 'CEL') { 
+ 			compressionRatio = 2.8;
+ 		} else if (item.@type.toString().toUpperCase() == 'ZIP') {
  			compressionRatio = 1;
  		}
  		
@@ -304,19 +309,32 @@
     	var size:Number = 0;
     	var sizeTxt:String = "";
     	if (theFileSize > GB ) {
-      		size = Math.round(theFileSize / GB);
+      		size = (Math.round((theFileSize / GB) / 10)) * 10;
+      		if (size == 0) {
+      			size = 1;
+      		} 
       		sizeTxt = size + " GB";
     	}  else if (theFileSize > MB ) {
-      		size = Math.round(theFileSize / MB);
+      		size = (Math.round((theFileSize / MB) / 10)) * 10;
+      		if (size == 0) {
+      			size = 1;
+      		}
       		sizeTxt = size + " MB";
     	} else if (theFileSize > KB ) {
-      		size = Math.round(theFileSize / KB);
+      		size = (Math.round((theFileSize / KB) / 10)) * 10;
+      		if (size == 0) {
+      			size = 1;
+      		}
       		sizeTxt = size + " KB";
     	} else {
-      		sizeTxt = Math.round(theFileSize) + " bytes";
+      		size = (Math.round(theFileSize / 10) * 10);
+			if (size == 0) {
+      			size = 1;
+      		}
+      		sizeTxt = size + " bytes";
     	}
     	return sizeTxt;
-  }
+  	}
 
     
  ]]>

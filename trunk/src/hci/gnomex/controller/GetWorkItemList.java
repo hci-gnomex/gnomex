@@ -192,6 +192,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("workItemCreateDate",     row[12] == null ? "" :  this.formatDate((java.sql.Date)row[12]));
           n.setAttribute("isDirty","N");
           
+          DecimalFormat concentrationFormatter = new DecimalFormat("######.##");
+          
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC)) {
             n.setAttribute("qualDate",                   row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
@@ -199,7 +201,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualFailed",                 row[14] == null ? "" :  (String)row[14]);
             n.setAttribute("qual260nmTo280nmRatio",      row[15] == null ? "" :  ((BigDecimal)row[15]).toString());
             n.setAttribute("qual260nmTo230nmRatio",      row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("qualCalcConcentration",      row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
+            n.setAttribute("qualCalcConcentration",      row[17] == null ? "" :  concentrationFormatter.format((BigDecimal)row[17]));
             n.setAttribute("qual28sTo18sRibosomalRatio", row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
             n.setAttribute("qualRINNumber",              row[19] == null ? "" :  ((String)row[19]));
             n.setAttribute("qualBypassed",               row[20] == null ? "" :  (String)row[20]);
