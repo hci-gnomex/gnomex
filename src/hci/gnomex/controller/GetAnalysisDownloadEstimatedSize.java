@@ -37,9 +37,8 @@ public class GetAnalysisDownloadEstimatedSize extends GNomExCommand implements S
     try {
       
       Map fileNameMap = new HashMap();
-      long fileSizeTotal = DownloadAnalysisFolderServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap);
-      int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
-      this.xmlResult = "<DownloadEstimatedSize size='" + estimatedCompressedSize + "'/>";
+      long compressedFileSizeTotal = DownloadAnalysisFolderServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap);
+      this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
       
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);

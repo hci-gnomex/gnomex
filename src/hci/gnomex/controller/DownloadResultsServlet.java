@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
@@ -104,11 +105,9 @@ public class DownloadResultsServlet extends HttpServlet {
         
        
         Map fileNameMap = new HashMap();
-        long fileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
 
-        // Set content length to estimated zip (compressed) size.
-        int estimatedCompressedSize = new Double(fileSizeTotal / 2.5).intValue();
-
+        
         
         ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
         byte b[] = new byte[102400];
@@ -260,7 +259,9 @@ public class DownloadResultsServlet extends HttpServlet {
             include = false;
           }
           if (include) {
-            fileSizeTotal += f1.length();
+            long fileSize = f1.length();            
+            
+            fileSizeTotal += getEstimatedCompressedFileSize(fileName, fileSize);
             
             
             List fileNames = (List)fileNameMap.get(requestNumber);
@@ -274,5 +275,29 @@ public class DownloadResultsServlet extends HttpServlet {
       }
     }
     return fileSizeTotal;
+  }
+  
+  public static long getEstimatedCompressedFileSize(String fileName, long fileSize) {
+    double compressionRatio = 1;
+    if (fileName.toUpperCase().endsWith("FEP")) {
+      compressionRatio = 1.6;
+    } else if (fileName.toUpperCase().endsWith("PDF")) {
+      compressionRatio = 1;
+    } else if (fileName.toUpperCase().endsWith("TIF")) {
+      compressionRatio = 1.9;
+    } else if (fileName.toUpperCase().endsWith("TIFF")) {
+      compressionRatio = 1.9;
+    } else if (fileName.toUpperCase().endsWith("JPG")) {
+      compressionRatio = 1;
+    } else if (fileName.toUpperCase().endsWith("JPEG")) {
+      compressionRatio = 1;
+    } else if (fileName.toUpperCase().endsWith("TXT")) {
+      compressionRatio = 2.7; 
+    } else if (fileName.toUpperCase().endsWith("RTF")) {
+      compressionRatio = 2.7;
+    } else if (fileName.toUpperCase().endsWith("ZIP")) {
+      compressionRatio = 1;
+    }     
+    return new BigDecimal(fileSize / compressionRatio).longValue();
   }
 }
