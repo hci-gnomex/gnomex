@@ -153,6 +153,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               
             } else if (content instanceof SequencingControl) {
               channel.setIdSequencingControl(((SequencingControl)content).getIdSequencingControl());              
+              channel.setSampleConcentrationpM(parser.getSampleConcentrationpmForControl(((SequencingControl)content).getIdSequencingControl()));
             }
 
             // Create a work item for each channel
