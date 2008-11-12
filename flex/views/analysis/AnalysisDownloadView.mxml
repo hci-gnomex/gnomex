@@ -104,21 +104,30 @@
     
     public function downloadFolders():void { 
     	getSelectedFolders();
-    	getDownloadEstimatedSize.send();
+		if (resultKeys == "") {
+    		Alert.show("Please select the folders to download.");
+    	} else {
+    		getDownloadEstimatedSize.send();
+    	}
     	
  	}
             
  	
  	public function downloadFiles():void {
-		var selectedFiles:XMLList = getExpandedFileList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");        	
+		var selectedFiles:XMLList = getExpandedFileList.lastResult..AnalysisFileDescriptor.(@isSelected == "true");
     	selectedFileList = new XMLListCollection(selectedFiles);
-    	estimatedDownloadSize = 0;
-		for each (var item:Object in selectedFileList) {
-			estimatedDownloadSize += views.experiment.ExperimentDownloadView.getEstimatedCompressedSize(item);
-		}
     	
-    	var call:Object = cacheFileDownloadList.send();
-    	call.marker = estimatedDownloadSize;
+    	if (selectedFileList.length == 0) {
+    		Alert.show("Please select the files to download.");
+    	} else {
+	    	estimatedDownloadSize = 0;
+			for each (var item:Object in selectedFileList) {
+				estimatedDownloadSize += views.experiment.ExperimentDownloadView.getEstimatedCompressedSize(item);
+			}
+    	
+	    	var call:Object = cacheFileDownloadList.send();
+    		call.marker = estimatedDownloadSize;
+    	}
  	}
  	
  	
@@ -187,14 +196,19 @@
 
     
     private function onGetDownloadEstimatedSize(event:ResultEvent):void {
-    	estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
+		if (getDownloadEstimatedSize.lastResult.@size == 0) {
+    		Alert.show("No data files exist in the selected folder(s).", "");
+    	}  else {
+	    	estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
     	
-    	var call:Object = event.token;
-		Alert.show( "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+    		var call:Object = event.token;
+			Alert.show( "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
 						"",
 						(Alert.YES | Alert.NO), this, 
 						onDownloadFolders,						
 						parentApplication.iconWarning); 
+    		
+    	}   	
     }
 
 	private function onDownloadFolders(event:CloseEvent):void {
