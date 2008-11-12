@@ -24,12 +24,8 @@ package views.renderers
           }
           this.setStyle("backgroundColor", data.name() == "WorkItem" && data[_dataField] == '' ? missingRequiredFieldBackground : "0xffffff");
           
-          if (data.name() == "WorkItem") {
-		  	this.editable = true;
-	   	  } else {
-	       	this.editable = false;
-	      }
+          this.editable = true;
 
-	     }
+	    }
 	}
 }
