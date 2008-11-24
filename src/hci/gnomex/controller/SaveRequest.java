@@ -310,6 +310,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
+          sess.refresh(requestParser.getRequest());
           this.createResultDirectories(serverName, requestParser.getRequest());
         }
 
