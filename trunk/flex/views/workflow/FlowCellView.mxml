@@ -114,11 +114,11 @@
 						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 							        <mx:Label text="Lib Conc."/>
 							        <mx:Label text="(ng/uL)"/>
-				    			</mx:VBox>
+				    			</mx:VBox> 
 						    </mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@sampleConcentrationpM" width="90" headerText="Final Sample Conc. pm">
+					<mx:DataGridColumn  dataField="@sampleConcentrationpMDisplay" width="90" headerText="Final Sample Conc. pm">
                        <mx:headerRenderer > 
 						    <mx:Component>
 						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
