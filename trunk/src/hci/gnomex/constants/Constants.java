@@ -1,5 +1,7 @@
 package hci.gnomex.constants;
 
+import java.text.DecimalFormat;
+
 
 public class Constants {
   
@@ -38,6 +40,8 @@ public class Constants {
   private static final String              TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayDataShare01\\";
   private static final String              ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare\\";
   private static final String              TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\AnalysisDataShare01\\";
+
+  public static DecimalFormat               concentrationFormatter = new DecimalFormat("######.##");
 
   public static String getAnalysisDirectory(String serverName) {
     if (serverName.equals(PRODUCTION_SERVER)) {

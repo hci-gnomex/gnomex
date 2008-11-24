@@ -38,6 +38,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
   
   private WorkItemFilter filter;
   
+  
   public void validate() {
   }
   
@@ -119,11 +120,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           List flowCells = sess.createQuery(filter.getRelatedFlowCellQuery(idSamples.keySet()).toString()).list();
           for(Iterator i = flowCells.iterator(); i.hasNext();) {
             Object[] row = (Object[])i.next();
-            Integer idSample              = (Integer)row[0];
-            Integer clustersPerTile       = (Integer)row[1];
-            Integer sampleConcentrationpM = (Integer)row[2];
-            String  seqLaneNumber         = (String)row[3];
-            Integer idSequenceLane        = (Integer)row[4];
+            Integer idSample                 = (Integer)row[0];
+            Integer clustersPerTile          = (Integer)row[1];
+            BigDecimal sampleConcentrationpM = (BigDecimal)row[2];
+            String  seqLaneNumber            = (String)row[3];
+            Integer idSequenceLane          = (Integer)row[4];
             
             List infoList = (List)relatedFlowCellInfoMap.get(idSample);
             if (infoList == null) {
@@ -192,7 +193,6 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("workItemCreateDate",     row[12] == null ? "" :  this.formatDate((java.sql.Date)row[12]));
           n.setAttribute("isDirty","N");
           
-          DecimalFormat concentrationFormatter = new DecimalFormat("######.##");
           
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC)) {
@@ -201,7 +201,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualFailed",                 row[14] == null ? "" :  (String)row[14]);
             n.setAttribute("qual260nmTo280nmRatio",      row[15] == null ? "" :  ((BigDecimal)row[15]).toString());
             n.setAttribute("qual260nmTo230nmRatio",      row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("qualCalcConcentration",      row[17] == null ? "" :  concentrationFormatter.format((BigDecimal)row[17]));
+            n.setAttribute("qualCalcConcentration",      row[17] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[17]));
             n.setAttribute("qual28sTo18sRibosomalRatio", row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
             n.setAttribute("qualRINNumber",              row[19] == null ? "" :  ((String)row[19]));
             n.setAttribute("qualBypassed",               row[20] == null ? "" :  (String)row[20]);
@@ -643,12 +643,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
   }
   
   public static class RelatedFlowCellInfo {
-    private Integer clustersPerTile;
-    private Integer sampleConcentrationpM;
-    private String  sequenceLaneNumber;
-    private Integer idSequenceLane;
+    private Integer     clustersPerTile;
+    private BigDecimal  sampleConcentrationpM;
+    private String      sequenceLaneNumber;
+    private Integer     idSequenceLane;
     
-    public RelatedFlowCellInfo(Integer clustersPerTile, Integer sampleConcentrationpM, String seqLaneNumber, Integer idSequenceLane) {
+    public RelatedFlowCellInfo(Integer clustersPerTile, BigDecimal sampleConcentrationpM, String seqLaneNumber, Integer idSequenceLane) {
       this.clustersPerTile = clustersPerTile;
       this.sampleConcentrationpM = sampleConcentrationpM;
       this.sequenceLaneNumber = seqLaneNumber;
@@ -657,7 +657,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     
     public String toString() {
       return sequenceLaneNumber + " - " +
-      (sampleConcentrationpM != null ? sampleConcentrationpM + " pM, " : "") + 
+      (sampleConcentrationpM != null ? Constants.concentrationFormatter.format(sampleConcentrationpM) + " pM, " : "") + 
       (clustersPerTile != null ? clustersPerTile + " clusters/tile " : "");          
     }
     

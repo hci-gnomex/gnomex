@@ -5,6 +5,7 @@ import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,19 +84,19 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     return (WorkItem)workItemMap.get(idSequenceLane);
   }
   
-  public Integer getSampleConcentrationpm(Integer idSequenceLane) {
+  public BigDecimal getSampleConcentrationpm(Integer idSequenceLane) {
     String sc = (String)sampleConcentrationMap.get(idSequenceLane);
     if (sc != null && !sc.equals("")) {
-      return new Integer(sc);
+      return new BigDecimal(sc);
     } else {
       return null;
     }
   }
   
-  public Integer getSampleConcentrationpmForControl(Integer idSequencingControl) {
+  public BigDecimal getSampleConcentrationpmForControl(Integer idSequencingControl) {
     String sc = (String)sampleConcentrationForControlMap.get(idSequencingControl);
     if (sc != null && !sc.equals("")) {
-      return new Integer(sc);
+      return new BigDecimal(sc);
     } else {
       return null;
     }
