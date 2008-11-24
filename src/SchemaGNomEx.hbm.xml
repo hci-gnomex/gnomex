@@ -196,7 +196,7 @@
 		<property name="lastCycleDate" column="lastCycleDate" type="date"/>
 		<property name="lastCycleFailed" column="lastCycleFailed" type="string"/>
 		<property name="startDate" column="startDate" type="date"/>
-		<property name="sampleConcentrationpM" column="sampleConcentrationpM" type="integer"/>
+		<property name="sampleConcentrationpM" column="sampleConcentrationpM" type="big_decimal"/>
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->

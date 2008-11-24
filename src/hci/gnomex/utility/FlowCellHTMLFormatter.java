@@ -229,7 +229,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addCell(row, gelSize);
         this.addCell(row, lane.getSample().getSeqPrepStockLibVol() != null  ? lane.getSample().getSeqPrepStockLibVol().toString() : "&nbsp;");
-        this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpM().toString() : "&nbsp;");
+        this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay(): "&nbsp;");
         
       } else {
         this.addCell(row, "&nbsp;");
