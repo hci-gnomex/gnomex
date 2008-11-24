@@ -257,6 +257,10 @@ public class DownloadResultsServlet extends HttpServlet {
             include = false;
           } else if (!includeAllTIFFiles && fileName.toLowerCase().endsWith(".tif")) {
             include = false;
+          } else if (fileName.toUpperCase().endsWith(".DS_Store")) {
+            include = false;
+          } else if (fileName.toUpperCase().endsWith("THUMBS.DB")) {
+            include = false;
           }
           if (include) {
             long fileSize = f1.length();            

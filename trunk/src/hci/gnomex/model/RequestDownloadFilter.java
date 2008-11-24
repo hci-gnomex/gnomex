@@ -131,9 +131,9 @@ public class RequestDownloadFilter extends DetailObject {
     
     queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
     queryBuf.append("        req.codeMicroarrayCategory, req.idAppUser, ");
-    queryBuf.append("        s.number, '', ");
     queryBuf.append("        '', '', ");
-    queryBuf.append("        '', '', s.number, s.name, ");
+    queryBuf.append("        '', '', ");
+    queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        '', '', '', '', ");
     queryBuf.append("        req.idLab, ");
     queryBuf.append("        '', '', ");
@@ -150,12 +150,11 @@ public class RequestDownloadFilter extends DetailObject {
   public void getSolexaResultQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
-    queryBuf.append(" JOIN           req.samples as s ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
 
 
     addRequestCriteria();
-    addLaneCriteria();
+    addSolexaCriteria();
     addSecurityCriteria();
   }
   
@@ -186,7 +185,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append(" JOIN           ch.flowCell as fc ");
 
     addRequestCriteria();
-    addLaneCriteria();
+    addSolexaCriteria();
     addSecurityCriteria();
 
     queryBuf.append("        group by req.idRequest, s.idSample, s.number ");
@@ -318,11 +317,9 @@ public class RequestDownloadFilter extends DetailObject {
     }   
   }
 
-  private void addLaneCriteria() {
+  private void addSolexaCriteria() {
     this.addWhereOrAnd();
     queryBuf.append(" req.codeRequestCategory = 'SOLEXA'");
-
-    //TODO - need to filter by lane complete date
   }
 
   private void addQualityControlCriteria() {

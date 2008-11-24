@@ -175,6 +175,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 workItem.setCodeStepNext(Step.SEQ_QC);
               } else {
                 workItem.setCodeStepNext(Step.SEQ_PREP);
+                sample.setQualBypassed("Y");
+                sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
               }
               
             } else {
@@ -942,17 +944,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
       }      
     }
-    if (req.getSequenceLanes() != null) {
-      for(Iterator i = req.getSamples().iterator(); i.hasNext();) {
-        Sample s = (Sample)i.next();
-        String sampleDirectoryName = directoryName + "\\" + s.getNumber();
-        success = (new File(sampleDirectoryName)).mkdir();
-        if (!success) {
-          log.error("Unable to create directory " + sampleDirectoryName);      
-        }
-        
-      }      
-    }    
+   
   }
   
  

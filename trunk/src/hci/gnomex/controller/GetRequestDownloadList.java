@@ -1,15 +1,16 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.SeqRunType;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestDownloadFilter;
-import hci.gnomex.model.SlideDesign;
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.RequestDownloadFilter;
+import hci.gnomex.model.SeqRunType;
+import hci.gnomex.model.SlideDesign;
 
+import java.io.File;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -35,7 +36,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private HashMap                        slideDesignMap = new HashMap();
   private HashMap                        seqRunTypeMap = new HashMap();
   private static final String          QUALITY_CONTROL_DIRECTORY = "bioanalysis";
-
+  
+  private String                         baseDir;
+  private SimpleDateFormat               yearFormat= new SimpleDateFormat("yyyy");
+  
   public void validate() {
   }
   
@@ -61,6 +65,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     if  (!filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion.");
     }
+    
+    baseDir = Constants.getMicroarrayDirectoryForReading(request.getServerName());
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -112,7 +119,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         Object[] row = (Object[])i.next();
         
         String requestNumber = (String)row[1];
-        String laneNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
         
         String createDate    = this.formatDate((java.sql.Date)row[0]);
         String tokens[] = createDate.split("/");
@@ -121,35 +127,23 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         
-        String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + laneNumber;
-        
-        rowMap.put(key, row);
+        // Now read the request directory to identify all its subdirectories
+        List folders = this.getRequestDownloadFolders(requestNumber, yearFormat.format((java.sql.Date)row[0]));
+        for(Iterator i1 = folders.iterator(); i1.hasNext();) {
+          String folderName = (String)i1.next();
+          if (folderName.equals(Constants.QC_DIRECTORY)) {
+            continue;
+          }
+          String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + folderName;
+          Object[] newRow = new Object[row.length];
+          for(int x = 0; x < row.length; x++) {
+            newRow[x] = row[x];
+          }
+          newRow[5] = folderName;
+          rowMap.put(key, newRow);
+        }
       }
-      
-      buf = filter.getSolexaLaneStatusQuery(this.getSecAdvisor());
-      log.debug("Query for get solexa lane status: " + buf.toString());
-      List laneStatusRows = (List)sess.createQuery(buf.toString()).list();
-      HashMap laneStatusMap = new HashMap();
-      for(Iterator i = laneStatusRows.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        
-        Integer idRequest            = (Integer)row[0];
-        Integer idSample             = (Integer)row[1];
-        String sampleNumber          = (String)row[2];
-        java.sql.Date firstCycleDate = (java.sql.Date)row[3];
-        String firstCycleFailed      = (String)row[4];
-        java.sql.Date lastCycleDate  = (java.sql.Date)row[5];
-        String lastCycleFailed       = (String)row[6];
-        
-        LaneStatusInfo ls = new LaneStatusInfo();
-        ls.setFirstCycleDate(firstCycleDate);
-        ls.setFirstCycleFailed(firstCycleFailed);
-        ls.setLastCycleDate(lastCycleDate);
-        ls.setLastCycleFailed(lastCycleFailed);
-        
-        laneStatusMap.put(sampleNumber, ls); 
-      }
-      
+
       
       buf = filter.getQualityControlResultQuery(this.getSecAdvisor());
       log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
@@ -250,33 +244,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           if(hasMaxQualDate) {
             n.setAttribute("hasResults","Y"); 
           } else if (seqPrepByCore.equals("Y")) {
-            n.setAttribute("status", "not performed");
+            n.setAttribute("status", "not yet performed");
             n.setAttribute("hasResults", "N");
           } else {
             n.setAttribute("status", "in progress");            
             n.setAttribute("hasResults","N");
           }
         } else if (n.getAttributeValue("results").equals("sequencing")) {
-          n.setAttribute("results", "Intensity data and mapped reads");
-          String sampleNumber = (String)row[11];        
-          LaneStatusInfo ls = (LaneStatusInfo)laneStatusMap.get(sampleNumber);
-          if (ls != null) {
-            if (ls.getLastCycleDate() != null) {
-              n.setAttribute("hasResults", "Y");            
-            } else if (ls.getFirstCycleFailed() != null && ls.getFirstCycleFailed().equals("Y")) {
-              n.setAttribute("status", "failed 1st cycle");          
-              n.setAttribute("hasResults","N");                       
-            } else if(ls.getLastCycleFailed() != null && ls.getLastCycleFailed().equals("Y")) {
-              n.setAttribute("status", "failed last cycle");          
-              n.setAttribute("hasResults","N");                       
-            } else  {
-              n.setAttribute("status", "in progress");          
-              n.setAttribute("hasResults","N");                   
-            }            
-          } else {
-            n.setAttribute("status", "in progress");          
-            n.setAttribute("hasResults","N");                               
-          }
+          n.setAttribute("hasResults", "Y"); 
+          n.setAttribute("status", "");
         } else {
           if(!n.getAttributeValue("extractionDate").equals("")) {
             n.setAttribute("hasResults","Y");                       
@@ -333,6 +309,27 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
     return this;
   }
+  
+  
+  private List getRequestDownloadFolders(String requestNumber, String createYear) {
+
+    List folders = new ArrayList();
+    String directoryName = baseDir + createYear + "/" + requestNumber;
+    File fd = new File(directoryName);
+
+    if (fd.isDirectory()) {
+      String[] fileList = fd.list();
+      for (int x = 0; x < fileList.length; x++) {
+        String fileName = directoryName + "/" + fileList[x];
+        File f1 = new File(fileName);
+        if (f1.isDirectory()) {
+          folders.add(fileList[x]);          
+        }
+      }
+    }
+    return folders;
+    
+  }
 
   public static class  HybSampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
@@ -348,28 +345,40 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       String date1         = tokens1[1];
       String reqNumber1    = tokens1[2];
       String hybNumber1    = tokens1[3];
+      String folder1       = tokens1[3];
       
       
       String yr2           = tokens2[0];
       String date2         = tokens2[1];
       String reqNumber2    = tokens2[2];
       String hybNumber2    = tokens2[3];
+      String folder2       = tokens2[3];
       
       
       String number1 = null;
+      
       
       if (hybNumber1.equals(QUALITY_CONTROL_DIRECTORY)) {
         number1 = "0";
          
       } else {
-        String splitLetter = "";
+        String splitLetter = null;
         if (hybNumber1.indexOf("E") >= 0) {
           splitLetter = "E";
-        } else {
+        } else if (hybNumber1.indexOf("X") >= 0) {
           splitLetter = "X";
         }
-        String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
-        number1 = hybNumberTokens1[hybNumberTokens1.length - 1];        
+        if (splitLetter != null) {
+          String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
+          number1 = hybNumberTokens1[hybNumberTokens1.length - 1];   
+          try {
+            new Integer(number1);
+          } catch(Exception e) {
+            number1 = "1";
+          }
+        } else {
+          number1 = "1";
+        }
       }
       
       
@@ -380,21 +389,35 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         number2 = "0";
           
       } else {
-        String splitLetter = "";
+        String splitLetter = null;
         if (hybNumber2.indexOf("E") >= 0) {
           splitLetter = "E";
-        } else {
+        } else if (hybNumber2.indexOf("X") >= 0) {
           splitLetter = "X";
         }
+        
+        if (splitLetter != null) {
+          String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
+          number2 = hybNumberTokens2[hybNumberTokens2.length - 1];   
+          try {
+            new Integer(number2);
+          } catch (Exception e) {
+            number2 = "1";
+          }
+        } else {
+          number2 = "1";
+        }
 
-        String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
-        number2 = hybNumberTokens2[hybNumberTokens2.length - 1];        
       }
 
 
       if (date1.equals(date2)) {
-        if (reqNumber1.equals(reqNumber2)) {
-          return new Integer(number1).compareTo(new Integer(number2));        
+        if (reqNumber1.equals(reqNumber2)) {    
+          if (number1.equals(number2)) {
+            return folder1.compareTo(folder2);
+          } else {
+            return new Integer(number1).compareTo(new Integer(number2));                    
+          }
         } else {
           return reqNumber2.compareTo(reqNumber1);
         }  
