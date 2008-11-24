@@ -26,7 +26,7 @@ public class FlowCellChannel extends HibernateDetailObject {
   private String            lastCycleFailed;
   private Integer           clustersPerTile;
   private String            fileName;
-  private Integer           sampleConcentrationpM;
+  private BigDecimal        sampleConcentrationpM;
   private Integer           numberSequencingCyclesActual;
   
   public Integer getIdFlowCellChannel() {
@@ -291,12 +291,21 @@ public class FlowCellChannel extends HibernateDetailObject {
   }
 
   
-  public Integer getSampleConcentrationpM() {
+  public BigDecimal getSampleConcentrationpM() {
     return sampleConcentrationpM;
   }
+  
+  public String getSampleConcentrationpMDisplay() {
+    if (sampleConcentrationpM != null) {
+      return Constants.concentrationFormatter.format(sampleConcentrationpM);      
+    } else {
+      return "";
+    }
+  }
+
 
   
-  public void setSampleConcentrationpM(Integer sampleConcentrationpM) {
+  public void setSampleConcentrationpM(BigDecimal sampleConcentrationpM) {
     this.sampleConcentrationpM = sampleConcentrationpM;
   }
 
