@@ -19,9 +19,11 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
   private String    keysString = null;
   private String    includeTIF = "N";
   private String    includeJPG = "N";
-  private static int      totalFileSize = 0;
-  private String    baseDir;
 
+  private String    baseDir;
+  private String    baseDirFlowCell;
+
+  private static int      totalFileSize = 0;
   
   public void validate() {
   }
@@ -38,15 +40,16 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
         && !request.getParameter("includeJPG").equals("")) {
       includeJPG = request.getParameter("includeJPG");
     }
-    baseDir = Constants.getMicroarrayDirectoryForReading(request.getServerName());
+    baseDir         = Constants.getMicroarrayDirectoryForReading(request.getServerName());
+    baseDirFlowCell = Constants.getFlowCellDirectory(request.getServerName());
   }
 
   public Command execute() throws RollBackCommandException {
     
     try {
       
-      Map fileNameMap = new HashMap();
-      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+      Map fileNameMap = new HashMap();      
+      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
       this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
       
       if (isValid()) {

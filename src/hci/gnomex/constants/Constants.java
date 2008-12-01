@@ -29,6 +29,8 @@ public class Constants {
   public static final  String             STATUS_COMPLETED                = "Completed";
   public static final  String             STATUS_TERMINATED               = "Terminated";
   public static final  String             STATUS_BYPASSED                 = "Bypassed";
+  
+  public static final  String             FLOWCELL_DIRECTORY_FLAG         = "FC";
 
   public static final String              LUCENE_INDEX_DIRECTORY                  = "c:/orion/luceneIndexGnomEx";
 
@@ -36,10 +38,12 @@ public class Constants {
   public static final String              LUCENE_PROTOCOL_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Protocol";
   public static final String              LUCENE_ANALYSIS_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Analysis";
   
-  private static final String              MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayDataShare\\";
-  private static final String              TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayDataShare01\\";
-  private static final String              ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare\\";
-  private static final String              TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\AnalysisDataShare01\\";
+  private static final String             MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayDataShare\\";
+  private static final String             TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayDataShare1\\";
+  private static final String             ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare\\";
+  private static final String             TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\AnalysisDataShare1\\";
+  private static final String             FLOWCELL_DIRECTORY              = "\\\\hci-ma\\FlowCellDataShare\\";
+  private static final String             TEST_FLOWCELL_DIRECTORY         = "C:\\temp\\FlowCellDataShare1\\";
 
   public static DecimalFormat               concentrationFormatter = new DecimalFormat("######.##");
 
@@ -48,6 +52,14 @@ public class Constants {
       return ANALYSIS_DIRECTORY;
     } else {
       return TEST_ANALYSIS_DIRECTORY;
+    }
+  }
+  
+  public static String getFlowCellDirectory(String serverName) {
+    if (serverName.equals(PRODUCTION_SERVER)) {
+      return FLOWCELL_DIRECTORY;
+    } else {
+      return TEST_FLOWCELL_DIRECTORY;
     }
   }
 
@@ -69,5 +81,38 @@ public class Constants {
   public static int getMicroarrayDirectoryNameLength() {
     return MICROARRAY_DIRECTORY.length();
   }
+  public static int getFlowCellDirectryNameLength() {
+    return FLOWCELL_DIRECTORY.length();
+  }
+  
+  
+  public static String parseMainFolderName(String fileName) {
+    String mainFolderName = "";
+    String baseDir = "";
+    
+    if (fileName.indexOf(MICROARRAY_DIRECTORY) >= 0) {
+      baseDir = MICROARRAY_DIRECTORY;
+    } else if (fileName.indexOf(TEST_MICROARRAY_DIRECTORY) >= 0) {
+      baseDir = TEST_MICROARRAY_DIRECTORY;
+    } else if (fileName.indexOf(FLOWCELL_DIRECTORY) >= 0) {
+      baseDir = FLOWCELL_DIRECTORY;
+    } else if (fileName.indexOf(TEST_FLOWCELL_DIRECTORY) >= 0) {
+      baseDir = TEST_FLOWCELL_DIRECTORY;
+    }
 
+  
+    
+    String relativePath = fileName.substring(baseDir.length() + 5);
+    String tokens[] = relativePath.split("/", 2);
+    if (tokens == null || tokens.length == 1) {
+      tokens = relativePath.split("\\\\", 2);
+    }
+    if (tokens.length == 2) {
+      mainFolderName = tokens[0];
+    }
+    
+    return mainFolderName;
+  }
+    
+      
 }

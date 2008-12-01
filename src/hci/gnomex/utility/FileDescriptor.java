@@ -25,12 +25,13 @@ public class FileDescriptor extends DetailObject implements Serializable {
   private String    type;
   private String    zipEntryName;
   private String    directoryName;
+  private String    flowCellIndicator;
   private List      children = new ArrayList();
   
   public FileDescriptor() {    
   }
   
-  public FileDescriptor(String requestNumber, String displayName, File file) {
+  public FileDescriptor(String requestNumber, String displayName, File file, String zipEntryName) {
     this.requestNumber = requestNumber;
     this.displayName = displayName;
     
@@ -42,7 +43,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
     }
-    this.zipEntryName = fileName.substring(Constants.getMicroarrayDirectoryNameLength() + 5).replaceAll("\\\\", "/");  
+    this.zipEntryName = zipEntryName;
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");
@@ -50,6 +51,8 @@ public class FileDescriptor extends DetailObject implements Serializable {
       ext = fileParts[fileParts.length - 1];
     }
     type = ext;
+    
+    
     
     
   }
@@ -168,24 +171,12 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.zipEntryName = zipEntryName;
   }
   
-  public String getDirectoryRequestNumber() {
-    String requestNumber = "";
+  public String getMainFolderName() {
     if (fileName != null && !fileName.equals("")) {
-      // Get the directory name starting after the year
-      String relativePath = fileName.substring(Constants.getMicroarrayDirectoryNameLength() + 5);
-      String tokens[] = relativePath.split("/", 2);
-      if (tokens == null || tokens.length == 1) {
-        tokens = relativePath.split("\\\\", 2);
-      }
-      if (tokens.length == 2) {
-        requestNumber = tokens[0];
-      }
+      return Constants.parseMainFolderName(fileName);
+    } else {
+      return "";
     }
-    return requestNumber;
-  }
-  
-  public String getDirectoryNumber() {
-    return getDirectoryRequestNumber();
   }
 
   
@@ -199,14 +190,6 @@ public class FileDescriptor extends DetailObject implements Serializable {
   }
 
   
-  public String getDirectoryName() {
-    return directoryName;
-  }
-
-  
-  public void setDirectoryName(String directoryName) {
-    this.directoryName = directoryName;
-  }
   
   public String getLastModifyDateDisplay() {
     if (this.lastModifyDate != null) {
@@ -219,5 +202,25 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
   public String getIsSelected() {
     return "false";
+  }
+
+  
+  public String getDirectoryName() {
+    return directoryName;
+  }
+
+  
+  public void setDirectoryName(String directoryName) {
+    this.directoryName = directoryName;
+  }
+
+  
+  public String getFlowCellIndicator() {
+    return flowCellIndicator;
+  }
+
+  
+  public void setFlowCellIndicator(String flowCellIndicator) {
+    this.flowCellIndicator = flowCellIndicator;
   }
 }
