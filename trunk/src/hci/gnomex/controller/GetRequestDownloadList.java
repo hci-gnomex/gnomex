@@ -3,12 +3,14 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 
 import java.io.File;
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -143,6 +145,27 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           rowMap.put(key, newRow);
         }
       }
+      
+      buf = filter.getSolexaFlowCellQuery(this.getSecAdvisor());
+      log.debug("Query for get solexa flow cell: " + buf.toString());
+      List flowCellRows = (List)sess.createQuery(buf.toString()).list();
+      HashMap flowCellMap = new HashMap();
+      for(Iterator i = flowCellRows.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        
+        String requestNumber         = (String)row[0];
+        String flowCellNumber        = (String)row[1];
+        java.sql.Date createDate     = (java.sql.Date)row[2];
+        
+        List flowCellFolders = (List)flowCellMap.get(requestNumber);
+        if (flowCellFolders == null) {
+          flowCellFolders = new ArrayList();
+        }
+        flowCellFolders.add(new FlowCellFolder(requestNumber, flowCellNumber, createDate));
+        
+        flowCellMap.put(requestNumber, flowCellFolders); 
+      }
+      
 
       
       buf = filter.getQualityControlResultQuery(this.getSecAdvisor());
@@ -197,7 +220,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
         n.setAttribute("codeMicroarrayCategory", row[3] == null ? "" : (String)row[3]);
         n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
-        n.setAttribute("hybNumber", row[5] == null ? "" : (String)row[5]);
+        n.setAttribute("itemNumber", row[5] == null ? "" : (String)row[5]);
         n.setAttribute("hybDate", row[6] == null || row[6].equals("") ? "" : this.formatDate((java.sql.Date)row[6]));
         n.setAttribute("extractionDate", row[7] == null || row[7].equals("") ? "" : this.formatDate((java.sql.Date)row[7]));
         n.setAttribute("hybFailed", row[8] == null ? "" : (String)row[8]);
@@ -210,6 +233,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("numberSample2", row[15] == null ? "" :  (String)row[15]);
         n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
         n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
+        
+        
+        boolean isSolexaRequest = false;
+        if (n.getAttributeValue("codeRequestCategory") != null && n.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+          isSolexaRequest = true;
+        }
         
         
         Integer idSlideDesign = row[20] == null || row[20].equals("") ? null : (Integer)row[20];
@@ -231,8 +260,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         } else {
           if (idSlideDesign != null) {
             n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
+          } else if (isSolexaRequest){
+            n.setAttribute("results", "mapped sequencing reads" +
+            		"");
           } else {
-            n.setAttribute("results", "sequencing");
+            n.setAttribute("results", "");
           }
         }
         
@@ -278,6 +310,49 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
 
         doc.getRootElement().addContent(n);
+        
+        
+        // Add directories for flow cells
+        if (isSolexaRequest) {
+          List flowCellNumbers = (List)flowCellMap.get(requestNumber);
+          if (flowCellNumbers != null) {
+            for(Iterator i1 = flowCellNumbers.iterator(); i1.hasNext();) {
+              FlowCellFolder fcFolder = (FlowCellFolder)i1.next();
+              
+              String createDate    = this.formatDate((java.sql.Date)fcFolder.getCreateDate());
+              String tokens[] = createDate.split("/");
+              String createMonth = tokens[0];
+              String createDay   = tokens[1];
+              String createYear  = tokens[2];
+              String sortDate = createYear + createMonth + createDay;      
+
+              String fcKey = createYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + Constants.FLOWCELL_DIRECTORY_FLAG;
+              
+              Element n1 = new Element("RequestDownload");
+              n1.setAttribute("key", fcKey);
+              n1.setAttribute("isSelected", "N");
+              n1.setAttribute("altColor", new Boolean(alt).toString());
+              n1.setAttribute("idRequest", row[21].toString());
+              n1.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
+              n1.setAttribute("requestNumber", (String)row[1]);
+              n1.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
+              n1.setAttribute("codeMicroarrayCategory", row[3] == null ? "" : (String)row[3]);
+              n1.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
+              n1.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
+              n1.setAttribute("results", "flow cell quality report");
+              n1.setAttribute("hasResults", "Y"); 
+              n1.setAttribute("status", "");
+              n1.setAttribute("itemNumber", fcFolder.getFlowCellNumber());
+              
+              doc.getRootElement().addContent(n1);
+            }
+            // We only want to show the list of flow cells once
+            // per request.
+            flowCellMap.remove(requestNumber);
+            
+          }
+        }
+        
         
         prevRequestNumber = requestNumber;
         
@@ -470,6 +545,55 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
     
     
+    
+  }
+  
+  private static class FlowCellFolder {
+    private String        requestNumber;
+    private String        flowCellNumber;
+    private java.sql.Date createDate;
+    
+    
+    public FlowCellFolder(String requestNumber,
+                          String flowCellNumber,
+                          Date createDate) {
+      super();
+      this.requestNumber = requestNumber;
+      this.flowCellNumber = flowCellNumber;
+      this.createDate = createDate;
+    }
+
+
+    public java.sql.Date getCreateDate() {
+      return createDate;
+    }
+
+    
+    public void setCreateDate(java.sql.Date createDate) {
+      this.createDate = createDate;
+    }
+
+    
+    public String getFlowCellNumber() {
+      return flowCellNumber;
+    }
+
+    
+    public void setFlowCellNumber(String flowCellNumber) {
+      this.flowCellNumber = flowCellNumber;
+    }
+
+
+    
+    public String getRequestNumber() {
+      return requestNumber;
+    }
+
+
+    
+    public void setRequestNumber(String requestNumber) {
+      this.requestNumber = requestNumber;
+    }
     
   }
   

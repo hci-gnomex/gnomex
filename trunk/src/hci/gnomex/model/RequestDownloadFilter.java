@@ -191,6 +191,35 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        group by req.idRequest, s.idSample, s.number ");
     
   }
+
+  public StringBuffer getSolexaFlowCellQuery(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    addWhere = true;
+    
+    queryBuf.append(" SELECT DISTINCT req.number, ");
+    queryBuf.append("                 fc.number, ");
+    queryBuf.append("                 fc.createDate ");
+    getSolexaFlowCellQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  public void getSolexaFlowCellQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" JOIN           req.sequenceLanes as l ");
+    queryBuf.append(" JOIN           l.flowCellChannel as ch ");
+    queryBuf.append(" JOIN           ch.flowCell as fc ");
+
+    addRequestCriteria();
+    addSolexaCriteria();
+    addSecurityCriteria();
+
+    queryBuf.append("        group by req.number, fc.number, fc.createDate ");
+    queryBuf.append("        order by req.number, fc.number  ");
+    
+  }
   
   public boolean hasCriteria() {
     if ((requestNumber != null && !requestNumber.equals("")) ||

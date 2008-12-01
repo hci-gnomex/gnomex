@@ -109,7 +109,7 @@
 		resultKeys = "";
     	for(var i:Number = 0; i < downloadList.length; i++) {
     		if (downloadList[i].@isSelected != null && downloadList[i].@isSelected.toString() == "true") {
-        		resultKeys += downloadList[i].@key + ":";
+        		resultKeys += downloadList[i].@key + ":"; 
       		}
         }     	
     }
@@ -185,8 +185,8 @@
     }
     
     private function getFolderName(item:Object, col:int):String {
-    	if (item.@hybNumber != null && item.@hybNumber != '') {
-	    	return item.@hybNumber + ' - ' + item.@results;		
+    	if (item.@itemNumber != null && item.@itemNumber != '') {
+	    	return item.@itemNumber + ' - ' + item.@results;		
     	} else {
     		return item.@results;
     	}
@@ -394,7 +394,7 @@
 		                    </mx:Component>
 		                </mx:itemRenderer>
 		            </mx:DataGridColumn> 
-			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@hybNumber"/>
+			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@itemNumber"/>
 			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
 			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="lookupUserName"/>
