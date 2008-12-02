@@ -113,7 +113,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           
           fd.setDirectoryName(tokens[1]);
           
-          if (fd.getFlowCellIndicator().equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
+          if (fd.getFlowCellIndicator() != null && fd.getFlowCellIndicator().equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
             boolean isValidFlowCell = false;
             for(Iterator i3 = request.getSequenceLanes().iterator(); i3.hasNext();) {
               SequenceLane lane = (SequenceLane)i3.next();
