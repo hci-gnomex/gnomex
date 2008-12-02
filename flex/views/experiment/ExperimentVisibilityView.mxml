@@ -134,7 +134,15 @@
         }
     }
     
-    
+     public function sortVisibility(item1:Object, item2:Object):int {
+    	if (item1.@codeVisibility > item2.@codeVisibility) {
+    		return 1;
+    	} else if (item2.@codeVisibility > item1.@codeVisibility) {
+    		return -1;
+    	} else {
+    		return 0;
+    	}
+    }   
     
     
     
@@ -154,7 +162,7 @@
 			 editable="true"
 	       	 itemEditEnd="onEdit()">
 	         <mx:columns>
-	            <mx:DataGridColumn width="35" minWidth="35" headerText="#"  editable="false">
+	            <mx:DataGridColumn width="35" minWidth="35" headerText="#"  editable="false" sortCompareFunction="parentDocument.sortRequestNumber">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0" >
@@ -168,11 +176,11 @@
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
 		       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"  editable="false"/>
-		        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="parentDocument.getFullName"  editable="false"/>
-		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"  editable="false"/>
+		        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="parentDocument.getFullName"  sortCompareFunction="parentDocument.sortFullName" editable="false"/>
+		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"  sortCompareFunction="parentDocument.sortExperimentKind" editable="false"/>
 		       	<mx:DataGridColumn headerText="Microarray" width="90" dataField="@slideProductName"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
-					editorDataField="value" sortable="false" editable="{projectVisibilityCombo.enabled}" 
+					editorDataField="value" sortCompareFunction="sortVisibility" editable="{projectVisibilityCombo.enabled}" 
 					rendererIsEditor="false" 
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
 					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>
