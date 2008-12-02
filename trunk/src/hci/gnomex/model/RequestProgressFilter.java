@@ -23,10 +23,13 @@ public class RequestProgressFilter extends DetailObject {
   protected Date                  createDateTo;
   protected String                isComplete;
   protected String                isNotComplete;
-  protected String                requestDateLastWeek;
   protected String                requestDateLastMonth;
   protected String                requestDateLastYear;
   protected Integer               idProject;
+  private String                  publicExperimentsInOtherGroups;
+  private String                  lastWeek  = "N";
+  private String                  lastMonth = "N";
+  private String                  lastYear  = "N";
   
   
   protected StringBuffer          queryBuf;
@@ -41,11 +44,12 @@ public class RequestProgressFilter extends DetailObject {
         idProject != null ||
         createDateFrom != null ||
         createDateTo != null ||
+        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||        
         (isComplete != null && isComplete.equalsIgnoreCase("Y")) ||
         (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y")) ||
-        (requestDateLastWeek != null && requestDateLastWeek.equalsIgnoreCase("Y")) ||
-        (requestDateLastMonth != null && requestDateLastMonth.equalsIgnoreCase("Y")) ||
-        (requestDateLastYear != null && requestDateLastYear.equalsIgnoreCase("Y"))) {
+        (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
+        (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
+        (lastYear != null && lastYear.equalsIgnoreCase("Y"))) {
       return true;
     } else {
       return false;
@@ -183,7 +187,7 @@ public class RequestProgressFilter extends DetailObject {
       queryBuf.append("'");
     } 
     // Search by request date last year
-    if (requestDateLastYear != null && requestDateLastYear.equalsIgnoreCase("Y")) {
+    if (lastYear != null && lastYear.equalsIgnoreCase("Y")) {
       Calendar end = Calendar.getInstance();
       end.add(Calendar.YEAR, -1);
       
@@ -193,7 +197,7 @@ public class RequestProgressFilter extends DetailObject {
       queryBuf.append("'");      
     } 
     // Search by request date last month
-    else if (requestDateLastMonth != null && requestDateLastMonth.equalsIgnoreCase("Y")) {
+    else if (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.MONTH, -1);
         
@@ -202,8 +206,8 @@ public class RequestProgressFilter extends DetailObject {
         queryBuf.append(this.formatDate(end.getTime()));
         queryBuf.append("'");      
     }
-    // Search by request date last month
-    else if (requestDateLastWeek != null && requestDateLastWeek.equalsIgnoreCase("Y")) {
+    // Search by request date last week
+    else if (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DAY_OF_YEAR, -7);
         
@@ -247,7 +251,13 @@ public class RequestProgressFilter extends DetailObject {
   }
 
   protected void addSecurityCriteria() {
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, true);
+    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+    } else {
+      boolean scopeToGroup = true;
+      secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup);
+    }
+    
   }
     
   
@@ -348,39 +358,6 @@ public class RequestProgressFilter extends DetailObject {
 
 
   
-  public String getRequestDateLastMonth() {
-    return requestDateLastMonth;
-  }
-
-
-  
-  public void setRequestDateLastMonth(String requestDateLastMonth) {
-    this.requestDateLastMonth = requestDateLastMonth;
-  }
-
-
-  
-  public String getRequestDateLastWeek() {
-    return requestDateLastWeek;
-  }
-
-
-  
-  public void setRequestDateLastWeek(String requestDateLastWeek) {
-    this.requestDateLastWeek = requestDateLastWeek;
-  }
-
-
-  
-  public String getRequestDateLastYear() {
-    return requestDateLastYear;
-  }
-
-
-  
-  public void setRequestDateLastYear(String requestDateLastYear) {
-    this.requestDateLastYear = requestDateLastYear;
-  }
 
 
   
@@ -392,6 +369,55 @@ public class RequestProgressFilter extends DetailObject {
   
   public void setIdProject(Integer idProject) {
     this.idProject = idProject;
+  }
+
+
+  
+  public String getPublicExperimentsInOtherGroups() {
+    return publicExperimentsInOtherGroups;
+  }
+
+
+  
+  public void setPublicExperimentsInOtherGroups(
+      String publicExperimentsInOtherGroups) {
+    this.publicExperimentsInOtherGroups = publicExperimentsInOtherGroups;
+  }
+
+
+  
+  public String getLastWeek() {
+    return lastWeek;
+  }
+
+
+  
+  public void setLastWeek(String lastWeek) {
+    this.lastWeek = lastWeek;
+  }
+
+
+  
+  public String getLastMonth() {
+    return lastMonth;
+  }
+
+
+  
+  public void setLastMonth(String lastMonth) {
+    this.lastMonth = lastMonth;
+  }
+
+
+  
+  public String getLastYear() {
+    return lastYear;
+  }
+
+
+  
+  public void setLastYear(String lastYear) {
+    this.lastYear = lastYear;
   }
 
 

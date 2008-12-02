@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.RequestProgressSolexaFilter;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -38,7 +39,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
     this.addInvalidFields(errors);
     
     
-    if  (!filter.hasCriteria()) {
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion");
     }
   }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:views="views.*"  
+	xmlns:views="views.*"   
 	xmlns:experiment="views.experiment.*"  
 	xmlns:util="views.util.*"
 	verticalGap="0" borderThicknessTop="0">
@@ -96,12 +96,35 @@
   	public function refreshDownloadList():void {
 		if (theViews.selectedChild == downloadView) {
 			var params:Object = new Object();
-			if (parentDocument.selectedIdLab != null) {
-				params.idLab = parentDocument.selectedIdLab;				
-			} 
 			if (parentDocument.selectedIdProject != null) {
 				params.idProject = parentDocument.selectedIdProject;
 			}
+			params.idLab = parentDocument.selectedIdLab;
+			if (parentDocument.currentState == 'AdminState') {
+			    if (parentDocument.selectedIdLab == null && parentDocument.browseLabCombo.selectedItem != null) {
+					params.idLab = parentDocument.browseLabCombo.selectedItem.@idLab;
+				}
+				if (parentDocument.browseUserCombo.selectedItem != null) {
+					params.idAppUser = parentDocument.browseUserCombo.selectedItem.@idAppUser;
+				}
+			} else  {
+				if (parentDocument.myExperimentsCheckbox.selected) {
+					params.idAppUser = parentApplication.getIdAppUser();
+				}				
+			}
+			if (parentDocument.lastWeekCheckbox.selected) {
+				params.lastWeek = 'Y'; 
+			}
+			if (parentDocument.lastMonthCheckbox.selected) {
+				params.lastMonth = 'Y';
+			}
+			if (parentDocument.lastYearCheckbox.selected) {
+				params.lastYear = 'Y';
+			}
+			if (parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
+				params.publicExperimentsInOtherGroups = 'Y';
+			}
+			
 			downloadView.getRequestDownloadList.send(params);
 			downloadView.theTab.selectedChild = downloadView.folderView;			
 		}
@@ -117,11 +140,33 @@
 	public function refreshTrackList():void {
 		if (theViews.selectedChild == trackView) {
 			var params:Object = new Object();
-			if (parentDocument.selectedIdLab != null) {
-				params.idLab = parentDocument.selectedIdLab;				
-			} 
 			if (parentDocument.selectedIdProject != null) {
 				params.idProject = parentDocument.selectedIdProject;
+			}
+			params.idLab = parentDocument.selectedIdLab;
+			if (parentDocument.currentState == 'AdminState') {
+			    if (parentDocument.selectedIdLab == null && parentDocument.browseLabCombo.selectedItem != null) {
+					params.idLab = parentDocument.browseLabCombo.selectedItem.@idLab;
+				}
+				if (parentDocument.browseUserCombo.selectedItem != null) {
+					params.idAppUser = parentDocument.browseUserCombo.selectedItem.@idAppUser;
+				}
+			} else  {
+				if (parentDocument.myExperimentsCheckbox.selected) {
+					params.idAppUser = parentApplication.getIdAppUser();
+				}				
+			}
+			if (parentDocument.lastWeekCheckbox.selected) {
+				params.lastWeek = 'Y';
+			}
+			if (parentDocument.lastMonthCheckbox.selected) {
+				params.lastMonth = 'Y';
+			}
+			if (parentDocument.lastYearCheckbox.selected) {
+				params.lastYear = 'Y';
+			}
+			if (parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
+				params.publicExperimentsInOtherGroups = 'Y';
 			}
 			if (trackView.progressList != null) {
 				trackView.progressList.removeAll();
@@ -270,43 +315,7 @@
 		}
 	}
 	
-	private function toggleRequestNumberFilter():void {
-		this.myExperimentsCheckbox.selected = false;
-		this.lastWeekCheckbox.selected = false;
-		this.lastMonthCheckbox.selected = false;
-		this.lastYearCheckbox.selected  = false;
-	}
-	private function toggleMyExperimentFilter():void {
-		this.requestNumberCombo.selectedIndex = 0;
-		this.lastWeekCheckbox.selected = false;
-		this.lastMonthCheckbox.selected = false;
-		this.lastYearCheckbox.selected  = false;
-	}
 
-	private function toggleDateCheckboxes(checkBoxNumber:int):void {
-		if (checkBoxNumber == 1) {
-			this.lastMonthCheckbox.selected = false;
-			this.lastYearCheckbox.selected  = false;
-		} else if (checkBoxNumber == 2) {
-			this.lastWeekCheckbox.selected = false;
-			this.lastYearCheckbox.selected  = false;
-		} else if (checkBoxNumber == 3) {
-			this.lastWeekCheckbox.selected  = false;
-			this.lastMonthCheckbox.selected = false;
-		} 
-		this.requestNumberCombo.selectedIndex = 0;
-		this.myExperimentsCheckbox.selected = false;
-	}
-		
-	private function moreFilters():void {
-		if (filterStack.selectedIndex == 0) {
-			filterStack.selectedIndex = 1;
-			filterLinkButton.label = "Hide filters";	
-		} else {
-			filterStack.selectedIndex = 0;
-			filterLinkButton.label = "More filters";	
-		}
-	}
 	
 	public function getExperimentIcon(codeRequestCategory:String):Class {
 		var theIcon:Class = parentApplication.iconExperiment;
@@ -341,29 +350,9 @@
 
 
 	        <mx:HBox id="filterListView"  width="100%" horizontalAlign="right" horizontalGap="0">
-				<mx:ViewStack id="filterStack" width="100%" >
-				    <mx:HBox horizontalAlign="right" width="100%">
-				    	
-				    </mx:HBox>
-					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="10" horizontalAlign="right" verticalAlign="middle">
-				    	<mx:VRule height="22"/>
-						<mx:Spacer width="5"/>
-				    	<mx:CheckBox label="My experiments" id="myExperimentsCheckbox" change="filterList()" paddingLeft="0" paddingRight="0" horizontalGap="0" click="toggleMyExperimentFilter();filterList()"/>
-				    	<mx:VRule height="22"/>
-				    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="4" horizontalAlign="right" paddingRight="0">
-				    		<mx:Label text="Experiments in last "/>
-				    		<mx:CheckBox id="lastWeekCheckbox" label="week" change="filterList()" paddingRight="0" paddingLeft="0" horizontalGap="0" click="toggleDateCheckboxes(1);filterList()"/>
-				    		<mx:CheckBox  id="lastMonthCheckbox" label="month" change="filterList()" paddingRight="0" paddingLeft="0" horizontalGap="0" click="toggleDateCheckboxes(2);filterList()"/>
-				    		<mx:CheckBox  id="lastYearCheckbox" label="year" change="filterList()" paddingLeft="0" paddingRight="0" horizontalGap="0" click="toggleDateCheckboxes(3);filterList()"/>
-				    		<mx:VRule height="22"/>
-				    	</mx:HBox>
-			    </mx:HBox>
-					
-				</mx:ViewStack>				
 		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0" horizontalAlign="right" paddingLeft="2" verticalAlign="middle">
-			        <mx:LinkButton id="filterLinkButton" label="More filters" textDecoration="underline" color="#0000ff" click="moreFilters()"/>
 			        <mx:Label text="Experiment #"/>
-			        <mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="toggleRequestNumberFilter();filterList()" width="80" >					    		
+			        <mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()" width="80" >					    		
 			        </mx:ComboBox> 
 		        </mx:HBox>
 	        	

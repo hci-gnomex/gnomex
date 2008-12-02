@@ -988,7 +988,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean addSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd, boolean scopeToGroup ) {
     return addSecurityCriteria(queryBuf, classShortName, addWhereOrAnd, scopeToGroup, null);
   }
-  
+
+
   public boolean addSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd, boolean scopeToGroup, String leftJoinExclusionCriteria ) {
     // Admins
     if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
@@ -1031,6 +1032,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
       addPublicCriteria(queryBuf, classShortName, false);        
     }
+    
+    return addWhereOrAnd;
+  }
+  
+  
+  public boolean addPublicOnlySecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd) {
+
+    addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
+    addPublicCriteria(queryBuf, classShortName, false);        
     
     return addWhereOrAnd;
   }
@@ -1131,7 +1141,36 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     queryBuf.append(" ) ");
   }
-  
+
+  public void addPublicCriteriaExcludingMyGroups(StringBuffer queryBuf, String classShortName) {
+    queryBuf.append(" ( ");
+
+
+    // Exclude all requests that are already in user's 
+    Set labs = getAllMyGroups();
+    if (!labs.isEmpty()) {
+      queryBuf.append(classShortName);
+      queryBuf.append(".idLab NOT in ( ");
+      for (Iterator i = labs.iterator(); i.hasNext();) {
+        Lab theLab = (Lab) i.next();
+        queryBuf.append(theLab.getIdLab());
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }
+      queryBuf.append(" )");
+      queryBuf.append(" AND ");
+    }
+
+    // req.codeVisibility is 'visible to collaborators and members'
+    queryBuf.append(classShortName);
+    queryBuf.append(".codeVisibility = '");
+    queryBuf.append(Visibility.VISIBLE_TO_PUBLIC);
+    queryBuf.append("'");
+    
+    queryBuf.append(" ) ");
+  }
+
 
   
   public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
