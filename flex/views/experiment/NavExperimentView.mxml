@@ -3,7 +3,7 @@
 	label="Experiments" width="100%" height="100%" 
 	xmlns:views="views.*" xmlns:experiment="views.experiment.*"
 	cornerRadius="10"  >
-
+ 
 
   <mx:HTTPService  
     id="getProjectRequestList" 
@@ -17,10 +17,14 @@
     useProxy="false">
     <mx:request>
             <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
+            <idAppUser>{currentState == 'AdminState' ? browseUserCombo.selectedItem.@idAppUser : (myExperimentsCheckbox.selected ? parentApplication.getIdAppUser() : '')}</idAppUser> 
             <showSamples>N</showSamples>
             <showCategory>N</showCategory>
-            <showMyLabsAlways>{currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
-            <searchPublicProjects>{searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
+            <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
+            <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
+            <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
+            <showMyLabsAlways>{currentState == "AdminState" || publicExperimentsOtherGroupsCheckbox.selected || myExperimentsCheckbox.selected ? 'N' : 'Y'}</showMyLabsAlways>
+            <publicExperimentsInOtherGroups>{publicExperimentsOtherGroupsCheckbox.selected ? 'Y' : 'N'}</publicExperimentsInOtherGroups>
     </mx:request>
    </mx:HTTPService>
    
@@ -100,6 +104,20 @@
     useProxy="false">    
   </mx:HTTPService>
 
+   <mx:HTTPService  
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{this.browseLabCombo.selectedItem.@idLab}</idLab>
+    </mx:request>
+   </mx:HTTPService>
 
  
 	   <mx:Script> 
@@ -131,6 +149,10 @@
         
         public var selectedNode:Object;
         
+       [Bindable]
+        private var appUsers:XMLListCollection;
+        private var appUserSort:Sort;
+
         private var dropProject:Object;
         private var dragRequest:Object;
         
@@ -178,7 +200,13 @@
         	setResultsCount();
         }
         
-        private function onGetProjectRequestList(event:ResultEvent): void {  
+        private function onGetProjectRequestList(event:ResultEvent): void {
+        	if (getProjectRequestList.lastResult.name() != "ProjectRequestList") {
+        		Alert.show(getProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
+        		browseTree.visible = false;
+        		return;
+        	}
+        	  
         	if (getProjectRequestList.lastResult.Lab.length() == 0) {
         		browseTree.visible = false;
         	} else {
@@ -389,8 +417,8 @@
 			newProjectButton.enabled = false;
 			
 			if (browseTree.selectedItem == null) {
-				return;
-			}
+				return; 
+			} 
 			
 			if (browseTree.selectedItem.name() == 'Request') {
 				detailView.title = "Experiment " + browseTree.selectedItem.@requestNumber;
@@ -415,13 +443,18 @@
 					getProject.send();
 					
 				} else {
-					browseView.title =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;;
+					browseView.title =  browseTree.selectedItem.@label + "\t" + rowCountMessage;;
 					selectedIdProject = null;
 					if (browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.removeChild(browseView.projectDetailView);
 					}
 					browseView.buttonStack.selectedChild = browseView.browseButtonView;
 					browseView.refreshButtonStack();
+					
+					browseView.refreshDownloadList();
+					browseView.refreshTrackList();
+					browseView.refreshVisibilityList();
+
 					
 				}
 				
@@ -525,44 +558,6 @@
         			keep = true;
         		}
         	}   
-        	if (keep) {
-	        	if (browseView.myExperimentsCheckbox.selected == true) {
-	        		keep = false;
-	        		if (item.@idAppUser == parentApplication.getIdAppUser()) {
-	        			keep = true;
-	        		}
-	        	}
-        	}    
-        	if (keep) {
-        		if (browseView.lastWeekCheckbox.selected == true) {
-        			keep = false;
-					var oneWeekAgo:Date = new Date();
-					oneWeekAgo.setTime(oneWeekAgo.getTime() - millisecondsPerWeek);
-        			if (experimentDate >= oneWeekAgo) {
-        				keep = true;
-        			}
-        		}
-        	} 	
-        	if (keep) {
-        		if (browseView.lastMonthCheckbox.selected == true) {
-        			keep = false;
-					var oneMonthAgo:Date = new Date();
-					oneMonthAgo.setTime(oneMonthAgo.getTime() - millisecondsPerMonth);
-        			if (experimentDate >= oneMonthAgo) {
-        				keep = true;
-        			}
-        		}
-        	}
-        	if (keep) {
-        		if (browseView.lastYearCheckbox.selected == true) {
-        			keep = false;
-					var oneYearAgo:Date = new Date();
-					oneYearAgo.setTime(oneYearAgo.getTime() - millisecondsPerYear);
-        			if (experimentDate >= oneYearAgo) {
-        				keep = true;
-        			}
-        		}
-        	}  	
         	return keep;
         }
         
@@ -644,7 +639,7 @@
         		return;
         	}
 			if (getRequestFromNav.lastResult.name() != "OpenRequestList") {
-        		Alert.show(getRequest.lastResult..ACTMESSAGE.@TEXT);
+        		Alert.show(getRequestFromNav.lastResult..ACTMESSAGE.@TEXT);
         		return;
         	}
         	
@@ -696,8 +691,10 @@
 					return parentApplication.iconQC;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
 					return parentApplication.iconSolexa;
-				}else {
+				} else if (item.name() == "Request") {
 					return parentApplication.iconExperiment;
+				} else {
+					return parentApplication.iconYellowFlag;
 				}
 		}
 
@@ -858,17 +855,109 @@
 	    		Alert.show(deleteRequest.lastResult..ACTMESSAGE.@TEXT);
 	    	}
 	    }
+	    
+	    private function getMembersOfLab():void {
+			if (this.browseLabCombo.selectedItem.@idLab != null) {
+				getLab.send();				
+			}
+		}
+		private function onGetLab(event:ResultEvent):void {			
+			var lab:Object = getLab.lastResult..Lab.(@idLab == browseLabCombo.selectedItem.@idLab);
+			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			appUsers = new XMLListCollection(lab.members.AppUser);
+			for each (var mgr:Object in lab.managers.AppUser) {
+				if (!appUsers.contains(mgr)) {
+					appUsers.addItem(mgr);				
+				}
+			}
+			appUsers.addItemAt(emptyNode, 0);
+			
+			appUserSort = new Sort();
+	        appUserSort.compareFunction = this.sortAppUsers;
+	        appUsers.sort = appUserSort;
+	        appUsers.refresh();
+	        
+	        this.browseUserCombo.selectedIndex = 0;
+		}	    
 
+        private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var display1:String = obj1.@displayName;
+				var display2:String = obj2.@displayName;
+				
+				if (display1 < display2) {
+					return -1;
+				} else if (display1 > display2) {
+					return 1;
+				} else {
+					return 0;
+				}
+				
+			}
+		}			
+
+	private function toggleDateCheckboxes(checkBoxNumber:int):void {
+		if (checkBoxNumber == 1) {
+			this.lastMonthCheckbox.selected = false;
+			this.lastYearCheckbox.selected  = false;
+		} else if (checkBoxNumber == 2) {
+			this.lastWeekCheckbox.selected = false;
+			this.lastYearCheckbox.selected  = false;
+		} else if (checkBoxNumber == 3) {
+			this.lastWeekCheckbox.selected  = false;
+			this.lastMonthCheckbox.selected = false;
+		} 
+	}
+	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
+		if (checkBoxNumber == 1) {
+			this.publicExperimentsOtherGroupsCheckbox.selected = false;
+		} else if (checkBoxNumber == 2) {
+			this.myExperimentsCheckbox.selected = false;
+		} 
+	}
 		
        ]]>
-    </mx:Script>
-   	  <mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
-	  <mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
+    </mx:Script> 
+   	
+   	
+   	<mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
+	<mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
     
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
+  <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="0">
+
+	<mx:HBox horizontalGap="0" paddingTop="20" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
+  				  <mx:Label text="Experiments  " paddingRight="0" id="label1"/>
+		    	  <mx:CheckBox label="submitted by me" id="myExperimentsCheckbox"  horizontalGap="1">
+		    		    	<mx:click>toggleOwnershipCheckboxes(1);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    	  </mx:CheckBox>
+		    	  <mx:CheckBox label="public (from other labs)" id="publicExperimentsOtherGroupsCheckbox"  horizontalGap="1" paddingLeft="12">
+		    		    	<mx:click>toggleOwnershipCheckboxes(2);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    	  </mx:CheckBox>
+		    	</mx:HBox>
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="35" horizontalAlign="right" paddingRight="0"  id="hbox3">
+		    		<mx:Label text="Experiments in last " paddingRight="0"/>
+		    		<mx:CheckBox id="lastWeekCheckbox" label="week" paddingRight="0" paddingLeft="0" horizontalGap="1"  >
+		    			<mx:click>toggleDateCheckboxes(1);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    		</mx:CheckBox>
+		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="12" horizontalGap="1"  >
+		    			<mx:click>toggleDateCheckboxes(2);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    		</mx:CheckBox>
+		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="12" paddingRight="0" horizontalGap="1"  >
+		    			<mx:click>toggleDateCheckboxes(3);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    		</mx:CheckBox>
+		    	</mx:HBox>
+	</mx:HBox>		
     
-	<mx:HDividedBox height="100%" width="100%">
+	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 	
 	
 			
@@ -888,7 +977,6 @@
 					        dragMoveEnabled="true"
 							dragDrop="onDragDrop(event);" 
 							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
-						<mx:CheckBox label="Show public experiments" id="searchPublicProjectsCheckbox"/>
 						
 					</mx:VBox>
 
@@ -916,8 +1004,8 @@
 
 
 
-	   
-
+	    
+ 
 		
 	     <mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
 
@@ -933,27 +1021,47 @@
          </mx:ViewStack>
 		
 	</mx:HDividedBox>
+  </mx:VBox>
 	
 	<mx:states>
 		<mx:State name="GuestState">
-			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:SetStyle target="{hbox3}" name="paddingLeft" value="4"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">
 			<mx:AddChild position="firstChild"  relativeTo="{navContainer}">
-					<mx:VBox verticalGap="0" width="100%">
-				        <mx:Label id="groupLabel" visible="true" text="Select group to show experiments:" paddingBottom="0"/>
-						<mx:ComboBox id="browseLabCombo" 
-							labelField="@name"
-							dataProvider="{parentApplication.promptedLabList}"
-							 change="selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()"  
-							 visible="true"  width="200">
-						</mx:ComboBox>				
+					<mx:VBox verticalGap="0" width="100%" paddingBottom="4">
 				        <mx:Spacer height="6"/>
 						
 					</mx:VBox>
 			</mx:AddChild>
-			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+			<mx:AddChild relativeTo="{hbox2}" position="before">
+				<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox2}" position="before">
+				<mx:ComboBox id="browseLabCombo" 
+					labelField="@name"
+					dataProvider="{parentApplication.promptedLabList}"
+					 change="{this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send();getMembersOfLab()}"  
+					 visible="true"  width="150">
+				</mx:ComboBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox2}" position="before">
+				<mx:Label id="userLabel" visible="true" text="Requester:" paddingBottom="0" paddingLeft="10"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox2}" position="before">
+				<mx:ComboBox id="browseUserCombo" 
+					labelField="@displayName"
+					dataProvider="{appUsers}"
+					 change="selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()"  
+					 visible="true"  width="140">
+				</mx:ComboBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{myExperimentsCheckbox}"/>
+			<mx:RemoveChild target="{label1}"/>
+			<mx:RemoveChild target="{publicExperimentsOtherGroupsCheckbox}"/>
+
 		</mx:State>
 
 		

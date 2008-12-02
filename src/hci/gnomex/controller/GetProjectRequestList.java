@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -79,6 +80,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         experimentFactorCodes.add(code);
       }
       filter.setExperimentFactorCodes(experimentFactorCodes);
+    }
+    
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
+      this.addInvalidField("requiredCriteria", "Please enter at least one search criterion");
     }
   }
 

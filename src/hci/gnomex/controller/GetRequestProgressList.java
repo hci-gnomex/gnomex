@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.RequestProgressFilter;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -39,7 +40,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
     this.addInvalidFields(errors);
     
     
-    if  (!filter.hasCriteria()) {
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion");
     }
   }

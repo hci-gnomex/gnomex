@@ -101,7 +101,11 @@
     
     private var dateFormatter:DateFormatter = new DateFormatter();
         
-    private function onGetRequestDownloadList(event:ResultEvent): void { 
+    private function onGetRequestDownloadList(event:ResultEvent): void {
+		if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
+        	Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
+        	return;
+        }    	 
     	parentDocument.filterList();
     		
     }
@@ -295,7 +299,7 @@
     	return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
     }
  	public static function getEstimatedCompressedSize(item:Object):Number {
- 		var compressionRatio:Number = 1;
+ 		var compressionRatio:Number = 1; 
  		if (item.@type == 'fep') {
  			compressionRatio = 1.6; 
  		} else if (item.@type.toString().toUpperCase() == 'PDF') {

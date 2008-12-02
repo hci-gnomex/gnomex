@@ -7,6 +7,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.File;
 import java.io.Serializable;
@@ -64,7 +65,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
 
     
-    if  (!filter.hasCriteria()) {
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion.");
     }
     

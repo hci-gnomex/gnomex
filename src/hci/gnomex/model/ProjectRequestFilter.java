@@ -4,6 +4,7 @@ package hci.gnomex.model;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -32,9 +33,12 @@ public class ProjectRequestFilter extends DetailObject {
   private List                  experimentFactorCodes;
   private String                searchOrganismOnSlideProduct;
   private String                searchOrganismOnSample;
-  private String                searchPublicProjects;
+  private String                publicExperimentsInOtherGroups;
   private String                showSamples = "Y";
   private String                showCategory = "Y";
+  private String                lastWeek  = "N";
+  private String                lastMonth = "N";
+  private String                lastYear  = "N";
   
   
   
@@ -43,6 +47,33 @@ public class ProjectRequestFilter extends DetailObject {
   private boolean              addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
+  public boolean hasCriteria() {
+
+    if ((idRequest != null) ||
+        idLab != null ||
+        idProject != null ||
+        idAppUser != null ||
+        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
+        (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
+        (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
+        (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
+        (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
+        (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")) ||
+        idSlideProduct != null ||
+        idSampleSource != null ||
+        idOrganism != null ||
+        (projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
+        (projectDescriptionText2 != null && !projectDescriptionText2.equals("")) ||
+        (projectDescriptionText3 != null && !projectDescriptionText3.equals("")) ||
+        (projectDescriptionText4 != null && !projectDescriptionText4.equals("")) ||
+        (experimentDesignCodes != null && experimentDesignCodes.size() > 0) ||
+        (experimentFactorCodes != null && experimentFactorCodes.size() > 0)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+    
   
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
@@ -281,6 +312,43 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append("'");
     } 
     
+    // Search for requests submitted in last week
+    if (lastWeek.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DAY_OF_YEAR, -7);
+      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(lastWeek));
+      queryBuf.append("'");
+    }
+    // Search for requests submitted in last month
+    if (lastMonth.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -1);
+      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(lastMonth));
+      queryBuf.append("'");
+    }
+    // Search for requests submitted in last year
+    if (lastYear.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.YEAR, -1);
+      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(lastYear));
+      queryBuf.append("'");
+    }    
+    
   }
   
   private void addSlideProductCriteria() {
@@ -317,36 +385,33 @@ public class ProjectRequestFilter extends DetailObject {
 
   
   private void addSecurityCriteria() {
-    
-    boolean scopeToGroup = true;
-    if (this.searchPublicProjects != null && this.searchPublicProjects.equalsIgnoreCase("Y")) {
-      scopeToGroup = false;
-    }
-    
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-   
-      
-    }  else {
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup);
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, "req.idRequest is NULL");
-    }
-    
 
-    
+    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+
+    } else {
+      boolean scopeToGroup = true;
+      if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      }  else {
+        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup);
+        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, "req.idRequest is NULL");
+      }
+    }
   }
+
   private void addAnalysisExperimentSecurityCriteria() {
     
-    boolean scopeToGroup = true;
-    if (this.searchPublicProjects != null && this.searchPublicProjects.equalsIgnoreCase("Y")) {
-      scopeToGroup = false;
+    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+    } else {
+      boolean scopeToGroup = true;
+      if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+        
+      }  else {
+        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup);
+      }
     }
     
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-   
-      
-    }  else {
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup);
-    }
     
 
     
@@ -580,15 +645,6 @@ public class ProjectRequestFilter extends DetailObject {
   }
 
   
-  public String getSearchPublicProjects() {
-    return searchPublicProjects;
-  }
-
-  
-  public void setSearchPublicProjects(String searchPublicProjects) {
-    this.searchPublicProjects = searchPublicProjects;
-  }
-
   
   public String getShowSamples() {
     return showSamples;
@@ -607,6 +663,46 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setShowCategory(String showCategory) {
     this.showCategory = showCategory;
+  }
+
+  
+  public String getLastWeek() {
+    return lastWeek;
+  }
+
+  
+  public void setLastWeek(String lastWeek) {
+    this.lastWeek = lastWeek;
+  }
+
+  
+  public String getLastMonth() {
+    return lastMonth;
+  }
+
+  
+  public void setLastMonth(String lastMonth) {
+    this.lastMonth = lastMonth;
+  }
+
+  
+  public String getLastYear() {
+    return lastYear;
+  }
+
+  
+  public void setLastYear(String lastYear) {
+    this.lastYear = lastYear;
+  }
+
+  
+  public String getpublicExperimentsInOtherGroups() {
+    return publicExperimentsInOtherGroups;
+  }
+
+  
+  public void setPublicExperimentsInOtherGroups(String publicExperimentsInOtherGroups) {
+    this.publicExperimentsInOtherGroups = publicExperimentsInOtherGroups;
   }
 
 

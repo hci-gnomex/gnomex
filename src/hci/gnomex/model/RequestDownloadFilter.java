@@ -22,13 +22,13 @@ public class RequestDownloadFilter extends DetailObject {
   private Date                  createDateFrom;
   private Date                  createDateTo;
   private List                  idRequests;
-  private String                searchPublicProjects;
-  private String                requestDateLastWeek;
-  private String                requestDateLastMonth;
-  private String                requestDateLastYear;
+  private String                publicExperimentsInOtherGroups;
   private String                isComplete;
   private String                isNotComplete;
   private Integer               idProject;
+  private String                lastWeek  = "N";
+  private String                lastMonth = "N";
+  private String                lastYear  = "N";
   
   
   
@@ -228,10 +228,11 @@ public class RequestDownloadFilter extends DetailObject {
         idAppUser != null ||
         createDateFrom != null ||
         createDateTo != null ||
+        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (idRequests != null && idRequests.size() > 0) ||
-        (requestDateLastWeek != null && requestDateLastWeek.equalsIgnoreCase("Y")) ||
-        (requestDateLastMonth != null && requestDateLastMonth.equalsIgnoreCase("Y")) ||
-        (requestDateLastYear != null && requestDateLastYear.equalsIgnoreCase("Y")) ||
+        (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
+        (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
+        (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
         (isComplete != null && isComplete.equalsIgnoreCase("Y")) ||
         (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y"))) {
       return true;
@@ -296,8 +297,8 @@ public class RequestDownloadFilter extends DetailObject {
       }
       queryBuf.append(")");
     }
-    //  Search by request date last year
-    if (requestDateLastYear != null && requestDateLastYear.equalsIgnoreCase("Y")) {
+    //  Search requests made in last year
+    if (lastYear != null && lastYear.equalsIgnoreCase("Y")) {
       Calendar end = Calendar.getInstance();
       end.add(Calendar.YEAR, -1);
       
@@ -306,8 +307,8 @@ public class RequestDownloadFilter extends DetailObject {
       queryBuf.append(this.formatDate(end.getTime()));
       queryBuf.append("'");      
     } 
-    // Search by request date last month
-    else if (requestDateLastMonth != null && requestDateLastMonth.equalsIgnoreCase("Y")) {
+    // Search requests made in last month
+    else if (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.MONTH, -1);
         
@@ -316,8 +317,8 @@ public class RequestDownloadFilter extends DetailObject {
         queryBuf.append(this.formatDate(end.getTime()));
         queryBuf.append("'");      
     }
-    // Search by request date last month
-    else if (requestDateLastWeek != null && requestDateLastWeek.equalsIgnoreCase("Y")) {
+    // Search requests made in last week
+    else if (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DAY_OF_YEAR, -7);
         
@@ -369,12 +370,13 @@ public class RequestDownloadFilter extends DetailObject {
  
   
   private void addSecurityCriteria() {
-    boolean scopeToGroup = true;
-    if (this.searchPublicProjects != null && this.searchPublicProjects.equalsIgnoreCase("Y")) {
-      scopeToGroup = false;
+    if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
+      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+    } else {
+      boolean scopeToGroup = true;
+      secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup);
     }
     
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup);
   }
     
   
@@ -472,53 +474,6 @@ public class RequestDownloadFilter extends DetailObject {
   }
 
 
-  
-  public String getSearchPublicProjects() {
-    return searchPublicProjects;
-  }
-
-
-  
-  public void setSearchPublicProjects(String searchPublicProjects) {
-    this.searchPublicProjects = searchPublicProjects;
-  }
-
-
-  
-  public String getRequestDateLastMonth() {
-    return requestDateLastMonth;
-  }
-
-
-  
-  public void setRequestDateLastMonth(String requestDateLastMonth) {
-    this.requestDateLastMonth = requestDateLastMonth;
-  }
-
-
-  
-  public String getRequestDateLastWeek() {
-    return requestDateLastWeek;
-  }
-
-
-  
-  public void setRequestDateLastWeek(String requestDateLastWeek) {
-    this.requestDateLastWeek = requestDateLastWeek;
-  }
-
-
-  
-  public String getRequestDateLastYear() {
-    return requestDateLastYear;
-  }
-
-
-  
-  public void setRequestDateLastYear(String requestDateLastYear) {
-    this.requestDateLastYear = requestDateLastYear;
-  }
-
 
   
   public String getIsComplete() {
@@ -553,6 +508,55 @@ public class RequestDownloadFilter extends DetailObject {
   
   public void setIdProject(Integer idProject) {
     this.idProject = idProject;
+  }
+
+
+  
+  public String getPublicExperimentsInOtherGroups() {
+    return publicExperimentsInOtherGroups;
+  }
+
+
+  
+  public void setPublicExperimentsInOtherGroups(
+      String publicExperimentsInOtherGroups) {
+    this.publicExperimentsInOtherGroups = publicExperimentsInOtherGroups;
+  }
+
+
+  
+  public String getLastWeek() {
+    return lastWeek;
+  }
+
+
+  
+  public void setLastWeek(String lastWeek) {
+    this.lastWeek = lastWeek;
+  }
+
+
+  
+  public String getLastMonth() {
+    return lastMonth;
+  }
+
+
+  
+  public void setLastMonth(String lastMonth) {
+    this.lastMonth = lastMonth;
+  }
+
+
+  
+  public String getLastYear() {
+    return lastYear;
+  }
+
+
+  
+  public void setLastYear(String lastYear) {
+    this.lastYear = lastYear;
   }
 
 
