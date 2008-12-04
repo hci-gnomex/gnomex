@@ -29,6 +29,9 @@ public class RequestDownloadFilter extends DetailObject {
   private String                lastWeek  = "N";
   private String                lastMonth = "N";
   private String                lastYear  = "N";
+  private String                isMicroarray = "N";
+  private String                isSolexa = "N";
+  private String                isBioanalyzer = "N";
   
   
   
@@ -230,6 +233,9 @@ public class RequestDownloadFilter extends DetailObject {
         createDateTo != null ||
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (idRequests != null && idRequests.size() > 0) ||
+        (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
+        (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
+        (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
         (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
@@ -328,7 +334,30 @@ public class RequestDownloadFilter extends DetailObject {
         queryBuf.append("'");      
     } 
     
-   
+    // Search for Solexa requests
+    if (isSolexa.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    }  else if (isBioanalyzer.equals("Y")) {
+      // Search for bioanalyzer requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isMicroarray.equals("Y")) {
+      // Search for microarray requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory in (");
+      queryBuf.append("'");
+      queryBuf.append(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("', ");
+      queryBuf.append("'");
+      queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("') ");
+    }    
+
     
   }
   
@@ -557,6 +586,42 @@ public class RequestDownloadFilter extends DetailObject {
   
   public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
+  }
+
+
+  
+  public String getIsMicroarray() {
+    return isMicroarray;
+  }
+
+
+  
+  public void setIsMicroarray(String isMicroarray) {
+    this.isMicroarray = isMicroarray;
+  }
+
+
+  
+  public String getIsSolexa() {
+    return isSolexa;
+  }
+
+
+  
+  public void setIsSolexa(String isSolexa) {
+    this.isSolexa = isSolexa;
+  }
+
+
+  
+  public String getIsBioanalyzer() {
+    return isBioanalyzer;
+  }
+
+
+  
+  public void setIsBioanalyzer(String isBioanalyzer) {
+    this.isBioanalyzer = isBioanalyzer;
   }
 
 

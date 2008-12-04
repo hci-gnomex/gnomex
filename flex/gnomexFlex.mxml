@@ -454,6 +454,7 @@
             		navSearchView.searchView.initializeData();
             	}
             	if (theViews.selectedChild == navExperimentView) {
+            		navExperimentView.checkSecurity();
 					navExperimentView.selectedRequestNumber = null;
             		navExperimentView.initializeExperiments();
             	}
