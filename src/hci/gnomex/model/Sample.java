@@ -298,6 +298,10 @@ public class Sample extends HibernateDetailObject {
   public String getCanChangeSampleConcentration() {
     return getCanChangeSampleInfo();    
   }
+  
+  public String getCanChangeSeqPrepByCore() {
+    return getCanChangeSampleInfo();
+  }
 
   public String getCodeConcentrationUnit() {
     return codeConcentrationUnit;

@@ -4,6 +4,7 @@
 	label="Samples" width="100%" height="100%"  enabled="false">
 <mx:Script>
 	<![CDATA[
+		import views.renderers.TextInputSeqPrepByCore;
 		import hci.flex.renderers.LabelDictionary;
 		import views.renderers.ComboBoxDictionary;
 		import views.renderers.ComboBoxWorkflowStatus;
@@ -621,7 +622,9 @@
 					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@numberSequencingLanes')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@numberSequencingLanes', '@canChangeNumberSequencingLanes')}"      />          
-					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
+					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
+ 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepByCore')}"                
+ 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
                     <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod', true)}"                
