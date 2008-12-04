@@ -16,15 +16,6 @@
     method="POST" 
     useProxy="false">
     <mx:request>
-            <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
-            <idAppUser>{currentState == 'AdminState' ? browseUserCombo.selectedItem.@idAppUser : (myExperimentsCheckbox.selected ? parentApplication.getIdAppUser() : '')}</idAppUser> 
-            <showSamples>N</showSamples>
-            <showCategory>N</showCategory>
-            <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
-            <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
-            <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
-            <showMyLabsAlways>{currentState == "AdminState" || publicExperimentsOtherGroupsCheckbox.selected || myExperimentsCheckbox.selected ? 'N' : 'Y'}</showMyLabsAlways>
-            <publicExperimentsInOtherGroups>{publicExperimentsOtherGroupsCheckbox.selected ? 'Y' : 'N'}</publicExperimentsInOtherGroups>
     </mx:request>
    </mx:HTTPService>
    
@@ -204,13 +195,16 @@
         	if (getProjectRequestList.lastResult.name() != "ProjectRequestList") {
         		Alert.show(getProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
         		browseTree.visible = false;
+        		this.treeExpansionStack.visible = false;
         		return;
         	}
         	  
         	if (getProjectRequestList.lastResult.Lab.length() == 0) {
         		browseTree.visible = false;
+        		this.treeExpansionStack.visible = false;
         	} else {
         		browseTree.visible = true;
+        		this.treeExpansionStack.visible = true;
         	}
         	
         	var call:Object = event.token;
@@ -232,8 +226,18 @@
 	        //	expandAllNodes();          		
         	//} else {
         	//	expandLabNodes();
-        	//}
-        	expandAllNodes();
+        	//} 
+        	
+        	var projects:XMLList = this.getProjectRequestList.lastResult..Project;
+        	var experiments:XMLList = this.getProjectRequestList.lastResult..Request;
+        	if (projects.length() + experiments.length() > 20) {
+        		expandAllNodes();
+				collapseProjectNodes();
+				this.treeExpansionStack.selectedIndex = 0;        		
+        	} else {
+	        	expandAllNodes();
+				this.treeExpansionStack.selectedIndex = 1;        		
+        	}
 			callLater(reselectTreeItem);
 		}
 	    
@@ -371,6 +375,15 @@
   			}
   			browseTree.validateNow();
   			treeContainer.validateNow();
+  		}
+  		
+  		private function collapseProjectNodes():void {
+  			for each(var project:Object in getProjectRequestList.lastResult..Project) {
+  				browseTree.expandItem(project, false);
+  			}
+  			browseTree.validateNow();
+  			treeContainer.validateNow();
+  			
   		}
 
 	    public function expandAllNodes():void
@@ -715,13 +728,67 @@
 				params.idProject = selectedExperiment.@idProject;
 				params.showSamples = "N";
 				params.showCategory = "N";
-				params.searchPublicProjects = 'N';
+				params.publicExperimentsInOtherGroups = 'N';
 				getProjectRequestList.send(params);
 				
 			} else {
-				getProjectRequestList.send();
+				
+				getProjectRequestList.send(getBrowseParameters());
 			}
 
+		}
+		
+		public function getBrowseParameters():Object {
+			var params:Object = new Object();
+			if (selectedIdProject != null) {
+				params.idProject = selectedIdProject;
+			}
+			if (currentState == 'AdminState') {
+			    if (browseLabCombo.selectedItem != null) {
+					params.idLab = browseLabCombo.selectedItem.@idLab;
+				}
+				if (browseUserCombo.selectedItem != null) {
+					params.idAppUser = browseUserCombo.selectedItem.@idAppUser;
+				}
+			} else  {
+				if (myExperimentsCheckbox.selected) {
+					params.idAppUser = parentApplication.getIdAppUser();
+				}				
+			}
+			if (lastWeekCheckbox.selected) {
+				params.lastWeek = 'Y'; 
+			} else if (lastMonthCheckbox.selected) {
+				params.lastMonth = 'Y';
+			} else if (lastYearCheckbox.selected) {
+				params.lastYear = 'Y';
+			}
+			if (publicExperimentsOtherGroupsCheckbox.selected) {
+				params.publicExperimentsInOtherGroups = 'Y';
+			} else {
+				params.publicExperimentsInOtherGroups = 'N';
+			}
+			
+			params.showSamples = 'N';
+			params.showCategory = 'N';
+			if (currentState == 'AdminState' || 
+			    publicExperimentsOtherGroupsCheckbox.selected || 
+			    myExperimentsCheckbox.selected || 
+			    lastWeekCheckbox.selected || 
+			    lastMonthCheckbox.selected || 
+			    lastYearCheckbox.selected ||
+			    this.MicroarrayCheckbox.selected ||
+			    this.SolexaCheckbox.selected ||
+			    this.BioanalyzerCheckbox.selected ) {
+				params.showMyLabsAlways = 'N'; 
+			} else {
+				params.showMyLabsAlways = 'Y';
+			}
+			
+			params.isMicroarray  = this.MicroarrayCheckbox.selected ? "Y" : "N";
+			params.isSolexa      = this.SolexaCheckbox.selected ? "Y" : "N";
+			params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
+			
+			return params;
 		}
 		
 		public function refreshExperiments():void {
@@ -734,7 +801,7 @@
 				getProjectRequestList.send(params);
 				
 			} else {
-				getProjectRequestList.send();
+				getProjectRequestList.send(getBrowseParameters());
 			}
 
 		}
@@ -745,7 +812,12 @@
 				    selectedRequestNumber != null) {
 				    collapseAllBrowseNodes();
 				    selectedRequestNumber = null;
-					refreshExperiments();
+				    
+				    if (currentState == "" || currentState == null) {
+				    	this.myExperimentsCheckbox.selected = true;
+				    }
+				    this.refreshExperiments();
+				    
 				}
 				
 			}
@@ -921,6 +993,18 @@
 			this.myExperimentsCheckbox.selected = false;
 		} 
 	}
+	private function toggleRequestKindCheckboxes(checkBoxNumber:int):void {
+		if (checkBoxNumber == 1) {
+			this.SolexaCheckbox.selected = false;
+			this.BioanalyzerCheckbox.selected  = false;
+		} else if (checkBoxNumber == 2) {
+			this.MicroarrayCheckbox.selected = false;
+			this.BioanalyzerCheckbox.selected  = false;
+		} else if (checkBoxNumber == 3) {
+			this.SolexaCheckbox.selected = false;
+			this.MicroarrayCheckbox.selected = false;
+		} 
+	}
 		
        ]]>
     </mx:Script> 
@@ -933,28 +1017,48 @@
 
   <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="0">
 
-	<mx:HBox horizontalGap="0" paddingTop="20" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
-  				  <mx:Label text="Experiments  " paddingRight="0" id="label1"/>
-		    	  <mx:CheckBox label="submitted by me" id="myExperimentsCheckbox"  horizontalGap="1">
-		    		    	<mx:click>toggleOwnershipCheckboxes(1);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
-		    	  </mx:CheckBox>
-		    	  <mx:CheckBox label="public (from other labs)" id="publicExperimentsOtherGroupsCheckbox"  horizontalGap="1" paddingLeft="12">
-		    		    	<mx:click>toggleOwnershipCheckboxes(2);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
-		    	  </mx:CheckBox>
+	<mx:HBox horizontalGap="0" paddingTop="10" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
+	    <mx:HBox width="100%"  paddingTop="2" paddingBottom="2" cornerRadius="5" borderStyle="solid" horizontalGap="14" borderColor="#A7AAAC" id="hbox4" backgroundColor="#A7AAAC">
+		    	<mx:HBox horizontalGap="2" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
+		    	  <mx:RadioButtonGroup id="experimentRadioGroup"/>
+		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true">
+		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    	  </mx:RadioButton>
+		    	  <mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox"   groupName="experimentRadioGroup">
+		    	    <mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    	  </mx:RadioButton>
+		    	  <mx:RadioButton label="Other labs (public)" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup">
+		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    	  </mx:RadioButton>
 		    	</mx:HBox>
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="35" horizontalAlign="right" paddingRight="0"  id="hbox3">
-		    		<mx:Label text="Experiments in last " paddingRight="0"/>
+		    	<mx:VRule height="20" id="vrule1"/>
+			    <mx:HBox horizontalGap="2">
+			    	<mx:CheckBox label="Microarray" id="MicroarrayCheckbox"  >
+		    			<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		</mx:CheckBox>
+			    	<mx:CheckBox label="Solexa"  id="SolexaCheckbox"  paddingLeft="2">
+		    			<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		</mx:CheckBox>
+			    	<mx:CheckBox label="Bioanalyzer"  id="BioanalyzerCheckbox" paddingLeft="2">
+		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+		    		</mx:CheckBox>
+		    		
+		    	</mx:HBox>
+		    	<mx:VRule height="20"/>
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+		    		<mx:Label text="Experiments in the last " paddingRight="0"/>
 		    		<mx:CheckBox id="lastWeekCheckbox" label="week" paddingRight="0" paddingLeft="0" horizontalGap="1"  >
-		    			<mx:click>toggleDateCheckboxes(1);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    			<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="12" horizontalGap="1"  >
-		    			<mx:click>toggleDateCheckboxes(2);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="8" horizontalGap="1"  >
+		    			<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="12" paddingRight="0" horizontalGap="1"  >
-		    			<mx:click>toggleDateCheckboxes(3);selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()</mx:click>
+		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="8" paddingRight="0" horizontalGap="1"  >
+		    			<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    	</mx:HBox>
+		    	</mx:HBox> 
+	    	
+	    </mx:HBox>
 	</mx:HBox>		
     
 	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
@@ -962,9 +1066,17 @@
 	
 			
 			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" >
-				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
+				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+					    <mx:ViewStack id="treeExpansionStack" width="100%">
+					        <mx:HBox width="100%" horizontalAlign="right">
+								<mx:LinkButton   label="Expand projects" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" textAlign="left"/>
+					        </mx:HBox>
+					        <mx:HBox width="100%" horizontalAlign="right">
+								<mx:LinkButton  label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseProjectNodes()}" textDecoration="underline" textAlign="left"/>					    	
+					        </mx:HBox>
+					    </mx:ViewStack>
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
@@ -1030,37 +1142,37 @@
 		</mx:State>
 		
 		<mx:State name="AdminState">
-			<mx:AddChild position="firstChild"  relativeTo="{navContainer}">
-					<mx:VBox verticalGap="0" width="100%" paddingBottom="4">
-				        <mx:Spacer height="6"/>
-						
-					</mx:VBox>
+			<mx:AddChild relativeTo="{vrule1}" position="before">
+			   <mx:HBox horizontalGap="0" verticalAlign="middle">
+					<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0"/>
+					<mx:ComboBox id="browseLabCombo" 
+						labelField="@name"
+						dataProvider="{parentApplication.promptedLabList}"
+						 change="{this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());getMembersOfLab()}"  
+						 visible="true"  width="150">
+					</mx:ComboBox>
+			   	
+			   </mx:HBox>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox2}" position="before">
-				<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0"/>
+			<mx:AddChild relativeTo="{vrule1}" position="before">
+			     <mx:HBox  horizontalGap="0"  verticalAlign="middle">
+					<mx:Label id="userLabel" visible="true" text="Requester:" paddingBottom="0" paddingLeft="10" />
+					<mx:ComboBox id="browseUserCombo" 
+						labelField="@displayName"
+						dataProvider="{appUsers}"
+						 change="selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters())"  
+						 visible="true"  width="140">
+					</mx:ComboBox>
+			     </mx:HBox>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox2}" position="before">
-				<mx:ComboBox id="browseLabCombo" 
-					labelField="@name"
-					dataProvider="{parentApplication.promptedLabList}"
-					 change="{this.browseUserCombo.selectedIndex = 0;selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send();getMembersOfLab()}"  
-					 visible="true"  width="150">
-				</mx:ComboBox>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox2}" position="before">
-				<mx:Label id="userLabel" visible="true" text="Requester:" paddingBottom="0" paddingLeft="10"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox2}" position="before">
-				<mx:ComboBox id="browseUserCombo" 
-					labelField="@displayName"
-					dataProvider="{appUsers}"
-					 change="selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send()"  
-					 visible="true"  width="140">
-				</mx:ComboBox>
+			<mx:AddChild relativeTo="{vrule1}" position="before">
 			</mx:AddChild>
 			<mx:RemoveChild target="{myExperimentsCheckbox}"/>
-			<mx:RemoveChild target="{label1}"/>
 			<mx:RemoveChild target="{publicExperimentsOtherGroupsCheckbox}"/>
+			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:SetStyle target="{hbox4}" name="verticalAlign" value="middle"/>
+
 
 		</mx:State>
 

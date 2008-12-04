@@ -39,6 +39,9 @@ public class ProjectRequestFilter extends DetailObject {
   private String                lastWeek  = "N";
   private String                lastMonth = "N";
   private String                lastYear  = "N";
+  private String                isMicroarray = "N";
+  private String                isSolexa = "N";
+  private String                isBioanalyzer = "N";
   
   
   
@@ -57,6 +60,9 @@ public class ProjectRequestFilter extends DetailObject {
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
         (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
+        (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
+        (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
+        (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
         (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
         (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")) ||
         idSlideProduct != null ||
@@ -349,6 +355,29 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append("'");
     }    
     
+    // Search for Solexa requests
+    if (isSolexa.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    }  else if (isBioanalyzer.equals("Y")) {
+      // Search for bioanalyzer requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY);
+      queryBuf.append("'");
+    } else if (isMicroarray.equals("Y")) {
+      // Search for microarray requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory in (");
+      queryBuf.append("'");
+      queryBuf.append(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("', ");
+      queryBuf.append("'");
+      queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("') ");
+    }    
   }
   
   private void addSlideProductCriteria() {
@@ -703,6 +732,42 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setPublicExperimentsInOtherGroups(String publicExperimentsInOtherGroups) {
     this.publicExperimentsInOtherGroups = publicExperimentsInOtherGroups;
+  }
+
+
+  
+  public String getIsMicroarray() {
+    return isMicroarray;
+  }
+
+
+  
+  public void setIsMicroarray(String isMicroarray) {
+    this.isMicroarray = isMicroarray;
+  }
+
+
+  
+  public String getIsSolexa() {
+    return isSolexa;
+  }
+
+
+  
+  public void setIsSolexa(String isSolexa) {
+    this.isSolexa = isSolexa;
+  }
+
+
+  
+  public String getIsBioanalyzer() {
+    return isBioanalyzer;
+  }
+
+
+  
+  public void setIsBioanalyzer(String isBioanalyzer) {
+    this.isBioanalyzer = isBioanalyzer;
   }
 
 
