@@ -161,6 +161,9 @@
 			}
 			if (samplePrepMethodCombo.dataProvider.length == 2) {
 				samplePrepMethodCombo.selectedIndex = 1;
+   				this.propagateSamplePrepMethod();
+   				this.propagateSeqRunType();
+   				this.checkSampleSetupCompleteness();
 			} else if (samplePrepMethodCombo.dataProvider.length > 2) {
 				for each(var item:Object in samplePrepMethodCombo.dataProvider) {
 
