@@ -222,7 +222,77 @@
 	}
 
 
+    public static function sortAnalysisNumber(item1:Object, item2:Object):int {
+    	var n1:String  = item1.@number;
+    	var n2:String  = item2.@number;
+    	
+    	var number1:Number = -1;
+    	var number2:Number = -1;
+    	
+    	var tokens:Array = n1.split("A");
+    	if (tokens.length > 1) {
+    		number1 = tokens[1];	
+    	} else {
+    		number1 = Number(n1);
+    	}
+    	tokens = n2.split("A");
+    	if (tokens.length > 1) {
+    		number2 = tokens[1];	
+    	} else {
+    		number2 = Number(n2);
+    	}
+    	
+    	
+    	if (number1 > number2) {
+    		return 1;
+    	} else if (number2 > number1) {
+    		return -1;
+    	} else {
+    		return 0;
+    	}
+    }
+    
+    public function sortAnalysisType(item1:Object, item2:Object):int {
+    	var v1:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.AnalysisType", item1.@idAnalysisType);
+    	var v2:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.AnalysisType", item2.@idAnalysisType);
+    	
+    	if (v1 > v2) {
+    		return 1;
+    	} else if (v2 > v1) {
+    		return -1;
+    	} else {
+    		return 0;
+    	}
+    	
+    }
+ 	
+ 	public function sortAnalysisProtocol(item1:Object, item2:Object):int {
+    	var v1:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.AnalysisProtocol", item1.@idAnalysisProtocol);
+    	var v2:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.AnalysisProtocol", item2.@idAnalysisProtocol);
+    	
+    	if (v1 > v2) {
+    		return 1;
+    	} else if (v2 > v1) {
+    		return -1;
+    	} else {
+    		return 0;
+    	}
+    }
+ 	
+ 	public function sortOrganism(item1:Object, item2:Object):int {
+    	var v1:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Organism", item1.@idOrganism);
+    	var v2:Object = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Organism", item2.@idOrganism);
+    	
+    	if (v1 > v2) {
+    		return 1;
+    	} else if (v2 > v1) {
+    		return -1;
+    	} else {
+    		return 0;
+    	}
+    }
  	]]>
+ 	
  </mx:Script>
  
     <mx:XMLListCollection id="browseList" source="{parentDocument.browseTree.selectedItem..Analysis}"/>
@@ -274,7 +344,7 @@
 			       	itemDoubleClick="onAnalysisRowSelected()" 
 			       	doubleClickEnabled="true">
 			         <mx:columns>
-			            <mx:DataGridColumn   minWidth="28" width="28" headerText="#">
+			            <mx:DataGridColumn   minWidth="28" width="28" headerText="#"  sortCompareFunction="sortAnalysisNumber">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
@@ -290,11 +360,11 @@
 				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
 				       	<mx:DataGridColumn headerText="Submitted by" width="50" dataField="@ownerName"/>
-				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
+				       	<mx:DataGridColumn headerText="Analysis Type" width="50" sortCompareFunction="sortAnalysisType"
  	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType','@idAnalysisType')}"/>                 
-				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"
+				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50" sortCompareFunction="sortAnalysisProtocol"
  	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisProtocol', '@idAnalysisProtocol')}"/>                 
-				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50"
+				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50" sortCompareFunction="sortOrganism"
  	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism','@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 			         </mx:columns>

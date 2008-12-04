@@ -153,7 +153,7 @@
 					<mx:ComboBox id="analysisGroupVisibilityCombo" labelField="@display"  
 					 	dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
 					 	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
-	                
+	                 
 	       </mx:HBox>
 	       <mx:DataGrid  id="visibilityGrid" 
 	       	dataProvider="{parentDocument.browseList}" 
@@ -161,7 +161,7 @@
 			 editable="true"
 	       	 itemEditEnd="onEdit()">
 	         <mx:columns>
-	            <mx:DataGridColumn width="5" minWidth="35" headerText="#"  editable="false">
+	            <mx:DataGridColumn width="5" minWidth="35" headerText="#"  editable="false" sortCompareFunction="AnalysisBrowseView.sortAnalysisNumber">
 	                <mx:itemRenderer>
 	                    <mx:Component >
 	                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
@@ -176,9 +176,9 @@
 	            </mx:DataGridColumn> 
 		       	<mx:DataGridColumn headerText="Name" width="60" dataField="@name" editable="false"/>
 		       	<mx:DataGridColumn headerText="Date" width="40" dataField="@createDateDisplay" editable="false"/>
-		       	<mx:DataGridColumn headerText="Analysis Type" width="45"  editable="false"
+		       	<mx:DataGridColumn headerText="Analysis Type" width="45"  editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>
-		       	<mx:DataGridColumn headerText="Organism" width="45"   editable="false"
+		       	<mx:DataGridColumn headerText="Organism" width="45"   editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism',  '@idOrganism')}"/>
 		       	<mx:DataGridColumn headerText="Description" width="55" dataField="@description"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
