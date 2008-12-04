@@ -296,7 +296,7 @@
 				paddingLeft="0" paddingRight="0" 
 				paddingTop="0" paddingBottom="0" verticalGap="0">
 		       <mx:DataGrid
-		       	 sortableColumns="false" id="folderGrid"
+		       	 id="folderGrid"
 		       	dataProvider="{parentDocument.browseList}"  
 		       	width="100%" height="100%"
 		       	  itemClick="toggleFolderCheck(event)">
@@ -308,7 +308,7 @@
 		            	editorDataField="selected" sortable="false"
 		            	itemRenderer="hci.flex.renderers.CheckBox">
 			            </mx:DataGridColumn> 
-			            <mx:DataGridColumn   minWidth="28" width="28" headerText="">
+			            <mx:DataGridColumn   minWidth="28" width="28" headerText=""  sortCompareFunction="AnalysisBrowseView.sortAnalysisNumber">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0"  paddingLeft="4" >
@@ -323,11 +323,11 @@
 			            </mx:DataGridColumn> 
 				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
-				       	<mx:DataGridColumn headerText="Analysis Type" width="50"
+				       	<mx:DataGridColumn headerText="Analysis Type" width="50" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
  	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>                 
-				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50"
+				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisProtocol"
  	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisProtocol', '@idAnalysisProtocol')}"/>                 
-				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50"
+				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
  	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 		         </mx:columns>
