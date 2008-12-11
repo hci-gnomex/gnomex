@@ -280,13 +280,15 @@ public class RequestProgressFilter extends DetailObject {
     }   
     
   }
+  
+  
 
   protected void addSecurityCriteria() {
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
       boolean scopeToGroup = true;
-      secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup);
+      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup, true);
     }
     
   }

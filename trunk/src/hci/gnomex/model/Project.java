@@ -24,14 +24,11 @@ public class Project extends HibernateDetailObject {
   private Lab       lab;
   private Integer   idAppUser;
   private AppUser   appUser;
-  private String    codeVisibility = Visibility.VISIBLE_TO_GROUP_MEMBERS;
   private Set       requests = new TreeSet();
   private Set       experimentDesignEntries = new TreeSet();
   private Set       experimentFactorEntries = new TreeSet();
   private Set       qualityControlStepEntries = new TreeSet();
   
-  // permission field
-  private boolean  canUpdateVisibility;
   
   public String getDescription() {
     return description;
@@ -208,16 +205,6 @@ public class Project extends HibernateDetailObject {
       return "N";
     }
   }
-  public String getCanUpdateVisibility() {
-    if (this.canUpdateVisibility) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-  public void canUpdateVisibility(boolean canDo) {
-    canUpdateVisibility = canDo;
-  }
 
  
   
@@ -229,39 +216,6 @@ public class Project extends HibernateDetailObject {
     }
   }
 
-  
-  public String getCodeVisibility() {
-    return codeVisibility;
-  }
-
-  
-  public void setCodeVisibility(String codeVisibility) {
-    this.codeVisibility = codeVisibility;
-  }
-  
-  public String getIsVisibleToMembers() {
-    if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-
-  public String getIsVisibleToMembersAndCollaborators() {
-    if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-
-  public String getIsVisibleToPublic() {
-    if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
 
   
   public AppUser getAppUser() {
@@ -279,5 +233,18 @@ public class Project extends HibernateDetailObject {
     } else {
       return "";
     }
+  }
+  
+  public boolean hasPublicRequest() {
+    boolean hasPublicRequest = false;
+    // Otherwise, project can be read if any of its requests are visible to public
+    for (Iterator i2 = this.getRequests().iterator(); i2.hasNext();) {
+      Request r = (Request)i2.next();
+      if (r.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+        hasPublicRequest = true;
+        break;
+      }
+    }  
+    return hasPublicRequest;
   }
 }

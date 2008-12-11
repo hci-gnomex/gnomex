@@ -91,7 +91,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append("        sample.name, sample.idSampleType, ");
     queryBuf.append("        req.idSlideProduct, sample.idSample, ");
     queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeMicroarrayCategory, lab.name, slideProduct.name, projectLab.name, ");
-    queryBuf.append("        project.codeVisibility, req.codeVisibility,");
+    queryBuf.append("        '', req.codeVisibility,");
     queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName ");
     
@@ -416,14 +416,14 @@ public class ProjectRequestFilter extends DetailObject {
   private void addSecurityCriteria() {
 
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
 
     } else {
       boolean scopeToGroup = true;
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       }  else {
-        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup);
-        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, "req.idRequest is NULL");
+        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup, false);
+        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, true, "req.idRequest is NULL");
       }
     }
   }
@@ -437,12 +437,10 @@ public class ProjectRequestFilter extends DetailObject {
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
         
       }  else {
-        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup);
+        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, true);
       }
     }
     
-    
-
     
   }
     

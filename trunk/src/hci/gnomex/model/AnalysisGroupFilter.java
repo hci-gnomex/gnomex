@@ -28,7 +28,7 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        ag.name, ");
     queryBuf.append("        ag.description, ");
     queryBuf.append("        ag.idLab, ");
-    queryBuf.append("        ag.codeVisibility, ");
+    queryBuf.append("        '', ");
     queryBuf.append("        aglab.name, ");
     queryBuf.append("        a.idAnalysis, ");
     queryBuf.append("        a.number, ");
@@ -43,7 +43,8 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        a.idGenomeBuild, ");
     queryBuf.append("        a.codeVisibility, ");
     queryBuf.append("        owner.lastName, ");
-    queryBuf.append("        owner.firstName ");
+    queryBuf.append("        owner.firstName, ");
+    queryBuf.append("        a.idAppUser ");
     
     getQueryBody(queryBuf);
     
@@ -119,8 +120,8 @@ public class AnalysisGroupFilter extends DetailObject {
    
       
     }  else {
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "ag",       addWhere, scopeToGroup);
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "a",        addWhere, scopeToGroup, "a.idAnalysis is NULL");      
+      addWhere = secAdvisor.addInheritedSecurityCriteria(queryBuf, "ag", addWhere, scopeToGroup, "a.codeVisibility", null);
+      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "a",           addWhere, scopeToGroup, true, "a.idAnalysis is NULL");      
     }
     
 

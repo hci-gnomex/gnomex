@@ -97,7 +97,6 @@
 	public function refreshVisibilityList():void {
 		if (theViews.selectedChild == visibilityView) {
 			visibilityView.checkSecurity();
-			visibilityView.setVisibilityCombo();
 		}
 	}
 	

@@ -5,6 +5,7 @@ package views.renderers
 	import hci.flex.renderers.ComboBoxDictionary;
 	import mx.core.IFactory;
 	import hci.flex.renderers.RendererFactory;
+	import mx.controls.Alert;
 	
 	public class ComboBoxVisibility extends hci.flex.renderers.ComboBoxDictionary
 	{
@@ -20,8 +21,17 @@ package views.renderers
 					
             protected override function change(event:ListEvent):void {
 		        parentDocument.parentDocument.clearFilter();
-		        super.change(event);
+		        
+		     	if (_data.@canUpdateVisibility == "Y" || parentApplication.hasPermission("canWriteAnyObject")) {
+	            	super.change(event);
+		     	} else {
+		     		selectItem();
+		     		Alert.show("Visibility can only be changed by experiment owner, lab manager, or GNomEx admins.");
+		     	}
 	        }
+	        
+			
+	        
 	}
 
 }

@@ -118,19 +118,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
                 request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
               }
               
-              // Send a confirmation email
-              if (request.isConsideredFinished() && !confirmedRequestMap.containsKey(request.getNumber())) {
-                if (request.getAppUser() != null && 
-                    request.getAppUser().getEmail() != null &&
-                    !request.getAppUser().getEmail().equals("")) {
-                  this.sendConfirmationEmail(sess, request);   
-                  confirmedRequestMap.put(request.getNumber(), request.getNumber());
-                }
-                else {
-                  log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
-                            " is complete.  Request submitter or request submitter email is blank.");
-                }
-              }
+ 
               
             }
             

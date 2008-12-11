@@ -180,7 +180,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             newAnalysisGroup.setIdLab(analysisScreen.getIdLab());
             newAnalysisGroup.setName(newAnalysisGroupName);
             newAnalysisGroup.setDescription(newAnalysisGroupDescription);
-            newAnalysisGroup.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
             sess.save(newAnalysisGroup);
             newAnalysisGroupId = newAnalysisGroup.getIdAnalysisGroup();
 
@@ -212,7 +211,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             defaultAnalysisGroup.setName(analysis.getName());
             defaultAnalysisGroup.setIdLab(analysisScreen.getIdLab());
             defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
-            defaultAnalysisGroup.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
             sess.save(defaultAnalysisGroup);
             
             newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();

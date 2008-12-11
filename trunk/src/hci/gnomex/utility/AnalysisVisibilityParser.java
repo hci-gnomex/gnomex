@@ -1,12 +1,14 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.Analysis;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -22,7 +24,7 @@ public class AnalysisVisibilityParser implements Serializable {
  
   }
   
-  public void parse(Session sess) throws Exception{
+  public void parse(Session sess, SecurityAdvisor secAdvisor, Logger log) throws Exception{
     
     Element rootNode = this.doc.getRootElement();
     
@@ -34,9 +36,18 @@ public class AnalysisVisibilityParser implements Serializable {
       String codeVisibility       = aNode.getAttributeValue("codeVisibility");
       
       Analysis analysis = (Analysis)sess.load(Analysis.class, new Integer(idAnalysis));
-      analysis.setCodeVisibility(codeVisibility);
+      
+      if (secAdvisor.canUpdate(analysis, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+        analysis.setCodeVisibility(codeVisibility);          
+        analysisList.add(analysis);
+      }
+      else {
+        // Skip saving requests that user does not have permission to save
+        log.warn("Bypassing update of visibility on analysis group " + analysis.getNumber() + 
+            ".  User " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserFirstName() + 
+            " does not have permission to update visibility.");
+      }
 
-      analysisList.add(analysis);
     }
     
    

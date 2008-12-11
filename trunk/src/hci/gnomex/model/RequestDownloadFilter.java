@@ -400,10 +400,10 @@ public class RequestDownloadFilter extends DetailObject {
   
   private void addSecurityCriteria() {
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
       boolean scopeToGroup = true;
-      secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup);
+      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup, true);
     }
     
   }

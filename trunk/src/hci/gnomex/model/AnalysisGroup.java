@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.hibernate3utils.HibernateDetailObject;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -15,11 +16,8 @@ public class AnalysisGroup extends HibernateDetailObject {
   private Lab       lab;
   private Integer   idAppUser;
   private AppUser   appUser;
-  private String    codeVisibility;
   private Set       analysisItems = new TreeSet();
   
-  // permission field
-  private boolean     canUpdateVisibility;
     
   public String getDescription() {
     return description;
@@ -92,15 +90,6 @@ public class AnalysisGroup extends HibernateDetailObject {
   }
 
   
-  public String getCodeVisibility() {
-    return codeVisibility;
-  }
-
-  
-  public void setCodeVisibility(String codeVisibility) {
-    this.codeVisibility = codeVisibility;
-  }
-  
   public String getCanRead() {
     if (this.canRead()) {
       return "Y";
@@ -124,16 +113,6 @@ public class AnalysisGroup extends HibernateDetailObject {
       return "N";
     }
   }
-  public String getCanUpdateVisibility() {
-    if (this.canUpdateVisibility) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-  public void canUpdateVisibility(boolean canDo) {
-    canUpdateVisibility = canDo;
-  }
 
   
   public Integer getIdAppUser() {
@@ -155,5 +134,18 @@ public class AnalysisGroup extends HibernateDetailObject {
     this.appUser = appUser;
   }
     
+  
+  public boolean hasPublicAnalysis() {
+    boolean hasPublicAnalysis = false;
+    for (Iterator i2 = this.getAnalysisItems().iterator(); i2.hasNext();) {
+      Analysis a = (Analysis)i2.next();
+      if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+        hasPublicAnalysis = true;
+        break;
+      }
+    }  
+    return hasPublicAnalysis;
+  }  
+  
  
 }

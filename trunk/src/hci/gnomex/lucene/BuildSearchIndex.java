@@ -247,7 +247,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.codeMicroarrayCategory, ");
     buf.append("       reqOwner.firstName, ");
     buf.append("       reqOwner.lastName, ");
-    buf.append("       proj.codeVisibility, ");
+    buf.append("       '', ");
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate, ");
     buf.append("       s1.idSampleType ");
@@ -308,7 +308,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.codeMicroarrayCategory, ");
     buf.append("       reqOwner.firstName, ");
     buf.append("       reqOwner.lastName, ");
-    buf.append("       proj.codeVisibility, ");
+    buf.append("       '', ");
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate, ");
     buf.append("       s1.idSampleType ");
@@ -346,7 +346,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       a.id, ");
     buf.append("       ag.name, ");
     buf.append("       ag.description, ");
-    buf.append("       ag.codeVisibility, ");
+    buf.append("       '', ");
     buf.append("       ag.idLab, ");
     buf.append("       agLab.name, ");
     buf.append("       owner.firstName, ");
@@ -624,8 +624,6 @@ public class BuildSearchIndex extends DetailObject {
     String       microarrayCategory = null;
     String       requestOwnerFirstName = null;
     String       requestOwnerLastName = null;
-    String       projectCodeVisibility = null;
-    String       projectPublicNote = null;
     String       requestCodeVisibility = null;
     String       requestPublicNote = null;
     Date         requestCreateDate = null;
@@ -692,8 +690,7 @@ public class BuildSearchIndex extends DetailObject {
       labRequest               = (String) row[20];
       codeMicroarrayCategory   = (String) row[21];
       requestOwnerFirstName    = (String) row[22];
-      requestOwnerLastName     = (String) row[23];
-      projectCodeVisibility    = (String) row[24];
+      requestOwnerLastName     = (String) row[23];      
       requestCodeVisibility    = (String) row[25];
       requestCreateDate        = (java.sql.Date) row[26];
       
@@ -701,9 +698,6 @@ public class BuildSearchIndex extends DetailObject {
       slideProductOrganism     = idOrganismSlideProduct != null ? dh.getOrganism(idOrganismSlideProduct) : null;
       requestCategory          = dh.getRequestCategory(codeRequestCategory);
       microarrayCategory       = dh.getMicroarrayCategory(codeMicroarrayCategory);
-      if (projectCodeVisibility != null && projectCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
-        projectPublicNote = "(Public) ";
-      } 
       if (requestCodeVisibility != null && requestCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
         requestPublicNote = "(Public) ";
       }
@@ -847,7 +841,7 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_LAST_NAME, requestOwnerLastName);
     nonIndexedFieldMap.put(ExperimentIndexHelper.CREATE_DATE, requestCreateDate != null ? this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL) : null);
     nonIndexedFieldMap.put(ExperimentIndexHelper.MICROARRAY_CATEGORY, microarrayCategory);
-    nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, projectPublicNote);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, "");
     nonIndexedFieldMap.put(ExperimentIndexHelper.PUBLIC_NOTE, requestPublicNote);
     
     Map indexedFieldMap = new HashMap();
@@ -874,7 +868,6 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_LAB_NAME, labProject);
     indexedFieldMap.put(ExperimentIndexHelper.ID_LAB, idLabRequest != null ? idLabRequest.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.LAB_NAME, labRequest);
-    indexedFieldMap.put(ExperimentIndexHelper.PROJECT_CODE_VISIBILITY, projectCodeVisibility);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_VISIBILITY, requestCodeVisibility);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_ANNOTATIONS, projectAnnotations.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, codeExperimentDesigns.toString());
@@ -919,7 +912,6 @@ public class BuildSearchIndex extends DetailObject {
         
     String agName                 = (String)row[2];
     String agDesc                 = (String)row[3];
-    String agCodeVisibility       = (String)row[4];
     Integer agIdLab               = (Integer)row[5];
     String agLabName              = (String)row[6];
     String ownerFirstName         = (String)row[7];
@@ -967,7 +959,6 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? dh.getAnalysisProtocol(idAnalysisProtocol) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
-    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_CODE_VISIBILITY, agCodeVisibility);
     indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
 
     

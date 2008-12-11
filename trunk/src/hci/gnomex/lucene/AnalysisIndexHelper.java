@@ -33,7 +33,6 @@ public class AnalysisIndexHelper extends IndexHelper {
   public static final String       ANALYSIS_PROTOCOL = "analysisProtocol";
   public static final String       ID_LAB = "idLab";
   public static final String       LAB_NAME = "labName";
-  public static final String       ANALYSIS_GROUP_CODE_VISIBILITY = "analysisGroupCodeVisibility";
   public static final String       CODE_VISIBILITY = "codeVisibility";
   public static final String       TEXT = "text";
 

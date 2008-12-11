@@ -35,8 +35,6 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
   private Document                     visibilityDoc;
   private RequestVisibilityParser      parser;
   
-  private Integer                      idProject;
-  private String                       codeVisibility;
   
   
   
@@ -45,18 +43,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    if (request.getParameter("idProject") != null && !request.getParameter("idProject").equals("")) {
-      idProject = new Integer(request.getParameter("idProject"));
-    } else {
-      this.addInvalidField("idProject", "Project is required");
-    }
-    
-    
-    if (request.getParameter("codeVisibility") != null && !request.getParameter("codeVisibility").equals("")) {
-      codeVisibility = request.getParameter("codeVisibility");
-    } else {
-      this.addInvalidField("codeVisibility", "Visibility on project is required");
-    }
+
     
     if (request.getParameter("visibilityXMLString") != null && !request.getParameter("visibilityXMLString").equals("")) {
       visibilityXMLString = "<ProjectRequestVisibilityList>" + request.getParameter("visibilityXMLString") + "</ProjectRequestVisibilityList>";
@@ -82,35 +69,23 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
-      Project project = (Project) sess.load(Project.class, idProject);
 
-      if (this.getSecAdvisor().hasPermission(
-          SecurityAdvisor.CAN_ADMINISTER_USERS) || 
-          this.getSecAdvisor().canUpdate(project, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
-
-        project.setCodeVisibility(codeVisibility);
-
-        if (visibilityXMLString != null) {
-          parser.parse(sess);
-        }
-
-        sess.flush();
-
-        if (visibilityXMLString != null) {
-          parser.resetIsDirty();
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-          this.xmlResult = out.outputString(visibilityDoc);
-        } else {
-          this.xmlResult = "<SUCCESS/>";
-          setResponsePage(this.SUCCESS_JSP);
-        }
-
-        setResponsePage(this.SUCCESS_JSP);
-      } else {
-        this.addInvalidField("Insufficient permissions","Insufficient permission to set visibility");
-        setResponsePage(this.ERROR_JSP);
+      if (visibilityXMLString != null) {
+        parser.parse(sess, this.getSecAdvisor(), log);
       }
 
+      sess.flush();
+
+      if (visibilityXMLString != null) {
+        parser.resetIsDirty();
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        this.xmlResult = out.outputString(visibilityDoc);
+      } else {
+        this.xmlResult = "<SUCCESS/>";
+        setResponsePage(this.SUCCESS_JSP);
+      }
+
+      setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
       log.error("An exception has occurred in SaveVisibility ", e);
       e.printStackTrace();
