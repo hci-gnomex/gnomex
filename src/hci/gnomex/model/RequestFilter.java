@@ -87,7 +87,7 @@ public class RequestFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, false);
+    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, false, true);
   }
     
   

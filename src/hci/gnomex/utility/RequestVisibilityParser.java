@@ -9,6 +9,7 @@ import hci.gnomex.model.Slide;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.WorkItem;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -33,7 +35,7 @@ public class RequestVisibilityParser implements Serializable {
  
   }
   
-  public void parse(Session sess) throws Exception{
+  public void parse(Session sess, SecurityAdvisor secAdvisor, Logger log) throws Exception{
     
     Element rootNode = this.doc.getRootElement();
     
@@ -45,9 +47,18 @@ public class RequestVisibilityParser implements Serializable {
       String codeVisibility      = requestNode.getAttributeValue("codeVisibility");
       
       Request request = (Request)sess.load(Request.class, new Integer(idRequest));
-      request.setCodeVisibility(codeVisibility);
-
-      requests.add(request);
+      
+      if (secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+        request.setCodeVisibility(codeVisibility);
+        requests.add(request);
+      } else {
+        // Skip saving requests that user does not have permission to save
+        log.warn("Bypassing update of visibility on request " + request.getNumber() + 
+            ".  User " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserFirstName() + 
+            " does not have permission to update visibility.");
+      }
+      
+      
     }
     
    

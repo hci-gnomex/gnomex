@@ -17,8 +17,8 @@
 
 
  <mx:Script>
- <![CDATA[
- 	import mx.collections.XMLListCollection; 
+ <![CDATA[ 
+ 	import mx.collections.XMLListCollection;   
  	import mx.rpc.events.ResultEvent;
  	import views.renderers.ComboBoxVisibility;
  	import mx.events.CloseEvent;
@@ -29,18 +29,12 @@
  	private var broadestCodeVisibility:String = "MEM";
  	
  	public function checkSecurity():void {
- 		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "Project" &&
- 		    parentDocument.parentDocument.selectedProject != null) {
- 			if (parentDocument.parentDocument.selectedProject.@canUpdateVisibility == "Y") {
+ 		parentDocument.saveVisibilityButton.enabled = false;  
+ 		for each (var experiment:Object in parentDocument.browseList) {
+ 			if (experiment.@canUpdateVisibility == "Y") {
  				parentDocument.saveVisibilityButton.enabled = true;
- 				projectVisibilityCombo.enabled = true;
- 			} else {
- 				parentDocument.saveVisibilityButton.enabled = false;
- 				projectVisibilityCombo.enabled = false;
+ 				break; 
  			}
- 		} else {
- 			parentDocument.saveVisibilityButton.enabled = false;
- 			projectVisibilityCombo.enabled = false;
  		}
  	}
 			
@@ -53,60 +47,23 @@
     		return "";
     	}
 	}
-	
+	 
 	public function  save():void {
-    	// Warn if visibility of experiment is broader than project
-    	broadestCodeVisibility = "MEM";
-    	for each (var r:Object in parentDocument.parentDocument.browseTree.selectedItem..Request) {
-    		if (r.@codeVisibility > broadestCodeVisibility) {
-    			broadestCodeVisibility = r.@codeVisibility;
-    		}
-    	}
-    	
-    	var broadestVisibility:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility).@visibility;
-    	
-    	if (projectVisibilityCombo.selectedItem.@codeVisibility < broadestCodeVisibility) {
-    		
-			mx.controls.Alert.show("It is recommeded that project '" +
-			    		parentDocument.parentDocument.browseTree.selectedItem.@label + 
-			    		"' have a visibility of '" + broadestVisibility +
-			    		" '; otherwise, experiments with broader visibility will not apply. (Experiments with more restrictive visibility will remain restricted.)\n\n" +
-			    		"Apply '" + broadestVisibility + "' visibility to project '" + parentDocument.parentDocument.browseTree.selectedItem.@label + "'?" ,
-			    		"Warning",
-						(Alert.YES | Alert.NO | Alert.CANCEL), 
-						this, 
-						onPromptToChangeProjectVisibility,						
-						parentApplication.iconWarning);
-    	} else {
-    		saveImpl();
-    	}
-	}
-
-	private function onPromptToChangeProjectVisibility(event:CloseEvent):void {
-        if (event.detail == Alert.YES) {
-        	projectVisibilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility);
-        	saveImpl();
-        } else if (event.detail == Alert.NO) {
-        	saveImpl();
-        } 
-    }		
-	
-	public function saveImpl():void {
 	    var dirtyRequests:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Request.(@isDirty == 'Y');        	
     	var dirtyRequestList:XMLListCollection = new XMLListCollection(dirtyRequests);
     	
     	var params:Object = new Object();
     	params.idProject = parentDocument.parentDocument.browseTree.selectedItem.@idProject;
-    	params.codeVisibility = projectVisibilityCombo.selectedItem.@codeVisibility;
     	params.visibilityXMLString = dirtyRequestList.toXMLString();
     	saveVisibility.send(params);
-
 	}
+
+		
 	
 	private function onSaveVisibility(event:ResultEvent):void {
 		if (saveVisibility.lastResult.name() == "SUCCESS" ||
 		    saveVisibility.lastResult.name() == "ProjectRequestVisibilityList") {
-    		parentDocument.parentDocument.refreshExperiments();
+		    parentDocument.parentDocument.refreshExperiments();
     		parentDocument.dirtyVisibility.resetDirty();
     	} else {
     		mx.controls.Alert.show(saveVisibility.lastResult..ACTMESSAGE.@TEXT);
@@ -121,18 +78,7 @@
     	parentDocument.dirtyVisibility.setDirty();
     }
     
-    public function setVisibilityCombo():void {
-    	projectVisibilityCombo.selectedIndex = 0;
-        if (parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility != null) {
-            for(var i:Number = 0; i < projectVisibilityCombo.dataProvider.length; i++) {
-            	if(projectVisibilityCombo.dataProvider[i].@value == parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility) {
-                      projectVisibilityCombo.selectedIndex = i;
-                      break;
-                 }
-            }
-        	
-        }
-    }
+
     
      public function sortVisibility(item1:Object, item2:Object):int {
     	if (item1.@codeVisibility > item2.@codeVisibility) {
@@ -151,10 +97,7 @@
 	
 	<mx:VBox  width="100%" height="100%"   paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	       <mx:HBox width="100%" horizontalAlign="left">
-					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@projectName}"/>
-	                <mx:ComboBox id="projectVisibilityCombo" labelField="@display"  
-                     	dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
-                     	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
+					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@label}"/>
 	       </mx:HBox>
 	       <mx:DataGrid  id="visibilityGrid" 
 	       	dataProvider="{parentDocument.browseList}" 
@@ -172,7 +115,7 @@
 	                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
 	                           </mx:Label>
 	                        </mx:HBox>
-	                    </mx:Component>
+	                    </mx:Component> 
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
 		       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"  editable="false"/>
@@ -180,7 +123,7 @@
 		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"  sortCompareFunction="parentDocument.sortExperimentKind" editable="false"/>
 		       	<mx:DataGridColumn headerText="Microarray" width="90" dataField="@slideProductName"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
-					editorDataField="value" sortCompareFunction="sortVisibility" editable="{projectVisibilityCombo.enabled}" 
+					editorDataField="value" sortCompareFunction="sortVisibility" editable="true" 
 					rendererIsEditor="false" 
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
 					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>

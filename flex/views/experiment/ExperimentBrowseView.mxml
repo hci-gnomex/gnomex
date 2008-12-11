@@ -3,10 +3,10 @@
 	width="100%" height="100%" 
 	xmlns:views="views.*"   
 	xmlns:experiment="views.experiment.*"  
-	xmlns:util="views.util.*"
+	xmlns:util="views.util.*" 
 	verticalGap="0" borderThicknessTop="0">
-	  
-
+	   
+  
    
    <mx:HTTPService  
     id="getRequest" 
@@ -216,7 +216,6 @@
 	public function refreshVisibilityList():void {
 		if (theViews.selectedChild == visibilityView) {
 			visibilityView.checkSecurity();
-			visibilityView.setVisibilityCombo();
 		}
 	}
 	

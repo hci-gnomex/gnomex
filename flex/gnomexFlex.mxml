@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"  
-	xmlns:workflow="views.workflow.*" 
+	xmlns:workflow="views.workflow.*"  
 	xmlns:experiment="views.experiment.*" 
 	xmlns:analysis="views.analysis.*" 
 	xmlns:user="views.user.*"

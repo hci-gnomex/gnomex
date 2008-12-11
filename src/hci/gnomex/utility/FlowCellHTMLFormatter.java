@@ -32,7 +32,8 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");
     table.addContent(makeRow("Barcode:", (flowCell.getBarcode() != null ? flowCell.getBarcode() : "&nbsp;")));
-    table.addContent(makeRow("Run Completed:", getFlowCellCompleteDate())); 
+    table.addContent(makeRow("Cluster gen date:", (flowCell.getCreateDate() != null ? this.formatDate(flowCell.getCreateDate()) : "&nbsp;")));
+    table.addContent(makeRow("Run completed:", getFlowCellCompleteDate())); 
     table.addContent(makeRow("Run folder:", getFolderNames())); 
     
     
@@ -80,6 +81,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
    Element table = new Element("TABLE");    
    table.setAttribute("CELLPADDING", "0");
    table.addContent(makeRow("Barcode:", (flowCell.getBarcode() != null ? flowCell.getBarcode() : "&nbsp;")));
+   table.addContent(makeRow("Cluster gen date:", (flowCell.getCreateDate() != null ? this.formatDate(flowCell.getCreateDate()) : "&nbsp;")));
    
    
    

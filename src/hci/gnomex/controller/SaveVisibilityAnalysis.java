@@ -43,18 +43,6 @@ public class SaveVisibilityAnalysis extends GNomExCommand implements Serializabl
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    if (request.getParameter("idAnalysisGroup") != null && !request.getParameter("idAnalysisGroup").equals("")) {
-      idAnalysisGroup = new Integer(request.getParameter("idAnalysisGroup"));
-    } else {
-      this.addInvalidField("idAnalysisGroup", "AnalysisGroup is required");
-    }
-    
-    
-    if (request.getParameter("codeVisibility") != null && !request.getParameter("codeVisibility").equals("")) {
-      codeVisibility = request.getParameter("codeVisibility");
-    } else {
-      this.addInvalidField("codeVisibility", "Visibility on requestGroup is required");
-    }
     
     if (request.getParameter("visibilityXMLString") != null && !request.getParameter("visibilityXMLString").equals("")) {
       visibilityXMLString = "<AnalysisVisibilityList>" + request.getParameter("visibilityXMLString") + "</AnalysisVisibilityList>";
@@ -80,34 +68,26 @@ public class SaveVisibilityAnalysis extends GNomExCommand implements Serializabl
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
-      AnalysisGroup analysisGroup = (AnalysisGroup) sess.load(AnalysisGroup.class, idAnalysisGroup);
+      
 
-      if (this.getSecAdvisor().hasPermission(
-          SecurityAdvisor.CAN_ADMINISTER_USERS) || 
-          this.getSecAdvisor().canUpdate(analysisGroup, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
 
-        analysisGroup.setCodeVisibility(codeVisibility);
-
-        if (visibilityXMLString != null) {
-          parser.parse(sess);
-        }
-
-        sess.flush();
-
-        if (visibilityXMLString != null) {
-          parser.resetIsDirty();
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-          this.xmlResult = out.outputString(visibilityDoc);
-        } else {
-          this.xmlResult = "<SUCCESS/>";
-          setResponsePage(this.SUCCESS_JSP);
-        }
-
-        setResponsePage(this.SUCCESS_JSP);
-      } else {
-        this.addInvalidField("Insufficient permissions","Insufficient permission to set visibility");
-        setResponsePage(this.ERROR_JSP);
+      if (visibilityXMLString != null) {
+        parser.parse(sess, this.getSecAdvisor(), log);
       }
+
+      sess.flush();
+
+      if (visibilityXMLString != null) {
+        parser.resetIsDirty();
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        this.xmlResult = out.outputString(visibilityDoc);
+      } else {
+        this.xmlResult = "<SUCCESS/>";
+        setResponsePage(this.SUCCESS_JSP);
+      }
+
+      setResponsePage(this.SUCCESS_JSP);
+
 
     } catch (Exception e) {
       log.error("An exception has occurred in SaveVisibilityAnalysis ", e);

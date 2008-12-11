@@ -188,8 +188,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisGroupNode.setAttribute("description",     row[2] == null ? ""  : (String)row[2]);
     
     analysisGroupNode.setAttribute("idLab",           row[3] == null ? "" : ((Integer)row[3]).toString());
-    analysisGroupNode.setAttribute("codeVisibility",  row[4] == null ? ""  : (String)row[4]);
     analysisGroupNode.setAttribute("labName",         (row[5] == null? "" : (String)row[5]).toString());
+    
     labNode.addContent(analysisGroupNode);
   }
   
@@ -209,6 +209,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisNode.setAttribute("idOrganism",         row[15] == null ? ""  : ((Integer)row[15]).toString());
     analysisNode.setAttribute("idGenomeBuild",      row[16] == null ? ""  : ((Integer)row[16]).toString());
     analysisNode.setAttribute("codeVisibility",     row[17] == null ? ""  : (String)row[17]);    
+    analysisNode.setAttribute("idAppUser",          row[20] == null ? ""  : ((Integer)row[20]).toString());    
 
     String lastName   = row[18] != null ? (String)row[18] : "";
     String firstName  = row[19] != null ? (String)row[19] : "";
@@ -239,7 +240,11 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     String sortDate = createYear + createMonth + createDay;
     String key = createYear + "-" + sortDate + "-" + analysisNumber;    
     analysisNode.setAttribute("key", key);
-    
+
+    Integer idLab = (Integer)row[3];
+    Integer idAppUser = (Integer)row[20];
+    analysisNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
+
     analysisGroupNode.addContent(analysisNode);
     
   }

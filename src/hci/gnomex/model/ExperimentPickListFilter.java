@@ -162,7 +162,7 @@ public class ExperimentPickListFilter extends DetailObject {
  
   
   private void addSecurityCriteria() {
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, true);
+    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, true, true);
   }
     
   

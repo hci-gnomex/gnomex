@@ -59,14 +59,12 @@ public class GetProjectList extends GNomExCommand implements Serializable {
       String name            = (String)row[1]  == null ? ""  : (String)row[1];
       String description     = (String)row[2]  == null ? ""  : (String)row[2];
       String idLab           = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
-      String codeVisibility  = (String)row[4]  == null ? ""  : (String)row[4];
       
       Element node = new Element("Project");
       node.setAttribute("idProject", idProject.toString());
       node.setAttribute("name", name);
       node.setAttribute("description", description);
       node.setAttribute("idLab", idLab);
-      node.setAttribute("codeVisibility", codeVisibility);
       
       doc.getRootElement().addContent(node);
       

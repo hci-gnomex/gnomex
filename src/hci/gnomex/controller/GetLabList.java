@@ -77,8 +77,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
         buf.append("SELECT distinct p.idLab  ");
         buf.append(" FROM      Project p ");
         buf.append(" LEFT JOIN p.requests as r ");
-        buf.append(" WHERE p.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
-        buf.append(" OR    r.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+        buf.append(" WHERE r.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
         List publicLabs = (List)sess.createQuery(buf.toString()).list();
         for (Iterator i = publicLabs.iterator(); i.hasNext();) {
           Integer idLabPublic = (Integer)i.next();

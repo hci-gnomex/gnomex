@@ -266,15 +266,9 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     projectNode.setAttribute("projectName",            row[1] == null ? ""  : (String)row[1]);
     projectNode.setAttribute("label",                  row[1] == null ? ""  : (String)row[1]);
     projectNode.setAttribute("projectDescription",     row[2] == null ? ""  : (String)row[2]);
-    projectNode.setAttribute("codeVisibility",         row[20] == null ? "" : (String)row[20]);
     projectNode.setAttribute("ownerFirstName",         row[22] == null ? "" : (String)row[22]);
     projectNode.setAttribute("ownerLastName",          row[23] == null ? "" : (String)row[23]);
     
-    if (projectNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
-      projectNode.setAttribute("projectPublicNote",          "(Public) ");
-    } else {
-      projectNode.setAttribute("projectPublicNote", "");
-    }
     
     
     projectNode.setAttribute("idLab",                  row[11] == null ? "" : ((Integer)row[11]).toString());
@@ -349,6 +343,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       
       requestNode.setAttribute("displayName", displayName.toString());
       requestNode.setAttribute("label",       displayName.toString());
+      
+      Integer idLab = (Integer)row[12];
+      Integer idAppUser = (Integer)row[14];
+      requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
     }
     
     if (filter.getShowCategory().equals("Y")) {

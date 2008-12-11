@@ -25,7 +25,7 @@ public class ProjectFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT proj.id, proj.name, proj.description, proj.idLab, proj.codeVisibility ");
+    queryBuf.append(" SELECT DISTINCT proj.id, proj.name, proj.description, proj.idLab ");
     
     getQueryBody(queryBuf);
     
@@ -36,6 +36,7 @@ public class ProjectFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM        Project as proj ");
+    queryBuf.append(" LEFT JOIN   proj.requests as req ");
     
     addRequestCriteria();
     addSecurityCriteria();
@@ -65,7 +66,8 @@ public class ProjectFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    this.secAdvisor.addSecurityCriteria(queryBuf, "proj", addWhere, false);
+    addWhere = this.secAdvisor.addSecurityCriteria(queryBuf, "proj",  addWhere, true, false);
+    addWhere = this.secAdvisor.addSecurityCriteria(queryBuf, "req",   addWhere, true, true, "req.idRequest is NULL");
   }
     
   

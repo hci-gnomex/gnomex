@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>  
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
 
 
@@ -25,26 +25,18 @@
  	import mx.events.CloseEvent;
  	import hci.flex.renderers.ComboBoxDictionary;
  	import hci.flex.renderers.LabelDictionary;
+
  	
  	private var broadestCodeVisibility:String = "MEM";
  	
  	public function checkSecurity():void {
- 		if (parentDocument.parentDocument.browseTree.selectedItem.name() == "AnalysisGroup" &&
- 		    parentDocument.parentDocument.selectedAnalysisGroup != null) {
- 			if (parentDocument.parentDocument.selectedAnalysisGroup.@canUpdateVisibility == "Y") {
+		parentDocument.saveVisibilityButton.enabled = false;  
+ 		for each (var a:Object in parentDocument.browseList) {
+ 			if (a.@canUpdateVisibility == "Y") {
  				parentDocument.saveVisibilityButton.enabled = true;
- 				analysisGroupVisibilityCombo.enabled = true;
- 				analysisGroupVisibilityCombo.visible = true;
- 			} else {
- 				parentDocument.saveVisibilityButton.enabled = false;
- 				analysisGroupVisibilityCombo.enabled = false;
- 				analysisGroupVisibilityCombo.visible = false;
+ 				break; 
  			}
- 		} else {
- 			parentDocument.saveVisibilityButton.enabled = false;
- 			analysisGroupVisibilityCombo.enabled = false;
- 			analysisGroupVisibilityCombo.visible = false;
- 		}
+ 		} 	
  	}
 			
 
@@ -58,54 +50,19 @@
 	}
 	
 	public function save():void {
-    	// Warn if visibility of analysis is broader than analysis group
-    	broadestCodeVisibility = "MEM";
-    	for each (var a:Object in parentDocument.parentDocument.browseTree.selectedItem..Analysis) {
-    		if (a.@codeVisibility > broadestCodeVisibility) {
-    			broadestCodeVisibility = a.@codeVisibility;
-    		}
-    	}
-    	
-    	var broadestVisibility:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility).@visibility;
-    	
-    	if (analysisGroupVisibilityCombo.selectedItem.@codeVisibility < broadestCodeVisibility) {
-    		
-			mx.controls.Alert.show("It is recommeded that analysis group '" +
-			    		parentDocument.parentDocument.browseTree.selectedItem.@name + 
-			    		"' have a visibility of '" + broadestVisibility +
-			    		" '; otherwise, analyses with broader visibility will not apply. (Analyses with more restrictive visibility will remain restricted.)\n\n" +
-			    		"Apply '" + broadestVisibility + "' visibility to analysis group '" +  parentDocument.parentDocument.browseTree.selectedItem.@name + "'?" ,
-			    		"Warning",
-						(Alert.YES | Alert.NO | Alert.CANCEL), 
-						this, 
-						onPromptToChangeAnalysisGroupVisibility,						
-						parentApplication.iconWarning);
-    	} else {
-    		saveImpl();
-    	}
-	}
-
-	private function onPromptToChangeAnalysisGroupVisibility(event:CloseEvent):void {
-        if (event.detail == Alert.YES) {
-        	analysisGroupVisibilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', broadestCodeVisibility);
-        	saveImpl();
-        } else if (event.detail == Alert.NO) {
-        	saveImpl();
-        } 
-    }	
-    
-
-	
-	public function saveImpl():void {
 		var dirtyAnalysisItems:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Analysis.(@isDirty == 'Y');        	
     	var dirtyAnalysisList:XMLListCollection = new XMLListCollection(dirtyAnalysisItems);
     	
 
     	var params:Object = new Object();
-    	params.idAnalysisGroup = parentDocument.parentDocument.browseTree.selectedItem.@idAnalysisGroup;
-    	params.codeVisibility = analysisGroupVisibilityCombo.selectedItem.@codeVisibility;
     	params.visibilityXMLString = dirtyAnalysisList.toXMLString();
     	saveVisibility.send(params);
+    	
+	}
+
+
+	
+	public function saveImpl():void {
 
 	}
 	
@@ -128,18 +85,7 @@
     }
     
     
-    public function setVisibilityCombo():void {
-    	analysisGroupVisibilityCombo.selectedIndex = 0;
-        if (parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility != null) {
-            for(var i:Number = 0; i < analysisGroupVisibilityCombo.dataProvider.length; i++) {
-            	if(analysisGroupVisibilityCombo.dataProvider[i].@value == parentDocument.parentDocument.browseTree.selectedItem.@codeVisibility) {
-                      analysisGroupVisibilityCombo.selectedIndex = i;
-                      break;
-                 }
-            }
-        	
-        }
-    }
+    
     
     
     
@@ -150,9 +96,6 @@
 	<mx:VBox  width="100%" height="100%"   paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	       <mx:HBox width="100%" horizontalAlign="left">
 					<mx:Label text="{'Visibility for ' + parentDocument.parentDocument.browseTree.selectedItem.@label}"/>
-					<mx:ComboBox id="analysisGroupVisibilityCombo" labelField="@display"  
-					 	dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}"  
-					 	  width="250"  change="parentDocument.dirtyVisibility.setDirty()"/>
 	                 
 	       </mx:HBox>
 	       <mx:DataGrid  id="visibilityGrid" 
@@ -172,7 +115,7 @@
 	                           </mx:Label>
 	                        </mx:HBox>
 	                    </mx:Component>
-	                </mx:itemRenderer>
+	                </mx:itemRenderer> 
 	            </mx:DataGridColumn> 
 		       	<mx:DataGridColumn headerText="Name" width="60" dataField="@name" editable="false"/>
 		       	<mx:DataGridColumn headerText="Date" width="40" dataField="@createDateDisplay" editable="false"/>
@@ -182,10 +125,10 @@
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism',  '@idOrganism')}"/>
 		       	<mx:DataGridColumn headerText="Description" width="55" dataField="@description"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
-					editorDataField="value" sortable="false" editable="{analysisGroupVisibilityCombo.enabled}" 
+					editorDataField="value" sortable="false" editable="true" 
 					rendererIsEditor="false" 
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
-					itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"/>
+					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>
 
 	         </mx:columns>
 	       </mx:DataGrid>

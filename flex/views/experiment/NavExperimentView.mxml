@@ -222,23 +222,10 @@
 
 		private function expandAndReselectTree():void {
 			
-			//if (selectedRequestNumber != null) {
-	        //	expandAllNodes();          		
-        	//} else {
-        	//	expandLabNodes();
-        	//} 
+        	expandAllNodes();
+			this.treeExpansionStack.selectedIndex = 1;        		
         	
-        	var projects:XMLList = this.getProjectRequestList.lastResult..Project;
-        	var experiments:XMLList = this.getProjectRequestList.lastResult..Request;
-        	if (projects.length() + experiments.length() > 20) {
-        		expandAllNodes();
-				collapseProjectNodes();
-				this.treeExpansionStack.selectedIndex = 0;        		
-        	} else {
-	        	expandAllNodes();
-				this.treeExpansionStack.selectedIndex = 1;        		
-        	}
-			callLater(reselectTreeItem);
+        	callLater(reselectTreeItem);
 		}
 	    
 	    
@@ -740,9 +727,6 @@
 		
 		public function getBrowseParameters():Object {
 			var params:Object = new Object();
-			if (selectedIdProject != null) {
-				params.idProject = selectedIdProject;
-			}
 			if (currentState == 'AdminState') {
 			    if (browseLabCombo.selectedItem != null) {
 					params.idLab = browseLabCombo.selectedItem.@idLab;

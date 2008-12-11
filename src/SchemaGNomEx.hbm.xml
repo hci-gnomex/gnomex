@@ -20,7 +20,6 @@
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
-		<property name="codeVisibility" column="codeVisibility" type="string"/>		
 		<set name="analysisItems" table="AnalysisGroupItem" lazy="true" sort="hci.gnomex.utility.AnalysisNumberComparator" cascade="none">
 			<key column="idAnalysisGroup"/>
 			<many-to-many column="idAnalysis" class="hci.gnomex.model.Analysis"/>
@@ -292,7 +291,6 @@
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
-		<property name="codeVisibility" column="codeVisibility" type="string"/>
 		<set name="requests" table="requests" lazy="true" cascade="none">
 			<key column="idProject"/>
 			<one-to-many class="hci.gnomex.model.Request" />

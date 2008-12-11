@@ -87,17 +87,12 @@ public class SaveAnalysisGroup extends GNomExCommand implements Serializable {
     
     if (load.getIdAnalysisGroup().intValue() == 0) {
       analysisGroup = load;
-      analysisGroup.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
       analysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
       isNewAnalysisGroup = true;
       
     } else {
       analysisGroup = (AnalysisGroup)sess.load(AnalysisGroup.class, load.getIdAnalysisGroup());
       
-      // Only some users have permissions to set the visibility on the analysisGroup
-      if (this.getSecAdvisor().canUpdate(analysisGroup, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
-        analysisGroup.setCodeVisibility(load.getCodeVisibility());
-      }
     }
     
     analysisGroup.setName(this.unEscape(load.getName()));

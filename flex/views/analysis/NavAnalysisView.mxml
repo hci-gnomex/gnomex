@@ -18,8 +18,8 @@
     <mx:request>
             <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
             <showMyLabsAlways>{this.currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
-            <searchPublicProjects>{searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
-    </mx:request>
+            <searchPublicProjects>{currentState == 'GuestState'|| searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
+    </mx:request> 
    </mx:HTTPService>
    
    <mx:HTTPService  

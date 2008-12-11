@@ -141,16 +141,10 @@ public class SaveProject extends GNomExCommand implements Serializable {
     Integer idProject = new Integer(n.getAttributeValue("idProject"));
     if (idProject.intValue() == 0) {
       project = new Project();
-      project.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
       isNewProject = true;
       
     } else {
       project = (Project)sess.load(Project.class, idProject);
-      
-      // Only some users have permissions to set the visiblity on the project
-      if (this.getSecAdvisor().canUpdate(project, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
-        project.setCodeVisibility(n.getAttributeValue("codeVisibility"));
-      }
     }
     
     project.setName(this.unEscape(n.getAttributeValue("name")));
