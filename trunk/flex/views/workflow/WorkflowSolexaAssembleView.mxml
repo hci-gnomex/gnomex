@@ -45,6 +45,17 @@
     useProxy="false">
     </mx:HTTPService >    
     
+    <mx:HTTPService 
+    id="deleteWorkItem" 
+    url="DeleteWorkItem.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onDeleteWorkItem(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to delete work item', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >    
+
     <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
     <mx:XMLListCollection id="dirtyWorkList" />
     <mx:XMLListCollection id="nextWorkList" source="{getNextWorkList.lastResult.WorkItem}"/>
@@ -116,6 +127,12 @@
     			Alert.show("Please enter the flow cell barcode");
     			return;
     		}
+    		// Prevent save if flow cell date is not entered
+    		if (this.flowCellDate.text == "") {
+    			this.flowCellDate.setFocus();
+    			Alert.show("Please enter the cluster gen date");
+    			return;
+    		}
     		
     		// Prevent save if sample concentration not entered on all
     		// flow cell channels (other than sequencing control).
@@ -146,6 +163,7 @@
     	private function saveWorkItems():void {
     		var params:Object = new Object();
     		params.flowCellBarcode = this.flowCellBarcode.text;
+    		params.flowCellDate = this.flowCellDate.text;
     		params.workItemXMLString = dirtyWorkList.toXMLString();
         	saveWorkItem.send(params);
     	}	
@@ -175,6 +193,13 @@
         		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
         	}        	
         }    
+        private function onDeleteWorkItem(event:ResultEvent):void {
+        	if (deleteWorkItem.lastResult.name() == "SUCCESS") {
+        		this.getWorkList.send();
+        	} else {
+        		Alert.show(deleteWorkItem.lastResult..ACTMESSAGE.@TEXT);
+        	}        	
+        }     
     	private function validateNumberOfLanes():void {
     		if (dirtyWorkList.length < 8) {
     			warningMessage = "Not all 8 channels are populated.\n\n";
@@ -383,6 +408,25 @@
 		   	workList.addItem(item);
 		    dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));	       			
 	 	}
+		public function removePendingLane():void {
+			var item:Object = this.pendingLanesGrid.selectedItem;
+			var params:Object = new Object();
+			params.idWorkItem = item.@idWorkItem;
+			
+			deleteWorkItem.send(params);
+	 	}
+	 	
+    	private function promptForRemove():void {
+    		var warningMessage:String = "Are you sure you want to remove " + pendingLanesGrid.selectedItem.@laneNumber + " from the work list?";
+			Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForRemove);
+    	}
+    	
+    	private function onPromptForRemove(event:CloseEvent):void {
+    		if (event.detail == Alert.YES) {
+    			removePendingLane();
+    		}
+    	}
+	 	
 		
 		//
 		// Need to use these label functions instead of LabelDictionary item renderer because drag image is blank otherwise.
@@ -416,7 +460,7 @@
 	]]>
 </mx:Script>    	
 	<mx:HDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-	    <mx:VDividedBox width="100%" height="100%"  >
+	    <mx:VDividedBox width="40%" height="100%"  >
 			<mx:VBox width="100%" height="104"   verticalGap="0">	
 			
 				<mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
@@ -431,13 +475,18 @@
 			<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			    <mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
 					<mx:Label text="{'Pending Sequence Requests (' + workList.length + ')' }" fontWeight="bold"/>
+					<mx:HBox width="100%" horizontalAlign="right">
+						<mx:Button id="removePendingLaneButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="promptForRemove()">
+							<mx:enabled>{pendingLanesGrid.selectedItem != null ? true : false}</mx:enabled>
+						</mx:Button>						
+					</mx:HBox>
 			    </mx:HBox>
 				<util:DataGridAlternatingGroup id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true">
 					<util:columns>
 						<mx:DataGridColumn  dataField="@laneNumber"             headerText="Flow Cell Sample #" width="50">
 							<mx:headerRenderer > 
 							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								    <mx:Label text="Flow Cell"/>
 								    <mx:Label text="Sample #"/>
 								</mx:VBox> 
@@ -460,13 +509,15 @@
 	        <mx:Image source="assets/arrow_right.png"/>
 	    	 
 	    </mx:VBox>
-		<mx:VBox width="100%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
+		<mx:VBox width="60%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
 			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4">
 					<mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
-					<mx:HBox width="100%">
+					<mx:HBox width="100%" horizontalGap="2">
 						<mx:Label text="Barcode:"/>
-						<mx:TextInput id="flowCellBarcode"/>
-						<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0">
+						<mx:TextInput id="flowCellBarcode" width="100%"/>
+						<mx:Label text="Cluster Gen Date:"/>
+						<mx:DateField id="flowCellDate" showToday="true"/>
+						<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" horizontalGap="4">
 							<mx:Button click="moveAssembleLaneUp()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
 							<mx:Button click="moveAssembleLaneDown()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
 							<mx:VRule height="20"/>
@@ -512,7 +563,7 @@
                      <mx:DataGridColumn dataField="@sampleConcentrationpM" editable="true" 
                      	showDataTips="true"
                      	headerText="Sample conc. (pM)" width="45"
-                     	rendererIsEditor="false"
+                     	rendererIsEditor="false" 
                      	itemRenderer="{FlowCellSampleConcentrationLabel.create('@sampleConcentrationpM')}"
                      	itemEditor="{FlowCellSampleConcentrationTextInput.create('@sampleConcentrationpM')}">
 						<mx:headerRenderer > 

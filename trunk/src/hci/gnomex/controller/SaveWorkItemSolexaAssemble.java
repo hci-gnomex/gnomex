@@ -40,6 +40,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaAssemble.class);
   
   private String                       flowCellBarcode;
+  private String                       flowCellDateStr;
   private String                       workItemXMLString;
   private Document                     workItemDoc;
   private WorkItemSolexaAssembleParser parser;
@@ -57,6 +58,10 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     
     if (request.getParameter("flowCellBarcode") != null && !request.getParameter("flowCellBarcode").equals("")) {
       flowCellBarcode = request.getParameter("flowCellBarcode");
+    }
+    
+    if (request.getParameter("flowCellDate") != null && !request.getParameter("flowCellDate").equals("")) {
+      flowCellDateStr = request.getParameter("flowCellDate");
     }
     
     if (request.getParameter("workItemXMLString") != null && !request.getParameter("workItemXMLString").equals("")) {
@@ -102,7 +107,15 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
           sess.flush();
           
           flowCell.setNumber("FC" + flowCell.getIdFlowCell());
-          flowCell.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+          
+          
+          java.sql.Date flowCellDate = null;
+          if (flowCellDateStr != null) {
+            flowCellDate = this.parseDate(flowCellDateStr);
+          } else {
+            flowCellDate = new java.sql.Date(System.currentTimeMillis());
+          }
+          flowCell.setCreateDate(flowCellDate);
           
           TreeSet channels = new TreeSet(new FlowCellChannelComparator());
           int laneNumber = 1;
