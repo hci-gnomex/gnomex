@@ -12,16 +12,25 @@
         import hci.flex.renderers.LabelDictionary;
         import views.renderers.ComboBoxDictionary;
         import views.renderers.ComboBoxWorkflowStatus;
+        import mx.collections.XMLListCollection;
         
         private var laneToDelete:Object = null;
         		
 		private function addLane():void {
+			
+			// Use the selected lane as a template; otherwise, grab
+			// the last one
+			var template:Object = this.lanesGrid.selectedItem;
+			if (template == null) {
+				var theLanes:XMLListCollection = XMLListCollection(parentDocument.lanes);				
+				template = theLanes.getItemAt(theLanes.length - 1);
+			}
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-			    " analysisInstructions='' " + 
-				" idSeqRunType=''" + 
-				" idNumberSequencingCycles=''" +
-				" idGenomeBuildAlignTo=''" +
+					" analysisInstructions='" + template.@analysisInstructions + "'" + 
+					" idSeqRunType='" + template.@idSeqRunType + "'" +			
+					" idNumberSequencingCycles='" + template.@idNumberSequencingCycles + "'" +			
+					" idGenomeBuildAlignTo='" + template.@idGenomeBuildAlignTo + "'" +			
 				" idSample='0'" +
 				"/>");
 			
@@ -243,7 +252,7 @@
 		
 		public function onEdit():void {
 		}
-		
+		 
 	]]>
 </mx:Script>
 	<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="0">
@@ -257,8 +266,8 @@
 					    	labelFunction="parentDocument.getLaneSampleName" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
                             itemRenderer="views.renderers.LabelLaneSample" />                 
-			             <mx:DataGridColumn  width="120" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType"
-			             	editorDataField="value"  
+			             <mx:DataGridColumn  width="120" headerText="Seq Run Type"  editable="true" dataField="@idSeqRunType"
+			             	editorDataField="value"   
 			             	rendererIsEditor="false" 
 			             	itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType', true)}"                 
 	 	                    itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType', '@canChangeSeqRunType')}"/>
@@ -267,6 +276,11 @@
 			             	  rendererIsEditor="false"  
            	                  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles','@idNumberSequencingCycles', true)}"                 
        	                      itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles')}"/>
+			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
+			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
+           	                  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo', false)}"                 
+       	                      itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo')}"/>
+						<mx:DataGridColumn  editable="true" width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="55" id="flowCellChannelNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/>
@@ -317,11 +331,6 @@
 						    </mx:Component>
 						   </mx:headerRenderer>
 					     </mx:DataGridColumn>
-			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="{currentState == 'LanesAdminState'}" dataField="@idGenomeBuildAlignTo" 						             						             
-			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
-           	                  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo', false)}"                 
-       	                      itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo')}"/>
-						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>
 				</mx:DataGrid>
 				
@@ -358,6 +367,7 @@
 			<mx:AddChild relativeTo="{lanesGrid}"  position="before">
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" id="buttonContainer">
 						<mx:HBox>
+							<mx:LinkButton textDecoration="underline" label="Add lane" click="addLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addLaneButton" toolTip="Add lane" />
 							<mx:LinkButton textDecoration="underline" label="Copy lane" click="copyLane();checkLanesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyLaneButton" toolTip="Copy lane" />
 							<mx:LinkButton textDecoration="underline" label="Delete lane" click="deleteLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteLaneButton" toolTip="Delete lane(s)" />
 						</mx:HBox>
