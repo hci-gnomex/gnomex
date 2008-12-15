@@ -351,7 +351,7 @@
  
 
 	<mx:HDividedBox width="100%" height="100%" horizontalAlign="left" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4">
-		<mx:VBox width="33%" height="100%" verticalGap="10"  >
+		<mx:VBox width="32%" height="100%" verticalGap="10"  >
 		    <mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Project name:"/>
 				<mx:TextInput id="projectName" width="100%"  
@@ -370,7 +370,7 @@
 		    </mx:VBox>
 		</mx:VBox>
 
-		<mx:VBox width="30%" height="100%" verticalGap="0">
+		<mx:VBox width="33%" height="100%" verticalGap="0">
 	      <mx:DataGrid id="experimentDesignEntryGrid" width="100%" height="100%" 
 	    	dataProvider="{experimentDesignEntries}" 
 	    	selectionColor="#FFFFFF"
@@ -411,7 +411,7 @@
 		  </mx:LinkButton>			
 		</mx:VBox>
 
-		<mx:VBox width="30%" height="100%" verticalGap="0">
+		<mx:VBox width="35%" height="100%" verticalGap="0">
 	      <mx:DataGrid id="experimentFactorEntryGrid" width="100%" height="100%" dataProvider="{experimentFactorEntries}" selectionColor="#FFFFFF" showHeaders="true" headerHeight="20" variableRowHeight="true" rowHeight="20" itemClick="toggleExperimentFactorCheck(event)">
 	        <mx:columns>
 	            <mx:DataGridColumn headerText=" " 
