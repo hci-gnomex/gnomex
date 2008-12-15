@@ -32,7 +32,7 @@
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
 					" idSeqRunType='" + parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
-					" numberSequencingLanes=''" +
+					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" seqPrepByCore = 'N'" +
@@ -60,7 +60,7 @@
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
 					" idSeqRunType='" +	parentDocument.sampleSetupView.getDefaultIdSeqRunType() + "'" +			
-					" numberSequencingLanes=''" +
+					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
@@ -619,7 +619,9 @@
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"                
    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles')}"/>
-					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" rendererIsEditor="false"
+					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" 
+						editable="false"
+						rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@numberSequencingLanes')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@numberSequencingLanes', '@canChangeNumberSequencingLanes')}"      />          
 					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
