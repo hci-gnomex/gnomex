@@ -1000,44 +1000,43 @@
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
   <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="0">
-
+ 
 	<mx:HBox horizontalGap="0" paddingTop="10" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
-	    <mx:HBox width="100%"  paddingTop="2" paddingBottom="2" cornerRadius="5" borderStyle="solid" horizontalGap="14" borderColor="#A7AAAC" id="hbox4" backgroundColor="#A7AAAC">
-		    	<mx:HBox horizontalGap="2" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
+	    <mx:HBox width="100%"  paddingTop="2" paddingBottom="2" cornerRadius="5" borderStyle="solid" horizontalGap="12" borderColor="#A7AAAC" id="hbox4" backgroundColor="#A7AAAC">
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 		    	  <mx:RadioButtonGroup id="experimentRadioGroup"/>
-		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true">
+		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0">
 		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
-		    	  <mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox"   groupName="experimentRadioGroup">
+		    	  <mx:RadioButton label="My lab's experiments" id="myLabsExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0">
 		    	    <mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
-		    	  <mx:RadioButton label="Other labs (public)" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup">
+		    	  <mx:RadioButton label="Other labs' public experiments" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0">
 		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
 		    	</mx:HBox>
 		    	<mx:VRule height="20" id="vrule1"/>
 			    <mx:HBox horizontalGap="2">
-			    	<mx:CheckBox label="Microarray" id="MicroarrayCheckbox"  >
+			    	<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0">
 		    			<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-			    	<mx:CheckBox label="Solexa"  id="SolexaCheckbox"  paddingLeft="2">
+			    	<mx:CheckBox label="Solexa"  id="SolexaCheckbox"  paddingLeft="2" horizontalGap="0">
 		    			<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-			    	<mx:CheckBox label="Bioanalyzer"  id="BioanalyzerCheckbox" paddingLeft="2">
+			    	<mx:CheckBox label="Bioanalyzer"  id="BioanalyzerCheckbox" paddingLeft="2" horizontalGap="0">
 		    			<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 		    		
 		    	</mx:HBox>
 		    	<mx:VRule height="20"/>
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
-		    		<mx:Label text="Experiments in the last " paddingRight="0"/>
-		    		<mx:CheckBox id="lastWeekCheckbox" label="week" paddingRight="0" paddingLeft="0" horizontalGap="1"  >
+		    		<mx:CheckBox id="lastWeekCheckbox" label="Last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
 		    			<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="8" horizontalGap="1"  >
+		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
 		    			<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="8" paddingRight="0" horizontalGap="1"  >
+		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"  >
 		    			<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 		    	</mx:HBox> 
@@ -1156,6 +1155,9 @@
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:SetStyle target="{hbox4}" name="verticalAlign" value="middle"/>
+			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="8"/>
+			<mx:SetStyle target="{lastMonthCheckbox}" name="paddingLeft" value="2"/>
+			<mx:SetStyle target="{lastYearCheckbox}" name="paddingLeft" value="2"/>
 
 
 		</mx:State>
