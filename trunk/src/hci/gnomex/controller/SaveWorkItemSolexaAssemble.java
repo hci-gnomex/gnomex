@@ -2,8 +2,11 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.Step;
@@ -14,6 +17,7 @@ import hci.gnomex.utility.FlowCellChannelComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.WorkItemSolexaAssembleParser;
 
+import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -216,6 +220,8 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
           
           sess.flush();
           
+          this.createFlowCellDirectory(serverName, flowCell);
+          
           parser.resetIsDirty();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -249,6 +255,30 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     return this;
   }
   
+  private void createFlowCellDirectory(String serverName, FlowCell flowCell) {
+    String flowCellDir = Constants.getFlowCellDirectory(serverName);
+    
+    String createYear = this.formatDate(flowCell.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
+    String rootDir = flowCellDir + createYear;
+    
+    boolean success = false;
+    if (!new File(rootDir).exists()) {
+      success = (new File(rootDir)).mkdir();
+      if (!success) {
+        log.error("Unable to create directory " + rootDir);      
+      }      
+    }
+    
+    String directoryName = rootDir +  "\\" + flowCell.getNumber();
+    
+    success = (new File(directoryName)).mkdir();
+    if (!success) {
+      log.error("Unable to create directory " + directoryName);      
+    }
+    
+   
+  }
+
   
 
 }
