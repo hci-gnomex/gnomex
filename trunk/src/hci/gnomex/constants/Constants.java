@@ -38,12 +38,12 @@ public class Constants {
   public static final String              LUCENE_PROTOCOL_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Protocol";
   public static final String              LUCENE_ANALYSIS_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Analysis";
   
-  private static final String             MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayDataShare\\";
-  private static final String             TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayDataShare1\\";
-  private static final String             ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare\\";
-  private static final String             TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\AnalysisDataShare1\\";
-  private static final String             FLOWCELL_DIRECTORY              = "\\\\hci-ma\\FlowCellDataShare\\";
-  private static final String             TEST_FLOWCELL_DIRECTORY         = "C:\\temp\\FlowCellDataShare1\\";
+  private static final String             MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayData$\\";
+  private static final String             TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayData01\\";
+  private static final String             ANALYSIS_DIRECTORY              = "\\\\hci-ma\\AnalysisDataShare$\\";
+  private static final String             TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\AnalysisDataShare01\\";
+  private static final String             FLOWCELL_DIRECTORY              = "\\\\hci-ma\\FlowCellDataShare$\\";
+  private static final String             TEST_FLOWCELL_DIRECTORY         = "C:\\temp\\FlowCellDataShare01\\";
 
   public static DecimalFormat               concentrationFormatter = new DecimalFormat("######.##");
 
