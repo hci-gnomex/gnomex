@@ -60,8 +60,12 @@
         
 	public function checkSecurity():void { 
 		if (parentApplication.isGuestMode()) {
-			theViews.removeChild(this.trackView);
-			theViews.removeChild(this.visibilityView);
+			if (theViews.contains(this.trackView)) {
+				theViews.removeChild(this.trackView);
+			}
+			if (theViews.contains(this.visibilityView)) {
+				theViews.removeChild(this.visibilityView);
+			}
 		}
 	}
 
@@ -189,7 +193,7 @@
 			if (parentDocument.browseUserCombo.selectedItem != null) {
 				params.idAppUser = parentDocument.browseUserCombo.selectedItem.@idAppUser;
 			}
-		} else  {
+		} else if (parentDocument.currentState != "GuestState")  {
 			if (parentDocument.myExperimentsCheckbox.selected) {
 				params.idAppUser = parentApplication.getIdAppUser();
 			}				
