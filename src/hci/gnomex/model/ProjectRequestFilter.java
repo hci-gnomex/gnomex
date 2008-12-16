@@ -375,6 +375,15 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("', ");
       queryBuf.append("'");
+      queryBuf.append(RequestCategory.INHOUSE_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("', ");
+      queryBuf.append("'");
+      queryBuf.append(RequestCategory.NIMBLEGEN_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("', ");
+      queryBuf.append("'");
+      queryBuf.append(RequestCategory.OTHER_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("', ");
+      queryBuf.append("'");
       queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("') ");
     }    
