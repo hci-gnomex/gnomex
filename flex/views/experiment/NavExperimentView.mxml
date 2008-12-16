@@ -734,12 +734,12 @@
 				if (browseUserCombo.selectedItem != null) {
 					params.idAppUser = browseUserCombo.selectedItem.@idAppUser;
 				}
-			} else  {
+			} else if (currentState != "GuestState") {
 				if (myExperimentsCheckbox.selected) {
 					params.idAppUser = parentApplication.getIdAppUser();
 				}				
 			}
-			if (lastWeekCheckbox.selected) {
+			if (lastWeekCheckbox.selected) { 
 				params.lastWeek = 'Y'; 
 			} else if (lastMonthCheckbox.selected) {
 				params.lastMonth = 'Y';

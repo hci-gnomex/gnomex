@@ -422,7 +422,7 @@ public class ProjectRequestFilter extends DetailObject {
       boolean scopeToGroup = true;
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       }  else {
-        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup, false);
+        addWhere = secAdvisor.addInheritedSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup, "req.codeVisibility", null);
         addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, true, "req.idRequest is NULL");
       }
     }

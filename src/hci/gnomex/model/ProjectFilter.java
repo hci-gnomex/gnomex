@@ -66,7 +66,7 @@ public class ProjectFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    addWhere = this.secAdvisor.addSecurityCriteria(queryBuf, "proj",  addWhere, true, false);
+    addWhere = this.secAdvisor.addInheritedSecurityCriteria(queryBuf, "proj",  addWhere, true, "req.codeVisibility", null);
     addWhere = this.secAdvisor.addSecurityCriteria(queryBuf, "req",   addWhere, true, true, "req.idRequest is NULL");
   }
     
