@@ -255,6 +255,10 @@
 	        [Bindable]
 	        [Embed(source="assets/map.png")]
 	        public var iconAnalysis:Class;
+
+	        [Bindable]
+	        [Embed(source="assets/server_go.png")]
+	        public var iconServer:Class;
 	        
 	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
 	        

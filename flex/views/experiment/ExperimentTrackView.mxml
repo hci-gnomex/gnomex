@@ -214,7 +214,7 @@
 			                          <mx:Image source="{data.@seqPrepDate != '' ? parentApplication.iconCheck : ''}">
 			                    	 </mx:Image> 
 			                        </mx:HBox>
-			                    </mx:Component>
+			                    </mx:Component> 
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
 			            <mx:DataGridColumn dataField="@numberLanes" width="13" headerText="# Lanes"/>
@@ -229,7 +229,7 @@
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
 			            
-			            <mx:DataGridColumn dataField="@seqStatus" width="40" headerText="Seq Status"/>
+			            <mx:DataGridColumn dataField="@seqStatus" width="70" headerText="Seq Status"/>
 			         </util:columns>
 			       </util:DataGridAlternatingGroup>
 			           	

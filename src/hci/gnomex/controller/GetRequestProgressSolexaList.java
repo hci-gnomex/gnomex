@@ -82,7 +82,22 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         Integer laneCount            = (Integer)row[2];
         
         laneSeqStatusMap.put(sampleNumber, laneCount); 
-      }      
+      }   
+      
+      // Get processed (gone through pipeline) lane count by sample
+      buf = filter.getSolexaLanePipelineStatusQuery(this.getSecAdvisor());
+      log.info(buf.toString());
+      List processedLanes = (List)sess.createQuery(buf.toString()).list();
+      HashMap lanePipelineStatusMap = new HashMap();
+      for(Iterator i = processedLanes.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        
+        String sampleNumber          = (String)row[0];
+        java.sql.Date pipelineDate   = (java.sql.Date)row[1];
+        Integer laneCount            = (Integer)row[2];
+        
+        lanePipelineStatusMap.put(sampleNumber, laneCount); 
+      }            
 
       // Get requested lane count by sample
       buf = filter.getSolexaLaneStatusQuery(this.getSecAdvisor());
@@ -135,16 +150,28 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         }
         n.setAttribute("numberLanesSequenced", sequencedLaneCount != null ? sequencedLaneCount.toString() : "0");
 
+        Integer processedLaneCount = (Integer)lanePipelineStatusMap.get(sampleNumber);
+        if (processedLaneCount == null) {
+          processedLaneCount = new Integer(0);
+        }
+        n.setAttribute("numberLanesProcessed", processedLaneCount != null ? processedLaneCount.toString() : "0");
+
+        
         Integer laneCount = (Integer)laneStatusMap.get(sampleNumber);
         n.setAttribute("numberLanes", laneCount != null ? laneCount.toString() : "0");
         if (laneCount == null) {
           laneCount = new Integer(0);
         }
+   
+        
+        
         
         String seqStatus = "";
         if (laneCount.intValue() > 0) {
-          if (laneCount.intValue() == sequencedLaneCount.intValue()) {
+          if (laneCount.intValue() == processedLaneCount.intValue()) {
             seqStatus = "Done - All lanes sequenced.";
+          } else if (laneCount.intValue() == sequencedLaneCount.intValue()) {
+            seqStatus = "In progress - All lanes sequenced, ready for pipeline.";
           } else if (sequencedLaneCount.intValue() > 0
               && laneCount.intValue() > 0
               && laneCount.intValue() > sequencedLaneCount.intValue()) {

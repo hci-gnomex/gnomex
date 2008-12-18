@@ -46,8 +46,8 @@
     </mx:HTTPService >    
     
     <mx:HTTPService 
-    id="deleteWorkItem" 
-    url="DeleteWorkItem.gx"
+    id="deleteWorkItem"   
+    url="DeleteWorkItem.gx" 
     resultFormat="e4x"
     showBusyCursor="true"
     result="onDeleteWorkItem(event)"

@@ -28,6 +28,8 @@ public class FlowCellChannel extends HibernateDetailObject {
   private String            fileName;
   private BigDecimal        sampleConcentrationpM;
   private Integer           numberSequencingCyclesActual;
+  private Date              pipelineDate;
+  private String            pipelineFailed;
   
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
@@ -266,16 +268,18 @@ public class FlowCellChannel extends HibernateDetailObject {
     if (sequenceLane != null) {
       return sequenceLane.getWorkflowStatus();
     } else {
-      if (getLastCycleDate() != null) {
+      if (getPipelineDate() != null) {
         return "Sequenced";
+      } else if (getLastCycleDate() != null) {
+        return "Completed seq run";
       } else if (this.getLastCycleFailed() != null && this.getLastCycleFailed().equals("Y")) {
-        return "Failed sequencing";
+        return "Failed seq run";
       } else if (this.getFirstCycleFailed() != null && this.getFirstCycleFailed().equals("Y")) {
-        return "Failed 1st cycle sequencing";
+        return "Failed 1st cycle seq run";
       } else if (getFirstCycleDate() != null) {
-        return "1st cycle sequenced";
+        return "1st cycle done";
       } else {
-        return "Ready for sequencing";
+        return "Ready for seq run";
       }
     }
   }
@@ -307,6 +311,26 @@ public class FlowCellChannel extends HibernateDetailObject {
   
   public void setSampleConcentrationpM(BigDecimal sampleConcentrationpM) {
     this.sampleConcentrationpM = sampleConcentrationpM;
+  }
+
+  
+  public Date getPipelineDate() {
+    return pipelineDate;
+  }
+
+  
+  public void setPipelineDate(Date pipelineDate) {
+    this.pipelineDate = pipelineDate;
+  }
+
+  
+  public String getPipelineFailed() {
+    return pipelineFailed;
+  }
+
+  
+  public void setPipelineFailed(String pipelineFailed) {
+    this.pipelineFailed = pipelineFailed;
   }
 
   

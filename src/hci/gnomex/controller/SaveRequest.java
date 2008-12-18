@@ -858,6 +858,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         channel.setLastCycleFailed(sequenceLaneInfo.getSeqRunLastCycleFailed());
         
+        if (sequenceLaneInfo.getSeqRunPipelineCompleted().equals("Y") && channel.getPipelineDate() == null) {
+          channel.setPipelineDate(new java.sql.Date(System.currentTimeMillis())); 
+        }
+        channel.setPipelineFailed(sequenceLaneInfo.getSeqRunPipelineFailed());        
+        
         
       }
     }

@@ -44,7 +44,8 @@ public class WorkItemFilter extends DetailObject {
       return getQuery(this.HYB_LEVEL);
     } else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
       return getQuery(this.LANE_LEVEL);
-    } else if (this.codeStepNext.equals(Step.SEQ_RUN)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
+                this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
       return getQuery(this.FLOW_CELL_LEVEL);
     } else {
       return null;
@@ -214,7 +215,24 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    ch.fileName, ");
       queryBuf.append("    fc.barcode ");
       
+    } else if (this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
+      queryBuf.append("      , ");
+      queryBuf.append("    ch.idFlowCellChannel, ");
+      queryBuf.append("    lane.idSeqRunType, ");
+      queryBuf.append("    lane.idNumberSequencingCycles, ");
+      queryBuf.append("    lane.number, ");
+      queryBuf.append("    ch.number, ");
+      queryBuf.append("    control.sequencingControl, ");
+      queryBuf.append("    ch.pipelineDate, ");
+      queryBuf.append("    ch.pipelineFailed, ");
+      queryBuf.append("    fc.number, ");
+      queryBuf.append("    ch.numberSequencingCyclesActual, ");
+      queryBuf.append("    ch.clustersPerTile, ");
+      queryBuf.append("    ch.fileName, ");
+      queryBuf.append("    fc.barcode ");
+      
     }
+    
 
     
   }
