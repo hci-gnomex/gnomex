@@ -16,6 +16,7 @@ public class Step extends DictionaryEntry implements Serializable {
   public static final String   SEQ_FLOWCELL_STOCK       = "SEQSTOCK";
   public static final String   SEQ_CLUSTER_GEN          = "SEQASSEM";
   public static final String   SEQ_RUN                  = "SEQRUN";
+  public static final String   SEQ_DATA_PIPELINE        = "SEQPIPE";
 
   private String codeStep;
   private String step;

@@ -149,7 +149,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowQualityControl ", e);
+        log.error("An exception has occurred in SaveWorkItemSolexaPrep ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           

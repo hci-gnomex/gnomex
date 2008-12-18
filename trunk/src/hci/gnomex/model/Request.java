@@ -416,9 +416,11 @@ public class Request extends HibernateDetailObject {
         if (l.getFlowCellChannel() != null) {
           if (l.getFlowCellChannel().getFirstCycleFailed() != null && l.getFlowCellChannel().getFirstCycleFailed().equals("Y")) {
             doneLaneCount++;
-          } else if (l.getFlowCellChannel().getLastCycleDate() != null) {
-            doneLaneCount++;
           } else if (l.getFlowCellChannel().getLastCycleFailed() != null && l.getFlowCellChannel().getLastCycleFailed().equals("Y")) {
+            doneLaneCount++;
+          } else if (l.getFlowCellChannel().getPipelineFailed() != null && l.getFlowCellChannel().getPipelineFailed().equals("Y")) {
+            doneLaneCount++;
+          } else if (l.getFlowCellChannel().getPipelineDate() != null) {
             doneLaneCount++;
           } 
         }

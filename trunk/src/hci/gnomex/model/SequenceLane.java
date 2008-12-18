@@ -170,6 +170,24 @@ public class SequenceLane extends HibernateDetailObject {
     }
     
   }
+  
+  public Date getFlowCellChannelPipelineDate() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getPipelineDate();
+    } else {
+      return null;
+    }
+    
+  }
+  public String getFlowCellChannelPipelineFailed() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getPipelineFailed();
+    } else {
+      return null;
+    }
+    
+  }
+  
 
   public String getFirstCycleStatus() {
     if (getFlowCellChannelFirstCycleDate() != null) {
@@ -185,6 +203,16 @@ public class SequenceLane extends HibernateDetailObject {
     if (getFlowCellChannelLastCycleDate() != null) {
       return Constants.STATUS_COMPLETED;
     } else if (this.getFlowCellChannelLastCycleFailed() != null && this.getFlowCellChannelLastCycleFailed().equals("Y")) {
+      return Constants.STATUS_TERMINATED;
+    } else {
+      return "";
+    }
+  }  
+  
+  public String getPipelineStatus() {
+    if (getFlowCellChannelPipelineDate() != null) {
+      return Constants.STATUS_COMPLETED;
+    } else if (this.getFlowCellChannelPipelineFailed() != null && this.getFlowCellChannelPipelineFailed().equals("Y")) {
       return Constants.STATUS_TERMINATED;
     } else {
       return "";
@@ -225,18 +253,20 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
   public String getWorkflowStatus() {
-    if (getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
+    if (getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {
       return "Sequenced";
+    } if (getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
+      return "Completed seq run";
     } else if (getLastCycleStatus().equals(Constants.STATUS_TERMINATED)) {
-      return "Failed sequencing";
+      return "Failed seq run";
     } else if (getFirstCycleStatus().equals(Constants.STATUS_TERMINATED)) {
-      return "Failed 1st cycle sequencing";
+      return "Failed 1st cycle seq run";
     } else if (getFlowCellChannelFirstCycleDate() != null) {
-      return  "1st cycle sequenced";
+      return  "1st cycle seq run";
     } else if (this.getFlowCellChannelStartDate() != null) {
-      return  "1st cycle sequencing in progress";
+      return  "1st cycle seq run in progress";
     } else if (getFlowCellChannel() != null) {
-      return "Ready for sequencing";
+      return "Ready for seq run";
     } else if (getSample().getSeqPrepByCore() != null && !getSample().getSeqPrepByCore().equals("Y")) {
       return "Ready to place on flow cell";
     } else if (getSample().getSeqPrepDate() != null) {

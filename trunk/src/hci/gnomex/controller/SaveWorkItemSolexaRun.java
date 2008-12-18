@@ -7,6 +7,7 @@ import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -99,12 +100,24 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
             FlowCellChannel channel = (FlowCellChannel) parser.getFlowCellChannel(workItem.getIdWorkItem());
 
             // If first cycle failed or last cycle is done or failed, delete the work item
-            if ((channel.getFirstCycleFailed() != null && channel.getFirstCycleFailed().equals("Y")) ||
-                channel.getLastCycleDate() != null ||
+            // and create a new work list item for the data pipeline
+            if (channel.getLastCycleDate() != null ||
                 (channel.getLastCycleFailed() != null && channel.getLastCycleFailed().equals("Y"))) {
 
               // Delete work item
               sess.delete(workItem);
+              
+              
+              // Create work item for data pipeline
+              if (channel.getLastCycleDate() != null) {
+                WorkItem wi = new WorkItem();
+                wi.setCodeStepNext(Step.SEQ_DATA_PIPELINE);
+                wi.setCreateDate(new  java.sql.Date(System.currentTimeMillis()));
+                wi.setFlowCellChannel(channel);
+                
+                sess.save(wi);
+                
+              }
             }
             
             // Check to see if all of the sequence lanes for each request have been completed.
@@ -117,9 +130,6 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
               if (request.isConsideredFinished() && request.getCompletedDate() == null) {
                 request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
               }
-              
- 
-              
             }
             
           }
@@ -139,7 +149,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
         
         
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowExtraction ", e);
+        log.error("An exception has occurred in SaveWorkItemSolexaRun ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           
@@ -162,45 +172,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
   
 
   
-  private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
-    
-    if (dictionaryHelper == null) {
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
-    }
-    
-    StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
-    introNote.append("Request " + request.getNumber() + " has been completed by the Microarray Core Facility.");
-    introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
-    
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
-    emailFormatter.setIncludeMicroarrayCoreNotes(false);
-        
-    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
-    
-    boolean send = false;
-    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
-      send = true;
-    } else {
-      if (request.getAppUser().getEmail().equals(Constants.DEVELOPER_EMAIL)) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
-    }
-    
-    if (send) {
-      MailUtil.send(request.getAppUser().getEmail(), 
-          null,
-          Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
-          subject, 
-          emailFormatter.format(),
-          true);
-      
-    }
-    
-  }
-
+ 
   
 
 }

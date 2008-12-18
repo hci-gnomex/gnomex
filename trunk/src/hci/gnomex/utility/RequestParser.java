@@ -690,7 +690,25 @@ public class RequestParser implements Serializable {
     } else {
       sequenceLaneInfo.setSeqRunLastCycleCompleted("N");      
       sequenceLaneInfo.setSeqRunLastCycleFailed("N");
-    }
+    } 
+    
+    // pipeline status
+    if (n.getAttributeValue("pipelineStatus") != null && !n.getAttributeValue("pipelineStatus").equals("")) {
+      String status = n.getAttributeValue("pipelineStatus");
+      if (status.equals(Constants.STATUS_COMPLETED)) {
+        sequenceLaneInfo.setSeqRunPipelineCompleted("Y");      
+        sequenceLaneInfo.setSeqRunPipelineFailed("N");
+      } else if (status.equals(Constants.STATUS_TERMINATED)) {
+        sequenceLaneInfo.setSeqRunPipelineCompleted("N");      
+        sequenceLaneInfo.setSeqRunPipelineFailed("Y");
+      } 
+    } else {
+      sequenceLaneInfo.setSeqRunPipelineCompleted("N");      
+      sequenceLaneInfo.setSeqRunPipelineFailed("N");
+    } 
+    
+    
+
     
     sequenceLaneInfos.add(sequenceLaneInfo);
 }
@@ -1126,6 +1144,8 @@ public class RequestParser implements Serializable {
     private String   seqRunFirstCycleFailed = "N";
     private String   seqRunLastCycleCompleted = "N";
     private String   seqRunLastCycleFailed = "N";
+    private String   seqRunPipelineCompleted = "N";
+    private String   seqRunPipelineFailed = "N";
     
     
 
@@ -1285,6 +1305,30 @@ public class RequestParser implements Serializable {
     
     public void setSeqRunLastCycleFailed(String seqRunLastCycleFailed) {
       this.seqRunLastCycleFailed = seqRunLastCycleFailed;
+    }
+
+
+    
+    public String getSeqRunPipelineCompleted() {
+      return seqRunPipelineCompleted;
+    }
+
+
+    
+    public void setSeqRunPipelineCompleted(String seqRunPipelineCompleted) {
+      this.seqRunPipelineCompleted = seqRunPipelineCompleted;
+    }
+
+
+    
+    public String getSeqRunPipelineFailed() {
+      return seqRunPipelineFailed;
+    }
+
+
+    
+    public void setSeqRunPipelineFailed(String seqRunPipelineFailed) {
+      this.seqRunPipelineFailed = seqRunPipelineFailed;
     }
     
     

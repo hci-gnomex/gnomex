@@ -38,8 +38,10 @@
         		workflowSolexaAssembleView.getNextWorkList.send();
         	} else if (solexaViews.selectedChild == workflowSolexaRunView) {
         		workflowSolexaRunView.getWorkList.send();
+        	} else if (solexaViews.selectedChild == workflowSolexaPipelineView) {
+        		workflowSolexaPipelineView.getWorkList.send();
         	} 
-			detailViews.selectedIndex = 1;
+			detailViews.selectedIndex = 1;  
 			detailViews.visible = true;
 
         }
@@ -61,7 +63,7 @@
 			<mx:Canvas label="Solexa" width="100%" height="100%">
 				<mx:VBox horizontalAlign="center" width="100%" height="100%" paddingTop="12" paddingRight="2" paddingLeft="2" paddingBottom="4">
 					
-			  		<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="148" >
+			  		<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="183"  width="116">
 			  		</mx:LinkBar> 
 
 					<mx:Spacer height="20"/>			  		
@@ -88,11 +90,11 @@
 	
 	           <workflow:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="@Embed('../../assets/color_swatch.png')"/>
                
-               <mx:Canvas id="blankMicroarray" label="">
+               <mx:Canvas id="blankMicroarray" label=""> 
                </mx:Canvas>
-               
+                
             </mx:ViewStack>
-			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="5"  >
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="6"  >
 			
 			   <workflow:WorkflowSolexaQCView label="Sample QC" id="workflowSolexaQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
 			   
@@ -104,7 +106,9 @@
 			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowSolexaAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
 			   
 			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="@Embed('../../assets/solexa.png')"/> 	           
-			   
+
+			   <workflow:WorkflowSolexaPipelineView label="GA Pipeline" id="workflowSolexaPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
+			    
 			   <mx:Canvas id="blankSolexa" label=""/>
 			   
 			</mx:ViewStack>

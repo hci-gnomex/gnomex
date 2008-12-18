@@ -104,6 +104,23 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     return queryBuf;
     
   }
+  
+  public StringBuffer getSolexaLanePipelineStatusQuery(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    addWhere = true;
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        s.number, ");
+    queryBuf.append("        ch.pipelineDate, ");
+    queryBuf.append("        count(s.number) ");
+    getSolexaLanePipelineStatusQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }  
+
+  
   public void getSolexaLaneSeqStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
@@ -125,8 +142,33 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append("        having ch.lastCycleDate != null");      
 
   } 
+  
+  
 
 
+  
+  public void getSolexaLanePipelineStatusQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" JOIN           req.sequenceLanes as l ");
+    queryBuf.append(" JOIN           l.sample as s ");
+    queryBuf.append(" LEFT JOIN      l.flowCellChannel as ch ");
+    queryBuf.append(" LEFT JOIN      ch.flowCell as fc ");
+
+    addRequestCriteria();
+    addSecurityCriteria();
+    
+    this.addWhereOrAnd();
+    queryBuf.append(" req.codeRequestCategory = '");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("'");
+
+    queryBuf.append("        group by s.number, ch.pipelineDate ");
+    
+    queryBuf.append("        having ch.pipelineDate != null");      
+
+  } 
+  
   
   
 }
