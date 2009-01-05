@@ -21,6 +21,8 @@
 		private var experimentCategoryName:String;
 		[Bindable]
 		private var billingAccountName:String;
+		[Bindable]
+		private var visibilityName:String;
 		
 		[Bindable]
 		private var selectedExperiment:Object;
@@ -71,6 +73,7 @@
 			getRequestCategoryName();
 			getExperimentCategoryName();
 			getBillingAccountName();
+			getVisibilityName();
 			callLater(showHideColumns);
 			this.addNonStandardSampleColumns();
 			
@@ -158,6 +161,10 @@
 			if (billingAccount != null) {
 				billingAccountName = billingAccount.@accountName;
 			}
+		}
+		private function getVisibilityName():void {
+			var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment.@codeVisibility);
+			visibilityName = visibility.@display.toString();
 		}
 		
 		public function showDownloads():void {
@@ -393,19 +400,18 @@
 		    <mx:VBox height="100%"  width="100%" verticalGap="0">
 		        <mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
 		        	<mx:VBox verticalGap="0">
-		        		<mx:HBox horizontalGap="0">
-		                    <mx:Label text="#"  width="90" fontWeight="bold">
-		                    </mx:Label>
-		                    <mx:Text  id="requestNumber" text="{this.selectedExperiment.@number}"  width="130" />
-		                </mx:HBox>
-		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label text="Submit Date"  width="90" fontWeight="bold"/>
-		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="120"/>
-		                </mx:HBox>
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	   <mx:Label text="Submitted by"  width="90" fontWeight="bold"/>
+			        	   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
 			        	   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
 			        	 </mx:HBox>
+			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+			                   <mx:Label text="Group"  width="85" fontWeight="bold"/>
+			                   <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
+			               </mx:HBox>
+		                <mx:HBox verticalGap="0" horizontalGap="0">
+		                  <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
+		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
+		                </mx:HBox>
 						<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="right"
  		        		   enabled="true" disabledIcon="@Embed(source='../../assets/map_disable.png')" id="hasAnalysis" visible="false" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 		        	    </mx:LinkButton>			            
@@ -413,31 +419,31 @@
 		        	<mx:VBox verticalGap="0">
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	       <mx:Label text="Request Type"  width="105" fontWeight="bold"/>
+			        	       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
 			        	       <mx:Text text="{requestCategoryName}" width="120" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
-			                <mx:Label text="Experiment Type"  width="105" fontWeight="bold"/>
+			                <mx:Label text="Experiment Type"  width="102" fontWeight="bold"/>
 			                <mx:Text  text="{experimentCategoryName}" width="120" />
 			            </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label width="105" text="Completed on" fontWeight="bold"/>
+		                  <mx:Label width="102" text="Completed on" fontWeight="bold"/>
 		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="120" />
 		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
-			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                   <mx:Label text="Group"  width="55" fontWeight="bold"/>
-			                   <mx:Text text="{this.selectedExperiment.@labName}" width="100%"/>
-			               </mx:HBox>
+			                <mx:Label text="Project"  width="55" fontWeight="bold"/>
+			                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
+			            </mx:HBox>
+			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 			                <mx:Label text="Account"  width="55" fontWeight="bold"/>
 			                <mx:Text text="{billingAccountName}" width="100%" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Project"  width="55" fontWeight="bold"/>
-			                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
+			                <mx:Label text="Visibility"  width="55" fontWeight="bold"/>
+			                <mx:Text text="{visibilityName}" width="100%" />
 			            </mx:HBox>
 		        	</mx:VBox>
 		        	

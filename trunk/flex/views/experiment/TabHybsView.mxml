@@ -325,7 +325,7 @@
 </mx:Script>
     <mx:VBox width="100%" height="100%" verticalGap="0">
 	    <mx:HDividedBox height="100%" width="100%">
-	        <mx:VBox  height="100%" verticalGap="4"   width="100" borderStyle="outset">
+	        <mx:VBox  height="100%" verticalGap="4"   width="100" borderStyle="none" id="vbox1">
 	            <mx:Label text="Samples"/>
 	        	<mx:DataGrid
 	        		 height="100%" width="100%" 
@@ -349,24 +349,18 @@
 								        				        		
 	         	</mx:DataGrid>
 	        </mx:VBox>
-			<mx:VBox  id="hybsContainer" width="100%" height="100%" borderStyle="outset">
-			   <mx:HBox width="100%"> 
-				   <mx:Label text="Hybridizations (Drag sample onto Cy3 or Cy5 Sample cell)"></mx:Label>
+			<mx:VBox  id="hybsContainer" width="100%" height="100%" borderStyle="none">
+			   <mx:HBox width="100%" id="hbox2"> 
+				   <mx:Label text="Hybridizations (Drag sample onto Cy3 or Cy5 Sample cell)" id="label1"></mx:Label>
 			   	
 			   </mx:HBox>
-					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" horizontalGap="10">
+					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" horizontalGap="10" id="hbox1">
 						<mx:HBox id="buttonContainer" horizontalGap="0">
 							<mx:LinkButton textDecoration="underline" label="Add hyb" click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addHybButton" toolTip="Add hyb"/>
 							<mx:LinkButton textDecoration="underline" label="Copy hyb" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyHybButton"  toolTip="Copy hyb"/>
 							<mx:LinkButton textDecoration="underline" label="Delete hyb" click="deleteHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteHybButton" toolTip="Delete hyb(s)"/>
 							<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllHybs()" icon="@Embed('../../assets/folder_delete.png')" id="clearHybsButton"  toolTip="Clear all hybs"/>
 						</mx:HBox>
-						<mx:HBox  horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="4" paddingTop="2" id="workflowCheckBoxContainer">
-						 <mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
-						 <mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
-							<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" paddingLeft="0" paddingRight="0"/>
-						    <mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE" paddingLeft="0" paddingRight="0"/>
-						   </mx:HBox>
 							
 					</mx:HBox>
 				<util:DataGridAlternatingGroup height="100%" id="hybsGrid"   editable="true" dataProvider="{parentDocument.hybs}" allowMultipleSelection="true" dropEnabled="true" dragDrop="onDragDrop(event)" itemFocusOut="checkHybsCompleteness()" rollOverColor="#C0C0C0" selectionColor="#FFFFB9"  width="100%">
@@ -573,13 +567,23 @@
     
     <mx:states>
     	<mx:State name="HybsState">
+    		<mx:AddChild relativeTo="{hbox1}" position="lastChild">
+    			<mx:HBox  horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="4" paddingTop="2" id="workflowCheckBoxContainer">
+    			 <mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
+    			 <mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
+    				<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" paddingLeft="0" paddingRight="0"/>
+    			    <mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE" paddingLeft="0" paddingRight="0"/>
+    			   </mx:HBox>
+    		</mx:AddChild>
     	</mx:State>
-    	<mx:State name="HybsEditState">
+    	<mx:State name="HybsEditState" basedOn="HybsState">
     		<mx:RemoveChild target="{buttonContainer}"/>
-    		<mx:SetStyle target="{workflowCheckBoxContainer}" name="horizontalAlign" value="right"/>
+    		<mx:RemoveChild target="{vbox1}"/>
+    		<mx:SetStyle target="{hybsContainer}" name="borderStyle" value="none"/>
+    		<mx:RemoveChild target="{label1}"/>
+    		<mx:RemoveChild target="{hbox2}"/>
     	</mx:State>
-    	<mx:State name="HybsAdminState">
-    		<mx:SetStyle target="{workflowCheckBoxContainer}" name="horizontalAlign" value="right"/>
+    	<mx:State name="HybsAdminState" basedOn="HybsState">
     		<mx:RemoveChild target="{addHybButton}"/>
     		<mx:RemoveChild target="{clearHybsButton}"/>
     	</mx:State>

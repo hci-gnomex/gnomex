@@ -26,7 +26,7 @@ package views.renderers
 	            	super.change(event);
 		     	} else {
 		     		selectItem();
-		     		Alert.show("Visibility can only be changed by experiment owner, lab manager, or GNomEx admins.");
+		     		Alert.show("Visibility can only be changed by owner, lab manager, or GNomEx admins.");
 		     	}
 	        }
 	        

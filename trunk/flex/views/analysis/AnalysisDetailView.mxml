@@ -7,7 +7,7 @@
 		import mx.controls.Alert;
 		import views.analysis.AnalysisEditView;
 		import hci.flex.renderers.LabelDictionary;
-	
+	 
 	
 		[Bindable]
 		private var analysisTypeName:String;
@@ -17,6 +17,8 @@
 		private var organismName:String;
 		[Bindable] 
 		private var genomeBuildName:String;
+		[Bindable] 
+		private var visibilityName:String;
 		
 		public function checkSecurity():void {
 			if (parentApplication.isGuestMode()) {
@@ -31,6 +33,7 @@
 			getAnalysisProtocolName();
 			getOrganismName();
 			getGenomeBuildName();
+			getVisibilityName();
 			
 			var sequenceLanes:int = 0;
 			for each (var experimentItem:Object in parentDocument.selectedAnalysis.experimentItems.AnalysisExperimentItem..SequenceLane) {
@@ -92,6 +95,10 @@
 			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuild', parentDocument.selectedAnalysis.@idGenomeBuild);
 			genomeBuildName = dict.@display.toString();
 		}		
+		private function getVisibilityName():void {
+			var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', parentDocument.selectedAnalysis.@codeVisibility);
+			visibilityName = dict.@display.toString();
+		}
 		
 		public function showDownloads():void {
 			parentDocument.showAnalysisDownloads();
@@ -150,24 +157,20 @@
  	    
 	        <mx:HBox width="100%"  horizontalGap="5" >
 	        	<mx:VBox verticalGap="0">
-	        		<mx:HBox horizontalGap="0">
-	                    <mx:Label text="Analysis #"  width="81" fontWeight="bold">
-	                    </mx:Label>
-	                    <mx:Text   text="{parentDocument.selectedAnalysis.@number}"  width="130" />
-	                </mx:HBox>
+
 	        		<mx:HBox horizontalGap="0">
 	                    <mx:Label text="Name"  width="81" fontWeight="bold">
 	                    </mx:Label>
 	                    <mx:Text  text="{parentDocument.selectedAnalysis.@name}"  width="130" />
 	                </mx:HBox>
-	                <mx:HBox verticalGap="0" horizontalGap="0">
-	                  <mx:Label text="Submit Date"  width="81" fontWeight="bold"/>
-	                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="130"/>
-	                </mx:HBox>
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Submitted by"  width="81" fontWeight="bold"/>
 		                   <mx:Text text="{parentDocument.selectedAnalysis.@ownerName}" width="130"/> 
 		            </mx:HBox>
+	                <mx:HBox verticalGap="0" horizontalGap="0">
+	                  <mx:Label text="Submit Date"  width="81" fontWeight="bold"/>
+	                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="130"/>
+	                </mx:HBox> 
 	        	</mx:VBox>
 	        	<mx:VBox verticalGap="0">
 		        	
@@ -198,6 +201,10 @@
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Analysis Groups"  width="98" fontWeight="bold"/>
 		                   <mx:Text text="{parentDocument.selectedAnalysis.@analysisGroupNames}" width="100%"/>
+		            </mx:HBox>
+		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+		                   <mx:Label text="Visibility"  width="98" fontWeight="bold"/>
+		                   <mx:Text text="{visibilityName}" width="100%"/>
 		            </mx:HBox>
 	        	</mx:VBox>
 	        </mx:HBox>
