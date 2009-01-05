@@ -70,6 +70,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                newAnalysisGroupDescription;
   private Integer               newAnalysisGroupId = new Integer(-1);
   
+  private String                codeVisibilityToUpdate;
+  
   
   public void validate() {
   }
@@ -151,6 +153,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
     }    
     
+    if (request.getParameter("codeVisibilityToUpdate") != null) {
+      this.codeVisibilityToUpdate = request.getParameter("codeVisibilityToUpdate");      
+    }
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -162,7 +168,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         analysis = analysisScreen;
         analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());        
       } else {
-        analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());        
+        analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());       
+        
+        if (this.getSecAdvisor().canUpdate(analysis, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+          analysis.setCodeVisibility(codeVisibilityToUpdate);
+        }
       }
       
       if (this.getSecurityAdvisor().canUpdate(analysis)) {
