@@ -102,13 +102,13 @@
 	       <mx:DataGrid  id="visibilityGrid" 
 	       	dataProvider="{parentDocument.browseList}" 
 	       	 width="100%" height="100%" 
-			 editable="true"
+			 editable="true" 
 	       	 itemEditEnd="onEdit()">
-	         <mx:columns>
-	            <mx:DataGridColumn width="35" minWidth="35" headerText="#"  editable="false" sortCompareFunction="parentDocument.sortRequestNumber">
+	         <mx:columns> 
+             <mx:DataGridColumn width="15" minWidth="15" headerText="#"  editable="false" sortCompareFunction="parentDocument.sortRequestNumber">
 	                <mx:itemRenderer>
 	                    <mx:Component >
-	                        <mx:HBox  horizontalGap="0" >
+	                        <mx:HBox  horizontalGap="0" paddingLeft="4" >
 			                    <mx:Image id="experimentImage"  
 			                     	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment))}" >
 								</mx:Image>
@@ -118,11 +118,11 @@
 	                    </mx:Component> 
 	                </mx:itemRenderer>
 	            </mx:DataGridColumn> 
-		       	<mx:DataGridColumn headerText="Date" width="20" dataField="@requestCreateDateDisplay"  editable="false"/>
-		        <mx:DataGridColumn headerText="Requester" width="40" labelFunction="parentDocument.getFullName"  sortCompareFunction="parentDocument.sortFullName" editable="false"/>
-		       	<mx:DataGridColumn headerText="Experiment Kind" width="35" labelFunction="parentDocument.getExperimentKind"  sortCompareFunction="parentDocument.sortExperimentKind" editable="false"/>
-		       	<mx:DataGridColumn headerText="Microarray" width="90" dataField="@slideProductName"  editable="false"/>
-		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
+		       	<mx:DataGridColumn headerText="Date" width="15" dataField="@requestCreateDateDisplay"  editable="false"/>
+		        <mx:DataGridColumn headerText="Requester" width="15" labelFunction="parentDocument.getFullName"  sortCompareFunction="parentDocument.sortFullName" editable="false"/>
+		       	<mx:DataGridColumn headerText="Experiment Kind" width="20" labelFunction="parentDocument.getExperimentKind"  sortCompareFunction="parentDocument.sortExperimentKind" editable="false"/>
+		       	<mx:DataGridColumn headerText="Microarray" width="40" dataField="@slideProductName"  editable="false"/>
+		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="40" dataField="@codeVisibility" 
 					editorDataField="value" sortCompareFunction="sortVisibility" editable="true" 
 					rendererIsEditor="false" 
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"

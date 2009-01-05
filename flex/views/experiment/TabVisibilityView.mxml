@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Visibility">
+  <mx:VBox width="100%" height="100%"> 
+  	<mx:HBox width="100%">
+  		<mx:Label width="60" text="Visibility:" id="labelVisibility"/>	
+		<mx:ComboBox width="200" id="visibilityCombo" labelField="@display">
+			<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}</mx:dataProvider>
+		</mx:ComboBox>
+  	</mx:HBox>
+  </mx:VBox>
+	
+</mx:Canvas>
