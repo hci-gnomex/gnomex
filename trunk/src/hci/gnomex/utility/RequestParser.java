@@ -183,19 +183,7 @@ public class RequestParser implements Serializable {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
-   
 
-    //  Map all of the characteristics that were checked -- these represent the annotations to apply.
-    // (All others should be ignored.)
-    /*
-    for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
-      Attribute a = (Attribute)i.next();
-      if (SampleCharacteristic.isValidCode(a.getName())) {
-        if (a.getValue().equalsIgnoreCase("Y")) {
-          this.characteristicsToApplyMap.put(a.getName(), null);
-        }
-      }
-    }*/
     for (Iterator i1 = n.getChild("SampleCharacteristicEntries").getChildren("SampleCharacteristicEntry").iterator(); i1.hasNext();) {
       Element scNode = (Element)i1.next();
       if (scNode.getAttributeValue("isSelected").equals("true")) {
@@ -212,6 +200,13 @@ public class RequestParser implements Serializable {
     // Is reuse slides checked on request (for new submits only, not updates)
     if (n.getAttributeValue("reuseSlides") != null && n.getAttributeValue("reuseSlides").equalsIgnoreCase("Y")) {
       this.saveReuseOfSlides = true;
+    }
+    
+    // On existing requests, save visibility
+    if (!isNewRequest) {
+      if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+        request.setCodeVisibility(n.getAttributeValue("codeVisibility"));        
+      }
     }
   }
   
