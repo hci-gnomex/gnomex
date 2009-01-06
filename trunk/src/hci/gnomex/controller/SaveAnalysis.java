@@ -14,6 +14,7 @@ import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.RequestParser;
 
 import java.io.File;
 import java.io.Serializable;
@@ -362,8 +363,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   private void initializeAnalysis(Analysis analysis) {
-    analysis.setName(analysisScreen.getName());
-    analysis.setDescription(analysisScreen.getDescription());
+    analysis.setName(RequestParser.unEscape(analysisScreen.getName()));
+    analysis.setDescription(RequestParser.unEscapeBasic(analysisScreen.getDescription()));
     analysis.setIdLab(analysisScreen.getIdLab());
     analysis.setIdAnalysisProtocol(analysisScreen.getIdAnalysisProtocol());
     analysis.setIdAnalysisType(analysisScreen.getIdAnalysisType());

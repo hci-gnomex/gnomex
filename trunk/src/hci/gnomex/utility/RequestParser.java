@@ -1347,7 +1347,7 @@ public class RequestParser implements Serializable {
   }
 
 
-  public static String unEscape(String text) {
+  public static String unEscapeBasic(String text) {
     if (text == null) {
       return text;
     }
@@ -1357,6 +1357,21 @@ public class RequestParser implements Serializable {
     text = text.replaceAll("&gt;",     ">");
     text = text.replaceAll("&lt;",     "<");
     text = text.replaceAll("&#181;",   "�");
+
+    return text;
+  }
+  
+  public static String unEscape(String text) {
+    if (text == null) {
+      return text;
+    }
+    
+    text = unEscapeBasic(text);
+    text = text.replaceAll("&#xD;",   "         ");
+    text = text.replaceAll("&#xA;",   "         ");
+    text = text.replaceAll("&#x10;",  "         ");
+    text = text.replaceAll("&#13;",   "         ");
+    text = text.replaceAll("&#x9;",   "    ");
     return text;
   }
 
