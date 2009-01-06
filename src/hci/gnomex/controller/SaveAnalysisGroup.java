@@ -7,6 +7,7 @@ import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -52,8 +53,8 @@ public class SaveAnalysisGroup extends GNomExCommand implements Serializable {
       
       if (this.getSecAdvisor().canUpdate(analysisGroup)) {
 
-        this.analysisGroup.setName(this.unEscape(analysisGroup.getName()));
-        this.analysisGroup.setDescription(this.unEscape(analysisGroup.getDescription()));
+        this.analysisGroup.setName(RequestParser.unEscape(analysisGroup.getName()));
+        this.analysisGroup.setDescription(RequestParser.unEscapeBasic(analysisGroup.getDescription()));
         
         sess.save(analysisGroup);
         sess.flush();
@@ -95,23 +96,11 @@ public class SaveAnalysisGroup extends GNomExCommand implements Serializable {
       
     }
     
-    analysisGroup.setName(this.unEscape(load.getName()));
-    analysisGroup.setDescription(this.unEscape(load.getDescription()));
+    analysisGroup.setName(RequestParser.unEscape(load.getName()));
+    analysisGroup.setDescription(RequestParser.unEscapeBasic(load.getDescription()));
   }  
   
-   public static String unEscape(String text) {
-     if (text == null) {
-       return text;
-     }
-     text = text.replaceAll("&amp;",    "&");
-     text = text.replaceAll("&quot;",   "\"");
-     text = text.replaceAll("&apos;",   "'");
-     text = text.replaceAll("&gt;",     ">");
-     text = text.replaceAll("&lt;",     "<");
-     text = text.replaceAll("&#181;",   "�");
-     return text;
-   }
-
+ 
   
   
 

@@ -10,6 +10,7 @@ import hci.gnomex.model.QualityControlStepEntry;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.RequestParser;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -147,8 +148,8 @@ public class SaveProject extends GNomExCommand implements Serializable {
       project = (Project)sess.load(Project.class, idProject);
     }
     
-    project.setName(this.unEscape(n.getAttributeValue("name")));
-    project.setDescription(this.unEscape(n.getAttributeValue("description")));
+    project.setName(RequestParser.unEscape(n.getAttributeValue("name")));
+    project.setDescription(RequestParser.unEscapeBasic(n.getAttributeValue("description")));
     project.setIdAppUser(new Integer(n.getAttributeValue("idAppUser")));
     project.setIdLab(new Integer(n.getAttributeValue("idLab")));
     
@@ -184,7 +185,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
           entry.setIdProject(project.getIdProject());
           entry.setCodeExperimentFactor(code);
           entry.setValue("Y");
-          entry.setOtherLabel(this.unEscape(otherLabel));
+          entry.setOtherLabel(RequestParser.unEscape(otherLabel));
           
           sess.save(entry);
         }
@@ -231,7 +232,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
           entry.setIdProject(project.getIdProject());
           entry.setCodeExperimentDesign(code);
           entry.setValue("Y");
-          entry.setOtherLabel(this.unEscape(otherLabel));
+          entry.setOtherLabel(RequestParser.unEscape(otherLabel));
           sess.save(entry);
         }
         
@@ -282,7 +283,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
           entry.setIdProject(project.getIdProject());
           entry.setCodeQualityControlStep(code);
           entry.setValue("Y");
-          entry.setOtherLabel(this.unEscape(otherLabel));
+          entry.setOtherLabel(RequestParser.unEscape(otherLabel));
           sess.save(entry);
         }
         
@@ -293,7 +294,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
           entry.setIdProject(project.getIdProject());
           entry.setCodeQualityControlStep(code);
           entry.setValue("Y");
-          entry.setOtherLabel(this.unEscape(otherValidationLabel));
+          entry.setOtherLabel(RequestParser.unEscape(otherValidationLabel));
           sess.save(entry);
         }
         
@@ -385,18 +386,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
 
 
 
-   public static String unEscape(String text) {
-     if (text == null) {
-       return text;
-     }
-     text = text.replaceAll("&amp;",    "&");
-     text = text.replaceAll("&quot;",   "\"");
-     text = text.replaceAll("&apos;",   "'");
-     text = text.replaceAll("&gt;",     ">");
-     text = text.replaceAll("&lt;",     "<");
-     text = text.replaceAll("&#181;",   "�");
-     return text;
-   }
+
 
   
   
