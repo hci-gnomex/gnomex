@@ -173,6 +173,14 @@
 	                </mx:HBox> 
 	        	</mx:VBox>
 	        	<mx:VBox verticalGap="0">
+		            <mx:HBox verticalGap="0" horizontalGap="0">
+		                <mx:Label text="Organism"  width="85" fontWeight="bold"/>
+		                <mx:Text  text="{organismName}" width="150" />
+		            </mx:HBox>
+		            <mx:HBox verticalGap="0" horizontalGap="0">
+		                <mx:Label text="Genome Build"  width="85" fontWeight="bold"/>
+		                <mx:Text  text="{genomeBuildName}" width="150" />
+		            </mx:HBox>
 		        	
 		        	 <mx:HBox verticalGap="0" horizontalGap="0">
 		        	       <mx:Label text="Analysis Type"  width="85" fontWeight="bold"/>
@@ -182,26 +190,18 @@
 		                <mx:Label text="Protocol"  width="85" fontWeight="bold"/>
 		                <mx:Text  text="{analysisProtocolName}" width="150" />
 		            </mx:HBox>
-		            <mx:HBox verticalGap="0" horizontalGap="0">
-		                <mx:Label text="Organism"  width="85" fontWeight="bold"/>
-		                <mx:Text  text="{organismName}" width="150" />
-		            </mx:HBox>
-		            <mx:HBox verticalGap="0" horizontalGap="0">
-		                <mx:Label text="Genome Build"  width="85" fontWeight="bold"/>
-		                <mx:Text  text="{genomeBuildName}" width="150" />
-		            </mx:HBox>
 	        	</mx:VBox>
 	        	<mx:VBox width="100%" verticalGap="0">
+		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+		                   <mx:Label text="Analysis Groups"  width="98" fontWeight="bold"/>
+		                   <mx:Text text="{parentDocument.selectedAnalysis.@analysisGroupNames}" width="100%"/>
+		            </mx:HBox>
 		        	
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Group"  width="98" fontWeight="bold"/>
 		                   <mx:Text text="{parentDocument.selectedAnalysis.@labName}" width="100%"/>
 		            </mx:HBox>
 		        	
-		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-		                   <mx:Label text="Analysis Groups"  width="98" fontWeight="bold"/>
-		                   <mx:Text text="{parentDocument.selectedAnalysis.@analysisGroupNames}" width="100%"/>
-		            </mx:HBox>
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Visibility"  width="98" fontWeight="bold"/>
 		                   <mx:Text text="{visibilityName}" width="100%"/>
