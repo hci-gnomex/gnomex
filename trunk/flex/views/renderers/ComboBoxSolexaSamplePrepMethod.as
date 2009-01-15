@@ -23,7 +23,7 @@ package views.renderers
             
             
 	        protected override function setDataProvider():void {
-	        	var samplePrepMethods:XMLListCollection = new XMLListCollection(dictionaryManager.getEntries(dictionary));
+	        	var samplePrepMethods:XMLListCollection = new XMLListCollection();
 
 	        	var de:Object;
 	        	// Remove non-solexa sample prep methods.
@@ -37,8 +37,8 @@ package views.renderers
     	   		    		break;
     	   				}
     	   			}
-    	   			if (!doesMatchRequestCategory) {
-    	   				samplePrepMethods.removeItemAt(samplePrepMethods.getItemIndex(de));
+    	   			if (doesMatchRequestCategory) {
+    	   				samplePrepMethods.addItem(de);
     	   			}				
 	        		
 	        	}
