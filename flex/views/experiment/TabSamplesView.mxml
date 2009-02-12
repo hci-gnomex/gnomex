@@ -59,7 +59,7 @@
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
-					" idSeqRunType='" +	parentDocument.sampleSetupView.getDefaultIdSeqRunType() + "'" +			
+					" idSeqRunType='" +	parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
