@@ -160,6 +160,8 @@ public class SecurityManager extends SimpleUserManager  {
     try {
       
       DirContext ctx = new InitialDirContext(env);
+      
+      ctx.close();
 
       return true;
     } catch (AuthenticationException ae) {
