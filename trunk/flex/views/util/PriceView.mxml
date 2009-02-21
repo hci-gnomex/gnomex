@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="236" height="176" 
+	xmlns:views="views.*"
+	showCloseButton="true" 
+	close="{PopUpManager.removePopUp(this)}" 
+	title="Microarray Core Facility Pricing"  horizontalAlign="left">
+	<mx:VBox width="100%" verticalGap="8" height="100%" fontSize="10" paddingTop="8" paddingLeft="8" horizontalAlign="left" verticalAlign="middle" backgroundColor="#FFFFFF">
+		
+		<mx:LinkButton label="Affymetrix Microarray Services" useHandCursor="true" textDecoration="underline" color="#0000ff">
+			<mx:click>navigateToURL(new URLRequest('doc/microarray_core_pricing_affy.doc'), '_blank');</mx:click>
+		</mx:LinkButton>
+		<mx:LinkButton label="Agilent Microarray Services" useHandCursor="true" textDecoration="underline" color="#0000ff">
+			<mx:click>navigateToURL(new URLRequest('doc/microarray_core_pricing_agilent.doc'), '_blank');</mx:click>
+		</mx:LinkButton>
+		<mx:LinkButton label="Sample Quality Services" useHandCursor="true" textDecoration="underline" color="#0000ff">
+			<mx:click>navigateToURL(new URLRequest('doc/microarray_core_pricing_sampleQuality.doc'), '_blank');</mx:click>
+		</mx:LinkButton>
+		<mx:LinkButton label="Illumina Sequencing Services" useHandCursor="true" textDecoration="underline" color="#0000ff">
+			<mx:click>navigateToURL(new URLRequest('doc/microarray_core_pricing_illumina.doc'), '_blank');</mx:click>
+		</mx:LinkButton>
+		
+	</mx:VBox>
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+		]]>
+	</mx:Script>
+</mx:TitleWindow>
