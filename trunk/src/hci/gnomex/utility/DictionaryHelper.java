@@ -2,8 +2,12 @@ package hci.gnomex.utility;
 
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.AnalysisType;
+import hci.gnomex.model.BillingCategory;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingPrice;
+import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.MicroarrayCategory;
 import hci.gnomex.model.NumberSequencingCycles;
@@ -12,22 +16,28 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SamplePrepMethod;
+import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SampleSource;
 import hci.gnomex.model.SampleType;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.SlideSource;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.hibernate.Session;
 
 
 public class DictionaryHelper implements Serializable {
+  private static DictionaryHelper theInstance;
+  
   private Map              sampleTypeMap = new HashMap();
   private Map              samplePrepMethodMap = new HashMap();
   private Map              sampleCharacteristicMap = new HashMap();
@@ -44,12 +54,30 @@ public class DictionaryHelper implements Serializable {
   private Map              genomeBuildMap = new HashMap();  
   private Map              analysisProtocolMap = new HashMap();
   private Map              analysisTypeMap = new HashMap();
+  private Map              billingStatusMap = new HashMap();
+  private Map              billingPeriodMap = new HashMap();
+  private Map              sampleTypeToDefaultSamplePrepMethodMap = new HashMap();
+  
+  
+  
+  private List billingTemplates = null;
+  private Map billingCategoryMap = new TreeMap();
+  private Map billingPriceMap = new TreeMap();
+  
   
   public DictionaryHelper() {    
   }
   
+  public static synchronized DictionaryHelper getInstance(Session sess) {
+    if (theInstance == null) {
+      theInstance = new DictionaryHelper();
+      theInstance.loadDictionaries(sess);      
+    }
+    return theInstance;
+    
+  }
   
-  public void getDictionaries(Session sess) {
+  private void loadDictionaries(Session sess) {
     List sampleTypes = sess.createQuery("SELECT st from SampleType as st").list();
     for(Iterator i = sampleTypes.iterator(); i.hasNext();) {
       SampleType st = (SampleType)i.next();
@@ -131,7 +159,83 @@ public class DictionaryHelper implements Serializable {
       AnalysisProtocol at = (AnalysisProtocol)i.next();
       analysisProtocolMap.put(at.getIdAnalysisProtocol(), at.getAnalysisProtocol());
     }  
+    List billingStatusList = sess.createQuery("SELECT st from BillingStatus as st").list();
+    for(Iterator i = billingStatusList.iterator(); i.hasNext();) {
+      BillingStatus st = (BillingStatus)i.next();
+      billingStatusMap.put(st.getCodeBillingStatus(), st.getBillingStatus());
+    } 
+    List billingPeriodList = sess.createQuery("SELECT bp from BillingPeriod as bp").list();
+    for(Iterator i = billingPeriodList.iterator(); i.hasNext();) {
+      BillingPeriod bp = (BillingPeriod)i.next();
+      billingPeriodMap.put(bp.getIdBillingPeriod(), bp);
+    }      
+    List samplePrepMethodSampleTypes = sess.createQuery("SELECT x from SamplePrepMethodSampleType as x").list();
+    for(Iterator i = samplePrepMethodSampleTypes.iterator(); i.hasNext();) {
+      SamplePrepMethodSampleType x = (SamplePrepMethodSampleType)i.next();
+      SamplePrepMethodSampleType current = (SamplePrepMethodSampleType)sampleTypeToDefaultSamplePrepMethodMap.get(x.getIdSampleType());
+      if (current == null || current.getIsDefaultForSampleType() == null || !current.getIsDefaultForSampleType().equals("Y")) {
+        sampleTypeToDefaultSamplePrepMethodMap.put(x.getIdSampleType(), x);        
+      }
+    }
+    
    }
+  
+  public void reloadBillingTemplates(Session sess) {
+    billingTemplates = null;
+    billingCategoryMap = new HashMap();
+    billingPriceMap = new HashMap();
+    loadBillingTemplates(sess);
+  }
+  
+  public void loadBillingTemplates(Session sess) {
+    if (billingTemplates == null) {
+      billingTemplates = new ArrayList();
+      StringBuffer buf = new StringBuffer("SELECT t from BillingTemplate t ORDER BY t.description ");
+      List results = sess.createQuery(buf.toString()).list();
+      for(Iterator i = results.iterator(); i.hasNext();) {
+        BillingTemplate bt = (BillingTemplate)i.next();
+        billingTemplates.add(bt);
+        billingCategoryMap.put(bt.getIdBillingTemplate(), new ArrayList());
+      }
+
+      buf = new StringBuffer();
+      buf.append("SELECT t.idBillingTemplate, cat from BillingTemplate t, BillingTemplateEntry x, BillingCategory cat ");
+      buf.append("WHERE  t.idBillingTemplate = x.idBillingTemplate ");
+      buf.append("AND    x.idBillingCategory = cat.idBillingCategory ");
+      buf.append("ORDER BY x.idBillingTemplate, x.sortOrder ");
+      results = sess.createQuery(buf.toString()).list();
+      for (Iterator i = results.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        Integer idBillingTemplate = (Integer)row[0];
+        BillingCategory category = (BillingCategory)row[1];
+    
+        List categories = (List)billingCategoryMap.get(idBillingTemplate);
+        if (categories == null) {
+          categories = new ArrayList();
+          billingCategoryMap.put(idBillingTemplate, categories);
+        }
+        categories.add(category);
+    
+        billingPriceMap.put(category.getIdBillingCategory(), new ArrayList());
+      }
+
+      buf = new StringBuffer();
+      buf.append("SELECT bp from BillingPrice bp");
+      results = sess.createQuery(buf.toString()).list();
+      for (Iterator i = results.iterator(); i.hasNext();) {
+        BillingPrice bp = (BillingPrice)i.next();
+    
+        List prices = (List)billingPriceMap.get(bp.getIdBillingCategory());
+        if (prices == null) {
+          prices = new ArrayList();
+          billingPriceMap.put(bp.getIdBillingCategory(), prices);
+        }
+        prices.add(bp);
+      }
+      
+    }
+      
+  }
   
   public String getSampleType(Sample sample) {
     String name = "";
@@ -280,6 +384,48 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
+  public String getBillingStatus(String codeBillingStatus) {
+    String billingStatus = "";
+    if (codeBillingStatus != null) {
+      billingStatus = (String)billingStatusMap.get(codeBillingStatus);
+    }
+    return billingStatus;
+  }
+  
+  public BillingPeriod getBillingPeriod(Integer idBillingPeriod) {
+    BillingPeriod billingPeriod = null;
+    if (idBillingPeriod != null) {
+      BillingPeriod bp = (BillingPeriod)billingPeriodMap.get(idBillingPeriod);
+      if (bp != null) {
+        billingPeriod = bp;
+      }
+    }
+    return billingPeriod;
+  }
+  
+  public BillingPeriod getCurrentBillingPeriod() {
+    BillingPeriod billingPeriod = null;
+    for(Iterator i = billingPeriodMap.keySet().iterator(); i.hasNext();) {
+      Integer id = (Integer)i.next();
+      BillingPeriod bp = (BillingPeriod)billingPeriodMap.get(id);
+      if (bp.getIsCurrentPeriod().equals("Y")) {
+        billingPeriod = bp;
+        break;
+      }
+    }
+    return billingPeriod;
+  }
+  
+  public Integer getDefaultIdSamplePrepMethod(Integer idSampleType) {
+    SamplePrepMethodSampleType x= (SamplePrepMethodSampleType)this.sampleTypeToDefaultSamplePrepMethodMap.get(idSampleType);
+    if (x != null) {
+      return x.getIdSamplePrepMethod();
+    } else {
+      return null;
+    }
+  }
+  
   public Map getChipMap() {
     return chipMap;
   }
@@ -313,5 +459,22 @@ public class DictionaryHelper implements Serializable {
   public Map getSlideProductMap() {
     return slideProductMap;
   }
+  
+  
+  public List getBillingTemplates() {
+    return billingTemplates;
+  }
+  
+  public List getBillingCategories(Integer idBillingTemplate) {    
+    return (List)billingCategoryMap.get(idBillingTemplate);
+  }
 
+  public List getBillingPrices(Integer idBillingCategory) {    
+    return (List)billingPriceMap.get(idBillingCategory);
+  }
+  
+  
+  
+ 
+  
 }

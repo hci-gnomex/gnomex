@@ -21,6 +21,8 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
   private String   isActive;
   private Set      slideDesigns;
   private Set      microarrayCategories;
+  private Integer  idBillingSlideServiceClass;
+  private Integer  idBillingSlideProductClass;
   
   public void copyEditableDataFrom(SlideProduct sp) {
     this.setName(sp.getName());
@@ -29,7 +31,9 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
     this.setIsCustom(sp.getIsCustom());
     this.setIsActive(sp.getIsActive());
     this.setIdLab(sp.getIdLab());
-    this.setCatalogNumber(this.getCatalogNumber());
+    this.setCatalogNumber(sp.getCatalogNumber());
+    this.setIdBillingSlideProductClass(sp.getIdBillingSlideProductClass());
+    this.setIdBillingSlideServiceClass(sp.getIdBillingSlideServiceClass());
   }
   
   public String getDisplay() {
@@ -171,6 +175,28 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
     this.microarrayCategories = microarrayCategories;
   }
 
+  
+  public Integer getIdBillingSlideServiceClass() {
+    return idBillingSlideServiceClass;
+  }
+
+  
+  public void setIdBillingSlideServiceClass(Integer idBillingSlideServiceClass) {
+    this.idBillingSlideServiceClass = idBillingSlideServiceClass;
+  }
+
+  
+  public Integer getIdBillingSlideProductClass() {
+    return idBillingSlideProductClass;
+  }
+
+  
+  public void setIdBillingSlideProductClass(Integer idBillingSlideProductClass) {
+    this.idBillingSlideProductClass = idBillingSlideProductClass;
+  }
+
+  
+ 
  
   
  

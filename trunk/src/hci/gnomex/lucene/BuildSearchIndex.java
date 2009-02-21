@@ -128,8 +128,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void init() throws Exception {
     // Get dictionaries
-    dh = new DictionaryHelper();
-    dh.getDictionaries(sess);
+    dh = DictionaryHelper.getInstance(sess);
     
   }
   

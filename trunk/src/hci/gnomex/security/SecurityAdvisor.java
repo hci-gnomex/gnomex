@@ -43,6 +43,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   // Global Permissions
   public static final String          CAN_WRITE_DICTIONARIES                      = "canWriteDictionaries";            
   public static final String          CAN_MANAGE_WORKFLOW                         = "canManageWorkflow";
+  public static final String          CAN_MANAGE_BILLING                          = "canManageBilling";
   public static final String          CAN_ADMINISTER_USERS                        = "canAdministerUsers";
   public static final String          CAN_ACCESS_ANY_OBJECT                       = "canAccessAnyObject";
   public static final String          CAN_WRITE_ANY_OBJECT                        = "canWriteAnyObject";
@@ -704,6 +705,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Can manager workflow
     if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
+    }
+
+    // Can manage billing
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+      globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
     }
     
     // Can administer users

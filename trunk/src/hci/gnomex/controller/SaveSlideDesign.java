@@ -299,6 +299,8 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
     slideProduct.setIdLab(slideProductScreen.getIdLab());
     slideProduct.setIsActive(slideProductScreen.getIsActive());
     slideProduct.setCatalogNumber(slideProductScreen.getCatalogNumber());
+    slideProduct.setIdBillingSlideProductClass(slideProductScreen.getIdBillingSlideProductClass());
+    slideProduct.setIdBillingSlideServiceClass(slideProductScreen.getIdBillingSlideServiceClass());
     
     if(slideProductScreen.getArraysPerSlide() == null || 
        slideProductScreen.getArraysPerSlide().intValue() == 0) {

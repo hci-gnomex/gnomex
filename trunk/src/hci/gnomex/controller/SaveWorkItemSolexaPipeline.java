@@ -162,10 +162,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
   
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
-    if (dictionaryHelper == null) {
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
-    }
+    dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;

@@ -9,6 +9,7 @@
 	xmlns:search="views.search.*"
 	xmlns:slide="views.slide.*"
 	xmlns:hci="hci.flex.components.*"
+	xmlns:billing="views.billing.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
 	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()" >
@@ -148,6 +149,7 @@
         	import hci.flex.util.DictionaryManager; 
         	import hci.flex.components.DictionaryEditor;
         	import views.util.AboutView;
+        	import views.util.PriceView;
         	import views.util.AppProgressView;
         	import views.util.FileDownloadUtil;
         	import views.util.PromptXMLListCollection;
@@ -251,14 +253,23 @@
 	        [Embed(source="assets/chart_line.png")]
 	        public var iconSamplePrep:Class;
 
-
-	        [Bindable]
+ 
+	        [Bindable] 
 	        [Embed(source="assets/map.png")]
 	        public var iconAnalysis:Class;
 
 	        [Bindable]
 	        [Embed(source="assets/server_go.png")]
 	        public var iconServer:Class;
+	        
+	        
+	        [Bindable]
+	        [Embed(source="assets/money.png")]
+	        public var iconBilling:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/folder_money.png")]
+	        public var iconBillingFolder:Class;
 	        
 	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
 	        
@@ -467,6 +478,9 @@
 					navAnalysisView.selectedAnalysisNumber = null;
             		navAnalysisView.initializeAnalysis();
             	}
+				if (theViews.selectedChild == navBillingView) {
+            		navBillingView.initializeData();
+            	}            	
             	if (theViews.selectedChild == navUsersView) {
             		navUsersView.checkSecurity();
             		navUsersView.initializeData();
@@ -638,6 +652,9 @@
 					theViews.removeChild(navWorkflowView);
 					theViews.removeChild(slideManagementView);
 				}
+				if (!hasPermission("canManageBilling")) {
+					theViews.removeChild(navBillingView);
+				}				
 				if (hasPermission("canWriteDictionaries")) {
 					dictionaryButton.enabled = true;
 					dictionaryButton.visible = true;
@@ -645,6 +662,9 @@
 					dictionaryButton.enabled = false;
 					dictionaryButton.visible = false;					
 				}            	
+				if (this.isGuestMode()) {
+					pricingButton.visible = false;
+				}
 				this.navExperimentView.checkSecurity();
 				this.navExperimentView.detailView.checkSecurity();
             }
@@ -930,6 +950,7 @@
 			        </mx:HBox>
 			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
 			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));" visible="false" enabled="false"/>
+			        	<mx:LinkButton label="Pricing" id="pricingButton" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, PriceView, false));" visible="false"/>
 			        	<mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest('http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm'), '_blank');"/>
 			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));"/>
 			        </mx:HBox>
@@ -978,6 +999,9 @@
 			        <workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
 			        </workflow:NavWorkflowView> 
 		 
+		            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
+		            </billing:NavBillingView>
+		            
 			        <protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
 			        </protocol:ProtocolsView>
 		
@@ -1009,6 +1033,7 @@
 	 		<mx:SetProperty target="{searchText}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{dictionaryButton}" name="visible" value="true"/>
+	 		<mx:SetProperty target="{pricingButton}" name="visible" value="true"/>
 	 		
 	 	</mx:State>
 	 </mx:states>

@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%"   
+	height="100%" 
+	xmlns:util="views.util.*" > 
+ 
+   <mx:HTTPService            
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab" 
+    resultFormat="e4x"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{this.labCombo.selectedItem.@idLab}</idLab>
+    </mx:request>
+   </mx:HTTPService>
+   	 
+    <mx:HTTPService 
+    id="getBillingTemplateList" 
+    url="GetBillingTemplateList.gx"
+    resultFormat="e4x"
+    result="onGetBillingTemplateList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get billing prices', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService > 
+    
+    <mx:HTTPService 
+    id="getBillingRequestList" 
+    url="GetBillingRequestList.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetBillingRequestList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get billing request list', event)"
+    method="POST"
+    useProxy="false">
+       <mx:request>
+         <idBillingPeriod>{billingPeriodCombo.selectedItem.@value}</idBillingPeriod>       	
+         <idLab>{labCombo.selectedItem.@idLab}</idLab>       	
+         <idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
+       </mx:request>
+    </mx:HTTPService >  
+    
+    <mx:HTTPService 
+    id="getBillingItemList" 
+    url="GetBillingItemList.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetBillingItemList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get billing item list', event)"
+    method="POST"
+    useProxy="false">
+       <mx:request>
+         <requestNumber>{requestNumberText.text}</requestNumber>
+         <idBillingPeriod>{requestNumberText.text == "" ? billingPeriodCombo.selectedItem.@value : ""}</idBillingPeriod>       	
+         <idLab>{requestNumberText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
+         <idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
+       </mx:request>
+    </mx:HTTPService >          
+    
+    <mx:HTTPService 
+    id="createBillingItems" 
+    url="CreateBillingItems.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onCreateBillingItems(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to create new billing items', event)"
+    method="POST" 
+    useProxy="false"> 
+    </mx:HTTPService >
+        
+    <mx:HTTPService 
+    id="saveBillingItemList" 
+    url="SaveBillingItemList.gx"
+    resultFormat="e4x"
+    destination="saveBillingItemList"
+    showBusyCursor="true"
+    result="onSaveBillingItemList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save billing items', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >    
+    
+
+     
+
+<mx:Script>
+ 	<![CDATA[
+ 		import mx.formatters.CurrencyFormatter;
+ 		import mx.collections.XMLListCollection; 
+ 		import mx.collections.Sort;
+		import mx.events.DragEvent;
+		import mx.managers.DragManager;
+        import mx.core.DragSource;
+        import mx.controls.Alert;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import hci.flex.renderers.LabelDictionary;
+		import hci.flex.renderers.ComboBoxDictionary;
+        import views.renderers.ComboBoxBillingStatus;
+        import mx.events.CollectionEvent;	
+        import mx.events.CollectionEventKind;	
+        import mx.events.PropertyChangeEvent;
+ 		
+		private var billingItems:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var billingAccounts:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var requests:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var billingTemplates:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var billingPeriods:XMLListCollection = new XMLListCollection();
+        
+        private var billingItemsToRemove:XMLListCollection = new XMLListCollection();
+        
+        [Bindable]
+        private var dirtyBillingItems:XMLListCollection = null;
+        
+        private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+        
+        private var lastSelectedItem:Object = null;
+
+      	public function initializeData():void
+      	{
+      		getBillingTemplateList.send();
+
+			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
+        	var billingPeriodSort:Sort = new Sort();
+        	billingPeriodSort.compareFunction = this.sortBillingPeriods;	   
+        	billingPeriods.sort = billingPeriodSort;  
+        	billingPeriods.refresh();
+        	billingPeriodCombo.dataProvider = billingPeriods;   
+ 
+			var currentBillingPeriod:Object = null;
+			for each( var de:Object in billingPeriods) {
+				if (de.@value != "" && de.@isCurrentPeriod == "Y") {
+					currentBillingPeriod = de;
+		        	billingPeriodCombo.selectedItem = currentBillingPeriod;
+		        	var params:Object = new Object();
+		        	params.idBillingPeriod = currentBillingPeriod.@value;
+		        	getBillingRequestList.send(params);
+		        	getBillingItemList.send(params);
+					break;
+				}
+			}
+        	
+        	
+        	currencyFormatter.currencySymbol = "$";
+        	currencyFormatter.precision = 2;
+        	currencyFormatter.useThousandsSeparator;
+      	}		
+		public function checkDirty():void {
+		}
+		
+		public function recalculateTotalPrice(experiment:Object):void {
+			for each(var bi:Object in experiment.BillingItem) {
+				bi.@totalPrice = bi.@unitPrice * bi.@qty;
+				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	
+			}
+		}
+		
+		
+		private function addBillingItem():void {
+			dirty.setDirty();
+			var emptyNode:XML = null;
+			emptyNode = new XML("<BillingItem " +
+				    " idBillingItem='" + "BillingItem" + billingItems.length + "'" +
+				    " category='' description='' " +
+				    " codeBillingChargeKind=''" +				
+					" idBillingPeriod=''" +				
+					" qty=''" +
+					" unitPrice=''" + 
+					" totalPrice=''" +
+					" isDirty='Y'" +
+					" codeBillingStatus = 'PENDING'" +
+					"/>");
+			var requestNode:Object = null;
+			if ( billingItemGrid.selectedItem == null) {
+				requestNode = billingItemsDisplayed.getItemAt(0);
+			} else if (billingItemGrid.selectedItem.name() == "BillingItem") {
+	       		requestNode = billingItemGrid.selectedItem.parent();
+	       	} else {
+	       		requestNode = billingItemGrid.selectedItem;
+	       	}
+	       	requestNode.appendChild(emptyNode);
+	       	requestNode.@isDirty = "Y";
+	       							
+		} 
+		
+		private function removeBillingItem():void {
+			dirty.setDirty();
+			if (billingItemGrid.selectedItems.length > 0) {
+				var item:XML = null;
+				for each(item in billingItemGrid.selectedItems) {		
+					item.@remove = "Y";
+					
+					if (item.name() == "Request") {
+						for each(var bi:XML in item.BillingItem) { 
+							billingItemsToRemove.addItem(bi); 
+						}
+						billingItems.removeItemAt(billingItems.getItemIndex(item));
+						
+					} else if (item.name() == "BillingItem") {
+						billingItemsToRemove.addItem(item);
+						var requestNode:XML = item.parent();
+						for (var i:int = 0; i < requestNode.children().length(); i++) {
+							if(requestNode.children()[i].@remove == "Y") {
+								delete requestNode.children()[i];
+							}
+						}
+					}
+				}
+			}
+			this.onRequestNodeSelected();
+		}
+		
+      	  
+		public function getTreeIcon(item:Object):Class {
+				if (item.name() == "Status" ||
+				    item.name() == "BillingTemplate" ){ 
+					return parentApplication.iconProject;
+				}else if (item.name() == "Request") {
+					if (item.@codeRequestCategory == "SOLEXA") {
+						return parentApplication.iconSolexa;
+					} if (item.@codeRequestCategory == "QC") {
+						return parentApplication.iconQC;
+					} else {
+						return parentApplication.iconExperiment;
+					}
+				}else if (item.name() == "BillingCategory" ) {
+					return parentApplication.iconBillingFolder;
+				} else if (item.name() == "Lab") {
+					return parentApplication.iconGroup;
+				} else {
+					return parentApplication.iconBilling;
+				} 
+		}
+		
+		private function refresh():void {
+			billingItemsDisplayed = new XMLListCollection();
+			this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+			
+			var params:Object = new Object();
+			params.action = "refresh";
+			getBillingTemplateList.send(params);
+			
+			if (requestNumberText.text != "") {
+				this.refreshBillingItemsByRequestNumber();
+			} else {
+				this.refreshBillingItems();
+			}
+		}
+		
+		private function refreshBillingItems():void {
+			if (billingPeriodCombo.selectedItem == null) {
+				billingPeriodCombo.setFocus();
+				Alert.show("Please select a billing period or enter an experiment #");
+			} else {
+				this.dirty.resetDirty();
+				this.getBillingRequestList.send();
+			}
+		}
+		
+		private function refreshBillingItemsByRequestNumber():void {
+			billingPeriodCombo.selectedItem = null;
+			labCombo.selectedItem = null;
+			billingAccountCombo.selectedItem = null;
+			
+			this.dirty.resetDirty();
+
+			var params:Object = new Object();
+			params.requestNumber = requestNumberText.text;
+			getBillingRequestList.send(params);
+		}
+		
+		private function underlyingBillingItemChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || 
+			    event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}			
+			dirty.setDirty();  
+				
+			for each(var e:Object in event.items) {
+				if (e is PropertyChangeEvent) {
+					var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+					var experiment:Object = pe.source;
+					billingItems.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
+					experiment.@isDirty = "Y";
+					recalculateTotalPrice(experiment);					
+					billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
+					
+				}
+			}				
+		}
+		private function onGetBillingTemplateList(event:ResultEvent):void {
+			if (getBillingTemplateList.lastResult.name() == "BillingTemplateList") {
+				this.billingTemplates = new XMLListCollection(getBillingTemplateList.lastResult.BillingTemplate);
+				this.billingCategoryTree.dataProvider = new HierarchicalData(billingTemplates);
+				this.billingCategoryTree.dataProvider.refresh();   	
+			} else {
+				Alert.show("An error occurred while getting price sheet.");
+			}			
+		}
+		private function onGetBillingRequestList(event:ResultEvent):void {
+			if (getBillingRequestList.lastResult.name() == "BillingRequestList") {
+				this.requests = new XMLListCollection(getBillingRequestList.lastResult.Status);
+				this.requestTree.dataProvider = new HierarchicalData(requests);
+				this.requestTree.dataProvider.refresh();   	
+				
+				getBillingItemList.send();
+			} else {
+				Alert.show("An error occurred while getting billing requests.");
+			}			
+		} 
+		private function onGetBillingItemList(event:ResultEvent):void {
+			if (getBillingItemList.lastResult.name() == "BillingItemList") {
+				this.billingItems = new XMLListCollection(getBillingItemList.lastResult.Request);
+				this.billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);			
+
+				reselectRequestTree();
+				this.onRequestNodeSelected();
+				
+			} else {
+				Alert.show("An error occurred while getting billing items.");
+			}			
+		} 
+		
+		private function reselectRequestTree():void {
+			if (lastSelectedItem != null) {
+				if (lastSelectedItem.name() == "Request") {
+					for each(var p:XML in requests) {
+						for each(var request:XML in p..Request) {
+							if (request.@requestNumber == lastSelectedItem.@requestNumber) {
+								this.requestTree.selectedItem = request;
+								this.requestTree.firstVisibleItem = request;
+								break; 
+							}
+						}
+					}
+				} else if (lastSelectedItem.name() == "Status") {
+					for each(var status:XML in requests) {
+						if (status.@label == lastSelectedItem.@label) {
+							this.requestTree.selectedItem = status;
+							this.requestTree.firstVisibleItem = status;
+							break;
+						}
+					}
+				} else if (lastSelectedItem.name() == "Lab") {
+					for each(var st:XML in requests) {
+						for each(var lab:XML in st.Lab) {
+							if (lab.@label == lastSelectedItem.@label) {
+								this.requestTree.selectedItem = lab;
+								this.requestTree.firstVisibleItem = lab;								
+								break;
+							}								
+						}
+					}
+				}	
+			}			
+		}
+		private function onCreateBillingItems(event:ResultEvent):void {
+			if (createBillingItems.lastResult.name() == "NewBilling") {
+				this.billingItems.addItem(createBillingItems.lastResult..Request);
+				this.onRequestNodeSelected();
+			} else {
+				Alert.show("An error occurred while creating new billing items.");
+			}			
+		}		
+		private function onGetLab(event:ResultEvent):void {			
+			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+			var blankNode:XML = new XML("<BillingAccount idBillingAccount='' accountName=''/>");
+			billingAccounts.addItemAt(blankNode, 0);
+			billingAccountCombo.dataProvider = billingAccounts;
+		}
+		
+
+ 		private function onRequestNodeSelected():void {
+ 			if (this.requestTree.selectedItem == null) {
+ 				return;
+ 			}
+			billingItemsDisplayed = new XMLListCollection();
+			
+ 			if (this.requestTree.selectedItem.name() == "Status" || 
+ 			    this.requestTree.selectedItem.name() == "Lab") {
+ 				this.billingItemsDisplayed = new XMLListCollection();
+ 				for each(var request:XML in this.requestTree.selectedItem..Request) {
+ 					for each(var item:Object in billingItems) {
+	 					if (item.@requestNumber == request.@requestNumber) {
+	 						billingItemsDisplayed.addItem(item);
+	 						break;
+ 						}
+ 					}
+ 					
+ 				}
+ 			} else if (this.requestTree.selectedItem.name() == "Request") {
+ 				for each(var r1:Object in billingItems) {
+ 					if (r1.@requestNumber == requestTree.selectedItem.@requestNumber) {
+	 					billingItemsDisplayed.addItem(r1);
+ 					}
+ 				}
+ 			}  
+			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
+			this.billingItemGrid.dataProvider.refresh();
+ 		}
+        private function onDragDropBillingItemGrid(event:DragEvent) : void
+		{
+			// For some reason, preventDefault on AdvancedDataGrid
+			// isn't enough to stop the defaut drop operation from
+			// occurring. So I added hidDropFeedback and showFeedback
+			// and that seemed to do the trick.	
+			this.billingItemGrid.hideDropFeedback(event);
+			event.preventDefault();
+			DragManager.showFeedback(DragManager.NONE);
+
+		   
+			var ds:DragSource = event.dragSource;
+           
+           	// retrieve the data associated with the "items" format. This will be the data that
+	       	// the dragInitiator has copied into the DragSource.
+	       	var items:Array = ds.dataForFormat("treeDataGridItems") as Array;
+           
+           	var isRequest:Boolean = false;
+           	var isBillingPrice:Boolean = false;
+           
+           	for(var i:int = 0; i < items.length; i++) {
+           		var dragItem:Object = items[i];
+	       		if (dragItem.name() == "Request") {
+	       			isRequest = true;
+	       			break;
+	       		} else if (dragItem.name() == "BillingPrice") {
+	       			isBillingPrice = true;
+	       			break;
+	       		}
+           	}
+           
+	      
+
+		   	// The user didn't drag new request, so disregard operation
+		   	if (isRequest) {
+		       if (requestTree.selectedItem.name() != "Request" || requestTree.selectedItem.@codeBillingStatus != "NEW") {
+		       		Alert.show("Only new requests can be dragged onto billing items grid."); 
+			       	event.preventDefault();
+			       	event.target.hideDropFeedback(event);
+			       	DragManager.showFeedback(DragManager.NONE);
+			       	return;
+		       }
+		   	}
+		   	if (isBillingPrice) {
+		       if (billingCategoryTree.selectedItem.name() != "BillingPrice" ) {
+		       		Alert.show("Please drag billing price onto billing items grid.");
+			       	event.preventDefault();
+			       	event.target.hideDropFeedback(event);
+			       	DragManager.showFeedback(DragManager.NONE);
+			       	return;
+		       }
+		   	}		   
+	       
+	       	// determine where in the grid the drop occurs and select that node by the index; 
+	       	// followed by retrieving the node itself. 
+	        var dropRequestNode:XML = null;
+	       	if (isBillingPrice) {
+		       	var r:int = billingItemGrid.calculateDropIndex(event);
+		       	if (r > 0) { 
+	    	   		r--;
+	       		}
+	       		billingItemGrid.selectedIndex = r;
+	       		var dropNode:XML = billingItemGrid.selectedItem as XML;
+	       		if (dropNode.name() == "BillingItem") {
+	       			dropRequestNode = dropNode.parent();
+	       		} else {
+	       			dropRequestNode = dropNode;
+	       		} 	      
+	       	}
+	
+ 		   	// Initialize billing items if we have anything other than pending items
+ 		   	if (isRequest){ 
+	 		   	if (billingItems == null) {
+		 		   	billingItems = new XMLListCollection(); 		
+ 				   	this.billingItemGrid.dataProvider = new HierarchicalData(billingItems);
+				   	this.billingItemGrid.dataProvider.refresh();   	
+ 		   		}
+ 		   	} 
+ 		   		
+	       	// insert a Request node under the Pending status
+          	for(var x:int = 0; x < items.length; x++) {
+          		var dragNode:Object = items[x];
+	       		if (dragNode.name() == "Request") { 
+	       			var params:Object = new Object();
+	       			params.idRequest = dragNode.@idRequest;
+	       			params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
+	       			this.createBillingItems.send(params);
+	    	   	} else if (dragNode.name() == "BillingPrice") {
+       				var newBillingItem:XML = new XML(
+       				 "<BillingItem " +
+       				 " codeBillingChargeKind='" + dragNode.@codeBillingChargeKind + "'" +
+       			 	 " category='" + dragNode.@category + "'" +
+       			 	 " description='" + dragNode.@description + "'" +
+       			 	 " unitPrice='" + dragNode.@unitPrice + "'" +	
+       			 	 " codeBillingStatus='PENDING'" +	
+       			 	 " idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
+       			 	 " idBillingCategory='" +	dragNode.parent().@idBillingCategory + "'" +
+       			 	 " idBillingPrice='" + dragNode.@idBillingPrice + "'" +
+       			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
+       			 	 " qty=''" + 
+       			 	 "/>");
+		       	
+		       		dropRequestNode.@isDirty = "Y";
+		       		dropRequestNode.appendChild(newBillingItem);
+	       		}
+	       	}
+
+			onRequestNodeSelected();
+	       
+		}
+        private function sortBillingPeriods(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:Object = obj1.@startDateSort;
+				var order2:Object = obj2.@startDateSort;
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		}			 
+		
+ 		private function save():void {
+ 			var params:Object = new Object();
+ 			params.billingItemXMLString = "<SaveList>";
+ 			
+ 			for each(var request:XML in billingItems) {
+ 				if (request.@isDirty == "Y") { 
+ 					for each(var bi:XML in request.BillingItem) {
+ 						params.billingItemXMLString += bi.toXMLString();	
+ 					}
+ 				} 
+ 			}
+ 			params.billingItemXMLString += "</SaveList>";
+ 			 
+ 			params.billingItemXMLString += "<RemoveList>";
+ 			for each(var billingItemToRemove:XML in this.billingItemsToRemove) {
+ 				params.billingItemXMLString += billingItemToRemove.toXMLString();
+ 			} 
+ 			params.billingItemXMLString += "</RemoveList>";
+
+ 			
+ 			saveBillingItemList.send(params);
+  
+ 		}
+        private function onSaveBillingItemList(event:ResultEvent):void {
+        	if (saveBillingItemList.lastResult.name() == "SUCCESS") {
+        		dirty.resetDirty();
+        		
+        		billingItemsToRemove = new XMLListCollection();
+
+        		lastSelectedItem = this.requestTree.selectedItem;
+        		billingItemsDisplayed = new XMLListCollection();
+        		billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+        		
+        		if (requestNumberText.text == "") {
+	        		this.refreshBillingItems();    			    			
+        		} else {
+        			this.refreshBillingItemsByRequestNumber();
+        		}
+        		
+        		
+        	} else {
+        		Alert.show(saveBillingItemList.lastResult..ACTMESSAGE.@TEXT);
+        	}        	
+        }
+        
+		public function showBillingInvoice():void {
+			
+			if (billingPeriodCombo.selectedItem == null ||
+			    billingPeriodCombo.selectedItem.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	
+			}
+			if (this.requestTree.selectedItem != null) {
+				var labNode:Object = null;
+				if (this.requestTree.selectedItem.name() == "Request") {
+					labNode = this.requestTree.selectedItem.parent();					
+				} else if (this.requestTree.selectedItem.name() == "Lab") {
+					labNode = this.requestTree.selectedItem; 
+				}
+				if (labNode != null) {
+					var url:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
+						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
+						'&idLab=' + labNode.@idLab +
+						'&idBillingAccount=' + labNode.@idBillingAccount);
+					navigateToURL(url, '_blank');			
+					
+				} else {
+					Alert.show("Please select a lab folder");
+				}
+				
+			}
+		}
+		public function showBillingMonthendReport():void {
+			
+			if (billingPeriodCombo.selectedItem == null ||
+			    billingPeriodCombo.selectedItem.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	
+			}
+			
+		
+			
+			if (this.requestTree.selectedItem != null) { 
+				var statusNode:Object = null;
+				if (this.requestTree.selectedItem.name() == "Lab") {
+					statusNode = this.requestTree.selectedItem.parent(); 
+				} else if (this.requestTree.selectedItem.name() == "Status") {
+					statusNode = this.requestTree.selectedItem;
+				}
+				if (statusNode != null && 
+				    (statusNode.@status == "COMPLETE" || statusNode.@status == "APPROVED" )) {
+					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
+						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
+						'&codeBillingStatus=' + statusNode.@status);
+					navigateToURL(url, '_blank');			
+					
+				} else {
+					Alert.show("Please select either the Completed or Approved folder.")
+				}
+				
+			}
+		}
+
+
+ 	]]>
+ </mx:Script>	
+
+  <mx:VBox width="100%" height="100%">
+	    <mx:HBox width="100%"  paddingTop="2" paddingBottom="2" cornerRadius="5" borderStyle="solid" borderColor="#A7AAAC"  backgroundColor="#A7AAAC" horizontalGap="8">
+
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+					<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" paddingBottom="0"/>
+					<mx:ComboBox id="billingPeriodCombo" 
+						labelField="@display"
+						visible="true"  
+						width="100" change="requestNumberText.text = &quot;&quot;;refreshBillingItems()">
+					</mx:ComboBox>			   	
+		    	</mx:HBox>  
+
+			   <mx:HBox horizontalGap="0" verticalAlign="middle">
+					<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0"/>
+					<mx:ComboBox id="labCombo" 
+						labelField="@name"
+						dataProvider="{parentApplication.promptedLabList}"
+						visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;getLab.send();refreshBillingItems()">
+					</mx:ComboBox>
+			   </mx:HBox>
+
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+					<mx:Label id="billingAccountLabel" visible="true" text="Billing Account" paddingBottom="0"/>
+					<mx:ComboBox id="billingAccountCombo" 
+						labelField="@accountName"
+						 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;refreshBillingItems()">
+					</mx:ComboBox>			   	
+		    	</mx:HBox> 
+				
+				<mx:VRule height="20"/>
+	    	
+				<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+					<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0"/>
+					<mx:TextInput id="requestNumberText" width="60">
+					</mx:TextInput>			   	
+					<mx:Button id="lookupButton"  
+						fontFamily="Arial"  height="18"
+						color="#400040" click="refreshBillingItemsByRequestNumber()" visible="true" icon="@Embed('assets/arrow_right.png')" width="20"/>
+		    	</mx:HBox>	    
+		    	
+	    </mx:HBox>
+
+        <mx:HDividedBox height="100%" width="100%">
+        	<mx:TabNavigator height="100%" width="215">
+        		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%">
+        		    
+					<mx:AdvancedDataGrid id="requestTree" width="100%" height="100%"  
+						showHeaders="false" 
+						displayItemsExpanded="true" 
+						dragEnabled="true" 
+						itemClick="onRequestNodeSelected()"
+						iconFunction="getTreeIcon"
+						dragMoveEnabled="false" dropEnabled="false">
+    		 	        <mx:dataProvider>
+  						  <mx:HierarchicalData id="rc" source="{requests}"/>
+				        </mx:dataProvider>						  
+				        <mx:columns>
+  						  <mx:AdvancedDataGridColumn dataField="@label" /> 
+  					    </mx:columns>
+  					</mx:AdvancedDataGrid>
+       			
+        		</mx:VBox>
+        		
+        		<mx:VBox label="Prices" height="100%" verticalGap="0" width="100%">
+					<mx:AdvancedDataGrid id="billingCategoryTree" width="100%" height="100%" 
+						showHeaders="false" 
+						displayItemsExpanded="false" 
+						iconFunction="getTreeIcon" 
+						dragEnabled="true" dragMoveEnabled="false" dropEnabled="false">
+    		 	        <mx:dataProvider>
+  						  <mx:HierarchicalData source="{billingTemplates}"/>
+				        </mx:dataProvider>						  
+				        <mx:columns>
+  						  <mx:AdvancedDataGridColumn dataField="@display" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency" width="30" textAlign="right" /> 
+  					    </mx:columns>
+  					</mx:AdvancedDataGrid>        		    
+	        		        			
+        		</mx:VBox>
+        	</mx:TabNavigator>
+        	
+        	<mx:VBox width="100%" height="100%" verticalGap="0">
+        	    <mx:Label text="Billing Items"/>
+        		<mx:HBox width="100%">
+        			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeBillingItem()"/>
+        			<mx:LinkButton id="addBillingItemButton" visible="false" label="Add" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" click="addBillingItem()"/>
+        			 
+        		</mx:HBox>
+        		
+        		<mx:AdvancedDataGrid width="100%" height="100%"  
+        			displayItemsExpanded="true"  
+        			editable="true" 
+        			sortExpertMode="true" 
+        			sortableColumns="false"   
+        			id="billingItemGrid" 
+        			dropEnabled="true" 
+        			dragDrop="onDragDropBillingItemGrid(event)"
+                    allowMultipleSelection="false" 
+                    iconFunction="getTreeIcon" 
+                    wordWrap="false" 
+                    headerWordWrap="true" 
+ selectionMode="singleRow">
+        		 	<mx:dataProvider>
+      						<mx:HierarchicalData source="{billingItemsDisplayed}"/>
+    				</mx:dataProvider>
+        			<mx:columns>
+        				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="10" />
+        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="10"/>
+        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="10"/>
+        				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="12"
+        			      editorDataField="value" 
+        				  rendererIsEditor="false"  
+						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingPeriod', '@idBillingPeriod')}"                              
+						  itemEditor="{hci.flex.renderers.ComboBox.create(billingPeriods, '@idBillingPeriod')}"/>                 
+        				<mx:AdvancedDataGridColumn headerText="Kind" dataField="@codeBillingChargeKind" editable="true" width="7"
+        			      editorDataField="value" 
+        				  rendererIsEditor="false"
+						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"                              
+						  itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"/>                 
+        				<mx:AdvancedDataGridColumn headerText="Billing Category" dataField="@category" editable="false" width="15"/>
+        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="20"/>
+        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="7"/>
+        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5"/>
+        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="9" editable="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="13"
+        			      editorDataField="value"  
+        				  rendererIsEditor="false"
+						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingStatus', '@codeBillingStatus')}"                              
+						  itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
+        			</mx:columns>
+        			 
+        		</mx:AdvancedDataGrid>     
+   
+
+        	</mx:VBox>
+        </mx:HDividedBox>
+  </mx:VBox>
+  
+  <mx:ControlBar width="100%">
+
+ 	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+ 	            click="refresh()" toolTip="Refresh"/>
+ 	    <mx:LinkButton label="Month-end Billing Report" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
+        <mx:LinkButton label="Client Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
+      <mx:HBox width="100%" horizontalAlign="right">
+        <util:DirtyNote id="dirty" />
+      	<mx:Button id="saveButton" label="Save" click="save()"
+             	icon="@Embed('../../assets/action_save.gif')">
+        </mx:Button>        	
+      </mx:HBox>
+  </mx:ControlBar>
+	
+</mx:Panel>

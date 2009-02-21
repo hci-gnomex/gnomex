@@ -877,10 +877,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
-    if (dictionaryHelper == null) {
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
-    }
+    dictionaryHelper = DictionaryHelper.getInstance(sess);
+    
     
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = appURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;

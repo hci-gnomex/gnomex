@@ -18,37 +18,39 @@ import org.jdom.Document;
 
 public class Request extends HibernateDetailObject {
   
-  private Integer      idRequest;
-  private String       number;
-  private Date         createDate;
-  private String       protocolNumber;
-  private String       codeProtocolType;
-  private Integer      idLab;
-  private Lab          lab;
-  private Integer      idAppUser;
-  private AppUser      appUser;
-  private Project      project;
-  private Integer      idProject;
-  private Integer      idBillingAccount;
-  private String       codeRequestCategory;
-  private String       codeMicroarrayCategory;
-  private Integer      idSlideProduct;
-  private SlideProduct slideProduct;
-  private Integer      idSampleTypeDefault;
-  private Integer      idOrganismSampleDefault;
-  private Integer      idSampleSourceDefault;
-  private Integer      idSamplePrepMethodDefault;
-  private String       codeBioanalyzerChipType;
-  private String       notes;
-  private Date         completedDate;
-  private String       isArrayINFORequest;
-  private String       codeVisibility;
-  private Set          samples = new TreeSet();
-  private Set          labeledSamples = new TreeSet();
-  private Set          hybridizations = new TreeSet();
-  private Set          workItems = new TreeSet();
-  private Set          sequenceLanes = new TreeSet();
-  private Set          analysisExperimentItems = new TreeSet();
+  private Integer        idRequest;
+  private String         number;
+  private Date           createDate;
+  private String         protocolNumber;
+  private String         codeProtocolType;
+  private Integer        idLab;
+  private Lab            lab;
+  private Integer        idAppUser;
+  private AppUser        appUser;
+  private Project        project;
+  private Integer        idProject;
+  private Integer        idBillingAccount;
+  private BillingAccount billingAccount;
+  private String         codeRequestCategory;
+  private String         codeMicroarrayCategory;
+  private Integer        idSlideProduct;
+  private SlideProduct   slideProduct;
+  private Integer        idSampleTypeDefault;
+  private Integer        idOrganismSampleDefault;
+  private Integer        idSampleSourceDefault;
+  private Integer        idSamplePrepMethodDefault;
+  private String         codeBioanalyzerChipType;
+  private String         notes;
+  private Date           completedDate;
+  private String         isArrayINFORequest;
+  private String         codeVisibility;
+  private Set            samples = new TreeSet();
+  private Set            labeledSamples = new TreeSet();
+  private Set            hybridizations = new TreeSet();
+  private Set            workItems = new TreeSet();
+  private Set            sequenceLanes = new TreeSet();
+  private Set            analysisExperimentItems = new TreeSet();
+  private Set            billingItems = new TreeSet();  
     
   
   
@@ -528,6 +530,7 @@ public class Request extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getAppUser");
     this.excludeMethodFromXML("getLab");
+    this.excludeMethodFromXML("getBillingAccount");
   }
   
   public String getOwnerName() {
@@ -563,6 +566,26 @@ public class Request extends HibernateDetailObject {
   
   public void setAnalysisExperimentItems(Set analysisExperimentItems) {
     this.analysisExperimentItems = analysisExperimentItems;
+  }
+
+  
+  public Set getBillingItems() {
+    return billingItems;
+  }
+
+  
+  public void setBillingItems(Set billingItems) {
+    this.billingItems = billingItems;
+  }
+
+    
+  public BillingAccount getBillingAccount() {
+    return billingAccount;
+  }
+
+  
+  public void setBillingAccount(BillingAccount billingAccount) {
+    this.billingAccount = billingAccount;
   }
   
   

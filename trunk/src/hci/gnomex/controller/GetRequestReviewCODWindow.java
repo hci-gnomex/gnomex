@@ -108,8 +108,7 @@ public class GetRequestReviewCODWindow extends GNomExCommand implements Serializ
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
+      dictionaryHelper = DictionaryHelper.getInstance(sess);
      
       requestParser.parse();
 

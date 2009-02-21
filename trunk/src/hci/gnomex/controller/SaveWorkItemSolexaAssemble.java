@@ -97,8 +97,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     if (workItemXMLString != null) {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
-        DictionaryHelper dh = new DictionaryHelper();
-        dh.getDictionaries(sess);
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
        
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
