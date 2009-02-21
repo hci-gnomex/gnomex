@@ -145,7 +145,7 @@
 		public function initializeData():void {
 
 			samplePrepMethodList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod'));
-        	dictionarySorter = new Sort();
+        	var dictionarySorter:Sort = new Sort();
     	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
 	        samplePrepMethodList.sort = dictionarySorter;
 	        samplePrepMethodList.refresh();
@@ -488,6 +488,11 @@
 			var requestCategory:Object = getRequestCategory();
 			requestCategoryName = requestCategory.@display.toString();
 
+			this.setupView.requestRadioAffy.setStyle(   "fontWeight",this.setupView.requestRadioAffy.selected    == true ?  "bold" : "normal");	
+			this.setupView.requestRadioAgilent.setStyle("fontWeight",this.setupView.requestRadioAgilent.selected == true ?  "bold" : "normal");	
+			this.setupView.requestRadioQC.setStyle(     "fontWeight",this.setupView.requestRadioQC.selected      == true ?  "bold" : "normal");	
+			this.setupView.requestRadioSolexa.setStyle( "fontWeight",this.setupView.requestRadioSolexa.selected  == true ?  "bold" : "normal");	
+
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
@@ -499,7 +504,8 @@
 					sample.@idSeqRunType = '';
 				}
 				this.samplesView.showHideColumns();		
-				this.samplesView.checkSamplesCompleteness();	
+				this.samplesView.checkSamplesCompleteness();
+			
 			} else {						
 				if (setupView.requestTypeGroup.selectedValue == "QC") {
 					this.currentState = 'QCState';
