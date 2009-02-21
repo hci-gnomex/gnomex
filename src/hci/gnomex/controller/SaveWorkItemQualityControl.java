@@ -203,10 +203,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
   
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
-    if (dictionaryHelper == null) {
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
-    }
+    dictionaryHelper = DictionaryHelper.getInstance(sess);
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();

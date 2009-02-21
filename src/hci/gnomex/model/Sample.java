@@ -64,6 +64,7 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
 
+
   public String getDescription() {
     return description;
   }

@@ -58,8 +58,7 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
      
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
+      dictionaryHelper = DictionaryHelper.getInstance(sess);
     
       flowCell = (FlowCell)sess.get(FlowCell.class, idFlowCell);
       if (flowCell == null) {

@@ -70,8 +70,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
      
-      dictionaryHelper = new DictionaryHelper();
-      dictionaryHelper.getDictionaries(sess);
+      dictionaryHelper = DictionaryHelper.getInstance(sess);
     
       request = (Request)sess.get(Request.class, idRequest);
       if (request == null) {

@@ -7,6 +7,12 @@ import java.math.BigDecimal;
 
 
 public class BioanalyzerChipType extends DictionaryEntry implements Serializable {
+  
+  public static final String                    RNA_NANO  = "RNANANO";
+  public static final String                    RNA_PICO  = "RNAPICO";
+  public static final String                    DNA1000   = "DNA1000";
+  public static final String                    SMALL_RNA = "SMALLRNA";
+  
   private String      codeBioanalyzerChipType;
   private String      bioanalyzerChipType;
   private String      concentrationRange;

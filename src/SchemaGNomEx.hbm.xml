@@ -136,6 +136,24 @@
 		
 	</class>
 	
+	<!-- hci.gnomex.model.BillingItem -->
+	<class name="hci.gnomex.model.BillingItem" table="BillingItem">
+		<id name="idBillingItem" column="idBillingItem" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="category" column="category" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="qty" column="qty" type="integer"/>
+		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
+		<property name="totalPrice" column="totalPrice" type="big_decimal"/>
+		<property name="codeBillingStatus" column="codeBillingStatus" type="string"/>
+		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
+		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
+		<property name="idBillingCategory" column="idBillingCategory" type="integer"/>
+		<property name="idBillingPrice" column="idBillingPrice" type="integer"/>
+		<property name="idRequest" column="idRequest" type="integer"/>
+  </class>	
+	
 	<!-- hci.gnomex.model.ExperimentDesignEntry -->
 	<class name="hci.gnomex.model.ExperimentDesignEntry" table="ExperimentDesignEntry">
 		<id name="idExperimentDesignEntry" column="idExperimentDesignEntry" type="integer">
@@ -336,12 +354,13 @@
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
+    <many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
 		<property name="idProject" column="idProject" type="integer"/>
-        <many-to-one name="project" column="idProject" class="hci.gnomex.model.Project" cascade="none" insert="false" update="false" />
+    <many-to-one name="project" column="idProject" class="hci.gnomex.model.Project" cascade="none" insert="false" update="false" />
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 		<property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
 		<property name="idSlideProduct" column="idSlideProduct" type="integer"/>
-        <many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
+    <many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
 		<property name="idOrganismSampleDefault" column="idOrganismSampleDefault" type="integer"/>
 		<property name="idSampleSourceDefault" column="idSampleSourceDefault" type="integer"/>
@@ -375,7 +394,10 @@
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.AnalysisExperimentItem" />
 		</set>
-		
+	  <set name="billingItems" table="BillingItem" lazy="true" cascade="delete">
+			<key column="idRequest"/>
+			<one-to-many class="hci.gnomex.model.BillingItem" />
+		</set>		
 	</class>
 	
 	<!-- hci.gnomex.model.Sample -->
@@ -572,6 +594,94 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
+	<!-- hci.gnomex.model.BillingCategory -->
+	<class name="hci.gnomex.model.BillingCategory" table="BillingCategory">
+	<id name="idBillingCategory" column="idBillingCategory" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="description" column="description" type="string"/>
+		<property name="pluginClassname" column="pluginClassname" type="string"/>
+		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.BillingChargeKind -->
+	<class name="hci.gnomex.model.BillingChargeKind" table="BillingChargeKind">
+		<id name="codeBillingChargeKind" column="codeBillingChargeKind" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="billingChargeKind" column="billingChargeKind" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.BillingPeriod -->
+	<class name="hci.gnomex.model.BillingPeriod" table="BillingPeriod">
+	<id name="idBillingPeriod" column="idBillingPeriod" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="billingPeriod" column="billingPeriod" type="string"/>
+		<property name="startDate" column="startDate" type="date"/>
+		<property name="endDate"   column="endDate"   type="date"/>
+		<property name="isActive"  column="isActive" type="string"/>
+	</class>
+	
+	<!-- hci.gnomex.model.BillingPrice -->
+	<class name="hci.gnomex.model.BillingPrice" table="BillingPrice">
+	<id name="idBillingPrice" column="idBillingPrice" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idBillingCategory" column="idBillingCategory" type="integer"/>
+		<property name="description" column="description" type="string"/>
+		<property name="filter1" column="filter1" type="string"/>
+		<property name="filter2" column="filter2" type="string"/>
+		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
+	</class>	
+
+	<!-- hci.gnomex.model.BillingSlideProductClass -->
+	<class name="hci.gnomex.model.BillingSlideProductClass" table="BillingSlideProductClass">
+	<id name="idBillingSlideProductClass" column="idBillingSlideProductClass" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="billingSlideProductClass" column="billingSlideProductClass" type="string"/>
+		<property name="isActive"  column="isActive" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.BillingSlideServiceClass -->
+	<class name="hci.gnomex.model.BillingSlideServiceClass" table="BillingSlideServiceClass">
+	<id name="idBillingSlideServiceClass" column="idBillingSlideServiceClass" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="billingSlideServiceClass" column="billingSlideServiceClass" type="string"/>
+		<property name="isActive"  column="isActive" type="string"/>
+	</class>
+	
+	<!-- hci.gnomex.model.BillingStatus -->
+	<class name="hci.gnomex.model.BillingStatus" table="BillingStatus">
+		<id name="codeBillingStatus" column="codeBillingStatus" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="billingStatus" column="billingStatus" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+	
+	<!-- hci.gnomex.model.BillingTemplate -->
+	<class name="hci.gnomex.model.BillingTemplate" table="BillingTemplate">
+	<id name="idBillingTemplate" column="idBillingTemplate" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="description" column="description" type="string"/>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<property name="isActive"  column="isActive" type="string"/>
+	</class>
+	
+	<!-- hci.gnomex.model.BillingTemplateEntry -->
+	<class name="hci.gnomex.model.BillingTemplateEntry" table="BillingTemplateEntry">
+	    <composite-id>
+			  <key-property name="idBillingTemplate" column="idBillingTemplate" type="integer"/>
+		  	<key-property name="idBillingCategory" column="idBillingCategory" type="integer"/>
+	   	</composite-id>
+		<property name="sortOrder"  column="sortOrder" type="integer"/>
+	</class>	
+
     <!-- hci.gnomex.model.ConcentrationUnit -->
 	<class name="hci.gnomex.model.ConcentrationUnit" table="ConcentrationUnit">
 		<id name="codeConcentrationUnit" column="codeConcentrationUnit" type="string">
@@ -757,9 +867,9 @@
 	<!-- hci.gnomex.model.RequestCategoryMicroarrayCategory -->
 	<class name="hci.gnomex.model.RequestCategoryMicroarrayCategory" table="RequestCategoryMicroarrayCategory">
 	    <composite-id>
-			<key-property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
-			<key-property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
-		</composite-id>
+			  <key-property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		  	<key-property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
+	   	</composite-id>
 		
 	</class>
 	<!-- hci.gnomex.model.SampleCharacteristic -->
@@ -905,6 +1015,8 @@
 		<property name="slidesInSet" column="slidesInSet" type="integer"/>
 		<property name="isSlideSet" column="isSlideSet" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="idBillingSlideProductClass" column="idBillingSlideProductClass" type="integer"/>
+		<property name="idBillingSlideServiceClass" column="idBillingSlideServiceClass" type="integer"/>
 	    <set name="microarrayCategories" table="SlideProductMicroarrayCategory" lazy="false">
 			<key column="idSlideProduct"/>
 			<many-to-many column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory"/>

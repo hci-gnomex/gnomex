@@ -161,6 +161,7 @@
 		<web-resource-collection>
 			<web-resource-name>Login</web-resource-name>
 			<description>Login</description>
+			<url-pattern>CreateBillingItems.gx</url-pattern>
 			<url-pattern>CreateSecurityAdvisor.gx</url-pattern>
 			<url-pattern>go_reconnect.jsp</url-pattern>
 			<url-pattern>go.jsp</url-pattern>
@@ -169,8 +170,13 @@
 			<url-pattern>Delete*.gx</url-pattern>
 			<url-pattern>Save*.gx</url-pattern>
 			<url-pattern>GetAppUser.gx</url-pattern>
+			<url-pattern>GetBillingItemList.gx</url-pattern>
+			<url-pattern>GetBillingRequestList.gx</url-pattern>
+			<url-pattern>GetBillingTemplateList.gx</url-pattern>
 			<url-pattern>GetRequestReviewCODWindow.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
+			<url-pattern>ShowBillingInvoiceForm.gx</url-pattern>
+			<url-pattern>ShowBillingMonthendReport.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 
 		</web-resource-collection>
