@@ -969,7 +969,7 @@
 					     	</mx:DataGrid>
 					     	
 					     	</mx:Canvas>
-					     	<mx:Canvas label="Solexa Sequence Lanes" width="100%" height="100%" id="lanesView">
+					     	<mx:Canvas label="Illumina Sequence Lanes" width="100%" height="100%" id="lanesView">
 					     		<mx:DataGrid width="100%" height="100%" dataProvider="{lanes}" id="lanesGrid"
 					     			dragEnabled="true"  
 							        dragEnter="onDragEnter(event)"

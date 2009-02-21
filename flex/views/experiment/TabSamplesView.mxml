@@ -579,7 +579,7 @@
 				<mx:HBox width="100%" horizontalAlign="right">
 					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="false" click="showHideColumns()">
 					</mx:CheckBox>							
-					<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Show Solexa Lib Prep columns"  visible="false" click="showHideColumns()">
+					<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Show Illumina Lib Prep columns"  visible="false" click="showHideColumns()">
 					</mx:CheckBox>							
 				</mx:HBox>
 			</mx:HBox>

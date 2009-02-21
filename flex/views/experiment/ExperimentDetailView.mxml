@@ -457,7 +457,7 @@
 							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
 							<mx:HBox width="100%" horizontalAlign="right" paddingRight="4">
 								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
-								<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Solexa Lib Prep" visible="true" click="showHideColumns()"/>
+								<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
 							</mx:HBox>
 								
 						</mx:HBox>

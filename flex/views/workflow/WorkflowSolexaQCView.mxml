@@ -4,7 +4,7 @@
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
 	width="100%" height="100%" 
-	title="Solexa Sample QCl" 
+	title="Illumina Sample QCl" 
 	borderThicknessTop="2">
 	
 	<mx:HTTPService 
