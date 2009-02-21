@@ -275,6 +275,12 @@
 			if (spIdOrganism.selectedIndex > -1) {
 				params.idOrganism = spIdOrganism.selectedItem.@value;
 			}
+			if (spIdBillingServiceClass.selectedIndex > -1) {
+				params.idBillingSlideServiceClass = spIdBillingServiceClass.selectedItem.@value;
+			}			
+			if (spIdBillingProductClass.selectedIndex > -1) {
+				params.idBillingSlideProductClass = spIdBillingProductClass.selectedItem.@value;
+			}			
 			params.name = spName.text;
 			params.catalogNumber = spCatalogNumber.text;
 			params.microarrayCategoryXMLString = "<microarrayCategories>"+spMicroarrayCategories.toXMLString()+"</microarrayCategories>";
@@ -309,6 +315,12 @@
 			if (sdIdOrganism.selectedIndex > -1) {
 				params.idOrganism = sdIdOrganism.selectedItem.@value;
 			}
+			if (this.sdIdBillingServiceClass.selectedIndex > -1) {
+				params.idBillingSlideServiceClass = sdIdBillingServiceClass.selectedItem.@value;
+			}
+			if (this.sdIdBillingProductClass.selectedIndex > -1) {
+				params.idBillingSlideProductClass = sdIdBillingProductClass.selectedItem.@value;
+			}
 			params.slideDesignProtocolName = sdDesignProtocol.text;
 			params.name = sdName.text;
 			params.catalogNumber = sdCatalogNumber.text;
@@ -330,7 +342,7 @@
 				params.isActive = "Y";
 			} else {
 				params.isActive = "N";
-			}
+			} 
 			var call:Object = saveSlideDesign.send(params)
 			call.marker = "doneSaveSlideDesign";
 			lastSavedSlideDesignId = null;
@@ -676,15 +688,18 @@
 			<mx:ViewStack id="slideViews" right="0" left="0" top="0" bottom="0">
 				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 					<mx:Label text="No slide design or product selected" fontSize="20" color="#A1A1A2" textAlign="right" right="10" top="10" height="31" left="10"/>
-				</mx:Canvas>
+				</mx:Canvas> 
 				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
+		<mx:TabNavigator width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+					
+			<mx:VBox label="Slide" width="100%" height="100%">
 				<mx:HBox left="10" top="10" right="10" verticalAlign="middle">
 					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="74"/>
 					<mx:TextInput right="75" top="27" left="10" id="sdName" text="{fullSlideDesign.@name}" width="100%" change="dirty.setDirty()"/>
 					<hci:CheckBoxYN id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 				</mx:HBox>
 		
-				<mx:HBox y="40" verticalAlign="middle" right="10" left="10" id="hbox2">
+				<mx:HBox y="40" verticalAlign="middle" right="10" left="10" id="hbox2" width="100%">
 					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 				
 					<mx:Label text="For Group:" top="59" left="121" width="20%" id="label1"/>
@@ -696,7 +711,7 @@
 						data="{fullSlideDesign.SlideProduct.@idLab}" width="100%" change="dirty.setDirty()">
 					</util:ComboBoxLabList>
 				</mx:HBox>
-				<mx:HBox y="70" right="10" left="10">
+				<mx:HBox y="70" right="10" left="10" width="100%">
 						<mx:VBox left="10" top="79" width="25%" id="vbox3">
 							<mx:Label text="Vendor:" top="85" left="10" width="100%" id="label2"/>
 							<hci:DictionaryComboBox top="102" left="10" width="100%" 
@@ -729,10 +744,34 @@
 							<mx:Label text="Design Protocol:" top="85" right="72" width="100%"/>
 							<mx:TextInput top="102" right="10" width="100%" id="sdDesignProtocol" text="{fullSlideDesign.@slideDesignProtocolName}" change="dirty.setDirty()"/>
 						</mx:VBox>
+						
 					</mx:HBox>
-					<mx:HRule right="10" left="10" height="1" strokeColor="#A1A79D" styleName="formrule" y="128"/>
-					<mx:HBox y="137" right="10" left="10" height="141" id="hbox1">
-					<mx:VBox x="10" y="142" width="100%">
+				<mx:HBox y="128" right="10" left="10" width="100%" id="hbox3">
+					<mx:VBox width="50%">
+							<mx:Label text="Billing Service:" width="100%"/>
+							<hci:DictionaryComboBox 
+									id="sdIdBillingServiceClass"
+									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideServiceClass').DictionaryEntry}"
+									labelField="@display"
+									prompt=" "
+									data="{fullSlideDesign.SlideProduct.@idBillingSlideServiceClass}"
+									change="dirty.setDirty()" width="100%">
+							</hci:DictionaryComboBox>
+						</mx:VBox>
+						<mx:VBox width="50%">
+							<mx:Label text="Billing Product:" width="100%"/>
+							<hci:DictionaryComboBox 
+									id="sdIdBillingProductClass"
+									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideProductClass').DictionaryEntry}"
+									labelField="@display"
+									prompt=" "
+									data="{fullSlideDesign.SlideProduct.@idBillingSlideProductClass}"
+									change="dirty.setDirty()" width="100%">
+							</hci:DictionaryComboBox>
+						</mx:VBox>		
+				</mx:HBox>
+					<mx:HBox y="187" right="10" left="10" height="141" id="hbox1" width="100%">
+					<mx:VBox x="10" y="192" width="100%">
 						<mx:Label text="Category:" left="10" top="142" height="18" width="100%" id="label5"/>
 						<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
 							 id="sdMicroarrayCategory"
@@ -758,46 +797,53 @@
 						</mx:List>
 					</mx:VBox>
 					</mx:HBox>
-					<mx:VBox height="30" left="10" right="10" top="286">
-					<mx:Label text="Multi-plex microarray setup" top="347" left="9" width="185"/>
-					<mx:HRule width="100%" height="1" styleName="formrule"/>
-					</mx:VBox>
-					<mx:HBox right="10" left="10" bottom="10" top="324">
-					<mx:HBox width="100%">
-						<mx:VBox width="20%">
-							<mx:Label text="Row:" left="10" top="388"/>
-							<mx:TextInput width="100%" id="newArrayRow" top="405" left="10" change="buildArrayCoordName()"/>
+			</mx:VBox>
+					
+					<mx:VBox label="Multiplex array">
+						<mx:VBox height="30" left="10" right="10" top="286">
+						<mx:Label text="Multi-plex microarray setup" top="347" left="9" width="185"/>
+						<mx:HRule width="100%" height="1" styleName="formrule"/>
 						</mx:VBox>
-						<mx:VBox width="20%">
-							<mx:Label text="Col:" top="388" left="78"/>
-							<mx:TextInput width="100%" id="newArrayCol" left="78" top="405" change="buildArrayCoordName()"/>
+						<mx:HBox right="10" left="10" bottom="10" top="324">
+						<mx:HBox width="50%">
+							<mx:VBox width="20%">
+								<mx:Label text="Row:" left="10" top="388"/>
+								<mx:TextInput width="100%" id="newArrayRow" top="405" left="10" change="buildArrayCoordName()"/>
+							</mx:VBox>
+							<mx:VBox width="20%">
+								<mx:Label text="Col:" top="388" left="78"/>
+								<mx:TextInput width="100%" id="newArrayCol" left="78" top="405" change="buildArrayCoordName()"/>
+							</mx:VBox>
+							<mx:VBox width="60%">
+								<mx:Label text="Name:" top="388" left="146"/>
+								<mx:TextInput x="146" y="405" width="70" id="newArrayName"/>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:VBox x="279" y="367">
+							<mx:Button id="sdAddArrayCoord" click="addArrayCoord(event)" icon="@Embed(source='../../assets/add.png')" width="25" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="true" left="279" top="405"/>
+							<mx:Button id="sdRemoveArrayCoord" click="removeArrayCoord(event)" icon="@Embed(source='../../assets/delete.png')" width="25" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="false" top="435" left="279"/>
 						</mx:VBox>
-						<mx:VBox width="60%">
-							<mx:Label text="Name:" top="388" left="146"/>
-							<mx:TextInput x="146" y="405" width="100%" id="newArrayName"/>
+						<mx:VBox left="312" right="10" height="100%" y="367" width="100%">
+						<mx:HBox width="100%" horizontalAlign="right">
+							<mx:Label text="Number of Arrays on Slide:" width="161" textAlign="right" top="367" right="39"/>
+							<mx:Text id="arraysPerSlide" textAlign="right" fontWeight="bold" right="10" height="22" top="367" width="29" text="{fullSlideDesign.SlideProduct.@arraysPerSlide}"/>
+						</mx:HBox>
+						<mx:DataGrid left="312" right="10" bottom="10" top="388" id="dgArrayCoords" 
+							dataProvider="{sdArrayCoordiantes}"
+							editable="false"
+							click="sdRemoveArrayCoord.enabled = true" width="100%" height="100%">
+							<mx:columns>
+								<mx:DataGridColumn headerText="Row" dataField="@x" width="35"/>
+								<mx:DataGridColumn headerText="Col" dataField="@y" width="35"/>
+								<mx:DataGridColumn headerText="Name" dataField="@name"/>
+							</mx:columns>
+						</mx:DataGrid>
 						</mx:VBox>
-					</mx:HBox>
-					<mx:VBox x="279" y="367">
-						<mx:Button id="sdAddArrayCoord" click="addArrayCoord(event)" icon="@Embed(source='../../assets/add.png')" width="25" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="true" left="279" top="405"/>
-						<mx:Button id="sdRemoveArrayCoord" click="removeArrayCoord(event)" icon="@Embed(source='../../assets/delete.png')" width="25" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="false" top="435" left="279"/>
+						</mx:HBox>
+						
 					</mx:VBox>
-					<mx:VBox left="312" right="10" height="100%" y="367" width="100%">
-					<mx:HBox width="100%" horizontalAlign="right">
-						<mx:Label text="Number of Arrays on Slide:" width="161" textAlign="right" top="367" right="39"/>
-						<mx:Text id="arraysPerSlide" textAlign="right" fontWeight="bold" right="10" height="22" top="367" width="29" text="{fullSlideDesign.SlideProduct.@arraysPerSlide}"/>
-					</mx:HBox>
-					<mx:DataGrid left="312" right="10" bottom="10" top="388" id="dgArrayCoords" 
-						dataProvider="{sdArrayCoordiantes}"
-						editable="false"
-						click="sdRemoveArrayCoord.enabled = true" width="100%" height="100%">
-						<mx:columns>
-							<mx:DataGridColumn headerText="Row" dataField="@x" width="35"/>
-							<mx:DataGridColumn headerText="Col" dataField="@y" width="35"/>
-							<mx:DataGridColumn headerText="Name" dataField="@name"/>
-						</mx:columns>
-					</mx:DataGrid>
-					</mx:VBox>
-					</mx:HBox>
+					</mx:TabNavigator>
+				
 					
 				</mx:Canvas>
 				
@@ -819,37 +865,64 @@
 					</util:ComboBoxLabList>
 					</mx:HBox>
 					<mx:HBox y="70" right="10" left="10">
-					<mx:VBox width="100%">
-					<mx:Label text="Vendor:" top="85" left="10" width="100%"/>
-					<hci:DictionaryComboBox top="102" left="10" width="100%" 
-						id="spIdVendor"
-						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
-						labelField="@display"
-						prompt=" "
-						data="{fullSlideProduct.@idVendor}"
-						 change="dirty.setDirty();">
-						</hci:DictionaryComboBox>
-					</mx:VBox>
-					<mx:VBox width="100%">
-					<mx:Label text="Organism:" top="85" left="188" width="100%"/>
-					<hci:DictionaryComboBox  left="188" right="150" top="102"
-						id="spIdOrganism"
-						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
-						labelField="@display"
-						prompt=" "
-						data="{fullSlideProduct.@idOrganism}"
-						 width="100%" change="dirty.setDirty();">
-						</hci:DictionaryComboBox>
-					</mx:VBox>
-					<mx:VBox width="100%">
-					<mx:Label text="Catalog Number:" top="85" right="26" width="100%"/>
-					<mx:TextInput top="102" id="spCatalogNumber" right="10" width="100%" change="dirty.setDirty();">
-						<mx:text>{fullSlideProduct.@catalogNumber}</mx:text>
-					</mx:TextInput>
-					</mx:VBox>
+						<mx:VBox width="100%">
+							<mx:Label text="Vendor:" top="85" left="10" width="100%"/>
+							<hci:DictionaryComboBox top="102" left="10" width="100%" 
+								id="spIdVendor"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
+								labelField="@display"
+								prompt=" "
+								data="{fullSlideProduct.@idVendor}"
+								 change="dirty.setDirty();">
+								</hci:DictionaryComboBox>
+						</mx:VBox>
+						<mx:VBox width="100%">
+							<mx:Label text="Organism:" top="85" left="188" width="100%"/>
+							<hci:DictionaryComboBox  left="188" right="150" top="102"
+								id="spIdOrganism"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
+								labelField="@display"
+								prompt=" "
+								data="{fullSlideProduct.@idOrganism}"
+						 		width="100%" change="dirty.setDirty();">
+								</hci:DictionaryComboBox>
+						</mx:VBox>
+						<mx:VBox width="100%">
+							<mx:Label text="Catalog Number:" top="85" right="26" width="100%"/>
+							<mx:TextInput top="102" id="spCatalogNumber" right="10" width="100%" change="dirty.setDirty();">
+								<mx:text>{fullSlideProduct.@catalogNumber}</mx:text>
+							</mx:TextInput>
+						</mx:VBox>
 					</mx:HBox>
-					<mx:HRule left="10" right="10" height="1" styleName="formrule" y="128"/>
-					<mx:HBox left="10" right="10" height="141" y="137">
+					
+					<mx:HBox y="120" right="10" left="10">
+						<mx:VBox width="100%">
+							<mx:Label text="Billing Service:" top="85" left="10" width="100%"/>
+							<hci:DictionaryComboBox top="102" left="10" width="100%" 
+								id="spIdBillingServiceClass"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideServiceClass').DictionaryEntry}"
+								labelField="@display"
+								prompt=" "
+								data="{fullSlideProduct.@idBillingSlideServiceClass}"
+								 change="dirty.setDirty();">
+								</hci:DictionaryComboBox>
+						</mx:VBox>
+						<mx:VBox width="100%">
+							<mx:Label text="Billing Product:" top="85" left="188" width="100%"/>
+							<hci:DictionaryComboBox  left="188" right="150" top="102"
+								id="spIdBillingProductClass"
+								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideProductClass').DictionaryEntry}"
+								labelField="@display"
+								prompt=" "
+								data="{fullSlideProduct.@idBillingSlideProductClass}"
+						 		width="100%" change="dirty.setDirty();">
+								</hci:DictionaryComboBox>
+						</mx:VBox>
+						
+					</mx:HBox>
+					
+					<mx:HRule left="10" right="10" height="1" styleName="formrule" y="178"/>
+					<mx:HBox left="10" right="10" height="141" y="187">
 					<mx:VBox width="100%">
 					<mx:Label text="Category:" left="10" top="142" height="18" width="100%"/>
 					<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
@@ -894,6 +967,7 @@
 			<mx:RemoveChild target="{vbox2}"/>
 			<mx:RemoveChild target="{vbox1}"/>
 			<mx:RemoveChild target="{hbox1}"/>
+			<mx:RemoveChild target="{hbox3}"/>
 		</mx:State>
 		
 	</mx:states>
