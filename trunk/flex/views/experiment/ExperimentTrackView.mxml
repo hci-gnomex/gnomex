@@ -90,7 +90,7 @@
 	       <mx:LinkBar id="linkBar" styleName="formLinkBar" dataProvider="{theViews}" paddingLeft="0"/>
 	       
 	       <mx:ViewStack id="theViews" width="100%" height="100%">
-	       		<mx:VBox width="100%" height="100%" label="Microarray, Bioanalyzer" >
+	       		<mx:VBox width="100%" height="100%" label="Microarray, Sample Quality" >
 			       <util:DataGridAlternatingGroup  sortableColumns="false" id="progressGrid" dataProvider="{progressList}"  width="100%" height="100%">
 			         <util:columns>
 			            <mx:DataGridColumn width="18" minWidth="20" headerText="#">
@@ -177,7 +177,7 @@
 			       </util:DataGridAlternatingGroup>
 			           	
 	           </mx:VBox>
-	       		<mx:VBox width="100%" height="100%" label="Solexa" >
+	       		<mx:VBox width="100%" height="100%" label="Illumina" >
 			       <util:DataGridAlternatingGroup  sortableColumns="false" id="progressSolexaGrid" dataProvider="{progressSolexaList}"  width="100%" height="100%">
 			         <util:columns>
 			            <mx:DataGridColumn width="18" minWidth="20" headerText="#">

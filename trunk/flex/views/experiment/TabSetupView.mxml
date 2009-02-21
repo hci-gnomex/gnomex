@@ -357,7 +357,10 @@
 			    <mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
 			    <mx:Label text="Select a service request category:" width="220"/>
 					<mx:HBox width="100%" horizontalGap="12">
-						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
+						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2" width="148">
+						    <mx:HBox width="100%" horizontalAlign="center">
+							    <mx:Image source="assets/microarray_black.png" />						    	
+						    </mx:HBox>
 						    <mx:RadioButtonGroup id="requestTypeGroup" />
 						    <mx:HBox>
 								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
@@ -366,14 +369,20 @@
 								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
 							</mx:HBox>
 						</mx:VBox>
-						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">									
-						    <mx:RadioButton groupName="requestTypeGroup" label="Bioanalyzer (QC)" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
+						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%" width="148">									
+						    <mx:HBox width="100%" horizontalAlign="center">
+						    	<mx:Image source="assets/chart_curve.png"/>
+						    </mx:HBox>
+						    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
 						    <mx:HBox paddingTop="0">
 						    	<mx:Spacer width="10"/>												
 						    </mx:HBox>						
 						</mx:VBox>
-						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%">
-							<mx:RadioButton groupName="requestTypeGroup" label="Solexa Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
+						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%" width="148">
+						    <mx:HBox width="100%" horizontalAlign="center">
+							    <mx:Image source="assets/solexa.png"/>						    	
+						    </mx:HBox>
+							<mx:RadioButton groupName="requestTypeGroup" label="Illumina Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
 						</mx:VBox>
 					</mx:HBox>
 			    </mx:HBox>
@@ -412,11 +421,11 @@
 				</mx:HBox>
 				<mx:HBox width="100%">
 				    <mx:Spacer width="220"/>
-					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff">
-						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_2008Dec.pdf'), '_blank');</mx:click>
+					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff"> 
+						<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.pdf'), '_blank');</mx:click>
 					</mx:LinkButton>
 					<mx:LinkButton label="Work authorization form (Microsoft work doc)" textDecoration="underline" useHandCursor="true" color="#0000ff">
-						<mx:click>navigateToURL(new URLRequest('microarray_work_authorization_form_2008Dec.doc'), '_blank');</mx:click>
+						<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.doc'), '_blank');</mx:click>
 					</mx:LinkButton>
 				</mx:HBox>
 				

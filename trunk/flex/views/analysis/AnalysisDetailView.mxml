@@ -241,7 +241,7 @@
 							</mx:DataGrid>
 	
 			        	</mx:Canvas>
-			        	<mx:Canvas label="{'Solexa Sequencing Lanes (' +  lanesGrid.dataProvider.length + ')'}" width="100%" height="100%">
+			        	<mx:Canvas label="{'Illumina Sequencing Lanes (' +  lanesGrid.dataProvider.length + ')'}" width="100%" height="100%">
 			        		<mx:DataGrid width="100%" height="100%" 
 			        			dataProvider="{parentDocument.selectedAnalysis..SequenceLane}" 
 			        			id="lanesGrid"
