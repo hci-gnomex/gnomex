@@ -1,14 +1,16 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
-import hci.gnomex.model.AppUser;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Request;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -83,7 +85,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     
     Element style = new Element("style");
     style.setAttribute("type", "text/css");
-    style.addContent(this.getInternalCSS());
+    style.addContent(this.getCascadingStyleSheet());
     head.addContent(style);
     
     Element title = new Element("TITLE");
@@ -103,162 +105,34 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     return centera;
   }
   
-  
-  private String getInternalCSS() {
+  private String getCascadingStyleSheet() {
     StringBuffer buf = new StringBuffer();
-    
-    buf.append("table {");
-    buf.append("  width: 960;");
-
-    buf.append(" }");    
-
-    buf.append(" table.grid {");
-    buf.append("  border: none;");
-    buf.append("  width: 960;");
-
-    buf.append(" }");
-
-    buf.append("  caption{");
-
-    buf.append("       font-family: Trebuchet MS;");
-    buf.append("       font-size: 10pt;");
-    buf.append("       color: black;");
-    buf.append("       font-weight: bold;");
-    buf.append("       padding-top: 15;");
-    buf.append("       padding-bottom: 5;");
-    buf.append("       text-align: left;");
-    buf.append("   }");
-
-
-
-    buf.append("   td.value {");
-
-    buf.append("       font-family: Trebuchet MS;");
-    buf.append("       font-size: 10pt;");
-    buf.append("       padding-top: 0;");
-    buf.append("       padding-bottom: 0;");
-          
-    buf.append("   }");
-
-    buf.append("   td.label {");
-
-    buf.append("       font-family: Trebuchet MS;");
-    buf.append("       font-size: 9pt;");
-    buf.append("       font-weight: bold;");
-    buf.append("       padding-top: 0;");
-    buf.append("       padding-right: 8;");
-    buf.append("       padding-bottom: 0;");     
-    buf.append("   }");
-
-    buf.append("   td.grid {");
-
-    buf.append("      font-family: Trebuchet MS;");
-    buf.append("       font-size: 9pt;");
-          
-    buf.append("      padding-top: 4;");
-    buf.append("       padding-bottom: 0;");
-    buf.append("       padding-right: 8;");
-    buf.append("       padding-left: 4;");
-
-    buf.append("      border-color: #CDCDC1;");
-    buf.append("       border-bottom: thin  solid;");
-    buf.append("       border-width: 1;");
-    buf.append("   }");
+    BufferedReader input =  null;
+    try {
+      input = new BufferedReader(new FileReader(Constants.INVOICE_FORM_CSS));
+    } catch (FileNotFoundException ex) {
+      System.out.println(ex.toString());
+    }
+    if (input != null) {
+      try {
+        String line = null; 
+        while (( line = input.readLine()) != null){
+          buf.append(line);
+          buf.append(System.getProperty("line.separator"));
+        }
+      }
+      catch (IOException ex){
+        ex.printStackTrace();
+      }
+      finally {
+        try {
+          input.close();          
+        } catch (IOException e) {
+        }
+      }
       
-
-
-    buf.append("  td.gridright {");
-
-    buf.append("      font-family: Trebuchet MS;");
-    buf.append("       font-size: 9pt;");
-    buf.append("       text-align: RIGHT;");
-
-    buf.append("      padding-top: 4;");
-    buf.append("       padding-bottom: 0;");
-    buf.append("       padding-right: 8;");
-    buf.append("       padding-left: 4;");
-
-    buf.append("       border-color: #CDCDC1;");
-    buf.append("       border-bottom: thin  solid;");
-    buf.append("       border-width: 1;");
-
-    buf.append("   }");
-      
-
-    buf.append("   td.gridcenter {");
-
-    buf.append("       font-family: Trebuchet MS;");
-    buf.append("      font-size: 9pt;");
-    buf.append("       text-align: CENTER;");
-
-    buf.append("padding-top: 4;");
-    buf.append("    padding-bottom: 0;");
-    buf.append("    padding-right: 8;");
-    buf.append("    padding-left: 4;");
-
-    buf.append("    border-color: #CDCDC1;");
-    buf.append("    border-bottom: thin  solid;");
-    buf.append("    border-width: 1;");
-
-    buf.append("}");
-
-    buf.append("td.gridtotal {");
-
-    buf.append("    font-family: Trebuchet MS;");
-    buf.append("    font-size: 9pt;");
-    buf.append("    font-weight: bold;");
-    buf.append("    text-align: RIGHT;");
-
-    buf.append("    padding-top: 4;");
-    buf.append("    padding-bottom: 0;");
-    buf.append("    padding-right: 8;");
-    buf.append("    padding-left: 4;");
-
-    buf.append("  border: none;");
-
-    buf.append("}");
-
-    buf.append("td.gridempty {");
-        
-
-
-    buf.append("    width: 150;");
-    buf.append("}  ");
-    
-    buf.append("td.gridemptysmall {");
-
-    buf.append("    border-color: #CDCDC1;");
-    buf.append("    width: 50;");
-    buf.append("} ");
-
-    buf.append("th {");
-         
-    buf.append("     font-family: Trebuchet MS;");
-    buf.append("     font-size: 9pt;");
-    buf.append("     font-weight: bold;");
-    buf.append("     text-decoration: underline;");
-    buf.append("     padding-top: 8;");
-    buf.append("     padding-bottom: 0;");
-    buf.append("      padding-right: 8;");
-    buf.append("     padding-left: 4;");
-    buf.append("     text-align: left;");
-    buf.append("     border: none;");
-   
-
-        
-    buf.append(" }");
-     
-     
-    buf.append(" a {");
-    buf.append("     font-family: Trebuchet MS;");
-    buf.append("     font-size: 9pt;");
-    buf.append("     text-align: left;");
-    buf.append(" }");
-
+    }
     return buf.toString();
-    
   }
-
-
 
 }
