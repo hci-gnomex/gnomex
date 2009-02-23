@@ -13,6 +13,9 @@ public class Constants {
   
   public static final String              PRODUCTION_SERVER               = "hci-as1.hci.utah.edu";
   
+  public static final String              INVOICE_FORM_CSS                = "applications/gnomex/gnomex/invoiceForm.css";
+  public static final String              REQUEST_FORM_CSS                = "applications/gnomex/gnomex/requestForm.css";
+  
   public static final String              DEVELOPER_EMAIL                 = "tony.disera@hci.utah.edu";
   
 

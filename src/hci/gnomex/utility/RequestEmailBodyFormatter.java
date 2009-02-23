@@ -1,10 +1,15 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Request;
 import hci.framework.model.DetailObject;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -116,7 +121,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     Element style = new Element("style");
     style.setAttribute("type", "text/css");
-    style.addContent(this.getInternalCSS());
+    style.addContent(this.getCascadingStyleSheet());
     head.addContent(style);
     
     Element title = new Element("TITLE");
@@ -157,164 +162,37 @@ public class RequestEmailBodyFormatter extends DetailObject{
     return center1;
   }
   
-  
-  private String getInternalCSS() {
+  private String getCascadingStyleSheet() {
     StringBuffer buf = new StringBuffer();
-    
-
-    buf.append("h3 {");
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 13pt;");
-    buf.append("font-weight: bold;");
-    buf.append("color: black;");
-    buf.append("line-height: 0;");
-    buf.append("padding-top: 5;");
-    buf.append("padding-bottom: 0;");
-    buf.append("}");
-
-    buf.append("h2 {");
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 11pt;");
-    buf.append("font-weight: bold;");
-    buf.append("color: black;");
-    buf.append("line-height: 0;");
-    buf.append("padding-top: 0;");
-    buf.append("padding-bottom: 5;");
-    buf.append("}   ");
-
-    buf.append("table {");
-    buf.append("width: 660;");
-    buf.append("}    ");
-
-    buf.append("table.grid {");
-    buf.append("border: thin solid;");
-    buf.append("border-color: #CDCDC1;");
-    buf.append("width: 660;");
-    buf.append("}");
-
-    buf.append("caption{");
-
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 10pt;");
-    buf.append("color: black;");
-    buf.append("font-weight: bold;");
-    buf.append("padding-top: 5;");
-    buf.append("padding-bottom: 5;");
-    buf.append("}");
-
-    buf.append("td.value {");
-
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 10pt;");
-    buf.append("padding-top: 0;");
-    buf.append("padding-bottom: 0;");
-
-    buf.append("}");
-
-    buf.append("td.label {");
-
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 10pt;");
-    buf.append("font-weight: bold;");
-    buf.append("color: #8B7765;");
-    buf.append("padding-top: 0;");
-    buf.append("padding-right: 10;");
-    buf.append("padding-bottom: 0;  ");
-    buf.append("}");
-
-    buf.append("td.grid {");
-
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 9pt;");
-    buf.append("border-top: thin solid;");
-    buf.append("border-left: thin solid;");
-    buf.append("border-color: #CDCDC1;");
-    buf.append("padding-top: 4;");
-    buf.append("padding-bottom: 4;");
-    buf.append("padding-right: 4;");
-    buf.append("padding-left: 4;");
-    buf.append("}");
-
-    buf.append("td.gridleft {");
-
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 9pt;");
-    buf.append("border-top: thin solid;");
-    buf.append("border-color: #CDCDC1;");
-    buf.append("padding-top: 4;");
-    buf.append("padding-bottom: 4;");
-    buf.append("padding-right: 4;");
-    buf.append("padding-left: 4;");
-    buf.append("}");
-
-    buf.append("td.gridempty {");
-                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                    
+    BufferedReader input =  null;
+    try {
+      input = new BufferedReader(new FileReader(Constants.REQUEST_FORM_CSS));
+    } catch (FileNotFoundException ex) {
+      System.out.println(ex.toString());
+    }
+    if (input != null) {
+      try {
+        String line = null; 
+        while (( line = input.readLine()) != null){
+          buf.append(line);
+          buf.append(System.getProperty("line.separator"));
+        }
+      }
+      catch (IOException ex){
+        ex.printStackTrace();
+      }
+      finally {
+        try {
+          input.close();          
+        } catch (IOException e) {
+        }
+      }
       
-    buf.append("border-top: thin solid;");
-    buf.append("border-left: thin solid;");
-    buf.append("border-color: #CDCDC1;");
-    buf.append("width: 150;");
-    buf.append("}  ");
-
-    buf.append("td.gridemptysmall {");
-
-    buf.append("border-top: thin solid;");
-    buf.append("border-left: thin solid;");
-    buf.append("border-color: #CDCDC1;");
-    buf.append("width: 70;");
-    buf.append("} ");
-
-    
-    buf.append("td.gridreverse { ");
-
-    buf.append("  font-family: Trebuchet MS; ");
-    buf.append("  font-size: 9pt; ");
-    buf.append("border-top: thin solid; ");
-    buf.append("border-left: thin solid; ");
-    buf.append("border-color: #CDCDC1; ");
-    buf.append("padding-top: 4; ");
-    buf.append(" padding-bottom: 4; ");
-    buf.append(" padding-right: 4; ");
-    buf.append(" padding-left: 4; ");
-    buf.append(" color: white; ");
-    buf.append(" font-weight: bold; ");
-    buf.append("  background-color: gray; ");
-    buf.append(" } ");
-    
-    buf.append("th {");
-    buf.append("background-color: #6CA6CD;");
-    buf.append("font-family: Trebuchet MS;");
-    buf.append("font-size: 9pt;");
-    buf.append("font-weight: bold;");
-    buf.append("color: white;");
-
-    buf.append(" padding-top: 0;");
-    buf.append(" padding-bottom: 4;");
-    buf.append(" padding-right: 4;");
-    buf.append(" padding-left: 4;");
-
-    buf.append("}");
-
-    buf.append("th.normal {");
-    buf.append("   border-left: thin solid white; ");
-    buf.append(" }");
-
-    buf.append("th.left {");
-    buf.append("}");
-
-    buf.append("th.colgroup {");
-    buf.append("   border-left: thin solid white;");
-    buf.append("    border-bottom: thin solid white;");
-    buf.append(" }");
-      
-      
-
+    }
     return buf.toString();
-    
   }
 
-  
+    
  public boolean isIncludeMicroarrayCoreNotes() {
     return includeMicroarrayCoreNotes;
   }
