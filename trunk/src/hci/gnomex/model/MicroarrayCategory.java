@@ -9,6 +9,8 @@ public class MicroarrayCategory extends DictionaryEntry implements Serializable,
   public static final String   EXPRESSION_MICROARRAY_CATEGORY   = "EXP";
   public static final String   CGH_MICROARRAY_CATEGORY          = "CGH";
   public static final String   CHIP_ON_CHIP_MICROARRAY_CATEGORY = "CHIP";
+  public static final String   SNP_MICROARRAY_CATEGORY          = "SNP";
+  public static final String   HYBMAP_MICROARRAY_CATEGORY       = "WTRANSCRP";
   
 
   private String codeMicroarrayCategory;
