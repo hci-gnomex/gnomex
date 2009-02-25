@@ -357,19 +357,19 @@
 			    <mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
 			    <mx:Label text="Select a service request category:" width="220"/>
 					<mx:HBox width="100%" horizontalGap="12">
-						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2" width="148">
+						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2" width="160">
 						    <mx:HBox width="100%" horizontalAlign="center">
 							    <mx:Image source="assets/microarray_black.png" />						    	
 						    </mx:HBox>
 						    <mx:RadioButtonGroup id="requestTypeGroup" />
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="100%"/>							
 						    </mx:HBox>
 						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy"/>							
+								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="100%"/>							
 							</mx:HBox>
 						</mx:VBox>
-						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%" width="148">									
+						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" width="152">									
 						    <mx:HBox width="100%" horizontalAlign="center">
 						    	<mx:Image source="assets/chart_curve.png"/>
 						    </mx:HBox>
@@ -378,7 +378,7 @@
 						    	<mx:Spacer width="10"/>												
 						    </mx:HBox>						
 						</mx:VBox>
-						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" height="100%" width="148">
+						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" width="152">
 						    <mx:HBox width="100%" horizontalAlign="center">
 							    <mx:Image source="assets/solexa.png"/>						    	
 						    </mx:HBox>
