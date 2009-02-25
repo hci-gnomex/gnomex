@@ -6,6 +6,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.MicroarrayCategory;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -38,8 +39,6 @@ public class SampleQualityPlugin implements BillingPlugin {
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-        
-        
         if (!sample.getSeqPrepByCore().equals("Y")) {
           continue;
         }
@@ -50,8 +49,19 @@ public class SampleQualityPlugin implements BillingPlugin {
           filter1 = this.DNA_GEL;
         } else if (dh.getSampleType(sample).indexOf("RNA") >= 0) {
           filter1 = BioanalyzerChipType.RNA_NANO;
-        }
+        } else  {
+          filter1 = this.DNA_GEL;
+        } 
         
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
+                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.CGH_MICROARRAY_CATEGORY)) {
+          filter1 = this.DNA_GEL;
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
+                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.CHIP_ON_CHIP_MICROARRAY_CATEGORY)) {
+          filter1 = BioanalyzerChipType.DNA1000;
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
+                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
+          filter1 = BioanalyzerChipType.RNA_NANO;
       } else {
         filter1 = sample.getCodeBioanalyzerChipType();
         // If we don't have a chip type assigned yet on the sample,
