@@ -384,6 +384,10 @@
 			setupView.requestRadioAgilent.selected = false;
 			setupView.requestRadioQC.selected = false;
 			setupView.requestRadioSolexa.selected = false;
+			setupView.requestRadioAffy.setStyle(   "fontWeight", "normal");	
+			setupView.requestRadioAgilent.setStyle("fontWeight", "normal");	
+			setupView.requestRadioQC.setStyle(     "fontWeight", "normal");	
+			setupView.requestRadioSolexa.setStyle( "fontWeight", "normal");	
 			setupView.submitNewRequestRadio.selected = true;
 
 			samplesView.enabled = false;			
