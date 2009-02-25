@@ -150,7 +150,7 @@
 		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
 		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
 		<property name="idBillingCategory" column="idBillingCategory" type="integer"/>
-		<property name="idBillingPrice" column="idBillingPrice" type="integer"/>
+		<property name="idBillingPrice" column="idBillingPrice" type="integer"/>		
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
     <many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
@@ -632,6 +632,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="idBillingCategory" column="idBillingCategory" type="integer"/>
+		<property name="idBillingTemplate" column="idBillingTemplate" type="integer"/>
 		<property name="description" column="description" type="string"/>
 		<property name="filter1" column="filter1" type="string"/>
 		<property name="filter2" column="filter2" type="string"/>
