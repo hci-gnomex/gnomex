@@ -11,6 +11,7 @@ import java.text.NumberFormat;
 public class BillingPrice extends DictionaryEntry implements Serializable {
   private Integer    idBillingPrice;
   private Integer    idBillingCategory;
+  private Integer    idBillingTemplate;
   private String     description;
   private String     filter1;
   private String     filter2;
@@ -95,6 +96,16 @@ public class BillingPrice extends DictionaryEntry implements Serializable {
   
   public BigDecimal getUnitPrice() {
     return unitPrice;
+  }
+
+  
+  public Integer getIdBillingTemplate() {
+    return idBillingTemplate;
+  }
+
+  
+  public void setIdBillingTemplate(Integer idBillingTemplate) {
+    this.idBillingTemplate = idBillingTemplate;
   }
  
 }

@@ -87,11 +87,12 @@ public class GetBillingTemplateList extends GNomExCommand implements Serializabl
                   for(Iterator i2 = prices.iterator(); i2.hasNext();) {
                     BillingPrice bp = (BillingPrice)i2.next();
                     
-                    Element priceNode = bp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-                    priceNode.setAttribute("category", categoryNode.getAttributeValue("description"));
-                    priceNode.setAttribute("codeBillingChargeKind", categoryNode.getAttributeValue("codeBillingChargeKind"));
-                    categoryNode.addContent(priceNode);
-                    
+                    if (bp.getIdBillingTemplate() == null || bp.getIdBillingTemplate().equals(bt.getIdBillingTemplate())) {
+                      Element priceNode = bp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+                      priceNode.setAttribute("category", categoryNode.getAttributeValue("description"));
+                      priceNode.setAttribute("codeBillingChargeKind", categoryNode.getAttributeValue("codeBillingChargeKind"));
+                      categoryNode.addContent(priceNode);                      
+                    }
                   }
                 }
               }
