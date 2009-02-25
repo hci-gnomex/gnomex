@@ -62,6 +62,12 @@ public class SampleQualityPlugin implements BillingPlugin {
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
                   request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
           filter1 = BioanalyzerChipType.RNA_NANO;
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY) &&
+                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
+        filter1 = BioanalyzerChipType.RNA_NANO;
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY) &&
+                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.SNP_MICROARRAY_CATEGORY)) {
+        filter1 = this.DNA_GEL;
       } else {
         filter1 = sample.getCodeBioanalyzerChipType();
         // If we don't have a chip type assigned yet on the sample,
