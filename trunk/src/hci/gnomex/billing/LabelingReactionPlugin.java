@@ -6,7 +6,9 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.MicroarrayCategory;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 
 import java.math.BigDecimal;
@@ -38,15 +40,42 @@ public class LabelingReactionPlugin implements BillingPlugin {
       qty += numberReactions.intValue();
     }
     
+    Integer idBillingSlideServiceClass = request.getSlideProduct().getIdBillingSlideServiceClass();
+    
     // Now find the billing price
     BillingPrice billingPrice = null;
+    
+    // Bypass labeling for HybMap microarray experiments
+    if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.HYBMAP_MICROARRAY_CATEGORY)) {
+      return billingItems;
+    }
+    
+    // Lookup prices.  
+    // For Affymetrix requests, look at the microarray service class to determine
+    // labeling price.
+    // For Agilent (and other) requests, look at microarray category to
+    // determine lableing price.
     for(Iterator i1 = billingPrices.iterator(); i1.hasNext();) {
       BillingPrice bp = (BillingPrice)i1.next();
-      if (bp.getFilter1().equals(request.getCodeRequestCategory())) {
-        if (bp.getFilter2().equals(request.getCodeMicroarrayCategory())) {
-          billingPrice = bp;
-          break;          
+      if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+        if (bp.getFilter1().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+          
+          if (idBillingSlideServiceClass != null) {
+            if (bp.getFilter2().equals(idBillingSlideServiceClass.toString())) {
+              billingPrice = bp;
+              break;          
+            }        
+            
+          }
+        }        
+      } else {
+        if (bp.getFilter1().equals(request.getCodeRequestCategory())) {
+          if (bp.getFilter2().equals(request.getCodeMicroarrayCategory())) {
+            billingPrice = bp;
+            break;          
+          }        
         }
+        
       }
 
     }

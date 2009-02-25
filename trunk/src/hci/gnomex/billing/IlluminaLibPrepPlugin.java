@@ -25,51 +25,40 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
 
   public List createBillingItems(Session sess, BillingPeriod billingPeriod, BillingCategory billingCategory, List billingPrices, Request request) {
     List billingItems = new ArrayList();
-    Map samplePrepMethodMap = new HashMap();
+    Map sampleTypeMap = new HashMap();
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
-    // Count up number of samples for sample prep method / seq run type
+    // Count up number of samples per sample type
     for(Iterator i = request.getSamples().iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       
       if (!sample.getSeqPrepByCore().equals("Y")) {
         continue;
       }
-      
-      // If the sample prep method isn't filled in yet, grab the default based on the 
-      // sample type
-      Integer idSamplePrepMethod = sample.getIdSamplePrepMethod();      
-      if (idSamplePrepMethod == null) {
-        idSamplePrepMethod = dh.getDefaultIdSamplePrepMethod(sample.getIdSampleType());        
-      }
-      if (idSamplePrepMethod == null) {
-        continue;
-      }
 
       
+      Integer key = sample.getIdSampleType();
       
-      Integer key = idSamplePrepMethod;
-      
-      Integer sampleCount = (Integer)samplePrepMethodMap.get(key);
+      Integer sampleCount = (Integer)sampleTypeMap.get(key);
       if (sampleCount == null) {
         sampleCount = new Integer(0);
       }
       sampleCount = new Integer(sampleCount.intValue() + 1);
-      samplePrepMethodMap.put(key, sampleCount);
+      sampleTypeMap.put(key, sampleCount);
     }
     
     
-    // Now generate a billing item for each sample prep method  
-    for(Iterator i = samplePrepMethodMap.keySet().iterator(); i.hasNext();) {
-      Integer  idSamplePrepMethod = (Integer)i.next();
+    // Now generate a billing item for each sample type
+    for(Iterator i = sampleTypeMap.keySet().iterator(); i.hasNext();) {
+      Integer  idSampleType = (Integer)i.next();
       
-      Integer qty = (Integer)samplePrepMethodMap.get(idSamplePrepMethod);
+      Integer qty = (Integer)sampleTypeMap.get(idSampleType);
       
       // Find the billing price
       BillingPrice billingPrice = null;
       for(Iterator i1 = billingPrices.iterator(); i1.hasNext();) {
         BillingPrice bp = (BillingPrice)i1.next();
-        if (bp.getFilter1().equals(idSamplePrepMethod.toString())) {          
+        if (bp.getFilter1().equals(idSampleType.toString())) {          
           billingPrice = bp;
           break;            
         }
