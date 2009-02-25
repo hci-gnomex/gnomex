@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
 	width="100%"   
-	height="100%" 
+	height="100%"   
 	xmlns:util="views.util.*" > 
  
    <mx:HTTPService            
@@ -160,17 +160,17 @@
         	currencyFormatter.precision = 2;
         	currencyFormatter.useThousandsSeparator;
       	}		
-		public function checkDirty():void {
+		public function checkDirty():void {     
 		}
 		
 		public function recalculateTotalPrice(experiment:Object):void {
 			for each(var bi:Object in experiment.BillingItem) {
-				bi.@totalPrice = bi.@unitPrice * bi.@qty;
+				bi.@totalPrice = bi.@unitPrice * bi.@qty * bi.@percentagePrice;
 				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	
 			}
 		}
 		
-		
+		 
 		private function addBillingItem():void {
 			dirty.setDirty();
 			var emptyNode:XML = null;
@@ -179,6 +179,7 @@
 				    " category='' description='' " +
 				    " codeBillingChargeKind=''" +				
 					" idBillingPeriod=''" +				
+					" idBillingAccount=''" +				
 					" qty=''" +
 					" unitPrice=''" + 
 					" totalPrice=''" +
@@ -491,14 +492,14 @@
 		 		   	billingItems = new XMLListCollection(); 		
  				   	this.billingItemGrid.dataProvider = new HierarchicalData(billingItems);
 				   	this.billingItemGrid.dataProvider.refresh();   	
- 		   		}
+ 		   		}  
  		   	} 
  		   		
 	       	// insert a Request node under the Pending status
           	for(var x:int = 0; x < items.length; x++) {
-          		var dragNode:Object = items[x];
-	       		if (dragNode.name() == "Request") { 
-	       			var params:Object = new Object();
+          		var dragNode:Object = items[x]; 
+	       		if (dragNode.name() == "Request") {  
+	       			var params:Object = new Object(); 
 	       			params.idRequest = dragNode.@idRequest;
 	       			params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
 	       			this.createBillingItems.send(params);
@@ -514,6 +515,8 @@
        			 	 " idBillingCategory='" +	dragNode.parent().@idBillingCategory + "'" +
        			 	 " idBillingPrice='" + dragNode.@idBillingPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
+       			 	 " idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
+       			 	 " percentagePrice='1'" +
        			 	 " qty=''" + 
        			 	 "/>");
 		       	

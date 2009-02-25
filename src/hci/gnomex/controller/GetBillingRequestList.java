@@ -85,12 +85,14 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Integer idRequest          = (Integer)row[0];
         String requestNumber       = (String)row[1]  == null ? ""  : (String)row[1];
         String codeRequestCategory = (String)row[2]  == null ? ""  : (String)row[2];
+        String idBillingAccount    = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
         
         Element node = new Element("Request");
         node.setAttribute("idRequest", idRequest.toString());
         node.setAttribute("requestNumber", requestNumber);
         node.setAttribute("label", requestNumber);
         node.setAttribute("codeRequestCategory", codeRequestCategory);
+        node.setAttribute("idBillingAccount", idBillingAccount);
         node.setAttribute("codeBillingStatus", BillingStatus.NEW);
         
         statusNode.addContent(node);
@@ -158,8 +160,8 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("label", requestNumber);
       node.setAttribute("codeRequestCategory", codeRequestCategory);
       node.setAttribute("labBillingName", labBillingName);
-      labNode.setAttribute("idLab", idLab != null ? idLab.toString() : "");
-      labNode.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
+      node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
+      node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
       requestNodeMap.put(requestNumber, node);
       
       

@@ -158,7 +158,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("FROM   Request req ");
     buf.append("JOIN   req.billingItems bi ");
     buf.append("WHERE  req.idLab = " + idLab + " ");
-    buf.append("AND    req.idBillingAccount = " + idBillingAccount + " ");
+    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
     buf.append("ORDER BY req.number, bi.idBillingItem ");
     

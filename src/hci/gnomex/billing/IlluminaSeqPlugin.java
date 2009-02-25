@@ -75,11 +75,13 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         billingItem.setDescription(billingPrice.getDescription());
         billingItem.setQty(qty);
         billingItem.setUnitPrice(billingPrice.getUnitPrice());
+        billingItem.setPercentagePrice(new BigDecimal(1));        
         if (qty.intValue() > 0 && billingPrice.getUnitPrice() != null) {
           billingItem.setTotalPrice(billingPrice.getUnitPrice().multiply(new BigDecimal(qty.intValue())));          
         }
         billingItem.setCodeBillingStatus(BillingStatus.PENDING);
         billingItem.setIdRequest(request.getIdRequest());
+        billingItem.setIdBillingAccount(request.getIdBillingAccount());
         billingItem.setIdBillingPrice(billingPrice.getIdBillingPrice());
         billingItem.setIdBillingCategory(billingPrice.getIdBillingCategory());
         
