@@ -120,7 +120,6 @@
 		<id name="idBillingAccount" column="idBillingAccount" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="accountNumber" column="accountNumber" type="string"/>
 		<property name="accountName" column="accountName" type="string"/>
 		<property name="idLab" column="idLab" type="integer"/>
 		<property name="accountNumberBus" column="accountNumberBus" type="string"/>
@@ -146,12 +145,15 @@
 		<property name="qty" column="qty" type="integer"/>
 		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
 		<property name="totalPrice" column="totalPrice" type="big_decimal"/>
+		<property name="percentagePrice" column="percentagePrice" type="big_decimal"/>
 		<property name="codeBillingStatus" column="codeBillingStatus" type="string"/>
 		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
 		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
 		<property name="idBillingCategory" column="idBillingCategory" type="integer"/>
 		<property name="idBillingPrice" column="idBillingPrice" type="integer"/>
 		<property name="idRequest" column="idRequest" type="integer"/>
+		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
+    <many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
   </class>	
 	
 	<!-- hci.gnomex.model.ExperimentDesignEntry -->

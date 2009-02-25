@@ -7,18 +7,21 @@ import java.math.BigDecimal;
 
 public class BillingItem extends HibernateDetailObject {
   
-  private Integer    idBillingItem;
-  private String     category;
-  private String     description;
-  private Integer    qty;
-  private BigDecimal unitPrice;
-  private BigDecimal totalPrice;
-  private String     codeBillingChargeKind;
-  private String     codeBillingStatus;
-  private Integer    idBillingPeriod;  
-  private Integer    idBillingCategory;
-  private Integer    idBillingPrice;
-  private Integer    idRequest;
+  private Integer        idBillingItem;
+  private String         category;
+  private String         description;
+  private Integer        qty;
+  private BigDecimal     unitPrice;
+  private BigDecimal     totalPrice;
+  private BigDecimal     percentagePrice;
+  private String         codeBillingChargeKind;
+  private String         codeBillingStatus;
+  private Integer        idBillingPeriod;  
+  private Integer        idBillingCategory;
+  private Integer        idBillingPrice;
+  private Integer        idRequest;
+  private Integer        idBillingAccount;
+  private BillingAccount billingAccount;
   
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -119,6 +122,39 @@ public class BillingItem extends HibernateDetailObject {
   public void setIdBillingPrice(Integer idBillingPrice) {
     this.idBillingPrice = idBillingPrice;
   }
+
   
- 
+  public Integer getIdBillingAccount() {
+    return idBillingAccount;
+  }
+
+  
+  public void setIdBillingAccount(Integer idBillingAccount) {
+    this.idBillingAccount = idBillingAccount;
+  }
+
+  
+  public BigDecimal getPercentagePrice() {
+    return percentagePrice;
+  }
+
+  
+  public void setPercentagePrice(BigDecimal percentagePrice) {
+    this.percentagePrice = percentagePrice;
+  }
+
+  
+  public BillingAccount getBillingAccount() {
+    return billingAccount;
+  }
+
+  
+  public void setBillingAccount(BillingAccount billingAccount) {
+    this.billingAccount = billingAccount;
+  }
+  
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getBillingAccount");
+  }
+
 }

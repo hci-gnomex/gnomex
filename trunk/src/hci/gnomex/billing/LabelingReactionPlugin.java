@@ -60,11 +60,13 @@ public class LabelingReactionPlugin implements BillingPlugin {
       billingItem.setDescription(billingPrice.getDescription());
       billingItem.setQty(new Integer(qty));
       billingItem.setUnitPrice(billingPrice.getUnitPrice());
+      billingItem.setPercentagePrice(new BigDecimal(1));      
       if (qty > 0 && billingPrice.getUnitPrice() != null) {      
         billingItem.setTotalPrice(billingPrice.getUnitPrice().multiply(new BigDecimal(qty)));
       }
       billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());
+      billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdBillingPrice(billingPrice.getIdBillingPrice());
       billingItem.setIdBillingCategory(billingPrice.getIdBillingCategory());
       

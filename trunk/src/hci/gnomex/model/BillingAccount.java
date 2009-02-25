@@ -9,7 +9,6 @@ import hci.hibernate3utils.HibernateDetailObject;
 public class BillingAccount extends HibernateDetailObject {
  
   private Integer idBillingAccount;
-  private String  accountNumber;
   private String  accountName;
   private Date    expirationDate;
   private Integer idLab;
@@ -25,12 +24,36 @@ public class BillingAccount extends HibernateDetailObject {
   
   
   public String getAccountNumber() {
-    return accountNumber;
-  }
+    if ((accountNumberBus != null && !accountNumberBus.equals("")) || 
+        (accountNumberOrg != null && !accountNumberOrg.equals("")) || 
+        (accountNumberFund != null && !accountNumberFund.equals("")) || 
+        (accountNumberActivity != null && !accountNumberActivity.equals("")) || 
+        (accountNumberProject != null && !accountNumberProject.equals("")) || 
+        (accountNumberAccount != null && !accountNumberAccount.equals("")) ||
+        (accountNumberAu != null && !accountNumberAu.equals("")) || 
+        (accountNumberYear != null && !accountNumberYear.equals(""))) {
+      return this.getNonNullString(accountNumberBus) + 
+      this.getNonNullString(accountNumberOrg) +
+      this.getAccountNumberPart(accountNumberFund) +
+      this.getAccountNumberPart(accountNumberActivity) + 
+      this.getAccountNumberPart(accountNumberProject) +
+      this.getAccountNumberPart(accountNumberAccount + 
+      this.getAccountNumberPart(accountNumberAu) + 
+      this.getAccountNumberPart(accountNumberYear) );      
+    } else {
+      return "";
+    }
+    
+  }  
   
-  public void setAccountNumber(String accountNumber) {
-    this.accountNumber = accountNumber;
+  private String getAccountNumberPart(String part) {
+    if (part != null && !part.equals("")) {
+      return "-" + part;
+    } else {
+      return "";
+    }
   }
+
   
   public Date getExpirationDate() {
     return expirationDate;

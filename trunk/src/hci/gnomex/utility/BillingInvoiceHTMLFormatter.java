@@ -50,8 +50,8 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");
     table.addContent(makeRow(lab.getName()));
-    table.addContent(makeRow("Account " + (billingAccount.getAccountNumber() != null ? billingAccount.getAccountNumber() + " " : "") + 
-                                          (billingAccount.getAccountName() != null ? billingAccount.getAccountName() : "")));
+    table.addContent(makeRow("Account " + (billingAccount.getAccountNumber() != null && !billingAccount.getAccountNumber().equals("" ) ? billingAccount.getAccountNumber() + " " : "") + 
+                                          (billingAccount.getAccountName() != null && !billingAccount.getAccountName().equals("") ? "(" + billingAccount.getAccountName() + ")": "")));
     table.addContent(makeRow(billingPeriod.getBillingPeriod() + " Microarray Chargeback")); 
     
     return table;
@@ -67,24 +67,26 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     table.setAttribute("CLASS",       "grid");
     table.setAttribute("CELLPADDING", "0");
     table.setAttribute("CELLSPACING", "0");
- 
+
+    Element rowh = new Element("TR");
+    table.addContent(rowh);
+    this.addHeaderCell(rowh, "Date", "left");
+    this.addHeaderCell(rowh, "Req ID");
+    this.addHeaderCell(rowh, "Client"    );
+    this.addHeaderCell(rowh, "Service");
+    this.addHeaderCell(rowh, "Product"    );
+    this.addHeaderCell(rowh, "Category");
+    this.addHeaderCell(rowh, "Description"    );
+    this.addHeaderCell(rowh, "Qty"    );
+    this.addHeaderCell(rowh, "Price"    );
+    this.addHeaderCell(rowh, "Total Price"    );
+
+    
     for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
       String requestNumber = (String)i.next();
       Request request = (Request)requestMap.get(requestNumber);      
       List billingItems = (List)billingItemMap.get(requestNumber);
       
-      Element rowh = new Element("TR");
-      table.addContent(rowh);
-      this.addHeaderCell(rowh, "Date", "left");
-      this.addHeaderCell(rowh, "Req ID");
-      this.addHeaderCell(rowh, "Client"    );
-      this.addHeaderCell(rowh, "Service");
-      this.addHeaderCell(rowh, "Product"    );
-      this.addHeaderCell(rowh, "Category");
-      this.addHeaderCell(rowh, "Description"    );
-      this.addHeaderCell(rowh, "Qty"    );
-      this.addHeaderCell(rowh, "Price"    );
-      this.addHeaderCell(rowh, "Total Price"    );
       
       BigDecimal totalPriceForRequest = new BigDecimal(0);
       for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
