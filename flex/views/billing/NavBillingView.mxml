@@ -4,7 +4,7 @@
 	height="100%"   
 	xmlns:util="views.util.*" > 
  
-   <mx:HTTPService            
+   <mx:HTTPService             
     id="getLab" 
     url="GetLab.gx"
     destination="getLab" 
@@ -610,7 +610,12 @@
 			if (this.requestTree.selectedItem != null) {
 				var labNode:Object = null;
 				if (this.requestTree.selectedItem.name() == "Request") {
-					labNode = this.requestTree.selectedItem.parent();					
+					if (this.requestTree.selectedItem.parent().name() == "Lab") {
+						labNode = this.requestTree.selectedItem.parent();
+					} else {
+						Alert.show("Please complete the billing items first.");
+						return;
+					}					
 				} else if (this.requestTree.selectedItem.name() == "Lab") {
 					labNode = this.requestTree.selectedItem; 
 				}
