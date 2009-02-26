@@ -173,8 +173,8 @@
 			<url-pattern>GetBillingItemList.gx</url-pattern>
 			<url-pattern>GetBillingRequestList.gx</url-pattern>
 			<url-pattern>GetBillingTemplateList.gx</url-pattern>
-			<url-pattern>GetRequestReviewCODWindow.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
+			<url-pattern>ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>ShowBillingInvoiceForm.gx</url-pattern>
 			<url-pattern>ShowBillingMonthendReport.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
