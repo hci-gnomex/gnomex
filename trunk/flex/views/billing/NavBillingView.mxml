@@ -631,13 +631,13 @@
 				}
 				
 			}
-		}
+		} 
 		public function showBillingMonthendReport():void {
 			
 			if (billingPeriodCombo.selectedItem == null ||
 			    billingPeriodCombo.selectedItem.@value == "") {
 				Alert.show("Please select a billing period.");
-				return;    	
+				return;    	 
 			}
 			
 		
@@ -662,6 +662,36 @@
 				
 			}
 		}
+		public function showBillingGLInterface():void {
+			
+			if (billingPeriodCombo.selectedItem == null ||
+			    billingPeriodCombo.selectedItem.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	
+			}
+			
+		
+			
+			if (this.requestTree.selectedItem != null) { 
+				var statusNode:Object = null;
+				if (this.requestTree.selectedItem.name() == "Lab") {
+					statusNode = this.requestTree.selectedItem.parent(); 
+				} else if (this.requestTree.selectedItem.name() == "Status") {
+					statusNode = this.requestTree.selectedItem;
+				}
+				if (statusNode != null && 
+				    (statusNode.@status == "APPROVED" )) {
+					var url:URLRequest = new URLRequest('ShowBillingGLInterface.gx' +
+						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
+						'&codeBillingStatus=' + statusNode.@status);
+					navigateToURL(url, '_blank');			
+					
+				} else {
+					Alert.show("Please select the Approved folder.")
+				}
+				
+			}
+		}		
 
 
  	]]>
@@ -810,7 +840,8 @@
  	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
  	            click="refresh()" toolTip="Refresh"/>
  	    <mx:LinkButton label="Month-end Billing Report" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
-        <mx:LinkButton label="Client Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
+ 	    <mx:LinkButton label="GL Interface" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingGLInterface()"/>        
+ 	    <mx:LinkButton label="Client Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
       <mx:HBox width="100%" horizontalAlign="right">
         <util:DirtyNote id="dirty" />
       	<mx:Button id="saveButton" label="Save" click="save()"

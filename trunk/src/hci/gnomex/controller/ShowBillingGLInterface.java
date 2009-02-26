@@ -1,0 +1,390 @@
+package hci.gnomex.controller;
+
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingChargeKind;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Request;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.report.constants.ReportFormats;
+import hci.report.model.Column;
+import hci.report.model.ReportRow;
+import hci.report.model.ReportTray;
+import hci.report.utility.ReportCommand;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.swing.text.DateFormatter;
+
+import org.hibernate.Session;
+
+
+public class ShowBillingGLInterface extends ReportCommand implements Serializable {
+  
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingGLInterface.class);
+  
+  
+  private Integer          idBillingPeriod;
+  private String           codeBillingStatus;
+  private SecurityAdvisor  secAdvisor;
+  
+  private NumberFormat   currencyFormat = NumberFormat.getCurrencyInstance();
+  
+  private BigDecimal totalPriceForRequest = new BigDecimal("0");
+  private BigDecimal totalPriceForLabAccount = new BigDecimal("0");
+  private BigDecimal grandTotalPrice = new BigDecimal("0");
+  
+  private static final String    JOURNAL_ID = "SE09001091";
+
+  
+ 
+  public void validate() {
+  }
+  
+  public void loadCommand(HttpServletRequest request, HttpSession session) {
+
+    if (request.getParameter("idBillingPeriod") != null) {
+      idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
+    } else {
+      this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+    }
+    
+    if (request.getParameter("codeBillingStatus") != null) {
+      codeBillingStatus = request.getParameter("codeBillingStatus");
+    } else {
+      this.addInvalidField("codeBillingStatus", "codeBillingStatus is required");
+    }
+    
+    secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+    if (secAdvisor == null) {
+      this.addInvalidField("secAdvisor", "A security advisor must be created before this command can be executed.");
+    }
+  }
+
+  public Command execute() throws RollBackCommandException {
+    
+    this.SUCCESS_JSP_HTML = "/report.jsp";
+    this.SUCCESS_JSP_CSV = "/report_csv.jsp";
+    this.SUCCESS_JSP_PDF = "/report_pdf.jsp";
+    this.SUCCESS_JSP_XLS = "/report_xls_plain.jsp";
+    this.ERROR_JSP = "/message.jsp";
+    
+    
+    try {
+      
+      
+   
+      Session sess = secAdvisor.getReadOnlyHibernateSession(this.getUsername());
+      
+     
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      
+      
+
+      if (this.isValid()) {
+        if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
+          
+          BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
+
+          StringBuffer buf = new StringBuffer();
+          buf.append("SELECT req, bi ");
+          buf.append("FROM   Request req ");
+          buf.append("JOIN   req.lab as lab ");
+          buf.append("JOIN   req.billingItems bi ");
+          buf.append("JOIN   bi.billingAccount as ba ");
+          buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
+          buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+          buf.append("ORDER BY lab.name, ba.accountName, req.number, bi.idBillingItem ");
+          
+          List results = sess.createQuery(buf.toString()).list();
+          TreeMap requestMap = new TreeMap();
+          TreeMap billingItemMap = new TreeMap();
+          
+          for(Iterator i = results.iterator(); i.hasNext();) {
+            Object[] row = (Object[])i.next();
+            Request req    =  (Request)row[0];
+            BillingItem bi =  (BillingItem)row[1];
+            
+            String key = req.getLabName() + "_" +
+                         req.getBillingAccount().getIdBillingAccount() +  "_" +
+                         req.getNumber();
+            
+            requestMap.put(key, req);
+            
+            List billingItems = (List)billingItemMap.get(req.getNumber());
+            if (billingItems == null) {
+              billingItems = new ArrayList();
+              billingItemMap.put(req.getNumber(), billingItems);
+            }
+            billingItems.add(bi);
+          }
+          
+          BillingAccount prevBillingAccount = null;
+          String prevLabName = null;
+       
+          if (isValid()) {
+            SimpleDateFormat periodFormat = new SimpleDateFormat("MMMyy");
+            SimpleDateFormat dateFormat  = new SimpleDateFormat("MMddyyyy");
+            
+            // set up the ReportTray
+            tray = new ReportTray();
+            tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
+            tray.setReportTitle(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
+            tray.setReportDescription(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
+            tray.setFileName("billing microarray " + periodFormat.format(billingPeriod.getStartDate()));
+            tray.setFormat(ReportFormats.XLS);
+            
+            Set columns = new TreeSet();
+            columns.add(makeReportColumn("", 1));
+            
+            tray.setColumns(columns);
+
+            
+            String prevLabBillingName = "XXX";
+           
+            
+            // Example of header:
+            // H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
+            //
+            String header = getString("H01", 5);
+            header += getString(JOURNAL_ID, 10);
+            header += dateFormat.format(billingPeriod.getStartDate());
+            header += "ACTUALS";
+            header += "N";
+            header += getEmptyString(8);
+            header += "HCI";
+            header += getEmptyString(8);
+            header += billingPeriod.getBillingPeriod().substring(0,8) + " HCI Microarray Chrgs ";
+            header += "USD";
+            header += getEmptyString(5);
+            header += getEmptyString(8);
+            header += getEmptyString(16);
+            
+            ReportRow reportRow = new ReportRow();
+            List values  = new ArrayList();
+            values.add(header);
+            
+            reportRow.setValues(values);
+            tray.addRow(reportRow);
+            
+            
+            
+            boolean firstTime = true;
+            
+            for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+              String key = (String)i.next();
+              Request request = (Request)requestMap.get(key);      
+              
+              
+
+              String[] tokens = key.split("_");
+              String requestNumber = tokens[2];
+              List billingItems = (List)billingItemMap.get(requestNumber);
+              
+
+              String acctNum = request.getBillingAccount().getAccountNumber();
+              String acctName = request.getBillingAccount().getAccountName();
+              String labName = request.getLabName();
+              
+              String labBillingName = request.getLabName() + acctNum;
+              
+
+              if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
+                addAccountTotalRows(prevLabName, prevBillingAccount);
+              }
+
+            
+ 
+              for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
+                BillingItem bi = (BillingItem)i1.next();
+
+                if (bi.getTotalPrice() != null) {
+                  totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getTotalPrice());          
+                  grandTotalPrice = grandTotalPrice.add(bi.getTotalPrice());          
+                }
+                
+                firstTime = false;
+                prevBillingAccount = bi.getBillingAccount();
+                prevLabName = labName;
+                prevLabBillingName = labBillingName;
+              }
+            }
+
+          }
+
+          addAccountTotalRows(prevLabName, prevBillingAccount);
+          
+        } else {
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
+        }
+        
+      }
+      
+      if (isValid()) {
+        this.setSuccessJsp(this, tray.getFormat());
+      } else {
+        setResponsePage(this.ERROR_JSP);
+      }
+    
+    }catch (UnknownPermissionException e){
+      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+        
+    }catch (NamingException e){
+      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+        
+    }catch (SQLException e) {
+      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+      
+    } catch (Exception e) {
+      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
+    } finally {
+      try {
+        secAdvisor.closeReadOnlyHibernateSession();    
+      } catch(Exception e) {
+        
+      }
+    }
+    
+    return this;
+  }
+  
+
+  
+  private void addAccountTotalRows(String labName, BillingAccount billingAccount) {
+    ReportRow reportRow = new ReportRow();
+    List values  = new ArrayList();
+
+    StringBuffer lineItem = new StringBuffer();
+    
+    String amt = this.currencyFormat.format(this.totalPriceForLabAccount);
+    amt = amt.replaceAll("\\.", "");
+    amt = amt.replaceAll(",", "");
+    amt = amt.replaceAll("\\$", "");
+   
+    
+    
+    lineItem.append("L");
+    lineItem.append(getString(billingAccount.getAccountNumberBus(), 5));
+    lineItem.append(getEmptyString(6));
+    lineItem.append(getString(billingAccount.getAccountNumberAccount(), 6));
+    lineItem.append(getString(billingAccount.getAccountNumberFund(), 5));
+    lineItem.append(getString(billingAccount.getAccountNumberOrg(), 10));
+    lineItem.append(getString(billingAccount.getAccountNumberActivity(), 5));
+    lineItem.append(getString(billingAccount.getAccountNumberAu(), 5));
+    lineItem.append(getString(billingAccount.getAccountNumberYear(), 4));
+    lineItem.append(getString(billingAccount.getAccountNumberProject(), 15));
+    lineItem.append(getEmptyString(3));     // statistics code
+    lineItem.append(getEmptyString(5));  // affiliate
+    lineItem.append("USD");
+    lineItem.append(getString(amt, 16));
+    lineItem.append(getEmptyString(16)); //statistics amount
+    lineItem.append(getString(JOURNAL_ID, 10)); //journal line ref
+    lineItem.append(getString(labName + "-" + billingAccount.getAccountName(), 30)); //journal line description
+    lineItem.append(getEmptyString(5)); // foreign currency rate type
+    lineItem.append(getEmptyString(16)); // foreign currency exchange rate
+    lineItem.append(getEmptyString(16)); // base currency amount
+    
+    
+    values.add(lineItem.toString());
+    
+    reportRow.setValues(values);
+    tray.addRow(reportRow);
+    totalPriceForLabAccount = new BigDecimal(0);
+    
+  }
+  
+  private String getString(String buf, int len) {
+    if (buf == null) {
+      return getEmptyString(len);
+    } else if (buf.length() == len) {
+      return buf;
+    } else if (buf.length() > len) {
+      return buf.substring(0, len);      
+    } else {
+      int stringLen = buf.length();
+      for(int x = stringLen; x < len; x++) {
+        buf += "&nbsp;";
+      }
+      return buf;
+    }
+  }
+  
+  private String getEmptyString(int len) {
+    String buf = new String();
+    for(int x = 0; x < len; x++) {
+      buf += "&nbsp;";
+    }
+    return buf;
+  }
+  
+  private Column makeReportColumn(String name, int colNumber) {
+    Column reportCol = new Column();
+    reportCol.setName(name);
+    reportCol.setCaption(name);
+    reportCol.setDisplayOrder(new Integer(colNumber));
+    return reportCol;
+  }
+  
+  
+  /* (non-Javadoc)
+   * @see hci.framework.control.Command#setRequestState(javax.servlet.http.HttpServletRequest)
+   */
+  public HttpServletRequest setRequestState(HttpServletRequest request) {
+    request.setAttribute("tray", this.tray);
+    return request;
+  }
+
+  /* (non-Javadoc)
+   * @see hci.framework.control.Command#setResponseState(javax.servlet.http.HttpServletResponse)
+   */
+  public HttpServletResponse setResponseState(HttpServletResponse response) {
+    // TODO Auto-generated method stub
+    return response;
+  }
+
+  /* (non-Javadoc)
+   * @see hci.framework.control.Command#setSessionState(javax.servlet.http.HttpSession)
+   */
+  public HttpSession setSessionState(HttpSession session) {
+    // TODO Auto-generated method stub
+    return session;
+  }
+
+  /* (non-Javadoc)
+   * @see hci.report.utility.ReportCommand#loadContextPermissions()
+   */
+  public void loadContextPermissions(){
+    
+  }
+  public void loadContextPermissions(String userName) throws SQLException {
+    
+  }
+  
+}
