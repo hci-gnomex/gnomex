@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Generate GL Interface" 
+	width="210" height="92" defaultButton="{runButton}">
+ 
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		
+		public var idBillingPeriod:Object;
+		
+		private function run():void {
+			var url:URLRequest = new URLRequest('ShowBillingGLInterface.gx' +
+						'?idBillingPeriod=' + idBillingPeriod + 
+						'&revisionNumber=' + revision.text);
+			navigateToURL(url, '_blank');	
+			mx.managers.PopUpManager.removePopUp(this);		
+		}				
+		
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%">
+		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
+			<mx:Label text="Journal Entry Revision:"/>
+			<mx:TextInput id="revision" width="100%" text="1" textAlign="right"/>
+		</mx:HBox>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="OK" id="runButton" click="run()" enabled="{revision.text != ''}"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>
