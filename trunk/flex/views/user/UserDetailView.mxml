@@ -169,14 +169,16 @@
 		  	      <mx:Label text="Permission Level"/>
 		  	        <mx:HBox verticalGap="0" paddingLeft="10" paddingTop="0">
 		  	           <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
-		  	          <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
-		  	           <mx:value>ADMIN</mx:value>
-		  	          </mx:RadioButton>
 		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>LAB</mx:value>
 		  	         </mx:RadioButton>
-		  	         	
-		  	        </mx:HBox>
+		  	          <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+		  	           <mx:value>ADMIN</mx:value>
+		  	          </mx:RadioButton>
+		  	         <mx:RadioButton label="Billing Admin" id="isBillingPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+		  	           <mx:value>BILLING</mx:value>
+		  	         </mx:RadioButton>		  	         	
+		  	        </mx:HBox> 
 		  	    </mx:VBox>
 				</mx:HBox>		  		
 		  	  </mx:VBox>
