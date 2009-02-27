@@ -43,17 +43,17 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingGLInterface.class);
   
   
-  private Integer          idBillingPeriod;
-  private String           codeBillingStatus;
-  private SecurityAdvisor  secAdvisor;
+  private Integer                  idBillingPeriod;
+  private Integer                  revisionNumber = new Integer(1);
+  private SecurityAdvisor          secAdvisor;
   
-  private NumberFormat   currencyFormat = NumberFormat.getCurrencyInstance();
   
-  private BigDecimal totalPriceForRequest = new BigDecimal("0");
-  private BigDecimal totalPriceForLabAccount = new BigDecimal("0");
-  private BigDecimal grandTotalPrice = new BigDecimal("0");
+  private NumberFormat             currencyFormat = NumberFormat.getCurrencyInstance();
   
-  private static final String    JOURNAL_ID = "SE09001091";
+  private BigDecimal               totalPriceForLabAccount = new BigDecimal("0");
+  
+  private static final String    JOURNAL_ID = "SE090";
+  private String                   journalEntry;
 
   
  
@@ -68,16 +68,16 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
     }
     
-    if (request.getParameter("codeBillingStatus") != null) {
-      codeBillingStatus = request.getParameter("codeBillingStatus");
-    } else {
-      this.addInvalidField("codeBillingStatus", "codeBillingStatus is required");
-    }
+    if (request.getParameter("revisionNumber") != null && !request.getParameter("revisionNumber").equals("")) {
+      revisionNumber = new Integer(request.getParameter("revisionNumber"));
+    } 
     
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
     if (secAdvisor == null) {
       this.addInvalidField("secAdvisor", "A security advisor must be created before this command can be executed.");
     }
+    
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -88,7 +88,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     this.SUCCESS_JSP_XLS = "/report_xls_plain.jsp";
     this.ERROR_JSP = "/message.jsp";
     
+    SimpleDateFormat headerDateFormat = new SimpleDateFormat("MMM yy");
+    SimpleDateFormat periodFormat = new SimpleDateFormat("MMMyy");
+    SimpleDateFormat dateFormat  = new SimpleDateFormat("MMddyyyy");
+    SimpleDateFormat journalDateFormat  = new SimpleDateFormat("MMyy");
     
+   
     try {
       
       
@@ -97,13 +102,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       
      
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      
-      
+      BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
+      journalEntry = this.JOURNAL_ID + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
 
       if (this.isValid()) {
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
           
-          BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
 
           StringBuffer buf = new StringBuffer();
           buf.append("SELECT req, bi ");
@@ -111,7 +115,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           buf.append("JOIN   req.lab as lab ");
           buf.append("JOIN   req.billingItems bi ");
           buf.append("JOIN   bi.billingAccount as ba ");
-          buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
+          buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
           buf.append("ORDER BY lab.name, ba.accountName, req.number, bi.idBillingItem ");
           
@@ -142,8 +146,6 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           String prevLabName = null;
        
           if (isValid()) {
-            SimpleDateFormat periodFormat = new SimpleDateFormat("MMMyy");
-            SimpleDateFormat dateFormat  = new SimpleDateFormat("MMddyyyy");
             
             // set up the ReportTray
             tray = new ReportTray();
@@ -166,14 +168,14 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             // H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
             //
             String header = getString("H01", 5);
-            header += getString(JOURNAL_ID, 10);
+            header += getString(journalEntry, 10);
             header += dateFormat.format(billingPeriod.getStartDate());
             header += "ACTUALS";
             header += "N";
             header += getEmptyString(8);
             header += "HCI";
             header += getEmptyString(8);
-            header += billingPeriod.getBillingPeriod().substring(0,8) + " HCI Microarray Chrgs ";
+            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " HCI Microarray Billing", 30);
             header += "USD";
             header += getEmptyString(5);
             header += getEmptyString(8);
@@ -219,7 +221,6 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
 
                 if (bi.getTotalPrice() != null) {
                   totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getTotalPrice());          
-                  grandTotalPrice = grandTotalPrice.add(bi.getTotalPrice());          
                 }
                 
                 firstTime = false;
@@ -246,22 +247,22 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       }
     
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      log.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      log.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      log.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
       
     } catch (Exception e) {
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
+      log.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
@@ -305,8 +306,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     lineItem.append("USD");
     lineItem.append(getString(amt, 16));
     lineItem.append(getEmptyString(16)); //statistics amount
-    lineItem.append(getString(JOURNAL_ID, 10)); //journal line ref
-    lineItem.append(getString(labName + "-" + billingAccount.getAccountName(), 30)); //journal line description
+    lineItem.append(getString(journalEntry, 10)); //journal line ref
+    lineItem.append(getString(labName, 30)); //journal line description
     lineItem.append(getEmptyString(5)); // foreign currency rate type
     lineItem.append(getEmptyString(16)); // foreign currency exchange rate
     lineItem.append(getEmptyString(16)); // base currency amount
