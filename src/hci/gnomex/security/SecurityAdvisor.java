@@ -708,7 +708,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     // Can manage billing
-    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
+        appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
     }
     
@@ -1150,12 +1151,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public boolean addGroupCriteria(StringBuffer queryBuf, String classShortName) {
+    Set labs = getAllMyGroups();
+    if (labs.isEmpty()) {
+      return false;
+    }
+    
+    
     queryBuf.append(" ( ");
 
    
 
     // object.idLab in (....)
-    Set labs = getAllMyGroups();
     if (!labs.isEmpty()) {
       queryBuf.append(classShortName);
       queryBuf.append(".idLab in ( ");
@@ -1183,7 +1189,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // req.idLab in (....)
       Set labs = getAllMyGroups();
       if (!labs.isEmpty()) {
-      queryBuf.append(classShortName);
+        
+        queryBuf.append(classShortName);
         queryBuf.append(".idLab in ( ");
         for (Iterator i = labs.iterator(); i.hasNext();) {
           Lab theLab = (Lab) i.next();
@@ -1194,16 +1201,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
         queryBuf.append(" )");
         queryBuf.append(" AND ");
+      } else {
+        // User doesn't belong to any labs, yet we are supposed to scope by lab.
+        // Therefore, generate criteria that will result in empty results
+        queryBuf.append(classShortName);
+        queryBuf.append(".idLab = -1 ");
+        queryBuf.append(" AND ");        
+        
       }
-    }
-
-    // req.codeVisibility is 'visible to collaborators and members'
+    } 
+     
     queryBuf.append(classShortName);
     queryBuf.append(".codeVisibility = '");
     queryBuf.append(Visibility.VISIBLE_TO_PUBLIC);
     queryBuf.append("'");
-    
+
     queryBuf.append(" ) ");
+    
   }
   
   public void addInheritedPublicCriteria(StringBuffer queryBuf, String classShortName, String visibilityField, boolean scopeToGroups) {

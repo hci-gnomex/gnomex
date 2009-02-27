@@ -9,6 +9,7 @@ package views.renderers
 	import hci.flex.renderers.RendererFactory;
 	import mx.collections.HierarchicalCollectionView;
 	import mx.controls.AdvancedDataGrid;
+	import mx.controls.Alert;
 	
 
 
@@ -88,7 +89,14 @@ package views.renderers
 			}
         }
  
- 
+           override protected function change(event:ListEvent):void {
+				if (parentApplication.hasPermission("canManageBilling")) {
+			 		assignData();	
+			 	} else {
+	     			selectItem();
+	     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
+			 	}
+            } 
  
 
 
