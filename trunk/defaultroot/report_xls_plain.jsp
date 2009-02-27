@@ -5,11 +5,7 @@ response.setHeader("Content-type","application/vnd.ms-excel");
 response.setHeader("Content-Disposition","attachment; filename=\""+tray.getFileName()+".xls\"");
 // Some vars for the row colors
 int count;
-
-int width = 640;
-if (tray.getColumns().size() > 6) {
-	width = tray.getColumns().size()*100; 
-}
+int width = 1000;
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
