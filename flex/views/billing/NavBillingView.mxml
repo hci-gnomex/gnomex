@@ -247,9 +247,9 @@
 				} else {
 					return parentApplication.iconBilling;
 				} 
-		}
+		} 
 		
-		private function refresh():void {
+		public function refresh():void {
 			billingItemsDisplayed = new XMLListCollection();
 			this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 			
@@ -679,7 +679,7 @@
 				if (statusNode != null && 
 				    (statusNode.@status == "APPROVED" )) {
 				    	
-            		var runWindow:GLInterfaceView = GLInterfaceView(mx.managers.PopUpManager.createPopUp(this, GLInterfaceView, true));
+            		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
             		mx.managers.PopUpManager.centerPopUp(runWindow);
             		runWindow.setFocus();
             		runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
@@ -692,6 +692,15 @@
 				Alert.show("Please select the Approved folder.");
 			}
 		}		
+		
+		private function showPriceEditView():void {
+			if (billingCategoryTree.selectedItem.name() == "BillingPrice") {
+				var editWindow:BillingPriceEditView = BillingPriceEditView(mx.managers.PopUpManager.createPopUp(this, BillingPriceEditView, true));
+            	mx.managers.PopUpManager.centerPopUp(editWindow);
+            	editWindow.setFocus();
+            	editWindow.billingPrice = this.billingCategoryTree.selectedItem;				
+			} 
+		}
 
 
  	]]>
@@ -765,7 +774,8 @@
 						showHeaders="false" 
 						displayItemsExpanded="false" 
 						iconFunction="getTreeIcon" 
-						dragEnabled="true" dragMoveEnabled="false" dropEnabled="false">
+						dragEnabled="true" dragMoveEnabled="false" dropEnabled="false" 
+						doubleClick="showPriceEditView()" doubleClickEnabled="true">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData source="{billingTemplates}"/>
 				        </mx:dataProvider>						  
