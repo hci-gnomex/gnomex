@@ -16,6 +16,7 @@ public class BillingPrice extends DictionaryEntry implements Serializable {
   private String     filter1;
   private String     filter2;
   private BigDecimal unitPrice;
+  private String     isActive;
   
   public String getDisplay() {
     String display = this.getNonNullString(getDescription());
@@ -106,6 +107,16 @@ public class BillingPrice extends DictionaryEntry implements Serializable {
   
   public void setIdBillingTemplate(Integer idBillingTemplate) {
     this.idBillingTemplate = idBillingTemplate;
+  }
+
+  
+  public String getIsActive() {
+    return isActive;
+  }
+
+  
+  public void setIsActive(String isActive) {
+    this.isActive = isActive;
   }
  
 }

@@ -604,6 +604,7 @@
 		<property name="description" column="description" type="string"/>
 		<property name="pluginClassname" column="pluginClassname" type="string"/>
 		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
 	<!-- hci.gnomex.model.BillingChargeKind -->
@@ -637,6 +638,7 @@
 		<property name="filter1" column="filter1" type="string"/>
 		<property name="filter2" column="filter2" type="string"/>
 		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
+		<property name="isActive" column="isActive" type="string"/>
 	</class>	
 
 	<!-- hci.gnomex.model.BillingSlideProductClass -->
