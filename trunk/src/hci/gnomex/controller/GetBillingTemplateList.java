@@ -72,6 +72,11 @@ public class GetBillingTemplateList extends GNomExCommand implements Serializabl
           
           for(Iterator i = dh.getBillingTemplates().iterator(); i.hasNext();) {
             BillingTemplate bt = (BillingTemplate)i.next();
+            
+            if (bt.getIsActive() != null && bt.getIsActive().equals("N")) {
+              continue;
+            }
+            
             Element templateNode = bt.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
             doc.getRootElement().addContent(templateNode);
             
@@ -79,6 +84,12 @@ public class GetBillingTemplateList extends GNomExCommand implements Serializabl
             if (categories != null) {
               for(Iterator i1 = categories.iterator(); i1.hasNext();) {
                 BillingCategory bc = (BillingCategory)i1.next();
+
+                if (bc.getIsActive() != null && bc.getIsActive().equals("N")) {
+                  continue;
+                }
+
+                
                 Element categoryNode = bc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
                 templateNode.addContent(categoryNode);
                 
@@ -88,10 +99,16 @@ public class GetBillingTemplateList extends GNomExCommand implements Serializabl
                     BillingPrice bp = (BillingPrice)i2.next();
                     
                     if (bp.getIdBillingTemplate() == null || bp.getIdBillingTemplate().equals(bt.getIdBillingTemplate())) {
+
+                      if (bp.getIsActive() != null && bp.getIsActive().equals("N")) {
+                        continue;
+                      }                     
+                      
                       Element priceNode = bp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
                       priceNode.setAttribute("category", categoryNode.getAttributeValue("description"));
                       priceNode.setAttribute("codeBillingChargeKind", categoryNode.getAttributeValue("codeBillingChargeKind"));
-                      categoryNode.addContent(priceNode);                      
+                      categoryNode.addContent(priceNode);                                              
+                      
                     }
                   }
                 }

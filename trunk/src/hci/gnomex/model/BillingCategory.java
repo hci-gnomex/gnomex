@@ -11,6 +11,7 @@ public class BillingCategory extends DictionaryEntry implements Serializable {
   private String   description;
   private String   pluginClassname;
   private String   codeBillingChargeKind;
+  private String   isActive;
   
   public String getDisplay() {
     String display = this.getNonNullString(getDescription());
@@ -61,6 +62,16 @@ public class BillingCategory extends DictionaryEntry implements Serializable {
   
   public void setCodeBillingChargeKind(String codeBillingChargeKind) {
     this.codeBillingChargeKind = codeBillingChargeKind;
+  }
+
+  
+  public String getIsActive() {
+    return isActive;
+  }
+
+  
+  public void setIsActive(String isActive) {
+    this.isActive = isActive;
   }
 
  
