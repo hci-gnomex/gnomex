@@ -167,10 +167,11 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             // Example of header:
             // H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
             //
-            String header = getString("H01", 5);
+            String header = "H";
+            header += getString("01", 5);
             header += getString(journalEntry, 10);
-            header += dateFormat.format(billingPeriod.getStartDate());
-            header += "ACTUALS";
+            header += dateFormat.format(billingPeriod.getEndDate());
+            header += getString("ACTUALS", 10);
             header += "N";
             header += getEmptyString(8);
             header += "HCI";
