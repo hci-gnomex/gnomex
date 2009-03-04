@@ -104,6 +104,8 @@
         import mx.events.CollectionEvent;	
         import mx.events.CollectionEventKind;	
         import mx.events.PropertyChangeEvent;
+        import mx.events.CloseEvent;
+        
         private var revisionNumber:int = 1;
  		
 		private var billingItems:XMLListCollection = new XMLListCollection();
@@ -146,6 +148,10 @@
 			var currentBillingPeriod:Object = null;
 			for each( var de:Object in billingPeriods) {
 				if (de.@value != "" && de.@isCurrentPeriod == "Y") {
+					billingItemsDisplayed = new XMLListCollection();
+					dirty.resetDirty();
+					this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+	
 					currentBillingPeriod = de;
 		        	billingPeriodCombo.selectedItem = currentBillingPeriod;
 		        	var params:Object = new Object();
@@ -161,7 +167,7 @@
         	currencyFormatter.precision = 2;
         	currencyFormatter.useThousandsSeparator;
       	}		
-		public function checkDirty():void {     
+		public function checkDirty():void {      
 		}
 		
 		public function recalculateTotalPrice(experiment:Object):void {
@@ -246,10 +252,27 @@
 					return parentApplication.iconGroup;
 				} else {
 					return parentApplication.iconBilling;
-				} 
+				}  
 		} 
 		
 		public function refresh():void {
+			if (dirty.isDirty()) {
+				Alert.show( "Unsaved changes will be discarded.  Proceed anyways?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToRefresh,						
+						parentApplication.iconWarning);
+			} else {
+				refreshImpl();
+			}
+		}
+				
+		private function onPromptToRefresh(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	refreshImpl();
+            }
+        }
+		public function refreshImpl():void {
 			billingItemsDisplayed = new XMLListCollection();
 			this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 			
@@ -262,6 +285,7 @@
 			} else {
 				this.refreshBillingItems();
 			}
+			
 		}
 		
 		private function refreshBillingItems():void {
@@ -714,7 +738,7 @@
 					<mx:ComboBox id="billingPeriodCombo" 
 						labelField="@display"
 						visible="true"  
-						width="100" change="requestNumberText.text = &quot;&quot;;refreshBillingItems()">
+						width="100" change="requestNumberText.text = &quot;&quot;;refresh()">
 					</mx:ComboBox>			   	
 		    	</mx:HBox>  
 
@@ -723,7 +747,7 @@
 					<mx:ComboBox id="labCombo" 
 						labelField="@name"
 						dataProvider="{parentApplication.promptedLabList}"
-						visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;getLab.send();refreshBillingItems()">
+						visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
 					</mx:ComboBox>
 			   </mx:HBox>
 
@@ -731,7 +755,7 @@
 					<mx:Label id="billingAccountLabel" visible="true" text="Billing Account" paddingBottom="0"/>
 					<mx:ComboBox id="billingAccountCombo" 
 						labelField="@accountName"
-						 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;refreshBillingItems()">
+						 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;refresh()">
 					</mx:ComboBox>			   	
 		    	</mx:HBox> 
 				
@@ -743,7 +767,7 @@
 					</mx:TextInput>			   	
 					<mx:Button id="lookupButton"  
 						fontFamily="Arial"  height="18"
-						color="#400040" click="refreshBillingItemsByRequestNumber()" visible="true" icon="@Embed('assets/arrow_right.png')" width="20"/>
+						color="#400040" click="refresh()" visible="true" icon="@Embed('assets/arrow_right.png')" width="20"/>
 		    	</mx:HBox>	    
 		    	
 	    </mx:HBox>
