@@ -141,7 +141,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle(billingPeriod.getBillingPeriod() + " Microarray Chargeback");
             tray.setReportDescription(billingPeriod.getBillingPeriod() + " Microarray Chargeback");
-            tray.setFileName("billingme");
+            tray.setFileName("MicroarryBillingSummary_" + billingPeriod.getBillingPeriod());
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();

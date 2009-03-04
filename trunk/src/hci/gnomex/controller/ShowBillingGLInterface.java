@@ -51,6 +51,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   private NumberFormat             currencyFormat = NumberFormat.getCurrencyInstance();
   
   private BigDecimal               totalPriceForLabAccount = new BigDecimal("0");
+  private String                   accountDescription = "";
   
   private static final String    JOURNAL_ID = "SE090";
   private String                   journalEntry;
@@ -152,7 +153,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
             tray.setReportDescription(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
-            tray.setFileName("billing microarray " + periodFormat.format(billingPeriod.getStartDate()));
+            tray.setFileName("MicroarrayGLInterface_" + periodFormat.format(billingPeriod.getStartDate()));
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();
@@ -212,7 +213,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               
 
               if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
-                addAccountTotalRows(prevLabName, prevBillingAccount);
+                addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
               }
 
             
@@ -229,11 +230,18 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 prevLabName = labName;
                 prevLabBillingName = labBillingName;
               }
+
+              if (accountDescription.length() > 0) {
+                accountDescription += ",";
+              }
+              accountDescription += request.getNumber();
+
+            
             }
 
           }
 
-          addAccountTotalRows(prevLabName, prevBillingAccount);
+          addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
           
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
@@ -279,7 +287,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   
 
   
-  private void addAccountTotalRows(String labName, BillingAccount billingAccount) {
+  private void addAccountTotalRows(String labName, BillingAccount billingAccount, String description) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
@@ -308,7 +316,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     lineItem.append(getString(amt, 16));
     lineItem.append(getEmptyString(16)); //statistics amount
     lineItem.append(getString(journalEntry, 10)); //journal line ref
-    lineItem.append(getString(labName, 30)); //journal line description
+    lineItem.append(getString(description, 30)); //journal line description
     lineItem.append(getEmptyString(5)); // foreign currency rate type
     lineItem.append(getEmptyString(16)); // foreign currency exchange rate
     lineItem.append(getEmptyString(16)); // base currency amount
@@ -319,6 +327,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     reportRow.setValues(values);
     tray.addRow(reportRow);
     totalPriceForLabAccount = new BigDecimal(0);
+    accountDescription = ""; 
     
   }
   
