@@ -77,9 +77,9 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Product"    );
     this.addHeaderCell(rowh, "Category");
     this.addHeaderCell(rowh, "Description"    );
-    this.addHeaderCell(rowh, "Qty"    );
-    this.addHeaderCell(rowh, "Price"    );
-    this.addHeaderCell(rowh, "Total Price"    );
+    this.addHeaderCell(rowh, "Qty", "right");
+    this.addHeaderCell(rowh, "Unit Price", "right");
+    this.addHeaderCell(rowh, "Total Price", "right");
 
     
     for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
