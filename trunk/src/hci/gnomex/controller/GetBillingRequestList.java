@@ -64,7 +64,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     HashMap statusNodeMap = new HashMap();
     
     if (billingItemFilter.getIdBillingPeriod() != null) {
-      billingItemFilter.setBillingPeriod(dh.getBillingPeriod(billingItemFilter.getIdBillingPeriod()));
+      BillingPeriod bp = dh.getBillingPeriod(billingItemFilter.getIdBillingPeriod());
+      if (bp == null) {
+        throw new RollBackCommandException("Unable to find billing period " + billingItemFilter.getIdBillingPeriod());
+      }
+      billingItemFilter.setBillingPeriod(bp);
     }
     
     StringBuffer buf = billingItemFilter.getBillingNewRequestQuery();
