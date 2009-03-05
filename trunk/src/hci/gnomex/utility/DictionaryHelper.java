@@ -77,6 +77,15 @@ public class DictionaryHelper implements Serializable {
     
   }
   
+  public static synchronized DictionaryHelper reload(Session sess) {
+    theInstance = new DictionaryHelper();
+    theInstance.loadDictionaries(sess);  
+    theInstance.reloadBillingTemplates(sess);
+    return theInstance;
+    
+  }
+  
+  
   private void loadDictionaries(Session sess) {
     List sampleTypes = sess.createQuery("SELECT st from SampleType as st").list();
     for(Iterator i = sampleTypes.iterator(); i.hasNext();) {
