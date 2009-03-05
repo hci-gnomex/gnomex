@@ -12,6 +12,7 @@ import org.hibernate.Session;
 
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.utility.DictionaryCommand;
 import hci.dictionary.utility.DictionaryManager;
@@ -42,6 +43,8 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   public String DICTIONARY_NAMES_XML = "applications/gnomex/Dictionaries.xml";
   public String SUCCESS_JSP = "/getXML.jsp";
   public String ERROR_JSP = "/message.jsp";
+  
+  private String action = null;
 
   public ManageDictionaries() {
     ManageDictionaries.initLog4j();
@@ -79,6 +82,10 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
         ((DictionaryEntryUserOwned)this.dictionaryEntry).setIdAppUser(secAd.getIdAppUser());
       }
       
+      if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
+        action = request.getParameter("action");
+      }
+      
       
   	} catch (Exception e) {  
   		e.printStackTrace();
@@ -112,6 +119,11 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
    
     try {
     	manager.executeCommand(this, HibernateSession.currentSession(this.username), this.getSecurityAdvisor(), true);
+
+    	if (action != null && action.equals(manager.RELOAD_CACHE)) {
+        DictionaryHelper.reload(HibernateSession.currentSession(this.username));
+    	}
+
 		} catch (Exception e) {
 			String msg = e.getMessage();
 			if (e.getCause() != null && e.getCause() instanceof SQLException) {
