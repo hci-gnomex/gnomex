@@ -329,7 +329,7 @@
 					
 				}
 			}				
-		}
+		}  
 		private function onGetBillingTemplateList(event:ResultEvent):void {
 			if (getBillingTemplateList.lastResult.name() == "BillingTemplateList") {
 				this.billingTemplates = new XMLListCollection(getBillingTemplateList.lastResult.BillingTemplate);
@@ -346,9 +346,10 @@
 				this.requestTree.dataProvider.refresh();   	
 				
 				getBillingItemList.send();
-			} else {
-				Alert.show("An error occurred while getting billing requests.");
-			}			
+			}  else {
+				var message:String = getBillingRequestList.lastResult.ERROR.@message;
+				Alert.show(message);
+			}				
 		} 
 		private function onGetBillingItemList(event:ResultEvent):void {
 			if (getBillingItemList.lastResult.name() == "BillingItemList") {
@@ -359,7 +360,8 @@
 				this.onRequestNodeSelected();
 				
 			} else {
-				Alert.show("An error occurred while getting billing items.");
+				var message:String = getBillingItemList.lastResult.ERROR.@message;
+				Alert.show(message);
 			}			
 		} 
 		
@@ -399,7 +401,8 @@
 		private function onCreateBillingItems(event:ResultEvent):void {
 			if (createBillingItems.lastResult.name() == "NewBilling") {
 				this.billingItems.addItem(createBillingItems.lastResult..Request);
-				this.onRequestNodeSelected();
+				this.reselectRequestTree();
+				onRequestNodeSelected();
 			} else {
 				Alert.show("An error occurred while creating new billing items.");
 			}			
@@ -527,6 +530,7 @@
 	       			var params:Object = new Object(); 
 	       			params.idRequest = dragNode.@idRequest;
 	       			params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
+	       			this.lastSelectedItem = dragNode.parent();
 	       			this.createBillingItems.send(params);
 	    	   	} else if (dragNode.name() == "BillingPrice") {
        				var newBillingItem:XML = new XML(
