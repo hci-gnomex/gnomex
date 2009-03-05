@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
@@ -38,6 +39,7 @@ import javax.swing.text.DateFormatter;
 import org.hibernate.Session;
 
 
+
 public class ShowBillingGLInterface extends ReportCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingGLInterface.class);
@@ -50,7 +52,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   
   private NumberFormat             currencyFormat = NumberFormat.getCurrencyInstance();
   
-  private BigDecimal               totalPriceForLabAccount = new BigDecimal("0");
+  private BigDecimal               totalPriceForLabAccount = new BigDecimal(0);
+  private BigDecimal               totalPrice = new BigDecimal(0);
+  
   private String                   accountDescription = "";
   
   private static final String    JOURNAL_ID = "SE090";
@@ -153,7 +157,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
             tray.setReportDescription(billingPeriod.getBillingPeriod() + " Microarray Chargeback - GL Interface");
-            tray.setFileName("MicroarrayGLInterface_" + periodFormat.format(billingPeriod.getStartDate()));
+            tray.setFileName("umerge_microarray_" + periodFormat.format(billingPeriod.getStartDate()));
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();
@@ -244,6 +248,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
 
                 if (bi.getTotalPrice() != null) {
                   totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getTotalPrice());          
+                  totalPrice              = totalPrice.add(bi.getTotalPrice());          
                 }
                 
                 firstTime = false;
@@ -263,6 +268,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           }
 
           addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
+          this.addMicroarrayCreditTotal(billingPeriod);
           
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
@@ -319,33 +325,6 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     amt = amt.replaceAll("\\$", "");
    
     
-    /*
-    StringBuffer lineItem = new StringBuffer();
-
-    lineItem.append("L");
-    lineItem.append(getString(billingAccount.getAccountNumberBus(), 5));
-    lineItem.append(getEmptyString(6));
-    lineItem.append(getString(billingAccount.getAccountNumberAccount(), 6));
-    lineItem.append(getString(billingAccount.getAccountNumberFund(), 5));
-    lineItem.append(getString(billingAccount.getAccountNumberOrg(), 10));
-    lineItem.append(getString(billingAccount.getAccountNumberActivity(), 5));
-    lineItem.append(getString(billingAccount.getAccountNumberAu(), 5));
-    lineItem.append(getString(billingAccount.getAccountNumberYear(), 4));
-    lineItem.append(getString(billingAccount.getAccountNumberProject(), 15));
-    lineItem.append(getEmptyString(3));     // statistics code
-    lineItem.append(getEmptyString(5));  // affiliate
-    lineItem.append("USD");
-    lineItem.append(getString(amt, 16));
-    lineItem.append(getEmptyString(16)); //statistics amount
-    lineItem.append(getString(journalEntry, 10)); //journal line ref
-    lineItem.append(getString(description, 30)); //journal line description
-    lineItem.append(getEmptyString(5)); // foreign currency rate type
-    lineItem.append(getEmptyString(16)); // foreign currency exchange rate
-    lineItem.append(getEmptyString(16)); // base currency amount
-    
-    values.add(lineItem.toString());
-    */
-    
     values.add(getFixedWidthValue("L", 1)); // record type
     values.add(getFixedWidthValue(billingAccount.getAccountNumberBus(), 5));  // business unit
     values.add(getFixedWidthEmptyValue(6)); // journal line number (blank)
@@ -353,8 +332,13 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue(billingAccount.getAccountNumberFund(), 5)); // fund
     values.add(getFixedWidthValue(billingAccount.getAccountNumberOrg(), 10)); // dept id
     values.add(getFixedWidthValue(billingAccount.getAccountNumberActivity(), 5)); //activity
-    values.add(getFixedWidthValue(billingAccount.getAccountNumberAu(), 5));  // u/a
-    values.add(getFixedWidthValue(billingAccount.getAccountNumberYear(), 4)); // budget year
+    
+    if (billingAccount.getAccountNumberActivity() != null && !billingAccount.getAccountNumberActivity().equals("")) {
+      values.add(getFixedWidthValue("1", 5));  // au = "1" when project is being charged      
+    } else {
+      values.add(getFixedWidthEmptyValue(5));  // au blank when project is charged
+    }
+    values.add(getFixedWidthEmptyValue(4)); // budget year (blank)
     values.add(getFixedWidthValue(billingAccount.getAccountNumberProject(), 15)); // project id
     values.add(getFixedWidthEmptyValue(3));     // statistics code
     values.add(getFixedWidthEmptyValue(5));  // affiliate
@@ -375,6 +359,45 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     
   }
   
+  private void addMicroarrayCreditTotal(BillingPeriod billingPeriod) {
+    ReportRow reportRow = new ReportRow();
+    List values  = new ArrayList();
+
+    
+    String amt = this.currencyFormat.format(this.totalPrice);
+    amt = amt.replaceAll("\\.", "");
+    amt = amt.replaceAll(",", "");
+    amt = amt.replaceAll("\\$", "");
+    amt = "-" + amt;
+   
+    
+    values.add(getFixedWidthValue("L", 1)); // record type
+    values.add(getFixedWidthValue(Constants.BILLING_MICROARRAY_BUSINESS_UNIT, 5));  // business unit
+    values.add(getFixedWidthEmptyValue(6)); // journal line number (blank)
+    values.add(getFixedWidthValue(Constants.BILLING_MICROARRAY_ACCOUNT, 6)); // account
+    values.add(getFixedWidthValue(Constants.BILLING_MICROARRAY_FUND, 5)); // fund
+    values.add(getFixedWidthValue(Constants.BILLING_MICROARRAY_ORG, 10)); // dept id
+    values.add(getFixedWidthValue(Constants.BILLING_MICROARRAY_ACTIVITY, 5)); //activity
+    values.add(getFixedWidthEmptyValue(5));  // au (blank for credits)
+    values.add(getFixedWidthEmptyValue(4)); // budget year (blank)
+    values.add(getFixedWidthEmptyValue(15)); // project id
+    values.add(getFixedWidthEmptyValue(3));     // statistics code
+    values.add(getFixedWidthEmptyValue(5));  // affiliate
+    values.add(getFixedWidthValue("USD", 3)); // transaction currency code
+    values.add(getFixedWidthValueRightJustify(amt, 16)); // transaction monetary amount
+    values.add(getFixedWidthEmptyValue(16)); //statistics amount (blank)
+    values.add(getFixedWidthValue(journalEntry, 10)); //journal line ref
+    values.add(getFixedWidthValue("HCI Microarray " + billingPeriod.getBillingPeriod(), 30)); //journal line description
+    values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
+    values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
+    values.add(getFixedWidthEmptyValue(16)); // base currency amount (blank)
+    
+    reportRow.setValues(values);
+    tray.addRow(reportRow);
+    
+
+    
+  }
   private Object[] getFixedWidthValue(String buf, int len) {
     ArrayList valueInfo = new ArrayList();
     valueInfo.add(getString(buf, len, true));
