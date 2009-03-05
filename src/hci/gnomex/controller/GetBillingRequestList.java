@@ -43,7 +43,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     this.addInvalidFields(errors);
     
     if (!this.billingItemFilter.hasCriteria()) {
-      this.addInvalidField("criteria", "Please select a billing period, group, billing account, or request number");
+      this.addInvalidField("criteria", "Please select a billing period, group, or billing account; or enter a request number");
     }
     
     if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
