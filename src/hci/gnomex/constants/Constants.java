@@ -10,7 +10,7 @@ public class Constants {
   public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
   
   public static final String              QC_DIRECTORY                    = "bioanalysis";
-  
+   
   public static final String              PRODUCTION_SERVER               = "hci-as1.hci.utah.edu";
   
   public static final String              INVOICE_FORM_CSS                = "applications/gnomex/gnomex/invoiceForm.css";
@@ -40,6 +40,13 @@ public class Constants {
   public static final String              LUCENE_EXPERIMENT_INDEX_DIRECTORY       = "c:/orion/luceneIndexGnomEx/Experiment";
   public static final String              LUCENE_PROTOCOL_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Protocol";
   public static final String              LUCENE_ANALYSIS_INDEX_DIRECTORY         = "c:/orion/luceneIndexGnomEx/Analysis";
+
+  public static final String              BILLING_MICROARRAY_BUSINESS_UNIT         = "01"; 
+  public static final String              BILLING_MICROARRAY_ACCOUNT               = "40420";
+  public static final String              BILLING_MICROARRAY_FUND                  = "2000";
+  public static final String              BILLING_MICROARRAY_ORG                   = "01219";
+  public static final String              BILLING_MICROARRAY_ACTIVITY              = "10292";
+  
   
   private static final String             MICROARRAY_DIRECTORY            = "\\\\hci-ma\\MicroarrayData$\\";
   private static final String             TEST_MICROARRAY_DIRECTORY       = "C:\\temp\\MicroarrayData01\\";
@@ -48,6 +55,8 @@ public class Constants {
   private static final String             FLOWCELL_DIRECTORY              = "\\\\hci-ma\\FlowCellDataShare$\\";
   private static final String             TEST_FLOWCELL_DIRECTORY         = "C:\\temp\\FlowCellDataShare01\\";
 
+  
+  
   public static DecimalFormat               concentrationFormatter = new DecimalFormat("######.##");
 
   public static String getAnalysisDirectory(String serverName) {
