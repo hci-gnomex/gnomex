@@ -86,7 +86,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     this.SUCCESS_JSP_HTML = "/report.jsp";
     this.SUCCESS_JSP_CSV = "/report_csv.jsp";
     this.SUCCESS_JSP_PDF = "/report_pdf.jsp";
-    this.SUCCESS_JSP_XLS = "/report_xls_plain.jsp";
+    this.SUCCESS_JSP_XLS = "/report_xls_gl_interface.jsp";
     this.ERROR_JSP = "/message.jsp";
     
     SimpleDateFormat headerDateFormat = new SimpleDateFormat("MMM yy");
@@ -169,23 +169,44 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             // H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
             //
             String header = "H";
-            header += getString("01", 5);
-            header += getString(journalEntry, 10);
+            header += getString("01", 5, true);
+            header += getString(journalEntry, 10, true);
             header += dateFormat.format(billingPeriod.getEndDate());
-            header += getString("ACTUALS", 10);
+            header += getString("ACTUALS", 10, true);
             header += "N";
-            header += getEmptyString(8);
+            header += getEmptyString(8, true);
             header += "HCI";
-            header += getEmptyString(8);
-            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " HCI Microarray Billing", 30);
+            header += getEmptyString(8, true);
+            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " HCI Microarray Billing", 30, true);
             header += "USD";
-            header += getEmptyString(5);
-            header += getEmptyString(8);
-            header += getEmptyString(16);
+            header += getEmptyString(5, true);
+            header += getEmptyString(8, true);
+            header += getEmptyString(16, true);
+            
+            String headerX = "H";
+            headerX += getString("01", 5, false);
+            headerX += getString(journalEntry, 10, false);
+            headerX += dateFormat.format(billingPeriod.getEndDate());
+            headerX += getString("ACTUALS", 10, false);
+            headerX += "N";
+            headerX += getEmptyString(8, false);
+            headerX += "HCI";
+            headerX += getEmptyString(8, false);
+            headerX += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " HCI Microarray Billing", 30, false);
+            headerX += "USD";
+            headerX += getEmptyString(5, false);
+            headerX += getEmptyString(8, false);
+            headerX += getEmptyString(16, false);
             
             ReportRow reportRow = new ReportRow();
             List values  = new ArrayList();
-            values.add(header);
+            
+            ArrayList valueInfo = new ArrayList();
+            valueInfo.add(header);
+            valueInfo.add(headerX);
+            valueInfo.add(new Integer(headerX.length()));
+            valueInfo.add("left");
+            values.add(valueInfo.toArray());
             
             reportRow.setValues(values);
             tray.addRow(reportRow);
@@ -291,7 +312,6 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
-    StringBuffer lineItem = new StringBuffer();
     
     String amt = this.currencyFormat.format(this.totalPriceForLabAccount);
     amt = amt.replaceAll("\\.", "");
@@ -299,7 +319,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     amt = amt.replaceAll("\\$", "");
    
     
-    
+    /*
+    StringBuffer lineItem = new StringBuffer();
+
     lineItem.append("L");
     lineItem.append(getString(billingAccount.getAccountNumberBus(), 5));
     lineItem.append(getEmptyString(6));
@@ -321,36 +343,123 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     lineItem.append(getEmptyString(16)); // foreign currency exchange rate
     lineItem.append(getEmptyString(16)); // base currency amount
     
-    
     values.add(lineItem.toString());
+    */
+    
+    values.add(getFixedWidthValue("L", 1)); // record type
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberBus(), 5));  // business unit
+    values.add(getFixedWidthEmptyValue(6)); // journal line number (blank)
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberAccount(), 6)); // account
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberFund(), 5)); // fund
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberOrg(), 10)); // dept id
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberActivity(), 5)); //activity
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberAu(), 5));  // u/a
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberYear(), 4)); // budget year
+    values.add(getFixedWidthValue(billingAccount.getAccountNumberProject(), 15)); // project id
+    values.add(getFixedWidthEmptyValue(3));     // statistics code
+    values.add(getFixedWidthEmptyValue(5));  // affiliate
+    values.add(getFixedWidthValue("USD", 3)); // transaction currency code
+    values.add(getFixedWidthValueRightJustify(amt, 16)); // transaction monetary amount
+    values.add(getFixedWidthEmptyValue(16)); //statistics amount (blank)
+    values.add(getFixedWidthValue(journalEntry, 10)); //journal line ref
+    values.add(getFixedWidthValue(description, 30)); //journal line description
+    values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
+    values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
+    values.add(getFixedWidthEmptyValue(16)); // base currency amount (blank)
     
     reportRow.setValues(values);
     tray.addRow(reportRow);
+    
     totalPriceForLabAccount = new BigDecimal(0);
     accountDescription = ""; 
     
   }
   
-  private String getString(String buf, int len) {
+  private Object[] getFixedWidthValue(String buf, int len) {
+    ArrayList valueInfo = new ArrayList();
+    valueInfo.add(getString(buf, len, true));
+    valueInfo.add(getString(buf, len, false));
+    valueInfo.add(new Integer(len));
+    valueInfo.add("left");
+    return valueInfo.toArray();
+  }
+  
+  private Object[] getFixedWidthValueRightJustify(String buf, int len) {
+    ArrayList valueInfo = new ArrayList();
+    valueInfo.add(getStringRightJustify(buf, len, true));
+    valueInfo.add(getStringRightJustify(buf, len, false));
+    valueInfo.add(new Integer(len));
+    valueInfo.add("right");
+    return valueInfo.toArray();
+  }
+  
+  private Object[] getFixedWidthEmptyValue(int len) {
+    ArrayList valueInfo = new ArrayList();
+    valueInfo.add(getEmptyString(len, true));
+    valueInfo.add(getEmptyString(len, false));
+    valueInfo.add(new Integer(len));
+    valueInfo.add("left");
+    return valueInfo.toArray();
+  }
+  
+  private String getString(String buf, int len, boolean showSpan) {
     if (buf == null) {
-      return getEmptyString(len);
+      return getEmptyString(len, showSpan);
     } else if (buf.length() == len) {
       return buf;
     } else if (buf.length() > len) {
       return buf.substring(0, len);      
     } else {
       int stringLen = buf.length();
+      if (showSpan) {
+        buf += "<span style='mso-spacerun:yes'>";        
+      }
       for(int x = stringLen; x < len; x++) {
-        buf += "&nbsp;";
+        buf += " ";
+      }
+      if (showSpan) {
+        buf += "</span>";
       }
       return buf;
     }
   }
   
-  private String getEmptyString(int len) {
+
+
+  private String getStringRightJustify(String buf, int len, boolean showSpan) {
+    if (buf == null) {
+      return getEmptyString(len, showSpan);
+    } else if (buf.length() == len) {
+      return buf;
+    } else if (buf.length() > len) {
+      return buf.substring(0, len);      
+    } else {
+      int stringLen = buf.length();
+      if (showSpan) {
+        buf += "<span style='mso-spacerun:yes'>";        
+      }
+      for(int x = stringLen; x < len; x++) {
+        buf = " " + buf;
+      }
+      if (showSpan) {
+        buf += "</span>";
+      }
+      return buf;
+    }
+  }
+  
+  private String getEmptyString(int len, boolean showSpan) {
     String buf = new String();
+    if (showSpan) {
+      buf += "<span style='mso-spacerun:yes'>";      
+    }
+  
     for(int x = 0; x < len; x++) {
-      buf += "&nbsp;";
+      buf += " ";
+    }
+    
+    if (showSpan) {
+      buf += "</span>";      
     }
     return buf;
   }
