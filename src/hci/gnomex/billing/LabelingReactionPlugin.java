@@ -58,7 +58,7 @@ public class LabelingReactionPlugin implements BillingPlugin {
     for(Iterator i1 = billingPrices.iterator(); i1.hasNext();) {
       BillingPrice bp = (BillingPrice)i1.next();
       if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-        if (bp.getFilter1().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+        if (bp.getFilter1() != null && bp.getFilter1().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
           
           if (idBillingSlideServiceClass != null) {
             if (bp.getFilter2().equals(idBillingSlideServiceClass.toString())) {
@@ -69,8 +69,8 @@ public class LabelingReactionPlugin implements BillingPlugin {
           }
         }        
       } else {
-        if (bp.getFilter1().equals(request.getCodeRequestCategory())) {
-          if (bp.getFilter2().equals(request.getCodeMicroarrayCategory())) {
+        if (bp.getFilter1() != null && bp.getFilter1().equals(request.getCodeRequestCategory())) {
+          if (bp.getFilter2() != null && bp.getFilter2().equals(request.getCodeMicroarrayCategory())) {
             billingPrice = bp;
             break;          
           }        
