@@ -32,8 +32,13 @@ public class MicroarrayPlugin implements BillingPlugin {
     // If this is a multi-array slide, qty must be in same interval
     if (request.getSlideProduct() != null &&
         request.getSlideProduct().getArraysPerSlide() != null && request.getSlideProduct().getArraysPerSlide().intValue() > 1) {
-      int mod = qty %  request.getSlideProduct().getArraysPerSlide().intValue();
-      qty += mod;
+      if (qty < request.getSlideProduct().getArraysPerSlide().intValue()) {
+        qty = request.getSlideProduct().getArraysPerSlide().intValue();
+      } else if (qty > request.getSlideProduct().getArraysPerSlide().intValue()) {
+        int mod = qty %  request.getSlideProduct().getArraysPerSlide().intValue();
+        int diff = request.getSlideProduct().getArraysPerSlide().intValue() - mod;
+        qty += diff;        
+      } 
     }
 
     
