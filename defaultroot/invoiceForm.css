@@ -133,7 +133,6 @@
   } 
 
   th {
-       
        font-family: Trebuchet MS;
        font-size: 9pt;
        font-weight: bold;
@@ -144,9 +143,10 @@
        padding-left: 4;
        text-align: left;
        border: none;
- 
-
-      
+   }
+   
+   th.right {
+       text-align: right;
    }
    
    
