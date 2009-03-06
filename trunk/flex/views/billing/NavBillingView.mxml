@@ -554,6 +554,7 @@
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
        			 	 " idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
        			 	 " percentagePrice='1'" +
+       			 	 " notes=''" +
        			 	 " qty=''" + 
        			 	 "/>");
 		       	
@@ -842,32 +843,33 @@
         			dragDrop="onDragDropBillingItemGrid(event)"
                     allowMultipleSelection="false" 
                     iconFunction="getTreeIcon" 
-                    wordWrap="false" 
+                    wordWrap="true" 
                     headerWordWrap="true" 
  selectionMode="singleRow">
         		 	<mx:dataProvider>
       						<mx:HierarchicalData source="{billingItemsDisplayed}"/>
     				</mx:dataProvider>
         			<mx:columns>
-        				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="10" />
-        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="10"/>
-        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="10"/>
-        				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="12"
+        				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="10"  />
+        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="10" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="10"  wordWrap="false"
         			      editorDataField="value" 
         				  rendererIsEditor="false"  
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingPeriod', '@idBillingPeriod')}"                              
 						  itemEditor="{hci.flex.renderers.ComboBox.create(billingPeriods, '@idBillingPeriod')}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="Kind" dataField="@codeBillingChargeKind" editable="true" width="7"
+        				<mx:AdvancedDataGridColumn headerText="Kind" dataField="@codeBillingChargeKind" editable="true" width="7" wordWrap="false" 
         			      editorDataField="value" 
         				  rendererIsEditor="false"
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"                              
 						  itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="Billing Category" dataField="@category" editable="false" width="15"/>
-        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="20"/>
-        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="7"/>
-        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5"/>
-        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="9" editable="false"/>
-        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="13"
+        				<mx:AdvancedDataGridColumn headerText="Billing Category" dataField="@category" editable="false" width="10" wordWrap="true"/>
+        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="15" wordWrap="true"/>
+        				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="15" wordWrap="true"/>
+        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="7" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="9" editable="false" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="10" wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingStatus', '@codeBillingStatus')}"                              
