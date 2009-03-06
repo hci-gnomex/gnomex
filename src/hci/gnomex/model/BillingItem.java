@@ -22,6 +22,7 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idRequest;
   private Integer        idBillingAccount;
   private BillingAccount billingAccount;
+  private String         notes;
   
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -155,6 +156,16 @@ public class BillingItem extends HibernateDetailObject {
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getBillingAccount");
+  }
+
+  
+  public String getNotes() {
+    return notes;
+  }
+
+  
+  public void setNotes(String notes) {
+    this.notes = notes;
   }
 
 }

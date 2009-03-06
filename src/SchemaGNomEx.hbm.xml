@@ -154,6 +154,7 @@
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
     <many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
+		<property name="notes" column="notes" type="string"/>
   </class>	
 	
 	<!-- hci.gnomex.model.ExperimentDesignEntry -->
