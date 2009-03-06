@@ -474,16 +474,15 @@
 	       			break;
 	       		}
            	}
-           
+            
 	      
 
-		   	// The user didn't drag new request, so disregard operation
+		   	// The user didn't drag new request, so just treat
+		   	// as click.
 		   	if (isRequest) {
-		       if (requestTree.selectedItem.name() != "Request" || requestTree.selectedItem.@codeBillingStatus != "NEW") {
-		       		Alert.show("Only new requests can be dragged onto billing items grid."); 
-			       	event.preventDefault();
-			       	event.target.hideDropFeedback(event);
-			       	DragManager.showFeedback(DragManager.NONE);
+		       if (requestTree.selectedItem.name() != "Request" || 
+		       requestTree.selectedItem.@codeBillingStatus != "NEW") {
+		       		onRequestNodeSelected();
 			       	return;
 		       }
 		   	}
@@ -507,6 +506,15 @@
 	       		}
 	       		billingItemGrid.selectedIndex = r;
 	       		var dropNode:XML = billingItemGrid.selectedItem as XML;
+	       		
+	       		// Don't allow drag operation if nothing in billing grid
+	       		if (dropNode == null) {
+	       			event.preventDefault();
+			       	event.target.hideDropFeedback(event);
+			       	DragManager.showFeedback(DragManager.NONE);
+			       	return;
+	       		}
+	       		
 	       		if (dropNode.name() == "BillingItem") {
 	       			dropRequestNode = dropNode.parent();
 	       		} else {
