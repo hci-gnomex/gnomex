@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.security.SecurityAdvisor;
@@ -74,7 +75,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       String requestNumber       = (String)row[2]  == null ? ""  : (String)row[2];
       String codeRequestCategory = (String)row[3]  == null ? ""  : (String)row[3];
       String labName             = (String)row[4]  == null ? ""  : (String)row[4];
-      BillingItem billingItem    = (BillingItem)row[5];
+      AppUser submitter          = (AppUser)row[5];
+      BillingItem billingItem    = (BillingItem)row[6];
       
       if (firstTime) {
         prevBillingItem = billingItem;
@@ -88,6 +90,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
         requestNode.setAttribute("labName", labName);        
+        requestNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
         requestNode.setAttribute("billingAccountName", prevBillingItem.getBillingAccount().getAccountName());       
         requestNode.setAttribute("idBillingAccount", prevBillingItem.getBillingAccount().getIdBillingAccount().toString() );       
         requestNode.setAttribute("isDirty", "N");
