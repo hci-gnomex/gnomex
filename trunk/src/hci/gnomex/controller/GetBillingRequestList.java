@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
@@ -9,6 +10,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,6 +92,18 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         String requestNumber       = (String)row[1]  == null ? ""  : (String)row[1];
         String codeRequestCategory = (String)row[2]  == null ? ""  : (String)row[2];
         String idBillingAccount    = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
+        String labName             = (String)row[4]  == null ? ""  : (String)row[4];
+        AppUser submitter          = (AppUser)row[5];
+        Date createDate            = (Date)row[6];
+        Date completedDate         = (Date)row[7];
+        
+        String toolTip = requestNumber + " " + labName;
+        if (createDate != null) {
+          toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
+        }
+        if (completedDate != null) {
+          toolTip += "\ncompleted  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
+        }
         
         Element node = new Element("Request");
         node.setAttribute("idRequest", idRequest.toString());
@@ -97,7 +111,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("label", requestNumber);
         node.setAttribute("codeRequestCategory", codeRequestCategory);
         node.setAttribute("idBillingAccount", idBillingAccount);
+        node.setAttribute("labName", labName != null ? labName : "");
+        node.setAttribute("toolTip", toolTip);
+        node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
         node.setAttribute("codeBillingStatus", BillingStatus.NEW);
+        node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
+        node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
         
         statusNode.addContent(node);
         
@@ -123,8 +142,20 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String codeRequestCategory = (String)row[3]  == null ? ""  : (String)row[3];
       Integer idLab              = (Integer)row[4];
       String labName             = (String)row[5]  == null ? ""  : (String)row[5];
-      Integer idBillingAcct      = (Integer)row[6];
-      String billingAcctName     = (String)row[7]  == null ? ""  : (String)row[7];
+      AppUser submitter          = (AppUser)row[6];
+      Date createDate            = (Date)row[7];
+      Date completedDate         = (Date)row[8];
+      Integer idBillingAcct      = (Integer)row[9];
+      String billingAcctName     = (String)row[10]  == null ? ""  : (String)row[10];
+      
+      String toolTip = requestNumber + " " + labName;
+      if (createDate != null) {
+        toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
+      }
+      if (completedDate != null) {
+        toolTip += "\ncompleted  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
+      }
+      
       
       List statusList = (List)requestToStatusMap.get(requestNumber);
       if (statusList == null) {
@@ -160,9 +191,10 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       
       Element node = new Element("Request");
       node.setAttribute("idRequest", idRequest.toString());
-      node.setAttribute("requestNumber", requestNumber);
-      node.setAttribute("label", requestNumber);
+      node.setAttribute("label", requestNumber);        
+      node.setAttribute("toolTip", toolTip);
       node.setAttribute("codeRequestCategory", codeRequestCategory);
+      node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
       node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");

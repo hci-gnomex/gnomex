@@ -37,8 +37,14 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" SELECT     req.idRequest, ");
     queryBuf.append("            req.number, ");
     queryBuf.append("            req.codeRequestCategory, ");
-    queryBuf.append("            req.idBillingAccount ");
+    queryBuf.append("            req.idBillingAccount, ");
+    queryBuf.append("            lab.name, ");
+    queryBuf.append("            appUser, ");
+    queryBuf.append("            req.createDate, ");
+    queryBuf.append("            req.completedDate ");
     queryBuf.append(" FROM       Request as req ");
+    queryBuf.append(" LEFT JOIN  req.lab as lab ");
+    queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
     queryBuf.append(" LEFT JOIN  req.billingItems as bi ");
     queryBuf.append(" WHERE      bi.idBillingItem is NULL ");
     
@@ -68,12 +74,16 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.codeRequestCategory, ");
     queryBuf.append("        req.idLab, ");
     queryBuf.append("        lab.name, ");
+    queryBuf.append("        appUser, ");
+    queryBuf.append("        req.createDate, ");
+    queryBuf.append("        req.completedDate, ");
     queryBuf.append("        bi.idBillingAccount, ");
     queryBuf.append("        ba.accountName ");
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
     queryBuf.append(" JOIN        req.lab as lab ");
+    queryBuf.append(" JOIN        req.appUser as appUser ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     
     addRequestCriteria();
@@ -95,10 +105,12 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.codeRequestCategory, ");
     queryBuf.append("        lab.name, ");
+    queryBuf.append("        appUser, ");
     queryBuf.append("        bi ");
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" LEFT JOIN   req.lab as lab ");
+    queryBuf.append(" LEFT JOIN   req.appUser as appUser ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     
