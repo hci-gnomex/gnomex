@@ -102,7 +102,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
         }
         if (completedDate != null) {
-          toolTip += "\ncompleted  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
+          toolTip += ", completed  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
         }
         
         Element node = new Element("Request");
@@ -153,7 +153,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
       }
       if (completedDate != null) {
-        toolTip += "\ncompleted  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
+        toolTip += ", completed  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
       }
       
       
@@ -192,6 +192,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       Element node = new Element("Request");
       node.setAttribute("idRequest", idRequest.toString());
       node.setAttribute("label", requestNumber);        
+      node.setAttribute("requestNumber", requestNumber);        
       node.setAttribute("toolTip", toolTip);
       node.setAttribute("codeRequestCategory", codeRequestCategory);
       node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
