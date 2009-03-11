@@ -172,7 +172,7 @@
 		
 		public function recalculateTotalPrice(experiment:Object):void {
 			for each(var bi:Object in experiment.BillingItem) {
-				bi.@totalPrice = bi.@unitPrice * bi.@qty * bi.@percentagePrice;
+				bi.@totalPrice = bi.@unitPrice * bi.@qty * (bi.@percentageDisplay / 100);
 				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	
 			}
 		}
@@ -553,6 +553,7 @@
        			 	 " idBillingPrice='" + dragNode.@idBillingPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
        			 	 " idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
+       			 	 " idLab='" + dropRequestNode.@idLab + "'" +
        			 	 " percentagePrice='1'" +
        			 	 " notes=''" +
        			 	 " qty=''" + 
@@ -593,7 +594,7 @@
 			}			
 		}			 
 		
- 		private function save():void {
+ 		private function save():void {  
  			var params:Object = new Object();
  			params.billingItemXMLString = "<SaveList>";
  			
@@ -735,8 +736,50 @@
 				var editWindow:BillingPriceEditView = BillingPriceEditView(mx.managers.PopUpManager.createPopUp(this, BillingPriceEditView, true));
             	mx.managers.PopUpManager.centerPopUp(editWindow);
             	editWindow.setFocus();
-            	editWindow.billingPrice = this.billingCategoryTree.selectedItem;				
-			} 
+            	editWindow.billingPrice = this.billingCategoryTree.selectedItem; 				
+			}  
+		}
+		
+		private function showSplitAccountsView():void {
+			if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "Request") {
+			
+				var billingAccountEntries:XMLListCollection = new XMLListCollection();	
+				var labs:XMLListCollection = new XMLListCollection();
+				for each(var lab:Object in parentApplication.promptedLabList) {
+					labs.addItem(lab);
+				}
+				for each(var billingItem:Object in this.billingItemGrid.selectedItem.BillingItem) {
+					var found:Boolean = false;
+					for each(var acct:Object in billingAccountEntries) {
+						if (acct.@idBillingAccount == billingItem.@idBillingAccount) {
+							found = true;
+							break;
+						} 
+					} 
+					if (!found) {
+	       				var newBillingAccount:XML = new XML(
+    	   				 "<BillingAccount " + 
+       			 	 	 " idBillingAccount='" + billingItem.@idBillingAccount + "'" +
+       			 	 	 " accountName='" + billingItem.@accountName + "'" +
+       			 	 	 " idLab='" + billingItem.@idLab + "'" +
+       			 	 	 " labName='" + billingItem.@labName + "'" +
+       			 	 	 " percentage='0'" + 
+       			 	 	 "/>"); 
+       			 	 	 billingAccountEntries.addItem(newBillingAccount);
+					}
+				}
+				
+				
+				
+				var splitWindow:BillingSplitView = BillingSplitView(mx.managers.PopUpManager.createPopUp(this, BillingSplitView, true));
+            	mx.managers.PopUpManager.centerPopUp(splitWindow);
+            	splitWindow.setFocus();
+            	splitWindow.request = this.billingItemGrid.selectedItem;				
+            	splitWindow.labs = labs;
+            	splitWindow.billingAccountEntries = billingAccountEntries;
+            	splitWindow.initializeData();
+				
+			}
 		}
 
 
@@ -830,7 +873,7 @@
         	    <mx:Label text="Billing Items"/>
         		<mx:HBox width="100%">
         			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeBillingItem()"/>
-        			<mx:LinkButton id="addBillingItemButton" visible="false" label="Add" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" click="addBillingItem()"/>
+        			<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/group_add_disable.png')" icon="@Embed(source='../../assets/group_add.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="false"/>
         			 
         		</mx:HBox>
         		
@@ -840,7 +883,7 @@
         			sortExpertMode="true" 
         			sortableColumns="false"   
         			id="billingItemGrid" 
-        			dropEnabled="true" 
+        			dropEnabled="true"  
         			dragDrop="onDragDropBillingItemGrid(event)"
                     allowMultipleSelection="false" 
                     iconFunction="getTreeIcon" 
@@ -853,7 +896,7 @@
     				</mx:dataProvider>
         			<mx:columns>
         				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
-        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="10" wordWrap="true"/>
+        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@requestLabName" editable="false" width="10" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
         				<!-- <mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false"/>-->
         				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="10"  wordWrap="false"
@@ -869,8 +912,9 @@
         				<mx:AdvancedDataGridColumn headerText="Billing Category" dataField="@category" editable="false" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true"/>
-        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"/> 
         				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false"/>
+        				<!-- <mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="5" wordWrap="false"/> -->
         				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="11" editable="false" wordWrap="false"/>
         				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="11" wordWrap="false"
         			      editorDataField="value"  
