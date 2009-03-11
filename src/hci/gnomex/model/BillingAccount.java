@@ -33,7 +33,7 @@ public class BillingAccount extends HibernateDetailObject {
         (accountNumberAu != null && !accountNumberAu.equals("")) || 
         (accountNumberYear != null && !accountNumberYear.equals(""))) {
       return this.getNonNullString(accountNumberBus) + 
-      this.getNonNullString(accountNumberOrg) +
+      this.getAccountNumberPart(accountNumberOrg) +
       this.getAccountNumberPart(accountNumberFund) +
       this.getAccountNumberPart(accountNumberActivity) + 
       this.getAccountNumberPart(accountNumberProject) +
