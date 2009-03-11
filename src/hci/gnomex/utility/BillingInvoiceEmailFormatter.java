@@ -62,7 +62,6 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     
     Element center1 = formatHeader(formatter, root);
     
-    
     center1.addContent(formatter.makeDetail());
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -75,6 +74,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     return buf;
   }
   
+ 
   
 
   protected Element formatHeader(BillingInvoiceHTMLFormatter formatter, Element root) {
@@ -95,14 +95,13 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     Element body = new Element("BODY");
     root.addContent(body);
 
-    Element centera = new Element("CENTER");
-    body.addContent(centera);
 
+    body.addContent(formatter.makeIntroNote());
+    body.addContent(new Element("HR"));    
+    body.addContent(formatter.makeHeader());
     
-    centera.addContent(formatter.makeHeader());
     
-    
-    return centera;
+    return body;
   }
   
   private String getCascadingStyleSheet() {
