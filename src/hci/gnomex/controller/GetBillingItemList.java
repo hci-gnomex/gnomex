@@ -63,7 +63,6 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     
     String prevRequestNumber = "";
     Element requestNode = null;
-    BillingItem prevBillingItem = null;
     
     NumberFormat nf = NumberFormat.getCurrencyInstance();
     boolean firstTime = true;
@@ -78,10 +77,6 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       AppUser submitter          = (AppUser)row[5];
       BillingItem billingItem    = (BillingItem)row[6];
       
-      if (firstTime) {
-        prevBillingItem = billingItem;
-        firstTime = false;
-      }
       
       if (!requestNumber.equals(prevRequestNumber)) {
         requestNode = new Element("Request");
@@ -89,10 +84,10 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("requestNumber", requestNumber);
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
-        requestNode.setAttribute("labName", labName);        
+        requestNode.setAttribute("requestLabName", labName);        
         requestNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
-        requestNode.setAttribute("billingAccountName", prevBillingItem.getBillingAccount().getAccountName());       
-        requestNode.setAttribute("idBillingAccount", prevBillingItem.getBillingAccount().getIdBillingAccount().toString() );       
+        requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountName());       
+        requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
         requestNode.setAttribute("isDirty", "N");
         
         
@@ -106,7 +101,6 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       requestNode.addContent(billingItemNode);
       
       prevRequestNumber = requestNumber;
-      prevBillingItem = billingItem;
     }
 
     
