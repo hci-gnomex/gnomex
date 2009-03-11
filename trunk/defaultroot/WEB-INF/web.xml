@@ -177,6 +177,7 @@
 			<url-pattern>ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>ShowBillingInvoiceForm.gx</url-pattern>
 			<url-pattern>ShowBillingMonthendReport.gx</url-pattern>
+			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 
 		</web-resource-collection>
