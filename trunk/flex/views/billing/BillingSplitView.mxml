@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
+	width="442" height="286" defaultButton="{saveButton}">
+
+    <mx:HTTPService             
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab" 
+    resultFormat="e4x"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService>
+   
+    <mx:HTTPService             
+    id="splitBillingAccounts" 
+    url="SplitBillingAccounts.gx"
+    destination="splitBillingAccounts" 
+    resultFormat="e4x"
+    result="onSplitBillingAccounts(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to split billing accounts', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService>
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import views.renderers.ComboBoxGroup;
+		import views.renderers.ComboBoxBillingAccount;
+		import hci.flex.renderers.Label;
+		import hci.flex.renderers.TextInput;
+		
+		[Bindable]
+		public var request:Object;
+		
+		[Bindable]
+		public var labs:XMLListCollection;
+		
+		[Bindable]
+		public var billingAccounts:XMLListCollection;
+
+		[Bindable]
+		public var billingAccountEntries:XMLListCollection;
+		
+			
+		
+		public function initializeData():void {
+			accountsGrid.dataProvider = billingAccountEntries;
+		}
+		
+		private function onGetLab(event:ResultEvent):void {			
+			var lab:Object = getLab.lastResult..Lab;
+			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+		}
+		private function getLabName(item:Object,col:int):String
+        {
+        	return item.@labName;
+        }
+		private function getBillingAccountName(item:Object,col:int):String
+        {
+        	return item.@accountName;
+        }        
+        
+        private function addAccountEntry():void {
+        	var newNode:XML = new XML(
+    	   				 "<BillingAccount " + 
+       			 	 	 " idBillingAccount='" + "'" +
+       			 	 	 " accountName='" + "'" +
+       			 	 	 " idLab='"  + "'" +
+       			 	 	 " labName='" + "'" +
+       			 	 	 " percentage='" + "'" +
+       			 	 	 "/>"); 
+       	 	billingAccountEntries.addItem(newNode);
+
+        }
+        private function removeAccountEntry():void {
+        	if (accountsGrid.selectedItem != null) {
+        		billingAccountEntries.removeItemAt(billingAccountEntries.getItemIndex(accountsGrid.selectedItem));
+        	}
+        } 
+        
+        		
+ 		private function save():void {
+ 			var params:Object = new Object();
+ 			params.accountXMLString = "<SplitAccountList>";
+ 			params.accountXMLString += "<Request idRequest='" + request.@idRequest + "'>";
+ 			params.accountXMLString += billingAccountEntries.toXMLString();
+ 			params.accountXMLString += "</Request>";
+ 			params.accountXMLString += "</SplitAccountList>";
+ 			splitBillingAccounts.send(params);
+  
+ 		}
+ 		private function onSplitBillingAccounts(event:ResultEvent):void {		
+ 			if (splitBillingAccounts.lastResult.name() == "SUCCESS") {
+ 				parentApplication.navBillingView.refresh();
+ 				mx.managers.PopUpManager.removePopUp(this);		
+ 			}	
+		}
+	]]>
+</mx:Script>
+
+	<mx:VBox height="100%" width="100%">
+		<mx:HBox verticalGap="0" width="100%" verticalAlign="middle">
+			<mx:LinkButton textDecoration="underline" label="Add" click="addAccountEntry()" icon="@Embed(source='../../assets/add.png')" id="addAccountButton" toolTip="Add account" />
+			<mx:LinkButton textDecoration="underline" label="Remove" click="removeAccountEntry()" icon="@Embed(source='../../assets/delete.png')" id="deleteAccountButton" toolTip="Remove account" />
+		</mx:HBox> 
+		<mx:DataGrid id="accountsGrid" width="100%" height="100%"  editable="true" allowMultipleSelection="false">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Group" width="50" dataField="@idLab" editable="true"
+					editorDataField="value" 
+        			rendererIsEditor="false"
+        			labelFunction="getLabName"
+        			itemRenderer="{hci.flex.renderers.Label.create('@idLab')}"
+					itemEditor="{ComboBoxGroup.create('@idLab')}"/>        				
+				<mx:DataGridColumn headerText="Billing Account" width="80"  dataField="@idBillingAccount" editable="true"
+					editorDataField="value"  
+        			labelFunction="getBillingAccountName"
+        			rendererIsEditor="false"
+        			itemRenderer="{hci.flex.renderers.Label.create('@idBillingAccount')}"
+					itemEditor="{ComboBoxBillingAccount.create('@idBillingAccount')}"/>        
+				<mx:DataGridColumn headerText="%" width="13" dataField="@percentage" editable="true"
+					editorDataField="text" 
+        			rendererIsEditor="false"
+					itemRenderer="{hci.flex.renderers.Label.create('@percentage')}"
+					itemEditor="{hci.flex.renderers.TextInput.create('@percentage')}"/>        
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>
