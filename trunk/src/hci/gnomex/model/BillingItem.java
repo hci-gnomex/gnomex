@@ -22,6 +22,8 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idRequest;
   private Integer        idBillingAccount;
   private BillingAccount billingAccount;
+  private Integer        idLab;
+  private Lab            lab;
   private String         notes;
   
   public Integer getIdBillingItem() {
@@ -156,6 +158,7 @@ public class BillingItem extends HibernateDetailObject {
   
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getBillingAccount");
+    this.excludeMethodFromXML("getLab");
   }
 
   
@@ -168,4 +171,47 @@ public class BillingItem extends HibernateDetailObject {
     this.notes = notes;
   }
 
+  
+  public Integer getIdLab() {
+    return idLab;
+  }
+
+  
+  public void setIdLab(Integer idLab) {
+    this.idLab = idLab;
+  }
+
+  
+  public Lab getLab() {
+    return lab;
+  }
+
+  
+  public void setLab(Lab lab) {
+    this.lab = lab;
+  }
+  
+  public String getAccountName() {
+    if (billingAccount != null) {
+      return billingAccount.getAccountName();
+    } else {
+      return "";
+    }
+  }
+  
+  public String getLabName() {
+    if (lab != null) {
+      return lab.getName();
+    } else {
+      return "";
+    }
+  }
+  
+  public String getPercentageDisplay() {
+    if (percentagePrice != null) {
+      return percentagePrice.multiply(new BigDecimal(100)).toString();      
+    } else {
+      return "100";
+    }
+  }
 }

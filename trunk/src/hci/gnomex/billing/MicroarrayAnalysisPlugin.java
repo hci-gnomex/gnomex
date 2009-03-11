@@ -57,6 +57,7 @@ public class MicroarrayAnalysisPlugin implements BillingPlugin {
       }
       billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());
+      billingItem.setIdLab(request.getIdLab());
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdBillingPrice(billingPrice.getIdBillingPrice());
       billingItem.setIdBillingCategory(billingPrice.getIdBillingCategory());

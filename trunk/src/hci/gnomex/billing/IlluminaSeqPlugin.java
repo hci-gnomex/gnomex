@@ -82,6 +82,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         billingItem.setCodeBillingStatus(BillingStatus.PENDING);
         billingItem.setIdRequest(request.getIdRequest());
         billingItem.setIdBillingAccount(request.getIdBillingAccount());
+        billingItem.setIdLab(request.getIdLab());
         billingItem.setIdBillingPrice(billingPrice.getIdBillingPrice());
         billingItem.setIdBillingCategory(billingPrice.getIdBillingCategory());
         
