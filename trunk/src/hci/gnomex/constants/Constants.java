@@ -22,6 +22,8 @@ public class Constants {
   public static final String              EMAIL_BIOINFORMATICS_MICROARRAY = "bioinformaticscore@utah.edu";
   public static final String              EMAIL_MICROARRAY_CORE_FACILITY  = "brian.dalley@hci.utah.edu";
   
+  public static final String              PHONE_MICROARRAY_CORE_FACILITY  = "(801-585-7192).";
+  
   public static final String              WINDOW_TRACK_REQUESTS           = "ExperimentDetail";
   public static final String              WINDOW_FETCH_RESULTS            = "ExperimentDownload";
 
@@ -54,6 +56,8 @@ public class Constants {
   private static final String             TEST_ANALYSIS_DIRECTORY         = "C:\\temp\\AnalysisDataShare01\\";
   private static final String             FLOWCELL_DIRECTORY              = "\\\\hci-ma\\FlowCellDataShare$\\";
   private static final String             TEST_FLOWCELL_DIRECTORY         = "C:\\temp\\FlowCellDataShare01\\";
+  
+  
 
   
   

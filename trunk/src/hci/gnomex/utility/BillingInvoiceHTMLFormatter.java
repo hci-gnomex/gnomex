@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
@@ -41,6 +42,27 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
    this.billingItemMap = billingItemMap;
    this.requestMap     = requestMap;
    
+ }
+ 
+ public Element makeIntroNote() {
+   
+   
+   String line1 = "This report provides itemized documentation of services that were completed for your lab by the Microarray Core Facility during the month of " + billingPeriod.getBillingPeriod() + ".";
+   String line2 = "&nbsp;&nbsp;&nbsp; - University of Utah accounts listed on this document will be electronically billed."; 
+   String line3 = "&nbsp;&nbsp;&nbsp; - External accounts listed on this document will receive an invoice from the Microarray Core Facility."; 
+   String line4 = "&nbsp;";
+   String line5 = "If you have any questions, please contact Brian Dalley " + Constants.PHONE_MICROARRAY_CORE_FACILITY;
+       
+    
+   Element table = new Element("TABLE");   
+   table.setAttribute("CELLPADDING", "0");
+   table.addContent(makeNoteRow(line1));
+   table.addContent(makeNoteRow(line2));
+   table.addContent(makeNoteRow(line3));
+   table.addContent(makeNoteRow(line4));
+   table.addContent(makeNoteRow(line5));
+   
+   return table;
  }
  
 
@@ -162,6 +184,19 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     Element row = new Element("TR");
     Element cell = new Element("TD");
     cell.setAttribute("CLASS", "label");
+    cell.setAttribute("ALIGN", "LEFT");
+    cell.addContent(header1);
+    row.addContent(cell);
+    
+
+    return row;
+  }
+  
+  
+  private Element makeNoteRow(String header1) {
+    Element row = new Element("TR");
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "note");
     cell.setAttribute("ALIGN", "LEFT");
     cell.addContent(header1);
     row.addContent(cell);
