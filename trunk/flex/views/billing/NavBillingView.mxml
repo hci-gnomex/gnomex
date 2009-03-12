@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
 	width="100%"   
 	height="100%"   
 	xmlns:util="views.util.*" >  
@@ -348,6 +348,19 @@
 				this.requestTree.dataProvider = new HierarchicalData(requests);
 				this.requestTree.dataProvider.refresh();   	
 				
+				var newItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'New');
+				jumpNew.visible =  newItems.length() ? true : false;
+				
+				var pendingItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Pending');
+				jumpPending.visible =  pendingItems.length() ? true : false;
+				
+				var completedItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Completed');
+				jumpCompleted.visible =  completedItems.length() ? true : false;
+				
+				var approvedItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Approved');
+				jumpApproved.visible =  approvedItems.length() ? true : false;
+				
+				
 				getBillingItemList.send();
 			}  else {
 				var message:String = getBillingRequestList.lastResult.ERROR.@message;
@@ -367,6 +380,17 @@
 				Alert.show(message);
 			}			
 		} 
+		
+		private function jumpTo(status:String):void {
+			for each(var item:XML in requests) {
+				if (item.@label == status) {
+					this.requestTree.selectedItem = item;
+					this.requestTree.firstVisibleItem = item;
+					this.onRequestNodeSelected();
+					break;
+				}
+			}
+		}
 		
 		private function reselectRequestTree():void {
 			if (lastSelectedItem != null) {
@@ -863,16 +887,23 @@
 	    </mx:HBox>
 
         <mx:HDividedBox height="100%" width="100%">
-        	<mx:TabNavigator height="100%" width="215">
-        		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%">
+        	<mx:TabNavigator height="100%" width="215" paddingTop="2" styleName="navTabNavigator">
+        		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
+        			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
+						<mx:LinkButton label="New" textDecoration="underline" paddingRight="0" paddingLeft="0" styleName="formLinkSmallButton"  click="jumpTo(&quot;New&quot;)" id="jumpNew"/>
+						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
+						<mx:LinkButton label="Completed" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Completed&quot;)" id="jumpCompleted"/>
+						<mx:LinkButton label="Approved" textDecoration="underline" paddingRight="0"  styleName="formLinkSmallButton" click="jumpTo(&quot;Approved&quot;)" id="jumpApproved"/>
+        				
+        			</mx:HBox>
         		    
 					<mx:AdvancedDataGrid id="requestTree" width="100%" height="100%"  
 						showHeaders="false"  
 						displayItemsExpanded="true" 
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
-						iconFunction="getTreeIcon"
-						dragMoveEnabled="false" dropEnabled="false">
+						iconFunction="getTreeIcon"  
+						dragMoveEnabled="false" dropEnabled="false" borderStyle="none">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
 				        </mx:dataProvider>						  
@@ -902,8 +933,7 @@
         		</mx:VBox>
         	</mx:TabNavigator>
         	
-        	<mx:VBox width="100%" height="100%" verticalGap="0">
-        	    <mx:Label text="Billing Items"/>
+        	<mx:Panel width="100%" height="100%" verticalGap="0" title="Billing Items">
         		<mx:HBox width="100%">
         			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()"/>
         			<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/group_add_disable.png')" icon="@Embed(source='../../assets/group_add.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
@@ -961,24 +991,24 @@
         			 
         		</mx:AdvancedDataGrid>     
    
+				<mx:ControlBar width="100%">
+				
+				 	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+				 	            click="refresh()" toolTip="Refresh"/>
+				 	    <mx:LinkButton label="Billing Summary" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
+				 	    <mx:LinkButton label="GL Interface" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>        
+				 	    <mx:LinkButton label="Client Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
+				      <mx:HBox width="100%" horizontalAlign="right">
+				        <util:DirtyNote id="dirty" />
+				      	<mx:Button id="saveButton" label="Save" click="save()"
+				             	icon="@Embed('../../assets/action_save.gif')">
+				        </mx:Button>        	
+				      </mx:HBox>
+				 </mx:ControlBar>
 
-        	</mx:VBox>
+        	</mx:Panel>
         </mx:HDividedBox>
   </mx:VBox>
   
-  <mx:ControlBar width="100%">
-
- 	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
- 	            click="refresh()" toolTip="Refresh"/>
- 	    <mx:LinkButton label="Billing Summary" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
- 	    <mx:LinkButton label="GL Interface" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>        
- 	    <mx:LinkButton label="Client Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
-      <mx:HBox width="100%" horizontalAlign="right">
-        <util:DirtyNote id="dirty" />
-      	<mx:Button id="saveButton" label="Save" click="save()"
-             	icon="@Embed('../../assets/action_save.gif')">
-        </mx:Button>        	
-      </mx:HBox>
-  </mx:ControlBar>
 	
-</mx:Panel>
+</mx:Canvas>
