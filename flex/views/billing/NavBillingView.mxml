@@ -105,6 +105,7 @@
         import mx.events.CollectionEventKind;	
         import mx.events.PropertyChangeEvent;
         import mx.events.CloseEvent;
+        import views.renderers.LabelPercentage;
         
         private var revisionNumber:int = 1;
  		
@@ -160,7 +161,7 @@
 		        	getBillingItemList.send(params);
 					break;
 				}
-			}
+			} 
         	
         	
         	currencyFormatter.currencySymbol = "$";
@@ -172,8 +173,10 @@
 		
 		public function recalculateTotalPrice(experiment:Object):void {
 			for each(var bi:Object in experiment.BillingItem) {
-				bi.@totalPrice = bi.@unitPrice * bi.@qty * (bi.@percentageDisplay / 100); 
-				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	
+				var percentageDisplay:String = bi.@percentageDisplay;
+				percentageDisplay = percentageDisplay.replace("%", "");
+				bi.@totalPrice = bi.@unitPrice * bi.@qty * (int(percentageDisplay) / 100); 
+				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	 
 			}
 		}
 		
@@ -750,7 +753,7 @@
 				for each(var item:Object in this.billingItemsDisplayed) {
 					// We have more than 1 request in the billing item grid, so we don't
 					// know which one to selected.  
-					if (requestNode != null) {
+					if (requestNode != null && requestNode.@idRequest != item.@idRequest) {
 						requestNode = null;
 						break;
 					}
@@ -775,25 +778,33 @@
 			for each(var lab:Object in parentApplication.promptedLabList) {
 				labs.addItem(lab);
 			}
-			for each(var billingItem:Object in requestNode.BillingItem) {
-				var found:Boolean = false;
-				for each(var acct:Object in billingAccountEntries) {
-					if (acct.@idBillingAccount == billingItem.@idBillingAccount) {
-						found = true;
-						break;
+			for each(var r:Object in this.billingItemsDisplayed) {
+				for each(var billingItem:Object in r.BillingItem) {
+					if (billingItem.@idRequest != requestNode.@idRequest) {
+						continue; 
+					}
+					
+					var found:Boolean = false;
+					for each(var acct:Object in billingAccountEntries) {
+						if (acct.@idBillingAccount == billingItem.@idBillingAccount) {
+							found = true;
+							break; 
+						} 
 					} 
-				} 
-				if (!found) {
-       				var newBillingAccount:XML = new XML(
-	   				 "<BillingAccount " + 
-   			 	 	 " idBillingAccount='" + billingItem.@idBillingAccount + "'" +
-   			 	 	 " accountName='" + billingItem.@accountName + "'" +
-   			 	 	 " idLab='" + billingItem.@idLab + "'" +
-   			 	 	 " labName='" + billingItem.@labName + "'" +
-   			 	 	 " percentageDisplay='100'" + 
-   			 	 	 "/>"); 
-   			 	 	 billingAccountEntries.addItem(newBillingAccount);
+					if (!found) {
+	       				var newBillingAccount:XML = new XML(
+		   				 "<BillingAccount " + 
+	   			 	 	 " idBillingAccount='" + billingItem.@idBillingAccount + "'" +
+	   			 	 	 " accountName='" + billingItem.@accountName + "'" +
+	   			 	 	 " idLab='" + billingItem.@idLab + "'" +
+	   			 	 	 " labName='" + billingItem.@labName + "'" +
+	   			 	 	 " percentage='" + billingItem.@percentageDisplay + "'" +
+	   			 	 	 "/>"); 
+	   			 	 	 billingAccountEntries.addItem(newBillingAccount);
+					}
+					
 				}
+				
 			}
 			var splitWindow:BillingSplitView = BillingSplitView(mx.managers.PopUpManager.createPopUp(this, BillingSplitView, true));
         	mx.managers.PopUpManager.centerPopUp(splitWindow);
@@ -919,15 +930,18 @@
         			<mx:columns>
         				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
         				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="10" wordWrap="true"/>
-        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false"/>
         				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="10"  wordWrap="false"
         			      editorDataField="value"  
-        				  rendererIsEditor="false"  
+        				  rendererIsEditor="false"   
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingPeriod', '@idBillingPeriod')}"                              
 						  itemEditor="{hci.flex.renderers.ComboBox.create(billingPeriods, '@idBillingPeriod')}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="5" wordWrap="false"/>
-        				<mx:AdvancedDataGridColumn headerText="Kind" dataField="@codeBillingChargeKind" editable="true" width="6" wordWrap="false" 
+        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="6" wordWrap="false"
+        				  editorDataField="text"
+        				  rendererIsEditor="false"
+						  itemRenderer="views.renderers.LabelPercentage" />                              
+        				<mx:AdvancedDataGridColumn headerText="Type" dataField="@codeBillingChargeKind" editable="true" width="6" wordWrap="false" 
         			      editorDataField="value" 
         				  rendererIsEditor="false"
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"                              
