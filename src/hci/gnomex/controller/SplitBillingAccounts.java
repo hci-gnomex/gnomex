@@ -95,7 +95,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
                 bi.setPercentagePrice(percentage);
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  bi.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(bi.getQty().intValue() * bi.getPercentagePrice().doubleValue())));          
+                  bi.setTotalPrice(bi.getUnitPrice().multiply(bi.getPercentagePrice().multiply(new BigDecimal(bi.getQty().intValue()))));          
                 }
                 found = true;
               }
@@ -117,7 +117,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setUnitPrice(bi.getUnitPrice());
                 billingItem.setPercentagePrice(percentage);
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  billingItem.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(billingItem.getQty().intValue() * billingItem.getPercentagePrice().doubleValue())));          
+                  billingItem.setTotalPrice(bi.getUnitPrice().multiply(billingItem.getPercentagePrice().multiply(new BigDecimal(billingItem.getQty().intValue()))));          
                 }
                 billingItem.setCodeBillingStatus(BillingStatus.PENDING);
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());
