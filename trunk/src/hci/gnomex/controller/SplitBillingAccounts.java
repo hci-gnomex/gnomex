@@ -123,6 +123,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());
                 billingItem.setIdBillingPrice(bi.getIdBillingPrice());
                 billingItem.setIdBillingCategory(bi.getIdBillingCategory());
+                billingItem.setCategory(bi.getCategory());
                 
                 sess.save(billingItem);
                 
