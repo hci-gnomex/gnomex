@@ -43,11 +43,13 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
         
         String idBillingAccountString = baNode.getAttributeValue("idBillingAccount");
         String percentageString = baNode.getAttributeValue("percentage");
+        Integer percentage = new Integer(percentageString);
         BillingAccount billingAccount = null;
         billingAccount = (BillingAccount)sess.load(BillingAccount.class, new Integer(idBillingAccountString));
         
         billingAccounts.add(billingAccount);
-        percentageMap.put(new Integer(idBillingAccountString), "." + percentageString);
+        BigDecimal percentPrice = new BigDecimal(percentage.intValue()).movePointLeft(2);
+        percentageMap.put(new Integer(idBillingAccountString), percentPrice);
       }
     
     }
@@ -61,8 +63,8 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
   
 
   
-  public String getPercentageString(Integer idBillingAccount) {
-    return (String)percentageMap.get(idBillingAccount);
+  public BigDecimal getPercentage(Integer idBillingAccount) {
+    return (BigDecimal)percentageMap.get(idBillingAccount);
   }
 
   

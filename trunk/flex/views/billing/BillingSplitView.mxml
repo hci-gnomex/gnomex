@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
-	width="442" height="286" defaultButton="{saveButton}">
+	width="442" height="286" defaultButton="{saveButton}"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -60,15 +60,15 @@
 		}
 		private function getLabName(item:Object,col:int):String
         {
-        	return item.@labName;
+        	return item.@labName; 
         }
 		private function getBillingAccountName(item:Object,col:int):String
         {
         	return item.@accountName;
-        }        
-        
-        private function addAccountEntry():void {
-        	var newNode:XML = new XML(
+        }         
+          
+        private function addAccountEntry():void {   
+        	var newNode:XML = new XML(   
     	   				 "<BillingAccount " + 
        			 	 	 " idBillingAccount='" + "'" +
        			 	 	 " accountName='" + "'" +

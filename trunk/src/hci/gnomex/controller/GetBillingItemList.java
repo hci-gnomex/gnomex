@@ -62,6 +62,9 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     List billingItems = (List)sess.createQuery(buf.toString()).list();
     
     String prevRequestNumber = "";
+    Integer prevIdLab = new Integer(-1);
+    Integer prevIdBillingAccount = new Integer(-1);
+    
     Element requestNode = null;
     
     NumberFormat nf = NumberFormat.getCurrencyInstance();
@@ -78,14 +81,16 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       BillingItem billingItem    = (BillingItem)row[6];
       
       
-      if (!requestNumber.equals(prevRequestNumber)) {
+      if (!requestNumber.equals(prevRequestNumber) || 
+          !prevIdLab.equals(billingItem.getIdLab()) ||
+          !prevIdBillingAccount.equals(billingItem.getIdBillingAccount())) {
         requestNode = new Element("Request");
         requestNode.setAttribute("idRequest", idRequest.toString());
         requestNode.setAttribute("requestNumber", requestNumber);
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
-        requestNode.setAttribute("requestLabName", labName);        
         requestNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
+        requestNode.setAttribute("billingLabName", labName);        
         requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountName());       
         requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
         requestNode.setAttribute("isDirty", "N");
@@ -101,6 +106,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       requestNode.addContent(billingItemNode);
       
       prevRequestNumber = requestNumber;
+      prevIdLab = billingItem.getIdLab();
+      prevIdBillingAccount = billingItem.getIdBillingAccount();
     }
 
     

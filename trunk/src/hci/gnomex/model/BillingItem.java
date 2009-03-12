@@ -3,6 +3,9 @@ package hci.gnomex.model;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+
+import javax.swing.text.NumberFormatter;
 
 
 public class BillingItem extends HibernateDetailObject {
@@ -209,7 +212,7 @@ public class BillingItem extends HibernateDetailObject {
   
   public String getPercentageDisplay() {
     if (percentagePrice != null) {
-      return percentagePrice.multiply(new BigDecimal(100)).toString();      
+      return new Integer(percentagePrice.multiply(new BigDecimal(100)).intValue()).toString(); 
     } else {
       return "100";
     }

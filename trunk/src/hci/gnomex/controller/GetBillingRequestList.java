@@ -199,7 +199,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
       node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
-      requestNodeMap.put(requestNumber, node);
+      List requestNodes = (List)requestNodeMap.get(requestNumber);
+      if (requestNodes == null) {
+        requestNodes = new ArrayList();
+        requestNodeMap.put(requestNumber, requestNodes);
+      }
+      requestNodes.add(node);
       
       
       
@@ -210,51 +215,58 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String requestNumber = (String)i.next();
       
       List statusList = (List)requestToStatusMap.get(requestNumber);
-      Element requestNode = (Element)requestNodeMap.get(requestNumber);
+      List requestNodes = (List)requestNodeMap.get(requestNumber);
       
-      String codeBillingStatus = null;
-      if (statusList.size() == 1) {
-        codeBillingStatus = (String)statusList.iterator().next();
-      } else {
-        // Pending takes precedence over completed, approved
-        // Then completed takes precedence over approved
-        for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
-          String code = (String)i1.next();
-          if (code.equals(BillingStatus.PENDING)) {
-            codeBillingStatus = code;
-            break;
-          }
-        }
-        if (codeBillingStatus == null) {
+      // For each request/billing account combo, stick under appropriate lab 
+      // node
+      for(Iterator i0 = requestNodes.iterator(); i0.hasNext();) {
+        Element requestNode = (Element)i0.next();
+        
+        String codeBillingStatus = null;
+        if (statusList.size() == 1) {
+          codeBillingStatus = (String)statusList.iterator().next();
+        } else {
+          // Pending takes precedence over completed, approved
+          // Then completed takes precedence over approved
           for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
             String code = (String)i1.next();
-            if (code.equals(BillingStatus.COMPLETED)) {
+            if (code.equals(BillingStatus.PENDING)) {
               codeBillingStatus = code;
               break;
             }
           }
-          
-        }
-        if (codeBillingStatus == null) {
-          for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
-            String code = (String)i1.next();
-            if (code.equals(BillingStatus.APPROVED)) {
-              codeBillingStatus = code;
-              break;
+          if (codeBillingStatus == null) {
+            for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
+              String code = (String)i1.next();
+              if (code.equals(BillingStatus.COMPLETED)) {
+                codeBillingStatus = code;
+                break;
+              }
             }
+            
           }
-          
+          if (codeBillingStatus == null) {
+            for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
+              String code = (String)i1.next();
+              if (code.equals(BillingStatus.APPROVED)) {
+                codeBillingStatus = code;
+                break;
+              }
+            }
+            
+          }
         }
-      }
-      
-      statusNode = (Element)statusNodeMap.get(codeBillingStatus);
-      
-      if (codeBillingStatus.equals(BillingStatus.PENDING)) {
-        statusNode.addContent(requestNode);        
-      } else {
-        Map labNodeMap = (Map)statusToLabNodeMap.get(codeBillingStatus);
-        Element labNode = (Element)labNodeMap.get(requestNode.getAttributeValue("labBillingName"));
-        labNode.addContent(requestNode);
+        
+        statusNode = (Element)statusNodeMap.get(codeBillingStatus);
+        
+        if (codeBillingStatus.equals(BillingStatus.PENDING)) {
+          statusNode.addContent(requestNode);        
+        } else {
+          Map labNodeMap = (Map)statusToLabNodeMap.get(codeBillingStatus);
+          Element labNode = (Element)labNodeMap.get(requestNode.getAttributeValue("labBillingName"));
+          labNode.addContent(requestNode);
+        }
+        
       }
       
     }

@@ -72,7 +72,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.idRequest, ");
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.codeRequestCategory, ");
-    queryBuf.append("        req.idLab, ");
+    queryBuf.append("        bi.idLab, ");
     queryBuf.append("        lab.name, ");
     queryBuf.append("        appUser, ");
     queryBuf.append("        req.createDate, ");
@@ -82,14 +82,14 @@ public class BillingItemFilter extends DetailObject {
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
-    queryBuf.append(" JOIN        req.lab as lab ");
     queryBuf.append(" JOIN        req.appUser as appUser ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
+    queryBuf.append(" JOIN        bi.lab as lab ");
     
     addRequestCriteria();
     addBillingItemCriteria();
     
-    queryBuf.append(" order by bi.codeBillingStatus, req.number");
+    queryBuf.append(" order by bi.codeBillingStatus, req.number, lab.name, ba.accountName ");
     
     return queryBuf;
     
@@ -109,10 +109,10 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        bi ");
     
     queryBuf.append(" FROM        Request as req ");
-    queryBuf.append(" LEFT JOIN   req.lab as lab ");
     queryBuf.append(" LEFT JOIN   req.appUser as appUser ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
+    queryBuf.append(" JOIN        bi.lab as lab ");
     
     addRequestCriteria();
     addBillingItemCriteria();
