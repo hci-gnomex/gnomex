@@ -2,7 +2,7 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
 	width="100%"   
 	height="100%"   
-	xmlns:util="views.util.*" > 
+	xmlns:util="views.util.*" >  
  
    <mx:HTTPService               
     id="getLab" 
@@ -429,7 +429,6 @@
  					for each(var item:Object in billingItems) {
 	 					if (item.@requestNumber == request.@requestNumber) {
 	 						billingItemsDisplayed.addItem(item);
-	 						break;
  						}
  					}  
  					
@@ -747,6 +746,18 @@
 				requestNode = this.billingItemGrid.selectedItem;
 			} else if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "BillingItem") {
 				requestNode = this.billingItemGrid.selectedItem.parent();
+			} else if (this.billingItemGrid.selectedItem == null) {
+				for each(var item:Object in this.billingItemsDisplayed) {
+					// We have more than 1 request in the billing item grid, so we don't
+					// know which one to selected.  
+					if (requestNode != null) {
+						requestNode = null;
+						break;
+					}
+					// We only have one request is the billing item grid.  Assume
+					// this one should be split.
+					requestNode = item;
+				}
 			}
 			
 			if (requestNode == null) { 
@@ -849,7 +860,6 @@
 						displayItemsExpanded="true" 
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
-						dataTipField="@toolTip" 
 						iconFunction="getTreeIcon"
 						dragMoveEnabled="false" dropEnabled="false">
     		 	        <mx:dataProvider>
