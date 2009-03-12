@@ -19,7 +19,7 @@
  
   H3 {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 10pt;
       font-weight: bold;
       padding-top: 0;
@@ -29,7 +29,7 @@
   
  caption{
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 10pt;
       color: black;
       font-weight: bold;
@@ -42,7 +42,7 @@
 
   td.value {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 10pt;
       padding-top: 0;
       padding-bottom: 0;
@@ -51,7 +51,7 @@
 
   td.label {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 9pt;
       font-weight: bold;
       padding-top: 0;
@@ -72,7 +72,7 @@
   }
   td.grid {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 9pt;
       
       padding-top: 4;
@@ -80,16 +80,13 @@
       padding-right: 8;
       padding-left: 4;
 
-      border-color: #CDCDC1;
-      border-bottom: thin  solid;
-      border-width: 1;
   }
   
 
 
   td.gridright {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 9pt;
       text-align: RIGHT;
 
@@ -98,16 +95,13 @@
       padding-right: 8;
       padding-left: 4;
 
-      border-color: #CDCDC1;
-      border-bottom: thin  solid;
-      border-width: 1;
 
   }
   
 
   td.gridcenter {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 9pt;
       text-align: CENTER;
 
@@ -116,15 +110,12 @@
       padding-right: 8;
       padding-left: 4;
 
-      border-color: #CDCDC1;
-      border-bottom: thin  solid;
-      border-width: 1;
 
   }
 
   td.gridtotal {
 
-      font-family: Trebuchet MS;
+      font-family: Arial;
       font-size: 9pt;
       font-weight: bold;
       text-align: RIGHT;
@@ -134,7 +125,9 @@
       padding-right: 8;
       padding-left: 4;
 
-	  border: none;
+      border-color: #CDCDC1;
+      border-top: thin  solid;
+      border-width: 1;
 
   }
 
