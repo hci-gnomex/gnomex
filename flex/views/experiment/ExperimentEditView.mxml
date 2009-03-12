@@ -1018,6 +1018,12 @@
 				 hyb.@arrayCoordinate="";
 				 hyb.@idLabelingProtocolChannel1=""; 
 				 hyb.@idLabelingProtocolChannel2="";
+				 hyb.@idScanProtocolChannel1=""; 
+				 hyb.@idScanProtocolChannel2="";
+				 hyb.@idHybProtocolChannel1=""; 
+				 hyb.@idHybProtocolChannel2="";
+				 hyb.@idFeatureExtractionProtocolChannel1=""; 
+				 hyb.@idFeatureExtractionProtocolChannel2="";
 				 hyb.@labelingYieldChannel1="";
 				 hyb.@codeLabelingReactionSizeChannel1="STD"; 
 				 hyb.@labelingYieldChannel2=""; 
