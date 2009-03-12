@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class ConcentrationUnit extends DictionaryEntry implements Serializable, OntologyEntry {
   
-  public static final String                        DEFAULT_SAMPLE_CONCENTRATION_UNIT = "ng/µl";
+  public static final String                        DEFAULT_SAMPLE_CONCENTRATION_UNIT = "ng/ul";
   
   private String  codeConcentrationUnit;
   private String  concentrationUnit;
