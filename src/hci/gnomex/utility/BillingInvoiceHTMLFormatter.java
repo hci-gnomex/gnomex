@@ -83,6 +83,27 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   
   public Element makeDetail() throws Exception {
     
+    int columnCount = 9;
+    // Find out if any billing items have % other than 100%.  If
+    // so, show % column.
+    boolean showPercentCol = false;
+    for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+      String requestNumber = (String)i.next();      
+      Request request = (Request)requestMap.get(requestNumber);      
+      List billingItems = (List)billingItemMap.get(requestNumber);
+      BigDecimal totalPriceForRequest = new BigDecimal(0);
+      for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
+        BillingItem bi = (BillingItem)i1.next();
+        if (!bi.getPercentageDisplay().equals("100%")) {
+          showPercentCol = true;
+          break;
+        }
+      }
+    }
+    if (showPercentCol) {
+      columnCount++;
+    }
+    
     BigDecimal grandTotal = new BigDecimal(0);
     
     Element table = new Element("TABLE");
@@ -96,9 +117,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Req ID");
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Service");
-    this.addHeaderCell(rowh, "Product"    );
-    this.addHeaderCell(rowh, "Category");
     this.addHeaderCell(rowh, "Description"    );
+    this.addHeaderCell(rowh, "Notes"    );
+    if (showPercentCol) {
+      this.addHeaderCell(rowh, "Percent", "right");
+    }
     this.addHeaderCell(rowh, "Qty", "right");
     this.addHeaderCell(rowh, "Unit Price", "right");
     this.addHeaderCell(rowh, "Total Price", "right");
@@ -123,10 +146,12 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         this.addCell(row, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
         this.addCell(row, request.getNumber());
         this.addCell(row, client);
-        this.addCenterAlignCell(row, bi.getCodeBillingChargeKind().equals(BillingChargeKind.SERVICE) ? "X" : "&nbsp;");
-        this.addCenterAlignCell(row, bi.getCodeBillingChargeKind().equals(BillingChargeKind.PRODUCT) ? "X" : "&nbsp;");
-        this.addCell(row, this.getHTMLString(bi.getCategory()));
-        this.addCell(row, this.getHTMLString(bi.getDescription()));
+        this.addCell(row, this.getHTMLString(bi.getCategory() != null ? bi.getCategory() : "&nbsp;"));
+        this.addCell(row, this.getHTMLString(bi.getDescription() != null ? bi.getDescription() : "&nbsp;"));
+        this.addCell(row, this.getHTMLString(bi.getNotes() != null && !bi.getNotes().equals("") ? bi.getNotes() : "&nbsp;"));
+        if (showPercentCol) {
+          this.addRightAlignCell(row, this.getHTMLString(bi.getPercentageDisplay()));          
+        }
         this.addRightAlignCell(row, this.getHTMLString(bi.getQty()));
         this.addRightAlignCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;");
         this.addRightAlignCell(row, bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "&nbsp;");
@@ -141,24 +166,24 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       
       Element rowt2 = new Element("TR");
       table.addContent(rowt2);
-      this.addEmptyCell(rowt2, new Integer(9));
+      this.addEmptyCell(rowt2, new Integer(columnCount - 1));
       this.addTotalCell(rowt2, totalPriceForRequest != null ? currencyFormat.format(totalPriceForRequest) : "&nbsp;");
 
       Element rowt1 = new Element("TR");
       table.addContent(rowt1);
-      this.addEmptyCell(rowt1, new Integer(10));
+      this.addEmptyCell(rowt1, new Integer(columnCount));
       
 
     }
 
     Element rowt = new Element("TR");
     table.addContent(rowt);
-    this.addEmptyCell(rowt, new Integer(10));
+    this.addEmptyCell(rowt, new Integer(columnCount));
 
     Element rowgt = new Element("TR");
     table.addContent(rowgt);
-    this.addEmptyCell(rowgt, new Integer(8));
-    this.addTotalCell(rowgt, "Total");
+    this.addEmptyCell(rowgt, new Integer(columnCount - 2));
+    this.addRightAlignCell(rowgt, "Total");
     this.addTotalCell(rowgt, grandTotal != null ? currencyFormat.format(grandTotal) : "&nbsp;");
 
     
