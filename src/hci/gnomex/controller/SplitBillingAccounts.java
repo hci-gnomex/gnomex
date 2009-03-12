@@ -85,7 +85,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
           parser.parse(sess);
           for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
             BillingAccount ba = (BillingAccount)i.next();
-            String percentageString = parser.getPercentageString(ba.getIdBillingAccount());
+            BigDecimal percentage = parser.getPercentage(ba.getIdBillingAccount());
             
             boolean found = false;
             // For billing account, find all matching billing items for the request and
@@ -93,7 +93,10 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
               BillingItem bi = (BillingItem)i1.next();
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
-                bi.setPercentagePrice(new BigDecimal(percentageString));
+                bi.setPercentagePrice(percentage);
+                if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
+                  bi.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(bi.getQty().intValue() * bi.getPercentagePrice().doubleValue())));          
+                }
                 found = true;
               }
               
@@ -107,15 +110,14 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setIdBillingAccount(ba.getIdBillingAccount());
                 billingItem.setIdLab(ba.getIdLab());
 
-                billingItem.setCategory(bi.getDescription());
                 billingItem.setCodeBillingChargeKind(bi.getCodeBillingChargeKind());
                 billingItem.setIdBillingPeriod(bi.getIdBillingPeriod());
                 billingItem.setDescription(bi.getDescription());
                 billingItem.setQty(bi.getQty());
                 billingItem.setUnitPrice(bi.getUnitPrice());
-                billingItem.setPercentagePrice(new BigDecimal(percentageString));
+                billingItem.setPercentagePrice(percentage);
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
-                  billingItem.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(bi.getQty().intValue())));          
+                  billingItem.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(billingItem.getQty().intValue() * billingItem.getPercentagePrice().doubleValue())));          
                 }
                 billingItem.setCodeBillingStatus(BillingStatus.PENDING);
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());
