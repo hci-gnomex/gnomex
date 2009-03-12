@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
-	width="442" height="286" defaultButton="{saveButton}"> 
+	width="480" height="232" defaultButton="{saveButton}"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -26,6 +26,8 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
 		import mx.collections.XMLListCollection;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
@@ -48,15 +50,21 @@
 		[Bindable]
 		public var billingAccountEntries:XMLListCollection;
 		
+		[Bindable]
+		private var isComplete:Boolean = true;
+		
 			
 		
 		public function initializeData():void {
 			accountsGrid.dataProvider = billingAccountEntries;
+			billingAccountEntries.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingBillingAccountChange);
 		}
 		
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab;
 			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+			var blankNode:XML = new XML("<BillingAccount idLab='' labName='' idBillingAccount='' accountName=''/>");
+			billingAccounts.addItemAt(blankNode, 0);			
 		}
 		private function getLabName(item:Object,col:int):String
         {
@@ -102,6 +110,30 @@
  				mx.managers.PopUpManager.removePopUp(this);		
  			}	
 		}
+		
+		private function calculateTotalPercentage():void {
+			var totalPercentage:int = 0;
+			isComplete = true;
+			for each(var item:Object in billingAccountEntries) {
+				if (item.@percentage != null && item.@percentage != "") {
+					totalPercentage += int(item.@percentage);
+				} 
+				if (item.@idLab == "" || item.@idBillingAccount == "" || item.@percentage == "" || item.@percentage == "0") {
+					isComplete = false;
+				}
+			}
+			this.totalPercentageLabel.text = totalPercentage + "%";
+		}
+		
+		private function underlyingBillingAccountChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || 
+			    event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}			
+			this.calculateTotalPercentage();
+		}  
+
 	]]>
 </mx:Script>
 
@@ -131,9 +163,14 @@
 					itemEditor="{hci.flex.renderers.TextInput.create('@percentage')}"/>        
 			</mx:columns>
 		</mx:DataGrid>
+		<mx:HBox width="100%" horizontalAlign="right" verticalAlign="bottom" fontWeight="bold" color="#BF0F34">
+			<mx:Label id="percentageWarningLabel" text="Above percentages must be adjusted" visible="{totalPercentageLabel.text == '100%' ? false : true}" fontWeight="normal" color="#AA082A"/>
+			<mx:Label id="totalPercentageLabel" text="100%" color="#000000"/>
+			
+		</mx:HBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="{isComplete &amp;&amp; totalPercentageLabel.text == '100%' ? true : false}" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
