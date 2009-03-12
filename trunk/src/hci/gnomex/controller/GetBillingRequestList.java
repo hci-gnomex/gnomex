@@ -217,61 +217,69 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       List statusList = (List)requestToStatusMap.get(requestNumber);
       List requestNodes = (List)requestNodeMap.get(requestNumber);
       
-      // For each request/billing account combo, stick under appropriate lab 
-      // node
-      for(Iterator i0 = requestNodes.iterator(); i0.hasNext();) {
-        Element requestNode = (Element)i0.next();
-        
-        String codeBillingStatus = null;
-        if (statusList.size() == 1) {
-          codeBillingStatus = (String)statusList.iterator().next();
-        } else {
-          // Pending takes precedence over completed, approved
-          // Then completed takes precedence over approved
+
+      // For this request, figure out which of the billing item
+      // status takes precendence.
+      String codeBillingStatus = null;
+      if (statusList.size() == 1) {
+        codeBillingStatus = (String)statusList.iterator().next();
+      } else {
+        // Pending takes precedence over completed, approved
+        // Then completed takes precedence over approved
+        for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
+          String code = (String)i1.next();
+          if (code.equals(BillingStatus.PENDING)) {
+            codeBillingStatus = code;
+            break;
+          }
+        }
+        if (codeBillingStatus == null) {
           for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
             String code = (String)i1.next();
-            if (code.equals(BillingStatus.PENDING)) {
+            if (code.equals(BillingStatus.COMPLETED)) {
               codeBillingStatus = code;
               break;
             }
           }
-          if (codeBillingStatus == null) {
-            for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
-              String code = (String)i1.next();
-              if (code.equals(BillingStatus.COMPLETED)) {
-                codeBillingStatus = code;
-                break;
-              }
-            }
-            
-          }
-          if (codeBillingStatus == null) {
-            for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
-              String code = (String)i1.next();
-              if (code.equals(BillingStatus.APPROVED)) {
-                codeBillingStatus = code;
-                break;
-              }
-            }
-            
-          }
+
         }
-        
-        statusNode = (Element)statusNodeMap.get(codeBillingStatus);
-        
-        if (codeBillingStatus.equals(BillingStatus.PENDING)) {
-          statusNode.addContent(requestNode);        
-        } else {
+        if (codeBillingStatus == null) {
+          for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
+            String code = (String)i1.next();
+            if (code.equals(BillingStatus.APPROVED)) {
+              codeBillingStatus = code;
+              break;
+            }
+          }
+
+        }
+      }
+
+      // Grab the appropriate status node
+      statusNode = (Element)statusNodeMap.get(codeBillingStatus);
+      
+      // If the status is PENDING, only stick one request node
+      // under pending (don't consider distinct billing accounts for
+      // billing items under a request.)
+      if (codeBillingStatus.equals(BillingStatus.PENDING)) {
+        statusNode.addContent((Element)requestNodes.iterator().next());        
+      } else {
+        // If the status is COMPLETED or APPROVED,
+        // For each request/billing account combination, attach
+        // the request node to the appropriate parent lab/billing
+        // account node
+        for(Iterator i0 = requestNodes.iterator(); i0.hasNext();) {
+          Element requestNode = (Element)i0.next();
           Map labNodeMap = (Map)statusToLabNodeMap.get(codeBillingStatus);
           Element labNode = (Element)labNodeMap.get(requestNode.getAttributeValue("labBillingName"));
           labNode.addContent(requestNode);
         }
         
       }
-      
     }
+      
 
-    
+
     // Now create XML document organizing each request
     // under <STATUS> node.  Show <STATUS> in order
     // of New, Pending, Completed, Approved.
@@ -287,7 +295,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     status = (Element)statusNodeMap.get(BillingStatus.COMPLETED);
     if (status != null) {
       doc.getRootElement().addContent(status);      
-      
+
       // Add non-empty labNodes onto status
       Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.COMPLETED);
       for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
@@ -301,7 +309,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     status = (Element)statusNodeMap.get(BillingStatus.APPROVED);
     if (status != null) {
       doc.getRootElement().addContent(status);      
-      
+
       // Add non-empty labNodes onto status
       Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED);
       for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
@@ -313,10 +321,10 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }      
     }
 
-    
+
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
-    
+
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetBillingRequestList ", e);
