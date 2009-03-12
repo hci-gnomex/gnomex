@@ -212,9 +212,9 @@ public class BillingItem extends HibernateDetailObject {
   
   public String getPercentageDisplay() {
     if (percentagePrice != null) {
-      return new Integer(percentagePrice.multiply(new BigDecimal(100)).intValue()).toString(); 
+      return new Integer(percentagePrice.multiply(new BigDecimal(100)).intValue()).toString() + "%"; 
     } else {
-      return "100";
+      return "100%";
     }
   }
 }

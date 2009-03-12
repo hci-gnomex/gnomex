@@ -66,8 +66,11 @@ public class BillingItemParser implements Serializable {
         billingItem.setIdLab(!node.getAttributeValue("idLab").equals("") ? new Integer(node.getAttributeValue("idLab")) : null);
         billingItem.setQty(!node.getAttributeValue("qty").equals("") ? new Integer(node.getAttributeValue("qty")) : null);
         billingItem.setUnitPrice(!node.getAttributeValue("unitPrice").equals("") ? new BigDecimal(node.getAttributeValue("unitPrice")) : null);
-        billingItem.setPercentagePrice(!node.getAttributeValue("percentageDisplay").equals("") ? new BigDecimal(node.getAttributeValue("percentageDisplay")).movePointLeft(2) : null);
         billingItem.setNotes(node.getAttributeValue("notes"));
+
+        String percentageDisplay = node.getAttributeValue("percentageDisplay") != null ? node.getAttributeValue("percentageDisplay") : "";        
+        percentageDisplay = percentageDisplay.replaceAll("\\%", "");
+        billingItem.setPercentagePrice(percentageDisplay != "" ? new BigDecimal(percentageDisplay).movePointLeft(2) : null);
 
         String totalPrice = node.getAttributeValue("totalPrice");
         if (!totalPrice.equals("")) {
