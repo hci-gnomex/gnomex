@@ -103,8 +103,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           StringBuffer buf = new StringBuffer();
           buf.append("SELECT req, bi ");
           buf.append("FROM   Request req ");
-          buf.append("JOIN   req.lab as lab ");
           buf.append("JOIN   req.billingItems bi ");
+          buf.append("JOIN   bi.lab as lab ");
           buf.append("JOIN   bi.billingAccount as ba ");
           buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
@@ -119,16 +119,16 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
             
-            String key = req.getLabName() + "_" +
-                         req.getBillingAccount().getIdBillingAccount() +  "_" +
+            String key = bi.getLabName() + "_" +
+                         bi.getBillingAccount().getIdBillingAccount() +  "_" +
                          req.getNumber();
             
             requestMap.put(key, req);
             
-            List billingItems = (List)billingItemMap.get(req.getNumber());
+            List billingItems = (List)billingItemMap.get(key);
             if (billingItems == null) {
               billingItems = new ArrayList();
-              billingItemMap.put(req.getNumber(), billingItems);
+              billingItemMap.put(key, billingItems);
             }
             billingItems.add(bi);
           }
@@ -155,9 +155,11 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             columns.add(makeReportColumn("Product", 8));
             columns.add(makeReportColumn("Category", 9));
             columns.add(makeReportColumn("Description", 10));
-            columns.add(makeReportColumn("Qty", 11));
-            columns.add(makeReportColumn("Unit Price", 12));
-            columns.add(makeReportColumn("Total Price", 13));
+            columns.add(makeReportColumn("Notes", 11));
+            columns.add(makeReportColumn("Percent", 12));
+            columns.add(makeReportColumn("Qty", 13));
+            columns.add(makeReportColumn("Unit Price", 14));
+            columns.add(makeReportColumn("Total Price", 15));
             
             tray.setColumns(columns);
             
@@ -171,36 +173,33 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
               String key = (String)i.next();
               Request request = (Request)requestMap.get(key);      
-              
-              
 
               String[] tokens = key.split("_");
               String requestNumber = tokens[2];
-              List billingItems = (List)billingItemMap.get(requestNumber);
+              List billingItems = (List)billingItemMap.get(key);
               
-
-              String acctNum = request.getBillingAccount().getAccountNumber();
-              String acctName = request.getBillingAccount().getAccountName();
-              
-              String labBillingName = request.getLabName() + acctNum;
-              
-              if (!firstTime && !requestNumber.equals(prevRequestNumber)) {
-                addRequestTotalRows();
-              } 
-              if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
-                addAccountTotalRows();
-              }
-
-            
- 
               for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
+
+                String acctNum = bi.getBillingAccount().getAccountNumber();
+                String acctName = bi.getBillingAccount().getAccountName();
+                
+                String labBillingName = bi.getLabName() + acctNum;
+
+                
+                if (!firstTime && !requestNumber.equals(prevRequestNumber)) {
+                  addRequestTotalRows();
+                } 
+                if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
+                  addAccountTotalRows();
+                }
+
                 
                 ReportRow reportRow = new ReportRow();
                 List values  = new ArrayList();
             
                
-                values.add(request.getLabName());
+                values.add(bi.getLabName());
                 values.add(acctNum);
                 values.add(acctName);
                 values.add(this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
@@ -210,6 +209,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
                 values.add(bi.getCodeBillingChargeKind().equals(BillingChargeKind.PRODUCT) ? "X" : "");
                 values.add(bi.getCategory());
                 values.add(bi.getDescription());
+                values.add(bi.getNotes() != null? bi.getNotes() : "");
+                values.add(bi.getPercentageDisplay());
                 values.add(bi.getQty() != null ? bi.getQty().toString() : "");
                 values.add(bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "");
                 values.add(bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "");
@@ -292,6 +293,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     values.add("");
     values.add("");
     values.add("");
+    values.add("");
+    values.add("");
     values.add(currencyFormat.format(totalPriceForRequest));
     
     reportRow.setValues(values);
@@ -306,6 +309,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
+    values.add("");
+    values.add("");
     values.add("");
     values.add("");
     values.add("");
@@ -355,6 +360,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     values.add("");
     values.add("");
     values.add("");
+    values.add("");
+    values.add("");
 
     reportRow.setValues(values);
     return reportRow;
@@ -363,6 +370,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
   private ReportRow makeTotalBlankRow() {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
+    values.add("");
+    values.add("");
     values.add("");
     values.add("");
     values.add("");
