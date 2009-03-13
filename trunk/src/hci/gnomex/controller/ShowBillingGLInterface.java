@@ -117,8 +117,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           StringBuffer buf = new StringBuffer();
           buf.append("SELECT req, bi ");
           buf.append("FROM   Request req ");
-          buf.append("JOIN   req.lab as lab ");
           buf.append("JOIN   req.billingItems bi ");
+          buf.append("JOIN   bi.lab as lab ");
           buf.append("JOIN   bi.billingAccount as ba ");
           buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
@@ -133,16 +133,16 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
             
-            String key = req.getLabName() + "_" +
-                         req.getBillingAccount().getIdBillingAccount() +  "_" +
+            String key = bi.getLabName() + "_" +
+                         bi.getBillingAccount().getIdBillingAccount() +  "_" +
                          req.getNumber();
             
             requestMap.put(key, req);
             
-            List billingItems = (List)billingItemMap.get(req.getNumber());
+            List billingItems = (List)billingItemMap.get(key);
             if (billingItems == null) {
               billingItems = new ArrayList();
-              billingItemMap.put(req.getNumber(), billingItems);
+              billingItemMap.put(key, billingItems);
             }
             billingItems.add(bi);
           }
@@ -227,24 +227,25 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
 
               String[] tokens = key.split("_");
               String requestNumber = tokens[2];
-              List billingItems = (List)billingItemMap.get(requestNumber);
+              List billingItems = (List)billingItemMap.get(key);
+              
               
 
-              String acctNum = request.getBillingAccount().getAccountNumber();
-              String acctName = request.getBillingAccount().getAccountName();
-              String labName = request.getLabName();
-              
-              String labBillingName = request.getLabName() + acctNum;
-              
-
-              if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
-                addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
-              }
-
-            
- 
               for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
+
+                String acctNum = bi.getBillingAccount().getAccountNumber();
+                String acctName = bi.getBillingAccount().getAccountName();
+                String labName = bi.getLabName();
+                
+                String labBillingName = bi.getLabName() + acctNum;
+
+                if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
+                  addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
+                }
+
+              
+   
 
                 if (bi.getTotalPrice() != null) {
                   totalPriceForLabAccount = totalPriceForLabAccount.add(bi.getTotalPrice());          
