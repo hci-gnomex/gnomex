@@ -142,6 +142,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           requestNode.setAttribute("idRequest", request.getIdRequest().toString());
           requestNode.setAttribute("idBillingAccount", request.getIdBillingAccount().toString());
           requestNode.setAttribute("requestNumber", request.getNumber());
+          requestNode.setAttribute("idLab", request.getIdLab().toString());
           requestNode.setAttribute("label", request.getNumber());
           requestNode.setAttribute("submitter", request.getAppUser() != null ? request.getAppUser().getDisplayName() : "");
          requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());        

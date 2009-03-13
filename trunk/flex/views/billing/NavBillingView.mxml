@@ -568,7 +568,7 @@
 	       			this.createBillingItems.send(params);
 	    	   	} else if (dragNode.name() == "BillingPrice") {
        				var newBillingItem:XML = new XML(
-       				 "<BillingItem " +
+       				 "<BillingItem " + 
        				 " codeBillingChargeKind='" + dragNode.@codeBillingChargeKind + "'" +
        			 	 " category='" + dragNode.@category + "'" +
        			 	 " description='" + dragNode.@description + "'" +
@@ -581,8 +581,10 @@
        			 	 " idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
        			 	 " idLab='" + dropRequestNode.@idLab + "'" +
        			 	 " percentagePrice='1'" +
+       			 	 " percentageDisplay='100%'" +
        			 	 " notes=''" +
        			 	 " qty=''" + 
+       			 	 " isDirty='Y'" +
        			 	 "/>");
 		       	
 		       		dropRequestNode.@isDirty = "Y";
@@ -914,7 +916,7 @@
        			
         		</mx:VBox>
         		
-        		<mx:VBox label="Prices" height="100%" verticalGap="0" width="100%">
+        		<mx:VBox label="Prices" height="100%" verticalGap="0" width="100%" color="#000000">
 					<mx:AdvancedDataGrid id="billingCategoryTree" width="100%" height="100%" 
 						showHeaders="false" 
 						displayItemsExpanded="false" 
