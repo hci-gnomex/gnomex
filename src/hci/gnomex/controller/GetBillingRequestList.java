@@ -199,12 +199,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
       node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
-      List requestNodes = (List)requestNodeMap.get(requestNumber);
+      TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumber);
       if (requestNodes == null) {
-        requestNodes = new ArrayList();
+        requestNodes = new TreeMap();
         requestNodeMap.put(requestNumber, requestNodes);
       }
-      requestNodes.add(node);
+      requestNodes.put(requestNumber + labBillingName, node);
       
       
       
@@ -215,7 +215,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String requestNumber = (String)i.next();
       
       List statusList = (List)requestToStatusMap.get(requestNumber);
-      List requestNodes = (List)requestNodeMap.get(requestNumber);
+      Map requestNodes = (Map)requestNodeMap.get(requestNumber);
       
 
       // For this request, figure out which of the billing item
@@ -262,14 +262,17 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       // under pending (don't consider distinct billing accounts for
       // billing items under a request.)
       if (codeBillingStatus.equals(BillingStatus.PENDING)) {
-        statusNode.addContent((Element)requestNodes.iterator().next());        
+        String key = (String)requestNodes.keySet().iterator().next();
+        Element requestNode = (Element)requestNodes.get(key);
+        statusNode.addContent(requestNode);        
       } else {
         // If the status is COMPLETED or APPROVED,
         // For each request/billing account combination, attach
         // the request node to the appropriate parent lab/billing
         // account node
-        for(Iterator i0 = requestNodes.iterator(); i0.hasNext();) {
-          Element requestNode = (Element)i0.next();
+        for(Iterator i0 = requestNodes.keySet().iterator(); i0.hasNext();) {
+          String key = (String)i0.next();
+          Element requestNode = (Element)requestNodes.get(key);
           Map labNodeMap = (Map)statusToLabNodeMap.get(codeBillingStatus);
           Element labNode = (Element)labNodeMap.get(requestNode.getAttributeValue("labBillingName"));
           labNode.addContent(requestNode);
