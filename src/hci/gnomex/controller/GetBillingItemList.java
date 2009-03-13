@@ -75,10 +75,11 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       String codeBillingStatus   = (String)row[0]  == null ? ""  : (String)row[0];
       Integer idRequest          = (Integer)row[1];
       String requestNumber       = (String)row[2]  == null ? ""  : (String)row[2];
-      String codeRequestCategory = (String)row[3]  == null ? ""  : (String)row[3];
-      String labName             = (String)row[4]  == null ? ""  : (String)row[4];
-      AppUser submitter          = (AppUser)row[5];
-      BillingItem billingItem    = (BillingItem)row[6];
+      Integer idLab              = (Integer)row[3];
+      String codeRequestCategory = (String)row[4]  == null ? ""  : (String)row[4];
+      String labName             = (String)row[5]  == null ? ""  : (String)row[5];
+      AppUser submitter          = (AppUser)row[6];
+      BillingItem billingItem    = (BillingItem)row[7];
       
       
       if (!requestNumber.equals(prevRequestNumber) || 
@@ -86,6 +87,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           !prevIdBillingAccount.equals(billingItem.getIdBillingAccount())) {
         requestNode = new Element("Request");
         requestNode.setAttribute("idRequest", idRequest.toString());
+        requestNode.setAttribute("idLab", idLab.toString());
         requestNode.setAttribute("requestNumber", requestNumber);
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
