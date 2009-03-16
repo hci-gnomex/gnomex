@@ -7,6 +7,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -160,6 +161,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("WHERE  bi.idLab = " + idLab + " ");
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "')");
     buf.append("ORDER BY req.number, bi.idBillingItem ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -169,6 +171,21 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Object[] row = (Object[])i.next();
       Request req    =  (Request)row[0];
       BillingItem bi =  (BillingItem)row[1];
+      
+      // Exclude any requests that are have
+      // pending billing items.
+      boolean hasPendingItems = false;
+      for(Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
+        BillingItem item = (BillingItem)i1.next();
+        if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+          hasPendingItems = true;
+          break;
+        }
+      }
+      if (hasPendingItems) {
+        continue;
+      }
+      
       
       requestMap.put(req.getNumber(), req);
       
