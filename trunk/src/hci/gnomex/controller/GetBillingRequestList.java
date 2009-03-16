@@ -79,11 +79,17 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     
     
     Element statusNode = new Element("Status");
+
+    TreeMap requestToStatusMap = new TreeMap();
+    HashMap requestNodeMap = new HashMap();
+    HashMap statusToLabNodeMap = new HashMap();
     
+    // Query all requests that don't have any billing items.
+    // Assign these requests a 'Pending' status.
     if (newRequests.size() > 0) {
-      statusNode.setAttribute("label", "New");
-      statusNode.setAttribute("status", BillingStatus.NEW);
-      statusNodeMap.put(BillingStatus.NEW, statusNode);
+      statusNode.setAttribute("label", "Pending");
+      statusNode.setAttribute("status", BillingStatus.PENDING);
+      statusNodeMap.put(BillingStatus.PENDING, statusNode);
 
       for(Iterator i = newRequests.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -96,6 +102,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         AppUser submitter          = (AppUser)row[5];
         Date createDate            = (Date)row[6];
         Date completedDate         = (Date)row[7];
+        String billingAcctName     = (String)row[8]  == null ? ""  : (String)row[8];
         
         String toolTip = requestNumber + " " + labName;
         if (createDate != null) {
@@ -117,8 +124,28 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("codeBillingStatus", BillingStatus.NEW);
         node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
         node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
+      
+        String labBillingName = labName + " (" + billingAcctName + ")";
+
+        // Hash the status node.
+        List statusList = (List)requestToStatusMap.get(requestNumber);
+        if (statusList == null) {
+          statusList = new ArrayList();
+          requestToStatusMap.put(requestNumber, statusList);
+        }
+        statusList.add(BillingStatus.PENDING);
         
-        statusNode.addContent(node);
+        // There can be multiple requests nodes for a given request number when
+        // the request's billing items are split among multiple billing 
+        // accounts.  Keep a hash map of these different request nodes.
+        
+        TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumber);
+        if (requestNodes == null) {
+          requestNodes = new TreeMap();
+          requestNodeMap.put(requestNumber, requestNodes);
+        }
+        requestNodes.put(requestNumber + labBillingName, node);
+        
         
       }
       
@@ -129,10 +156,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     log.info("Query: " + buf.toString());
     List billingItemRequests = (List)sess.createQuery(buf.toString()).list();
     String prevCodeBillingStatus = "NEW";
-    TreeMap requestToStatusMap = new TreeMap();
-    HashMap requestNodeMap = new HashMap();
-    HashMap statusToLabNodeMap = new HashMap();
-    
+    // 
+    // Query all requests with billing items.  Determine status by looking
+    // at all of billing items for request.  
+    // Hash nodes for lab/billing account, status.
+    //
     for(Iterator i = billingItemRequests.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
@@ -199,6 +227,10 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
       node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
+      
+      // There can be multiple requests nodes for a given request number when
+      // the request's billing items are split among multiple billing 
+      // accounts.  Keep a hash map of these different request nodes.
       TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumber);
       if (requestNodes == null) {
         requestNodes = new TreeMap();
@@ -211,6 +243,16 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       prevCodeBillingStatus = codeBillingStatus;
     }
     
+    //
+    //  Determine request status.
+    //   - If any billing items are Pending, status is Pending.
+    //   - If any billing items are Completed, status is Completed.
+    //   - If all billing items are approved, status is Approved.
+    //
+    // Organize requests under lab/billing account node if request is Completed or Approved; and
+    // then place lab/billing account nodes under appropriate status node).
+    // Organize requests directly under status node if request is Pending.
+    //    
     for(Iterator i = requestToStatusMap.keySet().iterator(); i.hasNext();) {
       String requestNumber = (String)i.next();
       
@@ -219,7 +261,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       
 
       // For this request, figure out which of the billing item
-      // status takes precendence.
+      // status takes precedence.
       String codeBillingStatus = null;
       if (statusList.size() == 1) {
         codeBillingStatus = (String)statusList.iterator().next();

@@ -41,9 +41,11 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("            lab.name, ");
     queryBuf.append("            appUser, ");
     queryBuf.append("            req.createDate, ");
-    queryBuf.append("            req.completedDate ");
+    queryBuf.append("            req.completedDate, ");
+    queryBuf.append("            ba.accountName ");
     queryBuf.append(" FROM       Request as req ");
-    queryBuf.append(" LEFT JOIN  req.lab as lab ");
+    queryBuf.append(" JOIN       req.lab as lab ");
+    queryBuf.append(" JOIN       req.billingAccount as ba ");
     queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
     queryBuf.append(" LEFT JOIN  req.billingItems as bi ");
     queryBuf.append(" WHERE      bi.idBillingItem is NULL ");
