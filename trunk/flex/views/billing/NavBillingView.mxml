@@ -558,6 +558,7 @@
           	for(var x:int = 0; x < items.length; x++) {
           		var dragNode:Object = items[x]; 
 	       		if (dragNode.name() == "Request") {  
+	       			this.lastSelectedItem = this.requestTree.selectedItem;
 	       			dragNode.@codeBillingStatus = "PENDING";
 	       			var params:Object = new Object(); 
 	       			params.idRequest = dragNode.@idRequest;
@@ -904,7 +905,7 @@
 						dragMoveEnabled="false" dropEnabled="false" borderStyle="none">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
-				        </mx:dataProvider>						  
+				        </mx:dataProvider>		 				  
 				        <mx:columns>
   						  <mx:AdvancedDataGridColumn dataField="@label" showDataTips="true" /> 
   					    </mx:columns>
