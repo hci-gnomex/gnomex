@@ -41,7 +41,6 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
   
   
   private Integer          idBillingPeriod;
-  private String           codeBillingStatus;
   private SecurityAdvisor  secAdvisor;
   
   private NumberFormat   currencyFormat = NumberFormat.getCurrencyInstance();
@@ -61,12 +60,6 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
-    }
-    
-    if (request.getParameter("codeBillingStatus") != null) {
-      codeBillingStatus = request.getParameter("codeBillingStatus");
-    } else {
-      this.addInvalidField("codeBillingStatus", "codeBillingStatus is required");
     }
     
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -106,7 +99,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           buf.append("JOIN   req.billingItems bi ");
           buf.append("JOIN   bi.lab as lab ");
           buf.append("JOIN   bi.billingAccount as ba ");
-          buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
+          buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
           buf.append("ORDER BY lab.name, ba.accountName, req.number, bi.idBillingItem ");
           
@@ -118,6 +111,19 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             Object[] row = (Object[])i.next();
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
+            
+            // Exclude any requests that have billing items with status
+            // other than status provided in parameter.
+            boolean mixedStatus = false;
+            for (Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
+              BillingItem item = (BillingItem)i1.next();
+              if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
+                mixedStatus = true;
+              }
+            }
+            if (mixedStatus) {
+              continue;
+            }
             
             String key = bi.getLabName() + "_" +
                          bi.getBillingAccount().getIdBillingAccount() +  "_" +

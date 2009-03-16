@@ -712,19 +712,17 @@
 				} else if (this.requestTree.selectedItem.name() == "Status") {
 					statusNode = this.requestTree.selectedItem;
 				}
-				if (statusNode != null && 
-				    (statusNode.@status == "COMPLETE" || statusNode.@status == "APPROVED" )) {
+				if (statusNode != null && statusNode.@status == "APPROVED" ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
-						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
-						'&codeBillingStatus=' + statusNode.@status);
+						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
 					navigateToURL(url, '_blank');			
 					
 				} else {
-					Alert.show("Please select either the Completed or Approved folder.")
+					Alert.show("Please select the Approved folder.")
 				}
 				
 			} else {
-				Alert.show("Please select either the Completed or Approved folder.")
+				Alert.show("Please select the Approved folder.")
 			}
 		}
 		public function showBillingGLInterface():void {

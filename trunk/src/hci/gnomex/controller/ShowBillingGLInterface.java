@@ -133,6 +133,21 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
             
+            
+            // Exclude any requests that have billing items with status
+            // other than status provided in parameter.
+            boolean mixedStatus = false;
+            for (Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
+              BillingItem item = (BillingItem)i1.next();
+              if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
+                mixedStatus = true;
+              }
+            }
+            if (mixedStatus) {
+              continue;
+            }
+
+            
             String key = bi.getLabName() + "_" +
                          bi.getBillingAccount().getIdBillingAccount() +  "_" +
                          req.getNumber();
