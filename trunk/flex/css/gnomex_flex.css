@@ -199,6 +199,12 @@ TextArea {
 	color: #0000ff;
 	
 }
+
+.formLinkSmallButton {
+	textDecoration: underline;
+	fontSize: 9;
+	
+}
 .navTabNavigator {
 	 backgroundAlpha:            1.0;
 	 backgroundColor: #CBCAC1;
