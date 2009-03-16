@@ -4,7 +4,7 @@
 	height="100%"   
 	xmlns:util="views.util.*" >  
  
-   <mx:HTTPService               
+   <mx:HTTPService                
     id="getLab" 
     url="GetLab.gx"
     destination="getLab" 
@@ -348,9 +348,6 @@
 				this.requestTree.dataProvider = new HierarchicalData(requests);
 				this.requestTree.dataProvider.refresh();   	
 				
-				var newItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'New');
-				jumpNew.visible =  newItems.length() ? true : false;
-				
 				var pendingItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Pending');
 				jumpPending.visible =  pendingItems.length() ? true : false;
 				
@@ -561,10 +558,10 @@
           	for(var x:int = 0; x < items.length; x++) {
           		var dragNode:Object = items[x]; 
 	       		if (dragNode.name() == "Request") {  
+	       			dragNode.@codeBillingStatus = "PENDING";
 	       			var params:Object = new Object(); 
 	       			params.idRequest = dragNode.@idRequest;
 	       			params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
-	       			this.lastSelectedItem = dragNode.parent();
 	       			this.createBillingItems.send(params);
 	    	   	} else if (dragNode.name() == "BillingPrice") {
        				var newBillingItem:XML = new XML(
@@ -889,10 +886,9 @@
 	    </mx:HBox>
 
         <mx:HDividedBox height="100%" width="100%">
-        	<mx:TabNavigator height="100%" width="215" paddingTop="2" styleName="navTabNavigator">
+        	<mx:TabNavigator height="100%" width="220" paddingTop="2" styleName="navTabNavigator">
         		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
-						<mx:LinkButton label="New" textDecoration="underline" paddingRight="0" paddingLeft="0" styleName="formLinkSmallButton"  click="jumpTo(&quot;New&quot;)" id="jumpNew"/>
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
 						<mx:LinkButton label="Completed" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Completed&quot;)" id="jumpCompleted"/>
 						<mx:LinkButton label="Approved" textDecoration="underline" paddingRight="0"  styleName="formLinkSmallButton" click="jumpTo(&quot;Approved&quot;)" id="jumpApproved"/>
@@ -913,6 +909,26 @@
   						  <mx:AdvancedDataGridColumn dataField="@label" showDataTips="true" /> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
+  				    <mx:ControlBar width="100%" verticalAlign="top">
+  				        <mx:VBox verticalGap="0" width="100%">
+  				        <mx:HBox horizontalGap="0" width="100%">
+				 	    <mx:HBox width="100" horizontalAlign="left">
+				 	    <mx:LinkButton label="Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
+				 	    </mx:HBox>
+				 	    <mx:LinkButton label="Summary" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
+  				        </mx:HBox>
+  				        <mx:HBox horizontalGap="0" width="100%">
+				 	    <mx:HBox width="100" horizontalAlign="left">
+					 	    <mx:LinkButton label="GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
+  				        </mx:HBox>
+  					 	<mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+				 	            click="refresh()" toolTip="Refresh"/>
+				 	    	
+				 	    </mx:HBox>        
+  				        	
+  				        </mx:VBox>
+				 	            				
+			        </mx:ControlBar>
        			
         		</mx:VBox>
         		
@@ -931,10 +947,14 @@
   						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency" width="30" textAlign="right" /> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>        		    
-	        		        			
+  				    <mx:ControlBar width="100%" verticalAlign="top" horizontalAlign="right">
+				 	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+				 	            click="refresh()" toolTip="Refresh"/>				
+			        </mx:ControlBar>
         		</mx:VBox>
         	</mx:TabNavigator>
-        	
+
+			        	
         	<mx:Panel width="100%" height="100%" verticalGap="0" title="Billing Items">
         		<mx:HBox width="100%">
         			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()"/>
@@ -995,11 +1015,6 @@
    
 				<mx:ControlBar width="100%">
 				
-				 	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-				 	            click="refresh()" toolTip="Refresh"/>
-				 	    <mx:LinkButton label="Billing Summary" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
-				 	    <mx:LinkButton label="GL Interface" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>        
-				 	    <mx:LinkButton label="Client Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
 				      <mx:HBox width="100%" horizontalAlign="right">
 				        <util:DirtyNote id="dirty" />
 				      	<mx:Button id="saveButton" label="Save" click="save()"
