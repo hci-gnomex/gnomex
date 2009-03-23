@@ -943,7 +943,7 @@
 				        </mx:dataProvider>						  
 				        <mx:columns>
   						  <mx:AdvancedDataGridColumn dataField="@display" /> 
-  						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency" width="30" textAlign="right" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency" width="60" textAlign="right" /> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>        		    
   				    <mx:ControlBar width="100%" verticalAlign="top" horizontalAlign="right">
