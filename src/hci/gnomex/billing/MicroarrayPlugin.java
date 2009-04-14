@@ -36,8 +36,10 @@ public class MicroarrayPlugin implements BillingPlugin {
         qty = request.getSlideProduct().getArraysPerSlide().intValue();
       } else if (qty > request.getSlideProduct().getArraysPerSlide().intValue()) {
         int mod = qty %  request.getSlideProduct().getArraysPerSlide().intValue();
-        int diff = request.getSlideProduct().getArraysPerSlide().intValue() - mod;
-        qty += diff;        
+        if (mod > 0) {
+          int diff = request.getSlideProduct().getArraysPerSlide().intValue() - mod;
+          qty += diff;                  
+        } 
       } 
     }
 
