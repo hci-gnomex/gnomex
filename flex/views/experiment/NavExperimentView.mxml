@@ -656,13 +656,6 @@
 			params.showCategory = "N";
 			params.searchPublicProjects = 'N';
 			getProjectRequestList.send(params);
-				
-			detailView.title = "Experiment " + selectedRequestNumber;
-			
-			theViews.selectedChild = detailView;
-			detailView.setupForm(this.selectedExperiment);
-			
-		    theViews.visible = true;
 		}
 		
 		private function onGetProject(event:ResultEvent):void {
