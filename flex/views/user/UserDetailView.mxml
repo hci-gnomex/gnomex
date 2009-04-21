@@ -99,8 +99,11 @@
             private function onUserAccountChange():void {
             	if (this.radioUniversityUser.selected) {
             		currentState = "";
+            		externalUserName.text = "";
+            		this.externalUserPassword.text = "";
             	} else {            		
             		currentState = "externalUserState";
+            		uNID.text = "";
             		
             	}
             }
