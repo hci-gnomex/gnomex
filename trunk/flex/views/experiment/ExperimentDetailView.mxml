@@ -461,7 +461,7 @@
 							</mx:HBox>
 								
 						</mx:HBox>
-						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
+						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" horizontalScrollPolicy="auto" height="100%">
 							<mx:columns>
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
@@ -534,7 +534,7 @@
 								<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
 							</mx:HBox>
 						</mx:HBox>
-						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{this.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{this.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid">
 							<mx:columns>
 								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
 							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
@@ -693,14 +693,11 @@
 	        <mx:height>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 	    </mx:LinkButton>				
-	
-    </mx:HBox>
-    <mx:HBox width="100%" horizontalAlign="right">
 	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
 	        <mx:height>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
 	    </mx:LinkButton>
-    	
+	
     </mx:HBox>
 </mx:ControlBar>
 

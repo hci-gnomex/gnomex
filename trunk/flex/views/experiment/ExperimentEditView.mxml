@@ -92,6 +92,9 @@
 		import mx.managers.PopUpManager;
 		import mx.events.CollectionEvent;
 		import hci.flex.renderers.LabelDictionary;
+		import mx.validators.NumberValidator;
+		import mx.validators.ValidationResult;
+		import mx.events.ValidationResultEvent;
         
         
 		[Bindable]
@@ -139,6 +142,11 @@
 		[Bindable]
 		public var requestToClone:Object;
 		
+		[Bindable]
+		public var userWarnings:String = "";
+		
+		public var concentrationValidator:NumberValidator = new NumberValidator();
+
 		public function checkDirty():void {
 		}
 				
@@ -179,6 +187,17 @@
 			if (theTab.contains(this.annotationView)) {
 				this.annotationView.addNonStandardSampleColumns(); 
 			}
+			
+	    	concentrationValidator.domain = "real";
+			concentrationValidator.minValue = "0";
+			concentrationValidator.maxValue = "99999";
+			concentrationValidator.precision = 3;
+	    	concentrationValidator.allowNegative = false;
+	    	concentrationValidator.required = false;
+			concentrationValidator.exceedsMaxError = "exceeds max.";
+			concentrationValidator.invalidCharError = "contains invalid characters. Please enter a numeric value.";
+			concentrationValidator.negativeError = "cannot be negative.";
+			concentrationValidator.precisionError = "has too many digits beyond the decimal point.";
 		}
 		
 		private function initFilters():void {
@@ -388,7 +407,7 @@
 			setupView.requestRadioAgilent.setStyle("fontWeight", "normal");	
 			setupView.requestRadioQC.setStyle(     "fontWeight", "normal");	
 			setupView.requestRadioSolexa.setStyle( "fontWeight", "normal");	
-			setupView.submitNewRequestRadio.selected = true;
+
 
 			samplesView.enabled = false;			
 			
@@ -402,7 +421,6 @@
 				sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
 				sampleSetupView.sampleSourceCombo.selectedIndex = -1;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
-				sampleSetupView.sampleConcentration.text = '';
 				sampleSetupView.enabled = false;
 				if (theTab.contains(annotationView)) {
 					annotationView.enabled = false;								
@@ -497,15 +515,31 @@
 			this.setupView.requestRadioQC.setStyle(     "fontWeight",this.setupView.requestRadioQC.selected      == true ?  "bold" : "normal");	
 			this.setupView.requestRadioSolexa.setStyle( "fontWeight",this.setupView.requestRadioSolexa.selected  == true ?  "bold" : "normal");	
 
+			if (this.setupView.requestRadioAffy.selected ||
+			    this.setupView.requestRadioAgilent.selected ||
+			    this.setupView.requestRadioQC.selected ||
+			    this.setupView.requestRadioSolexa.selected) {
+				this.setupView.requestTypeBox.setStyle("borderStyle", "none");
+			} else {
+				this.setupView.requestTypeBox.setStyle("borderStyle", "solid");
+			}
+
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
+				this.sampleSetupView.seqRunTypeValidator.validate();
+				this.sampleSetupView.numberSeqCyclesValidator.validate();
+				this.sampleSetupView.fragmentSizeFromValidator.validate();
+				this.sampleSetupView.fragmentSizeToValidator.validate();
+				
+				
 				this.samplesView.currentState = 'SolexaSamplesState';	
 				this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
 				for each (var sample:Object in samples) {
 					sample.@seqPrepByCore = 'Y';
-					sample.@numberSequencingLanes = '';
+					sample.@numberSequencingLanes = '1';
 					sample.@idSeqRunType = '';
+					sample.@label = '';
 				}
 				this.samplesView.showHideColumns();		
 				this.samplesView.checkSamplesCompleteness();
@@ -521,10 +555,13 @@
 				} else {
 					this.currentState = 'MicroarrayState';
 					this.sampleSetupView.currentState = '';
+					this.sampleSetupView.organismValidator.validate();
+					this.sampleSetupView.sampleSourceValidator.validate();
+					
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
 					this.samplesView.checkSamplesCompleteness();	
-					this.hybsView.currentState = 'HybsState';
+					this.hybsView.currentState = '';
 					
 					this.hybSetupView.microarrayCategoryCombo.selectedIndex = 0;
 					filteredMicroarrayCategoryListForSubmitRequests.refresh();
@@ -532,18 +569,29 @@
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
 					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 					this.hybSetupView.checkForSlideProductWarning();
+					this.hybSetupView.numberOfHybsValidator.validate();
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
 						hybsView.channel2SampleColumn.visible = true;
+						samplesView.labelColumn.visible = true;
 						confirmView.channel2SampleConfirmColumn.visible = true;
 					} else {
 						hybsView.channel2SampleColumn.visible = false;
+						samplesView.labelColumn.visible = false;
 						confirmView.channel2SampleConfirmColumn.visible = false;
+						for each (var s:Object in samples) {
+							s.@label = 'cy3';
+						}
 					}
 	
 				}
 			}
+			
+			this.sampleSetupView.numberOfSamplesValidator.validate();
+			this.sampleSetupView.sampleTypeValidator.validate();
+			this.sampleSetupView.samplePrepMethodValidator.validate();
+			
 			filteredSampleTypeList.refresh();
 			samplePrepMethodList.refresh();
 			
@@ -1271,7 +1319,6 @@
 			
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
-				sampleSetupView.sampleConcentration.text = "100";
 				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
 				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
 				
@@ -1812,9 +1859,8 @@
 						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
 						samplesView.propagateNumberSequencingCycles(pe.source);
 						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-					}
-					
-				}
+					}         	
+ 				}
 			}
 			// Ignore change events on @channel1Count, @channel2Count
 			if (ignore == event.items.length) {
@@ -1891,6 +1937,7 @@
 		     parentDocument.theViews.selectedChild = parentDocument.detailView;
            	 parentDocument.detailView.setupForm(this.request);
 		}
+		
 
 
 		]]>
@@ -1941,10 +1988,13 @@
 				<mx:Button id="nextButton"  label="Next" enabled="false" click="nextTab()" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" fontWeight="normal">
 					<mx:disabledIcon>@Embed(source='../../assets/arrow_right_disabled.png')</mx:disabledIcon>
 				</mx:Button>
-				<mx:ViewStack id="confirmButtonStack" width="100%" >
-							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
-								<mx:Button visible="false" />
+				<mx:ViewStack id="confirmButtonStack" width="100%">
+							<mx:HBox  height="22" horizontalScrollPolicy="off" width="100%"   verticalAlign="middle">
+							  <mx:HBox width="100%" horizontalScrollPolicy="off" visible="{userWarnings == '' ? false : true}">
+									<mx:Label id="errorMessageLabel" text="{userWarnings}" width="100%" color="#D00E0E" fontWeight="bold"/>
+							  </mx:HBox>
 							</mx:HBox>
+								
 							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
 							</mx:HBox>

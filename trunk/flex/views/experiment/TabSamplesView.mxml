@@ -12,7 +12,10 @@
 		import mx.events.CloseEvent;
 		import hci.flex.renderers.Label; 
 		import views.util.AnnotationDataGridColumn;
-		
+		import hci.flex.renderers.LabelDictionary;
+		import mx.validators.NumberValidator;
+		import mx.validators.ValidationResult;
+		import mx.events.ValidationResultEvent;		
 
 		
 		public function addSample():void {
@@ -29,7 +32,7 @@
 				    " canChangeSamplePrepMethod='Y'" +
    					" canChangeNumberSequencingLanes='Y'" + 
    					" canChangeNumberSequencingCycles='Y'" +
-					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
+					" concentration=''" + 
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
 					" idSeqRunType='" + parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes='1'" +
@@ -57,7 +60,7 @@
 				    " canChangeSamplePrepMethod='Y'" +
    					" canChangeNumberSequencingCycles='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
-					" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
+					" concentration=''" +
 					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
 					" idSeqRunType='" +	parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes='1'" +
@@ -88,7 +91,7 @@
 			    " canChangeSamplePrepMethod='Y'" +
   				" canChangeNumberSequencingCycles='Y'" +
 				" canChangeNumberSequencingLanes='Y'" + 
-				" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
+				" concentration=''" +
 				" codeConcentrationUnit='ng/ul'" + 
 				" codeBioanalyzerChipType='" + parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() + "'" +
 				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
@@ -100,6 +103,8 @@
 				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
 			    " name='' description='' " +
+			    " cy3='false'" +
+			    " cy5='false'" +			    
 			    " canChangeSampleName='Y'" +
 			    " canChangeSampleType='Y'" +
 			    " canChangeSampleConcentration='Y'" +
@@ -107,7 +112,7 @@
 			    " canChangeSamplePrepMethod='Y'" +
   				" canChangeNumberSequencingCycles='Y'" +
 				" canChangeNumberSequencingLanes='Y'" + 
-				" concentration='" + parentDocument.sampleSetupView.sampleConcentration.text + "'" +
+				" concentration=''" + 
 				" codeConcentrationUnit='ng/ul'" + 
 				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
@@ -245,37 +250,38 @@
         }		
         
         public function checkSamplesCompleteness():void {
+        	parentDocument.userWarnings = "";
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
         		if (currentState.indexOf('SolexaSamples') >= 0) {
         			
         			if (!parentDocument.isEditState() &&
 		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
-	        			if (sample.@name != null && sample.@name != '' &&
-			        		sample.@idSampleType != null && sample.@idSampleType != '' &&		        		
-			        		sample.@concentration != null && sample.@concentration != '' &&
-			        		sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
-			        		sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
-			        		sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-			        		sample.@idOrganism != null && sample.@idOrganism != '' &&
-			        		sample.@idSeqRunType != null && sample.@idSeqRunType != '' &&
-			        		sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '' &&
-			        		sample.@numberSequencingLanes != '' && sample.@numberSequencingLanes != '') {
+	        			if (isEntered(sample, "@name") &&
+	        			    isEntered(sample, "@idSampleType") &&
+	        			    isEntered(sample, "@fragmentSizeFrom") &&
+	        			    isEntered(sample, "@fragmentSizeTo") &&
+	        			    isEntered(sample, "@idSampleSource") &&
+	        			    isEntered(sample, "@idOrganism") &&
+	        			    isEntered(sample, "@idSeqRunType") &&
+	        			    isEntered(sample, "@idNumberSequencingCycles") &&
+	        			    isEntered(sample, "@numberSequencingLanes")) {
 			        		
 		        			completeCount++;
 		        		}
+		        		
 		        			   	
 		        	} else {
-	        			if (sample.@name != null && sample.@name != '' &&
-			        		sample.@idSampleType != null && sample.@idSampleType != '' &&		        		
-			        		sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&		        		
-			        		sample.@concentration != null && sample.@concentration != '' &&
-			        		sample.@fragmentSizeFrom != null && sample.@fragmentSizeFrom != '' &&
-			        		sample.@fragmentSizeTo != null && sample.@fragmentSizeTo != '' &&
-			        		sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-			        		sample.@idOrganism != null && sample.@idOrganism != '' &&
-			        		sample.@idSeqRunType != null && sample.@idSeqRunType != '' &&
-			        		sample.@idNumberSequencingReactions != null && sample.@idNumberSequencingReactions != '') {
+	        			if (isEntered(sample, "@name") &&
+			        		isEntered(sample, "@idSampleType") &&	        		
+			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
+			        		isEntered(sample, "@concentration") &&
+			        		isEntered(sample, "@fragmentSizeFrom") &&
+			        		isEntered(sample, "@fragmentSizeTo") &&
+			        		isEntered(sample, "@idSampleSource") &&
+			        		isEntered(sample, "@idOrganism") &&
+			        		isEntered(sample, "@idSeqRunType") &&
+			        		isEntered(sample, "@idNumberSequencingCycles")) {
 			        			
 			        			
 			        		if (!parentDocument.isEditState()) {
@@ -285,28 +291,39 @@
 		        			} else {
 		        				completeCount++;
 		        			}
+		        			
+		       			
 		        		 }
-		        		
+		        		 
 		        	}
 			   	
 		        } else if (currentState.indexOf('QCSamples') >= 0){
-	        		if (sample.@name != null && sample.@name != '' &&
-	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-	        			sample.@concentration != null && sample.@concentration != '' &&
-	        			sample.@codeConcentrationUnit != null && sample.@codeConcentrationUnit != '' &&
-	        			sample.@codeBioanalyzerChipType != null && sample.@codeBioanalyzerChipType != '') {
+	        		if (isEntered(sample, "@name") &&
+			        	isEntered(sample, "@idSampleType") &&		        		
+			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
+			        	isEntered(sample, "@concentration") &&
+	        			isEntered(sample, "@codeConcentrationUnit") &&
+	        			isEntered(sample, "@codeBioanalyzerChipType")) {
 	        			completeCount++;       				
 	        		}
+	        		 
         		} else {
-	        		if (sample.@name != null && sample.@name != '' &&
-	        			sample.@idSampleType != null && sample.@idSampleType != '' &&
-	        			sample.@idSamplePrepMethod != null && sample.@idSamplePrepMethod != '' &&
-	        			sample.@concentration != null && sample.@concentration != '' &&
-	        			sample.@idSampleSource != null && sample.@idSampleSource != '' &&
-	        			sample.@idOrganism != null && sample.@idOrganism != '') {
-	        			completeCount++;       				
+	        		if (isEntered(sample, "@name") &&
+			        	isEntered(sample, "@idSampleType") &&		        		
+			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
+			        	isEntered(sample, "@concentration") &&
+	        			isEntered(sample, "@idSampleSource") &&
+			        	isEntered(sample, "@idOrganism")) {
+			        	
+			        	if (parentDocument.getRequestCategory().@numberOfChannels == "2") {
+			        		if (isEntered(sample, "@label")) {
+			        			completeCount++;
+			        		}
+			        	} else {
+		        			completeCount++;       						        		
+			        	}	
 	        		}
+	        		
         			
         		}
         	}
@@ -319,6 +336,17 @@
         		isComplete = true;
         	}
         	
+        	// Make sure that sample concentration is valid
+    		for each (var s1:Object in parentDocument.samples) {
+    			var vr:ValidationResultEvent = parentDocument.concentrationValidator.validate(s1.@concentration);
+	    		if (vr.type == ValidationResultEvent.INVALID) {
+	    			parentDocument.userWarnings += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
+	    			isComplete = false;
+	    		}
+    		}
+    	
+        	
+        	
         	// If this is a Solexa request and the sample setup is complete,
         	// create the sequencing lanes based on the number of lanes 
         	// entered for each sample.
@@ -327,6 +355,7 @@
         		for each (var s:Object in parentDocument.samples) {
     				if (s.@numberSequencingLanes > 100) {
     					callLater(showMaxLaneError, [s.@numberSequencingLanes]);
+    					parentDocument.userWarnings += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
     					isValidNumberSeqLanes = false;
     					break;
     				}
@@ -368,9 +397,17 @@
         	
         
         }
+        private function isEntered(sample:Object, fieldName:String):Boolean {
+        	if (!sample.hasOwnProperty(fieldName) || sample[fieldName] == '') {
+        		return false;
+        	} else {
+        		return true;
+        	}
+        }
+
         
         private function showMaxLaneError(numberSeqLanes:String):void {
-			Alert.show("Number of lanes to sequence " + numberSeqLanes + " is too large.");
+			Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
         }
         
                 
@@ -481,6 +518,7 @@
 				numberSequencingCyclesCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.editable = true;
 				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
@@ -492,18 +530,21 @@
 				idSeqRunTypeCol.visible =  false;
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
+
         	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
 				idSeqRunTypeCol.visible = !parentDocument.isEditState(); 
-				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.visible = true;
+				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				sampleSourceColumn.visible = true;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = true;
 				fragmentSizeFromCol.visible = true;
 				fragmentSizeToCol.visible = true;
+				labelColumn.visible = false;
 				
 				if (!parentDocument.isEditState() &&
 				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
@@ -519,24 +560,29 @@
 				preppedByCoreCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = true;
+				concentrationUnitColumn.editable = true;
 				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = true; 
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
+				labelColumn.visible = false;
+				
 			} else {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
-				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.visible = true;
+				concentrationUnitColumn.editable = false;
 				sampleSourceColumn.visible = true;
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
 				fragmentSizeFromCol.visible = false;
 				fragmentSizeToCol.visible = false;
+				labelColumn.visible = !parentDocument.isEditState();
 			}
 			
 			if (!parentDocument.isEditState()) {
@@ -574,8 +620,19 @@
 	]]>
 </mx:Script>	
 	<mx:VBox width="100%" height="100%">
-			<mx:HBox id="headerContainer" width="100%">
-				<mx:Label id="samplesTitle" text="Samples  (fields in pink are required.)"/>
+			<mx:HBox id="headerContainer"  horizontalGap="0" width="100%">
+				<mx:Label id="samplesTitle" text="Samples"/>
+				<mx:Spacer width="30"/>
+				<mx:HBox  horizontalGap="0" paddingTop="0" paddingRight="0" verticalAlign="top" borderStyle="solid" borderColor="#FFFFFF">
+					<mx:Label text="( Required fields are"  fontStyle="italic" paddingRight="0"/>	
+				</mx:HBox>
+				<mx:HBox  paddingTop="0" verticalAlign="top" backgroundColor="#FFFFB9" borderStyle="solid" borderColor="#ffff00"  id="hbox1">
+					<mx:Label paddingTop="0" text="highlighted" id="label1" fontStyle="italic"/>
+				</mx:HBox>
+				<mx:HBox paddingTop="0" verticalAlign="top" borderStyle="solid" borderColor="#FFFFFF">
+					<mx:Label text=")" id="label2" fontStyle="italic"/>	
+				</mx:HBox>
+				
 				<mx:HBox width="100%" horizontalAlign="right">
 					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="false" click="showHideColumns()">
 					</mx:CheckBox>							
@@ -583,6 +640,7 @@
 					</mx:CheckBox>							
 				</mx:HBox>
 			</mx:HBox>
+			<mx:Spacer width="8"/>
 			<mx:HBox id="buttonsContainer">
 				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
@@ -592,7 +650,6 @@
 					
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" 
 				allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" 
-				selectionColor="#FFFFB9" rollOverColor="#C0C0C0"
 				horizontalScrollPolicy="auto" >
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
@@ -600,13 +657,82 @@
 					<mx:DataGridColumn headerText="Name" width="100" editorDataField="text" dataField="@name"  editable="true" rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@name')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@name', '@canChangeSampleName')}"      />          
-	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="60" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
+
+					<mx:DataGridColumn id="labelColumn" headerText="Label"  editable="false"
+	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="42"/>
+
+	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@concentration')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@concentration', '@canChangeSampleConcentration')}"      />          
-	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="74" headerText="Unit" dataField="@codeConcentrationUnit" 
+	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@codeConcentrationUnit', true)}"                
  	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@idConcentrationUnit')}"/>
+					
+					
+	 		 	  
+	 				<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" 
+						editable="false"
+						rendererIsEditor="false"
+ 	                   itemRenderer="{hci.flex.renderers.Label.create('@numberSequencingLanes')}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@numberSequencingLanes', '@canChangeNumberSequencingLanes')}"      />          
+
+
+					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@AGE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@AGE')}"/>          
+					<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="{parentDocument.request.@CELLLINE == 'Y'}"
+					    itemRenderer="{hci.flex.renderers.Label.createCustom('@CELLLINE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@CELLLINE')}"/>
+					<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="{parentDocument.request.@CELLTYPE == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@CELLTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@CELLTYPE')}"/>
+			 		<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="{parentDocument.request.@CLININFO == 'Y'}"
+			 		itemRenderer="{hci.flex.renderers.Label.createCustom('@CLININFO', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@CLININFO')}"/>
+					<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="{parentDocument.request.@COMPOUND == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@COMPOUND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@COMPOUND')}"/>
+					<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="{parentDocument.request.@DISSTATE == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@DISSTATE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@DISSTATE')}"/>
+					<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@DOSE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@DOSE')}"/>
+					<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="{parentDocument.request.@GENMOD == 'Y'}"
+					   itemRenderer="{hci.flex.renderers.Label.createCustom('@GENMOD',parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@GENMOD')}"/>
+					<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="{parentDocument.request.@GENOTYPE == 'Y'}"
+					itemRenderer="{hci.flex.renderers.Label.createCustom('@GENOTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@GENOTYPE')}"/>
+					<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="{parentDocument.request.@GROWTHCOND == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@GROWTHCOND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@GROWTHCOND')}"/>
+					<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="{parentDocument.request.@INDIV == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@INDIV', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@INDIV')}"/>
+					<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="{parentDocument.request.@ORGPART == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@ORGPART', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@ORGPART')}"/>
+					<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="{parentDocument.request.@SEX == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@SEX', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@SEX')}"/>
+					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@TEMP', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@TEMP')}"/>
+					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@TIME', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@TIME')}"/>
+					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"
+						itemRenderer="{hci.flex.renderers.Label.createCustom('@OTHER', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@OTHER')}"/>
+					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
+					itemRenderer="{hci.flex.renderers.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.renderers.TextInput.create('@treatment')}"/>
+ 	                   
+					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+
+
 					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@fragmentSizeFrom')}"                
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@fragmentSizeFrom', '@canChangeSampleType')}"      />          
@@ -619,11 +745,6 @@
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"                
    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles')}"/>
-					<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" 
-						editable="false"
-						rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@numberSequencingLanes')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@numberSequencingLanes', '@canChangeNumberSequencingLanes')}"      />          
 					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepByCore')}"                
  	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
@@ -670,24 +791,6 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
    	                   itemEditor="{ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>
 
-					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"/>
-					<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="{parentDocument.request.@CELLLINE == 'Y'}"/>
-					<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="{parentDocument.request.@CELLTYPE == 'Y'}"/>
-					<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="{parentDocument.request.@CLININFO == 'Y'}"/>
-					<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="{parentDocument.request.@COMPOUND == 'Y'}"/>
-					<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="{parentDocument.request.@DISSTATE == 'Y'}"/>
-					<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y'}"/>
-					<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="{parentDocument.request.@GENMOD == 'Y'}"/>
-					<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="{parentDocument.request.@GENOTYPE == 'Y'}"/>
-					<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="{parentDocument.request.@GROWTHCOND == 'Y'}"/>
-					<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="{parentDocument.request.@INDIV == 'Y'}"/>
-					<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="{parentDocument.request.@ORGPART == 'Y'}"/>
-					<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="{parentDocument.request.@SEX == 'Y'}"/>
-					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"/>
-					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"/>
-					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"/>
-					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
-					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 				</mx:columns>
 			</mx:DataGrid>
 
@@ -711,6 +814,13 @@
 		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
 			<mx:RemoveChild target="{addSampleButton}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
+			<mx:SetStyle target="{headerContainer}" name="verticalAlign" value="middle"/>
+			<mx:SetStyle target="{hbox1}" name="cornerRadius"/>
+			<mx:SetStyle target="{hbox1}" name="borderThickness" value="1"/>
+			<mx:SetStyle target="{label1}" name="fontStyle" value="italic"/>
+			<mx:SetStyle target="{label2}" name="fontStyle" value="italic"/>
+			<mx:SetProperty target="{samplesTitle}" name="text" value="Samples"/>
+
 		</mx:State>
 
 		<mx:State name="QCSamplesState" >

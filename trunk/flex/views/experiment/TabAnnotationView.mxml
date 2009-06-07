@@ -10,7 +10,8 @@
 		import hci.flex.events.DictionaryEvent;
 		import mx.collections.XMLListCollection;
 		import mx.controls.dataGridClasses.DataGridColumn;
-		
+		import hci.flex.renderers.Label;
+		import hci.flex.renderers.TextInput;
 		
 		private var dictionaryEditor:DictionaryEditor; 
 		
@@ -165,7 +166,7 @@
         // Edit sample annotation dictionary
         //
 		private function editSampleCharacteristicDictionary():void {
-			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.navExperimentView, DictionaryEditor, true));
+			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                  onDictionarySampleCharacteristicInitialized);
 			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
@@ -217,21 +218,28 @@
 					if (col.dataField == ("@" + annotation.@codeSampleCharacteristic)) {
 						exists = true;
 						break;
-					}    				
+					}    				 
        			}
        			if (!exists) {
        				
        				var newCol:AnnotationDataGridColumn = new AnnotationDataGridColumn();
-       				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
+       				var fieldName:String = "@" + annotation.@codeSampleCharacteristic;
+       				newCol.dataField  = fieldName;
        				newCol.headerText = annotation.@sampleCharacteristic;
        				newCol.visible    = annotation.@isSelected == "true" ? true : false;
-       				
+       				newCol.editable   = true;
+       				newCol.itemRenderer = hci.flex.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+       				newCol.itemEditor   = hci.flex.renderers.TextInput.create(fieldName);
+       				 
        				var columns:Array = parentDocument.samplesView.samplesGrid.columns;
-       				// Pop the description; we want it to be the last column
-       				var descCol:DataGridColumn = DataGridColumn(columns.pop());
-       				columns.push(newCol);
-       				columns.push(descCol);
-       				parentDocument.samplesView.samplesGrid.columns = columns;
+       				var newColumns:Array = new Array();
+       				for each(var column:DataGridColumn in columns) {
+       					if (column.dataField == "@description") {
+       						newColumns.push(newCol);
+       					}
+       					newColumns.push(column);
+       				}
+       				parentDocument.samplesView.samplesGrid.columns = newColumns;
 
 					// Add to confirm samples grid     (if this is a submit request, not an edit request)  				
        				if (!parentDocument.isEditState()) {
@@ -240,13 +248,16 @@
 	       				aCol.headerText = annotation.@sampleCharacteristic;
 	       				aCol.visible    = annotation.@isSelected == "true" ? true : false;
 	       				
-	       				var ccolumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
-	       				// Pop the description; we want it to be the last column
-	       				descCol = DataGridColumn(ccolumns.pop());
-	       				ccolumns.push(aCol);
-	       				ccolumns.push(descCol);
-	       				parentDocument.confirmView.samplesGridConfirm.columns = ccolumns;
-       					
+	       				var confirmColumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
+	       				var newConfirmColumns:Array = new Array();
+       			    	for each(var confirmCol:DataGridColumn in confirmColumns) {
+       						if (confirmCol.dataField == "@description") {
+       							newConfirmColumns.push(aCol);
+       						}
+       						newConfirmColumns.push(confirmCol);
+       			    	}
+       			    	parentDocument.confirmView.samplesGridConfirm.columns = newConfirmColumns;
+
        				}
        			}
        		}
@@ -278,18 +289,15 @@
 		<mx:HBox width="100%" height="100%" horizontalGap="24">
 			<mx:VBox height="100%" verticalGap="1">
 			    <mx:HBox>
-				    <mx:Image source="{parentApplication.iconBullet}"/>
 				    <mx:Text width="100%" height="100%">
-				    	<mx:text>Specify all sample characteristics you wish to annotate in subsequent columns:</mx:text>
+				    	<mx:text>(1) Specify all sample characteristics you wish to annotate in subsequent columns:</mx:text>
 				    </mx:Text>
 			    	
 			    </mx:HBox>
 			    <mx:HBox width="100%" height="100%">
-					<mx:Spacer width="18"/>
 					<mx:VBox width="100%" height="100%" verticalGap="0">
 					  <mx:DataGrid id="sampleAnnotationGrid" height="100%" 
 						dataProvider="{parentDocument.sampleCharacteristicEntries}" 
-						selectionColor="#FFFFFF"
 						showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20">
 					    <mx:columns>
 					        <mx:DataGridColumn headerText=" " 
@@ -330,15 +338,13 @@
 			    </mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox height="100%" verticalGap="2" width="230">
+			<mx:VBox height="100%" verticalGap="2" width="100%">
 				<mx:HBox width="100%">
-					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text  htmlText="Describe in general terms how the samples differ:" width="100%"/>
+					<mx:Text  htmlText="(2) Describe in general terms how the samples differ:" width="100%"/>
 					
 				</mx:HBox>
 				<mx:HBox height="100%" width="100%">
-					<mx:Spacer width="18"/>
-					<mx:TextArea id="treatmentTextInput" focusOut="propagateTreatment()" width="100%" height="100%">
+					<mx:TextArea id="treatmentTextInput" focusOut="propagateTreatment()" width="100%" height="100">
 					</mx:TextArea>
 					
 				</mx:HBox>
