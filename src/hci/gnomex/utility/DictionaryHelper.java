@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Label;
 import hci.gnomex.model.MicroarrayCategory;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.Organism;
@@ -57,6 +58,7 @@ public class DictionaryHelper implements Serializable {
   private Map              billingStatusMap = new HashMap();
   private Map              billingPeriodMap = new HashMap();
   private Map              sampleTypeToDefaultSamplePrepMethodMap = new HashMap();
+  private Map              labelMap = new HashMap();
   
   
   
@@ -186,6 +188,11 @@ public class DictionaryHelper implements Serializable {
         sampleTypeToDefaultSamplePrepMethodMap.put(x.getIdSampleType(), x);        
       }
     }
+    List labels = sess.createQuery("SELECT l from Label as l").list();
+    for(Iterator i = labels.iterator(); i.hasNext();) {
+      Label l = (Label)i.next();
+      labelMap.put(l.getIdLabel(), l.getLabel());
+    } 
     
    }
   
@@ -376,6 +383,13 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (id != null) {
       name = (String)genomeBuildMap.get(id);
+    }
+    return name;
+  }
+  public String getLabel(Integer id) {
+    String name = "";
+    if (id != null) {
+      name = (String)labelMap.get(id);
     }
     return name;
   }
