@@ -8,13 +8,13 @@
 		
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
-				concentrationUnitConfirmColumn.visible = false;
+				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				sampleSourceConfirmColumn.visible = true;
 				
 				fragmentSizeFromConfirmCol.visible = true;
-				fragmentSizeFromConfirmCol.visible = true;
+				fragmentSizeToConfirmCol.visible = true;
 				preppedByCoreCol.visible = true;
 				
 				if (!parentDocument.isEditState() &&
@@ -33,7 +33,7 @@
 				sampleSourceConfirmColumn.visible = false;
 				preppedByCoreCol.visible = false;
 			} else {
-				concentrationUnitConfirmColumn.visible = false;
+				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
 				sampleSourceConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
@@ -79,28 +79,14 @@
 			
 			<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesConfirmContainer">
 				<mx:Label text="{parentDocument.samples.length + ' Samples'}" id="label1"/>
-				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" backgroundAlpha="0" borderStyle="solid" selectionColor="#FFFFB9" rollOverColor="#C0C0C0" horizontalScrollPolicy="auto" height="100%">
+				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="auto" height="100%">
 					<mx:columns>
 					    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
 	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@codeConcentrationUnit')}"/>
-						<mx:DataGridColumn id="fragmentSizeFromConfirmCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom">
-						</mx:DataGridColumn>
-						<mx:DataGridColumn id="fragmentSizeToConfirmCol" headerText="Size To" width="54"  dataField="@fragmentSizeTo">
-						</mx:DataGridColumn>
-  					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
-			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod')}"/>
-			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
-			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
-			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource')}"/>
-		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+
 						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="false" visible="{parentDocument.request.@AGE == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="false" visible="{parentDocument.request.@CELLLINE == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="false" visible="{parentDocument.request.@CELLTYPE == 'Y' ? true : false}"/>
@@ -119,13 +105,31 @@
 						<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="false" visible="{parentDocument.request.@OTHER == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 						<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+
+
+
+						<mx:DataGridColumn id="fragmentSizeFromConfirmCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="fragmentSizeToConfirmCol" headerText="Size To" width="54"  dataField="@fragmentSizeTo">
+						</mx:DataGridColumn>
+  					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
+			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod')}"/>
+			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
+			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
+			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource')}"/>
+		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
+	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>
 				</mx:DataGrid>				
 			</mx:VBox>
 			
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
 				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}"/>
-				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" editable="false" dataProvider="{parentDocument.hybs}"  backgroundAlpha="0" borderStyle="solid" rollOverColor="#C0C0C0" selectionColor="#FFFFB9">
+				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" editable="false" dataProvider="{parentDocument.hybs}"  backgroundAlpha="0" borderStyle="solid" >
 					<mx:columns>
 					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="70" labelFunction="parentDocument.getHybsGridRowNumber"/>
 					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>

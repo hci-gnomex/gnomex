@@ -3,7 +3,7 @@
 	label="Experiments" width="100%" height="100%" 
 	xmlns:views="views.*" xmlns:experiment="views.experiment.*"
 	cornerRadius="10"  >
- 
+     
 
   <mx:HTTPService  
     id="getProjectRequestList" 
@@ -97,8 +97,8 @@
 
    <mx:HTTPService  
     id="getLab" 
-    url="GetLab.gx"
-    destination="getLab"
+    url="GetLab.gx" 
+    destination="getLab" 
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetLab(event)"
@@ -170,7 +170,7 @@
 			if (parentApplication.hasPermission("canAccessAnyObject")) {
 				currentState = "AdminState";
 			} else if (parentApplication.isGuestMode()) {
-				currentState = "GuestState";
+				currentState = "GuestState"; 
 			} else {
 				currentState = "";
 			}
@@ -562,8 +562,8 @@
         }
         
  
-
-		
+          
+		  
 		private function onGetRequest(event:ResultEvent):void {
 			if (getRequest.lastResult.name() == "SUCCESS") {
 				Alert.show("Experiment not found");
@@ -880,7 +880,7 @@
         }
 
        	private function onSaveRequestProject(event:ResultEvent): void {
-   			dropProject = null;
+   			dropProject = null;  
    			dragRequest = null;
        		if (saveRequestProject.lastResult.name() == "SUCCESS") {
 				this.refreshExperimentsAfterDrag();
@@ -888,7 +888,7 @@
         	} else {
         		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
         	}	    	
-	    }
+	    } 
 	    
 	    public function deleteExperiment():void {
 	    	var params:Object = new Object();
@@ -960,13 +960,13 @@
 			this.lastYearCheckbox.selected  = false;
 		} else if (checkBoxNumber == 3) {
 			this.lastWeekCheckbox.selected  = false;
-			this.lastMonthCheckbox.selected = false;
-		} 
-	}
+			this.lastMonthCheckbox.selected = false; 
+		}   
+	}   
 	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
 		if (checkBoxNumber == 1) {
 			this.publicExperimentsOtherGroupsCheckbox.selected = false;
-		} else if (checkBoxNumber == 2) {
+		} else if (checkBoxNumber == 2) { 
 			this.myExperimentsCheckbox.selected = false;
 		} 
 	}
@@ -989,13 +989,13 @@
    	
    	<mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
 	<mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
-    
+     
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
   <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="0">
  
-	<mx:HBox horizontalGap="0" paddingTop="10" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
-	    <mx:HBox width="100%"  paddingTop="2" paddingBottom="2" cornerRadius="5" borderStyle="solid" horizontalGap="12" borderColor="#A7AAAC" id="hbox4" backgroundColor="#A7AAAC">
+	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
+	    <mx:HBox width="100%" id="hbox4" styleName="navBox">
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 		    	  <mx:RadioButtonGroup id="experimentRadioGroup"/>
 		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0">
@@ -1036,10 +1036,10 @@
 	    	
 	    </mx:HBox>
 	</mx:HBox>		
-    
+     
 	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 	
-	
+	   
 			
 			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" >
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
@@ -1057,14 +1057,14 @@
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
 							id="browseTree" click="onBrowseTree();" 
-							borderStyle="none"
+							borderStyle="solid"
 							labelField="@label"
-							labelFunction="getTreeLabel"
+							labelFunction="getTreeLabel" 
 					        dragEnabled="true" 
 					        dropEnabled="true" 
 					        dragMoveEnabled="true"
 							dragDrop="onDragDrop(event);" 
-							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
+							iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
 						
 					</mx:VBox>
 
@@ -1091,7 +1091,7 @@
 			</mx:Panel> 
 
 
-
+ 
 	    
  
 		

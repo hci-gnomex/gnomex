@@ -227,11 +227,7 @@
 			getProject.send(params);
 		}
 		
-		private function onPickStartingPoint():void {
-			if (this.cloneRequestRadio.selected) {
-				getProjectRequestList.send();
-			}
-		}
+
 		
 		
 		private function getMembersOfLab():void {
@@ -313,7 +309,7 @@
     		if (parentDocument.theTab.contains(parentDocument.annotationView)) {
         		parentDocument.annotationView.enabled = isComplete;        			
     		}
-    		this.cloneRequestRadio.enabled = isComplete;
+
     		
     		callLater(postSetupCompleteness, [isComplete]);
     		
@@ -351,45 +347,30 @@
 </mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  filterFunction="filterBillingAccount"/>
 	
-		<mx:VBox width="100%" height="100%" verticalGap="22" paddingTop="10">
-			<mx:VBox width="100%" verticalGap="1">
-			    <mx:HBox width="100%" horizontalGap="0">
-			    <mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
-			    <mx:Label text="Select a service request category:" width="220"/>
-					<mx:HBox width="100%" horizontalGap="12">
-						<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2" width="160">
-						    <mx:HBox width="100%" horizontalAlign="center">
-							    <mx:Image source="assets/microarray_black.png" />						    	
-						    </mx:HBox>
-						    <mx:RadioButtonGroup id="requestTypeGroup" />
-						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="100%"/>							
-						    </mx:HBox>
-						    <mx:HBox>
-								<mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="100%"/>							
-							</mx:HBox>
-						</mx:VBox>
-						<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" width="152">									
-						    <mx:HBox width="100%" horizontalAlign="center">
-						    	<mx:Image source="assets/chart_curve.png"/>
-						    </mx:HBox>
-						    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
-						    <mx:HBox paddingTop="0">
-						    	<mx:Spacer width="10"/>												
-						    </mx:HBox>						
-						</mx:VBox>
-						<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" width="152">
-						    <mx:HBox width="100%" horizontalAlign="center">
-							    <mx:Image source="assets/solexa.png"/>						    	
-						    </mx:HBox>
-							<mx:RadioButton groupName="requestTypeGroup" label="Illumina Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
-						</mx:VBox>
-					</mx:HBox>
-			    </mx:HBox>
-			</mx:VBox>
+	<mx:NumberValidator id="labValidator"
+        source="{this.labCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" /> 
+     <mx:NumberValidator id="appUserValidator"
+        source="{this.appUserCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" /> 
+     <mx:NumberValidator id="billingAccountValidator"
+        source="{this.billingAccountCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="0" />         
+     <mx:NumberValidator id="projectValidator"
+        source="{this.projectCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" />           
+          
+		<mx:VBox width="100%" height="100%" verticalGap="32" paddingTop="10">
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="{parentApplication.iconBullet}" autoLoad="true"/>
-				<mx:Label text="Verify your lab affiliation:" width="220"/>
+				<mx:Label text="(1) Verify your lab:" width="170"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
 					width="300"
@@ -406,21 +387,24 @@
 			</mx:HBox>
 			<mx:VBox width="100%" verticalGap="0"> 
 				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Label text="Select the account to be billed:" width="220"/>
-					<mx:ComboBox labelField="@accountName" width="300" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()">
+					<mx:Text  width="170" >
+					  <mx:htmlText>
+					  	<![CDATA[(2) Pick the account to be <br> billed:]]>
+					  </mx:htmlText>
+					</mx:Text>
+					<mx:ComboBox labelField="@accountName" width="430" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>
 				<mx:HBox width="100%">
-				    <mx:Spacer width="220"/>
+				    <mx:Spacer width="160"/>
 				    <mx:Text width="100%">
 				        <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3363; Fax 585-0900)]]></mx:htmlText>
 					</mx:Text>
 					
 				</mx:HBox>
 				<mx:HBox width="100%">
-				    <mx:Spacer width="220"/>
+				    <mx:Spacer width="160"/>
 					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff"> 
 						<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.pdf'), '_blank');</mx:click>
 					</mx:LinkButton>
@@ -431,9 +415,45 @@
 				
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text width="220" height="50">
-					<mx:htmlText>Select a project folder for organizing this request:</mx:htmlText>
+			<mx:Label text="(3) Select a service:" width="170"/>
+			<mx:HBox id="requestTypeBox" horizontalGap="8" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="1" paddingBottom="0">
+				<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
+				    <mx:HBox width="100%" horizontalAlign="center">
+				     <mx:Image source="assets/microarray_black.png" />						    	
+				    </mx:HBox>
+				    <mx:RadioButtonGroup id="requestTypeGroup" />
+				    <mx:HBox>
+				    <mx:RadioButton groupName="requestTypeGroup" label="Agilent Microarray" value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="100%"/>							
+				    </mx:HBox>
+				</mx:VBox>
+				<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
+				    <mx:HBox width="100%" horizontalAlign="center">
+				     <mx:Image source="assets/microarray_black.png" />						    	
+				    </mx:HBox>
+				    <mx:HBox>
+				    <mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="100%"/>							
+				    </mx:HBox>
+				</mx:VBox>
+				<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2">									
+				    <mx:HBox width="100%" horizontalAlign="center">
+				    	<mx:Image source="assets/chart_curve.png"/>
+				    </mx:HBox>
+				    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0"/>
+				    <mx:HBox paddingTop="0">
+				    	<mx:Spacer width="10"/>												
+				    </mx:HBox>						
+				</mx:VBox>
+				<mx:VBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2">
+				    <mx:HBox width="100%" horizontalAlign="center">
+				     <mx:Image source="assets/solexa.png"/>						    	
+				    </mx:HBox>
+					<mx:RadioButton groupName="requestTypeGroup" label="Illumina Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa"/>																							
+				</mx:VBox>
+			</mx:HBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0">
+				<mx:Text width="170" height="50">
+					<mx:htmlText>(4) Pick a project folder for organizing this request:</mx:htmlText>
 				</mx:Text>
 				<mx:HBox verticalGap="2">
 				    <mx:VBox verticalGap="2" paddingRight="20">
@@ -452,19 +472,6 @@
 				</mx:HBox>
 			</mx:HBox>
 			<mx:VBox width="100%" verticalGap="1">
-			    <mx:HBox horizontalGap="0">
-			    <mx:Image source="{parentApplication.iconBullet}"/>
-			    <mx:Text text="Select a starting point for your request:" width="220"/>
-			    	<mx:VBox verticalGap="2" width="100%">
-						<mx:RadioButton groupName="requestTemplateGroup" label="Initiate a new experiment" selected="true" id="submitNewRequestRadio"/>							
-						<mx:HBox width="100%">
-							<mx:RadioButton groupName="requestTemplateGroup" label="Use a previous experiment as a template for this request" click="onPickStartingPoint()" id="cloneRequestRadio"/>						
-							<mx:Label text="{parentDocument.requestToClone.@label}" color="#0000ff" width="100%"/>
-							
-						</mx:HBox>
-			    		
-			    	</mx:VBox>
-			    </mx:HBox>
 			</mx:VBox>
 			
 		</mx:VBox>

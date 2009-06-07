@@ -65,12 +65,6 @@
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
-       	private function propagateSampleConcentration():void {
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@concentration = this.sampleConcentration.text;
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
        	private function propagateFragmentSizeFrom():void {       		
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@fragmentSizeFrom = parentDocument.isSolexaState() ? this.fragmentSizeFrom.text : '';
@@ -226,8 +220,20 @@
           	propagateChipType();       	
           	// check for sampleSetup completeness
           	checkSampleSetupCompleteness(); 
+          	
+            checkRequiredChipType();
         }
         
+        public function checkRequiredChipType():void {
+			// Required field
+          	if (this.getSelectedCodeBioanalyzerChipType() == '') {
+          		chipTypeBox.setStyle("borderStyle", "solid");
+          	} else {
+          		chipTypeBox.setStyle("borderStyle", "none");
+          	}        	
+        }
+        
+
 
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
@@ -235,7 +241,6 @@
         		isComplete = true;
         	}else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&	        	    
@@ -256,7 +261,6 @@
         	
         	} else if (parentDocument.isQCState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
 	        	    	
@@ -269,7 +273,6 @@
 	        	}
         	} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleConcentration.text != null && this.sampleConcentration.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
@@ -353,20 +356,48 @@
 		
 	]]>
 </mx:Script>
+
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
-         required="false" allowNegative="false" domain="int" maxValue="100" />
+         required="true" allowNegative="false" domain="int" maxValue="100" />
     <util:FragmentSizeRangeValidator id="fragmentSizeFromValidator" source="{fragmentSizeFrom}" property="text" 
-        required="false" allowNegative="false" domain="int"   sizeRangeLowField="{fragmentSizeFrom} " sizeRangeHiField="{fragmentSizeTo}" />
+        required="true" allowNegative="false" domain="int"   sizeRangeLowField="{fragmentSizeFrom} " sizeRangeHiField="{fragmentSizeTo}" />
     <util:FragmentSizeRangeValidator id="fragmentSizeToValidator" source="{fragmentSizeTo}" property="text" 
-        required="false" allowNegative="false" domain="int" sizeRangeLowField="{fragmentSizeFrom} " sizeRangeHiField="{fragmentSizeTo}"/>
-    <mx:NumberValidator id="concentrationValidator" source="{this.sampleConcentration}" property="text" 
-        required="false" allowNegative="false" domain="int" maxValue="9999"/>
+        required="true" allowNegative="false" domain="int" sizeRangeLowField="{fragmentSizeFrom} " sizeRangeHiField="{fragmentSizeTo}"/>
+    <mx:NumberValidator id="organismValidator"
+        source="{this.sampleOrganismCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" />
+    <mx:NumberValidator id="sampleTypeValidator"
+        source="{this.sampleTypeCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" />
+    <mx:NumberValidator id="sampleSourceValidator"
+        source="{this.sampleSourceCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex" 
+        minValue="1" />
+    <mx:NumberValidator id="samplePrepMethodValidator"
+        source="{this.samplePrepMethodCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" />
+   	<mx:NumberValidator id="seqRunTypeValidator"
+        source="{this.seqRunTypeCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" />   
+    <mx:NumberValidator id="numberSeqCyclesValidator"
+        source="{this.numberSequencingCyclesCombo}"
+        lowerThanMinError="This field is required."
+        property="selectedIndex"
+        minValue="1" />    
         
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 		<mx:VBox width="100%" height="100%"  paddingTop="12"  verticalGap="20" id="sampleSetupContainer">
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="How many samples will you be submitting?" width="310"  id="label5"/>
+				<mx:Label text="(1) How many samples will you be submitting?" width="310"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
 					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
 >
@@ -374,38 +405,24 @@
 				</mx:TextInput>							
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Which category best describes your samples?" width="310" id="label8"/>
+				<mx:Label text="(2) Which category best describes your samples?" width="310" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
 					change="samplePrepMethodCombo.selectedIndex=0;parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();propagateSampleType();parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();" dataProvider="{parentDocument.filteredSampleTypeList}">							
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Which organism is the source for these samples?" width="310" id="label7"/>
+				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentDocument.filteredGenomeBuildList.refresh()">							
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleSourceContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Which term best describes the sample source?" width="310" id="label6"/>
+				<mx:Label text="(4) Which term best describes the sample source?" width="310" id="label6"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleSourceCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSampleSource();checkSampleSetupCompleteness()" dataProvider="{parentDocument.sampleSourceList}">							
 				</mx:ComboBox>
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="concentrationContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Enter an approximate concentration of the samples:" width="310" id="label4"/>
-				<mx:TextInput width="40" id="sampleConcentration"
-					 valid="handleValidConcentration(event)" invalid="handleInvalidConcentration(event)" 
->
-					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()</mx:focusOut>
-				</mx:TextInput>							
-				<mx:Label text="ng/µL" id="concentrationLabel"/>
-			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Label text="Select the nucleic acid purification/extraction method:" width="310" id="label2"/>
+				<mx:Label text="(5) Select the nucleic acid purification/extraction method:" width="310" id="label2"/>
 				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();" dataProvider="{parentDocument.samplePrepMethodList}">															
 				</mx:ComboBox>
 			</mx:HBox>
@@ -418,15 +435,12 @@
         <mx:State name="QCSetupState">
         	<mx:RemoveChild target="{sampleOrganismContainer}"/>
         	<mx:RemoveChild target="{sampleSourceContainer}"/>
-        	<mx:RemoveChild target="{concentrationLabel}"/>
         	<mx:AddChild  relativeTo="{sampleSetupContainer}">
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
 					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Image source="{parentApplication.iconBullet}"/>
-						<mx:Label text="Select a Bioanalyzer Chip Type:" width="340"/>
+						<mx:Label text="(4) Select a Bioanalyzer Chip Type:" width="340"/>
 					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:Spacer width="8"/>								
+					<mx:HBox id="chipTypeBox"  width="100%" styleName="requiredBoxThick" >							
 						<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
 							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot;)}</mx:dataProvider>
 							<mx:columns>
@@ -446,7 +460,7 @@
 						</mx:DataGrid>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
-						<mx:HBox borderStyle="inset" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
 							<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
 							</mx:Text>
 						</mx:HBox>
@@ -455,26 +469,23 @@
 				</mx:VBox>
         		
         	</mx:AddChild>
-        	<mx:SetProperty target="{label4}" name="text" value="Enter an approximate sample concentration:"/>
-        	<mx:AddChild relativeTo="{concentrationContainer}" position="lastChild">
-        		<mx:Label text="ng/µL" id="concentrationLabel0"/>
-        	</mx:AddChild>
+        	<mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
+        	<mx:SetProperty target="{label8}" name="text" value="(2) Which category best describes your samples?"/>
+        	<mx:SetProperty target="{label2}" name="text">
+        		<mx:value>(3) Select the nucleic acid purification/extraction method:</mx:value>
+        	</mx:SetProperty>
+        	<mx:SetProperty target="{label5}" name="width" value="334"/>
+        	<mx:SetProperty target="{label2}" name="width" value="334"/>
+        	<mx:SetProperty target="{label8}" name="width" value="334"/>
         	
         	
         </mx:State>
         <mx:State name="SolexaSetupState">
-            <mx:AddChild relativeTo="{concentrationContainer}">
-                <mx:HBox width="100%" horizontalGap="0">
-					<mx:HBox id="totalSampleWarning" visible="false" borderStyle="outset" verticalAlign="middle" horizontalAlign="center" width="100%" height="100%" paddingBottom="2">
-						<mx:Text  width="100%" text="Warning:  At least 25 ng of nucleic acid is recommended for Solexa sequencing." color="#AB482A" fontWeight="bold" paddingLeft="10" textDecoration="none" visible="true">									
-						</mx:Text>
-					</mx:HBox>
-                </mx:HBox>
-            </mx:AddChild>
-            <mx:AddChild relativeTo="{concentrationContainer}" position="after">
+         	
+            <mx:AddChild relativeTo="{sampleSourceContainer}" position="after">
+            
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Text text="Do you want the Core Facility to perform library preparation on the samples?" width="310" />
+					<mx:Text text="(6) Do you want the Core Facility to perform library preparation on the samples?" width="310"  id="text1"/>
 					<mx:VBox width="100%">
 					    <mx:HBox id="hbox2" width="100%">
 							<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please prep library" selected="true"
@@ -498,20 +509,14 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{sampleSetupContainer}" >
 				<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-					<mx:Image source="{parentApplication.iconBullet}"/>
-					<mx:Label text="Select the desired number of sequencing cycles:" width="310" />
+					<mx:Label text="(8) Select the desired number of sequencing cycles:" width="310"  id="label10"/>
 					<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();propagateNumberSequencingCycles();checkSampleSetupCompleteness();">
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>            	  
             </mx:AddChild>
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
-            <mx:SetEventHandler target="{sampleConcentration}" name="change">
-            </mx:SetEventHandler>
             <mx:SetProperty target="{sampleOrganismCombo}" name="width" value="170"/>
-            <mx:SetEventHandler target="{sampleConcentration}" name="focusOut">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSampleConcentration();checkSampleSetupCompleteness()</mx:handler>
-            </mx:SetEventHandler>
             <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();parentDocument.checkForSampleTypeCompatibility();parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();selectDefaultSeqRunType()</mx:handler>
             </mx:SetEventHandler>
@@ -520,8 +525,7 @@
             </mx:SetEventHandler>
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0">
-                	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Do you want the sequence data to be aligned?" width="310" />
+                	<mx:Label text="(9) Do you want the sequence data to be aligned?" width="310"  id="label11"/>
                 	<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
                 		<mx:HBox width="100%" horizontalGap="2">
                 			<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;};checkSampleSetupCompleteness();}" selected="true"/>
@@ -536,15 +540,13 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="numberOfCyclesContainer1" width="100%" horizontalGap="0">
-                	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Provide any special analysis instructions:" width="310" />
+                	<mx:Label text="(10) Provide any special analysis instructions:" width="310"  id="label12"/>
                 	<mx:TextArea id="analysisInstructions" width="100%" focusOut="propagateAnalysisInstructions()" height="32"/>
                 </mx:HBox>
             </mx:AddChild>
             <mx:AddChild relativeTo="{isPreppedContainer}" position="before">
                 <mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer0">
-                	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Enter the approximate size range of your samples:" width="310" id="label0"/>
+                	<mx:Label text="(5) Enter the approximate size range of your samples:" width="310" id="label0"/>
                 	<mx:TextInput id="fragmentSizeFrom" width="50" 
                 		valid="handleValidFragmentSizeFrom(event)" invalid="handleInvalidFragmentSizeFrom(event)"
                 		change="propagateFragmentSizeFrom();checkSampleSetupCompleteness();"/>
@@ -560,8 +562,7 @@
             </mx:SetEventHandler>
             <mx:AddChild relativeTo="{numberOfCyclesContainer}" position="before">
                 <mx:HBox id="seqRunTypeContainer" width="100%" horizontalGap="0">
-                	<mx:Image source="{parentApplication.iconBullet}"/>
-                	<mx:Label text="Select the sequencing run type:" width="310" />
+                	<mx:Label text="(7) Select the sequencing run type:" width="310"  id="label9"/>
                 	<mx:ComboBox id="seqRunTypeCombo" labelField="@display" 
                 		change="parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();propagateSeqRunType();checkSampleSetupCompleteness();" 
                 		width="300" 
@@ -575,6 +576,14 @@
             <mx:RemoveChild target="{samplePrepContainer}"/>
             <mx:SetProperty target="{samplePrepMethodCombo}" name="width" value="400"/>
             <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="false"/>
+            <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
+            <mx:SetProperty target="{label8}" name="text" value="(2) Which category best describes your samples?"/>
+            <mx:SetProperty target="{label7}" name="text">
+                <mx:value>(3) Which organism is the source for these samples?</mx:value>
+            </mx:SetProperty>
+            <mx:SetProperty target="{label6}" name="text" value="(4) Which term best describes the sample source?"/>
+
+			
         </mx:State>
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
             <mx:SetStyle target="{alignMoreContainer}" name="verticalGap" value="0"/>
@@ -586,6 +595,24 @@
             <mx:RemoveChild target="{samplePrepMethodCombo}"/>
             <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{samplePrepMethodCombo}"/>
             <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="true"/>
+            <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
+            <mx:SetProperty target="{label8}" name="text" value="(2) Which category best describes your samples?"/>
+            <mx:SetProperty target="{label7}" name="text">
+                <mx:value>(3) Which organism is the source for these samples?</mx:value>
+            </mx:SetProperty>
+            <mx:SetProperty target="{label6}" name="text" value="(4) Which term best describes the sample source?"/>
+            <mx:SetProperty target="{label0}" name="text">
+                <mx:value>(5) Enter the approximate size range of your samples:</mx:value>
+            </mx:SetProperty>
+            <mx:SetProperty target="{text1}" name="text">
+                <mx:value>(6) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
+            </mx:SetProperty>
+            <mx:SetProperty target="{label9}" name="text" value="(7) Select the sequencing run type:"/>
+            <mx:SetProperty target="{label10}" name="text">
+                <mx:value>(8) Select the desired number of sequencing cycles:</mx:value>
+            </mx:SetProperty>
+            <mx:SetProperty target="{label11}" name="text" value="(9) Do you want the sequence data to be aligned?"/>
+            <mx:SetProperty target="{label12}" name="text" value="(10) Provide any special analysis instructions:"/>
         </mx:State>
    	
    </mx:states>
