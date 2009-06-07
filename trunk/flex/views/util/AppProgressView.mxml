@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow 
-	xmlns:mx="http://www.adobe.com/2006/mxml" title="Welcome to GNomEx"  width="270" height="70"  label="horizontal" horizontalAlign="center" verticalAlign="middle"  
-	  styleName="appProgress" color="#000000" modalTransparency=".7"  paddingTop="10" creationComplete="{label2.visible = true}" >
-	  
-	  <mx:HBox horizontalGap="0">
-		<mx:Text id="label1" text="Loading application settings" color="#FFFCFC" visible="true"  paddingRight="0"/>
-		<mx:Text id="label2" text="................." color="#FFFCFC" visible="false" showEffect="{fadeIn}" hideEffect="{fadeOut}"/>
-	  	
-	  </mx:HBox>
-	  	
-  
-    <mx:WipeRight id="fadeIn" duration="2000"/>
-	<mx:WipeRight id="fadeOut" duration="2000"/>
-	 
-</mx:TitleWindow>
+<mx:Panel 
+	xmlns:mx="http://www.adobe.com/2006/mxml" width="216" height="68"  
+	label="horizontal" horizontalAlign="center" verticalAlign="middle"  
+	styleName="appProgressWindow" borderStyle="solid" cornerRadius="3" 
+	modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7">
+	 <mx:ProgressBar id="bar"  
+	 	   styleName="appProgressBar"
+            minimum="0" 
+            visible="true"
+            maximum="100"
+            fontWeight="normal"  
+		  	labelPlacement="top" 
+		  	textAlign="left" 
+            direction="right" mode="manual" width="100%" 
+            height="100%" label="Loading application settings..." />
+
+</mx:Panel>
