@@ -746,15 +746,15 @@
 			
 			<mx:Panel label="Analysis" width="235" height="100%" title="Analysis" id="navPanel" >
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
-					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
+					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getAnalysisGroupList.lastResult}" 
 							showRoot="false" 
 							id="browseTree" click="onBrowseTree();" 
-							borderStyle="none"
+							borderStyle="solid"
 							labelField="@label"
 							labelFunction="getTreeLabel"
-							iconFunction="getTreeIcon" selectionColor="#FBF5B5" rollOverColor="#CECECE" backgroundAlpha="1"></mx:Tree>
+							iconFunction="getTreeIcon" backgroundAlpha="1"></mx:Tree>
 						<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
 						
 					</mx:VBox>

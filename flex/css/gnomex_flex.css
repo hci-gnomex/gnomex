@@ -5,20 +5,85 @@ HCI Blue = 00529F
 HCI Teal = 00A9B9
 HCI Cream = F2EFD9
 */
+ 
+
+.errorTip { 
+			borderColor: #ffffcc;
+			paddingTop: 0;
+			paddingBottom: 0;
+			paddingLeft: 4;
+			paddingRight: 4;
+			fontWeight: normal;
+			fontSize: 9px;
+			backgroundColor: #ffffcc;
+			cornerRadius: 8;
+	        color: #000000;
+		}
+ToolTip{
+     borderSkin: ClassReference("views.util.SmallToolTip");
+}
+
+.requiredBox {
+	borderColor: #F4F588;
+	borderStyle: solid;
+	borderThickness: 1;
+}
+
+.requiredBoxThick {
+	borderColor: #F4F588;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+.requiredCell {
+	backgroundColor: #FFFFB9;
+}
+
+ComboBox {
+	errorColor: #ffff00;
+}
+TextInput {
+	errorColor: #ffff00;
+}
+
+List {
+	selectionColor: #88AFE8;
+	rollOverColor: #D2E3FC;
+
+  paddingBottom: 0;   
+  paddingLeft: 0;   
+  paddingTop: 0;   
+  paddingRight: 0;   
+
+}
+
+DataGrid {
+	headerStyleName: dataGridHeader;	
+	selectionColor: #88AFE8;
+	rollOverColor: #D2E3FC;
+}
+
+Tree {
+	selectionColor: #88AFE8;
+	rollOverColor: #D2E3FC;
+	dropShadowEnabled: true;
+}
+AdvancedDataGrid {
+	selectionColor: #88AFE8;
+	rollOverColor: #D2E3FC;
+}
 
 Panel {
    borderThicknessLeft: 4;
-   borderThicknessTop: 4;
+   borderThicknessTop: 0;
    borderThicknessBottom: 4;
    borderThicknessRight: 4;
    roundedBottomCorners: true;
    headerHeight: 22;
-   /*headerColors: #548db8, #97b8d2;*/
-   headerColors: #81817f, #b9b8ad;
+   backgroundColor: #C3C2B7;
+   border-color: #C3C2B7;
    titleStyleName: panelTitle;
-   border-color: #CBCAC1;
    controlBarStyleName: panelControlBar;
-   backgroundColor: #CBCAC1;
    statusStyleName: panelStatus;
    borderAlpha: 1;
    dropShadowEnabled: true;
@@ -28,13 +93,22 @@ Panel {
 }
 .panelTitle {
 	fontWeight: normal;
-	color: #FFFFFF;
 	fontStyle: normal;
 }
 
+.navBox {
+	backgroundColor: #C3C2B7;
+	borderColor: #C3C2B7;
+	borderStyle: solid;
+	cornerRadius: 5;
+	horizontalGap: 12;
+	paddingBottom: 2;
+	paddingTop: 2;
+}
+
 TitleWindow {
-	borderColor: #CBCAC0;
-	backgroundColor: #CBCAC1;
+	borderColor: #C3C2B7;
+	backgroundColor: #C3C2B7;
 	cornerRadius: 4;
 	borderThicknessTop: 0;
 	borderThicknessBottom: 4;
@@ -47,7 +121,6 @@ TitleWindow {
 .titleWindowTitle
 {
 	fontWeight: normal;
-	color: #FFFFFF;
 }
 
 Alert {
@@ -61,10 +134,6 @@ Alert {
 }
 
 
-
-TabNavigator {
-	 dropShadowEnabled: true;
-}
  
 HDividedBox {
 	horizontalGap: 6;
@@ -114,10 +183,6 @@ Button {
         fontWeight: normal;
 }
 
-
-DataGrid {
-	headerStyleName: dataGridHeader;
-}
 .dataGridHeader {
 	    fontWeight: normal;
 }
@@ -207,8 +272,8 @@ TextArea {
 }
 .navTabNavigator {
 	 backgroundAlpha:            1.0;
-	 backgroundColor: #CBCAC1;
-	 borderColor: #CBCAC1;
+	 backgroundColor: #C3C2B7;
+	 borderColor: #C3C2B7;
 	 borderStyle: solid;
 	 color: #74878B;
 	 tabStyleName: navTabHeader;
@@ -254,21 +319,34 @@ TextArea {
 
 }
 
-.appProgress {
-	headerColors: #548db8, #a3bbcd; 
-   borderThicknessLeft: 4;
-   borderThicknessTop: 0;
-   borderThicknessBottom: 4;
-   borderThicknessRight: 4;
-   roundedBottomCorners: true;
-   headerHeight: 27;
-   titleStyleName: appProgressTitle;
-   backgroundColor: #A3BBCD;
+.appProgressWindow {
    borderAlpha: 1;
    dropShadowEnabled: true;
-	borderColor: #A3BBCD;
-	/*borderColor: #DDDCD0;*/
+   cornerRadius: 4;
+   headerColors: #548db8, #a3bbcd; 
+   borderThicknessLeft: 0;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 0;
+   borderThicknessRight: 0;
+   roundedBottomCorners: true;
+   headerHeight: 0;
+   titleStyleName: appProgressTitle;
+   backgroundColor: #A3BBCD;
+   borderColor: #A3BBCD;
 }
+
+
+.appProgressBar {
+    barColor: #F5F4DB;
+    trackColors: #A3BBCD, #A3BBCD;
+    paddingTop: 14;
+	trackHeight: 4;
+	verticalGap: 0;
+	paddingLeft: 14;
+	paddingRight: 14;
+	verticalGap: 10;
+}
+
 
 .appProgressTitle {
 	fontWeight: normal;
