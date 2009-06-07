@@ -6,14 +6,51 @@ HCI Teal = 00A9B9
 HCI Cream = F2EFD9
 */
 
+
+.errorTip { 
+			borderColor: #ffffcc;
+			paddingTop: 0;
+			paddingBottom: 0;
+			paddingLeft: 4;
+			paddingRight: 4;
+			fontWeight: normal;
+			fontSize: 9px;
+			backgroundColor: #ffffcc;
+			cornerRadius: 8;
+	        color: #000000;
+		}
+ToolTip{
+     borderSkin: ClassReference("views.util.SmallToolTip");
+}
+
+.requiredBox {
+	borderColor: #F4F588;
+	borderStyle: solid;
+	borderThickness: 1;
+}
+
+.requiredBoxThick {
+	borderColor: #F4F588;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+ComboBox {
+	errorColor: #ffff00;
+}
+TextInput {
+	errorColor: #ffff00;
+}
+
 Panel {
    borderThicknessLeft: 4;
-   borderThicknessTop: 2;
+   borderThicknessTop: 4;
    borderThicknessBottom: 4;
    borderThicknessRight: 4;
    roundedBottomCorners: true;
    headerHeight: 22;
-   headerColors: #548db8, #97b8d2;
+   /*headerColors: #548db8, #97b8d2;*/
+   headerColors: #81817f, #b9b8ad;
    titleStyleName: panelTitle;
    border-color: #CBCAC1;
    controlBarStyleName: panelControlBar;
@@ -35,7 +72,7 @@ TitleWindow {
 	borderColor: #CBCAC0;
 	backgroundColor: #CBCAC1;
 	cornerRadius: 4;
-	borderThicknessTop: 4;
+	borderThicknessTop: 0;
 	borderThicknessBottom: 4;
 	borderThicknessLeft: 4;
 	borderThicknessRight: 4;
@@ -50,17 +87,19 @@ TitleWindow {
 }
 
 Alert {
-	
+	borderAlpha: 0;
 	headerColors: #888a97, #888a97;
 	backgroundColor: #888a97;
 	borderColor: #888a97;
 	cornerRadius: 4;
+	borderStyle: solid;
 
 }
 
 
 
 TabNavigator {
+	 dropShadowEnabled: true;
 }
  
 HDividedBox {
@@ -72,7 +111,7 @@ ApplicationControlBar {
 	fillColors: #548db8, #97b8d2; 
 	dropShadowEnabled: true;
 }
-Accordion {
+.accordion {
 
 	headerStyleName: accordionHeader;
 	headerHeight: 24;
@@ -104,6 +143,7 @@ LinkBar {
 	    useHandCursor: true;
 	     
 }
+
 
 Button {
         fillAlphas: 1, 1;
@@ -159,8 +199,10 @@ TextArea {
 
 .formTabBody {
 	backgroundColor: #FFFFFF;
-	borderStyle: none;
-	dropShadowEnabled: false;
+	
+	dropShadowEnabled: true;
+	borderStyle: solid;
+	cornerRadius: 4;
 }
 .formTabBar {
 	backgroundColor: #FFFFFF;
@@ -178,34 +220,56 @@ TextArea {
 	textDecoration: underline;
 }
 
+.navLinkBar {
+	disabledColor: #0F24E6; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #000000;
+	fontWeight: normal;
+	textDecoration: underline;
+}
 
+.formLinkButton {
+	textDecoration: underline;
+	color: #0000ff;
+	
+}
+
+.formLinkSmallButton {
+	textDecoration: underline;
+	fontSize: 9;
+	
+}
 .navTabNavigator {
 	 backgroundAlpha:            1.0;
 	 backgroundColor: #CBCAC1;
 	 borderColor: #CBCAC1;
 	 borderStyle: solid;
 	 color: #74878B;
-	 tabStyleName:      navTabHeader;
 	 tabStyleName: navTabHeader;
 	 firstTabStyleName: navTabHeader;
 	 middleTabStyleName: navTabHeader;
 	 lastTabStyleName: navTabHeader;
-	 selectedTabTextStyleName: navTabHeaderTextSelected;
+	 
 }
 
 .navTabHeader {
-	fill-colors :#548db8, #97b8d2;	
+	fill-colors: #81817f, #b9b8ad;
 	color: #5D5252;
 	backgroundColor: #97b8d2;
 	fillAlphas:  1, 1;
- 	fontWeight: 		normal;		
+ 	fontWeight: 		normal;
+ 	
 
 }
 
 .navTabHeaderTextSelected {
 	color: #FFFFFF;
-	fontWeight: normal;
+	errorColor: #FFFFFF;
 }
+
+
 
 .navLinkBar {
 	disabledColor: #1728CF; 
@@ -226,8 +290,54 @@ TextArea {
 
 }
 
+.appProgress {
+	headerColors: #548db8, #a3bbcd; 
+   borderThicknessLeft: 4;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: true;
+   headerHeight: 27;
+   titleStyleName: appProgressTitle;
+   backgroundColor: #A3BBCD;
+   borderAlpha: 1;
+   dropShadowEnabled: true;
+	borderColor: #A3BBCD;
+	/*borderColor: #DDDCD0;*/
+}
 
+.appProgressTitle {
+	fontWeight: normal;
+	fontColor: black;
+	
+}
 
+.dirtyPanel {
+   headerColors:   #66aa55, #99dd99; 
+   titleStyleName: dirtyPanelTitle;
+   
+}
 
+.dirtyPanelTitle {
+	 color: #ffffff;
+	/*fontStyle: italic;*/
+
+	 
+}
+
+.blueLinkButton {
+	color: #0F19DF;
+}
+.tabBarSelectedTabText
+{
+	fontFamily: "Arial Narrow";
+}
+@font-face
+{
+	fontFamily: "Arial Narrow";
+	fontWeight: normal;
+	fontStyle: normal;
+	src: local("Arial Narrow");
+}
 
 

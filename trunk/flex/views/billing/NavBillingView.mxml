@@ -842,8 +842,8 @@
  	]]>
  </mx:Script>	
 
-  <mx:VBox width="100%" height="100%">
-	    <mx:HBox width="100%"  paddingTop="2" paddingBottom="2" cornerRadius="5" borderStyle="solid" borderColor="#A7AAAC"  backgroundColor="#A7AAAC" horizontalGap="8">
+  <mx:VBox width="100%" verticalGap="4" height="100%">
+	    <mx:HBox width="100%" styleName="navBox" horizontalGap="8">
 
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
 					<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" paddingBottom="0"/>
@@ -885,7 +885,7 @@
 	    </mx:HBox>
 
         <mx:HDividedBox height="100%" width="100%">
-        	<mx:TabNavigator height="100%" width="220" paddingTop="2" styleName="navTabNavigator">
+        	<mx:TabNavigator height="100%" width="220" paddingTop="2" styleName="navTabNavigator" paddingLeft="4" paddingRight="4">
         		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
@@ -900,7 +900,7 @@
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
 						iconFunction="getTreeIcon"  
-						dragMoveEnabled="false" dropEnabled="false" borderStyle="none">
+						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="true">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
 				        </mx:dataProvider>		 				  
@@ -908,7 +908,7 @@
   						  <mx:AdvancedDataGridColumn dataField="@label" showDataTips="true" /> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
-  				    <mx:ControlBar width="100%" verticalAlign="top">
+  				    <mx:ControlBar width="100%" verticalAlign="top" paddingTop="2">
   				        <mx:VBox verticalGap="0" width="100%">
   				        <mx:HBox horizontalGap="0" width="100%">
 				 	    <mx:HBox width="100" horizontalAlign="left">
@@ -937,7 +937,7 @@
 						displayItemsExpanded="false" 
 						iconFunction="getTreeIcon" 
 						dragEnabled="true" dragMoveEnabled="false" dropEnabled="false" 
-						doubleClick="showPriceEditView()" doubleClickEnabled="true">
+						doubleClick="showPriceEditView()" doubleClickEnabled="true" borderStyle="solid" dropShadowEnabled="true">
     		 	        <mx:dataProvider> 
   						  <mx:HierarchicalData source="{billingTemplates}"/>
 				        </mx:dataProvider>						  
@@ -974,7 +974,7 @@
                     wordWrap="true" 
                     headerWordWrap="true" 
                     selectionMode="singleRow" 
-                     alternatingItemColors="[0xFFFFFF, 0xEEEEE0]">
+                     alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
         		 	<mx:dataProvider>
       						<mx:HierarchicalData source="{billingItemsDisplayed}"/>
     				</mx:dataProvider> 

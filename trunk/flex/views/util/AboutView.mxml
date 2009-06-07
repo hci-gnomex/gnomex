@@ -5,7 +5,7 @@
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
 	title="GNomEx 3.0" 
-	borderColor="#9cccf3" borderThickness="4" backgroundColor="#ffffff" fontSize="16">
+	backgroundColor="#ffffff" fontSize="12">
 	<mx:VBox width="100%" verticalGap="20" height="100%" fontSize="10" paddingTop="8" paddingLeft="8">
 		
 		<mx:VBox width="100%" verticalGap="2">
