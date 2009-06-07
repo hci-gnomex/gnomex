@@ -21,11 +21,20 @@
  table {
   width: 660;
  }    
-
+ 
+ table.outer {
+  border: none;
+  width: 660;
+ }
  table.grid {
   border: thin solid;
   border-color: #CDCDC1;
   width: 660;
+ }
+ table.gridHalf {
+  border: thin solid;
+  border-color: #CDCDC1;
+  width: 325;
  }
 
  caption{
@@ -115,6 +124,18 @@
       border-color: #CDCDC1;
       width: 50;
   } 
+  
+  td.outer {
+
+      font-family: Trebuchet MS;
+      font-size: 9pt;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      vertical-align: top;
+  }
+  
 
   th {
        background-color: #6CA6CD;

@@ -11,6 +11,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.RequestHTMLFormatter;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -19,6 +20,7 @@ import hci.framework.security.UnknownPermissionException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -149,6 +151,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             center1.addContent(new Element("BR"));
 
             if (!request.getHybridizations().isEmpty()) {
+              TreeSet labeledSamples = new TreeSet(new LabeledSampleNumberComparator());
+              labeledSamples.addAll(request.getLabeledSamples());
+              center1.addContent(formatter.makeLabeledSampleTable(labeledSamples));
+              
+              center1.addContent(new Element("BR"));
               center1.addContent(formatter.makeHybTable(request.getHybridizations()));          
             }
 
