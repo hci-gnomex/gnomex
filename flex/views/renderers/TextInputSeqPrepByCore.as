@@ -3,6 +3,7 @@ package views.renderers
 	import mx.controls.TextInput;
 	import flash.display.Graphics;
 	import flash.events.Event;
+	import hci.flex.renderers.RendererFactory; 
 
 	public class TextInputSeqPrepByCore extends TextInput
 	{
@@ -26,7 +27,7 @@ package views.renderers
           }
           var g:Graphics = graphics;
           g.clear();
-          g.beginFill( data.@idSampleChannel1 == '0' ? parentApplication.REQUIRED_FIELD_BACKGROUND : 0xffffff );
+          g.beginFill( data.@idSampleChannel1 == '0' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );
           g.drawRect(0,0,unscaledWidth,unscaledHeight);
           g.endFill();
           

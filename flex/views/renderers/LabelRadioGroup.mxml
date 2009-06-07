@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="center"
+	implements="mx.controls.listClasses.IDropInListItemRenderer"  
+	 horizontalGap="3" width="100%" height="100%"
+	paddingLeft="1" paddingRight="1" paddingTop="1" paddingBottom="1"  
+	> 
+
+    <mx:Script>
+    
+	<![CDATA[
+        import mx.controls.DataGrid;
+        import mx.controls.dataGridClasses.DataGridListData;
+        import mx.controls.listClasses.BaseListData;
+        import hci.flex.renderers.RendererFactory;
+
+        private var _listData:BaseListData;
+
+        private var myDG:DataGrid;
+
+        public function get listData():BaseListData {
+          return _listData;
+        }
+        public function set listData( value:BaseListData ):void {
+            _listData = value;
+            myDG = _listData.owner as DataGrid;
+
+        }   
+
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
+             super.updateDisplayList(unscaledWidth, unscaledHeight);
+             
+             if (data == null) {
+             	return;
+             } 
+             
+             
+             
+          
+          	var g:Graphics = graphics;
+          	g.clear();
+          
+		  
+          	if (!data.hasOwnProperty("@label") || data.@label == '') {
+	        	g.beginFill(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND);
+	        	g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
+	            	        RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER);          	
+	            g.drawRect(0,0,unscaledWidth,unscaledHeight);
+    	        g.endFill();	
+            }
+
+
+        }  
+        
+        private function toggleCy3Label():void {
+        	if(myDG){
+                if(myDG.selectedItem) {
+		        	if (radioCy3.selected) {
+		        		myDG.selectedItem.@label = "cy3";
+		        		parentDocument.checkSamplesCompleteness();
+		        	}
+                }
+         	}
+        } 
+        private function toggleCy5Label():void {
+        	if(myDG){
+                if(myDG.selectedItem) {
+		        	if (radioCy5.selected) {
+		        		myDG.selectedItem.@label = "cy5";
+		        		parentDocument.checkSamplesCompleteness();
+		        	}
+                }
+         	}
+        } 
+
+
+    ]]>
+    </mx:Script>
+        <mx:RadioButtonGroup id="group1"/>
+	    <mx:RadioButton id="radioCy3" selected="false" change="toggleCy3Label()" groupName="group1" fillColors="[#A3FBA3, #A3FBA3]" borderColor="green" fillAlphas="[1.0, 0.15, 0.15, 0.15]">
+	    </mx:RadioButton>
+	    <mx:RadioButton id="radioCy5" selected="false" change="toggleCy5Label()"  color="red" groupName="group1" fillAlphas="[1.0, 0.15, 1.0, 1.0]" fillColors="[#F87C7C, #F87C7C, #F87C7C, #F87C7C]" borderColor="#FF0000">
+	    </mx:RadioButton>
+    	
+    
+</mx:HBox>

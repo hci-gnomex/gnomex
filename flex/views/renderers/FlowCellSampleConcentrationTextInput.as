@@ -6,11 +6,9 @@ package views.renderers
 
 	public class FlowCellSampleConcentrationTextInput extends hci.flex.renderers.TextInput
 	{
-		public static function create(dataField:String,
-		                              missingRequiredFieldBackground:uint=0xffd8bb):IFactory {
+		public static function create(dataField:String):IFactory {
 				return RendererFactory.create(FlowCellSampleConcentrationTextInput, 
-				{ _dataField: dataField,
-				  missingRequiredFieldBackground: missingRequiredFieldBackground});			
+				{ _dataField: dataField});			
 				  
 		}	
 		
