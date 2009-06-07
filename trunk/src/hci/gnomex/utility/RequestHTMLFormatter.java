@@ -5,6 +5,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -131,14 +132,14 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), "left");
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
-    this.addHeaderCell(rowh, "Conc. ng/uL", rowSpan, new Integer(1));
+    this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
       this.addHeaderCell(rowh, "Frag size", rowSpan, new Integer(1));
       this.addHeaderCell(rowh, "Core to perform library prep?", rowSpan, new Integer(1));
     } 
     this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      this.addHeaderCell(rowh, "Unit", rowSpan, new Integer(1));
+      
       this.addHeaderCell(rowh, "Chip Type",rowSpan, new Integer(1));
     }
     if (includeMicroarrayCoreNotes ) {
@@ -152,7 +153,7 @@ public class RequestHTMLFormatter {
       table.addContent(rowh);
       this.addHeaderCell(rowh, "Conc. ng/uL");
       this.addHeaderCell(rowh, "260/230");
-      this.addHeaderCell(rowh, "Bioanal method");
+      this.addHeaderCell(rowh, "QC method");
       if (dnaSamples) {
         this.addHeaderCell(rowh, "Frag size");
       } else {
@@ -186,18 +187,25 @@ public class RequestHTMLFormatter {
         fragmentSizeRange += "?";
       }
       
-
+      String concentration = "";
+      if (sample.getConcentration() != null) {
+        concentration = new Integer(sample.getConcentration().intValue()).toString();
+        if (sample.getCodeConcentrationUnit() != null && !sample.getCodeConcentrationUnit().equals("")) {
+          concentration += " " + sample.getCodeConcentrationUnit();
+        }
+      }
+      
+      
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-      this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : (new Integer(sample.getConcentration().intValue())).toString() );
+      this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
         this.addCell(row, fragmentSizeRange);
         this.addCell(row, sample.getSeqPrepByCore() != null ? sample.getSeqPrepByCore() : "&nbsp;");
       }
       this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
-      if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-        this.addCell(row, sample.getCodeConcentrationUnit() == null ? "&nbsp;"      : sample.getCodeConcentrationUnit());
+      if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {        
         this.addCell(row, dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()) == null || dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()).equals("") ? "&nbsp;" : 
                            dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));
       }
@@ -229,6 +237,7 @@ public class RequestHTMLFormatter {
     caption.setAttribute("ALIGN", "LEFT");
     table.addContent(caption);
     
+
     
     Element rowh = new Element("TR");
     table.addContent(rowh);
@@ -238,7 +247,6 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample Prep Method", new Integer(2), new Integer(1));;
     this.addHeaderCell(rowh, "Conc.", new Integer(2), new Integer(1));;
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      this.addHeaderCell(rowh, "Unit", new Integer(2), new Integer(1));;
       this.addHeaderCell(rowh, "Chip Type", new Integer(2), new Integer(1));;
     }
     this.addHeaderCell(rowh, "Quality", new Integer(1), new Integer(4), "colgroup");
@@ -247,7 +255,7 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);    
     this.addHeaderCell(rowh, "Conc. ng/uL");
     this.addHeaderCell(rowh, "260/230");
-    this.addHeaderCell(rowh, "Bioanalyzer method");
+    this.addHeaderCell(rowh, "QC method");
     if (this.dnaSamples) {
       this.addHeaderCell(rowh, "Size range");      
     } else {
@@ -273,14 +281,20 @@ public class RequestHTMLFormatter {
         qualFragmentSizeRange += "?";
       }
       
+      String concentration = "";
+      if (sample.getConcentration() != null) {
+        concentration = new Integer(sample.getConcentration().intValue()).toString();
+        if (sample.getCodeConcentrationUnit() != null && !sample.getCodeConcentrationUnit().equals("")) {
+          concentration += " " + sample.getCodeConcentrationUnit();
+        }
+      }
 
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
       this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
-      this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : (new Integer(sample.getConcentration().intValue())).toString() );
+      this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-        this.addCell(row, sample.getCodeConcentrationUnit() == null ? "&nbsp;"      : sample.getCodeConcentrationUnit());
         this.addCell(row, dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()) == null || dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()).equals("") ? "&nbsp;" : 
                            dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));
       }
@@ -299,6 +313,88 @@ public class RequestHTMLFormatter {
     
     return table;
   }
+  
+  public Element makeLabeledSampleTable(Set labeledSamples) {
+    Element table = new Element("TABLE");
+    table.setAttribute("CLASS", "outer");
+    table.setAttribute("CELLPADDING", "0");
+    table.setAttribute("CELLSPACING", "0");
+
+    Element row = new Element("TR");
+    table.addContent(row);
+    
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "outer");      
+    cell.addContent(makeLabelSampleTable(labeledSamples, "Cy3"));
+    row.addContent(cell);
+    
+    // Do we have some Cy5 samples?
+    boolean hasCy5Samples = false;
+    for(Iterator i = labeledSamples.iterator(); i.hasNext();) {
+      LabeledSample labeledSample = (LabeledSample)i.next();
+      
+      if (this.dictionaryHelper.getLabel(labeledSample.getIdLabel()).equals("Cy5")) {
+        hasCy5Samples = true;
+        break;
+      }
+    }
+    
+    // Only show Cy5 labeled sample table if we have some.
+    if (hasCy5Samples) {
+      cell = new Element("TD");
+      cell.setAttribute("CLASS", "outer");      
+      cell.addContent(makeLabelSampleTable(labeledSamples, "Cy5"));
+      row.addContent(cell);
+      
+    }
+    
+    return table;
+  }
+  
+  public Element makeLabelSampleTable(Set labeledSamples, String label) {
+    
+    
+    Element table = new Element("TABLE");
+    table.setAttribute("CLASS", "gridHalf");
+    table.setAttribute("CELLPADDING", "0");
+    table.setAttribute("CELLSPACING", "0");
+ 
+    Element caption = new Element("CAPTION");
+    caption.addContent(label + " Samples");
+    table.addContent(caption);
+    
+    
+    Element rowh = new Element("TR");
+    table.addContent(rowh);
+    
+    Integer rowSpan = new Integer(1);
+    
+    
+    this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), "left");
+    this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
+    this.addHeaderCell(rowh, "Volume", rowSpan, new Integer(1));
+
+    for(Iterator i = labeledSamples.iterator(); i.hasNext();) {
+      LabeledSample labeledSample = (LabeledSample)i.next();
+      
+      if (this.dictionaryHelper.getLabel(labeledSample.getIdLabel()).equals(label)) {
+        Sample sample = labeledSample.getSample();
+        
+        Element row = new Element("TR");
+        table.addContent(row);
+
+        
+        this.addLeftCell(row, sample.getNumber());
+        this.addEmptyCell(row);
+        this.addEmptyCell(row);
+        
+      }
+      
+    }
+    
+    return table;
+  }
+
   
   public Element makeHybTable(Set hybridizations) {
     Element table = new Element("TABLE");
@@ -320,12 +416,12 @@ public class RequestHTMLFormatter {
          dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory()).getNumberOfChannels().intValue() == 2)) {
       this.addHeaderCell(rowh, "Cy5 Sample #"    );
     }
-    this.addHeaderCell(rowh, "Slide");
+    this.addHeaderCell(rowh, "Slide", "normal", new Integer(200));
     this.addHeaderCell(rowh, "Array ID");
     this.addHeaderCell(rowh, "Slide Source");
     if (includeMicroarrayCoreNotes) {
-      this.addHeaderCell(rowh, "Barcode");
-      this.addHeaderCell(rowh, "Notes");      
+      this.addHeaderCell(rowh, "Barcode", "normal", new Integer(130));
+      this.addHeaderCell(rowh, "Row-col", "normal", new Integer(40));      
     }
 
  
@@ -365,8 +461,8 @@ public class RequestHTMLFormatter {
         this.addCell(row, slideSource != null ? slideSource : "&nbsp;");              
       }
       if (includeMicroarrayCoreNotes) {
-        this.addSmallEmptyCell(row);
-        this.addEmptyCell(row);        
+        this.addEmptyCell(row);
+        this.addSmallEmptyCell(row);        
       }
       
     }
