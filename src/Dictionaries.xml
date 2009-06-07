@@ -128,11 +128,11 @@
 	
 	
 	
-  <Dictionary displayName="Not editable - Owner" className="hci.gnomex.model.AppUserLite"  editable="N"  scrub="Y" />
-	<Dictionary displayName="Not editable - Array Coordinate of Slide" className="hci.gnomex.model.ArrayCoordinate"  editable="N"  >
+  <Dictionary displayName="Owner" className="hci.gnomex.model.AppUserLite"  editable="N"  scrub="Y" />
+	<Dictionary displayName="Array Coordinate of Slide" className="hci.gnomex.model.ArrayCoordinate"  editable="N"  >
   	  <Filter className="hci.gnomex.model.SlideDesign" filterField="idSlideDesign"/>
 	</Dictionary>
-	<Dictionary displayName="Not editable - Slide Design" className="hci.gnomex.model.SlideDesign" editable="N" />
+	<Dictionary displayName="Slide Design" className="hci.gnomex.model.SlideDesign" editable="N" />
 
 </Dictionaries>
 	
