@@ -173,6 +173,10 @@
 	        public var iconCheck:Class;
 	        
 	        [Bindable]
+	        [Embed(source="assets/tick_black.png")]
+	        public var iconBlackCheck:Class;
+	        
+	        [Bindable]
 	        [Embed(source="assets/information.png")]
 	        public var iconInformation:Class;
 	                    
@@ -271,7 +275,15 @@
 	        [Embed(source="assets/folder_money.png")]
 	        public var iconBillingFolder:Class;
 	        
-	        public var REQUIRED_FIELD_BACKGROUND:uint = 0xffd8bb;
+	        public var annotationColor:uint = 0xeeeeee;
+	        public var annotationColorBorder:uint = 0xbbbbbb;
+
+	        public var cy3Color:uint = 0xccffaa;
+	        public var cy3ColorBold:uint = 0x77dd55;
+
+	        public var cy5Color:uint = 0xffccaa;
+	        public var cy5ColorBold:uint = 0xff8855;
+
 	        
 	        private var currentView:Object = null;
 	        
@@ -307,6 +319,7 @@
 
  
 			private var appProgressBar:AppProgressView;
+			private var currentProgressInterval:uint = 0;
 			
 			private function lookupExperiment():void {
 				showExperiment(requestNumber.text);
@@ -547,6 +560,12 @@
             }
             
             private function init():void {
+            	appProgressBar = new AppProgressView();
+			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
+				PopUpManager.centerPopUp(appProgressBar);
+			    
+			    this.showProgress(20);
+			    
             	if (isGuestMode() ) { 
 					createSecurityAdvisorForGuest.send();				
 				} else {
@@ -680,22 +699,22 @@
             		return;	
             	}
             	userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
-			    appProgressBar = new AppProgressView();
-			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
-				PopUpManager.centerPopUp(appProgressBar);
 			    
-
-
+			    		
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
 			    
+			    this.showProgress(20);
+				
             	getAppUserList.send();
             	getExperimentDesignList.send();
             	getExperimentFactorList.send();
             	getLabList.send();
             	getSlideProductList.send();
             	getProjectList.send();
+
+				
             }
             
             private function onCreateSecurityAdvisorForGuest(event:ResultEvent):void {
@@ -705,13 +724,12 @@
             		return;	
             	}
             	userName.text = "(guest)";
-			    appProgressBar = new AppProgressView();
-			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
-			    PopUpManager.centerPopUp(appProgressBar);
-
+			    
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
+			    
+			    this.showProgress(20);
 
             	getAppUserList.send(); 
             	getExperimentDesignList.send();
@@ -719,10 +737,13 @@
             	getLabList.send();
             	getSlideProductList.send();
             	getProjectList.send();
+            	
+            	showProgress(10);
             }
-
+ 
             public function onDictionariesLoaded(event:Event):void {
 	        	enableApp();
+	        	showProgress(10);
             }
             
 
@@ -730,13 +751,22 @@
             private function onGetAppUserList(event:ResultEvent):void {
 	        	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 	        	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser));
+	        	showProgress(10);
 	        	enableApp();
             }
             
+            private function showProgress(interval:uint):void {
+            	currentProgressInterval = currentProgressInterval + interval;
+				appProgressBar.bar.setProgress(currentProgressInterval, 100);
+            }
+            
             private function onGetExperimentDesignList(event:ResultEvent):void {
+	        	showProgress(10);
+            	
 	        }		
 	        
 			private function onGetExperimentFactorList(event:ResultEvent):void {
+	        	showProgress(10);
 	        }
 	        
 	        private function onGetLabList(event:ResultEvent):void {
@@ -745,6 +775,7 @@
 	        	submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
 	        	promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 	        	manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
+	        	showProgress(10);
 	        	enableApp();
 	        }		
             
@@ -758,6 +789,7 @@
 	        	filteredSlideProductListForSubmitRequests.filterFunction = submitRequestView.filterSlideProduct;
 				filteredSlideProductListForSubmitRequests.refresh();
 
+	        	showProgress(10);
 
 	        	enableApp();
 	            
@@ -776,7 +808,9 @@
 	        	filteredProjectList.addItemAt(emptyNode, 0);
 	        	
 	        	filteredProjectListForSubmitRequests = new XMLListCollection(getProjectList.lastResult.Project);
-	        	
+	       	    
+	       	    showProgress(10);
+
 	        	enableApp();
 	        }
 	        
@@ -795,6 +829,8 @@
 	        	    promptedLabList != null &&
 	        	    filteredSlideProductList != null) {
 	        	    	
+					appProgressBar.bar.setProgress(100, 100);
+
 	        	    PopUpManager.removePopUp(appProgressBar);
 	        	    currentState = "enabledState"
 					checkSecurity();
@@ -976,7 +1012,7 @@
         
         
 	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="4" paddingBottom="0" paddingLeft="0" 
+	    	height="100%" paddingTop="6" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0">
           
  				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="all" paddingTop="0" paddingBottom="0" >
