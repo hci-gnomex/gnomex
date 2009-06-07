@@ -18,6 +18,8 @@ package views.renderers
 	      		_data[_dataField] = "false";
 	      	}
 	        
+	        // check if required fields has been entered
+	        parentDocument.checkRequiredChipType();
           	// initialize the samples grid
           	parentDocument.parentDocument.samplesView.initializeSamplesGrid();
           	// propagate selected chip type to samples

@@ -23,15 +23,13 @@ package views.renderers
 								          dataField:String, 
 								          securityDataField:String,
 									      isRequired:Boolean=false, 
-								          canChangeByAdminOnly:Boolean=false,
-									      missingRequiredFieldBackground:uint=0xffd8bb):IFactory {
+								          canChangeByAdminOnly:Boolean=false):IFactory {
 				return RendererFactory.create(views.renderers.ComboBoxDictionary, {dictionaryManager: dictionaryManager, 
 																		         dictionary: dictionary, 
 																		         dataField: dataField,  
 																		         securityDataField: securityDataField,
 																		         canChangeByAdminOnly: canChangeByAdminOnly,
-																		         isRequired: isRequired, 
-																		         missingRequiredFieldBackground: missingRequiredFieldBackground});			
+																		         isRequired: isRequired});			
 			}
 		    
 

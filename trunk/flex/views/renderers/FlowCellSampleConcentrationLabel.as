@@ -7,9 +7,9 @@ package views.renderers
 
 	public class FlowCellSampleConcentrationLabel extends hci.flex.renderers.Label
 	{		
-		public static function create(dataField:String, missingRequiredFieldBackground:uint=0xffd8bb):IFactory {
+		public static function create(dataField:String):IFactory {
 				return RendererFactory.create(views.renderers.FlowCellSampleConcentrationLabel, 
-				{ _dataField: dataField, missingRequiredFieldBackground: missingRequiredFieldBackground});			
+				{ _dataField: dataField});			
 				  
 		}			 
         
