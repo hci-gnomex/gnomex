@@ -148,10 +148,11 @@
     		for(var x:int = 0; x < numberOfHybsToAdd; x++) {
     			addHyb();
     		}
-    		
+    		 
     		this.propagateHybChannel1Samples();
         }
         
+       
  		
 		private function propagateHybChannel1Samples():void {
 			var requestCategory:Object = parentDocument.setupView.getRequestCategory();
@@ -166,21 +167,6 @@
 					hyb.@idSampleChannel2 = "";
 					sample.@label = "cy3";
 					count++;
-				}
-			} else {
-				// For 2 channel microarray experiments, fill in the cy3 channel
-				// on the hybs with all of the samples marked as cy3.
-				var x:int = 0;
-				for each(var s:Object in parentDocument.samples) {
-					if (parentDocument.hybs.length == x) {
-						break;
-					}
-					if (s.@label == "cy3") {
-						var hybridization:Object = parentDocument.hybs.getItemAt(x);
-						hybridization.@idSampleChannel1 = s.@idSample;
-						x++;
-						
-					}
 				}
 			}
 			
@@ -360,10 +346,52 @@
 		public function onEdit():void {		
 		}
 
-
+		public function sortLabeledSamples():void {
+        	sortedSamples = new XMLListCollection();
+        	var sample:Object = null;
+        	for each(sample in parentDocument.samples) {
+        		if (!sample.hasOwnProperty("@label") || sample.@label == null || sample.@label == '') {
+        			sortedSamples.addItem(sample);
+        		}
+        	}
+        	for each(sample in parentDocument.samples) {
+        		if (sample.@label != null && sample.@label == 'cy3') {
+        			sortedSamples.addItem(sample);
+        		}
+        	}
+        	for each(sample in parentDocument.samples) {
+        		if (sample.@label != null && sample.@label == 'cy5') {
+        			sortedSamples.addItem(sample);
+        		}
+        	}
+        	
+        	// Now for any hybs, correct the channel
+        	for each(sample in parentDocument.samples) {
+        		if (!sample.hasOwnProperty("@label")) {
+        			continue;
+        		}
+        		for each(var hyb:Object in parentDocument.hybs) {
+        			if (hyb.@idSampleChannel1 == sample.@idSample) {
+        				// Wrong channel, correct
+        				if (sample.@label == 'cy5') {
+        					hyb.@idSampleChannel1 = 0;
+        				}
+        			}
+        			if (hyb.@idSampleChannel2 == sample.@idSample) {
+        				// Wrong channel, correct
+        				if (sample.@label != 'cy5') {
+        					hyb.@idSampleChannel2 = 0;
+        				}
+        			}
+        		}
+        	}
+        	
+        		
+        }    
 		
 	]]>
 </mx:Script>
+    <mx:XMLListCollection id="sortedSamples"/>
     <mx:VBox width="100%" height="100%" verticalGap="0">
       <mx:HBox>
 	      <mx:Label text="Hybridizations " id="label1"></mx:Label>
@@ -374,13 +402,13 @@
 	        <mx:VBox paddingTop="24"  height="100%" verticalGap="2"   width="100" borderStyle="none" id="vbox1">
 	        	<mx:DataGrid
 	        		 height="100%" width="100%" 
-	        		 dataProvider="{parentDocument.samples}" labelField="@name" 
+	        		 dataProvider="{sortedSamples}" labelField="@name" 
 	        		 dragEnabled="true" id="sampleDragGrid"  showHeaders="true" headerHeight="40">
 					<mx:columns>
 						<mx:DataGridColumn headerText = "Samples"  dataField="@name">
 			                <mx:itemRenderer>
 			                    <mx:Component >
-			                          <mx:Label text="{data.@name}" fontWeight="bold" color="{data.@label == 'cy3' ? 0x008000: 0xff0000}"/>
+			                          <mx:Label text="{data.@name}" fontWeight="{!data.hasOwnProperty('@label') || data.@label == '' ? 'normal' : 'bold'}" color="{!data.hasOwnProperty('@label') || data.@label == ''? 0x000000 : (data.@label == 'cy3' ? 0x008000: 0xff0000)}"/>
 			                    </mx:Component>
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
