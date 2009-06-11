@@ -29,23 +29,28 @@
         override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
              super.updateDisplayList(unscaledWidth, unscaledHeight);
              
-             if (data == null) {
-             	return;
-             } 
-             
-             
-             
-          
           	var g:Graphics = graphics;
           	g.clear();
           
-		  
+             if (data == null) {
+             	return;
+             } 
+             		  
           	if (!data.hasOwnProperty("@label") || data.@label == '') {
 	        	g.beginFill(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND);
 	        	g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
 	            	        RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER);          	
 	            g.drawRect(0,0,unscaledWidth,unscaledHeight);
     	        g.endFill();	
+    	        
+    	        
+    	        if (group1 != null) {
+    	        	if (group1.selection != null) {
+		            	group1.selection.selected = false;
+    	        	}
+   	        	
+    	        }
+      
             }
 
 
