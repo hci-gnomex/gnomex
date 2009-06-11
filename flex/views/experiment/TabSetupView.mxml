@@ -112,6 +112,10 @@
 					labCombo.selectedIndex = 1;
 				}
 			}			
+			var emptyNode:XML = new XML("<BillingAccount value='' display=''/>");
+			this.billingAccounts.addItem(emptyNode);
+			this.billingAccountCombo.selectedIndex = 0;
+			this.billingAccountValidator.validate();			
 		}
 		
 		public function selectDefaultLab():void {
@@ -121,7 +125,12 @@
 				if (labCombo.dataProvider.length == 2) {
 					labCombo.selectedIndex = 1;
 					getLab.send();							
+				} else {
+					labCombo.selectedIndex = 0;
+					billingAccountCombo.selectedIndex = -1;
+					this.billingAccountValidator.validate();
 				}
+
 			}			
 		}
 		
@@ -267,6 +276,7 @@
 	        
 	        parentApplication.filteredProjectListForSubmitRequests.refresh();
 
+
 		}
 
         private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -359,9 +369,9 @@
         minValue="1" /> 
      <mx:NumberValidator id="billingAccountValidator"
         source="{this.billingAccountCombo}"
-        lowerThanMinError="This field is required."
+        lowerThanMinError="This field is required."         
         property="selectedIndex"
-        minValue="0" />         
+        minValue="0"  />         
      <mx:NumberValidator id="projectValidator"
         source="{this.projectCombo}"
         lowerThanMinError="This field is required."
@@ -392,7 +402,7 @@
 					  	<![CDATA[(2) Pick the account to be <br> billed:]]>
 					  </mx:htmlText>
 					</mx:Text>
-					<mx:ComboBox labelField="@accountName" width="430" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()">
+					<mx:ComboBox labelField="@accountName" width="430" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>

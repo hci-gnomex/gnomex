@@ -624,10 +624,10 @@
         			if (sample.@idSample == item.@idSampleChannel1) {
         				sampleName = sample.@name;
         				break;
-        			}
+        			} 
         		}
         	} 
-        	return sampleName;
+        	return sampleName; 
         }
 		public function getSampleChannel2Name(item:Object,col:int):String
         {
@@ -1168,6 +1168,7 @@
 			currentState = '';
 			samplesView.currentState = '';
 
+
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 
@@ -1240,8 +1241,8 @@
 			} else {
 				currentState = 'MicroarrayEditState';
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					samplesView.currentState = 'MicroarraySamplesAdminState';		
-					hybsView.currentState = 'HybsAdminState';				
+					samplesView.currentState = 'MicroarraySamplesAdminState';				
+					hybsView.currentState = 'HybsAdminState';	
 				} else {
 					samplesView.currentState = 'MicroarraySamplesEditState';					
 					hybsView.currentState = 'HybsEditState';				
@@ -1287,6 +1288,7 @@
 				hybSetupView.checkHybSetupCompleteness();
 				hybsView.checkHybsCompleteness();
 			}
+			this.dirty.resetDirty();
 		}
 		
 		public function removeDataListeners():void {
@@ -1342,11 +1344,16 @@
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-				hybSetupView.microarrayCategoryCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', request.@codeMicroarrayCategory);
 				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', theSlideProduct.@idOrganism);
+
+				var microarrayCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', request.@codeMicroarrayCategory);
+				hybSetupView.microarrayCategoryCombo.selectedItem = microarrayCategory[0];
 				checkForSampleTypeCompatibility();
+
 				hybSetupView.initializeSlideProductCombo();
+				hybSetupView.slideProductValidator.validate();
 				initializeSlideDesigns();
+
 				hybSetupView.coreSlideSourceCheckbox.selected = true;
 				
 			}			

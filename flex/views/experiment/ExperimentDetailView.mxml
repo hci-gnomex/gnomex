@@ -692,7 +692,8 @@
 	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
 	        <mx:height>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-	    </mx:LinkButton>				
+	    </mx:LinkButton>	
+	    <mx:Spacer width="30"/>			
 	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
 	        <mx:height>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>

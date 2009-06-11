@@ -16,6 +16,7 @@
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		import mx.events.ValidationResultEvent;		
+		import mx.collections.XMLListCollection;
 
 		
 		public function addSample():void {
@@ -122,9 +123,12 @@
 				"/>");
 			}
 			
-			parentDocument.samples.addItem(emptyNode);
+			parentDocument.samples.addItem(emptyNode); 
 	        	
 		}
+		
+
+        
 		
 		private function deleteSample():void {
 			parentDocument.dirty.setDirty();
@@ -343,6 +347,11 @@
 	    			parentDocument.userWarnings += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
 	    			isComplete = false;
 	    		}
+    		}
+    		
+    		// Sort the samples
+    		if (isComplete && parentDocument.isMicroarrayState()) {
+        		parentDocument.hybsView.sortLabeledSamples();
     		}
     	
         	
@@ -619,19 +628,12 @@
         
 	]]>
 </mx:Script>	
+
 	<mx:VBox width="100%" height="100%">
 			<mx:HBox id="headerContainer"  horizontalGap="0" width="100%">
 				<mx:Label id="samplesTitle" text="Samples"/>
-				<mx:Spacer width="30"/>
-				<mx:HBox  horizontalGap="0" paddingTop="0" paddingRight="0" verticalAlign="top" borderStyle="solid" borderColor="#FFFFFF">
-					<mx:Label text="( Required fields are"  fontStyle="italic" paddingRight="0"/>	
-				</mx:HBox>
-				<mx:HBox  paddingTop="0" verticalAlign="top" backgroundColor="#FFFFB9" borderStyle="solid" borderColor="#ffff00"  id="hbox1">
-					<mx:Label paddingTop="0" text="highlighted" id="label1" fontStyle="italic"/>
-				</mx:HBox>
-				<mx:HBox paddingTop="0" verticalAlign="top" borderStyle="solid" borderColor="#FFFFFF">
-					<mx:Label text=")" id="label2" fontStyle="italic"/>	
-				</mx:HBox>
+				<mx:Spacer width="10"/>
+				<mx:Label text="Please fill in all highlighted fields."  fontStyle="italic" paddingRight="0" id="label1"/>	
 				
 				<mx:HBox width="100%" horizontalAlign="right">
 					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="false" click="showHideColumns()">
@@ -815,10 +817,6 @@
 			<mx:RemoveChild target="{addSampleButton}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
 			<mx:SetStyle target="{headerContainer}" name="verticalAlign" value="middle"/>
-			<mx:SetStyle target="{hbox1}" name="cornerRadius"/>
-			<mx:SetStyle target="{hbox1}" name="borderThickness" value="1"/>
-			<mx:SetStyle target="{label1}" name="fontStyle" value="italic"/>
-			<mx:SetStyle target="{label2}" name="fontStyle" value="italic"/>
 			<mx:SetProperty target="{samplesTitle}" name="text" value="Samples"/>
 
 		</mx:State>
@@ -833,6 +831,9 @@
 		</mx:State>
 
 		<mx:State name="MicroarraySamplesState" >
+			<mx:SetProperty target="{label1}" name="text">
+				<mx:value><![CDATA[Please fill in all highlighted fields.  Select dye label by clicking on the appropriate colored circle. ]]></mx:value>
+			</mx:SetProperty>
 		</mx:State>
 		<mx:State name="MicroarraySamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>

@@ -1065,9 +1065,9 @@
 					        dragMoveEnabled="true"
 							dragDrop="onDragDrop(event);" 
 							iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
-						
+						 
 					</mx:VBox>
-
+     
 				</mx:VBox>
 					<mx:ControlBar width="100%" verticalAlign="top">
 						<mx:VBox verticalGap="0">

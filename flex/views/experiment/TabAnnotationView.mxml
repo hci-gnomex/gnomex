@@ -179,8 +179,16 @@
        	private function onDictionarySampleCharacteristicRefreshed(event:Event):void{
 			this.checkForNewAnnotations();
        		this.addNonStandardSampleColumns();
-			this.checkForRemovedAnnotations();       		
+			this.checkForRemovedAnnotations();   
+			
+			if (parentDocument.isEditState()) {
+				callLater(refreshEditWindow);
+			}    		
         }	
+        
+        private function refreshEditWindow():void {
+			parentDocument.setupEditForm(parentApplication.navExperimentView.selectedExperiment);
+        }
         
         private function checkForNewAnnotations():void {
        		var de:Object;
