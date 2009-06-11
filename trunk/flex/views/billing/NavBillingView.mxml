@@ -175,7 +175,13 @@
 			for each(var bi:Object in experiment.BillingItem) {
 				var percentageDisplay:String = bi.@percentageDisplay;
 				percentageDisplay = percentageDisplay.replace("%", "");
-				bi.@totalPrice = bi.@unitPrice * bi.@qty * (int(percentageDisplay) / 100); 
+				
+				var unitPriceString:String = bi.@unitPrice;
+				unitPriceString = unitPriceString.replace("$", "");
+				unitPriceString = unitPriceString.replace(",", "");
+				var unitPrice:Number = Number(unitPriceString);
+				
+				bi.@totalPrice = unitPrice * bi.@qty * (int(percentageDisplay) / 100); 
 				bi.@totalPrice = currencyFormatter.format(bi.@totalPrice);	 
 			}
 		}
@@ -521,14 +527,17 @@
 	       
 	       	// determine where in the grid the drop occurs and select that node by the index; 
 	       	// followed by retrieving the node itself. 
+	        var dropNode:XML = null;
 	        var dropRequestNode:XML = null;
+	        var idBillingAccount:Object = null;
+	        var idLab:Object = null;
 	       	if (isBillingPrice) {
 		       	var r:int = billingItemGrid.calculateDropIndex(event);
 		       	if (r > 0) { 
 	    	   		r--;
 	       		}
 	       		billingItemGrid.selectedIndex = r;
-	       		var dropNode:XML = billingItemGrid.selectedItem as XML;
+	       		dropNode = billingItemGrid.selectedItem as XML;
 	       		
 	       		// Don't allow drag operation if nothing in billing grid
 	       		if (dropNode == null) {
@@ -537,6 +546,7 @@
 			       	DragManager.showFeedback(DragManager.NONE);
 			       	return;
 	       		}
+	       		
 	       		
 	       		if (dropNode.name() == "BillingItem") {
 	       			dropRequestNode = dropNode.parent();
@@ -576,8 +586,8 @@
        			 	 " idBillingCategory='" +	dragNode.parent().@idBillingCategory + "'" +
        			 	 " idBillingPrice='" + dragNode.@idBillingPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
-       			 	 " idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
-       			 	 " idLab='" + dropRequestNode.@idLab + "'" +
+       			 	 " idBillingAccount='" + dropNode.@idBillingAccount + "'" +
+       			 	 " idLab='" + dropNode.@idLab + "'" +
        			 	 " percentagePrice='1'" +
        			 	 " percentageDisplay='100%'" +
        			 	 " notes=''" +
@@ -790,12 +800,14 @@
 				return;
 			}
 			
+			
 			if (requestNode.@status == "NEW") {
 					Alert.show("Please save the billing items before splitting into separate accounts.");
 					return;				
 			} 
 			
 			var billingAccountEntries:XMLListCollection = new XMLListCollection();	
+			var billingPeriods:XMLListCollection = new XMLListCollection();
 			var labs:XMLListCollection = new XMLListCollection();
 			for each(var lab:Object in parentApplication.promptedLabList) {
 				labs.addItem(lab);
@@ -812,7 +824,7 @@
 							found = true;
 							break; 
 						} 
-					} 
+					}  
 					if (!found) {
 	       				var newBillingAccount:XML = new XML(
 		   				 "<BillingAccount " + 
@@ -823,14 +835,40 @@
 	   			 	 	 " percentage='" + billingItem.@percentageDisplay + "'" +
 	   			 	 	 "/>"); 
 	   			 	 	 billingAccountEntries.addItem(newBillingAccount);
+					} 
+					
+					var foundBillingPeriod:Boolean = false;
+					for each(var bp:Object in billingPeriods) {
+						if (bp.@idBillingPeriod == billingItem.@idBillingPeriod) {
+							foundBillingPeriod = true;
+							break; 
+						} 
+					}  
+					if (!foundBillingPeriod) {
+						var newBillingPeriod:XML = new XML("<BillingPeriod idBillingPeriod='" + billingItem.@idBillingPeriod + "'/>");
+						billingPeriods.addItem(newBillingPeriod);
 					}
 					
 				}
 				
 			}
+			
+			if (billingPeriods.length > 1) {
+				Alert.show("This experiment has billing items spanning multiple billing periods.  Please select a billing period from the dropdown to qualify the billing items to be split.");
+				return;
+			}
+			
+			if (billingPeriods.length == 0) {
+				Alert.show("Please select a billing period from the dropdown first.");
+				return;
+			}
+			
+			var idBillingPeriod:Object = billingPeriods.getItemAt(0).@idBillingPeriod;
+			
 			var splitWindow:BillingSplitView = BillingSplitView(mx.managers.PopUpManager.createPopUp(this, BillingSplitView, true));
         	mx.managers.PopUpManager.centerPopUp(splitWindow);
         	splitWindow.setFocus();
+        	splitWindow.idBillingPeriod = idBillingPeriod;
         	splitWindow.request = requestNode;			
         	splitWindow.labs = labs;
         	splitWindow.billingAccountEntries = billingAccountEntries;
