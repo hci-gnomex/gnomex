@@ -146,6 +146,7 @@
 <mx:Script>
             
         <![CDATA[
+        	import hci.flex.renderers.RendererFactory;
         	import hci.flex.util.DictionaryManager; 
         	import hci.flex.components.DictionaryEditor;
         	import views.util.AboutView;
@@ -275,8 +276,8 @@
 	        [Embed(source="assets/folder_money.png")]
 	        public var iconBillingFolder:Class;
 	        
-	        public var annotationColor:uint = 0xeeeeee;
-	        public var annotationColorBorder:uint = 0xbbbbbb;
+	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
+	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 
 	        public var cy3Color:uint = 0xccffaa;
 	        public var cy3ColorBold:uint = 0x77dd55;
