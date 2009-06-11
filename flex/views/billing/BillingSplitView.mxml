@@ -38,6 +38,10 @@
 		import hci.flex.renderers.Label;
 		import hci.flex.renderers.TextInput;
 		
+		
+		[Bindable]
+		public var idBillingPeriod:Object = null;
+		
 		[Bindable]
 		public var request:Object;
 		
@@ -96,6 +100,7 @@
         		
  		private function save():void {
  			var params:Object = new Object();
+ 			params.idBillingPeriod = idBillingPeriod;
  			params.accountXMLString = "<SplitAccountList>";
  			params.accountXMLString += "<Request idRequest='" + request.@idRequest + "'>";
  			params.accountXMLString += billingAccountEntries.toXMLString();
@@ -109,14 +114,16 @@
  				parentApplication.navBillingView.refresh();
  				mx.managers.PopUpManager.removePopUp(this);		
  			}	
-		}
+		} 
 		
 		private function calculateTotalPercentage():void {
 			var totalPercentage:int = 0;
 			isComplete = true;
 			for each(var item:Object in billingAccountEntries) {
 				if (item.@percentage != null && item.@percentage != "") {
-					totalPercentage += int(item.@percentage);
+					var percent:String = item.@percentage;
+					percent = percent.replace("%", "");
+					totalPercentage += int(percent);
 				} 
 				if (item.@idLab == "" || item.@idBillingAccount == "" || item.@percentage == "" || item.@percentage == "0") {
 					isComplete = false;
