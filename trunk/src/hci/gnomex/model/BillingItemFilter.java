@@ -120,7 +120,7 @@ public class BillingItemFilter extends DetailObject {
     addRequestCriteria();
     addBillingItemCriteria();
     
-    queryBuf.append(" order by req.number, bi.idBillingItem");
+    queryBuf.append(" order by req.number, bi.idLab, bi.idBillingAccount, bi.idBillingItem");
     
     return queryBuf;
     
