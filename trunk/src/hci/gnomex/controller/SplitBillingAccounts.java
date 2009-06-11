@@ -46,6 +46,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SplitBillingAccounts.class);
   
+  private Integer                      idBillingPeriod; 
   private String                       accountXMLString;
   private Document                     accountDoc;
   private BillingAccountSplitParser    parser;
@@ -55,6 +56,12 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
+    
+    if (request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")) {
+      idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
+    } else {
+      this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+    }
     
     
     if (request.getParameter("accountXMLString") != null && !request.getParameter("accountXMLString").equals("")) {
@@ -92,6 +99,12 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             // change the percentage.
             for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
               BillingItem bi = (BillingItem)i1.next();
+              
+              // Only update percentages for billing items for the given billing period.
+              if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
+                continue;
+              }
+              
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
                 bi.setPercentagePrice(percentage);
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
@@ -106,6 +119,12 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             if (!found) {
               for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
+                
+                // Only clone billing items for the given billing period.
+                if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
+                  continue;
+                }
+                
                 BillingItem billingItem = new BillingItem();
                 billingItem.setIdBillingAccount(ba.getIdBillingAccount());
                 billingItem.setIdLab(ba.getIdLab());
