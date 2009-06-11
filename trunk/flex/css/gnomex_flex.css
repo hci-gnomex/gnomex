@@ -8,7 +8,7 @@ HCI Cream = F2EFD9
  
 
 .errorTip { 
-			borderColor: #ffffcc;
+			borderColor: #FFEA00;
 			paddingTop: 0;
 			paddingBottom: 0;
 			paddingLeft: 4;
@@ -18,15 +18,17 @@ HCI Cream = F2EFD9
 			backgroundColor: #ffffcc;
 			cornerRadius: 8;
 	        color: #000000;
+	borderThickness: 3;
+
 		}
 ToolTip{
      borderSkin: ClassReference("views.util.SmallToolTip");
 }
 
 .requiredBox {
-	borderColor: #F4F588;
+	borderColor: #FCF495;
 	borderStyle: solid;
-	borderThickness: 1;
+	borderThickness: 2;
 }
 
 .requiredBoxThick {
