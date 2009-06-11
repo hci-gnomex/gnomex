@@ -43,6 +43,8 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
         
         String idBillingAccountString = baNode.getAttributeValue("idBillingAccount");
         String percentageString = baNode.getAttributeValue("percentage");
+        percentageString = percentageString.replaceAll("\\%", "");
+        
         Integer percentage = new Integer(percentageString);
         BillingAccount billingAccount = null;
         billingAccount = (BillingAccount)sess.load(BillingAccount.class, new Integer(idBillingAccountString));
