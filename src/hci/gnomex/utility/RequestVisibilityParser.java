@@ -49,6 +49,10 @@ public class RequestVisibilityParser implements Serializable {
       Request request = (Request)sess.load(Request.class, new Integer(idRequest));
       
       if (secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+        if (codeVisibility == null || codeVisibility.equals("")) {
+          throw new Exception("Visibility is required for experiment " + request.getNumber());
+        }
+        
         request.setCodeVisibility(codeVisibility);
         requests.add(request);
       } else {

@@ -154,8 +154,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
     }    
     
-    if (request.getParameter("codeVisibilityToUpdate") != null) {
+    if (request.getParameter("codeVisibilityToUpdate") != null && !request.getParameter("codeVisibilityToUpdate").equals("")) {
       this.codeVisibilityToUpdate = request.getParameter("codeVisibilityToUpdate");      
+    } else {
+      if (!this.isNewAnalysis) {
+        this.addInvalidField("visibilityRequired", "Visibility is required");        
+      }
     }
     
   }
@@ -167,6 +171,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       Analysis analysis = null;
       if (isNewAnalysis) {
         analysis = analysisScreen;
+        analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
         analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());        
       } else {
         analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());       
