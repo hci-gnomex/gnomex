@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.WorkItem;
@@ -56,7 +57,6 @@ public class BillingItemParser implements Serializable {
         
         billingItem.setCategory(node.getAttributeValue("category"));
         billingItem.setCodeBillingChargeKind(node.getAttributeValue("codeBillingChargeKind"));
-        billingItem.setCodeBillingStatus(node.getAttributeValue("codeBillingStatus"));
         billingItem.setDescription(node.getAttributeValue("description"));
         billingItem.setIdBillingCategory(!node.getAttributeValue("idBillingCategory").equals("") ? new Integer(node.getAttributeValue("idBillingCategory")) : null);
         billingItem.setIdBillingPeriod(!node.getAttributeValue("idBillingPeriod").equals("") ? new Integer(node.getAttributeValue("idBillingPeriod")) : null);
@@ -86,6 +86,17 @@ public class BillingItemParser implements Serializable {
           billingItem.setTotalPrice(null);
         }
         
+        
+        // For groups with external billing, approved status is changed to 
+        // 'Approved External'
+        String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
+        if (codeBillingStatus.equals(BillingStatus.APPROVED)) {
+          if (billingItem.getLab().getIsExternal() != null && billingItem.getLab().getIsExternal().equals("Y")) {
+            codeBillingStatus = BillingStatus.APPROVED_EXTERNAL;
+          }
+        }
+        billingItem.setCodeBillingStatus(codeBillingStatus);
+
         requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
 
         

@@ -7,6 +7,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
 import hci.gnomex.model.TreatmentEntry;
+import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
@@ -121,13 +122,17 @@ public class RequestParser implements Serializable {
       if (idRequest.intValue() == 0) {
         request = new Request();
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+        request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
         isNewRequest = true;
       } else {
         request = (Request)sess.load(Request.class, idRequest);
         saveReuseOfSlides = true;
         
-        // Only some users have permissions to set the visiblity on the request
+        // Only some users have permissions to set the visibility on the request
         if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+          if (n.getAttributeValue("codeVisibility") == null || n.getAttributeValue("codeVisibility").equals("")) {
+            throw new Exception("Visibility is required for experiment " + request.getNumber());
+          }
           request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
         }
       }

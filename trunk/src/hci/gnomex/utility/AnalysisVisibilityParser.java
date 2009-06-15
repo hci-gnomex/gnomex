@@ -38,6 +38,9 @@ public class AnalysisVisibilityParser implements Serializable {
       Analysis analysis = (Analysis)sess.load(Analysis.class, new Integer(idAnalysis));
       
       if (secAdvisor.canUpdate(analysis, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+        if (codeVisibility == null || codeVisibility.equals("")) {
+          throw new Exception("Visibility is required for analysis " + analysis.getNumber());
+        }
         analysis.setCodeVisibility(codeVisibility);          
         analysisList.add(analysis);
       }
