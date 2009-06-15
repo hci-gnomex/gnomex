@@ -160,17 +160,18 @@
 			} else {
 				params.idLab = '';
 			}
-			params.name =  this.groupName.text;
+			params.firstName =  this.groupFirstName.text;
+			params.lastName =  this.groupLastName.text;
 			params.department = this.department.text;
-			params.notes = this.notes.text;
 			params.contactName =  this.contactName.text;
 			params.contactAddress = this.contactAddress.text;
 			params.contactCity =  this.contactCity.text;
 			params.contactCodeState =  this.contactStateCombo.selectedItem != null ? this.contactStateCombo.selectedItem.@value : "";
-			params.contactZip = this.contactZip.text;
+			params.contactZip = this.contactZip.text; 
 			params.contactPhone = this.contactPhone.text;
 			params.contactEmail = this.contactEmail.text;
 			params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
+			params.isExternal = this.isExternalCheckBox.selected ? "Y" : "N"; 
 			
 			for each(var ba:Object in billingAccounts) {
 				ba.@expirationDate = ba.@expirationDateOther;
@@ -249,25 +250,37 @@
 				
 				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
 				   <mx:VBox   height="100%" verticalGap="8" width="100%">
-					   	<mx:HBox verticalAlign="bottom" horizontalGap="10">
+					   	<mx:HBox verticalAlign="bottom" horizontalGap="10" width="100%">
 							<mx:VBox  verticalGap="0">
-								<mx:Label text="Name"/>
-								<mx:TextInput id="groupName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@name}" width="240" change="dirty.setDirty()"/>
+								<mx:Label text="Investigator's Last Name (or lab name)"/>
+								<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="240" change="dirty.setDirty()"/>
 							</mx:VBox>
 							<mx:VBox  verticalGap="0">
-								<mx:Label text="Department" />
-								<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="dirty.setDirty()"/>
+								<mx:Label text="Investigator's First Name"/>
+								<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="160" change="dirty.setDirty()"/>
 							</mx:VBox>
-					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="PI is CCSG Member" click="dirty.setDirty()"/>
-					   		
+					   		 
+					   		<mx:VBox  verticalGap="0" width="100%">
+					   			<mx:Label text="Email" />
+					   			<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
+					   		</mx:VBox>
 					   	</mx:HBox>
+					   	<mx:HBox width="100%" verticalAlign="bottom">
+					   		<mx:VBox  verticalGap="0">
+					   			<mx:Label text="Phone" />
+					   			<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="100" change="dirty.setDirty()"/>
+					   		</mx:VBox>
+					   		<mx:VBox  verticalGap="0"> 
+					   			<mx:Label text="Department" />
+					   			<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="dirty.setDirty()"/>
+					   			</mx:VBox>
+					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
+					   		<mx:CheckBox id="isExternalCheckBox" selected="{parentDocument.fullLab.@isExternal == 'Y' ? true : false}" label="External Billing?" click="dirty.setDirty()"/>
+
+					   	</mx:HBox>
+					    <mx:HRule width="100%"/>
 						<mx:HBox  verticalGap="0" height="100%" horizontalAlign="left" horizontalGap="10" width="100%">
-						    <mx:VBox verticalGap="0" height="100%" width="370">
-								<mx:Label text="Notes" />
-								<mx:TextInput id="notes" text="{parentDocument.fullLab.@notes}"  height="100%" width="100%" change="dirty.setDirty()"/>
-						    	
-						    </mx:VBox>
-							<mx:VBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="left" borderStyle="inset" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%">
+							<mx:VBox height="100%"   verticalGap="0" horizontalGap="3" horizontalAlign="left" borderStyle="none" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" width="100%">
 							 <mx:HBox verticalGap="0" width="100%">
 							 <mx:VBox  verticalGap="0">
 							 	<mx:Label text="Billing Contact" />
@@ -300,20 +313,11 @@
 							      	
 							      </mx:HBox>
 							 </mx:HBox>
-							 <mx:HBox verticalGap="0" width="100%">
-							  <mx:VBox  verticalGap="0">
-							  	<mx:Label text="Phone" />
-							  	<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="100" change="dirty.setDirty()"/>
-							  </mx:VBox>
-							  <mx:VBox  verticalGap="0" width="100%">
-							  	<mx:Label text="Email" />
-							  	<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
-							  </mx:VBox>
-							 </mx:HBox>
 								
 							</mx:VBox>
 						</mx:HBox>
-				   	
+				   	<mx:HRule width="100%"/>
+						
 				   </mx:VBox>
 				</mx:HBox>
 				<mx:HBox label="Membership" paddingLeft="4" height="100%" horizontalGap="8" width="100%" paddingRight="4" paddingBottom="4">

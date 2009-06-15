@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
+import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -77,10 +78,12 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       String requestNumber       = (String)row[2]  == null ? ""  : (String)row[2];
       Integer idLab              = (Integer)row[3];
       String codeRequestCategory = (String)row[4]  == null ? ""  : (String)row[4];
-      String labName             = (String)row[5]  == null ? ""  : (String)row[5];
-      AppUser submitter          = (AppUser)row[6];
-      BillingItem billingItem    = (BillingItem)row[7];
+      String labLastName         = (String)row[5]  == null ? ""  : (String)row[5];
+      String labFirstName        = (String)row[6]  == null ? ""  : (String)row[6];
+      AppUser submitter          = (AppUser)row[7];
+      BillingItem billingItem    = (BillingItem)row[8];
       
+      String labName = Lab.formatLabName(labLastName, labFirstName);
       
       if (!requestNumber.equals(prevRequestNumber) || 
           !prevIdLab.equals(billingItem.getIdLab()) ||

@@ -38,7 +38,8 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("            req.number, ");
     queryBuf.append("            req.codeRequestCategory, ");
     queryBuf.append("            req.idBillingAccount, ");
-    queryBuf.append("            lab.name, ");
+    queryBuf.append("            lab.lastName, ");
+    queryBuf.append("            lab.firstName, ");
     queryBuf.append("            appUser, ");
     queryBuf.append("            req.createDate, ");
     queryBuf.append("            req.completedDate, ");
@@ -75,12 +76,14 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.codeRequestCategory, ");
     queryBuf.append("        bi.idLab, ");
-    queryBuf.append("        lab.name, ");
+    queryBuf.append("        lab.lastName, ");
+    queryBuf.append("        lab.firstName, ");
     queryBuf.append("        appUser, ");
     queryBuf.append("        req.createDate, ");
     queryBuf.append("        req.completedDate, ");
     queryBuf.append("        bi.idBillingAccount, ");
-    queryBuf.append("        ba.accountName ");
+    queryBuf.append("        ba.accountName, ");
+    queryBuf.append("        lab.isExternal ");
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
@@ -91,7 +94,7 @@ public class BillingItemFilter extends DetailObject {
     addRequestCriteria();
     addBillingItemCriteria();
     
-    queryBuf.append(" order by bi.codeBillingStatus, req.number, lab.name, ba.accountName ");
+    queryBuf.append(" order by bi.codeBillingStatus, req.number, lab.lastName, lab.firstName, ba.accountName ");
     
     return queryBuf;
     
@@ -107,7 +110,8 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.idLab, ");
     queryBuf.append("        req.codeRequestCategory, ");
-    queryBuf.append("        lab.name, ");
+    queryBuf.append("        lab.lastName, ");
+    queryBuf.append("        lab.firstName, ");
     queryBuf.append("        appUser, ");
     queryBuf.append("        bi ");
     

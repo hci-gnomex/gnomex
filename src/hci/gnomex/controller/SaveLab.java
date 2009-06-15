@@ -254,7 +254,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
   }
   
   private void initializeLab(Lab lab) {
-    lab.setName(labScreen.getName());
+    lab.setFirstName(labScreen.getFirstName());
+    lab.setLastName(labScreen.getLastName());
     lab.setDepartment(labScreen.getDepartment());
     
     lab.setContactAddress(labScreen.getContactAddress());
@@ -265,8 +266,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setContactPhone(labScreen.getContactPhone());
     lab.setContactZip(labScreen.getContactZip());
     lab.setIsCcsgMember(labScreen.getIsCcsgMember());
+    lab.setIsExternal(labScreen.getIsExternal());
     
-    lab.setNotes(labScreen.getNotes());    
   }
   
   private class AppUserComparator implements Comparator, Serializable {

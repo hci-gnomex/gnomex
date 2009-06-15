@@ -11,7 +11,8 @@ public class LabFilter extends DetailObject {
   
   
   // Criteria
-  private String                lab;
+  private String                firstName;
+  private String                lastName;
   private String                userLastName;
   private String                userFirstName;
   private Integer               idLab;
@@ -53,7 +54,7 @@ public class LabFilter extends DetailObject {
       addSecurityCriteria();      
     }
     
-    queryBuf.append(" order by lab.name");
+    queryBuf.append(" order by lab.lastName, lab.firstName");
   }
   
   
@@ -67,11 +68,19 @@ public class LabFilter extends DetailObject {
   }
 
   private void addLabCriteria() {
-    // Search by lab name 
-    if (lab != null && !lab.equals("")){
+    // Search by lab last name 
+    if (lastName != null && !lastName.equals("")){
       this.addWhereOrAnd();
-      queryBuf.append(" lab.name like '%");
-      queryBuf.append(lab);
+      queryBuf.append(" lab.lastName like '%");
+      queryBuf.append(lastName);
+      queryBuf.append("%'");
+    } 
+
+    // Search by lab first name 
+    if (firstName != null && !firstName.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" lab.firstName like '%");
+      queryBuf.append(firstName);
       queryBuf.append("%'");
     } 
     //  Search by idLab
@@ -134,18 +143,7 @@ public class LabFilter extends DetailObject {
   }
 
   
-  public String getLab() {
-    return lab;
-  }
 
-  
-  
-  public void setLab(String lab) {
-    this.lab = lab;
-  }
-
-  
- 
   public Integer getIdLab() {
     return idLab;
   }
@@ -163,6 +161,26 @@ public class LabFilter extends DetailObject {
   
   public void setUnbounded(boolean isUnbounded) {
     this.isUnbounded = isUnbounded;
+  }
+
+  
+  public String getFirstName() {
+    return firstName;
+  }
+
+  
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  
+  public String getLastName() {
+    return lastName;
+  }
+
+  
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 
   
