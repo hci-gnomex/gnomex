@@ -8,10 +8,11 @@ import java.io.Serializable;
 
 
 public class BillingStatus extends DictionaryEntry implements Serializable {
-  public static final String                  NEW        = "NEW";
-  public static final String                  PENDING    = "PENDING";
-  public static final String                  COMPLETED  = "COMPLETE";
-  public static final String                  APPROVED   = "APPROVED";
+  public static final String                  NEW                 = "NEW";
+  public static final String                  PENDING             = "PENDING";
+  public static final String                  COMPLETED           = "COMPLETE";
+  public static final String                  APPROVED            = "APPROVED";
+  public static final String                  APPROVED_EXTERNAL   = "APPROVEDEX";
   
   private String   codeBillingStatus;
   private String   billingStatus;
