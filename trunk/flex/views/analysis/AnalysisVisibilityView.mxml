@@ -49,6 +49,14 @@
     	}
 	}
 	
+	private function getVisibility(item:Object, col:DataGridColumn):String {
+		var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', item.@codeVisibility);
+    	if (de.length() == 1) {
+	    	return de[0].@display;
+    	} else {
+    		return "";
+    	}
+	}
 	public function save():void {
 		var dirtyAnalysisItems:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Analysis.(@isDirty == 'Y');        	
     	var dirtyAnalysisList:XMLListCollection = new XMLListCollection(dirtyAnalysisItems);
@@ -104,10 +112,10 @@
 			 editable="true"
 	       	 itemEditEnd="onEdit()">
 	         <mx:columns>
-	            <mx:DataGridColumn width="5" minWidth="35" headerText="#"  editable="false" sortCompareFunction="AnalysisBrowseView.sortAnalysisNumber">
+	            <mx:DataGridColumn width="14" headerText="#"  editable="false" sortCompareFunction="AnalysisBrowseView.sortAnalysisNumber">
 	                <mx:itemRenderer>
 	                    <mx:Component >
-	                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
+	                        <mx:HBox   horizontalScrollPolicy="off" horizontalGap="0"  paddingLeft="4"  >
 			                    <mx:Image id="experimentImage"  
 			                     	source="{parentApplication.iconAnalysis}" >
 								</mx:Image>
@@ -117,17 +125,17 @@
 	                    </mx:Component>
 	                </mx:itemRenderer> 
 	            </mx:DataGridColumn> 
-		       	<mx:DataGridColumn headerText="Name" width="60" dataField="@name" editable="false"/>
-		       	<mx:DataGridColumn headerText="Date" width="40" dataField="@createDateDisplay" editable="false"/>
-		       	<mx:DataGridColumn headerText="Analysis Type" width="45"  editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
+		       	<mx:DataGridColumn headerText="Name" width="40" dataField="@name" editable="false"/>
+		       	<mx:DataGridColumn headerText="Date" width="20" dataField="@createDateDisplay" editable="false"/>
+		       	<mx:DataGridColumn headerText="Analysis Type" width="25"  editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>
-		       	<mx:DataGridColumn headerText="Organism" width="45"   editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
+		       	<mx:DataGridColumn headerText="Organism" width="25"   editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
 					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism',  '@idOrganism')}"/>
-		       	<mx:DataGridColumn headerText="Description" width="55" dataField="@description"  editable="false"/>
-		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="75" dataField="@codeVisibility" 
+		       	<mx:DataGridColumn headerText="Description" width="40" dataField="@description"  editable="false"/>
+		       	<mx:DataGridColumn headerText="Visibility"  width="40" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="true" 
 					rendererIsEditor="false" 
-					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
+					labelFunction="getVisibility"        
 					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>
 
 	         </mx:columns>
@@ -135,7 +143,7 @@
 	
 	     
 	</mx:VBox>
-	
+	  
 	
 
 
