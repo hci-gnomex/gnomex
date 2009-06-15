@@ -341,12 +341,12 @@
 			       	dataProvider="{browseList}"  
 			       	width="100%" height="100%" 
 			       	itemDoubleClick="onAnalysisRowSelected()" 
-			       	doubleClickEnabled="true">
+			       	doubleClickEnabled="true"> 
 			         <mx:columns>
-			            <mx:DataGridColumn   minWidth="28" width="28" headerText="#"  sortCompareFunction="sortAnalysisNumber">
+			            <mx:DataGridColumn  width="14" headerText="#"  sortCompareFunction="sortAnalysisNumber">
 			                <mx:itemRenderer>
 			                    <mx:Component >
-			                        <mx:HBox  horizontalGap="0"  paddingLeft="4"  >
+			                        <mx:HBox  horizontalScrollPolicy="off" horizontalGap="0"  paddingLeft="4"  >
 			                          <mx:Image id="experimentImage"  
 			                          	source="{parentApplication.iconAnalysis}" >
 			                    	 </mx:Image> 
