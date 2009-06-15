@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add Group" width="242" height="110" defaultButton="{saveButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add Group" width="390" height="110" defaultButton="{saveButton}">
     <mx:HTTPService 
     id="saveLab" 
     url="SaveLab.gx"
@@ -34,7 +34,8 @@
 			var params:Object = new Object();
 			
 			params.idLab = 0;
-			params.name = labName.text;
+			params.lastName  = lastName.text;
+			params.firstName = firstName.text;
 			params.accountsXMLString = "<billingAccounts/>";
 			params.membersXMLString = "<members/>";
 			params.collaboratorsXMLString = "<collaborators/>";
@@ -67,12 +68,16 @@
 
 	<mx:HBox width="100%">
 		<mx:VBox height="100%" verticalGap="0" width="100%">
-			<mx:Label text="Group name"/>
-			<mx:TextInput id="labName" width="100%"/>
+			<mx:Label text="Investigator Last name (or lab name)"/>
+			<mx:TextInput id="lastName" width="100%"/>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:Label text="Investigator First Name"/>
+			<mx:TextInput id="firstName" width="100%"/>
 		</mx:VBox>
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{labName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{lastName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	

@@ -243,11 +243,14 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
   
   private void addLabNode(Object[] row) {
+    String labName = Lab.formatLabName((String)row[17], (String)row[18]);
+    String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
+    
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            ((Integer)row[11]).toString());
-    labNode.setAttribute("labName",          (row[17] == null? "" : (String)row[17]).toString());
-    labNode.setAttribute("projectLabName",   row[19] == null ? "" : (String)row[19]);
-    labNode.setAttribute("label",            row[19] == null ? "" : (String)row[19]);
+    labNode.setAttribute("labName",          labName);
+    labNode.setAttribute("projectLabName",   projectLabName);
+    labNode.setAttribute("label",            projectLabName);
     rootNode.addContent(labNode);
   }
 
@@ -266,8 +269,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     projectNode.setAttribute("projectName",            row[1] == null ? ""  : (String)row[1]);
     projectNode.setAttribute("label",                  row[1] == null ? ""  : (String)row[1]);
     projectNode.setAttribute("projectDescription",     row[2] == null ? ""  : (String)row[2]);
-    projectNode.setAttribute("ownerFirstName",         row[22] == null ? "" : (String)row[22]);
-    projectNode.setAttribute("ownerLastName",          row[23] == null ? "" : (String)row[23]);
+    projectNode.setAttribute("ownerFirstName",         row[26] == null ? "" : (String)row[26]);
+    projectNode.setAttribute("ownerLastName",          row[27] == null ? "" : (String)row[27]);
     
     
     
@@ -289,6 +292,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   }
   
   private void addRequestNode(Object[] row, StringBuffer analysisNames) {
+    String labName = Lab.formatLabName((String)row[17], (String)row[18]);
+    String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
+
+    
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);
@@ -300,13 +307,13 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("idAppUser",              row[14] == null ? "" : ((Integer)row[14]).toString());
     requestNode.setAttribute("codeRequestCategory",    row[15] == null ? "" : ((String)row[15]).toString());
     requestNode.setAttribute("codeMicroarrayCategory", row[16] == null ? "" : ((String)row[16]).toString());
-    requestNode.setAttribute("labName",                (row[17] == null? "" : (String)row[17]).toString());
-    requestNode.setAttribute("slideProductName",       row[18] == null ? "" : (String)row[18]);
-    requestNode.setAttribute("projectLabName",         row[19] == null ? "" : (String)row[19]);
+    requestNode.setAttribute("labName",                labName);
+    requestNode.setAttribute("slideProductName",       row[19] == null ? "" : (String)row[19]);
+    requestNode.setAttribute("projectLabName",         projectLabName);
     requestNode.setAttribute("projectName",            row[1] == null ? ""  : (String)row[1]);
-    requestNode.setAttribute("codeVisibility",         row[21] == null ? "" : (String)row[21]);
-    requestNode.setAttribute("ownerFirstName",         row[24] == null ? "" : (String)row[24]);
-    requestNode.setAttribute("ownerLastName",          row[25] == null ? "" : (String)row[25]);
+    requestNode.setAttribute("codeVisibility",         row[23] == null ? "" : (String)row[23]);
+    requestNode.setAttribute("ownerFirstName",         row[26] == null ? "" : (String)row[26]);
+    requestNode.setAttribute("ownerLastName",          row[27] == null ? "" : (String)row[27]);
     requestNode.setAttribute("isDirty",                "N");
     requestNode.setAttribute("isSelected",             "N");
     requestNode.setAttribute("analysisNames",          analysisNames != null ? analysisNames.toString() : "");

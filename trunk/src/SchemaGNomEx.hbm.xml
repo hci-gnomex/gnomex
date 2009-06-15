@@ -258,8 +258,9 @@
 		<id name="idLab" column="idLab" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="name" column="name" type="string"/>
-		<property name="notes" column="notes" type="string"/>
+		<property name="firstName" column="firstName" type="string"/>
+		<property name="lastName" column="lastName" type="string"/>
+		<property name="isExternal" column="isExternal" type="string"/>
 		<property name="department" column="department" type="string"/>
 		<property name="contactName" column="contactName" type="string"/>
 		<property name="contactAddress" column="contactAddress" type="string"/>

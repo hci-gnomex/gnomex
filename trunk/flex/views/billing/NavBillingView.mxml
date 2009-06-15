@@ -713,7 +713,7 @@
 			if (billingPeriodCombo.selectedItem == null ||
 			    billingPeriodCombo.selectedItem.@value == "") {
 				Alert.show("Please select a billing period.");
-				return;    	 
+				return;    	   
 			}
 			if (this.requestTree.selectedItem != null) { 
 				var statusNode:Object = null;
@@ -722,17 +722,19 @@
 				} else if (this.requestTree.selectedItem.name() == "Status") {
 					statusNode = this.requestTree.selectedItem;
 				}
-				if (statusNode != null && statusNode.@status == "APPROVED" ) {
+				if (statusNode != null && 
+				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
-						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
+					    '?codeBillingStatus=' + statusNode.@status +
+						'&idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
 					navigateToURL(url, '_blank');			
 					
 				} else {
-					Alert.show("Please select the Approved folder.")
+					Alert.show("Please select the 'Approved' or 'Approved (External)' folder.")
 				}
 				
 			} else {
-				Alert.show("Please select the Approved folder.")
+				Alert.show("Please select the 'Approved' or 'Approved (External)' folder.")
 			}
 		}
 		public function showBillingGLInterface():void {
@@ -757,11 +759,11 @@
             		runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
 					
 				} else {
-					Alert.show("Please select the Approved folder.")
+					Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
 				}
 				
 			} else {
-				Alert.show("Please select the Approved folder.");
+				Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
 			}
 		}		
 		
@@ -1041,7 +1043,7 @@
         				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"/> 
         				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false"/>
         				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="11" editable="false" wordWrap="false"/>
-        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="11" wordWrap="false"
+        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="18" wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingStatus', '@codeBillingStatus')}"                              

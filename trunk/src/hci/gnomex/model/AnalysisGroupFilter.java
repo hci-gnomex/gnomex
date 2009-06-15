@@ -29,14 +29,16 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        ag.description, ");
     queryBuf.append("        ag.idLab, ");
     queryBuf.append("        '', ");
-    queryBuf.append("        aglab.name, ");
+    queryBuf.append("        aglab.lastName, ");
+    queryBuf.append("        aglab.firstName, ");
     queryBuf.append("        a.idAnalysis, ");
     queryBuf.append("        a.number, ");
     queryBuf.append("        a.name, ");
     queryBuf.append("        a.description, ");
     queryBuf.append("        a.createDate,  ");
     queryBuf.append("        a.idLab, ");
-    queryBuf.append("        alab.name, ");
+    queryBuf.append("        alab.lastName, ");
+    queryBuf.append("        alab.firstName, ");
     queryBuf.append("        a.idAnalysisType, ");
     queryBuf.append("        a.idAnalysisProtocol, ");
     queryBuf.append("        a.idOrganism, ");
@@ -70,7 +72,7 @@ public class AnalysisGroupFilter extends DetailObject {
     addSecurityCriteria();
     
     
-    queryBuf.append(" order by aglab.name, ag.name, a.number ");
+    queryBuf.append(" order by aglab.lastName, aglab.firstName, ag.name, a.number ");
   
   }
   

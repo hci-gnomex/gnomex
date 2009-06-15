@@ -7,8 +7,9 @@ import hci.hibernate3utils.HibernateDetailObject;
 
 public class Lab extends HibernateDetailObject {
   private Integer idLab;
-  private String  name;
-  private String  notes;
+  private String  firstName;
+  private String  lastName;
+  private String  isExternal;
   private String  department;
   private String  contactName;
   private String  contactAddress;
@@ -101,24 +102,24 @@ public class Lab extends HibernateDetailObject {
     this.idLab = idLab;
   }
   
-
-  public String getNotes() {
-    return notes;
-  }
-  
-  public void setNotes(String notes) {
-    this.notes = notes;
-  }
-
   
   public String getName() {
+    String name = "";
+    if (lastName != null && !lastName.equals("")) {
+      name = lastName;
+    }
+    if (firstName != null && !firstName.equals("")) {
+      if (name.length() > 0) {
+        name += ", ";
+      }
+      name += firstName;
+    }
+    if (name.length() > 0) {
+      name += " Lab";      
+    }
     return name;
   }
 
-  
-  public void setName(String name) {
-    this.name = name;
-  }
 
  
   
@@ -227,4 +228,50 @@ public class Lab extends HibernateDetailObject {
   }
 
   
+  public String getFirstName() {
+    return firstName;
+  }
+
+  
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  
+  public String getLastName() {
+    return lastName;
+  }
+
+  
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  
+  public String getIsExternal() {
+    return isExternal;
+  }
+
+  
+  public void setIsExternal(String isExternal) {
+    this.isExternal = isExternal;
+  }
+
+  public static String formatLabName(String lastName, String firstName) {
+    
+    String labName = "";
+    if (lastName != null && !lastName.equals("")) {
+      labName = lastName;
+    }
+    if (firstName != null && !firstName.equals("")) {
+      if (labName.length() > 0) {
+        labName += ", ";
+      }
+      labName += firstName;
+    }
+    if (labName.length() > 0) {
+      labName += " Lab";
+    }
+    return labName;
+  }
 }

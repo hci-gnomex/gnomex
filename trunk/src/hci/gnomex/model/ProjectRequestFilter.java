@@ -90,7 +90,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append("        req.idRequest, req.number, req.createDate,  ");
     queryBuf.append("        sample.name, sample.idSampleType, ");
     queryBuf.append("        req.idSlideProduct, sample.idSample, ");
-    queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeMicroarrayCategory, lab.name, slideProduct.name, projectLab.name, ");
+    queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeMicroarrayCategory, lab.lastName, lab.firstName, slideProduct.name, projectLab.lastName, projectLab.firstName, ");
     queryBuf.append("        '', req.codeVisibility,");
     queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName ");
@@ -131,7 +131,7 @@ public class ProjectRequestFilter extends DetailObject {
       addSlideProductCriteria();
     }
     
-    queryBuf.append(" order by projectLab.name, project.name, req.codeRequestCategory, req.codeMicroarrayCategory, req.createDate desc, req.idRequest desc, sample.number asc");
+    queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.codeRequestCategory, req.codeMicroarrayCategory, req.createDate desc, req.idRequest desc, sample.number asc");
   
   }
   

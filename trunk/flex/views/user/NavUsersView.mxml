@@ -238,9 +238,9 @@
             var addWindow:GroupAddView = GroupAddView(mx.managers.PopUpManager.createPopUp(this, GroupAddView, true));
             mx.managers.PopUpManager.centerPopUp(addWindow);
             addWindow.setFocus();
-            addWindow.labName.setFocus();
+            addWindow.lastName.setFocus();
 
-          }
+          }  
           
           public function refreshAppUserList():void 
            {

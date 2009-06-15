@@ -6,6 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -98,11 +99,15 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         String requestNumber       = (String)row[1]  == null ? ""  : (String)row[1];
         String codeRequestCategory = (String)row[2]  == null ? ""  : (String)row[2];
         String idBillingAccount    = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
-        String labName             = (String)row[4]  == null ? ""  : (String)row[4];
-        AppUser submitter          = (AppUser)row[5];
-        Date createDate            = (Date)row[6];
-        Date completedDate         = (Date)row[7];
-        String billingAcctName     = (String)row[8]  == null ? ""  : (String)row[8];
+        String labLastName         = (String)row[4]  == null ? ""  : (String)row[4];
+        String labFirstName        = (String)row[5]  == null ? ""  : (String)row[5];
+        AppUser submitter          = (AppUser)row[6];
+        Date createDate            = (Date)row[7];
+        Date completedDate         = (Date)row[8];
+        String billingAcctName     = (String)row[9]  == null ? ""  : (String)row[9];
+        
+        String labName = Lab.formatLabName(labLastName, labFirstName);
+        
         
         String toolTip = requestNumber + " " + labName;
         if (createDate != null) {
@@ -169,12 +174,18 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String requestNumber       = (String)row[2]  == null ? ""  : (String)row[2];
       String codeRequestCategory = (String)row[3]  == null ? ""  : (String)row[3];
       Integer idLab              = (Integer)row[4];
-      String labName             = (String)row[5]  == null ? ""  : (String)row[5];
-      AppUser submitter          = (AppUser)row[6];
-      Date createDate            = (Date)row[7];
-      Date completedDate         = (Date)row[8];
-      Integer idBillingAcct      = (Integer)row[9];
-      String billingAcctName     = (String)row[10]  == null ? ""  : (String)row[10];
+      String labLastName         = (String)row[5]  == null ? ""  : (String)row[5];
+      String labFirstName        = (String)row[6]  == null ? ""  : (String)row[6];
+      AppUser submitter          = (AppUser)row[7];
+      Date createDate            = (Date)row[8];
+      Date completedDate         = (Date)row[9];
+      Integer idBillingAcct      = (Integer)row[10];
+      String billingAcctName     = (String)row[11]  == null ? ""  : (String)row[11];
+      String labIsExternal       = (String)row[12];
+  
+      
+      String labName = Lab.formatLabName(labLastName, labFirstName);
+  
       
       String toolTip = requestNumber + " " + labName;
       if (createDate != null) {
@@ -295,7 +306,19 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           }
 
         }
+        if (codeBillingStatus == null) {
+          for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
+            String code = (String)i1.next();
+            if (code.equals(BillingStatus.APPROVED_EXTERNAL)) {
+              codeBillingStatus = code;
+              break;
+            }
+          }
+
+        }
       }
+      
+
 
       // Grab the appropriate status node
       statusNode = (Element)statusNodeMap.get(codeBillingStatus);
@@ -357,6 +380,20 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
       // Add non-empty labNodes onto status
       Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED);
+      for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
+        String key = (String)i1.next();
+        Element labNode = (Element)labNodeMap.get(key);
+        if (labNode.hasChildren()) {
+          status.addContent(labNode);
+        }
+      }      
+    }
+    status = (Element)statusNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
+    if (status != null) {
+      doc.getRootElement().addContent(status);      
+
+      // Add non-empty labNodes onto status
+      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
       for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
         String key = (String)i1.next();
         Element labNode = (Element)labNodeMap.get(key);
