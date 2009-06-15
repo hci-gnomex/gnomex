@@ -161,7 +161,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("WHERE  bi.idLab = " + idLab + " ");
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "')");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_EXTERNAL + "')");
     buf.append("ORDER BY req.number, bi.idBillingItem ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -177,9 +177,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       boolean hasPendingItems = false;
       for(Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
         BillingItem item = (BillingItem)i1.next();
-        if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
-          hasPendingItems = true;
-          break;
+        
+        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+            item.getIdBillingAccount().equals(idBillingAccount)) {
+          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+            hasPendingItems = true;
+            break;
+          }          
         }
       }
       if (hasPendingItems) {

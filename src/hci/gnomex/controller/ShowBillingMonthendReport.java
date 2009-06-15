@@ -41,6 +41,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
   
   
   private Integer          idBillingPeriod;
+  private String           codeBillingStatus;
   private SecurityAdvisor  secAdvisor;
   
   private NumberFormat   currencyFormat = NumberFormat.getCurrencyInstance();
@@ -61,6 +62,18 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
     }
+    
+
+    if (request.getParameter("codeBillingStatus") != null && !request.getParameter("codeBillingStatus").equals("")) {
+      codeBillingStatus = request.getParameter("codeBillingStatus");
+      
+      if (!codeBillingStatus.equals(BillingStatus.APPROVED) && !codeBillingStatus.equals(BillingStatus.APPROVED_EXTERNAL)) {
+        this.addInvalidField("billingStatusInvalid", "Please select the 'Approved' or 'Approved (External)' folder");
+      }
+    } else {
+      this.addInvalidField("codeBillingStatus", "codeBillingStatus is required");
+    }
+    
     
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
     if (secAdvisor == null) {
@@ -99,9 +112,9 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           buf.append("JOIN   req.billingItems bi ");
           buf.append("JOIN   bi.lab as lab ");
           buf.append("JOIN   bi.billingAccount as ba ");
-          buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
+          buf.append("WHERE  bi.codeBillingStatus = '" + codeBillingStatus + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-          buf.append("ORDER BY lab.name, ba.accountName, req.number, bi.idBillingItem ");
+          buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
           
           List results = sess.createQuery(buf.toString()).list();
           TreeMap requestMap = new TreeMap();
@@ -117,8 +130,11 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
             boolean mixedStatus = false;
             for (Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
               BillingItem item = (BillingItem)i1.next();
-              if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
-                mixedStatus = true;
+              if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+                  item.getIdBillingAccount().equals(bi.getIdBillingAccount())) {
+                if (!item.getCodeBillingStatus().equals(codeBillingStatus)) {
+                  mixedStatus = true;
+                }
               }
             }
             if (mixedStatus) {
@@ -240,6 +256,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
           }
           addRequestTotalRows();
           addAccountTotalRows();
+          addGrandTotalRows();
           
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
@@ -339,6 +356,35 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     tray.addRow(makeBlankRow());
     tray.addRow(makeBlankRow());
     totalPriceForLabAccount = new BigDecimal(0);
+    
+  }
+  
+  private void addGrandTotalRows() {
+    ReportRow reportRow = new ReportRow();
+    List values  = new ArrayList();
+
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("");
+    values.add("Grand Total");
+    values.add("");
+    values.add(currencyFormat.format(this.grandTotalPrice));
+    
+    reportRow.setValues(values);
+
+    tray.addRow(makeBlankRow());
+    tray.addRow(makeTotalBlankRow());
+    tray.addRow(reportRow);
+    grandTotalPrice = new BigDecimal(0);
     
   }
   

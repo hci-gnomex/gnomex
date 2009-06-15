@@ -110,7 +110,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
       journalEntry = this.JOURNAL_ID + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
 
-      if (this.isValid()) {
+      if (this.isValid()) { 
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
           
 
@@ -122,7 +122,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           buf.append("JOIN   bi.billingAccount as ba ");
           buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED + "' ");
           buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-          buf.append("ORDER BY lab.name, ba.accountName, req.number, bi.idBillingItem ");
+          buf.append("ORDER BY lab.lastName, lab.firstName, ba.accountName, req.number, bi.idBillingItem ");
           
           List results = sess.createQuery(buf.toString()).list();
           TreeMap requestMap = new TreeMap();
@@ -133,14 +133,22 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
             
+            // Bypass external billing groups
+            if (bi.getLab().getIsExternal() != null && bi.getLab().getIsExternal().equals("Y")) {
+              continue;
+            }
+            
             
             // Exclude any requests that have billing items with status
             // other than status provided in parameter.
             boolean mixedStatus = false;
             for (Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
               BillingItem item = (BillingItem)i1.next();
-              if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
-                mixedStatus = true;
+              if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+                  item.getIdBillingAccount().equals(bi.getIdBillingAccount())) {
+                if (!item.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
+                  mixedStatus = true;
+                }
               }
             }
             if (mixedStatus) {
@@ -283,8 +291,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
 
           }
 
-          addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
-          this.addMicroarrayCreditTotal(billingPeriod);
+          if (requestMap.size() > 0) {
+            addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
+            this.addMicroarrayCreditTotal(billingPeriod);            
+          }
           
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
