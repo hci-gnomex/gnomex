@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
-	width="100%"   
+	width="100%"    
 	height="100%"   
 	xmlns:util="views.util.*" >  
  
@@ -134,6 +134,9 @@
         private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
         
         private var lastSelectedItem:Object = null;
+        
+        [Bindable]
+        private var grandTotalPrice:String = "";
 
       	public function initializeData():void
       	{
@@ -452,26 +455,72 @@
  			}
 			billingItemsDisplayed = new XMLListCollection();
 			
- 			if (this.requestTree.selectedItem.name() == "Status" || 
- 			    this.requestTree.selectedItem.name() == "Lab") {
+			var totalPrice:Number = new Number(0);
+			var request:XML = null;
+			var lab:XML = null;
+			var item:Object = null;
+ 			if (this.requestTree.selectedItem.name() == "Status" && 
+ 			    this.requestTree.selectedItem.@status == 'PENDING') {
  				this.billingItemsDisplayed = new XMLListCollection();
- 				for each(var request:XML in this.requestTree.selectedItem..Request) {
- 					for each(var item:Object in billingItems) {
+ 				for each(request in this.requestTree.selectedItem..Request) {
+ 					for each(item in billingItems) {
 	 					if (item.@requestNumber == request.@requestNumber) {
 	 						billingItemsDisplayed.addItem(item);
+		 					totalPrice = sumTotalPrice(totalPrice, item);
  						}
  					}  
  					
  				}
+ 			} else if (this.requestTree.selectedItem.name() == "Status") {
+ 				this.billingItemsDisplayed = new XMLListCollection();
+ 				for each(lab in this.requestTree.selectedItem..Lab) {
+	 				for each(request in lab.Request) {
+	 					for each(item in billingItems) {
+		 					if (item.@requestNumber == request.@requestNumber &&
+		 					    item.@idBillingAccount == lab.@idBillingAccount) {
+		 						billingItemsDisplayed.addItem(item);
+		 						totalPrice = sumTotalPrice(totalPrice, item);
+	 						}
+	 					}  
+	 					
+ 					}
+ 				}
+ 			}  else if (this.requestTree.selectedItem.name() == "Lab") {
+ 				this.billingItemsDisplayed = new XMLListCollection();
+ 				lab = XML(this.requestTree.selectedItem);
+ 				for each(request in lab.Request) {
+ 					for each(item in billingItems) {
+	 					if (item.@requestNumber == request.@requestNumber &&
+	 					    item.@idBillingAccount == lab.@idBillingAccount) {
+	 						billingItemsDisplayed.addItem(item);
+		 					totalPrice = sumTotalPrice(totalPrice, item);
+ 						}
+ 					}  
+ 				}
  			} else if (this.requestTree.selectedItem.name() == "Request") {
- 				for each(var r1:Object in billingItems) {
- 					if (r1.@requestNumber == requestTree.selectedItem.@requestNumber) {
-	 					billingItemsDisplayed.addItem(r1);
+ 				for each(item in billingItems) {
+ 					if (item.@requestNumber == requestTree.selectedItem.@requestNumber) {
+	 					billingItemsDisplayed.addItem(item);
+						totalPrice = sumTotalPrice(totalPrice, item);
  					}
  				}
  			}  
 			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
 			this.billingItemGrid.dataProvider.refresh();
+			
+			if (totalPrice > 0) {
+				grandTotalPrice = currencyFormatter.format(totalPrice.toFixed(2).toString());			
+			} else {
+				grandTotalPrice = "";
+			}
+ 		}
+ 		
+ 		private function sumTotalPrice(totalPrice:Number, billingItem:Object):Number {
+ 			var price:String = billingItem.@totalPrice;
+ 			price = price.replace('$', '');
+ 			price = price.replace(',', '');
+ 			totalPrice += (price != '' ? new Number(price) : 0);
+ 			return totalPrice;
  		}
         private function onDragDropBillingItemGrid(event:DragEvent) : void
 		{
@@ -742,13 +791,13 @@
 			    billingPeriodCombo.selectedItem.@value == "") {
 				Alert.show("Please select a billing period.");
 				return;    	
-			}
+			} 
 			if (this.requestTree.selectedItem != null) { 
 				var statusNode:Object = null;
 				if (this.requestTree.selectedItem.name() == "Lab") {
 					statusNode = this.requestTree.selectedItem.parent(); 
 				} else if (this.requestTree.selectedItem.name() == "Status") {
-					statusNode = this.requestTree.selectedItem;
+					statusNode = this.requestTree.selectedItem; 
 				}
 				if (statusNode != null && 
 				    (statusNode.@status == "APPROVED" )) {
@@ -757,6 +806,8 @@
             		mx.managers.PopUpManager.centerPopUp(runWindow);
             		runWindow.setFocus();
             		runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
+            		runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
+            		runWindow.grandTotalPrice = this.grandTotalPrice;
 					
 				} else {
 					Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
@@ -994,10 +1045,11 @@
         	</mx:TabNavigator>
 
 			        	
-        	<mx:Panel width="100%" height="100%" verticalGap="0" title="Billing Items">
+        	<mx:Panel width="100%" height="100%" verticalGap="0" title="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}">
         		<mx:HBox width="100%">
         			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()"/>
         			<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/group_add_disable.png')" icon="@Embed(source='../../assets/group_add.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
+        			<mx:Spacer width="100%"/>
         			 
         		</mx:HBox>
         		
@@ -1023,7 +1075,7 @@
         				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="10" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
         				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false"/>
-        				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="10"  wordWrap="false"
+        				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="13"  wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"   
 						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingPeriod', '@idBillingPeriod')}"                              
