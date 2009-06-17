@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Generate GL Interface" 
-	width="210" height="92" defaultButton="{runButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+	title="{billingPeriod + ' GL Interface' +  '    ' + grandTotalPrice}" 
+	width="276" height="92" defaultButton="{runButton}">
  
 
 <mx:Script>
@@ -12,20 +13,27 @@
 		
 		public var idBillingPeriod:Object;
 		
+		[Bindable]
+		public var billingPeriod:String;
+		
+		[Bindable]
+		public var grandTotalPrice:String;
+		
 		private function run():void {
 			var url:URLRequest = new URLRequest('ShowBillingGLInterface.gx' +
 						'?idBillingPeriod=' + idBillingPeriod + 
+						'&grandTotalPrice=' + grandTotalPrice +
 						'&revisionNumber=' + revision.text);
 			navigateToURL(url, '_blank');	
 			mx.managers.PopUpManager.removePopUp(this);		
 		}				
-		
+		 
 	]]>
 </mx:Script>
 
 	<mx:HBox width="100%">
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
-			<mx:Label text="Journal Entry Revision:"/>
+			<mx:Label text="Journal Entry Revision:" width="200"/>
 			<mx:TextInput id="revision" width="100%" text="1" textAlign="right"/>
 		</mx:HBox>
 	</mx:HBox>
