@@ -46,6 +46,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   
   
   private Integer                  idBillingPeriod;
+  private BigDecimal               expectedGrandTotalPrice;
   private Integer                  revisionNumber = new Integer(1);
   private SecurityAdvisor          secAdvisor;
   
@@ -72,6 +73,15 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     } else {
       this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
     }
+
+    if (request.getParameter("grandTotalPrice") != null) {
+      String grandTotalPrice = request.getParameter("grandTotalPrice");
+      grandTotalPrice = grandTotalPrice.replaceAll("\\$", "");
+      grandTotalPrice = grandTotalPrice.replaceAll(",", "");
+      expectedGrandTotalPrice = new BigDecimal(grandTotalPrice);
+    } else {
+      this.addInvalidField("grandTotalPrice", "grandTotalPrice is required");
+    }
     
     if (request.getParameter("revisionNumber") != null && !request.getParameter("revisionNumber").equals("")) {
       revisionNumber = new Integer(request.getParameter("revisionNumber"));
@@ -91,7 +101,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     this.SUCCESS_JSP_CSV = "/report_csv.jsp";
     this.SUCCESS_JSP_PDF = "/report_pdf.jsp";
     this.SUCCESS_JSP_XLS = "/report_xls_gl_interface.jsp";
-    this.ERROR_JSP = "/message.jsp";
+    this.ERROR_JSP = "/messageHTML.jsp";
     
     SimpleDateFormat headerDateFormat = new SimpleDateFormat("MMM yy");
     SimpleDateFormat periodFormat = new SimpleDateFormat("MMMyy");
@@ -293,11 +303,23 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
 
           if (requestMap.size() > 0) {
             addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
+            
+            // Verify that grand total matches expected grand total
+            if (!this.totalPrice.equals(this.expectedGrandTotalPrice)) {
+              this.addInvalidField("UnexpectedTotal", "The GNomEx GL interface for " + 
+                  billingPeriod.getBillingPeriod() + 
+                  " could not be generated.  The total price $" + 
+                  totalPrice + 
+                  " does not match the expected total price of $" + 
+                  expectedGrandTotalPrice + ".");
+            }
+            
+            // Show the microarray credit for the total billing
             this.addMicroarrayCreditTotal(billingPeriod);            
           }
           
         } else {
-          this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to generate GL Interface.");
         }
         
       }
