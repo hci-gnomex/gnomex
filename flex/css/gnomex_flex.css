@@ -109,19 +109,22 @@ Panel {
 }
 
 TitleWindow {
+ headerColors:  #b3b198, #b0ae9d;
 	borderColor: #C3C2B7;
 	backgroundColor: #C3C2B7;
 	cornerRadius: 4;
-	borderThicknessTop: 0;
+	borderThicknessTop: 4;
 	borderThicknessBottom: 4;
 	borderThicknessLeft: 4;
 	borderThicknessRight: 4;
 	titleStyleName: titleWindowTitle;
-	headerHeight: 28;
+	headerHeight: 24;
 	controlBarStyleName: titleWindowControlBar;
+	dropShadowEnabled: true;
 }
 .titleWindowTitle
-{
+{ 
+	color: #FFFFFF;
 	fontWeight: normal;
 }
 
