@@ -689,6 +689,9 @@
 		  	<key-property name="idBillingCategory" column="idBillingCategory" type="integer"/>
 	   	</composite-id>
 		<property name="sortOrder"  column="sortOrder" type="integer"/>
+		<many-to-one name="billingCategory"  column="idBillingCategory" class="hci.gnomex.model.BillingCategory" cascade="none" insert="false" update="false" />
+		<many-to-one name="billingTemplate"  column="idBillingTemplate" class="hci.gnomex.model.BillingTemplate" cascade="none" insert="false" update="false" />
+		
 	</class>	
 
     <!-- hci.gnomex.model.ConcentrationUnit -->
@@ -880,6 +883,8 @@
 		  	<key-property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
 	   	</composite-id>
 		
+		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
+		<many-to-one name="microarrayCategory"  column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory" cascade="none" insert="false" update="false" />
 	</class>
 	<!-- hci.gnomex.model.SampleCharacteristic -->
 	<class name="hci.gnomex.model.SampleCharacteristic" table="SampleCharacteristic">
@@ -924,6 +929,9 @@
 		<property name="idScanProtocolDefault" column="idScanProtocolDefault" type="integer"/>
 		<property name="idFeatureExtractionProtocolDefault" column="idFeatureExtractionProtocolDefault" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<many-to-one name="sampleType"  column="idSampleType" class="hci.gnomex.model.SampleType" cascade="none" insert="false" update="false" />
+		<many-to-one name="microarrayCategory"  column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory" cascade="none" insert="false" update="false" />
+		
 	</class>
 
 	<!-- hci.gnomex.model.SampleTypeRequestCategory -->
@@ -933,6 +941,9 @@
 		</id>
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
+		<many-to-one name="sampleType"  column="idSampleType" class="hci.gnomex.model.SampleType" cascade="none" insert="false" update="false" />
+		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
+		
 	</class>
 	
 	<!-- hci.gnomex.model.SamplePrepMethod -->
@@ -953,6 +964,8 @@
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="isDefaultForSampleType" column="isDefaultForSampleType" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
+		<many-to-one name="sampleType"  column="idSampleType" class="hci.gnomex.model.SampleType" cascade="none" insert="false" update="false" />
 	</class>
 
 	<!-- hci.gnomex.model.SamplePrepMethodSeqRunType -->
@@ -962,6 +975,8 @@
 		</id>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
+		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
+		<many-to-one name="seqRunType"  column="idSeqRunType" class="hci.gnomex.model.SeqRunType" cascade="none" insert="false" update="false" />
 	</class>
 
 
@@ -972,6 +987,8 @@
 		</id>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
+		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 	</class>
 
 	<!-- hci.gnomex.model.ScanProtocol -->

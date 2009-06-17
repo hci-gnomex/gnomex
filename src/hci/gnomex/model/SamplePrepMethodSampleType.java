@@ -11,9 +11,13 @@ public class SamplePrepMethodSampleType extends DictionaryEntry implements Seria
   private Integer  idSampleType;
   private String   isDefaultForSampleType;
   private String   isActive;
+  private SamplePrepMethod samplePrepMethod;
+  private SampleType       sampleType;
   
   public String getDisplay() {
-    String display = this.idSamplePrepMethod.toString() + this.idSampleType.toString();
+    String display = (getSamplePrepMethod() != null ? getSamplePrepMethod().getSamplePrepMethod() : "?") + " - " +
+    (getSampleType() != null ? getSampleType().getSampleType() : "?");
+
     return display;
   }
 
@@ -71,6 +75,26 @@ public class SamplePrepMethodSampleType extends DictionaryEntry implements Seria
   
   public void setIsDefaultForSampleType(String isDefaultForSampleType) {
     this.isDefaultForSampleType = isDefaultForSampleType;
+  }
+
+  
+  private SamplePrepMethod getSamplePrepMethod() {
+    return samplePrepMethod;
+  }
+
+  
+  private void setSamplePrepMethod(SamplePrepMethod samplePrepMethod) {
+    this.samplePrepMethod = samplePrepMethod;
+  }
+
+  
+  private SampleType getSampleType() {
+    return sampleType;
+  }
+
+  
+  private void setSampleType(SampleType sampleType) {
+    this.sampleType = sampleType;
   }
 
   

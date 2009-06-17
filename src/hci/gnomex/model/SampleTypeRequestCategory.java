@@ -9,9 +9,13 @@ public class SampleTypeRequestCategory extends DictionaryEntry implements Serial
   private Integer  idSampleTypeRequestCategory;
   private Integer  idSampleType;
   private String   codeRequestCategory;
+  private SampleType       sampleType;
+  private RequestCategory  requestCategory;
   
   public String getDisplay() {
-    String display = this.idSampleTypeRequestCategory.toString();
+    String display =  (getSampleType() != null ? getSampleType().getSampleType() : "?") + 
+                      " - " + 
+                      (getRequestCategory() != null ? getRequestCategory().getRequestCategory() : "?");
     return display;
   }
 
@@ -48,6 +52,26 @@ public class SampleTypeRequestCategory extends DictionaryEntry implements Serial
   
   public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
+  }
+
+  
+  private RequestCategory getRequestCategory() {
+    return requestCategory;
+  }
+
+  
+  private void setRequestCategory(RequestCategory requestCategory) {
+    this.requestCategory = requestCategory;
+  }
+
+  
+  private SampleType getSampleType() {
+    return sampleType;
+  }
+
+  
+  private void setSampleType(SampleType sampleType) {
+    this.sampleType = sampleType;
   }
 
   

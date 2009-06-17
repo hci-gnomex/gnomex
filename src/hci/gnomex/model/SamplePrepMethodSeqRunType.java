@@ -9,9 +9,12 @@ public class SamplePrepMethodSeqRunType extends DictionaryEntry implements Seria
   private Integer  idSamplePrepMethodSeqRunType;
   private Integer  idSamplePrepMethod;
   private Integer  idSeqRunType;
+  private SamplePrepMethod samplePrepMethod;
+  private SeqRunType       seqRunType;
   
   public String getDisplay() {
-    String display = this.idSamplePrepMethodSeqRunType.toString();
+    String display = (getSamplePrepMethod() != null ? getSamplePrepMethod().getSamplePrepMethod() : "?") + " - " +
+                     (getSeqRunType() != null ? getSeqRunType().getSeqRunType() : "?");
     return display;
   }
 
@@ -48,6 +51,26 @@ public class SamplePrepMethodSeqRunType extends DictionaryEntry implements Seria
   
   public void setIdSeqRunType(Integer idSeqRunType) {
     this.idSeqRunType = idSeqRunType;
+  }
+
+  
+  private SamplePrepMethod getSamplePrepMethod() {
+    return samplePrepMethod;
+  }
+
+  
+  private void setSamplePrepMethod(SamplePrepMethod samplePrepMethod) {
+    this.samplePrepMethod = samplePrepMethod;
+  }
+
+  
+  private SeqRunType getSeqRunType() {
+    return seqRunType;
+  }
+
+  
+  private void setSeqRunType(SeqRunType seqRunType) {
+    this.seqRunType = seqRunType;
   }
 
 

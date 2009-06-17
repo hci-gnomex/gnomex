@@ -9,9 +9,15 @@ public class BillingTemplateEntry extends DictionaryEntry implements Serializabl
   private Integer  idBillingTemplate;
   private Integer  idBillingCategory;
   private Integer  sortOrder;
+  private BillingCategory billingCategory;
+  private BillingTemplate billingTemplate;
+  
+  
   
   public String getDisplay() {
-    String display = this.getIdBillingTemplate().toString() + this.getIdBillingCategory().toString();
+    String display =  (getBillingCategory() != null ? getBillingCategory().getDescription() : "?") + 
+                      " - " + 
+                      (getBillingTemplate() != null ? getBillingTemplate().getDescription() : "?");
     return display;
   }
 
@@ -78,6 +84,26 @@ public class BillingTemplateEntry extends DictionaryEntry implements Serializabl
   
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  
+  private BillingCategory getBillingCategory() {
+    return billingCategory;
+  }
+
+  
+  private void setBillingCategory(BillingCategory billingCategory) {
+    this.billingCategory = billingCategory;
+  }
+
+  
+  private BillingTemplate getBillingTemplate() {
+    return billingTemplate;
+  }
+
+  
+  private void setBillingTemplate(BillingTemplate billingTemplate) {
+    this.billingTemplate = billingTemplate;
   } 
 
 
