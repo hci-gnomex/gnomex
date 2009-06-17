@@ -13,11 +13,15 @@ public class SampleTypeMicroarrayCategory extends DictionaryEntry implements Ser
   private Integer  idHybProtocolDefault;
   private Integer  idScanProtocolDefault;
   private Integer  idFeatureExtractionProtocolDefault;
+  private SampleType          sampleType;
+  private MicroarrayCategory  microarrayCategory;
   
   private String   isActive;
   
   public String getDisplay() {
-    String display = this.codeMicroarrayCategory + this.idSampleType;
+    String display =  (getSampleType() != null ? getSampleType().getSampleType() : "?") + 
+                      " - " + 
+                      (getMicroarrayCategory() != null ? getMicroarrayCategory().getMicroarrayCategory() : "?");
     return display;
   }
 
@@ -105,6 +109,26 @@ public class SampleTypeMicroarrayCategory extends DictionaryEntry implements Ser
   
   public void setIdScanProtocolDefault(Integer idScanProtocolDefault) {
     this.idScanProtocolDefault = idScanProtocolDefault;
+  }
+
+  
+  private SampleType getSampleType() {
+    return sampleType;
+  }
+
+  
+  private void setSampleType(SampleType sampleType) {
+    this.sampleType = sampleType;
+  }
+
+  
+  private MicroarrayCategory getMicroarrayCategory() {
+    return microarrayCategory;
+  }
+
+  
+  private void setMicroarrayCategory(MicroarrayCategory microarrayCategory) {
+    this.microarrayCategory = microarrayCategory;
   }
   
 

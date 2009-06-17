@@ -6,12 +6,16 @@ import java.io.Serializable;
 
 
 public class SamplePrepMethodRequestCategory extends DictionaryEntry implements Serializable {
-  private Integer  idSamplePrepMethodRequestCategory;
-  private Integer  idSamplePrepMethod;
-  private String   codeRequestCategory;
+  private Integer          idSamplePrepMethodRequestCategory;
+  private Integer          idSamplePrepMethod;
+  private String           codeRequestCategory;
+  private SamplePrepMethod samplePrepMethod;
+  private RequestCategory  requestCategory;
   
   public String getDisplay() {
-    String display = this.idSamplePrepMethodRequestCategory.toString();
+    String display =  (getSamplePrepMethod() != null ? getSamplePrepMethod().getSamplePrepMethod() : "?") + 
+                      " - " + 
+                      (getRequestCategory() != null ? getRequestCategory().getRequestCategory() : "?");
     return display;
   }
 
@@ -48,6 +52,26 @@ public class SamplePrepMethodRequestCategory extends DictionaryEntry implements 
   
   public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
+  }
+
+  
+  private SamplePrepMethod getSamplePrepMethod() {
+    return samplePrepMethod;
+  }
+
+  
+  private void setSamplePrepMethod(SamplePrepMethod samplePrepMethod) {
+    this.samplePrepMethod = samplePrepMethod;
+  }
+
+  
+  private RequestCategory getRequestCategory() {
+    return requestCategory;
+  }
+
+  
+  private void setRequestCategory(RequestCategory requestCategory) {
+    this.requestCategory = requestCategory;
   }
 
   

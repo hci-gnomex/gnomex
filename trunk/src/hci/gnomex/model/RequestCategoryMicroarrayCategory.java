@@ -12,10 +12,14 @@ public class RequestCategoryMicroarrayCategory extends DictionaryEntry implement
 
   private String codeMicroarrayCategory;
   private String codeRequestCategory;
+  private RequestCategory    requestCategory;
+  private MicroarrayCategory microarrayCategory;
  
   
   public String getDisplay() {
-    String display = getCodeRequestCategory() + " " + getCodeMicroarrayCategory();
+    String display =  (getRequestCategory() != null ? getRequestCategory().getRequestCategory() : "?") + 
+                      " - " + 
+                      (getMicroarrayCategory() != null ? getMicroarrayCategory().getMicroarrayCategory() : "?");
     return display;
   }
 
@@ -72,6 +76,26 @@ public class RequestCategoryMicroarrayCategory extends DictionaryEntry implement
       // Use exclusive or between hashCodes to get new result
       return this.getCodeMicroarrayCategory().hashCode() ^ this.getCodeRequestCategory().hashCode();
     }
+  }
+
+  
+  private RequestCategory getRequestCategory() {
+    return requestCategory;
+  }
+
+  
+  private void setRequestCategory(RequestCategory requestCategory) {
+    this.requestCategory = requestCategory;
+  }
+
+  
+  private MicroarrayCategory getMicroarrayCategory() {
+    return microarrayCategory;
+  }
+
+  
+  private void setMicroarrayCategory(MicroarrayCategory microarrayCategory) {
+    this.microarrayCategory = microarrayCategory;
   }
 
   

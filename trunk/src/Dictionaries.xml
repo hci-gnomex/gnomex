@@ -2,49 +2,54 @@
 <Dictionaries>
 
 
-	<Dictionary displayName="Admin - Funding Agency" className="hci.gnomex.model.FundingAgency"  >
+	<Dictionary displayName="Admin Funding Agency" className="hci.gnomex.model.FundingAgency"  >
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
-  <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
-	<Dictionary displayName="Admin - User Permission Kind" className="hci.gnomex.model.UserPermissionKind" />
+  <Dictionary displayName="Admin State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />
-	<Dictionary displayName="Admin - Data Access (visibility)" className="hci.gnomex.model.Visibility" />
-	<Dictionary displayName="Admin - Workflow Step" className="hci.gnomex.model.Step" />
 
-	<Dictionary displayName="Setup - Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
+
+
+	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Experiment Factor" className="hci.gnomex.model.ExperimentFactor" >
+	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Organism" className="hci.gnomex.model.Organism">
+   <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+      <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
+      <Filter className="YN" filterField="isLatestBuild"/>
+	</Dictionary>
+
+	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Request Category" className="hci.gnomex.model.RequestCategory" >	
+	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" >
+	<Dictionary displayName="Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>	
 	</Dictionary>
-	<Dictionary displayName="Setup - Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
+	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
 	</Dictionary>
-	<Dictionary displayName="Setup - Sample Prep Method (Request defaults)" className="hci.gnomex.model.SamplePrepMethodRequestCategory" >
+	<Dictionary displayName="Sample Prep Method (Request defaults)" className="hci.gnomex.model.SamplePrepMethodRequestCategory" >
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Sample Prep Method (Sample type defaults)" className="hci.gnomex.model.SamplePrepMethodSampleType" >
+	<Dictionary displayName="Sample Prep Method (Sample type defaults)" className="hci.gnomex.model.SamplePrepMethodSampleType" >
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
       <Filter className="YN" filterField="isDefaultForSampleType"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Sample Source" className="hci.gnomex.model.SampleSource" />
-	<Dictionary displayName="Setup - Sample Type" className="hci.gnomex.model.SampleType">
+	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
+	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType">
   </Dictionary>
-  <Dictionary displayName="Setup - Sample Type (Request defaults)" className="hci.gnomex.model.SampleTypeRequestCategory" >
+  <Dictionary displayName="Sample Type (Request defaults)" className="hci.gnomex.model.SampleTypeRequestCategory" >
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Sample Type (Microarray defaults)" className="hci.gnomex.model.SampleTypeMicroarrayCategory" >
+	<Dictionary displayName="Sample Type (Microarray defaults)" className="hci.gnomex.model.SampleTypeMicroarrayCategory" >
   	  <Filter className="hci.gnomex.model.MicroarrayCategory"        filterField="codeMicroarrayCategory"/>
   	  <Filter className="hci.gnomex.model.SampleType"                filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
@@ -52,75 +57,70 @@
   	  <Filter className="hci.gnomex.model.ScanProtocol"              filterField="idScanProtocolDefault"/>
   	  <Filter className="hci.gnomex.model.FeatureExtractionProtocol" filterField="idFeatureExtractionProtocolDefault"/>
 	</Dictionary>
-	<Dictionary displayName="Setup - Slide Source" className="hci.gnomex.model.SlideSource" />
-  <Dictionary displayName="Setup - Sample Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
-  <Dictionary displayName="Setup - Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
+  <Dictionary displayName="Sample Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
+  <Dictionary displayName="Sample Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
   </Dictionary>
 	
 
 
-   <Dictionary displayName="Analysis - Genome Build" className="hci.gnomex.model.GenomeBuild" >
-			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
-      <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
-      <Filter className="YN" filterField="isLatestBuild"/>
-	</Dictionary>
-	<Dictionary displayName="Analysis - Analysis Protocol" className="hci.gnomex.model.AnalysisProtocol"  editable="Y"  >
+	<Dictionary displayName="Analysis Protocol" className="hci.gnomex.model.AnalysisProtocol"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
   	  <Filter className="hci.gnomex.model.AnalysisType" filterField="idAnalysisType"/>
 	</Dictionary>
-	<Dictionary displayName="Analysis - Analysis Type" className="hci.gnomex.model.AnalysisType"  editable="Y"  >
+	<Dictionary displayName="Analysis Type" className="hci.gnomex.model.AnalysisType"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
 	
 
-  <Dictionary displayName="Billing - Category" className="hci.gnomex.model.BillingCategory" />
-  <Dictionary displayName="Billing - Charge Kind" className="hci.gnomex.model.BillingChargeKind" />
-  <Dictionary displayName="Billing - Period" className="hci.gnomex.model.BillingPeriod" />
-  <Dictionary displayName="Billing - Price" className="hci.gnomex.model.BillingPrice" >
+  <Dictionary displayName="Billing Category" className="hci.gnomex.model.BillingCategory" />
+  <Dictionary displayName="Billing Charge Kind" className="hci.gnomex.model.BillingChargeKind" />
+  <Dictionary displayName="Billing Period" className="hci.gnomex.model.BillingPeriod" />
+  <Dictionary displayName="Billing Price" className="hci.gnomex.model.BillingPrice" >
       <Filter className="hci.gnomex.model.BillingCategory" filterField="idBillingCategory"/>
+      <Filter className="hci.gnomex.model.BillingTemplate" filterField="idBillingTemplate"/>
   </Dictionary>
-  <Dictionary displayName="Billing - Slide Service Class" className="hci.gnomex.model.BillingSlideServiceClass" />
-  <Dictionary displayName="Billing - Slide Product Class" className="hci.gnomex.model.BillingSlideProductClass" />
-  <Dictionary displayName="Billing - Status" className="hci.gnomex.model.BillingStatus" />
-  <Dictionary displayName="Billing - Template" className="hci.gnomex.model.BillingTemplate" >
+  <Dictionary displayName="Billing Slide Service Class" className="hci.gnomex.model.BillingSlideServiceClass" />
+  <Dictionary displayName="Billing Slide Product Class" className="hci.gnomex.model.BillingSlideProductClass" />
+  <Dictionary displayName="Billing Status" className="hci.gnomex.model.BillingStatus" />
+  <Dictionary displayName="Billing Template" className="hci.gnomex.model.BillingTemplate" >
       <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   </Dictionary>
-  <Dictionary displayName="Billing - Template Entry" className="hci.gnomex.model.BillingTemplateEntry" >
+  <Dictionary displayName="Billing Template Entry" className="hci.gnomex.model.BillingTemplateEntry" >
       <Filter className="hci.gnomex.model.BillingTemplate" filterField="idBillingTemplate"/>
       <Filter className="hci.gnomex.model.BillingCategory" filterField="idBillingCategory"/>
   </Dictionary>
 
 
-	<Dictionary displayName="Illumina - Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
-  <Dictionary displayName="Illumina - Single vs. Paired end Reads" className="hci.gnomex.model.SeqRunType" />
-	<Dictionary displayName="Illumina - Library Prep/Single vs. Paired end Reads" className="hci.gnomex.model.SamplePrepMethodSeqRunType" >
+	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
+  <Dictionary displayName="Illumina Single vs. Paired end Reads" className="hci.gnomex.model.SeqRunType" />
+	<Dictionary displayName="Illumina Library Prep/Single vs. Paired end Reads" className="hci.gnomex.model.SamplePrepMethodSeqRunType" >
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.SeqRunType"         filterField="idSeqRunType"/>
 	</Dictionary>
-	<Dictionary displayName="Illumina - Control Library" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
+	<Dictionary displayName="Illumina Control Library" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
 
 	
 	
-	<Dictionary displayName="Microarray - Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
+	<Dictionary displayName="Microarray Feature Extraction Protocol" className="hci.gnomex.model.FeatureExtractionProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Microarray - Hyb Protocol" className="hci.gnomex.model.HybProtocol" editable="N" >
+	<Dictionary displayName="Microarray Hyb Protocol" className="hci.gnomex.model.HybProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Microarray - Label" className="hci.gnomex.model.Label" />
-	<Dictionary displayName="Microarray - Labeling Protocol" className="hci.gnomex.model.LabelingProtocol" editable="N" >
+	<Dictionary displayName="Microarray Label" className="hci.gnomex.model.Label" />
+	<Dictionary displayName="Microarray Labeling Protocol" className="hci.gnomex.model.LabelingProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Microarray - Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
-	<Dictionary displayName="Microarray - Application" className="hci.gnomex.model.MicroarrayCategory" />
-	<Dictionary displayName="Microarray - Application (Request defaults)" className="hci.gnomex.model.RequestCategoryMicroarrayCategory" >
+	<Dictionary displayName="Microarray Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
+	<Dictionary displayName="Microarray Application" className="hci.gnomex.model.MicroarrayCategory" />
+	<Dictionary displayName="Microarray Application (Request defaults)" className="hci.gnomex.model.RequestCategoryMicroarrayCategory" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.MicroarrayCategory" filterField="codeMicroarrayCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Microarray - Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
+	<Dictionary displayName="Microarray Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
 
@@ -133,6 +133,10 @@
   	  <Filter className="hci.gnomex.model.SlideDesign" filterField="idSlideDesign"/>
 	</Dictionary>
 	<Dictionary displayName="Slide Design" className="hci.gnomex.model.SlideDesign" editable="N" />
+	<Dictionary displayName="User Permission Kind"  className="hci.gnomex.model.UserPermissionKind" editable="N" />
+	<Dictionary displayName="Visibility" className="hci.gnomex.model.Visibility" editable="N" />
+	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" editable="N"/>
+	<Dictionary displayName="Slide Source" className="hci.gnomex.model.SlideSource"  editable="N"/>
 
 </Dictionaries>
 	
