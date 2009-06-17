@@ -10,6 +10,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -70,6 +71,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     
     NumberFormat nf = NumberFormat.getCurrencyInstance();
     boolean firstTime = true;
+    BigDecimal totalPrice = new BigDecimal("0");
+    totalPrice.setScale(2);
     for(Iterator i = billingItems.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
@@ -100,8 +103,10 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
         requestNode.setAttribute("isDirty", "N");
         
-        
         doc.getRootElement().addContent(requestNode);
+        
+        totalPrice = new BigDecimal(0);
+        totalPrice.setScale(2);
       }
       
       Element billingItemNode = billingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
@@ -109,6 +114,10 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         billingItemNode.setAttribute("totalPrice", nf.format(billingItem.getTotalPrice().doubleValue()));        
       }
       requestNode.addContent(billingItemNode);
+      
+      totalPrice = totalPrice.add(billingItem.getTotalPrice() != null ? billingItem.getTotalPrice() : new BigDecimal(0));
+      requestNode.setAttribute("totalPrice", nf.format(totalPrice.doubleValue()));
+      
       
       prevRequestNumber = requestNumber;
       prevIdLab = billingItem.getIdLab();
