@@ -2,6 +2,7 @@ package hci.gnomex.lucene;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
@@ -240,9 +241,11 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       slideProd.idOrganism,  ");
     buf.append("       req.codeRequestCategory,  ");
     buf.append("       proj.idLab,  ");
-    buf.append("       labProj.name,  ");
+    buf.append("       labProj.lastName,  ");
+    buf.append("       labProj.firstName,  ");
     buf.append("       req.idLab,  ");
-    buf.append("       labReq.name,  ");
+    buf.append("       labReq.lastName,  ");
+    buf.append("       labReq.firstName,  ");
     buf.append("       req.codeMicroarrayCategory, ");
     buf.append("       reqOwner.firstName, ");
     buf.append("       reqOwner.lastName, ");
@@ -301,9 +304,11 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '',  ");
     buf.append("       req.codeRequestCategory,  ");
     buf.append("       proj.idLab,  ");
-    buf.append("       labProj.name,  ");
+    buf.append("       labProj.lastName,  ");
+    buf.append("       labProj.firstName,  ");
     buf.append("       req.idLab,  ");
-    buf.append("       labReq.name,  ");
+    buf.append("       labReq.lastName,  ");
+    buf.append("       labReq.firstName,  ");
     buf.append("       req.codeMicroarrayCategory, ");
     buf.append("       reqOwner.firstName, ");
     buf.append("       reqOwner.lastName, ");
@@ -347,10 +352,12 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       ag.description, ");
     buf.append("       '', ");
     buf.append("       ag.idLab, ");
-    buf.append("       agLab.name, ");
+    buf.append("       agLab.lastName, ");
+    buf.append("       agLab.firstName, ");
     buf.append("       owner.firstName, ");
     buf.append("       owner.lastName, ");
-    buf.append("       lab.name,  ");
+    buf.append("       lab.lastName,  ");
+    buf.append("       lab.firstName,  ");
     buf.append("       a.number, ");
     buf.append("       a.name, ");
     buf.append("       a.description, ");
@@ -616,9 +623,11 @@ public class BuildSearchIndex extends DetailObject {
     String       codeRequestCategory = null;
     String       requestCategory = null;
     Integer      idLabProject = null;
-    String       labProject = null;
+    String       labLastNameProject = null;
+    String       labFirstNameProject = null;
     Integer      idLabRequest = null;
-    String       labRequest = null;
+    String       labLastNameRequest = null;
+    String       labFirstNameRequest = null;
     String       codeMicroarrayCategory = null;
     String       microarrayCategory = null;
     String       requestOwnerFirstName = null;
@@ -627,6 +636,8 @@ public class BuildSearchIndex extends DetailObject {
     String       requestPublicNote = null;
     Date         requestCreateDate = null;
     StringBuffer requestDisplayName = null;
+    String       labProject = null;
+    String       labRequest = null;
     
     
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
@@ -646,7 +657,7 @@ public class BuildSearchIndex extends DetailObject {
       String  sampleDesc      = (String) row[7];
       Integer idOrganism      = (Integer)row[8];
       Integer idSampleSource   = (Integer)row[9];
-      Integer idSampleType   = (Integer)row[27];
+      Integer idSampleType   = (Integer)row[29];
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
@@ -684,14 +695,16 @@ public class BuildSearchIndex extends DetailObject {
       idOrganismSlideProduct   = row[14] instanceof Integer ? (Integer)row[15] : null;
       codeRequestCategory      = (String) row[16];
       idLabProject             = (Integer)row[17];
-      labProject               = (String) row[18];
-      idLabRequest             = (Integer)row[19];
-      labRequest               = (String) row[20];
-      codeMicroarrayCategory   = (String) row[21];
-      requestOwnerFirstName    = (String) row[22];
-      requestOwnerLastName     = (String) row[23];      
-      requestCodeVisibility    = (String) row[25];
-      requestCreateDate        = (java.sql.Date) row[26];
+      labLastNameProject       = (String) row[18];
+      labFirstNameProject      = (String) row[19];
+      idLabRequest             = (Integer)row[20];
+      labLastNameRequest       = (String) row[21];
+      labFirstNameRequest      = (String) row[22];
+      codeMicroarrayCategory   = (String) row[23];
+      requestOwnerFirstName    = (String) row[24];
+      requestOwnerLastName     = (String) row[25];      
+      requestCodeVisibility    = (String) row[27];
+      requestCreateDate        = (java.sql.Date) row[28];
       
       slideProduct             = idSlideProduct != null ? dh.getSlideProductName(idSlideProduct) : null;
       slideProductOrganism     = idOrganismSlideProduct != null ? dh.getOrganism(idOrganismSlideProduct) : null;
@@ -700,6 +713,9 @@ public class BuildSearchIndex extends DetailObject {
       if (requestCodeVisibility != null && requestCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
         requestPublicNote = "(Public) ";
       }
+      
+      labProject = Lab.formatLabName(labLastNameProject, labFirstNameProject);
+      labRequest = Lab.formatLabName(labLastNameRequest, labFirstNameRequest);
       
       requestDisplayName = new StringBuffer();
       if (codeRequestCategory != null && codeRequestCategory.equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
@@ -785,7 +801,7 @@ public class BuildSearchIndex extends DetailObject {
     }
 
     //
-    // Obtain sample annoations on samples of request
+    // Obtain sample annotations on samples of request
     //
     StringBuffer sampleAnnotations = new StringBuffer();
     if (idRequest != null) {
@@ -912,20 +928,27 @@ public class BuildSearchIndex extends DetailObject {
     String agName                 = (String)row[2];
     String agDesc                 = (String)row[3];
     Integer agIdLab               = (Integer)row[5];
-    String agLabName              = (String)row[6];
-    String ownerFirstName         = (String)row[7];
-    String ownerLastName          = (String)row[8];
-    String labName                = (String)row[9];
-    String number                 = (String)row[10];
-    String name                   = (String)row[11];
-    String desc                   = (String)row[12];
-    Integer idAnalysisType        = (Integer)row[13];
-    Integer idAnalysisProtocol    = (Integer)row[14];
-    Integer idOrganism            = (Integer)row[15];
-    Integer idLab                 = (Integer)row[16];
-    java.sql.Date createDate      = (java.sql.Date)row[17];
-    String codeVisibility         = (String)row[18];
+    String agLabLastName          = (String)row[6];
+    String agLabFirstName         = (String)row[7];
+    String ownerFirstName         = (String)row[8];
+    String ownerLastName          = (String)row[9];
+    String labLastName            = (String)row[10];
+    String labFirstName           = (String)row[11];
+    String number                 = (String)row[12];
+    String name                   = (String)row[13];
+    String desc                   = (String)row[14];
+    Integer idAnalysisType        = (Integer)row[15];
+    Integer idAnalysisProtocol    = (Integer)row[16];
+    Integer idOrganism            = (Integer)row[17];
+    Integer idLab                 = (Integer)row[18];
+    java.sql.Date createDate      = (java.sql.Date)row[19];
+    String codeVisibility         = (String)row[20];
     String publicNote             = ""; 
+    
+   
+    
+    String agLabName = Lab.formatLabName(agLabLastName, agLabFirstName);
+    String labName   = Lab.formatLabName(labLastName, labFirstName);
 
     if (codeVisibility != null && codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
         publicNote = "(Public) ";
