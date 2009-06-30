@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Request setup" width="100%" height="100%" xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
+   <mx:states>
+      <mx:State name="AdminState">
+         <mx:AddChild relativeTo="{accountBox}" position="before">
+            <mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
+                   <mx:Text width="170">
+                      <mx:htmlText>
+					  	<![CDATA[(2) Pick the user <br> submitting the request:]]>
+					  </mx:htmlText>
+					</mx:Text>
+            		<mx:ComboBox dataProvider="{appUsers}" 
+            			selectedIndex="-1" labelField="@displayName" 
+                		id="appUserCombo" width="340">
+            			<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
+            		</mx:ComboBox>
+            </mx:HBox>
+         </mx:AddChild>
+         <mx:SetProperty target="{text1}" name="htmlText" value="(3) Pick the account to be &lt;br&gt; billed:"/>
+         <mx:SetProperty target="{label11}" name="text" value="(4) Select a service:"/>
+         <mx:SetProperty target="{text2}" name="htmlText">
+            <mx:value>(5) Pick a project folder for organizing this request:</mx:value>
+         </mx:SetProperty>
+      </mx:State>
+   </mx:states>
    
 
    	
@@ -103,10 +126,10 @@
 		
 		public function checkSecurity():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				this.appUserContainer.visible = true;
+				this.currentState = "AdminState";
 				idAppUser = '';
 			} else {
-				this.appUserContainer.visible = false;
+				this.currentState = "";
 				idAppUser = parentApplication.getIdAppUser();
 				if (labCombo.dataProvider.length == 2) {
 					labCombo.selectedIndex = 1;
@@ -265,7 +288,9 @@
 	        appUsers.sort = appUserSort;
 	        appUsers.refresh();
 	        
-	        this.appUserCombo.selectedIndex = 0;
+	        if (this.currentState == "AdminState") {
+		        this.appUserCombo.selectedIndex = 0;
+	        }
 
 			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 	        billingAccounts.filterFunction = this.filterBillingAccount;
@@ -378,54 +403,51 @@
         property="selectedIndex"
         minValue="1" />           
           
-		<mx:VBox width="100%" height="100%" verticalGap="32" paddingTop="10">
-			<mx:HBox width="100%" horizontalGap="0">
+
+        	
+		<mx:VBox width="100%" height="100%" verticalGap="32" paddingTop="10" id="vbox1">
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 				<mx:Label text="(1) Verify your lab:" width="170"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
-					width="300"
+					width="340"
 					 change="parentApplication.filteredProjectListForSubmitRequests.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" id="labCombo">
 				</mx:ComboBox>
-				<mx:HBox id="appUserContainer" visible="true" paddingLeft="12" horizontalGap="0" width="100%">						    
-					<mx:Label text="User submitting request:"/>
-					<mx:ComboBox dataProvider="{appUsers}" 
-						selectedIndex="-1" labelField="@displayName" 
-					    id="appUserCombo" width="200">
-						<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
-					</mx:ComboBox>
-				</mx:HBox>
 			</mx:HBox>
-			<mx:VBox width="100%" verticalGap="0"> 
-				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Text  width="170" >
+			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
+				<mx:HBox width="100%" horizontalGap="0"  verticalAlign="middle">
+					<mx:Text  width="170"  id="text1">
 					  <mx:htmlText>
 					  	<![CDATA[(2) Pick the account to be <br> billed:]]>
 					  </mx:htmlText>
 					</mx:Text>
-					<mx:ComboBox labelField="@accountName" width="430" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+					<mx:ComboBox labelField="@accountName" width="340" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
+					<mx:VBox width="100%" height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+						<mx:Text width="100%" id="text3" fontStyle="italic" fontSize="9">
+						    <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3363; Fax 585-0900)]]></mx:htmlText>
+						</mx:Text>
+						<mx:HBox width="100%" horizontalGap="2" paddingTop="0" paddingBottom="0">
+							<mx:LinkButton label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0"> 
+								<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.pdf'), '_blank');</mx:click>
+							</mx:LinkButton>
+							<mx:LinkButton label="Work authorization (word doc)" styleName="formLinkButton" id="linkbutton2" fontSize="9" paddingLeft="2" paddingTop="0">
+								<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.doc'), '_blank');</mx:click>
+							</mx:LinkButton>
+						</mx:HBox>
+					</mx:VBox>
+
+
 				</mx:HBox>
 				<mx:HBox width="100%">
 				    <mx:Spacer width="160"/>
-				    <mx:Text width="100%">
-				        <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3363; Fax 585-0900)]]></mx:htmlText>
-					</mx:Text>
 					
-				</mx:HBox>
-				<mx:HBox width="100%">
-				    <mx:Spacer width="160"/>
-					<mx:LinkButton label="Work authorization form (pdf)" useHandCursor="true" textDecoration="underline" color="#0000ff"> 
-						<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.pdf'), '_blank');</mx:click>
-					</mx:LinkButton>
-					<mx:LinkButton label="Work authorization form (Microsoft work doc)" textDecoration="underline" useHandCursor="true" color="#0000ff">
-						<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.doc'), '_blank');</mx:click>
-					</mx:LinkButton>
 				</mx:HBox>
 				
 			</mx:VBox>
-			<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(3) Select a service:" width="170"/>
+			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="middle">
+			<mx:Label text="(3) Select a service:" width="166" id="label11"/>
 			<mx:HBox id="requestTypeBox" horizontalGap="8" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="1" paddingBottom="0">
 				<mx:VBox verticalGap="2" paddingRight="2" paddingBottom="2">
 				    <mx:HBox width="100%" horizontalAlign="center">
@@ -461,28 +483,26 @@
 				</mx:VBox>
 			</mx:HBox>
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0">
-				<mx:Text width="170" height="50">
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+				<mx:Text width="170" id="text2">
 					<mx:htmlText>(4) Pick a project folder for organizing this request:</mx:htmlText>
 				</mx:Text>
-				<mx:HBox verticalGap="2">
-				    <mx:VBox verticalGap="2" paddingRight="20">
+				<mx:HBox verticalGap="2" horizontalGap="4">
+				    <mx:VBox verticalGap="2" id="vbox2">
 					<mx:RadioButtonGroup id="projectRadioGroup"/>
 					<mx:RadioButton label="New project" groupName="projectRadioGroup" click="{showNewProjectWindow()}"/>
 					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true"/>
 				    	
 				    </mx:VBox>
-					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2">
-					<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="300" id="projectCombo" change="{checkSetupCompleteness()}">
-					</mx:ComboBox>
+					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2" id="hbox2">
+						<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="385" id="projectCombo" change="{checkSetupCompleteness()}">
+						</mx:ComboBox>
 						<mx:LinkButton id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
 							<mx:enabled>{projectCombo.selectedItem != null &amp;&amp; projectCombo.selectedItem.@idProject != &quot;&quot;}</mx:enabled>
 						</mx:LinkButton>
 					</mx:HBox>					
 				</mx:HBox>
 			</mx:HBox>
-			<mx:VBox width="100%" verticalGap="1">
-			</mx:VBox>
 			
 		</mx:VBox>
 

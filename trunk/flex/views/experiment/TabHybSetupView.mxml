@@ -33,9 +33,9 @@
 		
 		private function validateSlideUse():void {
 			if (getCheckedCodeSlideSource() == '') {
-				this.slideUseBox.setStyle("borderStyle", "solid");
+				this.slideUseBox.styleName = "requiredBox";
 			} else {
-				this.slideUseBox.setStyle("borderStyle", "none");				
+				this.slideUseBox.styleName = "normalBox";
 			}
 		}
 		
@@ -243,7 +243,7 @@
 			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(parentDocument.checkForSampleTypeCompatibility)">
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
-			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(parentDocument.checkForSampleTypeCompatibility)">
+			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(parentDocument.checkForSampleTypeCompatibility)" paddingLeft="12">
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
 		</mx:HBox>
