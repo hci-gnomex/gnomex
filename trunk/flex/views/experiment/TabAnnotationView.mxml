@@ -92,7 +92,7 @@
 							parentDocument.request.@COMPOUND = isSelected;
 							break;
 						case 'DOSE' :
-							sample.@DOSE = (value == null ? sample.@DOSE : value);
+	 						sample.@DOSE = (value == null ? sample.@DOSE : value);
 							parentDocument.request.@DOSE = isSelected;
 							break;
 						case 'DISSTATE' :
@@ -169,8 +169,12 @@
 			dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.mainArea, DictionaryEditor, true));
 			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
 			                                  onDictionarySampleCharacteristicInitialized);
+  
+            parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED,
+            													    onDictionarySampleCharacteristicRefreshed);		                                  
 			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
 			                                                     onDictionarySampleCharacteristicRefreshed);
+
 			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionarySampleCharacteristicInitialized(event:Event):void{
