@@ -11,7 +11,6 @@
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
-				sampleSourceConfirmColumn.visible = true;
 				
 				fragmentSizeFromConfirmCol.visible = true;
 				fragmentSizeToConfirmCol.visible = true;
@@ -30,12 +29,10 @@
 				samplePrepMethodConfirmCol.visible = true;
 				fragmentSizeFromConfirmCol.visible = false;
 				fragmentSizeToConfirmCol.visible = false;
-				sampleSourceConfirmColumn.visible = false;
 				preppedByCoreCol.visible = false;
 			} else {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
-				sampleSourceConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				samplePrepMethodConfirmCol.visible = true;
 				fragmentSizeFromConfirmCol.visible = false;
@@ -119,8 +116,6 @@
 	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
 	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
-			            <mx:DataGridColumn headerText="Sample Source" id="sampleSourceConfirmColumn" width="90" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource')}"/>
 		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
 	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>

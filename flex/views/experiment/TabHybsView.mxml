@@ -305,12 +305,15 @@
 	       	
 	       }	
 	       
-	       this.sampleDragGrid.invalidateDisplayList();
-	       this.sampleDragGrid.invalidateList();
+	       this.cy3SampleDragGrid.invalidateDisplayList();
+	       this.cy3SampleDragGrid.invalidateList();
+	       this.cy5SampleDragGrid.invalidateDisplayList();
+	       this.cy5SampleDragGrid.invalidateList();
 	       
 	       // Don't allow flex to do any default moves to the data.  
 	       // We handle it in the code above.
 	       event.preventDefault();
+	       event.target.hideDropFeedback(event);
 		   DragManager.showFeedback(DragManager.NONE);
 	       
 	       checkHybsCompleteness();
@@ -347,21 +350,22 @@
 		}
 
 		public function sortLabeledSamples():void {
-        	sortedSamples = new XMLListCollection();
+        	cy3Samples = new XMLListCollection();
+        	cy5Samples = new XMLListCollection();
         	var sample:Object = null;
         	for each(sample in parentDocument.samples) {
         		if (!sample.hasOwnProperty("@label") || sample.@label == null || sample.@label == '') {
-        			sortedSamples.addItem(sample);
+        			cy3Samples.addItem(sample);
         		}
         	}
         	for each(sample in parentDocument.samples) {
         		if (sample.@label != null && sample.@label == 'cy3') {
-        			sortedSamples.addItem(sample);
+        			cy3Samples.addItem(sample);
         		}
         	}
         	for each(sample in parentDocument.samples) {
         		if (sample.@label != null && sample.@label == 'cy5') {
-        			sortedSamples.addItem(sample);
+        			cy5Samples.addItem(sample);
         		}
         	}
         	
@@ -391,28 +395,55 @@
 		
 	]]>
 </mx:Script>
-    <mx:XMLListCollection id="sortedSamples"/>
+    <mx:XMLListCollection id="cy3Samples"/>
+    <mx:XMLListCollection id="cy5Samples"/>
     <mx:VBox width="100%" height="100%" verticalGap="0">
       <mx:HBox>
-	      <mx:Label text="Hybridizations " id="label1"></mx:Label>
-		  <mx:Label text="(Drag sample onto Cy3 or Cy5 Sample cell)" id="label2" fontStyle="italic"></mx:Label>      	
+		  <mx:Label text="Drag sample onto Cy3 or Cy5 Sample cell" id="label2" fontStyle="italic"></mx:Label>      	
       </mx:HBox>
 			   	
-	    <mx:HDividedBox height="100%" width="100%">
-	        <mx:VBox paddingTop="24"  height="100%" verticalGap="2"   width="100" borderStyle="none" id="vbox1">
+	    <mx:HDividedBox height="100%" width="100%" paddingTop="6">
+	        <mx:VBox height="100%" verticalGap="2"   width="125" borderStyle="none" id="vbox1">
+	            <mx:Label text="Cy3 Samples (green)" paddingTop="2" id="label3"/>
 	        	<mx:DataGrid
-	        		 height="100%" width="100%" 
-	        		 dataProvider="{sortedSamples}" labelField="@name" 
-	        		 dragEnabled="true" id="sampleDragGrid"  showHeaders="true" headerHeight="40">
+	        		 height="100%" width="100%"  showHeaders="false"
+	        		 dataProvider="{cy3Samples}" labelField="@name" 
+	        		 dragEnabled="true" id="cy3SampleDragGrid"  >
 					<mx:columns>
-						<mx:DataGridColumn headerText = "Samples"  dataField="@name">
+						<mx:DataGridColumn headerText = "Samples"  width="105" dataField="@name">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                          <mx:Label text="{data.@name}" fontWeight="{!data.hasOwnProperty('@label') || data.@label == '' ? 'normal' : 'bold'}" color="{!data.hasOwnProperty('@label') || data.@label == ''? 0x000000 : (data.@label == 'cy3' ? 0x008000: 0xff0000)}"/>
 			                    </mx:Component>
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
-			            <mx:DataGridColumn id="channelCountCol" width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+						<mx:DataGridColumn id="channelCountCol" width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                        <mx:HBox  horizontalGap="0" >
+			                          <mx:Image source="{data.@channel1Count > 0 || data.@channel2Count > 0 ? parentApplication.iconBlackCheck : ''}">
+			                    	 </mx:Image> 
+			                        </mx:HBox>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> 
+					</mx:columns>
+								        				        		
+	         	</mx:DataGrid>
+	            <mx:Label text="Cy5 Samples (red)" paddingTop="4" id="label4"/>
+	        	<mx:DataGrid
+	        		 height="100%" width="100%"  showHeaders="false"
+	        		 dataProvider="{cy5Samples}" labelField="@name" 
+	        		 dragEnabled="true" id="cy5SampleDragGrid"  >
+					<mx:columns>
+						<mx:DataGridColumn headerText = "Samples"  width="80" dataField="@name">
+			                <mx:itemRenderer>
+			                    <mx:Component >
+			                          <mx:Label text="{data.@name}" fontWeight="{!data.hasOwnProperty('@label') || data.@label == '' ? 'normal' : 'bold'}" color="{!data.hasOwnProperty('@label') || data.@label == ''? 0x000000 : (data.@label == 'cy3' ? 0x008000: 0xff0000)}"/>
+			                    </mx:Component>
+			                </mx:itemRenderer>
+			            </mx:DataGridColumn> 
+						<mx:DataGridColumn id="channelCountCol1" width="20"  labelFunction="getChannelCountLabelFunction" headerText="">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
@@ -430,8 +461,8 @@
 				width="100%" height="100%" 
 				borderStyle="none" verticalGap="2">
 						<mx:HBox id="buttonContainer" horizontalGap="0" verticalAlign="middle">
-							<mx:Label text="Hybs:  "/>
-							<mx:LinkButton textDecoration="underline" label="Add hyb" click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addHybButton" toolTip="Add hyb"/>
+							<mx:Label text="Hybridizations"/>
+							<mx:LinkButton textDecoration="underline" label="Add hyb" click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addHybButton" toolTip="Add hyb" paddingLeft="15"/>
 							<mx:LinkButton textDecoration="underline" label="Copy hyb" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyHybButton"  toolTip="Copy hyb"/>
 							<mx:LinkButton textDecoration="underline" label="Delete hyb" click="deleteHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteHybButton" toolTip="Delete hyb(s)"/>
 							<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllHybs()" icon="@Embed('../../assets/folder_delete.png')" id="clearHybsButton"  toolTip="Clear all hybs"/>
@@ -662,27 +693,32 @@
     
     <mx:states>
     	<mx:State name="HybsState">
-    		<mx:AddChild relativeTo="{buttonContainer}" position="lastChild">
-    			<mx:HBox  horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="10" paddingTop="2" id="workflowCheckBoxContainer">
-    			 <mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Cy3 Labeling" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
+    		<mx:SetStyle target="{label3}" name="paddingTop" value="4"/>
+    		<mx:AddChild relativeTo="{hybsContainer}" position="lastChild">
+    			<mx:HBox  width="100%"  horizontalGap="0"  horizontalAlign="right" label="Show Cy5 Labeling data" paddingBottom="2" verticalAlign="middle" paddingLeft="10" paddingTop="2" id="workflowCheckBoxContainer">
+    			 <mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling columns" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingBottom="0" paddingRight="0"/>
     			 <mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
     				<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb" click="showHybWorkflowCols(showHybFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
     			    <mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE" click="showExtWorkflowCols(showExtFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
     			   </mx:HBox>
     		</mx:AddChild>
-    		<mx:SetStyle target="{vbox1}" name="paddingTop" value="26"/>
     	</mx:State>
     	<mx:State name="HybsEditState" basedOn="HybsState">
     		<mx:RemoveChild target="{buttonContainer}"/>
     		<mx:RemoveChild target="{vbox1}"/>
     		<mx:SetStyle target="{hybsContainer}" name="borderStyle" value="none"/>
-    		<mx:RemoveChild target="{label1}"/>
+    		<mx:SetProperty target="{label2}" name="text" value="Hybridizations"/>
+    		<mx:SetStyle target="{label2}" name="fontStyle" value="normal"/>
     	</mx:State>
     	<mx:State name="HybsAdminState" basedOn="HybsState">
     		<mx:RemoveChild target="{addHybButton}"/>
     		<mx:RemoveChild target="{clearHybsButton}"/>
     		<mx:SetStyle target="{buttonContainer}" name="horizontalGap"/>
     		<mx:SetStyle target="{workflowCheckBoxContainer}" name="paddingLeft" value="10"/>
+    		<mx:SetStyle target="{label3}" name="paddingTop" value="4"/>
+    		<mx:SetProperty target="{label3}" name="text" value="Samples"/>
+    		<mx:RemoveChild target="{cy5SampleDragGrid}"/>
+    		<mx:RemoveChild target="{label4}"/>
     	</mx:State>
     	
     </mx:states>

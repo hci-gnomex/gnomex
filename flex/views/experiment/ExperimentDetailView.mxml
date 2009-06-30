@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"   
-	 headerHeight="20"  
-	close="{PopUpManager.removePopUp(this);}">
+	 >
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
@@ -265,7 +264,6 @@
 				concentrationCol.visible = false; 
 				sampleTypeCol.visible = false;
 				organismCol.visible = false;
-				sampleSourceCol.visible = false;
 				preppedByLabCol.visible = false;
 				samplePrepCol.visible = false;
 				chipTypeCol.visible = false;
@@ -314,7 +312,6 @@
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
-					sampleSourceCol.visible = true;
 					preppedByLabCol.visible = true;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
@@ -324,7 +321,6 @@
 					concentrationCol.visible = false; 
 					sampleTypeCol.visible = false;
 					organismCol.visible = false;
-					sampleSourceCol.visible = false;
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = true;
@@ -334,7 +330,6 @@
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
-					sampleSourceCol.visible = true;
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
@@ -455,9 +450,8 @@
 					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
-							<mx:HBox width="100%" horizontalAlign="right" paddingRight="4">
+							<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" id="hbox1">
 								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
-								<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
 							</mx:HBox>
 								
 						</mx:HBox>
@@ -472,8 +466,6 @@
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
 					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
-					            <mx:DataGridColumn id="sampleSourceCol" headerText="Sample Source" visible="{true}"  width="50" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource')}"/>
 					            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
 					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" 
 	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod')}"/>
@@ -765,7 +757,10 @@
 				</mx:VBox>					        			
 		
 		</mx:AddChild>
+		<mx:AddChild relativeTo="{hbox1}" position="lastChild">
+			<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
+		</mx:AddChild>
 	</mx:State>
 </mx:states>
 	
-</mx:TitleWindow>
+</mx:Panel>

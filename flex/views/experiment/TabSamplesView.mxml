@@ -46,7 +46,6 @@
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
 					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-					" idSampleSource='"  + parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
 					
@@ -74,7 +73,6 @@
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
 					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-					" idSampleSource='"  + parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
 					
@@ -118,7 +116,6 @@
 				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 				" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-				" idSampleSource='"  + parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@value + "'" +				
 				" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 				"/>");
 			}
@@ -181,7 +178,6 @@
 					" fragmentSizeFrom='" + sampleToCopy.@fragmentSizeFrom + "'" +				
 					" fragmentSizeTo='" + sampleToCopy.@fragmentSizeTo + "'" +				
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
-					" idSampleSource='" + sampleToCopy.@idSampleSource + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
 					" treatment='" + sampleToCopy.@treatment + "'" +		
 					" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
@@ -265,7 +261,6 @@
 	        			    isEntered(sample, "@idSampleType") &&
 	        			    isEntered(sample, "@fragmentSizeFrom") &&
 	        			    isEntered(sample, "@fragmentSizeTo") &&
-	        			    isEntered(sample, "@idSampleSource") &&
 	        			    isEntered(sample, "@idOrganism") &&
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
@@ -282,7 +277,6 @@
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@fragmentSizeFrom") &&
 			        		isEntered(sample, "@fragmentSizeTo") &&
-			        		isEntered(sample, "@idSampleSource") &&
 			        		isEntered(sample, "@idOrganism") &&
 			        		isEntered(sample, "@idSeqRunType") &&
 			        		isEntered(sample, "@idNumberSequencingCycles")) {
@@ -316,7 +310,6 @@
 			        	isEntered(sample, "@idSampleType") &&		        		
 			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
 			        	isEntered(sample, "@concentration") &&
-	        			isEntered(sample, "@idSampleSource") &&
 			        	isEntered(sample, "@idOrganism")) {
 			        	
 			        	if (parentDocument.getRequestCategory().@numberOfChannels == "2") {
@@ -528,7 +521,6 @@
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = false;
 				concentrationUnitColumn.editable = true;
-				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = false;
@@ -548,7 +540,6 @@
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
-				sampleSourceColumn.visible = true;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = true;
 				fragmentSizeFromCol.visible = true;
@@ -570,7 +561,6 @@
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = true;
-				sampleSourceColumn.visible = false;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = true; 
@@ -585,7 +575,6 @@
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = false;
-				sampleSourceColumn.visible = true;
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
@@ -634,13 +623,6 @@
 				<mx:Label id="samplesTitle" text="Samples"/>
 				<mx:Spacer width="10"/>
 				<mx:Label text="Please fill in all highlighted fields."  fontStyle="italic" paddingRight="0" id="label1"/>	
-				
-				<mx:HBox width="100%" horizontalAlign="right">
-					<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="false" click="showHideColumns()">
-					</mx:CheckBox>							
-					<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Show Illumina Lib Prep columns"  visible="false" click="showHideColumns()">
-					</mx:CheckBox>							
-				</mx:HBox>
 			</mx:HBox>
 			<mx:Spacer width="8"/>
 			<mx:HBox id="buttonsContainer">
@@ -661,7 +643,16 @@
  	                   itemEditor="{hci.flex.renderers.TextInput.create('@name', '@canChangeSampleName')}"      />          
 
 					<mx:DataGridColumn id="labelColumn" headerText="Label"  editable="false"
-	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="42"/>
+	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="42">
+	 		 			 <mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+							    	<mx:Label text="Label"/>
+							    	<mx:Label text="G   R"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+	 		 	    </mx:DataGridColumn>
 
 	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.renderers.Label.create('@concentration')}"                
@@ -762,10 +753,6 @@
 	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism', true)}"                
  	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
-	                <mx:DataGridColumn headerText="Sample Source" visible="{!showQCFieldsCheckBox.selected}" width="95" dataField="@idSampleSource" 
-	                   editorDataField="value" id="sampleSourceColumn" sortable="false" editable="true" rendererIsEditor="false"
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource', true)}"                
- 	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleSource', '@idSampleSource')}"/>
 	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType', true)}"                
@@ -795,6 +782,12 @@
 
 				</mx:columns>
 			</mx:DataGrid>
+			<mx:HBox width="100%" horizontalAlign="right">
+				<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns"  visible="true" click="showHideColumns()">
+				</mx:CheckBox>							
+				<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep"  visible="true" click="showHideColumns()">
+				</mx:CheckBox>							
+			</mx:HBox>
 
 			
 		

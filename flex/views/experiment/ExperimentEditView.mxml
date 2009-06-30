@@ -395,7 +395,6 @@
 			submittedRequestNumber = null;
 
 			setupView.selectDefaultLab();
-			setupView.appUserCombo.selectedIndex = -1;
 			setupView.projectCombo.selectedIndex = -1;
 			setupView.requestTypeGroup.selectedValue = '';
 			setupView.requestRadioAffy.selected = false;
@@ -418,7 +417,6 @@
 				sampleSetupView.numberOfSamples.text = '';
 				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
 				sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
-				sampleSetupView.sampleSourceCombo.selectedIndex = -1;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				sampleSetupView.enabled = false;
 				if (theTab.contains(annotationView)) {
@@ -518,9 +516,9 @@
 			    this.setupView.requestRadioAgilent.selected ||
 			    this.setupView.requestRadioQC.selected ||
 			    this.setupView.requestRadioSolexa.selected) {
-				this.setupView.requestTypeBox.setStyle("borderStyle", "none");
+				this.setupView.requestTypeBox.styleName = "normalBox";
 			} else {
-				this.setupView.requestTypeBox.setStyle("borderStyle", "solid");
+				this.setupView.requestTypeBox.styleName = "requiredBox";
 			}
 
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
@@ -555,8 +553,7 @@
 					this.currentState = 'MicroarrayState';
 					this.sampleSetupView.currentState = '';
 					this.sampleSetupView.organismValidator.validate();
-					this.sampleSetupView.sampleSourceValidator.validate();
-					
+ 					
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
 					this.samplesView.checkSamplesCompleteness();	
@@ -1017,7 +1014,6 @@
 		
    				
    				if (isQCState()) {
-   					sample.@idSampleSource  = '';
    					sample.@idOrganism = '';
    				}
    				
@@ -1336,7 +1332,6 @@
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
 				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);
-				sampleSetupView.sampleSourceCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleSource', request.@idSampleSourceDefault);
 			}
 			
 			if (isMicroarrayState()) {
@@ -1648,7 +1643,6 @@
 			request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
 			
 			if (currentState != 'QCState') {
-				request.@idSampleSourceDefault = sampleSetupView.sampleSourceCombo.selectedItem.@value;
 				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 			}
 			if (!isSolexaState()) {
