@@ -31,7 +31,6 @@ public class Sample extends HibernateDetailObject {
   private BigDecimal  concentration;
   private String      codeConcentrationUnit;
   private Integer     idOrganism;
-  private Integer     idSampleSource;
   private Integer     idSampleType;
   private Integer     idSamplePrepMethod;
   private String      codeBioanalyzerChipType;
@@ -313,16 +312,6 @@ public class Sample extends HibernateDetailObject {
     this.codeConcentrationUnit = codeConcentrationUnit;
   }
 
-
-  
-  public Integer getIdSampleSource() {
-    return idSampleSource;
-  }
-
-  
-  public void setIdSampleSource(Integer idSampleSource) {
-    this.idSampleSource = idSampleSource;
-  }
 
   
   public Integer getIdOrganism() {

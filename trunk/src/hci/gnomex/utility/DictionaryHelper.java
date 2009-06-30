@@ -282,13 +282,6 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-  public String getSampleSource(Sample sample) {
-    String name = "";
-    if (sample.getIdSampleSource() != null) {
-      name = (String)sampleSourceMap.get(sample.getIdSampleSource());
-    }
-    return name;
-  }
   public String getSampleSource(Integer idSampleSource) {
     String name = "";
     if (idSampleSource != null) {

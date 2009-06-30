@@ -232,11 +232,11 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.name, ");
     buf.append("       s1.description, ");
     buf.append("       s1.idOrganism, ");
-    buf.append("       s1.idSampleSource, ");
+    buf.append("       '', ");
     buf.append("       s2.name, ");
     buf.append("       s2.description,  ");
     buf.append("       s2.idOrganism,  ");
-    buf.append("       s2.idSampleSource, ");
+    buf.append("       '', ");
     buf.append("       req.idSlideProduct,  ");
     buf.append("       slideProd.idOrganism,  ");
     buf.append("       req.codeRequestCategory,  ");
@@ -295,7 +295,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.name, ");
     buf.append("       s1.description, ");
     buf.append("       s1.idOrganism, ");
-    buf.append("       s1.idSampleSource, ");
+    buf.append("       '', ");
     buf.append("       '', ");
     buf.append("       '',  ");
     buf.append("       '',  ");
@@ -870,7 +870,6 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.ID_ORGANISM_SAMPLE, idOrganismSamples.toString());
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_SOURCES, sampleSources.toString());
     indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_TYPES, idSampleTypes.toString());
-    indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_SOURCES, idSampleSources.toString());
     indexedFieldMap.put(ExperimentIndexHelper.REQUEST_CATEGORY, requestCategory);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_REQUEST_CATEGORY, codeRequestCategory);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY, codeMicroarrayCategory);

@@ -172,9 +172,6 @@ public class RequestParser implements Serializable {
     } else {
       request.setIdOrganismSampleDefault(null);
     }
-    if (n.getAttributeValue("idSampleSourceDefault") != null && !n.getAttributeValue("idSampleSourceDefault").equals("")) {
-      request.setIdSampleSourceDefault(new Integer(n.getAttributeValue("idSampleSourceDefault")));      
-    }        
     if (n.getAttributeValue("idSamplePrepMethodDefault") != null && !n.getAttributeValue("idSamplePrepMethodDefault").equals("")) {
       request.setIdSamplePrepMethodDefault(new Integer(n.getAttributeValue("idSamplePrepMethodDefault")));      
     }
@@ -238,11 +235,6 @@ public class RequestParser implements Serializable {
     
     sample.setDescription(unEscape(n.getAttributeValue("description")));
     
-    if (n.getAttributeValue("idSampleSource") != null && !n.getAttributeValue("idSampleSource").equals("")) {
-      sample.setIdSampleSource(new Integer(n.getAttributeValue("idSampleSource")));
-    } else {
-      sample.setIdSampleSource(null);
-    }
     if (n.getAttributeValue("idSampleType") != null && !n.getAttributeValue("idSampleType").equals("")) {
       sample.setIdSampleType(new Integer(n.getAttributeValue("idSampleType")));
     } else {
@@ -257,11 +249,6 @@ public class RequestParser implements Serializable {
       sample.setIdOrganism(new Integer(n.getAttributeValue("idOrganism")));
     } else {
       sample.setIdOrganism(null);
-    }
-    if (n.getAttributeValue("idSampleSource") != null && !n.getAttributeValue("idSampleSource").equals("")) {
-      sample.setIdSampleSource(new Integer(n.getAttributeValue("idSampleSource")));
-    } else {
-      sample.setIdSampleSource(null);
     }
     if (n.getAttributeValue("concentration") != null && !n.getAttributeValue("concentration").equals("")) {
       sample.setConcentration(new BigDecimal(n.getAttributeValue("concentration")));      

@@ -320,7 +320,7 @@ public class GetRequestReviewCODWindow extends GNomExCommand implements Serializ
     addLabel(panel, "LABEL_ST" + count,   dictionaryHelper.getSampleType(sample),       15, 120);
     if (!requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       addLabel(panel, "LABEL_SORG" + count,   dictionaryHelper.getOrganism(sample),       15, 120);
-      addLabel(panel, "LABEL_SSRC" + count,   dictionaryHelper.getSampleSource(sample),   15, 100);
+      addLabel(panel, "LABEL_SSRC" + count,  "",   15, 100);
     }
     addLabel(panel, "LABEL_SPM" + count,  dictionaryHelper.getSamplePrepMethod(sample), 15, 120);
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {

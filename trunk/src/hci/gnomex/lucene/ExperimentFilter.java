@@ -19,7 +19,6 @@ public class ExperimentFilter extends DetailObject {
   private String                codeMicroarrayCategory;
   private Integer               idSlideProduct;
   private Integer               idSampleType;
-  private Integer               idSampleSource;
   private Integer               idOrganism;
   private String                text;
   private String                text1;
@@ -251,17 +250,6 @@ public class ExperimentFilter extends DetailObject {
       displayText.append(" sample type = " + sampleType);
     } 
     
-
-    //
-    // Search by sampleSource
-    //
-    if (idSampleSource != null){
-      this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.ID_SAMPLE_SOURCES + ":");
-      searchText.append(idSampleSource);
-
-      displayText.append(" sample source = " + sampleSource);
-    } 
     
     
     //
@@ -394,15 +382,6 @@ public class ExperimentFilter extends DetailObject {
 
   
 
-  
-  public Integer getIdSampleSource() {
-    return idSampleSource;
-  }
-
-  
-  public void setIdSampleSource(Integer idSampleSource) {
-    this.idSampleSource = idSampleSource;
-  }
 
   
   public Integer getIdOrganism() {

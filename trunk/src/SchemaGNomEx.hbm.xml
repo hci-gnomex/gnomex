@@ -369,7 +369,6 @@
     <many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
 		<property name="idOrganismSampleDefault" column="idOrganismSampleDefault" type="integer"/>
-		<property name="idSampleSourceDefault" column="idSampleSourceDefault" type="integer"/>
 		<property name="idSamplePrepMethodDefault" column="idSamplePrepMethodDefault" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
 		<property name="notes" column="notes" type="string"/>
@@ -418,7 +417,6 @@
 		<property name="concentration" column="concentration" type="big_decimal"/>
 		<property name="codeConcentrationUnit" column="codeConcentrationUnit" type="string"/>
 		<property name="idOrganism" column="idOrganism" type="integer"/>
-		<property name="idSampleSource" column="idSampleSource" type="integer"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
