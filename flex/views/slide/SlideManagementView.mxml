@@ -897,7 +897,7 @@
 					
 					<mx:HBox y="120" right="10" left="10">
 						<mx:VBox width="100%">
-							<mx:Label text="Billing Service:" top="85" left="10" width="100%"/>
+							<mx:Label text="Pricing Category for Microarray Analysis:" top="85" left="10" width="100%"/>
 							<hci:DictionaryComboBox top="102" left="10" width="100%" 
 								id="spIdBillingServiceClass"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideServiceClass').DictionaryEntry}"
@@ -908,7 +908,7 @@
 								</hci:DictionaryComboBox>
 						</mx:VBox>
 						<mx:VBox width="100%">
-							<mx:Label text="Billing Product:" top="85" left="188" width="100%"/>
+							<mx:Label text="Pricing Category for Microarray Product:" top="85" left="188" width="100%"/>
 							<hci:DictionaryComboBox  left="188" right="150" top="102"
 								id="spIdBillingProductClass"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideProductClass').DictionaryEntry}"
