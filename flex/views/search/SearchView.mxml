@@ -29,7 +29,6 @@
             <searchOrganismOnSlideProduct>{searchOrganismOnSlideProductCheck.selected == true ? "Y" : "N" }</searchOrganismOnSlideProduct>
             <searchOrganismOnSample>{searchOrganismOnSampleCheck.selected == true ? "Y" : "N" }</searchOrganismOnSample>
             <codeMicroarrayCategory>{microarrayCategoryCombo.selectedItem.@value}</codeMicroarrayCategory>
-            <idSampleSource>{sampleSourceCombo.selectedItem.@value}</idSampleSource>
             <idSlideProduct>{microarrayCombo.selectedItem.@idSlideProduct}</idSlideProduct>
             <idAnalysisType>{analysisTypeCombo.selectedItem.@value}</idAnalysisType>
             <idAnalysisProtocol>{analysisProtocolCombo.selectedItem.@value}</idAnalysisProtocol>
@@ -40,7 +39,6 @@
             <slideProduct>{microarrayCombo.selectedItem.@name}</slideProduct>
             <microarrayCategory>{microarrayCategoryCombo.selectedItem.@display}</microarrayCategory>
             <requestCategory>{requestCategoryCombo.selectedItem.@display}</requestCategory>
-            <sampleSource>{sampleSourceCombo.selectedItem.@display}</sampleSource>
             <sampleType>{sampleTypeCombo.selectedItem.@display}</sampleType>
             <analysisType>{analysisTypeCombo.selectedItem.@display}</analysisType>
             <analysisProtocol>{analysisProtocolCombo.selectedItem.@display}</analysisProtocol>
@@ -84,7 +82,6 @@
        	
        	microarrayCategoryCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.MicroarrayCategory');
        	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');
-       	sampleSourceCombo.dataProvider           = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleSource');
        	requestCategoryCombo.dataProvider        = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategory');
        	sampleTypeCombo.dataProvider             = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType');
        	analysisTypeCombo.dataProvider           = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
@@ -189,7 +186,6 @@
 			this.text3.text = "";
 			this.text4.text = "";
 			this.labCombo.selectedIndex = 0;
-			this.sampleSourceCombo.selectedIndex = 0;
 			this.organismCombo.selectedIndex = 0;
 			this.microarrayCategoryCombo.selectedIndex = 0;
 			this.microarrayCombo.selectedIndex = 0;
@@ -261,7 +257,6 @@
 
         	if ((this.requestCategoryCombo.selectedItem != null && this.requestCategoryCombo.selectedItem.@value != "") ||
         		(this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != "") ||
-        		(this.sampleSourceCombo.selectedItem != null && this.sampleSourceCombo.selectedItem.@value != "") ||
         		(this.searchOrganismOnSampleCheck.selected) ||
         		(this.searchOrganismOnSlideProductCheck.selected) ||
         		(this.microarrayCategoryCombo.selectedItem != null && this.microarrayCategoryCombo.selectedItem.@value != "") ||
@@ -336,13 +331,6 @@
             <mx:HBox>
                <mx:Label text="Experiment Sample Type:" textAlign="left" width="190" id="label5"/>
                <mx:ComboBox id="sampleTypeCombo"  
-                labelField="@display"
-               	 width="200" change="scopeSearch()">
-               </mx:ComboBox>
-            </mx:HBox>
-            <mx:HBox>
-               <mx:Label text="Experiment Sample Source:" textAlign="left" width="190" id="label6"/>
-               <mx:ComboBox id="sampleSourceCombo"  
                 labelField="@display"
                	 width="200" change="scopeSearch()">
                </mx:ComboBox>
@@ -437,7 +425,6 @@
 	<mx:State name="AnalysisOnlySearchState">	
 		<mx:SetProperty target="{requestCategoryCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{sampleTypeCombo}" name="enabled" value="false"/>
-		<mx:SetProperty target="{sampleSourceCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
 		<mx:SetProperty target="{microarrayCategoryCombo}" name="enabled" value="false"/>
@@ -445,7 +432,6 @@
 		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label4}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label5}" name="enabled" value="false"/>
-		<mx:SetProperty target="{label6}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label7}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label8}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label9}" name="enabled" value="false"/>
@@ -457,7 +443,7 @@
 			<mx:Label text="* Analysis only will be searched" fontWeight="bold" color="#730A1E"/>
 		</mx:AddChild>
 	</mx:State>
-</mx:states>
+</mx:states> 
        
 
 </mx:VBox>
