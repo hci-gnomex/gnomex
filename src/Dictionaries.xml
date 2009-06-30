@@ -80,8 +80,8 @@
       <Filter className="hci.gnomex.model.BillingCategory" filterField="idBillingCategory"/>
       <Filter className="hci.gnomex.model.BillingTemplate" filterField="idBillingTemplate"/>
   </Dictionary>
-  <Dictionary displayName="Billing Slide Service Class" className="hci.gnomex.model.BillingSlideServiceClass" />
-  <Dictionary displayName="Billing Slide Product Class" className="hci.gnomex.model.BillingSlideProductClass" />
+  <Dictionary displayName="Billing Category for Microarray Analysis" className="hci.gnomex.model.BillingSlideServiceClass" />
+  <Dictionary displayName="Billing Category for Microarray Product" className="hci.gnomex.model.BillingSlideProductClass" />
   <Dictionary displayName="Billing Status" className="hci.gnomex.model.BillingStatus" />
   <Dictionary displayName="Billing Template" className="hci.gnomex.model.BillingTemplate" >
       <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
