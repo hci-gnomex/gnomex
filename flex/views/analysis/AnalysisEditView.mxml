@@ -643,7 +643,6 @@
 			selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.experimentTree.selectedItem.@idRequest);
 
 			this.experimentDetailWindow = ExperimentDetailView(PopUpManager.createPopUp(parentApplication.mainArea, ExperimentDetailView, false));
-			this.experimentDetailWindow.showCloseButton = true;
 			experimentDetailWindow.width  = 800;
 			experimentDetailWindow.height = 500;			
 			experimentDetailWindow.setupForm(selectedExperiment); 
