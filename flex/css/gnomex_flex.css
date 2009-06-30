@@ -31,8 +31,20 @@ ToolTip{
 	borderThickness: 2;
 }
 
+.normalBox {
+	borderColor: #FFFFFF;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
 .requiredBoxThick {
 	borderColor: #F4F588;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+.normalBoxThick {
+	borderColor: #FFFFFF;
 	borderStyle: solid;
 	borderThickness: 2;
 }
