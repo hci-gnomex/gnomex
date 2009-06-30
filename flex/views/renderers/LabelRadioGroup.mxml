@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="center"
 	implements="mx.controls.listClasses.IDropInListItemRenderer"  
-	 horizontalGap="3" width="100%" height="100%"
+	 horizontalGap="7" width="100%" height="100%"
 	paddingLeft="1" paddingRight="1" paddingTop="1" paddingBottom="1"  
 	> 
 
