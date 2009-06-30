@@ -21,7 +21,6 @@ public class ProjectRequestFilter extends DetailObject {
   private String                codeRequestCategory;
   private String                codeMicroarrayCategory;
   private Integer               idSlideProduct;
-  private Integer               idSampleSource;
   private Integer               idOrganism;
   private String                projectDescriptionText1;
   private String                projectDescriptionText2;
@@ -66,7 +65,6 @@ public class ProjectRequestFilter extends DetailObject {
         (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
         (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")) ||
         idSlideProduct != null ||
-        idSampleSource != null ||
         idOrganism != null ||
         (projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
         (projectDescriptionText2 != null && !projectDescriptionText2.equals("")) ||
@@ -406,12 +404,6 @@ public class ProjectRequestFilter extends DetailObject {
   }
   
   private void addSampleCriteria() {
-    // Search by sampleSource
-    if (idSampleSource != null){
-      this.addWhereOrAnd();
-      queryBuf.append(" sample.idSampleSource =");
-      queryBuf.append(idSampleSource);
-    } 
     
     //  Search by organism (of sample)
     if (idOrganism != null && searchOrganismOnSample != null && searchOrganismOnSample.equalsIgnoreCase("Y")){
@@ -638,16 +630,6 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setProjectDescriptionText4(String projectDescriptionText4) {
     this.projectDescriptionText4 = projectDescriptionText4;
-  }
-
-  
-  public Integer getIdSampleSource() {
-    return idSampleSource;
-  }
-
-  
-  public void setIdSampleSource(Integer idSampleSource) {
-    this.idSampleSource = idSampleSource;
   }
 
   
