@@ -61,8 +61,8 @@ TextInput {
 }
 
 List {
-	selectionColor: #88AFE8;
-	rollOverColor: #D2E3FC;
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
 
   paddingBottom: 0;   
   paddingLeft: 0;   
@@ -73,18 +73,20 @@ List {
 
 DataGrid {
 	headerStyleName: dataGridHeader;	
-	selectionColor: #88AFE8;
-	rollOverColor: #D2E3FC;
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+
 }
 
 Tree {
-	selectionColor: #88AFE8;
-	rollOverColor: #D2E3FC;
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
 	dropShadowEnabled: true;
 }
 AdvancedDataGrid {
-	selectionColor: #88AFE8;
-	rollOverColor: #D2E3FC;
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+
 }
 
 Panel {
