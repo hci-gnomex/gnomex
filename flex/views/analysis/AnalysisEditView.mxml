@@ -491,10 +491,14 @@
 					return parentApplication.iconProject;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
 					return parentApplication.iconQC;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
+					return parentApplication.iconMicroarrayAffy;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
+					return parentApplication.iconMicroarray;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
 					return parentApplication.iconSolexa;
 				} else if (item.name() == "Request" ) {
-					return parentApplication.iconExperiment;
+					return parentApplication.iconFlask;
 				} else {
 					return parentApplication.iconGreenBullet;
 				}

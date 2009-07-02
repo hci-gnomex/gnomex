@@ -117,8 +117,14 @@
 				           item.@codeRequestCategory == "QC") {
 					return parentApplication.iconQC;
 				} else if (item.name() == "RequestNode" &&
-				           item.@codeRequestCategory == "Solexa") {
+				           item.@codeRequestCategory == "SOLEXA") {
 					return parentApplication.iconSolexa;
+				} else if (item.name() == "RequestNode" &&
+				           item.@codeRequestCategory == "AFFY") {
+					return parentApplication.iconMicroarrayAffy;
+				} else if (item.name() == "RequestNode" &&
+				           item.@codeRequestCategory == "AGIL") {
+					return parentApplication.iconMicroarray;
 				} else if (item.name() == "Protocol") {
 					return parentApplication.iconProtocol;
 				} else if (item.name() == "AnalysisNode") {
@@ -126,7 +132,7 @@
 				} else if (item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList") {
 					return parentApplication.iconProject;
 				} else if (item.name() == "RequestNode") {
-					return parentApplication.iconExperiment;
+					return parentApplication.iconFlask;
 				} else {
 					return parentApplication.iconGreenBullet;
 				}

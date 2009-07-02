@@ -187,7 +187,7 @@
 	        	
 	        [Bindable]
 	        [Embed(source="assets/group.png")]
-	        public var iconGroup:Class;
+	        public var iconGroup:Class; 
 	        
 	        	
 	        [Bindable]
@@ -204,11 +204,23 @@
 	        
 	        [Bindable]
 	        [Embed(source="assets/flask.png")]
-	        public var iconFlask:Class;
+	        public var iconFlask:Class; 
 	
 	        [Bindable]
-	        [Embed(source="assets/microarray_black.png")]
+	        [Embed(source="assets/microarray_small.png")]
 	        public var iconExperiment:Class; 
+	
+	        [Bindable]
+	        [Embed(source="assets/microarray_small.png")]
+	        public var iconMicroarray:Class; 
+
+	        [Bindable]
+	        [Embed(source="assets/microarray_chip.png")]
+	        public var iconMicroarrayAffy:Class; 
+	        
+	        [Bindable]
+	        [Embed(source="assets/flask.png")]
+	        public var iconMicroarrayOther:Class; 
 	        
 	        [Bindable]
 	        [Embed(source="assets/basket.png")]
@@ -231,7 +243,8 @@
 	        public var iconRedBullet:Class;
 	        
 	        [Bindable]
-	        [Embed(source="assets/solexa.png")]
+	        //[Embed(source="assets/solexa.png")]
+	        [Embed(source="assets/illumina.png")]
 	        public var iconSolexa:Class;
 	        
 	        [Bindable]

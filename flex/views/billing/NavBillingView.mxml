@@ -253,10 +253,14 @@
 				}else if (item.name() == "Request") {
 					if (item.@codeRequestCategory == "SOLEXA") {
 						return parentApplication.iconSolexa;
-					} if (item.@codeRequestCategory == "QC") {
+					} else if (item.@codeRequestCategory == "AFFY") {
+						return parentApplication.iconMicroarrayAffy;
+					} else if (item.@codeRequestCategory == "AGIL") {
+						return parentApplication.iconMicroarray;
+					} else if (item.@codeRequestCategory == "QC") {
 						return parentApplication.iconQC;
 					} else {
-						return parentApplication.iconExperiment;
+						return parentApplication.iconFlask;
 					}
 				}else if (item.name() == "BillingCategory" ) {
 					return parentApplication.iconBillingFolder;

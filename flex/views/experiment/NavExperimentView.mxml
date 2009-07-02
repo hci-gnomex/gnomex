@@ -684,10 +684,12 @@
 					return parentApplication.iconQC;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
 					return parentApplication.iconSolexa;
-				} else if (item.name() == "Request") {
-					return parentApplication.iconExperiment;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
+					return parentApplication.iconMicroarrayAffy;
+				}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
+					return parentApplication.iconMicroarray;
 				} else {
-					return parentApplication.iconYellowFlag;
+					return parentApplication.iconMicroarrayOther;
 				}
 		}
 
