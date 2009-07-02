@@ -144,7 +144,9 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
             firstFileInDir = false;
           } else {
             fdNode.setAttribute("showDirectoryName", "N");
-          }          
+          }  
+          // Fill in the codeRequestCategory so that the UI can show the appropriate icon
+          fdNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory() != null ? request.getCodeRequestCategory() : "");
           
           
           dirNode.addContent(fdNode);
