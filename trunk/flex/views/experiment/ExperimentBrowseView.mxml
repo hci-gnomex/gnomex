@@ -422,7 +422,7 @@
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0"  >
 			                          <mx:Image id="experimentImage"  
-			                          	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconExperiment))}" >
+			                          	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : parentApplication.iconFlask))}" >
 			                    	 </mx:Image> 
 			                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
 			                           </mx:Label>
