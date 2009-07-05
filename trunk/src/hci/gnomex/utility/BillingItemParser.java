@@ -86,15 +86,8 @@ public class BillingItemParser implements Serializable {
           billingItem.setTotalPrice(null);
         }
         
-        
-        // For groups with external billing, approved status is changed to 
-        // 'Approved External'
+        // Set the billing status
         String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
-        if (codeBillingStatus.equals(BillingStatus.APPROVED)) {
-          if (billingItem.getLab().getIsExternal() != null && billingItem.getLab().getIsExternal().equals("Y")) {
-            codeBillingStatus = BillingStatus.APPROVED_EXTERNAL;
-          }
-        }
         billingItem.setCodeBillingStatus(codeBillingStatus);
 
         requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());

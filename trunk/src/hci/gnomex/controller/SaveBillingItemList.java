@@ -17,6 +17,7 @@ import hci.gnomex.utility.MailUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -98,9 +99,31 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           
           this.getCheckInvoiceMap(sess, parser);
           
+          ArrayList billingItems = new ArrayList();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
             sess.save(billingItem);
+            
+            billingItems.add(billingItem);
+
+          }
+          
+          sess.flush();
+
+          for(Iterator i = billingItems.iterator(); i.hasNext();) {
+            BillingItem billingItem = (BillingItem)i.next();
+            
+            sess.refresh(billingItem);
+            
+            // For groups with external billing, approved status is changed to 
+            // 'Approved External'
+            if (billingItem.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
+              if (billingItem.getLab().getIsExternal() != null && billingItem.getLab().getIsExternal().equals("Y")) {
+                billingItem.setCodeBillingStatus(BillingStatus.APPROVED_EXTERNAL);
+              }
+            }
+            
+
           }
           
           sess.flush();
