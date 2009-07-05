@@ -204,7 +204,7 @@
 	        
 	        [Bindable]
 	        [Embed(source="assets/flask.png")]
-	        public var iconFlask:Class; 
+	        public var iconFlask:Class;  
 	
 	        [Bindable]
 	        [Embed(source="assets/microarray_small.png")]
@@ -227,13 +227,13 @@
 	        public var iconCategory:Class;
 	        
 	        [Bindable]
-	        [Embed(source="assets/chart_curve.png")]
+	        [Embed(source="assets/chart_line.png")]
 	        public var iconQC:Class;
 	        
 	       	[Bindable]
 	        [Embed(source="assets/bullet_orange.png")]
 	        public var iconBullet:Class;
-	    
+	     
 	       	[Bindable]
 	        [Embed(source="assets/bullet_green.png")]
 	        public var iconGreenBullet:Class;
@@ -243,8 +243,7 @@
 	        public var iconRedBullet:Class;
 	        
 	        [Bindable]
-	        //[Embed(source="assets/solexa.png")]
-	        [Embed(source="assets/illumina.png")]
+	        [Embed(source="assets/dna_diag.png")]
 	        public var iconSolexa:Class;
 	        
 	        [Bindable]
