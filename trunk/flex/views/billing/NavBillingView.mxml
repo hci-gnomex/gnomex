@@ -491,7 +491,7 @@
  				}
  			}  else if (this.requestTree.selectedItem.name() == "Lab") {
  				this.billingItemsDisplayed = new XMLListCollection();
- 				lab = XML(this.requestTree.selectedItem);
+ 				lab = XML(this.requestTree.selectedItem); 
  				for each(request in lab.Request) {
  					for each(item in billingItems) {
 	 					if (item.@requestNumber == request.@requestNumber &&
@@ -502,8 +502,9 @@
  					}  
  				}
  			} else if (this.requestTree.selectedItem.name() == "Request") {
- 				for each(item in billingItems) {
- 					if (item.@requestNumber == requestTree.selectedItem.@requestNumber) {
+ 				for each(item in billingItems) { 
+ 					if (item.@requestNumber == requestTree.selectedItem.@requestNumber &&
+ 					    item.@idBillingAccount == requestTree.selectedItem.@idBillingAccount) {
 	 					billingItemsDisplayed.addItem(item);
 						totalPrice = sumTotalPrice(totalPrice, item);
  					}
@@ -796,13 +797,14 @@
 				Alert.show("Please select a billing period.");
 				return;    	
 			} 
+			
+			if (requestTree.selectedItem.name() != "Status") {
+				Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
+				return;
+			}
+			 
 			if (this.requestTree.selectedItem != null) { 
-				var statusNode:Object = null;
-				if (this.requestTree.selectedItem.name() == "Lab") {
-					statusNode = this.requestTree.selectedItem.parent(); 
-				} else if (this.requestTree.selectedItem.name() == "Status") {
-					statusNode = this.requestTree.selectedItem; 
-				}
+				var statusNode:Object = this.requestTree.selectedItem; 
 				if (statusNode != null && 
 				    (statusNode.@status == "APPROVED" )) {
 				    	 
@@ -1071,10 +1073,10 @@
                     headerWordWrap="true" 
                     selectionMode="singleRow" 
                      alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
-        		 	<mx:dataProvider>
-      						<mx:HierarchicalData source="{billingItemsDisplayed}"/>
+        		 	<mx:dataProvider>   
+      						<mx:HierarchicalData source="{billingItemsDisplayed}"/> 
     				</mx:dataProvider> 
-        			<mx:columns>
+        			<mx:columns> 
         				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
         				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="10" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
