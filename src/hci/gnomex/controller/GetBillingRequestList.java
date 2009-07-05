@@ -131,12 +131,13 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
       
         String labBillingName = labName + " (" + billingAcctName + ")";
+        String requestNumberBilled = requestNumber + labBillingName;
 
         // Hash the status node.
-        List statusList = (List)requestToStatusMap.get(requestNumber);
+        List statusList = (List)requestToStatusMap.get(requestNumberBilled);
         if (statusList == null) {
           statusList = new ArrayList();
-          requestToStatusMap.put(requestNumber, statusList);
+          requestToStatusMap.put(requestNumberBilled, statusList);
         }
         statusList.add(BillingStatus.PENDING);
         
@@ -144,12 +145,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         // the request's billing items are split among multiple billing 
         // accounts.  Keep a hash map of these different request nodes.
         
-        TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumber);
+        TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
         if (requestNodes == null) {
           requestNodes = new TreeMap();
-          requestNodeMap.put(requestNumber, requestNodes);
+          requestNodeMap.put(requestNumberBilled, requestNodes);
         }
-        requestNodes.put(requestNumber + labBillingName, node);
+        requestNodes.put(requestNumberBilled, node);
         
         
       }
@@ -188,6 +189,10 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
   
       
       String toolTip = requestNumber + " " + labName;
+      
+      String labBillingName = labName + " (" + billingAcctName + ")";
+      String requestNumberBilled = requestNumber + labBillingName;
+      
       if (createDate != null) {
         toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
       }
@@ -196,10 +201,10 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }
       
       
-      List statusList = (List)requestToStatusMap.get(requestNumber);
+      List statusList = (List)requestToStatusMap.get(requestNumberBilled);
       if (statusList == null) {
         statusList = new ArrayList();
-        requestToStatusMap.put(requestNumber, statusList);
+        requestToStatusMap.put(requestNumberBilled, statusList);
       }
       statusList.add(codeBillingStatus);
       
@@ -208,7 +213,6 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         labNodeMap = new TreeMap();
         statusToLabNodeMap.put(codeBillingStatus, labNodeMap);
       }
-      String labBillingName = labName + " (" + billingAcctName + ")";
       Element labNode = (Element)labNodeMap.get(labBillingName);
       if (labNode == null) {
         labNode = new Element("Lab");
@@ -238,16 +242,17 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
       node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
+      node.setAttribute("billingAccountName", billingAcctName);
       
       // There can be multiple requests nodes for a given request number when
       // the request's billing items are split among multiple billing 
       // accounts.  Keep a hash map of these different request nodes.
-      TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumber);
+      TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
       if (requestNodes == null) {
         requestNodes = new TreeMap();
-        requestNodeMap.put(requestNumber, requestNodes);
+        requestNodeMap.put(requestNumberBilled, requestNodes);
       }
-      requestNodes.put(requestNumber + labBillingName, node);
+      requestNodes.put(requestNumberBilled, node);
       
       
       
@@ -265,10 +270,15 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     // Organize requests directly under status node if request is Pending.
     //    
     for(Iterator i = requestToStatusMap.keySet().iterator(); i.hasNext();) {
-      String requestNumber = (String)i.next();
+      String requestNumberBilled = (String)i.next();
       
-      List statusList = (List)requestToStatusMap.get(requestNumber);
-      Map requestNodes = (Map)requestNodeMap.get(requestNumber);
+      List statusList = (List)requestToStatusMap.get(requestNumberBilled);
+      Map requestNodes = (Map)requestNodeMap.get(requestNumberBilled);
+      
+      if (requestNodes == null) {
+        System.out.println("Cannot find request nodes for " + requestNumberBilled);
+        continue;
+      }
       
 
       // For this request, figure out which of the billing item
@@ -340,7 +350,18 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           Element requestNode = (Element)requestNodes.get(key);
           Map labNodeMap = (Map)statusToLabNodeMap.get(codeBillingStatus);
           Element labNode = (Element)labNodeMap.get(requestNode.getAttributeValue("labBillingName"));
-          labNode.addContent(requestNode);
+          if (labNode == null) {
+            labNode = new Element("Lab");
+            labNode.setAttribute("label", requestNode.getAttributeValue("labBillingName"));
+            labNode.setAttribute("idLab", requestNode.getAttributeValue("idLab"));
+            labNode.setAttribute("name", requestNode.getAttributeValue("labBillingName"));
+            labNode.setAttribute("idBillingAccount", requestNode.getAttributeValue("idBillingAccount"));
+            labNode.setAttribute("billingAccountName", requestNode.getAttributeValue("billingAccountName"));
+            labNodeMap.put(requestNode.getAttributeValue("labBillingName"), labNode);
+            labNode.addContent(requestNode);
+          } else {
+            labNode.addContent(requestNode);
+          }
         }
         
       }
@@ -374,12 +395,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
       }
     }
-    status = (Element)statusNodeMap.get(BillingStatus.APPROVED);
+    status = (Element)statusNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
     if (status != null) {
       doc.getRootElement().addContent(status);      
 
       // Add non-empty labNodes onto status
-      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED);
+      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
       for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
         String key = (String)i1.next();
         Element labNode = (Element)labNodeMap.get(key);
@@ -388,12 +409,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
       }      
     }
-    status = (Element)statusNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
+    status = (Element)statusNodeMap.get(BillingStatus.APPROVED);
     if (status != null) {
       doc.getRootElement().addContent(status);      
 
       // Add non-empty labNodes onto status
-      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
+      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED);
       for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
         String key = (String)i1.next();
         Element labNode = (Element)labNodeMap.get(key);
