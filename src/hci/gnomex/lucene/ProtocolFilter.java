@@ -48,7 +48,7 @@ public class ProtocolFilter extends DetailObject {
       text = text.replaceAll(" or ", " OR ");
       this.addLogicalOperator();
       searchText.append(" " + ProtocolIndexHelper.TEXT + ":(");
-      searchText.append(text);
+      searchText.append(text + "*");
       searchText.append(") ");
       
       displayText.append(" Any text = " + text);
@@ -66,7 +66,7 @@ public class ProtocolFilter extends DetailObject {
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append(text1);
+        searchText.append(text1 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" Any text = " + text1);
@@ -82,7 +82,7 @@ public class ProtocolFilter extends DetailObject {
           }          
         }
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append(text2);
+        searchText.append(text2 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" Any text = " + text2);
@@ -98,7 +98,7 @@ public class ProtocolFilter extends DetailObject {
           }          
         }
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append(text3);
+        searchText.append(text3 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" Any text = " + text3);
@@ -114,7 +114,7 @@ public class ProtocolFilter extends DetailObject {
           }          
         }
         searchText.append(" " + ProtocolIndexHelper.TEXT + ":");
-        searchText.append(text4);
+        searchText.append(text4 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" Any text = " + text4);

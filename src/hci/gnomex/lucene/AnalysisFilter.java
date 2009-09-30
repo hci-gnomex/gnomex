@@ -67,7 +67,7 @@ public class AnalysisFilter extends DetailObject {
       text = text.replaceAll(" or ", " OR ");
       this.addLogicalOperator();
       searchText.append(" " + AnalysisIndexHelper.TEXT + ":(");
-      searchText.append(text);
+      searchText.append(text + "*");
       searchText.append(") ");
 
       displayText.append(" any text field = " + text);
@@ -89,7 +89,7 @@ public class AnalysisFilter extends DetailObject {
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
-        searchText.append(text1);
+        searchText.append(text1 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text1);
@@ -105,7 +105,7 @@ public class AnalysisFilter extends DetailObject {
           }          
         }
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
-        searchText.append(text2);
+        searchText.append(text2 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text2);
@@ -121,7 +121,7 @@ public class AnalysisFilter extends DetailObject {
           }          
         }
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
-        searchText.append(text3);
+        searchText.append(text3 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text3);
@@ -137,7 +137,7 @@ public class AnalysisFilter extends DetailObject {
           }          
         }
         searchText.append(" " + AnalysisIndexHelper.TEXT + ":");
-        searchText.append(text4);
+        searchText.append(text4 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text4);

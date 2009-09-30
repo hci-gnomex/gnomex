@@ -29,9 +29,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
-import sun.tools.tree.ThisExpression;
-
-
 
 
 public class SaveProject extends GNomExCommand implements Serializable {
