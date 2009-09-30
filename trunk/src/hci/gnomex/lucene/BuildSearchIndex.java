@@ -656,39 +656,30 @@ public class BuildSearchIndex extends DetailObject {
       String  sampleName      = (String) row[6];
       String  sampleDesc      = (String) row[7];
       Integer idOrganism      = (Integer)row[8];
-      Integer idSampleSource   = (Integer)row[9];
       Integer idSampleType   = (Integer)row[29];
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
-      if (idSampleSource != null) {
-        idSampleSourceMap.put(idSampleSource, null);
-      }
+
       if (idSampleType != null) {
         idSampleTypeMap.put(idSampleType, null);
       }      
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-      sampleSources.append(     idSampleSource != null ? dh.getSampleSource(idSampleSource) + " " : "");
       sampleTypes.append(     idSampleType != null ? dh.getSampleType(idSampleType) + " " : "");
 
       // sample 2
       sampleName      = (String) row[10];
       sampleDesc      = (String) row[11];
       idOrganism      = row[12] instanceof Integer ? (Integer)row[12] : null;
-      idSampleSource   =row[13] instanceof Integer ? (Integer)row[13] : null;
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
-      }
-      if (idSampleSource != null) {
-        idSampleSourceMap.put(idSampleSource, null);
       }
       
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-      sampleSources.append(     idSampleSource != null ? dh.getSampleSource(idSampleSource) + " " : "");
       
       // more request data
       idSlideProduct           = row[14] instanceof Integer ? (Integer)row[14] : null;
