@@ -241,6 +241,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
+      node.setAttribute("labName", labName != null ? labName : "");
       node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
       node.setAttribute("billingAccountName", billingAcctName);
       

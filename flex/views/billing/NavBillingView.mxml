@@ -106,6 +106,7 @@
         import mx.events.PropertyChangeEvent;
         import mx.events.CloseEvent;
         import views.renderers.LabelPercentage;
+        import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
         
         private var revisionNumber:int = 1;
  		
@@ -254,11 +255,11 @@
 					if (item.@codeRequestCategory == "SOLEXA") {
 						return parentApplication.iconSolexa;
 					} else if (item.@codeRequestCategory == "AFFY") {
-						return parentApplication.iconMicroarrayAffy;
+						return parentApplication.iconMicroarrayAffy; 
 					} else if (item.@codeRequestCategory == "AGIL") {
 						return parentApplication.iconMicroarray;
 					} else if (item.@codeRequestCategory == "QC") {
-						return parentApplication.iconQC;
+						return parentApplication.iconQC; 
 					} else {
 						return parentApplication.iconFlask;
 					}
@@ -267,10 +268,18 @@
 				} else if (item.name() == "Lab") {
 					return parentApplication.iconGroup;
 				} else {
-					return parentApplication.iconBilling;
+					return parentApplication.iconBilling; 
 				}  
-		} 
+		}   
 		
+		public function getTreeLabel(item:Object, column:AdvancedDataGridColumn):String {
+			if (item.name() == "Request" && item.parent().name() == "Status" && item.parent().@status == "PENDING") {
+				return item.@label + " " + item.@labName;
+			} else {
+				return item.@label;
+			}
+		} 
+
 		public function refresh():void {
 			if (dirty.isDirty()) {
 				Alert.show( "Unsaved changes will be discarded.  Proceed anyways?",
@@ -468,7 +477,8 @@
  				this.billingItemsDisplayed = new XMLListCollection();
  				for each(request in this.requestTree.selectedItem..Request) {
  					for each(item in billingItems) {
-	 					if (item.@requestNumber == request.@requestNumber) {
+	 					if (item.@requestNumber == request.@requestNumber &&
+		 					item.@idBillingAccount == request.@idBillingAccount) {
 	 						billingItemsDisplayed.addItem(item);
 		 					totalPrice = sumTotalPrice(totalPrice, item);
  						}
@@ -831,12 +841,12 @@
             	editWindow.setFocus();
             	editWindow.billingPrice = this.billingCategoryTree.selectedItem; 				
 			}  
-		}
+		}  
 		
 		private function showSplitAccountsView():void {
 			var requestNode:Object = null;
 			if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "Request") {
-				
+				  
 				requestNode = this.billingItemGrid.selectedItem;
 			} else if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "BillingItem") {
 				requestNode = this.billingItemGrid.selectedItem.parent();
@@ -925,7 +935,7 @@
 			var idBillingPeriod:Object = billingPeriods.getItemAt(0).@idBillingPeriod;
 			
 			var splitWindow:BillingSplitView = BillingSplitView(mx.managers.PopUpManager.createPopUp(this, BillingSplitView, true));
-        	mx.managers.PopUpManager.centerPopUp(splitWindow);
+        	mx.managers.PopUpManager.centerPopUp(splitWindow); 
         	splitWindow.setFocus();
         	splitWindow.idBillingPeriod = idBillingPeriod;
         	splitWindow.request = requestNode;			
@@ -933,6 +943,75 @@
         	splitWindow.billingAccountEntries = billingAccountEntries;
         	splitWindow.initializeData();
 			
+		}
+		
+		private function showReassignAccountView():void {
+			var requestNode:Object = null;
+			if (this.dirty.isDirty()) {
+				Alert.show("Please save the billing items before trying to reassign the account.");
+				return;
+			}
+			if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "Request") {				 
+				requestNode = this.billingItemGrid.selectedItem;
+				if (requestNode.@status == "NEW") {
+						Alert.show("Please save the new billing items before trying to reassign the account.");
+						return;				
+				} 
+			} else if (this.requestTree.selectedItem != null && this.requestTree.selectedItem.name() == "Request") {
+				requestNode = this.requestTree.selectedItem;
+				if (requestNode.@codeBillingStatus == "NEW") {
+						Alert.show("Please save the new billing items before trying to reassign the account.");
+						return;				
+				} 
+			} 
+			
+			if (requestNode == null) { 
+				Alert.show("To reassign the account, you must first select an experiment in the list.");
+				return;
+			}
+			
+			
+			
+			var billingPeriods:XMLListCollection = new XMLListCollection();
+			for each(var r:Object in this.billingItemsDisplayed) {
+				for each(var billingItem:Object in r.BillingItem) {
+					if (billingItem.@idRequest != requestNode.@idRequest) {
+						continue; 
+					}
+					var foundBillingPeriod:Boolean = false;
+					for each(var bp:Object in billingPeriods) {
+						if (bp.@idBillingPeriod == billingItem.@idBillingPeriod) {
+							foundBillingPeriod = true;
+							break; 
+						} 
+					}  
+					if (!foundBillingPeriod) {
+						var newBillingPeriod:XML = new XML("<BillingPeriod idBillingPeriod='" + billingItem.@idBillingPeriod + "'/>");
+						billingPeriods.addItem(newBillingPeriod);
+					}
+					
+				}
+				
+			}
+			
+			if (billingPeriods.length > 1) {
+				Alert.show("This experiment has billing items spanning multiple billing periods.  Please select a billing period from the dropdown to qualify the billing items to be reassigned to different account.");
+				return;
+			}
+			if (billingPeriods.length == 0) {
+				Alert.show("Please select a billing period from the dropdown first.");
+				return;
+			}
+			var idBillingPeriod:Object = billingPeriods.getItemAt(0).@idBillingPeriod;
+			
+			
+			var reassignWindow:BillingReassignView = BillingReassignView(mx.managers.PopUpManager.createPopUp(this, BillingReassignView, true));
+        	mx.managers.PopUpManager.centerPopUp(reassignWindow);
+        	reassignWindow.setFocus();
+        	reassignWindow.request = requestNode;
+        	reassignWindow.idBillingPeriod = idBillingPeriod;
+        	reassignWindow.initializeData();
+
 		}
 
 
@@ -997,6 +1076,7 @@
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
 						iconFunction="getTreeIcon"  
+						labelFunction="getTreeLabel"
 						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="true">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
@@ -1054,7 +1134,10 @@
         	<mx:Panel width="100%" height="100%" verticalGap="0" title="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}">
         		<mx:HBox width="100%">
         			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()"/>
-        			<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/group_add_disable.png')" icon="@Embed(source='../../assets/group_add.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
+        			<mx:LinkButton  label="Reassign account" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
+        				<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
+        			</mx:LinkButton> 
+        			<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
         			<mx:Spacer width="100%"/>
         			 
         		</mx:HBox>

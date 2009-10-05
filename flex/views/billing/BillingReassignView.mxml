@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Reassign Account for Experiment ' + request.@requestNumber}" 
+	width="510" height="134" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')"> 
+
+    <mx:HTTPService             
+    id="getLab" 
+    url="GetLab.gx" 
+    destination="getLab" 
+    resultFormat="e4x"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST" 
+    useProxy="false">
+   </mx:HTTPService> 
+   
+    <mx:HTTPService             
+    id="reassignBillingAccount" 
+    url="ReassignBillingAccount.gx"
+    destination="reassignBillingAccount" 
+    resultFormat="e4x"
+    result="onReassignBillingAccount(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to reassign billing account', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService>
+
+<mx:Script>
+	<![CDATA[
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.collections.XMLListCollection;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import views.renderers.ComboBoxGroup;
+		import views.renderers.ComboBoxBillingAccount;
+		import hci.flex.renderers.Label;
+		import hci.flex.renderers.TextInput;
+		
+		
+		[Bindable]
+		public var idBillingPeriod:Object = null;
+		
+		[Bindable]
+		public var request:Object;
+		
+		[Bindable]
+		private var billingAccounts:XMLListCollection = null;
+		
+		[Bindable]
+		public var labs:XMLListCollection;
+		
+		private var isInitialized:Boolean = false;
+
+		public function initializeData():void {
+			var params:Object = new Object();
+			params.idLab = request.@idLab;
+			getLab.send(params);
+		}
+		
+		private function refreshLab():void {
+			if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != '') {
+				var params:Object = new Object();
+				params.idLab = labCombo.selectedItem.@idLab;
+				getLab.send(params);
+			}
+		}
+		
+		private function onGetLab(event:ResultEvent):void {			
+			var lab:Object = getLab.lastResult..Lab;
+			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+			var blankNode:XML = new XML("<BillingAccount idLab='' labName='' idBillingAccount='' accountName=''/>");
+			billingAccounts.addItemAt(blankNode, 0);
+			
+			
+
+			if (!isInitialized) {
+				isInitialized = true;
+				for each(var l:Object in labCombo.dataProvider) {
+					if (l.@idLab == request.@idLab) {
+						labCombo.selectedItem = l;
+						break;
+					}
+				}
+			}
+			callLater(selectBillingAccount);
+		}
+		
+		private function selectBillingAccount():void {
+			for each(var ba:Object in billingAccounts) {
+				if (ba.@idBillingAccount == request.@idBillingAccount) {
+					billingAccountCombo.selectedItem = ba;
+					break;
+				}
+			}			
+		}
+         
+        		  
+ 		private function save():void {
+ 			var params:Object = new Object();
+ 			params.idBillingAccountOld = request.@idBillingAccount;   
+ 			params.idBillingPeriod = idBillingPeriod;
+ 			params.idRequest = request.@idRequest;
+ 			params.idLab = labCombo.selectedItem.@idLab;
+ 			params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
+ 			this.reassignBillingAccount.send(params);
+  
+ 		}
+ 		private function onReassignBillingAccount(event:ResultEvent):void {		
+ 			if (reassignBillingAccount.lastResult.name() == "SUCCESS") {
+ 				parentApplication.navBillingView.refresh();
+ 				mx.managers.PopUpManager.removePopUp(this);		
+ 			} else {
+				Alert.show(reassignBillingAccount.lastResult..ACTMESSAGE.@TEXT);
+			}
+		} 
+		
+
+	]]>
+</mx:Script>
+
+	<mx:VBox height="100%">
+		<mx:HBox horizontalAlign="right" verticalAlign="bottom" >
+			<mx:Label text="Group:" width="80"/>
+			<mx:ComboBox id="labCombo"
+				  labelField="@name" 
+				  change="refreshLab()" 
+				  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+				  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+ width="400"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label text="Account:"  width="80"/>
+			<mx:ComboBox id="billingAccountCombo"
+			   	  labelField="@accountName" 
+			   	  dataProvider="{billingAccounts}" 
+			   	  enabled="true"
+			   	  width="400"/>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''? true : false}" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

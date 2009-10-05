@@ -23,6 +23,7 @@ public class Lab extends HibernateDetailObject {
   private Set     members;
   private Set     collaborators;
   private Set     managers;
+  private Set     projects;
   
   // Permission flag
   private boolean canSubmitRequests = false;
@@ -273,5 +274,15 @@ public class Lab extends HibernateDetailObject {
       labName += " Lab";
     }
     return labName;
+  }
+
+  
+  public Set getProjects() {
+    return projects;
+  }
+
+  
+  public void setProjects(Set projects) {
+    this.projects = projects;
   }
 }

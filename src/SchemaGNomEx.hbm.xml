@@ -270,7 +270,7 @@
 		<property name="contactPhone" column="contactPhone" type="string"/>
 		<property name="contactEmail" column="contactEmail" type="string"/>
 		<property name="isCcsgMember" column="isCCSGMember" type="string"/>
-        <set name="members" table="LabUser" lazy="true" cascade="none">
+    <set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
 		</set>
@@ -281,6 +281,10 @@
 		<set name="managers" table="LabManager" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+		</set>
+		<set name="projects" table="Project" lazy="true" cascade="none" >
+			<key column="idLab"/>
+			<one-to-many class="hci.gnomex.model.Project" />
 		</set>
 		<set name="billingAccounts" table="BillingAccount" lazy="false" cascade="delete">
 			<key column="idLab"/>
