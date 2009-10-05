@@ -76,6 +76,19 @@
     useProxy="false">
   </mx:HTTPService>
   
+  <mx:HTTPService  
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService>
+
+  
 	<mx:Script>
 		<![CDATA[
 		import mx.events.PropertyChangeEvent;
@@ -462,6 +475,7 @@
 					confirmButtonStack.selectedIndex = 0;
 				}
 			}
+			
 		}
 		
 		
@@ -1311,8 +1325,26 @@
 			} 
 
 		}
+		
+		private function refreshLab():void {
+			if (requestEditLabCombo.selectedItem != null && requestEditLabCombo.selectedItem.@idLab != '') {
+				var params:Object = new Object();
+				params.idLab = requestEditLabCombo.selectedItem.@idLab;
+				getLab.send(params);
+			}
+		}
 
 		private function initializeControls():void {
+			
+			if (isEditState()) {
+				for each(var l:Object in parentApplication.promptedSubmitRequestLabList) {
+					if (l.@idLab == request.@idLab) {
+						requestEditLabCombo.selectedItem = l;
+						refreshLab();
+						break;
+					}
+				}
+			}
 			
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
@@ -1358,11 +1390,9 @@
 				theTab.selectedChild = this.samplesView;
 			}
 			
-			if (currentState == 'SolexaEditState') {
-				visibilityCombo1.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', request.@codeVisibility);
-			} else if (isEditState()) {
+			if (isEditState()) {
 				visibilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', request.@codeVisibility);
-			}
+			} 
 			
 			
 			
@@ -1473,6 +1503,19 @@
 		private function validateRequest():void {
 			errorMessage = '';
 			warningMessage = '';
+			
+			// Make sur lab and billing acount filled in
+			if (isEditState()) {
+				if (requestEditLabCombo.selectedItem == null || requestEditLabCombo.selectedItem.@idLab == '') {
+					errorMessage += "Lab must be specified.\n\n";
+				}
+				if (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+					errorMessage += "Billing account must be specified.\n\n";
+				}
+				if (requestEditProjectCombo.selectedItem == null || requestEditProjectCombo.selectedItem.@idProject == '') {
+					errorMessage += "Project must be specified.\n\n";
+				}
+			}
 			
 			// Check for duplicate sampleNames
 			var sampleNames:Dictionary = new Dictionary();
@@ -1618,13 +1661,14 @@
 			validateRequest();
 			
 			if (errorMessage != '') {
-				warningMessage = errorMessage + warningMessage;
-			}
-			if (warningMessage != '') {
+				Alert.show(errorMessage);
+				return; 
+			} else if (warningMessage != '') {
 				promptToSaveRequest();
 				return;
+			} else {
+				saveRequest();				
 			}
-			saveRequest();
 		}
 		
 		
@@ -1713,12 +1757,11 @@
 				}
 			}
 			
-			if (currentState == "SolexaEditState") {
-				request.@codeVisibility = visibilityCombo1.selectedItem.@value;
-			} else {
-				request.@codeVisibility = visibilityCombo.selectedItem.@value;
-			}
-
+			request.@codeVisibility = visibilityCombo.selectedItem.@value;
+			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
+			request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
+			
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
 			params.idProject = request.@idProject;
@@ -1938,6 +1981,31 @@
            	 parentDocument.detailView.setupForm(this.request);
 		}
 		
+		private function onGetLab(event:ResultEvent):void {
+			if (getLab.lastResult.name() == "OpenLabList") {
+				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
+				
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+		        requestEditBillingAccountCombo.selectedItem = null;
+		        for each(var ba:Object in billingAccounts) {
+		        	if (ba.@idBillingAccount == request.@idBillingAccount) {
+		        		requestEditBillingAccountCombo.selectedItem = ba;
+		        		break;
+		        	}
+		        }
+		        
+		        projects = new XMLListCollection(lab.projects.Project);
+		        requestEditProjectCombo.selectedItem = null;
+		        for each(var p:Object in projects) {
+		        	if (p.@idProject == request.@idProject) {
+		        		requestEditProjectCombo.selectedItem = p;
+		        		break;
+		        	}
+		        } 
+				
+			}			
+
+		}
 
 
 		]]>
@@ -1954,7 +2022,10 @@
 
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
-  
+
+  	<mx:XMLListCollection id="billingAccounts" />
+  	<mx:XMLListCollection id="projects" />
+
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
 		<mx:TabNavigator  click="theTab.creationPolicy='all'"  id="theTab"  styleName="form" width="100%" height="100%" paddingLeft="8" paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
@@ -2032,44 +2103,56 @@
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
     			<mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
-    				<mx:VBox verticalGap="0">
+    				<mx:VBox verticalGap="2">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
-    					   <mx:Text text="{this.request.@ownerName}" width="130" />
-    					 </mx:HBox>			            
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				           <mx:Label text="Group"  width="85" fontWeight="bold"/>
-    				           <mx:Text text="{this.request.@labName}" width="130"/>
-    				       </mx:HBox>
-    				       <mx:HBox verticalGap="0" horizontalGap="0">
-    				         <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
-    				         <mx:Text text="{this.request.@createDate}" width="130"/>
-    				       </mx:HBox>
-    				</mx:VBox>
-    				<mx:VBox verticalGap="0">
-    					 
+    					   <mx:Label text="Submitted by"  width="102" fontWeight="bold"/>
+    					   <mx:Text text="{this.request.@ownerName}" width="180" />
+    					 </mx:HBox>
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					   <mx:Label text="Submit Date"  width="102" fontWeight="bold"/>
+    					   <mx:Text text="{this.request.@createDate}" width="180"/>
+    					 </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
-    					       <mx:Text text="{requestCategoryName}" width="120" />
+    					       <mx:Text text="{requestCategoryName}" width="180" />
     					   </mx:HBox>
-    				    <mx:HBox verticalGap="0" horizontalGap="0">
-    				        <mx:Label text="Experiment Type"  width="102" fontWeight="bold"/>
-    				       <mx:Text  text="{experimentCategoryName}" width="120" />
-    				    </mx:HBox>
-    				       <mx:HBox verticalGap="0" horizontalGap="0">
-    				         <mx:Label width="102" text="Completed on" fontWeight="bold"/>
-    				         <mx:Text  text="{this.request.@completedDate}" width="120" />
-    				       </mx:HBox>
-    				</mx:VBox>
-    				<mx:VBox width="100%" verticalGap="0">
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					     <mx:Label text="Experiment Type"  width="102" fontWeight="bold"/>
+    					    <mx:Text  text="{experimentCategoryName}" width="180" />
+    					 </mx:HBox>
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					   <mx:Label width="102" text="Completed on" fontWeight="bold"/>
+    					   <mx:Text  text="{this.request.@completedDate}" width="180" />
+    					 </mx:HBox>
+    				</mx:VBox> 
+     				<mx:VBox width="100%" verticalGap="2">
     				    
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
-    				        <mx:Text  text="{this.request.@projectName}" width="100%"/>
-    				    </mx:HBox>
+    				           <mx:Label text="Group"  width="55" fontWeight="bold"/>
+    				           <mx:ComboBox id="requestEditLabCombo"
+    				           	  labelField="@name" 
+    				           	  change="this.dirty.setDirty();refreshLab()" 
+    				           	  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+    				           	  width="100%"/>
+    				       </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
     				        <mx:Label text="Account"  width="55" fontWeight="bold"/>
-    				        <mx:Text text="{billingAccountName}" width="100%" />
+    				        <mx:ComboBox id="requestEditBillingAccountCombo"
+    				           	  labelField="@accountName" 
+    				           	  dataProvider="{billingAccounts}" 
+    				           	  change="this.dirty.setDirty()"
+    				           	  enabled="true"
+    				           	  width="100%"/>
+    				    </mx:HBox>
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
+    				        <mx:ComboBox id="requestEditProjectCombo"
+    				           	  labelField="@name" 
+    				           	  change="this.dirty.setDirty()"
+    				           	  dataProvider="{projects}" 
+    				           	  enabled="true"
+    				           	  width="100%"/>
     				    </mx:HBox>
     				       <mx:HBox width="100%" horizontalGap="0">
     				       	<mx:Label width="55" text="Visibility" id="labelVisibility" fontWeight="bold"/>	
@@ -2113,62 +2196,6 @@
 				</mx:VBox>					        			
             </mx:AddChild>
          </mx:State>
-        <mx:State name="SolexaEditState" basedOn="SolexaBaseState">
-            <mx:RemoveChild target="{setupView}"/>
-            <mx:RemoveChild target="{sampleSetupView}"/>
-            <mx:RemoveChild target="{confirmView}"/>
-            <mx:AddChild relativeTo="{samplesView}" position="after">
-            	<experiment:TabLanesView id="lanesView">            		
-            	</experiment:TabLanesView>
-            </mx:AddChild>
-    		<mx:AddChild relativeTo="{vbox1}" position="before">
-    			<mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
-    				<mx:VBox verticalGap="0">
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
-    					   <mx:Text text="{this.request.@ownerName}" width="130" />
-    					 </mx:HBox>			            
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				           <mx:Label text="Group"  width="85" fontWeight="bold"/>
-    				           <mx:Text text="{this.request.@labName}" width="130"/>
-    				       </mx:HBox>
-    				       <mx:HBox verticalGap="0" horizontalGap="0">
-    				         <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
-    				         <mx:Text text="{this.request.@createDate}" width="130"/>
-    				       </mx:HBox>
-    				</mx:VBox>
-    				<mx:VBox verticalGap="0">
-    					 
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
-    					       <mx:Text text="{requestCategoryName}" width="120" />
-    					   </mx:HBox>
-    				       <mx:HBox verticalGap="0" horizontalGap="0">
-    				         <mx:Label width="102" text="Completed on" fontWeight="bold"/>
-    				         <mx:Text  text="{this.request.@completedDate}" width="120" />
-    				       </mx:HBox>
-    				</mx:VBox>
-    				<mx:VBox width="100%" verticalGap="0">
-    				    
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
-    				        <mx:Text  text="{this.request.@projectName}" width="100%"/>
-    				    </mx:HBox>
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				        <mx:Label text="Account"  width="55" fontWeight="bold"/>
-    				        <mx:Text text="{billingAccountName}" width="100%" />
-    				    </mx:HBox>
-    				       <mx:HBox width="100%" horizontalGap="0">
-    				       	<mx:Label width="55" text="Visibility" fontWeight="bold"/>	
-    				       	<mx:ComboBox width="100%" id="visibilityCombo1" labelField="@display">
-    				       		<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}</mx:dataProvider>
-    				       	</mx:ComboBox>
-    				       </mx:HBox>
-    				</mx:VBox>
-    				
-    			</mx:HBox>
-    		</mx:AddChild>
-         </mx:State>
         <mx:State name="QCEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>
             <mx:RemoveChild target="{annotationView}"/>
@@ -2183,6 +2210,17 @@
             <mx:RemoveChild target="{confirmView}"/>
             <mx:RemoveChild target="{hybSetupView.numberOfHybsContainer}"/>
             <mx:RemoveChild target="{hybSetupView.slideSourceContainer}"/>
+         </mx:State>
+        <mx:State name="SolexaEditState" basedOn="EditState">
+            <mx:RemoveChild target="{setupView}"/>
+            <mx:RemoveChild target="{sampleSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{confirmView}"/>
+            <mx:AddChild relativeTo="{samplesView}" position="after">
+            	<experiment:TabLanesView id="lanesView">            		
+            	</experiment:TabLanesView>
+            </mx:AddChild>
          </mx:State>
     </mx:states>
     

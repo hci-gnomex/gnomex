@@ -93,7 +93,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           !prevIdBillingAccount.equals(billingItem.getIdBillingAccount())) {
         requestNode = new Element("Request");
         requestNode.setAttribute("idRequest", idRequest.toString());
-        requestNode.setAttribute("idLab", idLab.toString());
+        requestNode.setAttribute("idLab", billingItem.getIdLab().toString());
         requestNode.setAttribute("requestNumber", requestNumber);
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
