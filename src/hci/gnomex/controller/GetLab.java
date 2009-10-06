@@ -68,12 +68,14 @@ public class GetLab extends GNomExCommand implements Serializable {
     theLab.excludeMethodFromXML("getCanManage");
     theLab.excludeMethodFromXML("getHasPublicData");
     
+    Hibernate.initialize(theLab.getProjects());
+    
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) ||
         this.getSecAdvisor().canUpdate(lab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP)) {
       Hibernate.initialize(theLab.getMembers());
       Hibernate.initialize(theLab.getCollaborators());
       Hibernate.initialize(theLab.getManagers());
-      Hibernate.initialize(theLab.getProjects());
+
       
       Document doc = new Document(new Element("OpenLabList"));
       doc.getRootElement().addContent(theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
