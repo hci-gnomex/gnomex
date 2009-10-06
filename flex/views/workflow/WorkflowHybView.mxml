@@ -45,8 +45,8 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBoxArrayCoordinate;
-        import hci.flex.renderers.ComboBoxDictionary;
-        import hci.flex.renderers.LabelDictionary;
+        import hci.flex.controls.ComboBox;
+        import hci.flex.controls.DropdownLabel;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -223,7 +223,7 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"
- 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol')}"/>			                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry,'@display', '@value', '@idHybProtocol', true)}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@hybStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 

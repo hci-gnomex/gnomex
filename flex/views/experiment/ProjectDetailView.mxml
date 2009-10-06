@@ -34,9 +34,10 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
-		import hci.flex.components.DictionaryEditor;
-		import hci.flex.events.DictionaryEvent;
+		import hci.flex.dictionary.DictionaryEditor;
+		import hci.flex.dictionary.DictionaryEvent;
 		import mx.managers.PopUpManager;
+		import hci.flex.controls.CheckBox;
 		
 		private var closeWindowAfterSave:Boolean = false;
 		public var fromSubmitRequestWindow:Boolean = false;
@@ -381,7 +382,7 @@
 	            	editable="true"                        	
 	            	dataField="@isSelected" 
 	            	editorDataField="selected"
-	            	itemRenderer="hci.flex.renderers.CheckBox" >
+	            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}" >
 	            </mx:DataGridColumn>
 	            <mx:DataGridColumn  
 	            	headerText="Experiment Design (general intent)"
@@ -419,7 +420,7 @@
 	            	editable="true"                        	
 	            	dataField="@isSelected" 
 	            	editorDataField="selected" 
-	            	itemRenderer="hci.flex.renderers.CheckBox">
+	            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
 	            </mx:DataGridColumn>
 	            <mx:DataGridColumn  
 	            	headerText="Factors (differences between samples)" 

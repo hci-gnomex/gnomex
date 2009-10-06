@@ -50,7 +50,7 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
-        import hci.flex.renderers.LabelDictionary;
+        import hci.flex.controls.DropdownLabel;
         import views.renderers.ComboBoxWorkflowStatus;
         
         [Bindable]

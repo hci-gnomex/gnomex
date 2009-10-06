@@ -6,6 +6,7 @@
 <mx:Script>
 	<![CDATA[
 		import mx.events.ListEvent;
+		import views.renderers.CheckBoxIsSelectedChipType;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validFragmentSizeFrom:Boolean = true;
@@ -434,7 +435,7 @@
 							        	editable="true"                        	
 							        	dataField="@isSelected" 
 							        	editorDataField="selected"
-							        	itemRenderer="views.renderers.CheckBoxIsSelectedChipType" />
+							        	itemRenderer="{views.renderers.CheckBoxIsSelectedChipType.create()}" />
 								<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
 								<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
 								<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>

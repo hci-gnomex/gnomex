@@ -1,15 +1,14 @@
 package views.renderers
 {
-	import hci.flex.renderers.RendererFactory;
-	import mx.controls.TextInput;
+	import hci.flex.renderers.RendererFactory;	
 	import mx.core.IFactory;
+	import hci.flex.controls.TextInput;
 
-	public class FlowCellSampleConcentrationTextInput extends hci.flex.renderers.TextInput
+	public class FlowCellSampleConcentrationTextInput extends hci.flex.controls.TextInput
 	{
 		public static function create(dataField:String):IFactory {
 				return RendererFactory.create(FlowCellSampleConcentrationTextInput, 
-				{ _dataField: dataField});			
-				  
+				{ dataField: dataField});							  
 		}	
 		
 		
@@ -20,7 +19,7 @@ package views.renderers
           if (data == null) {
           	return;
           }
-          this.setStyle("backgroundColor", data.name() == "WorkItem" && data[_dataField] == '' ? missingRequiredFieldBackground : "0xffffff");
+          this.setStyle("backgroundColor", data.name() == "WorkItem" && data[dataField] == '' ? missingRequiredFieldBackground : "0xffffff");
           
           this.editable = true;
 

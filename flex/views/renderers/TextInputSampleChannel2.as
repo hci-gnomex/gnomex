@@ -16,8 +16,9 @@ package views.renderers
         protected function change(event:Event):void {
         	if (this.text == "") {
 	        	data["@idSampleChannel2"] = "0";
-	        	parentDocument.sampleDragGrid.invalidateDisplayList();
-	 	        parentDocument.sampleDragGrid.invalidateList();
+	        	parentDocument.cy5SampleDragGrid.invalidateDisplayList();
+		 	    parentDocument.cy5SampleDragGrid.invalidateList();	        		
+	        	
         	}
         }
             		

@@ -1,11 +1,11 @@
 package views.renderers
 {
-	import mx.controls.Label;
+	import hci.flex.controls.Label;
 	import flash.display.Graphics;
 	import mx.core.IFactory;
 	import hci.flex.renderers.RendererFactory;
 
-	public class FlowCellSampleConcentrationLabel extends hci.flex.renderers.Label
+	public class FlowCellSampleConcentrationLabel extends hci.flex.controls.Label
 	{		
 		public static function create(dataField:String):IFactory {
 				return RendererFactory.create(views.renderers.FlowCellSampleConcentrationLabel, 

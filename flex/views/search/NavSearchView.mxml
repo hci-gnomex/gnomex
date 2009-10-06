@@ -8,7 +8,7 @@
 	<mx:Script>
     <![CDATA[ 
     	import mx.managers.CursorManager;
-    	import hci.flex.renderers.LabelDictionary;
+    	import hci.flex.controls.DropdownLabel;
     	
     	[Bindable] 
     	private var experimentHitLabel:String = "Experiments";
@@ -251,7 +251,7 @@
 			       	<mx:DataGridColumn headerText="Score" width="25" dataField="@searchScore"/>
 			       	<mx:DataGridColumn headerText="Group" width="50" dataField="@requestLabName"/>
 			       	<mx:DataGridColumn headerText="Category" width="50" dataField="@codeRequestCategory" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.RequestCategory', '@codeRequestCategory')}"/>                 			       	
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry, '@display', '@value', '@codeRequestCategory')}"/>                 			       	
 			       	<mx:DataGridColumn headerText="Request Date" width="37" dataField="@requestCreateDate"/>
 			       	<mx:DataGridColumn headerText="Request #" width="35" dataField="@requestNumber"/>
 			       	<mx:DataGridColumn headerText="Microarray" width="170" dataField="@slideProductName"/>

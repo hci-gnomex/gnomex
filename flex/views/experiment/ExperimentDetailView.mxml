@@ -9,7 +9,7 @@
 		import mx.events.CloseEvent;
 		import mx.controls.Alert;
 		import views.experiment.ExperimentEditView;
-		import hci.flex.renderers.LabelDictionary; 
+		import hci.flex.controls.DropdownLabel; 
 		
 		
 		
@@ -461,29 +461,29 @@
 								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 								<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 				                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit','@codeConcentrationUnit')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
 					            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
 					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
 				                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 								
 
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
 				                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected}" headerText="QC Bioanalyzer method"  width="120" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
 
 				                <mx:DataGridColumn  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
-	                  				itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
 								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
@@ -535,7 +535,7 @@
 							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
 
 								<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol" width="80" dataField="@idLabelingProtocolChannel1"
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocolChannel1')}">                 											
+                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolChannel1')}">                 											
 									<mx:headerRenderer > 
 									<mx:Component>
 										<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -586,7 +586,7 @@
 									</mx:headerRenderer>
 								</mx:DataGridColumn>
 								<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel2"
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol','@idLabelingProtocolChannel2')}">                 											
+                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value','@idLabelingProtocolChannel2')}">                 											
 									<mx:headerRenderer>
 									<mx:Component>
 										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
@@ -642,20 +642,20 @@
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" dataField="@idHybProtocol"
-                                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.HybProtocol', '@idHybProtocol')}"/>                 											
+                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocol')}"/>                 											
 								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
 
 
 								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" dataField="@idScanProtocol"
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ScanProtocol', '@idScanProtocol')}"/>                 											
+                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocol')}"/>                 											
 								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" dataField="@idFeatureExtractionProtocol"
-                                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FeatureExtractionProtocol', '@idFeatureExtractionProtocol')}"/>                 											
+                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocol')}"/>                 											
 								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
 
 
 							     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" labelFunction="lookupSlideDesignName" />
 							     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"   
-                                  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource')}"/>                 											
+                                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>                 											
 								<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
 							</mx:columns>
 						</mx:DataGrid>
@@ -711,9 +711,9 @@
 						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
 						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
 				            <mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType')}"/>                 											
+                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}"/>                 											
+                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"/>                 											
 							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				            <mx:DataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 				            <mx:DataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
@@ -749,7 +749,7 @@
 							   </mx:headerRenderer>
 						    </mx:DataGridColumn>
 				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
-                                    itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild','@idGenomeBuildAlignTo')}"/>                 											
+                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild'), '@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
 							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 						</mx:columns> 
 					</mx:DataGrid>

@@ -8,7 +8,7 @@
 	xmlns:protocol="views.protocol.*"
 	xmlns:search="views.search.*"
 	xmlns:slide="views.slide.*"
-	xmlns:hci="hci.flex.components.*"
+	xmlns:hci="hci.flex.controls.*"
 	xmlns:billing="views.billing.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
 	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
@@ -19,7 +19,7 @@
    
     	
 	<mx:HTTPService 
-    id="createSecurityAdvisor" 
+    id="createSecurityAdvisor"
     url="CreateSecurityAdvisor.gx"
     resultFormat="e4x"
     result="onCreateSecurityAdvisor(event)"
@@ -148,7 +148,7 @@
         <![CDATA[
         	import hci.flex.renderers.RendererFactory;
         	import hci.flex.util.DictionaryManager; 
-        	import hci.flex.components.DictionaryEditor;
+        	import hci.flex.dictionary.DictionaryEditor;
         	import views.util.AboutView;
         	import views.util.PriceView;
         	import views.util.AppProgressView;
@@ -163,8 +163,7 @@
             import mx.events.CloseEvent;
             import mx.rpc.events.FaultEvent;
             import mx.controls.dataGridClasses.DataGridColumn;
-            import hci.flex.events.DictionaryEvent;
-            import hci.flex.util.DictionaryManager;
+            import hci.flex.dictionary.DictionaryEvent;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -965,14 +964,14 @@
 	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns"
 	  unique="true"/>
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors"
-	  unique="true"/>
+	  unique="true"/> 
 
 	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="0" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
 	    
 		   <mx:ApplicationControlBar  width="100%"  id="navBar"
 		   	fillAlphas="[1, 1]" dock="true"  
 		   	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
-		      <mx:VBox width="100%" verticalGap="0">
+		      <mx:VBox width="100%" verticalGap="0"> 
 			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" backgroundAlpha=".5" styleName="catalogPanel" paddingBottom="5">
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2" verticalAlign="middle">
 			          <mx:Image source="assets/hciLogo_hOnly.png"/>
@@ -1083,6 +1082,7 @@
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{dictionaryButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{pricingButton}" name="visible" value="true"/>
+	 		<mx:SetProperty target="{appLabel}" name="text" value="GNomEx"/>
 	 		
 	 	</mx:State>
 	 </mx:states>

@@ -47,8 +47,8 @@
         import mx.rpc.events.FaultEvent; 
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
-        import hci.flex.renderers.ComboBoxDictionary;
-        import hci.flex.renderers.LabelDictionary;
+        import hci.flex.controls.ComboBox;
+        import hci.flex.controls.DropdownLabel;
         import views.renderers.ComboBoxWorkflowStatus;
         
         [Bindable]
@@ -275,8 +275,8 @@
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="false"
-                   itemRenderer="mx.controls.Label"                 							
- 	               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingProtocol', '@idLabelingProtocol')}"/>			                
+                   itemRenderer="mx.controls.Label"               							
+ 	               itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry,'@display', '@value', '@idLabelingProtocol', true)}"/>			                
 	            <mx:DataGridColumn headerText="Yield" width="7" dataField="@labelingYield"/>
 				<mx:DataGridColumn headerText="Reaction Size" width="10" 
 					dataField="@codeLabelingReactionSize"
@@ -285,8 +285,8 @@
                    sortable="false" 
                    editable="true"
                    rendererIsEditor="false"  
-                   itemRenderer="mx.controls.Label"                 							
- 	               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.LabelingReactionSize', '@codeLabelingReactionSize')}">			                
+                   itemRenderer="mx.controls.Label"             							
+ 	               itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingReactionSize').DictionaryEntry,'@display', '@value', '@codeLabelingReactionSize', true)}">			                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">

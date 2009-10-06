@@ -69,8 +69,8 @@
 		import mx.events.DragEvent;
 		import mx.managers.DragManager;
 		import mx.events.CloseEvent;
-		import hci.flex.renderers.ComboBoxDictionary;
-		import hci.flex.renderers.LabelDictionary;
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel;
 		import views.renderers.FlowCellSampleConcentrationLabel;
 		import views.renderers.FlowCellSampleConcentrationTextInput;
 		
@@ -543,13 +543,13 @@
 					</mx:DataGridColumn>					
 					<mx:DataGridColumn  editable="false"  dataField="@idSeqRunType" headerText="Seq Run Type" width="65" 
 					 showDataTips="true" 
-                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType')}"/>                 											
+                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}"/>                 											
 					<mx:DataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="40"  
 					 showDataTips="true" 
-                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 											
+                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
 					<mx:DataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="32" 
 					 showDataTips="true" 
-                     itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles')}">
+                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">

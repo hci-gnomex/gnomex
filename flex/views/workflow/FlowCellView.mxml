@@ -21,7 +21,7 @@
 		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.controls.Alert;
 		import mx.rpc.events.ResultEvent;
-		import hci.flex.renderers.LabelDictionary;
+		import hci.flex.controls.DropdownLabel;
 
     	private function getLaneRowNumber(item:Object,col:int):String
     	{

@@ -32,15 +32,15 @@
 	  
 <mx:Script>
 	<![CDATA[
-		import hci.flex.components.DictionaryEditor; 
+		import hci.flex.dictionary.DictionaryEditor; 
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
-		import hci.flex.events.DictionaryEvent;
-		import hci.flex.renderers.ComboBoxDictionary;
-		import hci.flex.renderers.LabelDictionary;
+		import hci.flex.dictionary.DictionaryEvent;
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel;
 		
 		
 		private var savedIdLab:Object = '';
@@ -382,7 +382,7 @@
 						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
 					</mx:HBox>
 				</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto">
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto" itemEditEnd="dirty.setDirty()">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="140"/>
@@ -395,8 +395,9 @@
 			                editorDataField="selectedDate"/>
 						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
 							editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
-						   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FundingAgency', '@idFundingAgency')}"
-    	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FundingAgency', '@idFundingAgency')}"/>			                
+						   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
+    	                   
+    	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
 						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
 						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>

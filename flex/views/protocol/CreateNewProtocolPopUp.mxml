@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:hci="hci.flex.components.*"
+	xmlns:hci="hci.flex.controls.*"
 	layout="vertical" left="0" right="0" top="0" bottom="0" 
 	showCloseButton="true"
 	close="PopUpManager.removePopUp(this)"
@@ -39,7 +39,7 @@
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import hci.flex.events.DictionaryEvent;
+			import hci.flex.dictionary.DictionaryEvent;
 			
 			[Bindable]
 			public var protocolClassName:String;
@@ -81,14 +81,13 @@
 			<mx:HBox width="100%" verticalAlign="bottom">
 				<mx:VBox top="54" left="0" right="85" bottom="124" width="100%" verticalAlign="bottom" height="100%" verticalGap="0" id="vbox1">
 					<mx:Label text="Kind of Request:" color="#000000" id="label1"/>
-					<hci:DictionaryComboBox
+					<hci:ComboBox
 						id="codeRequestCategory"
 						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
-						labelField="@display"
 						width="100%">
-						</hci:DictionaryComboBox>
+						</hci:ComboBox>
 				</mx:VBox>
-				<hci:CheckBoxYN  id="isActive"  label="Active" color="#000000" selected="true"/>
+				<hci:CheckBox id="isActive" label="Active" color="#000000" selected="true" checkedValue="Y" uncheckedValue="N"/>
 			</mx:HBox>
 			<mx:ControlBar horizontalAlign="right" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:Button id="saveProtocolButton" label="Create Protocol" click="callSaveProtocol()" icon="@Embed('../../assets/action_save.gif')" toolTip="Save protocol" top="118" bottom="36" right="10" left="241"/>
@@ -101,12 +100,11 @@
 					<mx:RemoveChild target="{codeRequestCategory}"/>
 					<mx:SetProperty target="{label1}" name="text" value="Analysis Type:"/>
 					<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-						<hci:DictionaryComboBox
+						<hci:ComboBox
 							id="analysisTypeCombo"
 							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}"
-							labelField="@display"
 							width="100%">
-							</hci:DictionaryComboBox>
+							</hci:ComboBox>
 					</mx:AddChild>
 				</mx:State>
 			</mx:states>

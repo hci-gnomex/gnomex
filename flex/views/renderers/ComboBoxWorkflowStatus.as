@@ -7,9 +7,10 @@ package views.renderers
 	import mx.events.ListEvent;
 	import mx.core.IFactory;
 	import hci.flex.renderers.RendererFactory;
+	import mx.binding.utils.BindingUtils;
 
 
-	public class ComboBoxWorkflowStatus extends views.renderers.ComboBoxDictionary
+	public class ComboBoxWorkflowStatus extends views.renderers.ComboBox
 	{
 		public var _showInProgress:Boolean = false;
 		public var _showCompleted:Boolean  = true;
@@ -35,7 +36,8 @@ package views.renderers
 				  _showInProgress: showInProgress,
 				  _showCompleted: showCompleted,
 				  _showTerminated: showTerminated,
-				  _showBypassed: showBypassed,
+				  _showBypassed: showBypassed,  
+				  updateData: true,
 				  canChangeByAdminOnly: true});			
 				  
 		}	
@@ -44,10 +46,9 @@ package views.renderers
         {   
         	super.initializationComplete();
         	setDataProvider();
-            this.addEventListener(ListEvent.CHANGE, change);
         }
     
-	    override protected function setDataProvider():void {
+	    protected function setDataProvider():void {
 			dataProvider = new XMLListCollection(statusDictionary.dictionary);
 			
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
@@ -83,13 +84,6 @@ package views.renderers
 					}
 				}
 			}				
-			// This will detect changes to underlying data anc cause combobox to be selected based on value.
-			IList(DataGrid(owner).dataProvider).addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);
         }
- 
- 
- 
-
-
 	}
 }

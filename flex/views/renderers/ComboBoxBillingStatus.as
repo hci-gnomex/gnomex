@@ -11,9 +11,7 @@ package views.renderers
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.Alert;
 	
-
-
-	public class ComboBoxBillingStatus extends views.renderers.ComboBoxDictionary
+	public class ComboBoxBillingStatus extends views.renderers.ComboBox
 	{
 		public var _showPending:Boolean = false;
 		public var _showCompleted:Boolean  = true;
@@ -36,6 +34,7 @@ package views.renderers
 				  _showPending: showPending,
 				  _showCompleted: showCompleted,
 				  _showApproved: showApproved,
+				  updateData:true,
 				  canChangeByAdminOnly: true});			
 				  
 		}	
@@ -44,10 +43,9 @@ package views.renderers
         {   
         	super.initializationComplete();
         	setDataProvider();
-            this.addEventListener(ListEvent.CHANGE, change);
         }
     
-	    override protected function setDataProvider():void {
+	    protected function setDataProvider():void {
 			dataProvider = new XMLListCollection(statusDictionary.dictionary);
 			
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
@@ -75,30 +73,15 @@ package views.renderers
 					}
 				}
 			}
-			
-		    // This will detect changes to underlying data anc cause combobox to be selected based on value.
-			if (owner is AdvancedDataGrid) {
-				var dp1:Object = AdvancedDataGrid(owner).dataProvider;
-				if (dp1 is HierarchicalCollectionView) {
-					dp1.source.source.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);					
-				} else {
-					dp1.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);	
-				}
-			} else {
-				IList(DataGrid(owner).dataProvider).addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);
-			}
+
         }
  
-           override protected function change(event:ListEvent):void {
-				if (parentApplication.hasPermission("canManageBilling")) {
-			 		assignData();	
-			 	} else {
-	     			selectItem();
-	     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
-			 	}
-            } 
- 
-
-
+       override protected function change(event:ListEvent):void {
+			if (parentApplication.hasPermission("canManageBilling")) {
+		 		assignData();	
+		 	} else {
+     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
+		 	}
+        } 
 	}
 }
