@@ -5,14 +5,13 @@
 <mx:Script>
 	<![CDATA[
 		import views.renderers.TextInputSeqPrepByCore;
-		import hci.flex.renderers.LabelDictionary;
-		import views.renderers.ComboBoxDictionary;
+		import hci.flex.controls.DropdownLabel;
+		import views.renderers.ComboBox;
 		import views.renderers.ComboBoxWorkflowStatus;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
-		import hci.flex.renderers.Label; 
+		import hci.flex.controls.Label; 
 		import views.util.AnnotationDataGridColumn;
-		import hci.flex.renderers.LabelDictionary;
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		import mx.events.ValidationResultEvent;		
@@ -638,9 +637,10 @@
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
-					<mx:DataGridColumn headerText="Name" width="100" editorDataField="text" dataField="@name"  editable="true" rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@name')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@name', '@canChangeSampleName')}"      />          
+					<mx:DataGridColumn headerText="Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+					   editable="true"
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
+ 	                   itemEditor="views.renderers.TextInputSampleName"      />           
 
 					<mx:DataGridColumn id="labelColumn" headerText="Label"  editable="false"
 	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="42">
@@ -655,108 +655,108 @@
 	 		 	    </mx:DataGridColumn>
 
 	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@concentration')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@concentration', '@canChangeSampleConcentration')}"      />          
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
+ 	                   itemEditor="views.renderers.TextInputSampleConcentration"         />          
 	                <mx:DataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@codeConcentrationUnit', true)}"                
- 	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@idConcentrationUnit')}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit', true)}"                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true)}"/>
 					
 					
 	 		 	  
 	 				<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" 
 						editable="false"
 						rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@numberSequencingLanes')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@numberSequencingLanes', '@canChangeNumberSequencingLanes')}"      />          
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
+ 	                   itemEditor="views.renderers.TextInputSampleNumberSeqLanes"      />          
 
 
 					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@AGE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@AGE')}"/>          
+						itemRenderer="{hci.flex.controls.Label.createCustom('@AGE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@AGE')}"/>          
 					<mx:DataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="{parentDocument.request.@CELLLINE == 'Y'}"
-					    itemRenderer="{hci.flex.renderers.Label.createCustom('@CELLLINE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@CELLLINE')}"/>
+					    itemRenderer="{hci.flex.controls.Label.createCustom('@CELLLINE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@CELLLINE')}"/>
 					<mx:DataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="{parentDocument.request.@CELLTYPE == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@CELLTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@CELLTYPE')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@CELLTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@CELLTYPE')}"/>
 			 		<mx:DataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="{parentDocument.request.@CLININFO == 'Y'}"
-			 		itemRenderer="{hci.flex.renderers.Label.createCustom('@CLININFO', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@CLININFO')}"/>
+			 		itemRenderer="{hci.flex.controls.Label.createCustom('@CLININFO', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@CLININFO')}"/>
 					<mx:DataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="{parentDocument.request.@COMPOUND == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@COMPOUND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@COMPOUND')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@COMPOUND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@COMPOUND')}"/>
 					<mx:DataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="{parentDocument.request.@DISSTATE == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@DISSTATE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@DISSTATE')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@DISSTATE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@DISSTATE')}"/>
 					<mx:DataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@DOSE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@DOSE')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@DOSE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@DOSE')}"/>
 					<mx:DataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="{parentDocument.request.@GENMOD == 'Y'}"
-					   itemRenderer="{hci.flex.renderers.Label.createCustom('@GENMOD',parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@GENMOD')}"/>
+					   itemRenderer="{hci.flex.controls.Label.createCustom('@GENMOD',parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@GENMOD')}"/>
 					<mx:DataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="{parentDocument.request.@GENOTYPE == 'Y'}"
-					itemRenderer="{hci.flex.renderers.Label.createCustom('@GENOTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@GENOTYPE')}"/>
+					itemRenderer="{hci.flex.controls.Label.createCustom('@GENOTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@GENOTYPE')}"/>
 					<mx:DataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="{parentDocument.request.@GROWTHCOND == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@GROWTHCOND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@GROWTHCOND')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@GROWTHCOND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@GROWTHCOND')}"/>
 					<mx:DataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="{parentDocument.request.@INDIV == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@INDIV', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@INDIV')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@INDIV', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@INDIV')}"/>
 					<mx:DataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="{parentDocument.request.@ORGPART == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@ORGPART', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@ORGPART')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@ORGPART', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@ORGPART')}"/>
 					<mx:DataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="{parentDocument.request.@SEX == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@SEX', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@SEX')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@SEX', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@SEX')}"/>
 					<mx:DataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@TEMP', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@TEMP')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@TEMP', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@TEMP')}"/>
 					<mx:DataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@TIME', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@TIME')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@TIME', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@TIME')}"/>
 					<mx:DataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"
-						itemRenderer="{hci.flex.renderers.Label.createCustom('@OTHER', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@OTHER')}"/>
+						itemRenderer="{hci.flex.controls.Label.createCustom('@OTHER', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@OTHER')}"/>
 					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
-					itemRenderer="{hci.flex.renderers.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@treatment')}"/>
+					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>
  	                   
-					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/> 
 
 
 					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@fragmentSizeFrom')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@fragmentSizeFrom', '@canChangeSampleType')}"      />          
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@fragmentSizeFrom')}"                
+ 	                   itemEditor="views.renderers.TextInputSampleFragSizeFrom"      />          
 					<mx:DataGridColumn id="fragmentSizeToCol" headerText="Size To" width="54" editorDataField="text" dataField="@fragmentSizeTo"  rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@fragmentSizeTo')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@fragmentSizeTo', '@canChangeSampleType')}"      />          
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@fragmentSizeTo')}"                
+ 	                   itemEditor="views.renderers.TextInputSampleFragSizeTo"       />          
 	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
-                        itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType', '@idSeqRunType', true)}"/>                 											
+                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
 	 				    rendererIsEditor="false" editorDataField="value" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"                
-   	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles')}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"                
+   	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}"/>
 					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepByCore')}"                
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
  	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
                     <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod', true)}"                
-	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod', '@canChangeSamplePrepMethod')}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', true)}"                
+	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', '@canChangeSamplePrepMethod', true)}"/>
 	                 <mx:DataGridColumn id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="120"   dataField="@idSampleType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType', true)}"                 
-	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType', '@canChangeSampleType', true)}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true)}"                 
+	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true)}"/>
 	                <mx:DataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="110" headerText="Organism"  dataField="@idOrganism" 
 	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism', true)}"                
- 	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true)}"                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true)}"/>
 	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType', true)}"                
- 	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true)}"                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true)}"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
 					<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
@@ -768,17 +768,17 @@
 
 	                <mx:DataGridColumn id="seqPrepQualBioanalyzerMethodCol" visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Lib Prep Bioanal Meth" width="100" dataField="@seqPrepQualCodeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
- 	                   itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType', true)}"                
- 	                   itemEditor="{hci.flex.renderers.ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}"/>
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', true)}"                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', true)}"/>
 					<mx:DataGridColumn id="SeqPrepGelFragmentSizeFromCol"  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="100" editorDataField="text" dataField="@seqPrepGelFragmentSizeFrom" rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepGelFragmentSizeFrom')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepGelFragmentSizeFrom', '@canChangeSampleType')}"      />          
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepGelFragmentSizeFrom')}"                
+ 	                   itemEditor="views.renderers.TextInputSampleLibFragSizeFrom"      />          
 					<mx:DataGridColumn id="SeqPrepGelFragmentSizeToCol" headerText="Gel size (to)"  visible="{showSeqPrepFieldsCheckBox.selected}"  width="100" editorDataField="text" dataField="@seqPrepGelFragmentSizeTo"  rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.renderers.Label.create('@seqPrepGelFragmentSizeTo')}"                
- 	                   itemEditor="{hci.flex.renderers.TextInput.create('@seqPrepGelFragmentSizeTo', '@canChangeSampleType')}"      />          
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepGelFragmentSizeTo')}"                
+ 	                   itemEditor="views.renderers.TextInputSampleLibFragSizeTo"      />          
 					<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-   	                   itemEditor="{ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>
+   	                   itemEditor="views.renderers.TextInputSampleNumberSeqLanes"  />
 
 				</mx:columns>
 			</mx:DataGrid>

@@ -52,6 +52,7 @@
 
  <mx:Script>
  <![CDATA[
+ 	import hci.flex.controls.CheckBox;
  	import views.experiment.ExperimentDownloadView;
  	import views.experiment.DownloadProgressView;
  	import mx.formatters.DateFormatter;
@@ -64,7 +65,7 @@
     import mx.managers.PopUpManager;
     import mx.events.ListEvent;
     import mx.controls.Alert;
-    import hci.flex.renderers.LabelDictionary;
+    import hci.flex.controls.DropdownLabel;
     import mx.events.CloseEvent;
     import mx.controls.Alert;
    
@@ -306,7 +307,7 @@
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" sortable="false"
-		            	itemRenderer="hci.flex.renderers.CheckBox">
+		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
 			            </mx:DataGridColumn> 
 			            <mx:DataGridColumn   minWidth="28" width="28" headerText=""  sortCompareFunction="AnalysisBrowseView.sortAnalysisNumber">
 			                <mx:itemRenderer>
@@ -324,11 +325,11 @@
 				       	<mx:DataGridColumn headerText="Name" width="50" dataField="@name"/>
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
 				       	<mx:DataGridColumn headerText="Analysis Type" width="50" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
- 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisType').DictionaryEntry,'@display', '@value', '@idAnalysisType')}"/>                 
 				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisProtocol"
- 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisProtocol', '@idAnalysisProtocol')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisProtocol').DictionaryEntry,'@display', '@value', '@idAnalysisProtocol')}"/>                 
 				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
- 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 		         </mx:columns>
 		       </mx:DataGrid>
@@ -352,7 +353,7 @@
 		            	editable="true"           sortable="false"              	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
-		            	itemRenderer="hci.flex.renderers.CheckBox"/>
+		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}"/>
 		            <mx:DataGridColumn width="7" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >

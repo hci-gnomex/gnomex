@@ -6,12 +6,12 @@
 		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
-		import hci.flex.components.DictionaryEditor;
-		import hci.flex.events.DictionaryEvent;
+		import hci.flex.dictionary.DictionaryEditor;
+		import hci.flex.dictionary.DictionaryEvent;
 		import mx.collections.XMLListCollection;
 		import mx.controls.dataGridClasses.DataGridColumn;
-		import hci.flex.renderers.Label;
-		import hci.flex.renderers.TextInput;
+		import hci.flex.controls.DropdownLabel;
+		import hci.flex.controls.TextInput;
 		
 		private var dictionaryEditor:DictionaryEditor; 
 		
@@ -240,8 +240,8 @@
        				newCol.headerText = annotation.@sampleCharacteristic;
        				newCol.visible    = annotation.@isSelected == "true" ? true : false;
        				newCol.editable   = true;
-       				newCol.itemRenderer = hci.flex.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-       				newCol.itemEditor   = hci.flex.renderers.TextInput.create(fieldName);
+       				newCol.itemRenderer = hci.flex.controls.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+       				newCol.itemEditor   = hci.flex.controls.TextInput.create(fieldName);
        				 
        				var columns:Array = parentDocument.samplesView.samplesGrid.columns;
        				var newColumns:Array = new Array();

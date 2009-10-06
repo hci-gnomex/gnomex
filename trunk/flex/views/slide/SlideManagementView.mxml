@@ -3,7 +3,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:views="views.*"
 	xmlns:util="views.util.*"
-    xmlns:hci="hci.flex.components.*"
+    xmlns:hci="hci.flex.controls.*"
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	width="100%" height="100%">
 
@@ -696,11 +696,11 @@
 				<mx:HBox left="10" top="10" right="10" verticalAlign="middle">
 					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="74"/>
 					<mx:TextInput right="75" top="27" left="10" id="sdName" text="{fullSlideDesign.@name}" width="100%" change="dirty.setDirty()"/>
-					<hci:CheckBoxYN id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
+					<hci:CheckBox checkedValue="Y" uncheckedValue="N" id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 				</mx:HBox>
 		
 				<mx:HBox y="40" verticalAlign="middle" right="10" left="10" id="hbox2" width="100%">
-					<hci:CheckBoxYN id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
+					<hci:CheckBox checkedValue="Y" uncheckedValue="N" id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 				
 					<mx:Label text="For Group:" top="59" left="121" width="20%" id="label1"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
@@ -714,25 +714,23 @@
 				<mx:HBox y="70" right="10" left="10" width="100%">
 						<mx:VBox left="10" top="79" width="25%" id="vbox3">
 							<mx:Label text="Vendor:" top="85" left="10" width="100%" id="label2"/>
-							<hci:DictionaryComboBox top="102" left="10" width="100%" 
+							<hci:ComboBox top="102" left="10" width="100%" 
 								id="sdIdVendor"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
-								labelField="@display"
 								prompt=" "
-								data="{fullSlideDesign.SlideProduct.@idVendor}"
+								value="{fullSlideDesign.SlideProduct.@idVendor}"
 								change="dirty.setDirty()">
-								</hci:DictionaryComboBox>
+								</hci:ComboBox>
 						</mx:VBox>
 						<mx:VBox left="213" top="79" width="25%" id="vbox2">
 							<mx:Label text="Organism:" top="85" left="188" width="100%" id="label3"/>
-							<hci:DictionaryComboBox top="102" left="188"
+							<hci:ComboBox top="102" left="188"
 								id="sdIdOrganism"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
-								labelField="@display"
 								prompt=" "
-								data="{fullSlideDesign.SlideProduct.@idOrganism}"
+								value="{fullSlideDesign.SlideProduct.@idOrganism}"
 								width="100%" change="dirty.setDirty()">
-								</hci:DictionaryComboBox>
+								</hci:ComboBox>
 						</mx:VBox>
 						<mx:VBox width="25%" top="79" id="vbox1">
 							<mx:Label text="Catalog Number:" top="85" right="211" width="100%" id="label4"/>
@@ -749,36 +747,33 @@
 				<mx:HBox y="128" right="10" left="10" width="100%" id="hbox3">
 					<mx:VBox width="50%">
 							<mx:Label text="Pricing Category for Microarray Analysis:" width="100%"/>
-							<hci:DictionaryComboBox 
+							<hci:ComboBox 
 									id="sdIdBillingServiceClass"
 									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideServiceClass').DictionaryEntry}"
-									labelField="@display"
 									prompt=" "
-									data="{fullSlideDesign.SlideProduct.@idBillingSlideServiceClass}"
+									value="{fullSlideDesign.SlideProduct.@idBillingSlideServiceClass}"
 									change="dirty.setDirty()" width="100%">
-							</hci:DictionaryComboBox>
+							</hci:ComboBox>
 						</mx:VBox>
 						<mx:VBox width="50%">
 							<mx:Label text="Pricing Category for Microarray Product:" width="100%"/>
-							<hci:DictionaryComboBox 
+							<hci:ComboBox 
 									id="sdIdBillingProductClass"
 									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideProductClass').DictionaryEntry}"
-									labelField="@display"
 									prompt=" "
-									data="{fullSlideDesign.SlideProduct.@idBillingSlideProductClass}"
+									value="{fullSlideDesign.SlideProduct.@idBillingSlideProductClass}"
 									change="dirty.setDirty()" width="100%">
-							</hci:DictionaryComboBox>
+							</hci:ComboBox>
 						</mx:VBox>		
 				</mx:HBox>
 					<mx:HBox y="187" right="10" left="10" height="141" id="hbox1" width="100%">
 					<mx:VBox x="10" y="192" width="100%">
 						<mx:Label text="Category:" left="10" top="142" height="18" width="100%" id="label5"/>
-						<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
+						<hci:ComboBox top="159" left="10" height="22" width="100%"
 							 id="sdMicroarrayCategory"
 							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
-							labelField="@display"
 							prompt="Select a catagory to add..."
-							></hci:DictionaryComboBox>
+							></hci:ComboBox>
 						<mx:TextInput id="idSlideDesign" text="{fullSlideDesign.@idSlideDesign}" editable="false" enabled="false" visible="false" left="10" y="189" width="100%"/>
 						<mx:TextInput id="isInSlideSet" editable="false" enabled="false" text="{fullSlideDesign.SlideProduct.@isSlideSet}" visible="false" top="219" left="10" width="100%"/>
 						<mx:TextInput id="sdIdSlideProduct" text="{fullSlideDesign.@idSlideProduct}" editable="false" enabled="false" top="249" left="10" width="100%" visible="false"/>
@@ -851,10 +846,10 @@
 					<mx:HBox left="10" right="10" top="10" verticalAlign="middle">
 						<mx:Label text="Slide Name:" left="10" top="10" height="18" width="82"/>
 						<mx:TextInput top="27" left="10" height="22" right="75" id="spName" text="{fullSlideProduct.@name}" width="100%" change="dirty.setDirty();"/>
-						<hci:CheckBoxYN id="spIsActive" label="Active" data="{fullSlideProduct.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
+						<hci:CheckBox checkedValue="Y" uncheckedValue="N" id="spIsActive" label="Active" data="{fullSlideProduct.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 					</mx:HBox>
 					<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
-					<hci:CheckBoxYN id="spIsCustom" label="Custom slide"  data="{fullSlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
+					<hci:CheckBox checkedValue="Y"  uncheckedValue="N" id="spIsCustom" label="Custom slide"  data="{fullSlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
 					<mx:Label text="For Group:" top="59" left="121" width="10%"/>
 					<util:ComboBoxLabList top="57" left="188" right="75" 
 						id="spIdLab"
@@ -867,25 +862,23 @@
 					<mx:HBox y="70" right="10" left="10">
 						<mx:VBox width="100%">
 							<mx:Label text="Vendor:" top="85" left="10" width="100%"/>
-							<hci:DictionaryComboBox top="102" left="10" width="100%" 
+							<hci:ComboBox top="102" left="10" width="100%" 
 								id="spIdVendor"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}"
-								labelField="@display"
 								prompt=" "
-								data="{fullSlideProduct.@idVendor}"
+								value="{fullSlideProduct.@idVendor}"
 								 change="dirty.setDirty();">
-								</hci:DictionaryComboBox>
+								</hci:ComboBox>
 						</mx:VBox>
 						<mx:VBox width="100%">
 							<mx:Label text="Organism:" top="85" left="188" width="100%"/>
-							<hci:DictionaryComboBox  left="188" right="150" top="102"
+							<hci:ComboBox  left="188" right="150" top="102"
 								id="spIdOrganism"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}"
-								labelField="@display"
 								prompt=" "
-								data="{fullSlideProduct.@idOrganism}"
+								value="{fullSlideProduct.@idOrganism}"
 						 		width="100%" change="dirty.setDirty();">
-								</hci:DictionaryComboBox>
+								</hci:ComboBox>
 						</mx:VBox>
 						<mx:VBox width="100%">
 							<mx:Label text="Catalog Number:" top="85" right="26" width="100%"/>
@@ -898,25 +891,23 @@
 					<mx:HBox y="120" right="10" left="10">
 						<mx:VBox width="100%">
 							<mx:Label text="Pricing Category for Microarray Analysis:" top="85" left="10" width="100%"/>
-							<hci:DictionaryComboBox top="102" left="10" width="100%" 
+							<hci:ComboBox top="102" left="10" width="100%" 
 								id="spIdBillingServiceClass"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideServiceClass').DictionaryEntry}"
-								labelField="@display"
 								prompt=" "
-								data="{fullSlideProduct.@idBillingSlideServiceClass}"
+								value="{fullSlideProduct.@idBillingSlideServiceClass}"
 								 change="dirty.setDirty();">
-								</hci:DictionaryComboBox>
+								</hci:ComboBox>
 						</mx:VBox>
 						<mx:VBox width="100%">
 							<mx:Label text="Pricing Category for Microarray Product:" top="85" left="188" width="100%"/>
-							<hci:DictionaryComboBox  left="188" right="150" top="102"
+							<hci:ComboBox  left="188" right="150" top="102"
 								id="spIdBillingProductClass"
 								dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingSlideProductClass').DictionaryEntry}"
-								labelField="@display"
 								prompt=" "
-								data="{fullSlideProduct.@idBillingSlideProductClass}"
+								value="{fullSlideProduct.@idBillingSlideProductClass}"
 						 		width="100%" change="dirty.setDirty();">
-								</hci:DictionaryComboBox>
+								</hci:ComboBox>
 						</mx:VBox>
 						
 					</mx:HBox>
@@ -925,12 +916,11 @@
 					<mx:HBox left="10" right="10" height="141" y="187">
 					<mx:VBox width="100%">
 					<mx:Label text="Category:" left="10" top="142" height="18" width="100%"/>
-					<hci:DictionaryComboBox top="159" left="10" height="22" width="100%"
+					<hci:ComboBox top="159" left="10" height="22" width="100%"
 						 id="spMicroarrayCategory"
 						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.MicroarrayCategory').DictionaryEntry}"
-						labelField="@display"
 						prompt="Select a catagory to add...">
-						</hci:DictionaryComboBox>
+						</hci:ComboBox>
 					<mx:TextInput id="idSlideProduct" text="{fullSlideProduct.@idSlideProduct}" editable="false" enabled="false" visible="false" width="100%" left="10" top="189"/>
 					<mx:TextInput id="isSlideSet" text="{fullSlideProduct.@isSlideSet}" editable="false" enabled="false" visible="false" top="219" left="10" width="100%"/>
 					</mx:VBox>

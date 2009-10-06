@@ -9,10 +9,10 @@
     url="GetLab.gx"
     destination="getLab" 
     resultFormat="e4x"
-    result="onGetLab(event)"
+    result="onGetLab(event)" 
     fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
     method="POST"
-    useProxy="false">
+    useProxy="false"> 
     <mx:request>
     	<idLab>{this.labCombo.selectedItem.@idLab}</idLab>
     </mx:request>
@@ -98,8 +98,8 @@
         import mx.controls.Alert;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import hci.flex.renderers.LabelDictionary;
-		import hci.flex.renderers.ComboBoxDictionary;
+		import hci.flex.controls.DropdownLabel;
+		import hci.flex.controls.ComboBox;
         import views.renderers.ComboBoxBillingStatus;
         import mx.events.CollectionEvent;	
         import mx.events.CollectionEventKind;	
@@ -945,6 +945,7 @@
 			
 		}
 		
+
 		private function showReassignAccountView():void {
 			var requestNode:Object = null;
 			if (this.dirty.isDirty()) {
@@ -1167,8 +1168,8 @@
         				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="13"  wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"   
-						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingPeriod', '@idBillingPeriod')}"                              
-						  itemEditor="{hci.flex.renderers.ComboBox.create(billingPeriods, '@idBillingPeriod')}"/>                 
+						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
+						  itemEditor="{hci.flex.controls.ComboBox.getFactory(billingPeriods, '@display', '@value', '@idBillingPeriod', true)}"/>                 
         				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="6" wordWrap="false"
         				  editorDataField="text"
         				  rendererIsEditor="false"
@@ -1176,8 +1177,8 @@
         				<mx:AdvancedDataGridColumn headerText="Type" dataField="@codeBillingChargeKind" editable="true" width="6" wordWrap="false" 
         			      editorDataField="value" 
         				  rendererIsEditor="false"
-						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"                              
-						  itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingChargeKind', '@codeBillingChargeKind')}"/>                 
+						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
+						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>                 
         				<mx:AdvancedDataGridColumn headerText="Billing Category" dataField="@category" editable="false" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true"/>
@@ -1187,7 +1188,7 @@
         				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="18" wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"
-						  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BillingStatus', '@codeBillingStatus')}"                              
+						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
 						  itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
         			</mx:columns>
         			 

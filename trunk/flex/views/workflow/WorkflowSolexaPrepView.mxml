@@ -51,7 +51,6 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBox;
-        import hci.flex.renderers.ComboBoxDictionary;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -291,7 +290,7 @@
 		               rendererIsEditor="false" 
 		               itemRenderer="mx.controls.Label"		
 		               labelFunction="getSamplePrepMethod"                
-		               itemEditor="{views.renderers.ComboBoxSolexaSamplePrepMethod.create(parentApplication.dictionaryManager)}"/>		                
+		               itemEditor="{views.renderers.ComboBoxSolexaSamplePrepMethod.create()}"/>		                
 				    <mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
 						<mx:headerRenderer > 
 						<mx:Component>
@@ -307,7 +306,7 @@
 		               editorDataField="value"
 		               editable="true"  
 		               rendererIsEditor="false" 
-					   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@seqPrepQualCodeBioanalyzerChipType')}">		                
+					   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry,'@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', null, true)}">		                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">

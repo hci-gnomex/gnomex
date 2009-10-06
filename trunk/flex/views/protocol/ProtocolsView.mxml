@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas
 	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:hci = "hci.flex.components.*"
+	xmlns:hci = "hci.flex.controls.*"
 	xmlns:views = "views.*"
 	xmlns:util = "views.util.*"	
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
@@ -432,7 +432,7 @@
 				</mx:ComboBox>
 			</mx:VBox>
 			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637" id="vbox2">
-				<hci:CheckBoxYN  id="isActive" data="{fullProtocol.isActive.toString()}" label="Active" click="dirty.setDirty()"/>
+				<hci:CheckBox id="isActive" data="{fullProtocol.isActive.toString()}" label="Active" click="dirty.setDirty()" checkedValue="Y" uncheckedValue="N"/>
 			</mx:VBox>
 			</mx:HBox>
 			<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
@@ -465,24 +465,22 @@
 			<mx:SetProperty target="{label1}" name="text" value="Analysis Type:"/>
 			<mx:RemoveChild target="{codeRequestCategory}"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<hci:DictionaryComboBox
+				<hci:ComboBox
 					id="analysisTypeCombo"
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}"
-					labelField="@display"
-					data="{fullProtocol.idAnalysisType}"
+					value="{fullProtocol.idAnalysisType}"
 					width="100%" change="dirty.setDirty()">
-					</hci:DictionaryComboBox>
+					</hci:ComboBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{vbox2}" position="before">
 				<mx:VBox height="46" width="100%" id="vbox0">
 					<mx:Label text="Owner:" width="100" id="label0"/>
-					<hci:DictionaryComboBox
+					<hci:ComboBox
 						id="appUserCombo" 
 						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry}"
-						labelField="@display"
-						data="{fullProtocol.idAppUser}"
+						value="{fullProtocol.idAppUser}"
 						width="100%" change="dirty.setDirty()">
-						</hci:DictionaryComboBox>
+						</hci:ComboBox>
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>

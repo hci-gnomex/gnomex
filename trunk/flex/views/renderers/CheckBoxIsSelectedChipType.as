@@ -1,22 +1,28 @@
 package views.renderers
 {
 	import flash.events.Event;
-	import hci.flex.renderers.CheckBox;
+	import hci.flex.controls.CheckBox;
+	import hci.flex.renderers.RendererFactory;
+	import mx.core.IFactory;
 	
 	public class CheckBoxIsSelectedChipType extends CheckBox
 	{
-          override protected function initializationComplete():void { 
-          	this.addEventListener(Event.CHANGE, change);
-          }   
-          
+		  public static function create():IFactory {
+		  	return RendererFactory.create(views.renderers.CheckBoxIsSelectedChipType, 
+		  	 {checkedValue:'true', 
+			  uncheckedValue:'false', 
+			  dataField:'@isSelected', 
+			  updateData:true});
+				  
+		 }	
           protected override function change(event:Event):void {
-	      	if (this.selected) {
-	      		_data[_dataField] = "true";
+          	
+          	super.change(event);
+          	
+          	if (this.selected) {
           		// toggle all other selections off
-	          	parentDocument.toggleOtherChipTypeSelections(_data.@value);
-	      	} else {
-	      		_data[_dataField] = "false";
-	      	}
+	          	parentDocument.toggleOtherChipTypeSelections(data.@value);          		
+          	}          
 	        
 	        // check if required fields has been entered
 	        parentDocument.checkRequiredChipType();

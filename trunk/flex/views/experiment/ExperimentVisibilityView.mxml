@@ -23,8 +23,8 @@
  	import views.renderers.ComboBoxVisibility;
  	import mx.events.CloseEvent;
  	import mx.controls.Alert;
- 	import hci.flex.renderers.ComboBoxDictionary;
- 	import hci.flex.renderers.LabelDictionary;
+ 	import hci.flex.controls.ComboBox;
+ 	import hci.flex.controls.DropdownLabel;
  	
  	private var broadestCodeVisibility:String = "MEM";
  	
@@ -125,9 +125,9 @@
 		       	<mx:DataGridColumn headerText="Experiment Visibility"  width="40" dataField="@codeVisibility" 
 					editorDataField="value" sortCompareFunction="sortVisibility" editable="true" 
 					rendererIsEditor="false" 
-					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Visibility', '@codeVisibility')}"
-					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>
-
+					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"					
+					itemEditor="{ComboBoxVisibility.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"
+				/>
 	         </mx:columns>
 	       </mx:DataGrid>
 	

@@ -73,6 +73,7 @@
     import mx.managers.PopUpManager;
     import mx.events.ListEvent;
     import mx.controls.Alert;
+    import hci.flex.controls.CheckBox;
     
     public var downloadProgressWindow:DownloadProgressView;
 
@@ -383,7 +384,7 @@
 		            	editable="true"                        	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" sortable="false"
-		            	itemRenderer="hci.flex.renderers.CheckBox">
+		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
 		            </mx:DataGridColumn>
 		            <mx:DataGridColumn minWidth="45" width="45" headerText="#">
 		                <mx:itemRenderer>
@@ -426,7 +427,7 @@
 		            	editable="true"           sortable="false"              	
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
-		            	itemRenderer="hci.flex.renderers.CheckBox"/>
+		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}"/>
 		            <mx:DataGridColumn width="14" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >

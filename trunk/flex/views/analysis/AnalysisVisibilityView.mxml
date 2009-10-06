@@ -23,8 +23,8 @@
  	import mx.rpc.events.ResultEvent;
  	import views.renderers.ComboBoxVisibility;
  	import mx.events.CloseEvent;
- 	import hci.flex.renderers.ComboBoxDictionary;
- 	import hci.flex.renderers.LabelDictionary;
+ 	import hci.flex.controls.ComboBox;
+ 	import hci.flex.controls.DropdownLabel;
 
  	
  	private var broadestCodeVisibility:String = "MEM";
@@ -128,15 +128,15 @@
 		       	<mx:DataGridColumn headerText="Name" width="40" dataField="@name" editable="false"/>
 		       	<mx:DataGridColumn headerText="Date" width="20" dataField="@createDateDisplay" editable="false"/>
 		       	<mx:DataGridColumn headerText="Analysis Type" width="25"  editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortAnalysisType"
-					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType', '@idAnalysisType')}"/>
+					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisType').DictionaryEntry,'@display', '@value', '@idAnalysisType')}"/>
 		       	<mx:DataGridColumn headerText="Organism" width="25"   editable="false" sortCompareFunction="parentApplication.navAnalysisView.browseView.sortOrganism"
-					itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism',  '@idOrganism')}"/>
+					itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value',  '@idOrganism')}"/>
 		       	<mx:DataGridColumn headerText="Description" width="40" dataField="@description"  editable="false"/>
 		       	<mx:DataGridColumn headerText="Visibility"  width="40" dataField="@codeVisibility" 
 					editorDataField="value" sortable="false" editable="true" 
 					rendererIsEditor="false" 
 					labelFunction="getVisibility"        
-					itemEditor="{ComboBoxVisibility.create(parentApplication.dictionaryManager)}"/>
+					itemEditor="{ComboBoxVisibility.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"/>
 
 	         </mx:columns>
 	       </mx:DataGrid>

@@ -35,8 +35,6 @@
 		import mx.controls.Alert;
 		import views.renderers.ComboBoxGroup;
 		import views.renderers.ComboBoxBillingAccount;
-		import hci.flex.renderers.Label;
-		import hci.flex.renderers.TextInput;
 		
 		
 		[Bindable]

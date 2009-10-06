@@ -33,7 +33,7 @@
 	import views.analysis.AnalysisGroupWindow;
 	import views.util.DownloadHints;
 	import mx.core.IFlexDisplayObject;
-	import hci.flex.renderers.LabelDictionary;
+	import hci.flex.controls.DropdownLabel;
 
 
 
@@ -360,11 +360,11 @@
 				       	<mx:DataGridColumn headerText="Date" width="30" dataField="@createDateDisplay"/>
 				       	<mx:DataGridColumn headerText="Submitted by" width="50" dataField="@ownerName"/>
 				       	<mx:DataGridColumn headerText="Analysis Type" width="50" sortCompareFunction="sortAnalysisType"
- 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisType','@idAnalysisType')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisType').DictionaryEntry,'@display', '@value','@idAnalysisType')}"/>                 
 				       	<mx:DataGridColumn headerText="Analysis Protocol" width="50" sortCompareFunction="sortAnalysisProtocol"
- 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.AnalysisProtocol', '@idAnalysisProtocol')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.AnalysisProtocol').DictionaryEntry,'@display', '@value', '@idAnalysisProtocol')}"/>                 
 				       	<mx:DataGridColumn headerText="Organism"  dataField="@idOrganism" width="50" sortCompareFunction="sortOrganism"
- 	                      itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism','@idOrganism')}"/>                 
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value','@idOrganism')}"/>                 
 				       	<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
 			         </mx:columns>
 			       </mx:DataGrid> 	    

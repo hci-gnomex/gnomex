@@ -1,6 +1,6 @@
 package views.renderers
 {
-	import hci.flex.renderers.ComboBoxDictionary;
+	import hci.flex.controls.ComboBox;
 	import hci.flex.renderers.RendererFactory;
 	import hci.flex.util.DictionaryManager;
 	
@@ -10,27 +10,30 @@ package views.renderers
 	import mx.core.IFactory;
 	import mx.events.CollectionEvent;
 	
-	public class ComboBoxSolexaSamplePrepMethod extends hci.flex.renderers.ComboBoxDictionary
+	public class ComboBoxSolexaSamplePrepMethod extends hci.flex.controls.ComboBox
 	{
-			public static function create(dictionaryManager:DictionaryManager):IFactory {
+			public static function create():IFactory {
 				return RendererFactory.create(ComboBoxSolexaSamplePrepMethod, 
-				{ dictionaryManager: dictionaryManager,
-				  dataField: '@idSamplePrepMethod',
-				  dictionary: 'hci.gnomex.model.SamplePrepMethod' });	 		
-				  
+				{ dataField: '@idSamplePrepMethod',  
+				updateData: true
+				});	 						  
 			}	 
-					
+			
+            override protected function initializationComplete():void
+            {   
+            	setDataProvider();         	
+				super.initializationComplete();				
+            }								            
             
-            
-	        protected override function setDataProvider():void {
+	        protected function setDataProvider():void {
 	        	var samplePrepMethods:XMLListCollection = new XMLListCollection();
 
 	        	var de:Object;
 	        	// Remove non-solexa sample prep methods.
-	        	for each(de in dictionaryManager.getEntries(dictionary)) {
+	        	for each(de in parentDocument.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod')) {
 	        		
 		        	var doesMatchRequestCategory:Boolean = false;
-        			var theSamplePrepMethods:XMLList = dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == de.@value.toString());
+        			var theSamplePrepMethods:XMLList = parentDocument.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == de.@value.toString());
     	   			for each (var xref1:Object in theSamplePrepMethods) {
     	   				if (xref1.@codeRequestCategory.toString() == "SOLEXA") {
 	   						doesMatchRequestCategory = true;
@@ -42,10 +45,7 @@ package views.renderers
     	   			}				
 	        		
 	        	}
-				dataProvider = samplePrepMethods;
-				
-				// This will detect changes to underlying data anc cause combobox to be selected based on value.
-				IList(DataGrid(owner).dataProvider).addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingDataChange);
+				dataProvider = samplePrepMethods;		
             }
             
 	}

@@ -51,8 +51,8 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBoxWorkflowStatus;
-        import hci.flex.renderers.LabelDictionary;
-        import hci.flex.renderers.ComboBoxDictionary;
+        import hci.flex.controls.DropdownLabel;
+        import hci.flex.controls.ComboBox;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -276,7 +276,7 @@
 		               editable="true" 
 		               rendererIsEditor="false"
 		               itemRenderer="mx.controls.Label"		                
-		               itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@qualCodeBioanalyzerChipType')}">		                
+		               itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@qualCodeBioanalyzerChipType', true)}">		                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">

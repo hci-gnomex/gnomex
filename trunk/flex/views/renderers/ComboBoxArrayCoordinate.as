@@ -7,6 +7,7 @@ package views.renderers
 	import mx.core.IFactory;
 	import views.renderers.ComboBox;
 	import hci.flex.renderers.RendererFactory;
+	
 
 	public class ComboBoxArrayCoordinate extends views.renderers.ComboBox
 	{
@@ -25,11 +26,13 @@ package views.renderers
 			
 			public static function create(dataField:String):IFactory {
 				return RendererFactory.create(ComboBoxArrayCoordinate, 
-				{ dataField: dataField});			
+				{ dataField: dataField,  
+				updateData: true});			
 				  
 			}	 
 					    
 		    override protected function initializationComplete():void {
+            
             
 				dataProvider = new XMLList(coordDictionary.dictionary);
             	super.initializationComplete();
@@ -40,10 +43,10 @@ package views.renderers
 		    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		    {
 		        super.updateDisplayList(unscaledWidth,unscaledHeight);
-		        if (_data == null) {
+		        if (data == null) {
 		          	return;
 		        }
-		        var slideProduct:Object = parentApplication.getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == _data.@idSlideDesign).parent().parent();
+		        var slideProduct:Object = parentApplication.getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == data.@idSlideDesign).parent().parent();
 					if (slideProduct.@arraysPerSlide == "" || slideProduct.@arraysPerSlide == "1") {
 					this.enabled = false;
 				} else {

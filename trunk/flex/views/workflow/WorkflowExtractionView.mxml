@@ -45,8 +45,8 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBoxWorkflowStatus;
-        import hci.flex.renderers.ComboBoxDictionary;
-        import hci.flex.renderers.LabelDictionary;
+        import hci.flex.controls.ComboBox;
+        import hci.flex.controls.DropdownLabel;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -220,7 +220,7 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"                 							
- 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ScanProtocol', '@idScanProtocol')}"/>			                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry,'@display', '@value', '@idScanProtocol', true)}"/>			                
 					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="22" dataField="@idFeatureExtractionProtocol" 
 	                   editorDataField="value"
 	                   labelFunction="getFeatureExtractionProtocol"
@@ -228,7 +228,7 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"                 							
- 	                   itemEditor="{ComboBoxDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.FeatureExtractionProtocol', '@idFeatureExtractionProtocol')}"/>			                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry,'@display', '@value', '@idFeatureExtractionProtocol', true)}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@extractionStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 

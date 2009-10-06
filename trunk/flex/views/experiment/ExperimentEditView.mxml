@@ -103,7 +103,7 @@
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 		import mx.events.CollectionEvent;
-		import hci.flex.renderers.LabelDictionary;
+		import hci.flex.controls.DropdownLabel;
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		import mx.events.ValidationResultEvent;
@@ -1666,10 +1666,12 @@
 			} else if (warningMessage != '') {
 				promptToSaveRequest();
 				return;
+
 			} else {
 				saveRequest();				
 			}
 		}
+
 		
 		
 		
@@ -1757,11 +1759,12 @@
 				}
 			}
 			
+
 			request.@codeVisibility = visibilityCombo.selectedItem.@value;
 			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
 			request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
-			
+
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
 			params.idProject = request.@idProject;
@@ -1981,6 +1984,7 @@
            	 parentDocument.detailView.setupForm(this.request);
 		}
 		
+
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
 				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
@@ -2008,6 +2012,7 @@
 		}
 
 
+
 		]]>
 	</mx:Script>
 	
@@ -2022,6 +2027,7 @@
 
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
+
 
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
@@ -2184,11 +2190,11 @@
 						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
 						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
 				            <mx:DataGridColumn  width="200" id="seqRunTypeCol" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
-	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SeqRunType','@idSeqRunType', true)}"/>
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
-	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.NumberSequencingCycles', '@idNumberSequencingCycles', true)}"/>
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
 				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
-	                  		  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.GenomeBuild', '@idGenomeBuildAlignTo')}"/>
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManage.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
 							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						</mx:columns>
 					</mx:DataGrid>

@@ -3,8 +3,8 @@
 <mx:Script>	
 	<![CDATA[
 		import views.util.AnnotationDataGridColumn;
-		import hci.flex.renderers.ComboBoxDictionary;
-		import hci.flex.renderers.LabelDictionary; 
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel; 
 		
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
@@ -82,7 +82,7 @@
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.ConcentrationUnit', '@codeConcentrationUnit')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 
 						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="false" visible="{parentDocument.request.@AGE == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="false" visible="{parentDocument.request.@CELLLINE == 'Y' ? true : false}"/>
@@ -111,13 +111,13 @@
 						</mx:DataGridColumn>
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SamplePrepMethod', '@idSamplePrepMethod')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
 			            <mx:DataGridColumn headerText="Sample Type"  width="130" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SampleType', '@idSampleType')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.Organism', '@idOrganism')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
 		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.BioanalyzerChipType', '@codeBioanalyzerChipType')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>
 				</mx:DataGrid>				
 			</mx:VBox>
@@ -130,9 +130,9 @@
 					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>
 					    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="parentDocument.getSampleChannel2Name"/>
 					     <mx:DataGridColumn headerText="Slide"  width="182" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideDesign', '@idSlideDesign')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideDesign').DictionaryEntry, '@display', '@value', '@idSlideDesign')}"/>
 					     <mx:DataGridColumn headerText="Slide Source"  width="52" 
-	                  	  itemRenderer="{LabelDictionary.create(parentApplication.dictionaryManager, 'hci.gnomex.model.SlideSource', '@codeSlideSource')}"/>
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>
 						<mx:DataGridColumn headerText="Notes" width="100" dataField="@notes"/>
 					</mx:columns>
 				</mx:DataGrid>
