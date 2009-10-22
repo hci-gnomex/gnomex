@@ -23,24 +23,24 @@ package views.renderers
             {   
             	setDataProvider();         	
 				super.initializationComplete();				
-            }								            
+            }						 		            
             
 	        protected function setDataProvider():void {
 	        	var samplePrepMethods:XMLListCollection = new XMLListCollection();
 
 	        	var de:Object;
 	        	// Remove non-solexa sample prep methods.
-	        	for each(de in parentDocument.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod')) {
+	        	for each(de in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod')) {
 	        		
 		        	var doesMatchRequestCategory:Boolean = false;
-        			var theSamplePrepMethods:XMLList = parentDocument.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == de.@value.toString());
+        			var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == de.@value.toString());
     	   			for each (var xref1:Object in theSamplePrepMethods) {
     	   				if (xref1.@codeRequestCategory.toString() == "SOLEXA") {
 	   						doesMatchRequestCategory = true;
     	   		    		break;
     	   				}
     	   			}
-    	   			if (doesMatchRequestCategory) {
+    	   			if (doesMatchRequestCategory || de.@value == '') {
     	   				samplePrepMethods.addItem(de);
     	   			}				
 	        		
