@@ -2194,7 +2194,7 @@
 				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
 	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
 				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManage.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
 							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						</mx:columns>
 					</mx:DataGrid>
