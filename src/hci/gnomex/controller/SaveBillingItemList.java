@@ -8,6 +8,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingItemParser;
@@ -227,10 +228,10 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     String subject = emailFormatter.getSubject();
     
     boolean send = false;
-    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
+    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
       send = true;
     } else {
-      if (contactEmail.equals(Constants.DEVELOPER_EMAIL)) {
+      if (contactEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "(TEST) " + subject;
       }
@@ -240,7 +241,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       
       MailUtil.send(contactEmail, 
           null,
-          Constants.EMAIL_MICROARRAY_CORE_FACILITY, 
+          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
           true);      

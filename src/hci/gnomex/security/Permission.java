@@ -4,7 +4,6 @@ import hci.framework.model.DetailObject;
 import java.util.*;
 import java.io.Serializable;
 
-import sun.security.x509.OtherName;
 
 public class Permission extends DetailObject implements Serializable {
  

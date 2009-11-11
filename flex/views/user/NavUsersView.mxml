@@ -152,6 +152,18 @@
 				navStack.selectedIndex = 1;
 				detailViews.selectedChild = this.groupEmptyView;
 			}
+			
+			if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == 'N') {
+				userDetailView.radioUnivOrExternalBox.visible = false;
+				this.groupDetailView.memberCombo.labelField = "@displayName";
+				this.groupDetailView.managerCombo.labelField = "@displayName";
+				this.groupDetailView.collaboratorCombo.labelField = "@displayName";
+			} else {
+				userDetailView.radioUnivOrExternalBox.visible = true;
+				this.groupDetailView.memberCombo.labelField = "@qualifiedDisplayName";
+				this.groupDetailView.managerCombo.labelField = "@qualifiedDisplayName";
+				this.groupDetailView.collaboratorCombo.labelField = "@qualifiedDisplayName";
+			}
 		 }
         
           private function userRowSelected(event:Event):void 
@@ -341,7 +353,7 @@
             if (call.marker == "doneGetAppUser") {
               fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
               userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
-              if (fullUser.@isExternalUser == 'Y') {
+              if (fullUser.@isExternalUser == 'Y' || parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == 'N') {
               	userDetailView.currentState = "externalUserState";
               	userDetailView.radioExternalUser.selected = true;
               } else {

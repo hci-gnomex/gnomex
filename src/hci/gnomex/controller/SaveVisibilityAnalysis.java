@@ -33,9 +33,6 @@ public class SaveVisibilityAnalysis extends GNomExCommand implements Serializabl
   private Document                     visibilityDoc;
   private AnalysisVisibilityParser      parser;
   
-  private Integer                      idAnalysisGroup;
-  private String                       codeVisibility;
-  
   
   
   public void validate() {

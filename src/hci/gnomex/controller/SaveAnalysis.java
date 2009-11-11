@@ -7,12 +7,14 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileParser;
 import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.RequestParser;
 
@@ -22,7 +24,6 @@ import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -79,7 +80,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    baseDir = Constants.getAnalysisDirectory(request.getServerName());
+    baseDir = request.getServerName();
 
     analysisScreen = new Analysis();
     HashMap errors = this.loadDetailObject(request, analysisScreen);
@@ -168,6 +169,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = dh.getAnalysisDirectory(baseDir);
       Analysis analysis = null;
       if (isNewAnalysis) {
         analysis = analysisScreen;

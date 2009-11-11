@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
 
@@ -91,7 +92,8 @@ public class DownloadFileServlet extends HttpServlet {
         
         
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
-
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+        
         parser.parse();
         
         ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
@@ -136,20 +138,20 @@ public class DownloadFileServlet extends HttpServlet {
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
-            if (!requestNumber.equalsIgnoreCase(fd.getMainFolderName())) {
+            if (!requestNumber.equalsIgnoreCase(fd.getMainFolderName(dh))) {
               boolean isAuthorizedDirectory = false;
               // If this is a flow cell, make sure that that a sequence lane on this request has this flow cell
               for(Iterator i2 = request.getSequenceLanes().iterator(); i2.hasNext();) {
                 SequenceLane lane = (SequenceLane)i2.next();
                 if (lane.getFlowCellChannel() != null && 
-                    lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName())) {
+                    lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh))) {
                   isAuthorizedDirectory = true;
                   break;
                 }
                 
               }
               if (!isAuthorizedDirectory) {
-                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName() + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
+                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(dh) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
                 continue;              
               }
             }

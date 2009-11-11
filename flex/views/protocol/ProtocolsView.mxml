@@ -100,19 +100,19 @@
 			public var lastSelectedProtocolClass:Object = null;
 			
 			[Bindable]
-	        [Embed(source="assets/brick.png")]
+	        [Embed(source="../../assets/brick.png")]
 	        public var iconPage:Class;
 			
 			[Bindable]
-	        [Embed(source="assets/brick_add.png")]
+	        [Embed(source="../../assets/brick_add.png")]
 	        public var iconPageAdd:Class;
 	        
 	        [Bindable]
-	        [Embed(source="assets/brick_delete.png")]
+	        [Embed(source="../../assets/brick_delete.png")]
 	        public var iconPageDelete:Class;
 			
 			[Bindable]
-	        [Embed(source="assets/bricks.png")]
+	        [Embed(source="../../assets/bricks.png")]
 	        public var iconBook:Class;
 			
 			public var createNewProtocol:CreateNewProtocolPopUp;

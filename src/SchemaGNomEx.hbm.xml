@@ -847,6 +847,16 @@
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 	
+  <!-- hci.gnomex.model.Property -->
+	<class name="hci.gnomex.model.Property" table="Property">
+		<id name="idProperty" column="idProperty" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="propertyName"        column="propertyName" type="string"/>
+		<property name="propertyValue"       column="propertyValue" type="string"/>
+		<property name="propertyDescription" column="propertyDescription" type="string"/>
+	</class>
+	
 	<!-- hci.gnomex.model.ProtocolType -->
 	<class name="hci.gnomex.model.ProtocolType" table="ProtocolType">
 		<id name="codeProtocolType" column="codeProtocolType" type="string">

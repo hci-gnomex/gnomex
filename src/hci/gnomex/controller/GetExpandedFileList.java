@@ -1,8 +1,10 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
+import hci.gnomex.model.Property;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -49,8 +51,8 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
 
     // Get input parameters
     keysString = request.getParameter("resultKeys");
-    baseDir         = Constants.getMicroarrayDirectoryForReading(request.getServerName());
-    baseDirFlowCell = Constants.getFlowCellDirectory(request.getServerName());
+    baseDir         = request.getServerName();
+    baseDirFlowCell = request.getServerName();
 
   }
 
@@ -59,13 +61,17 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     try {
       
     Document doc = new Document(new Element("ExpandedFileList"));
+    
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
+    baseDirFlowCell = dh.getFlowCellDirectory(baseDirFlowCell);
     
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List requestNumbers = new ArrayList();
-    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap);
+    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
    
     //  For each request number
     for(Iterator i = requestNumbers.iterator(); i.hasNext();) {
@@ -113,17 +119,17 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           
           fd.setDirectoryName(tokens[1]);
           
-          if (fd.getFlowCellIndicator() != null && fd.getFlowCellIndicator().equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
+          if (fd.getFlowCellIndicator() != null && fd.getFlowCellIndicator().equals(dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG))) {
             boolean isValidFlowCell = false;
             for(Iterator i3 = request.getSequenceLanes().iterator(); i3.hasNext();) {
               SequenceLane lane = (SequenceLane)i3.next();
-              if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName())) {
+              if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh))) {
                 isValidFlowCell = true;
                 break;
               }
             }
             if (!isValidFlowCell) {
-              log.error("Bypassing flow cell " + fd.getMainFolderName() + " for request " + request.getNumber() + ".  No lanes on request used this flow cell.");
+              log.error("Bypassing flow cell " + fd.getMainFolderName(dh) + " for request " + request.getNumber() + ".  No lanes on request used this flow cell.");
               continue;
             }
           
@@ -190,7 +196,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     return this;
   }
   
-  public static void getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap) {
+  public static void getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag) {
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
@@ -209,7 +215,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       
       String directoryName = null;
       String theBaseDir;
-      if (flowCellIndicator.equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
+      if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
         directoryName = baseDirFlowCell + createYear + "/" + resultDirectory;
         theBaseDir = baseDirFlowCell;
         
@@ -228,7 +234,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       }
       
       List theFiles = new ArrayList();    
-      getFileNames(theBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator);
+      getFileNames(theBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator, flowCellDirectoryFlag);
       
       // Hash the list of file names (by directory name)
       directoryMap.put(directoryKey, theFiles);
@@ -244,7 +250,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     }
   }      
       
-  public static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator) {
+  public static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag) {
     File fd = new File(directoryName);
     
 
@@ -263,7 +269,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         }
 
         String zipEntryName;
-        if (flowCellIndicator.equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
+        if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
           zipEntryName = requestNumber + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");
         } else {
           zipEntryName = fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
@@ -273,7 +279,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           FileDescriptor dirFileDescriptor = new FileDescriptor(requestNumber, f1.getName() + "/", f1, zipEntryName);
           dirFileDescriptor.setType("dir");
           theFiles.add(dirFileDescriptor);
-          getFileNames(theBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator);
+          getFileNames(theBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag);
         } else {
           boolean include = true;
           if (fileName.toLowerCase().endsWith("thumbs.db")) {

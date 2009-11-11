@@ -446,8 +446,10 @@
 						</mx:DataGrid>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
-						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
-							<mx:Text width="100%" text="Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call the Microarray Core Facility (581-6346) for details." color="#0000ff">									
+						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" 
+							horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+							<mx:Text width="100%" id="qcInstructions" color="#0000ff">									
+								<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
 							</mx:Text>
 						</mx:HBox>
 					</mx:HBox>

@@ -4,8 +4,8 @@ package hci.gnomex.security;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import sun.misc.BASE64Encoder;
-import sun.misc.CharacterEncoder;
+
+import org.apache.commons.codec.binary.Base64;
 
 public final class EncrypterService
 {
@@ -15,11 +15,11 @@ public final class EncrypterService
   }
   
   public synchronized String encrypt(String plaintext) 
-  {
+  { 
     if (plaintext == null || plaintext.equals("")) {
       return plaintext;
     }
-    
+    String hash = null;
     MessageDigest md = null;
     try
     {
@@ -32,13 +32,13 @@ public final class EncrypterService
     try
     {
       md.update(plaintext.getBytes("UTF-8")); //step 3
+      byte raw[] = md.digest(); //step 4
+      hash = Base64.encodeBase64String(raw).replaceAll("\r\n", ""); //step 5
     }
     catch(UnsupportedEncodingException e)
     {
       throw new RuntimeException(e.getMessage());
     }
-    byte raw[] = md.digest(); //step 4
-    String hash = (new BASE64Encoder()).encode(raw); //step 5
     return hash; //step 6
   }
 

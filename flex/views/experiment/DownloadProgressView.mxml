@@ -15,7 +15,7 @@
 	
 	
     <mx:SoundEffect id="ding" 
-            source="@Embed('assets/ding.mp3')" /> 
+            source="{parentApplication.soundDing}" /> 
 
 
     

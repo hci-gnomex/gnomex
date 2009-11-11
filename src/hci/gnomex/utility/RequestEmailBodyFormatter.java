@@ -166,7 +166,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     StringBuffer buf = new StringBuffer();
     BufferedReader input =  null;
     try {
-      input = new BufferedReader(new FileReader(Constants.REQUEST_FORM_CSS));
+      input = new BufferedReader(new FileReader(Constants.WEBCONTEXT_DIR + Constants.REQUEST_FORM_CSS));
     } catch (FileNotFoundException ex) {
       System.out.println(ex.toString());
     }

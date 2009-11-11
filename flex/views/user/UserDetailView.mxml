@@ -97,6 +97,7 @@
             }
             
             private function onUserAccountChange():void {
+            	this.dirty.setDirty();
             	if (this.radioUniversityUser.selected) {
             		currentState = "";
             		externalUserName.text = "";
@@ -149,19 +150,18 @@
 					<mx:Label text="Phone" id="Label0"/>
 					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="130" change="dirty.setDirty()"/>
 				</mx:VBox>
-				
+				 
 			</mx:HBox>
 		  	<mx:HBox width="100%" height="100%">
 		  	  <mx:VBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
-				<mx:HBox verticalGap="0">
+				<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
 					<mx:RadioButtonGroup id="radioGroupUserAccount"/>
 					<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
 					<mx:RadioButton label="External user" groupName="radiogroup1" click="{onUserAccountChange()}" value="EXTERNAL" id="radioExternalUser">
-						<mx:selected>{parentDocument.fullUser.@isExternalUser == 'Y' ? true : false}</mx:selected>
 					</mx:RadioButton>
 					
 				</mx:HBox>	
-				<mx:HBox paddingLeft="18">	  	      
+				<mx:HBox paddingLeft="0">	  	      
 		  	    <mx:VBox verticalGap="1" id="unidContainer" width="100">
 		  	      <mx:Label text="uNID" />
 		  	      <mx:TextInput id="uNID" 
@@ -226,7 +226,7 @@
 	  </mx:HBox>	
 	</mx:ControlBar>
   
-  <mx:states>
+  <mx:states> 
 
   	
   	<mx:State name="externalUserState">
@@ -235,14 +235,13 @@
 		  	     <mx:VBox verticalGap="1"   id="vbox2">
 		  	     	<mx:Label text="User name" />
 		  	     	<mx:TextInput id="externalUserName" 
-		  	     		width="120" text="{parentDocument.fullUser.@userNameExternal}" 
-		  	     	/>
+		  	     		width="120" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
 		  	     </mx:VBox>
 		  	     <mx:VBox verticalGap="1"  >
 		  	     	<mx:Label text="Password"/>
 		  	     	<mx:TextInput id="externalUserPassword" 
 		  	     		text="{parentDocument.fullUser.@passwordExternalEntered}" 
-		  	     		width="167" displayAsPassword="true" />
+		  	     		width="167" displayAsPassword="true"  change="dirty.setDirty()"/>
 		  	     </mx:VBox>
 		 </mx:HBox>
 

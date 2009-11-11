@@ -2,9 +2,10 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
-import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -49,6 +49,9 @@ public class UploadAnalysisFileServlet extends HttpServlet {
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
       Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      
+      // Get the dictionary helper
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -100,7 +103,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 
-          String baseDir = Constants.getAnalysisDirectory(req.getServerName());
+          String baseDir = dh.getAnalysisDirectory(req.getServerName());
           
           directoryName = baseDir + createYear + "\\" + analysis.getNumber();
           if (!new File(directoryName).exists()) {

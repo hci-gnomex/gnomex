@@ -17,7 +17,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 
+
 import javax.naming.*;
+import javax.servlet.ServletContext;
 
 import java.sql.*;
 
@@ -28,22 +30,26 @@ public class HibernateSession {
   public static final String SESSION_FACTORY_JNDI_NAME       = "sessions/GNOMEX_FACTORY";
   
 
+
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
     if (s == null) {
-      SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);
+      SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);     
       s = sf.openSession();
       session.set(s);
     }
-
+    
+    
+    /*
     CallableStatement stmt;
-    Connection con = s.connection();
+    Connection con = s.connection();    
 
     stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
 
     stmt.setString(1, username);
 
     stmt.executeUpdate();
+    */
 
     return s;
   }
@@ -62,6 +68,7 @@ public class HibernateSession {
 
     CallableStatement stmt;
     try {
+      /*
       Connection con = s.connection();
       
       stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
@@ -69,6 +76,7 @@ public class HibernateSession {
       stmt.setString(1, null);
       
       stmt.executeUpdate();
+      */
     }
     finally {
       session.set(null);

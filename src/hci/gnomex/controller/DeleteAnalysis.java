@@ -5,6 +5,8 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.Property;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -42,7 +44,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idAnalysis", "idAnalysis is required.");
    }
-   baseDir = Constants.getAnalysisDirectory(request.getServerName());
+   baseDir = request.getServerName();
 
   }
 
@@ -50,7 +52,8 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
     try {
 
       Session sess = HibernateSession.currentSession(this.getUsername());
-    
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = dh.getAnalysisDirectory(baseDir);
       Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);
       Hibernate.initialize(analysis.getAnalysisGroups());
       analysis.setAnalysisGroups(null);
