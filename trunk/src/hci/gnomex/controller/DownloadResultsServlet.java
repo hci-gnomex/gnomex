@@ -1,8 +1,10 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
 
@@ -86,8 +88,6 @@ public class DownloadResultsServlet extends HttpServlet {
         && !req.getParameter("includeJPG").equals("")) {
       includeJPG = req.getParameter("includeJPG");
     }
-    baseDir         = Constants.getMicroarrayDirectoryForReading(req.getServerName());
-    baseDirFlowCell = Constants.getFlowCellDirectory(req.getServerName());
 
 
 
@@ -105,10 +105,12 @@ public class DownloadResultsServlet extends HttpServlet {
         
         
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
-        
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+        baseDirFlowCell = dh.getFlowCellDirectory(req.getServerName());
+        baseDir = dh.getMicroarrayDirectoryForReading(req.getServerName());
        
         Map fileDescriptorMap = new HashMap();
-        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+        long compressedFileSizeTotal = getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
 
         
         
@@ -221,7 +223,7 @@ public class DownloadResultsServlet extends HttpServlet {
     return request;    
   }
     
-  public static long getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles) {
+  public static long getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellDirectoryFlag) {
 
     long fileSizeTotal = 0;
     String[] keys = keysString.split(":");
@@ -240,7 +242,7 @@ public class DownloadResultsServlet extends HttpServlet {
       
       String directoryName = "";
       String theBaseDir;
-      if (flowCellIndicator.equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
+      if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
         directoryName = baseDirFlowCell + createYear + "/" + resultDirectory;
         theBaseDir = baseDirFlowCell;
       } else {
@@ -250,14 +252,14 @@ public class DownloadResultsServlet extends HttpServlet {
       
 
       
-      fileSizeTotal += getFileNames(requestNumber, directoryName, fileDescriptorMap, includeAllTIFFiles, includeAllJPGFiles, flowCellIndicator, theBaseDir);
+      fileSizeTotal += getFileNames(requestNumber, directoryName, fileDescriptorMap, includeAllTIFFiles, includeAllJPGFiles, flowCellIndicator, theBaseDir, flowCellDirectoryFlag);
     }
     return fileSizeTotal;
   }      
       
      
     
-  public static long getFileNames(String requestNumber, String directoryName, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellIndicator, String theBaseDir) {
+  public static long getFileNames(String requestNumber, String directoryName, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellIndicator, String theBaseDir, String flowCellDirectoryFlag) {
     File fd = new File(directoryName);
     
     long fileSizeTotal = 0;
@@ -268,7 +270,7 @@ public class DownloadResultsServlet extends HttpServlet {
         String fileName = directoryName + "/" + fileList[x];
         File f1 = new File(fileName);
         if (f1.isDirectory()) {
-          fileSizeTotal += getFileNames(requestNumber, fileName, fileDescriptorMap, includeAllTIFFiles, includeAllJPGFiles, flowCellIndicator, theBaseDir);
+          fileSizeTotal += getFileNames(requestNumber, fileName, fileDescriptorMap, includeAllTIFFiles, includeAllJPGFiles, flowCellIndicator, theBaseDir, flowCellDirectoryFlag);
         } else {
           boolean include = true;
           if (!includeAllJPGFiles && fileName.toLowerCase().endsWith(".jpg")) {
@@ -293,7 +295,7 @@ public class DownloadResultsServlet extends HttpServlet {
             }
             
             String zipEntryName;
-            if (flowCellIndicator.equals(Constants.FLOWCELL_DIRECTORY_FLAG)) {
+            if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
               zipEntryName = requestNumber + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
             } else {
               zipEntryName = fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  

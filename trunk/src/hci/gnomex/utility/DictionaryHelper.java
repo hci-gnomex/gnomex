@@ -13,6 +13,7 @@ import hci.gnomex.model.Label;
 import hci.gnomex.model.MicroarrayCategory;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.Organism;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.hibernate.Session;
+
 
 
 public class DictionaryHelper implements Serializable {
@@ -59,6 +61,7 @@ public class DictionaryHelper implements Serializable {
   private Map              billingPeriodMap = new HashMap();
   private Map              sampleTypeToDefaultSamplePrepMethodMap = new HashMap();
   private Map              labelMap = new HashMap();
+  private Map              propertyMap = new HashMap();
   
   
   
@@ -193,6 +196,11 @@ public class DictionaryHelper implements Serializable {
       Label l = (Label)i.next();
       labelMap.put(l.getIdLabel(), l.getLabel());
     } 
+    List props = sess.createQuery("SELECT p from Property as p").list();
+    for(Iterator i = props.iterator(); i.hasNext();) {
+      Property p = (Property)i.next();
+      propertyMap.put(p.getPropertyName(), p.getPropertyValue());
+    }
     
    }
   
@@ -202,6 +210,7 @@ public class DictionaryHelper implements Serializable {
     billingPriceMap = new HashMap();
     loadBillingTemplates(sess);
   }
+  
   
   public void loadBillingTemplates(Session sess) {
     if (billingTemplates == null) {
@@ -489,8 +498,81 @@ public class DictionaryHelper implements Serializable {
     return (List)billingPriceMap.get(idBillingCategory);
   }
   
+  public String getProperty(String name) {
+    if (propertyMap != null && propertyMap.containsKey(name)) {
+      return (String)propertyMap.get(name);
+    } else {
+      return "";
+    }
+  }
   
+  public String getAnalysisDirectory(String serverName) {
+    if (serverName.equals(this.getProperty(Property.PRODUCTION_SERVER))) {
+      return this.getProperty(Property.ANALYSIS_DIRECTORY);
+    } else {
+      return this.getProperty(Property.ANALYSIS_TEST_DIRECTORY);
+    }
+  }
+  
+  public String getFlowCellDirectory(String serverName) {
+    if (serverName.equals(this.getProperty(Property.PRODUCTION_SERVER))) {
+      return this.getProperty(Property.FLOWCELL_DIRECTORY);
+    } else {
+      return this.getProperty(Property.FLOWCELL_TEST_DIRECTORY);
+    }
+  }
+
+  public String getMicroarrayDirectoryForWriting(String serverName) {
+    if (serverName.equals(this.getProperty(Property.PRODUCTION_SERVER))) {
+      return this.getProperty(Property.EXPERIMENT_DIRECTORY);
+    } else {
+      return this.getProperty(Property.EXPERIMENT_TEST_DIRECTORY);
+    }
+  }
+
+  public  String getMicroarrayDirectoryForReading(String serverName) {
+    return getProperty(Property.EXPERIMENT_DIRECTORY);
+  }
+  
+  public  int getAnalysisDirectoryNameLength() {
+    return getProperty(Property.ANALYSIS_DIRECTORY).length();
+  }
+  public  int getMicroarrayDirectoryNameLength() {
+    return getProperty(Property.EXPERIMENT_DIRECTORY).length();
+  }
+  public  int getFlowCellDirectryNameLength() {
+    return getProperty(Property.FLOWCELL_DIRECTORY).length();
+  }
   
  
+  
+  public String parseMainFolderName(String fileName) {
+    String mainFolderName = "";
+    String baseDir = "";
+    
+    if (fileName.indexOf(this.getProperty(Property.EXPERIMENT_DIRECTORY)) >= 0) {
+      baseDir = this.getProperty(Property.EXPERIMENT_DIRECTORY);
+    } else if (fileName.indexOf(getProperty(Property.EXPERIMENT_TEST_DIRECTORY)) >= 0) {
+      baseDir = getProperty(Property.EXPERIMENT_TEST_DIRECTORY);
+    } else if (fileName.indexOf(getProperty(Property.FLOWCELL_DIRECTORY)) >= 0) {
+      baseDir = getProperty(Property.FLOWCELL_DIRECTORY);
+    } else if (fileName.indexOf(getProperty(Property.FLOWCELL_TEST_DIRECTORY)) >= 0) {
+      baseDir = getProperty(Property.FLOWCELL_TEST_DIRECTORY);
+    }
+
+  
+    
+    String relativePath = fileName.substring(baseDir.length() + 5);
+    String tokens[] = relativePath.split("/", 2);
+    if (tokens == null || tokens.length == 1) {
+      tokens = relativePath.split("\\\\", 2);
+    }
+    if (tokens.length == 2) {
+      mainFolderName = tokens[0];
+    }
+    
+    return mainFolderName;
+  }
+  
   
 }

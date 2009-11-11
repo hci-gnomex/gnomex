@@ -7,11 +7,14 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.lucene.AnalysisFilter;
 import hci.gnomex.lucene.AnalysisIndexHelper;
-import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ExperimentFilter;
-import hci.gnomex.lucene.ProtocolIndexHelper;
+import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
+import hci.gnomex.lucene.ProtocolIndexHelper;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.DictionaryHelper;
+
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -36,6 +39,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Searcher;
+import org.hibernate.Session;
 import org.jdom.Element;
 
 
@@ -137,6 +141,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     try {
       
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
       
       if (!isAnalysisOnlySearch) {
@@ -145,7 +151,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         //
         
         //  Build a Query object
-        IndexReader indexReader = IndexReader.open(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY);      
+        IndexReader indexReader = IndexReader.open(dh.getProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY));      
         Searcher searcher = new IndexSearcher(indexReader);
 
         String searchText = experimentFilter.getSearchText().toString();
@@ -189,7 +195,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         //
         // Protocols
         //
-        IndexReader protocolIndexReader = IndexReader.open(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY);      
+        IndexReader protocolIndexReader = IndexReader.open(dh.getProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY));      
         Searcher protocolSearcher = new IndexSearcher(protocolIndexReader);
         
         //  Build a Query object
@@ -215,7 +221,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         //
         // Analysis
         //
-        IndexReader analysisIndexReader = IndexReader.open(Constants.LUCENE_ANALYSIS_INDEX_DIRECTORY);      
+        IndexReader analysisIndexReader = IndexReader.open(dh.getProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY));      
         Searcher analysisSearcher = new IndexSearcher(analysisIndexReader);
         
         //  Build a Query object

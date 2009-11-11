@@ -32,8 +32,6 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
 
   private static Logger log = Logger.getLogger(SaveSlideProduct.class);
   
-  private boolean isNewSlideProduct;
-  
   private SlideProduct slideProductScreen;
   
   private String microarrayCategoryXMLString = null;

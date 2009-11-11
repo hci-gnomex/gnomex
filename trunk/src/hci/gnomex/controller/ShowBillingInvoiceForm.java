@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
@@ -205,7 +206,12 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
       Lab lab, BillingAccount billingAccount, 
       Map billingItemMap, Map requestMap) throws Exception {
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(billingPeriod, 
+    
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(dh.getProperty(Property.CORE_FACILITY_NAME),
+        dh.getProperty(Property.CONTACT_NAME_CORE_FACILITY),
+        dh.getProperty(Property.CONTACT_PHONE_CORE_FACILITY),
+        billingPeriod, 
         lab, billingAccount, billingItemMap, requestMap);
 
     Element root = new Element("HTML");
@@ -217,7 +223,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element link = new Element("link");
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("type", "text/css");
-    link.setAttribute("href", "invoiceForm.css");
+    link.setAttribute("href", Constants.INVOICE_FORM_CSS);
     head.addContent(link);
 
     Element title = new Element("TITLE");
@@ -292,6 +298,9 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       BillingAccount billingAccount, Map billingItemMap, 
       Map requestMap) throws Exception {
     
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    String coreFacilityName = dh.getProperty(Property.CORE_FACILITY_NAME);
+    
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, 
         billingPeriod, lab, billingAccount, billingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
@@ -299,10 +308,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     String note = "&nbsp";
     boolean send = false;
     if (contactEmail != null && !contactEmail.equals("")) {
-      if (serverName.equals(Constants.PRODUCTION_SERVER)) {
+      if (serverName.equals(dh.getProperty(Property.PRODUCTION_SERVER))) {
         send = true;
       } else {
-        if (contactEmail.equals(Constants.DEVELOPER_EMAIL)) {
+        if (contactEmail.equals(dh.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
           send = true;
           subject = "(TEST) " + subject;
         } else {
@@ -317,7 +326,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       try {
         MailUtil.send(contactEmail, 
           null,
-          Constants.EMAIL_MICROARRAY_CORE_FACILITY, 
+          dh.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
           true);

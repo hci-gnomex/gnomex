@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -29,6 +30,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 
@@ -48,7 +50,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
     // Get input parameters
     keysString = request.getParameter("resultKeys");
-    baseDir = Constants.getAnalysisDirectory(request.getServerName());
+    baseDir = request.getServerName();
     
   }
 
@@ -59,6 +61,8 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
     Document doc = new Document(new Element("ExpandedAnalysisFileList"));
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    baseDir = dh.getAnalysisDirectory(baseDir);
     
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
@@ -192,7 +196,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       }
       
       List theFiles = new ArrayList();    
-      getFileNames(analysisNumber, directoryName, theFiles, null);
+      getFileNames(analysisNumber, directoryName, theFiles, null, baseDir);
       
       // Hash the list of file names (by directory name)
       directoryMap.put(directoryKey, theFiles);
@@ -208,7 +212,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
     }
   }      
       
-  public static void getFileNames(String analysisNumber, String directoryName, List theFiles, String subDirName) {
+  public static void getFileNames(String analysisNumber, String directoryName, List theFiles, String subDirName, String baseDir) {
     File fd = new File(directoryName);
 
     if (fd.isDirectory()) {
@@ -226,17 +230,17 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
         }
         
         if (f1.isDirectory()) {
-          AnalysisFileDescriptor dirFileDescriptor = new AnalysisFileDescriptor(analysisNumber, f1.getName() + "/", f1);
+          AnalysisFileDescriptor dirFileDescriptor = new AnalysisFileDescriptor(analysisNumber, f1.getName() + "/", f1, baseDir);
           dirFileDescriptor.setType("dir");
           theFiles.add(dirFileDescriptor);
-          getFileNames(analysisNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName());
+          getFileNames(analysisNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), baseDir);
         } else {
           boolean include = true;
           if (fileName.toLowerCase().endsWith("thumbs.db")) {
             include = false;
           } 
           if (include) {
-            AnalysisFileDescriptor fileDescriptor = new AnalysisFileDescriptor(analysisNumber, displayName, f1);
+            AnalysisFileDescriptor fileDescriptor = new AnalysisFileDescriptor(analysisNumber, displayName, f1, baseDir);
             theFiles.add(fileDescriptor);
           }
         }

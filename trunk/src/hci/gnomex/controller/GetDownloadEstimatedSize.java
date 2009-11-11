@@ -3,6 +3,9 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Property;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateGuestSession;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -10,6 +13,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.hibernate.Session;
 
 
 public class GetDownloadEstimatedSize extends GNomExCommand implements Serializable {
@@ -23,7 +28,6 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
   private String    baseDir;
   private String    baseDirFlowCell;
 
-  private static int      totalFileSize = 0;
   
   public void validate() {
   }
@@ -40,16 +44,21 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
         && !request.getParameter("includeJPG").equals("")) {
       includeJPG = request.getParameter("includeJPG");
     }
-    baseDir         = Constants.getMicroarrayDirectoryForReading(request.getServerName());
-    baseDirFlowCell = Constants.getFlowCellDirectory(request.getServerName());
+    baseDir         = request.getServerName();
+    baseDirFlowCell = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
     
     try {
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
+      baseDirFlowCell = dh.getFlowCellDirectory(baseDirFlowCell);
+      
       
       Map fileNameMap = new HashMap();      
-      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"));
+      long compressedFileSizeTotal = DownloadResultsServlet.getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
       this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
       
       if (isValid()) {
@@ -62,7 +71,12 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
       log.error("An exception has occurred in GetProject ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } 
+    } finally {
+      try {
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
+      }
+    }
     
     return this;
   }

@@ -3,7 +3,7 @@ package hci.gnomex.lucene;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Request;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -43,7 +42,7 @@ public class BuildSearchIndex extends DetailObject {
   private Configuration   configuration;
   private Session         sess;
   private SessionFactory  sessionFactory;
-  private static String  dbhost = "hci-db";
+
 
   private String gnomex_db_driver;
   private String gnomex_db_url;
@@ -135,7 +134,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildExperimentIndex() throws Exception{
 
-    IndexWriter experimentIndexWriter = new IndexWriter(Constants.LUCENE_EXPERIMENT_INDEX_DIRECTORY, new StandardAnalyzer(), true);
+    IndexWriter experimentIndexWriter = new IndexWriter(dh.getProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY), new StandardAnalyzer(), true);
 
     // Get basic project/request data
     getProjectRequestData(sess);
@@ -168,7 +167,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildProtocolIndex() throws Exception{
 
-    IndexWriter protocolIndexWriter   = new IndexWriter(Constants.LUCENE_PROTOCOL_INDEX_DIRECTORY,   new StandardAnalyzer(), true);
+    IndexWriter protocolIndexWriter   = new IndexWriter(dh.getProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
 
     // Get basic protocol data
     getProtocolData(sess);
@@ -194,7 +193,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildAnalysisIndex() throws Exception{
 
-    IndexWriter analysisIndexWriter   = new IndexWriter(Constants.LUCENE_ANALYSIS_INDEX_DIRECTORY,   new StandardAnalyzer(), true);
+    IndexWriter analysisIndexWriter   = new IndexWriter(dh.getProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
 
     // Get analysis data
     getAnalysisData(sess);

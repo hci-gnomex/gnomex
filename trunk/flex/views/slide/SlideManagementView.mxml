@@ -131,19 +131,19 @@
 		public var lastSavedSlideDesignId:String;
 		
 		[Bindable]
-        [Embed(source="assets/image.png")]
+        [Embed(source="../../assets/image.png")]
         public var iconSlide:Class;
 		
 		[Bindable]
-        [Embed(source="assets/images.png")]
+        [Embed(source="../../assets/images.png")]
         public var iconSlideSet:Class;
 		
 		[Bindable]
-        [Embed(source="assets/image_disable.png")]
+        [Embed(source="../../assets/image_disable.png")]
         public var iconSlideInActive:Class;
 		
 		[Bindable]
-        [Embed(source="assets/images_disable.png")]
+        [Embed(source="../../assets/images_disable.png")]
         public var iconSlideSetInActive:Class;
 		
 		public function checkDirty():void {

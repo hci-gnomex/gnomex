@@ -30,7 +30,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public AnalysisFileDescriptor() {    
   }
   
-  public AnalysisFileDescriptor(String analysisNumber, String displayName, File file) {
+  public AnalysisFileDescriptor(String analysisNumber, String displayName, File file, String baseDir) {
     this.analysisNumber = analysisNumber;
     this.displayName = displayName;
     
@@ -42,7 +42,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
     }
-    this.zipEntryName = fileName.substring(Constants.getAnalysisDirectoryNameLength() + 5).replaceAll("\\\\", "/");  
+    this.zipEntryName = fileName.substring(baseDir.length() + 5).replaceAll("\\\\", "/");  
     
     String ext = "";
     String[] fileParts = file.getName().split("\\.");
@@ -169,11 +169,11 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   }
   
 
-  public String getDirectoryNumber() {
+  public String getDirectoryNumber(int analysisFileDirectoryLength) {
     String analysisNumber = "";
     if (fileName != null && !fileName.equals("")) {
       // Get the directory name starting after the year
-      String relativePath = fileName.substring(Constants.getAnalysisDirectoryNameLength() + 5);
+      String relativePath = fileName.substring(analysisFileDirectoryLength + 5);
       String tokens[] = relativePath.split("/", 2);
       if (tokens == null || tokens.length == 1) {
         tokens = relativePath.split("\\\\", 2);

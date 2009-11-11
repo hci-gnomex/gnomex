@@ -8,7 +8,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveProject(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to save project', event)">
+	fault="parentApplication.onFailHttpRequest('Failed to save project', event)"
     method="POST"
     useProxy="false">
 </mx:HTTPService>

@@ -5,6 +5,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Property;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -24,8 +25,8 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   private Lab            lab;
   private BillingAccount billingAccount;
   private Map            billingItemMap; 
-  private Map            requestMap; 
-  
+  private Map            requestMap;
+
 
   private DictionaryHelper dictionaryHelper;
   
@@ -37,6 +38,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     this.billingAccount = billingAccount;
     this.billingItemMap = billingItemMap;
     this.requestMap = requestMap;
+    
     
  
     this.dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -54,8 +56,10 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
  
   public String format() throws Exception {
 
-    
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(billingPeriod, lab, billingAccount, billingItemMap, requestMap);
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(this.dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME), 
+        this.dictionaryHelper.getProperty(Property.CONTACT_NAME_CORE_FACILITY),
+        this.dictionaryHelper.getProperty(Property.CONTACT_PHONE_CORE_FACILITY),
+        billingPeriod, lab, billingAccount, billingItemMap, requestMap);
     
     Element root = new Element("HTML");
     Document doc = new Document(root);
@@ -108,7 +112,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     StringBuffer buf = new StringBuffer();
     BufferedReader input =  null;
     try {
-      input = new BufferedReader(new FileReader(Constants.INVOICE_FORM_CSS));
+      input = new BufferedReader(new FileReader(Constants.WEBCONTEXT_DIR + Constants.INVOICE_FORM_CSS));
     } catch (FileNotFoundException ex) {
       System.out.println(ex.toString());
     }

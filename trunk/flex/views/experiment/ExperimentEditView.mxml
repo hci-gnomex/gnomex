@@ -2,7 +2,7 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*" 
-    xmlns:util="views.util.*" 
+    xmlns:util="views.util.*"  
     xmlns:experiment="views.experiment.*"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	label="Submit Request" width="100%" height="100%"  
@@ -192,7 +192,6 @@
         	
         	filteredMicroarrayCategoryListForSubmitRequests = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.MicroarrayCategory'));
         	
-        
 
 			initFilters();
 
@@ -219,6 +218,7 @@
 			parentApplication.filteredSlideProductListForSubmitRequests.filterFunction = filterSlideProduct;
 			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 			
+
 			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
 			samplePrepMethodList.refresh();
 			
@@ -1831,7 +1831,7 @@
 					}					
 				} 
 
-				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the Microarray Core Facility.';
+				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
 				Alert.show(message, "Request Submitted", 0, this, onNotifySubmitRequest);
 				
 			} else {

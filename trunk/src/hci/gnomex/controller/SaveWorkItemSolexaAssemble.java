@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingControl;
@@ -52,8 +53,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   private String                       appURL;
   
   private String                       serverName;
-  
-  private DictionaryHelper             dictionaryHelper = null;
   
   public void validate() {
   }
@@ -219,7 +218,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
           
           sess.flush();
           
-          this.createFlowCellDirectory(serverName, flowCell);
+          this.createFlowCellDirectory(flowCell, dh.getFlowCellDirectory(serverName));
           
           parser.resetIsDirty();
 
@@ -254,8 +253,8 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     return this;
   }
   
-  private void createFlowCellDirectory(String serverName, FlowCell flowCell) {
-    String flowCellDir = Constants.getFlowCellDirectory(serverName);
+  private void createFlowCellDirectory(FlowCell flowCell, String flowCellDir) {
+
     
     String createYear = this.formatDate(flowCell.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
     String rootDir = flowCellDir + createYear;

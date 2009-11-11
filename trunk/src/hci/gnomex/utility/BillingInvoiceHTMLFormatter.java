@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 
@@ -34,24 +35,30 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private Map            billingItemMap; 
   private Map            requestMap; 
   private NumberFormat   currencyFormat = NumberFormat.getCurrencyInstance();
+  private String         coreFacilityName;
+  private String         contactNameCoreFacility;
+  private String         contactPhoneCoreFacility;
   
- public BillingInvoiceHTMLFormatter(BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map requestMap) {
+ public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap, Map requestMap) {
    this.billingPeriod  = billingPeriod;
    this.lab            = lab;
    this.billingAccount = billingAccount;
    this.billingItemMap = billingItemMap;
    this.requestMap     = requestMap;
+   this.coreFacilityName = coreFacilityName;
+   this.contactNameCoreFacility = contactNameCoreFacility;
+   this.contactPhoneCoreFacility = contactPhoneCoreFacility;
    
  }
  
  public Element makeIntroNote() {
    
    
-   String line1 = "This report provides itemized documentation of services that were completed for your lab by the Microarray Core Facility during the month of " + billingPeriod.getBillingPeriod() + ".";
+   String line1 = "This report provides itemized documentation of services that were completed for your lab by the " + coreFacilityName + " during the month of " + billingPeriod.getBillingPeriod() + ".";
    String line2 = "&nbsp;&nbsp;&nbsp; - University of Utah accounts listed on this document will be electronically billed."; 
-   String line3 = "&nbsp;&nbsp;&nbsp; - External accounts listed on this document will receive an invoice from the Microarray Core Facility."; 
+   String line3 = "&nbsp;&nbsp;&nbsp; - External accounts listed on this document will receive an invoice from the " + coreFacilityName + "."; 
    String line4 = "&nbsp;";
-   String line5 = "If you have any questions, please contact Brian Dalley " + Constants.PHONE_MICROARRAY_CORE_FACILITY;
+   String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
        
     
    Element table = new Element("TABLE");   
@@ -74,7 +81,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     table.addContent(makeRow(lab.getName()));
     table.addContent(makeRow("Account " + (billingAccount.getAccountNumber() != null && !billingAccount.getAccountNumber().equals("" ) ? billingAccount.getAccountNumber() + " " : "") + 
                                           (billingAccount.getAccountName() != null && !billingAccount.getAccountName().equals("") ? "(" + billingAccount.getAccountName() + ")": "")));
-    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " Microarray Chargeback")); 
+    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback")); 
     
     return table;
  }

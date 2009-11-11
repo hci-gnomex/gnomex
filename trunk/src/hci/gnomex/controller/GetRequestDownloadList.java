@@ -3,11 +3,13 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -69,7 +71,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       this.addInvalidField("filterRequired", "Please enter at least one search criterion.");
     }
     
-    baseDir = Constants.getMicroarrayDirectoryForReading(request.getServerName());
+    baseDir = request.getServerName();
 
   }
 
@@ -79,6 +81,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
       
       List slideDesigns = sess.createQuery("SELECT sd from SlideDesign sd ").list();
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
@@ -134,7 +138,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         List folders = this.getRequestDownloadFolders(requestNumber, yearFormat.format((java.sql.Date)row[0]));
         for(Iterator i1 = folders.iterator(); i1.hasNext();) {
           String folderName = (String)i1.next();
-          if (folderName.equals(Constants.QC_DIRECTORY)) {
+          if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
             continue;
           }
           String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + folderName;
@@ -327,7 +331,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               String createYear  = tokens[2];
               String sortDate = createYear + createMonth + createDay;      
 
-              String fcKey = createYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + Constants.FLOWCELL_DIRECTORY_FLAG;
+              String fcKey = createYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
               
               Element n1 = new Element("RequestDownload");
               n1.setAttribute("key", fcKey);

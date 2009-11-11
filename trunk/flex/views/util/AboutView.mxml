@@ -34,12 +34,12 @@
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="To report software bugs or give feedback, please email" width="320"/>				
-				<mx:LinkButton label="bioinformaticscore@utah.edu" click="navigateToURL(new URLRequest('mailto:bioinformaticscore@utah.edu'), '_blank');" textDecoration="underline" color="#0000ff"/>				
+				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE)), '_blank');" textDecoration="underline" color="#0000ff"/>				
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 			    <mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="To contact the Microarray Core Facility, please email" width="320"/>				
-				<mx:LinkButton label="brian.dalley@hci.utah.edu" click="navigateToURL(new URLRequest('mailto:brian.dalley@hci.utah.edu'), '_blank');" textDecoration="underline" color="#0000ff"/>				
+				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_CORE_FACILITY)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_CORE_FACILITY)), '_blank');" textDecoration="underline" color="#0000ff"/>				
 			</mx:HBox>
 		</mx:VBox>
 

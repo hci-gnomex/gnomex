@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Hybridization;
@@ -102,7 +103,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             Element link = new Element("link");
             link.setAttribute("rel", "stylesheet");
             link.setAttribute("type", "text/css");
-            link.setAttribute("href", "requestForm.css");
+            link.setAttribute("href", Constants.REQUEST_FORM_CSS);
             head.addContent(link);
             
             Element title = new Element("TITLE");

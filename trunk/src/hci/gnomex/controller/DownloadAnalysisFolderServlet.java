@@ -2,8 +2,10 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.ByteArrayOutputStream;
@@ -50,7 +52,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
 
     // Get input parameters
     keysString = req.getParameter("resultKeys");
-    baseDir = Constants.getAnalysisDirectory(req.getServerName());
+    
     
     try {
 
@@ -66,7 +68,8 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         
         
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
-        
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+        baseDir = dh.getAnalysisDirectory(req.getServerName());
        
         Map fileNameMap = new HashMap();
         long compressedFileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap);

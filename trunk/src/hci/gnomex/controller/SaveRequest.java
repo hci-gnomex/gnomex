@@ -6,6 +6,7 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -69,8 +70,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private String           appURL;
   private String           serverName;
-  
-  private DictionaryHelper dictionaryHelper = null;
 
   private Integer          idProject;
   private Map              labelMap = new HashMap();
@@ -313,7 +312,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
           sess.refresh(requestParser.getRequest());
-          this.createResultDirectories(serverName, requestParser.getRequest());
+          DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+          this.createResultDirectories(requestParser.getRequest(), 
+              dictionaryHelper.getProperty(Property.QC_DIRECTORY), 
+              dictionaryHelper.getMicroarrayDirectoryForWriting(serverName));
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -877,22 +879,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
-    dictionaryHelper = DictionaryHelper.getInstance(sess);
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = appURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-    introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the Microarray Core Facility.  You will receive email notification when the experiment is complete.");
+    introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+        ".  You will receive email notification when the experiment is complete.");
     introNote.append("<br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, requestParser.getRequest(), samples, hybs, sequenceLanes, introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;
-    if (serverName.equals(Constants.PRODUCTION_SERVER)) {
+    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(Constants.DEVELOPER_EMAIL)) {
+      if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }
@@ -901,7 +904,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (send) {
       MailUtil.send(request.getAppUser().getEmail(), 
           null,
-          Constants.EMAIL_BIOINFORMATICS_MICROARRAY, 
+          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
           true);      
@@ -909,8 +912,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
   
-  private void createResultDirectories(String serverName, Request req) {
-    String microarrayDir = Constants.getMicroarrayDirectoryForWriting(serverName);
+  private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
     
     String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
     String rootDir = microarrayDir + createYear;
@@ -930,7 +932,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       log.error("Unable to create directory " + directoryName);      
     }
     
-    String bioanalyzerDirName = directoryName + "\\" + Constants.QC_DIRECTORY;
+    String bioanalyzerDirName = directoryName + "\\" + qcDirectory;
     success = (new File(bioanalyzerDirName)).mkdir();
     if (!success) {
       log.error("Unable to create directory " + bioanalyzerDirName);      

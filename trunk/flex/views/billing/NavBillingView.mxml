@@ -141,6 +141,8 @@
 
       	public function initializeData():void
       	{
+      		glFileButton.visible = parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N" ? false : true;
+      		
       		getBillingTemplateList.send();
 
 			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
@@ -1055,8 +1057,8 @@
 					<mx:TextInput id="requestNumberText" width="60">
 					</mx:TextInput>			   	
 					<mx:Button id="lookupButton"  
-						fontFamily="Arial"  height="18"
-						color="#400040" click="refresh()" visible="true" icon="@Embed('assets/arrow_right.png')" width="20"/>
+						height="18"
+						click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
 		    	</mx:HBox>	    
 		    	
 	    </mx:HBox>
@@ -1096,7 +1098,7 @@
   				        </mx:HBox>
   				        <mx:HBox horizontalGap="0" width="100%">
 				 	    <mx:HBox width="100" horizontalAlign="left">
-					 	    <mx:LinkButton label="GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
+					 	    <mx:LinkButton  id="glFileButton" label="GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
   				        </mx:HBox>
   					 	<mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
 				 	            click="refresh()" toolTip="Refresh"/>

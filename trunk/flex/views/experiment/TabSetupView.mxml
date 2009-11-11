@@ -138,7 +138,8 @@
 			var emptyNode:XML = new XML("<BillingAccount value='' display=''/>");
 			this.billingAccounts.addItem(emptyNode);
 			this.billingAccountCombo.selectedIndex = 0;
-			this.billingAccountValidator.validate();			
+			this.billingAccountValidator.validate();	
+			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
 		}
 		
 		public function selectDefaultLab():void {
@@ -425,15 +426,14 @@
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:VBox width="100%" height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
-						<mx:Text width="100%" id="text3" fontStyle="italic" fontSize="9">
-						    <mx:htmlText><![CDATA[ If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the Microarray Core Facility (HCI room 3363; Fax 585-0900)]]></mx:htmlText>
+						<mx:Text width="100%" id="workAuthInstructions" fontStyle="italic" fontSize="9" >
 						</mx:Text>
 						<mx:HBox width="100%" horizontalGap="2" paddingTop="0" paddingBottom="0">
 							<mx:LinkButton label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0"> 
-								<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.pdf'), '_blank');</mx:click>
+								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_PDF_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
 							<mx:LinkButton label="Work authorization (word doc)" styleName="formLinkButton" id="linkbutton2" fontSize="9" paddingLeft="2" paddingTop="0">
-								<mx:click>navigateToURL(new URLRequest('doc/microarray_core_work_authorization_form.doc'), '_blank');</mx:click>
+								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_DOC_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
 						</mx:HBox>
 					</mx:VBox>

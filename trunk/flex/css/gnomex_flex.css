@@ -393,12 +393,5 @@ TextArea {
 {
 	fontFamily: "Arial Narrow";
 }
-@font-face
-{
-	fontFamily: "Arial Narrow";
-	fontWeight: normal;
-	fontStyle: normal;
-	src: local("Arial Narrow");
-}
 
 

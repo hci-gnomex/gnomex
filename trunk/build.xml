@@ -1,6 +1,6 @@
 <project name="gnomex" default="all" basedir="./">
 
-    <!-- ============================================== -->
+  <!-- ============================================== -->
 	<!--                                                -->
 	<!-- Initialization                                 -->
 	<!--                                                -->
@@ -11,19 +11,29 @@
         <tstamp />
         <property environment="env" />
         <property file="${basedir}/build.properties" />
+    	
 
         <!-- Directories -->
        	<mkdir dir="${build.dir}" />
        	<mkdir dir="${build.class.dir}" />
        	<mkdir dir="${dist.dir}" />
 
-		<!-- Paths -->
+				<!-- Paths -->
         <path id="project.class.path">
           <fileset dir="${lib.hcienv.dir}"          includes="*.jar" />
           <fileset dir="${lib.dir}" 				includes="*.jar" />
           <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
           <fileset dir="${orion.dir}" 			    includes="*.jar" />
         </path>
+		
+		    <!-- Up to date check on flex app -->
+		  	<uptodate property="flexUpToDate" targetfile="${build.dir}/${flexapp.name}.swf">
+		    	<srcfiles dir="${flexapp.dir}">
+	  	    	<include name="**/*.as"/>
+	    	  	<include name="**/*.mxml"/>
+	    		</srcfiles>
+	  		</uptodate>
+
 	</target>
 
 
@@ -39,6 +49,7 @@
 		<antcall target="clean" />
 		<antcall target="compile" />
 		<antcall target="jar" />
+		<antcall target="flex"/>
 		<antcall target="war" />
 		<antcall target="ear" />
 		<antcall target="deploy" />
@@ -135,14 +146,59 @@
 	</target>
 
 
-
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Flex                                           -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="flex" depends="init" unless="flexUpToDate" description="Compile Flex application">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling flex app                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>		
+		<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/> 		
+		<mxmlc file="${flexapp.dir}/${flexapp.name}.mxml" 
+			output="${build.dir}/${flexapp.name}.swf">
+	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+	        <source-path path-element="${FLEX_HOME}/frameworks"/>
+      		<source-path path-element="${hciflex.dir}"/>
+			    <compiler.debug>true</compiler.debug>			
+		</mxmlc>
+		<html-wrapper 
+		      title="${flexapp.title}"
+		      file="${flexapp.name}.html"
+		      width="100%"
+		      height="100%"
+		      application="${flexapp.name}"
+		      swf="${flexapp.name}"
+		      version-major="9"
+		      version-minor="0"
+		      version-revision="0"
+		      history="false"
+		      template="express-installation"
+		      output="${build.dir}"/>
+		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.name}.jsp"/>
+	  <replace file="${build.dir}/${flexapp.name}.jsp"
+	                         token="&lt;html lang=&quot;en&quot;&gt;"
+	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
+		<replace file="${build.dir}/${flexapp.name}.jsp"
+    											 token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&quot;,"/>
+		<copy todir="${build.dir}/assets" overwrite="true">
+					<fileset dir="${flexapp.dir}/assets">
+						<include name="*.*" />
+					</fileset>
+		</copy> 	
+	</target>	
+	
 
 	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war" depends="init, compile">
+	<target name="war" depends="init, compile, flex">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files                                   +</echo>
@@ -156,7 +212,14 @@
 			<fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
 			</fileset>
-		</war>
+			<fileset dir="${build.dir}">
+				<include name="*.swf" />
+				<include name="*.html" />
+				<include name="*.jsp" />
+				<include name="*.js" />
+				<include name="assets/*.*" />
+			</fileset>		
+	  </war>
 	</target>
 
 

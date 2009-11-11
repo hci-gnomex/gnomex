@@ -36,9 +36,7 @@ public class CalculateMolarity extends GNomExCommand implements Serializable {
   
  
   
-  // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CalculateMolarity.class);
-  
+ 
   
   private Integer libConcentration = null;
   private Integer averageFragmentSize = null;

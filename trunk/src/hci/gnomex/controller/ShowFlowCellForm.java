@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.security.SecurityAdvisor;
@@ -80,7 +81,7 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
             Element link = new Element("link");
             link.setAttribute("rel", "stylesheet");
             link.setAttribute("type", "text/css");
-            link.setAttribute("href", "requestForm.css");
+            link.setAttribute("href", Constants.REQUEST_FORM_CSS);
             head.addContent(link);
             
             Element title = new Element("TITLE");

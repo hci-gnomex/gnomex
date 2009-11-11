@@ -73,7 +73,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           comparator =  new HybComparator();
         }
         
-        TreeMap allRows = allRows = new TreeMap(comparator);
+        TreeMap allRows = new TreeMap(comparator);
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
         log.info("GetWorkItemList query: " + queryBuf.toString());
         List rows = (List) sess.createQuery(queryBuf.toString()).list();
