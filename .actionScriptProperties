@@ -10,9 +10,7 @@
 </libraryPath>
 <sourceAttachmentPath/>
 </compiler>
-<applications>
-<application path="gnomexFlex.mxml"/>
-</applications>
+<applications/>
 <modules/>
 <buildCSSFiles/>
 </actionScriptProperties>
