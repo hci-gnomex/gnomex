@@ -25,7 +25,7 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-	<Dictionary displayName="Property" className="hci.gnomex.model.Property" />
+	<Dictionary displayName="Property" className="hci.gnomex.model.Property" scrub="Y"/>
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
 	</Dictionary>
