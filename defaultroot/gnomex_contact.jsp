@@ -3,9 +3,19 @@
 <head>
 	<meta name="author" content="Wink Hosting (www.winkhosting.com)" />
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-	<link rel="stylesheet" href="gnomex.css" type="text/css" />
+	<link rel="stylesheet" href="css/gnomex.css" type="text/css" />
 	<title>GNomEx</title>
 </head>
+<%@ page language="java" import="hci.gnomex.utility.HibernateGuestSession,hci.gnomex.utility.DictionaryHelper,hci.gnomex.model.Property,org.hibernate.Session" %>
+<%
+	   String softwareContactEmail = "";
+	   try {
+	     Session sess = HibernateGuestSession.currentGuestSession("guest");
+	     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+	     softwareContactEmail = dh.getProperty(Property.CONTACT_EMAIL_SOFTWARE_BUGS);
+	   }catch (Exception e) {	     
+	   }
+%>
 <body>
 	<div id="page" align="center">
 		<div id="toppage" align="center">
@@ -45,7 +55,7 @@
 			  <div class="panel" align="justify">
 				<span class="orangetitle"></span>
 				<span class="bodytext"><br />
-			      To report software bugs or give feedback, please email <a href="mailto:bioinformaticscore@utah.edu" class="email">bioinformaticscore@utah.edu</a>
+			      To report software bugs or give feedback, please email <a href="mailto:<%=softwareContactEmail%>" class="email"><%=softwareContactEmail%></a>
                          </span>			
                     </div>
 			</div>
