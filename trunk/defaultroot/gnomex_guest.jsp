@@ -4,7 +4,7 @@
 <head>
 	<meta name="author" content="Wink Hosting (www.winkhosting.com)" />
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-	<link rel="stylesheet" href="gnomex.css" type="text/css" />
+	<link rel="stylesheet" href="css/gnomex.css" type="text/css" />
 	<title>GNomEx Guest Login</title>
 </head>
 <body>
