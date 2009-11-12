@@ -11,6 +11,7 @@ import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
@@ -29,6 +30,7 @@ import java.util.TreeSet;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
   // Security advisor session variable
@@ -324,6 +326,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         AppUserLite u = (AppUserLite)object;
         if (u.getIdAppUser() != null && !this.isGuest() &&
             u.getIdAppUser().equals(this.getIdAppUser())) {
+          canRead = true;
+        } 
+      }
+      // Filter out server-only properties
+      else if (object instanceof Property) {
+        Property prop = (Property)object;
+        if (!prop.getForServerOnly().equals("Y")) {
           canRead = true;
         } 
       }

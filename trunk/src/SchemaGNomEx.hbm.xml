@@ -855,6 +855,7 @@
 		<property name="propertyName"        column="propertyName" type="string"/>
 		<property name="propertyValue"       column="propertyValue" type="string"/>
 		<property name="propertyDescription" column="propertyDescription" type="string"/>
+		<property name="forServerOnly"       column="forServerOnly" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.ProtocolType -->

@@ -39,7 +39,8 @@ public class Property extends DictionaryEntry implements Serializable {
   private String   propertyName;
   private String   propertyValue;
   private String   propertyDescription;
-  
+  private String   forServerOnly;
+
   public Integer getIdProperty() {
     return idProperty;
   }
@@ -85,5 +86,15 @@ public class Property extends DictionaryEntry implements Serializable {
   public void setPropertyDescription(String propertyDescription) {
     this.propertyDescription = propertyDescription;
   }
+
   
+  public String getForServerOnly() {
+    return forServerOnly;
+  }
+
+  
+  public void setForServerOnly(String forServerOnly) {
+    this.forServerOnly = forServerOnly;
+  }
+
 }
