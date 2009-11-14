@@ -51,7 +51,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
   * The method to initialize Log4j
   */
   protected static void initLog4j() {
-    String configFile = "/properties/gnomex_logging.properties";
+    String configFile = Constants.WEBCONTEXT_DIR + Constants.LOGGING_PROPERTIES;
     if (configFile == null) {
       System.err.println("No configuration file specified for log4j!");
     }

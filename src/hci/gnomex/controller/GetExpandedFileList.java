@@ -170,19 +170,19 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetExpandedFileList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetExpandedFileList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetExpandedFileList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetExpandedFileList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

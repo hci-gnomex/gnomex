@@ -13,6 +13,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.control.*;
 import javax.ejb.*;
@@ -41,7 +42,7 @@ public class GNomExFrontController extends HttpServlet {
   /**
    */
   protected static void initLog4j() {
-    String configFile = "C:/properties/gnomex_logging.properties";
+    String configFile = Constants.WEBCONTEXT_DIR + Constants.LOGGING_PROPERTIES;
     if (configFile == null) {
       System.err.println("No configuration file specified for log4j!");
     }

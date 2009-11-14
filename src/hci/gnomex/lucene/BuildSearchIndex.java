@@ -61,7 +61,6 @@ public class BuildSearchIndex extends DetailObject {
   
   private DictionaryHelper dh = null;
   
-  protected static String DATA_SOURCES = "/orion/config/data-sources.xml";  
 
   private static final String          KEY_DELIM = "&-&-&";
 
@@ -102,14 +101,13 @@ public class BuildSearchIndex extends DetailObject {
   private void connect()
       throws Exception
   {
-    registerDataSources(new File(DATA_SOURCES));
+    registerDataSources(new File("../../" + Constants.DATA_SOURCES));
     
     configuration = new Configuration()
     .addFile("SchemaGNomEx.hbm.xml");
     
       
-    configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.SybaseDialect")
-                 .setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'")
+    configuration.setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'")
                  .setProperty("hibernate.connection.driver_class", this.gnomex_db_driver)
                  .setProperty("hibernate.connection.username", this.gnomex_db_username)
                  .setProperty("hibernate.connection.password", this.gnomex_db_password)

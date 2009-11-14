@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -51,7 +52,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   }
 
   protected static void initLog4j() {
-    String configFile = "/properties/gnomex_logging.properties";
+    String configFile = Constants.WEBCONTEXT_DIR + Constants.LOGGING_PROPERTIES;
     if (configFile == null) {
       System.err.println("No configuration file specified for log4j!");
     }

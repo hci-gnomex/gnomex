@@ -385,7 +385,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = baseDir + createYear + "\\" + analysis.getNumber() + "\\" + analysisFile.getFileName();
+    String fileName = baseDir + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();
     File f = new File(fileName);
     return f.delete();
     
@@ -395,7 +395,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String dirName = baseDir + createYear + "\\" + analysis.getNumber();
+    String dirName = baseDir + createYear + "/" + analysis.getNumber();
     File f = new File(dirName);
     return f.delete();
     

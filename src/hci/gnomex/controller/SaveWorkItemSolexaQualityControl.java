@@ -193,7 +193,10 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (request.getAppUser() != null  &&
+          request.getAppUser().getEmail() != null && 
+          !request.getAppUser().getEmail().equals("") &&
+          request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         emailSubject = "TEST - " + emailSubject;
       }

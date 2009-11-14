@@ -921,7 +921,7 @@ CREATE TABLE `gnomex`.`Property` (
   `propertyName` VARCHAR(200) NULL,
   `propertyValue` VARCHAR(2000) NULL,
   `propertyDescription` VARCHAR(2000) NULL,
-  `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N'
+  `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idProperty`)
 )
 ENGINE = INNODB;

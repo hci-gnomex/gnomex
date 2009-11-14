@@ -261,7 +261,6 @@ public class DownloadResultsServlet extends HttpServlet {
     
   public static long getFileNames(String requestNumber, String directoryName, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellIndicator, String theBaseDir, String flowCellDirectoryFlag) {
     File fd = new File(directoryName);
-    
     long fileSizeTotal = 0;
 
     if (fd.isDirectory()) {

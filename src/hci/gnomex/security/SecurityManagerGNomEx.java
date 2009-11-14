@@ -1,5 +1,7 @@
 package hci.gnomex.security;
 
+import hci.gnomex.constants.Constants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -7,7 +9,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.Properties;
+
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 import com.orionsupport.security.SimpleUserManager;
 
@@ -84,7 +91,7 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
     try {
       loadProperties();      
     } catch (Exception e) {
-      System.err.println("hci.gnomex.security.SecurityManager ERROR - Cannot load gnomex_config.properties. " + e.toString());
+      System.err.println("hci.gnomex.security.SecurityManagerGNomEx ERROR - Cannot load connection properties. " + e.toString());
       return false;
     }
     
@@ -97,32 +104,33 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
   
   
   private void loadProperties()  throws Exception {
-    try {
-      File file = new File("/properties/gnomex_security.properties");
-      FileInputStream fis = new FileInputStream(file);
-      Properties p = new Properties();
-      p.load(fis);
-      
-      
-      if (p.getProperty("dbUsername") != null) {
-        dbUsername = p.getProperty("dbUsername");
+      File dataSourcesFile = new File(Constants.DATA_SOURCES);
+      if(dataSourcesFile.exists()) {
+        SAXBuilder builder = new SAXBuilder();
+          org.jdom.Document doc = builder.build(dataSourcesFile);
+          this.getGNomExConnectionProperties(doc);
+        
+      } else {
+        throw new Exception("SecurityManagerGNomEx loadProperties failed.  Cannot find data sources file called " + Constants.DATA_SOURCES);
       }
-      if (p.getProperty("dbPassword") != null) {
-        dbPassword = p.getProperty("dbPassword");
-      }
-      if (p.getProperty("dbDriver") != null) {
-        dbDriver = p.getProperty("dbDriver");
-      }
-      if (p.getProperty("dbURL") != null) {
-        dbURL = p.getProperty("dbURL");
-      }
-      
-    } catch (Exception e) {
-      e.printStackTrace();      
-    }
-    
   }
 
+
+  private void getGNomExConnectionProperties(org.jdom.Document doc) {
+    Element root = doc.getRootElement();
+    if (root.getChildren("data-source") != null) {
+      Iterator i = root.getChildren("data-source").iterator();
+      while (i.hasNext()) {
+        Element e = (Element) i.next();
+        if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("GNOMEX_GUEST")) {
+          this.dbDriver = e.getAttributeValue("connection-driver");
+          this.dbURL = e.getAttributeValue("url");
+          this.dbUsername = e.getAttributeValue("username");
+          this.dbPassword = e.getAttributeValue("password");
+        } 
+      }
+    }
+  }
 
 
   /* (non-Javadoc)
