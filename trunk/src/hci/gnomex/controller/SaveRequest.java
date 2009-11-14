@@ -925,14 +925,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }      
     }
     
-    String directoryName = microarrayDir + createYear + "\\" + req.getNumber();
+    String directoryName = microarrayDir + createYear + "/" + req.getNumber();
     
     success = (new File(directoryName)).mkdir();
     if (!success) {
       log.error("Unable to create directory " + directoryName);      
     }
     
-    String bioanalyzerDirName = directoryName + "\\" + qcDirectory;
+    String bioanalyzerDirName = directoryName + "/" + qcDirectory;
     success = (new File(bioanalyzerDirName)).mkdir();
     if (!success) {
       log.error("Unable to create directory " + bioanalyzerDirName);      
@@ -941,7 +941,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (req.getHybridizations() != null) {
       for(Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
         Hybridization hyb = (Hybridization)i.next();
-        String hybDirectoryName = directoryName + "\\" + hyb.getNumber();
+        String hybDirectoryName = directoryName + "/" + hyb.getNumber();
         success = (new File(hybDirectoryName)).mkdir();
         if (!success) {
           log.error("Unable to create directory " + hybDirectoryName);      

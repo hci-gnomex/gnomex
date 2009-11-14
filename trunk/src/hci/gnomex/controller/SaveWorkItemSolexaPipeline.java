@@ -177,7 +177,10 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (request.getAppUser() != null  &&
+          request.getAppUser().getEmail() != null && 
+          !request.getAppUser().getEmail().equals("") &&
+          request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }

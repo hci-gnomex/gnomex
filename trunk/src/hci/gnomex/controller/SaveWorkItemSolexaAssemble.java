@@ -267,7 +267,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
       }      
     }
     
-    String directoryName = rootDir +  "\\" + flowCell.getNumber();
+    String directoryName = rootDir +  "/" + flowCell.getNumber();
     
     success = (new File(directoryName)).mkdir();
     if (!success) {

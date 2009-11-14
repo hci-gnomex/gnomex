@@ -103,9 +103,15 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 
-          String baseDir = dh.getAnalysisDirectory(req.getServerName());
+          String baseDir = dh.getAnalysisDirectory(req.getServerName()) + "/" +createYear;
+          if (!new File(baseDir).exists()) {
+            boolean success = (new File(baseDir)).mkdir();
+            if (!success) {
+              System.out.println("UploadAnalysisFileServlet: Unable to create base directory " + baseDir);      
+            }      
+          }
           
-          directoryName = baseDir + createYear + "\\" + analysis.getNumber();
+          directoryName = baseDir + "/" + analysis.getNumber();
           if (!new File(directoryName).exists()) {
             boolean success = (new File(directoryName)).mkdir();
             if (!success) {
