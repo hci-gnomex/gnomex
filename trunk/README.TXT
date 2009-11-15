@@ -19,26 +19,60 @@ Install Instructions
 1. Install Java.  Make sure JAVA_HOME is set.
 
 2. Install Orion application server.
-	 - Place MySQL JDBC driver in /path/to/orion/lib
-	 - Try out Orion server.  Start it and then attempt to access from a browser. 
-	   A page showing orion info should appear.
+   a. Download Orion application server and unzip
+	 b. Modify Orion configuration
+	   - Copy tool.jar file in gnomex/orion/ to /path/to/orion
+	   - Copy all jar files in gnomex/orion/lib to /path/to/orion
+	 c. Start Orion application server
+	    >cd /path/to/orion
+	    >java -Xms256m -Xms900m -jar orion.jar
+	 		Try to access orion from browser (http://myserver) to make sure 
+	 		Orion Application Server page appears.
 	 
 3. Install MySQL database server
-   - Create a database user called gnomex
+   - Create a database user called gnomex and gnomexGuest.  
+     >mysql -u root -p
+     [enter root password]
+     
+      mysql> CREATE USER 'gnomex'@'localhost' IDENTIFIED BY 'password_for_gnomex_account';
+      mysql> CREATE USER 'gnomex'@'%' IDENTIFIED BY 'password_for_gnomex_account';
+      mysql> GRANT ALL PRIVILEGES ON gnomex.* TO 'gnomex'@'localhost' WITH GRANT OPTION;
+      mysql> GRANT ALL PRIVILEGES ON gnomex.* TO 'gnomex'@'%' WITH GRANT OPTION;
+      
+      mysql> CREATE USER 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
+      mysql> CREATE USER 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
+      mysql> GRANT SELECT PRIVILEGES ON gnomex.* TO 'gnomexGuest'@'localhost';
+      mysql> GRANT SELECT PRIVILEGES ON gnomex.* TO 'gnomexGuest'@'%';
+      
+      mysql> FLUSH PRIVILEGES;  
+     
    - Login into MySQL as gnomex user and run the SQL script 
      'gnomex_db_ddl.sql' to create the gnomex database.
+     
    - Login into MySQL as gnomex user and run the SQL script 
      'gnomex_db_populate.sql' to load the dictionaries.
    
-3. Copy gnomex.ear into path/to/orion/applications
+3. Copy gnomex/dist/gnomex.ear into /path/to/orion/applications.
 
-4. Copy the following files to path/to/orion/config. (If these files are 
-   configured for other web applications, don't overlay these files but instead 
-   modify them to include necessary entries.) 
-   - datasources.xml - Change the password to match your MySQL gnomex user. 
+4. Copy gnomex/dist/hciEnv.ear to /path/to/orion/applications.
+
+5. Modify the orion configuration by revising the following
+   files in /path/to/orion/config.  (Use the files in gnomex/orion/config
+   copy copy the necessary entries into each file.) 
+   - datasources.xml - Change the password to match your MySQL gnomex user and 
+     gnomexGuest user. 
    - application.xml
    - server.xml - Change the <mail-session> smtp host to your mail server.
+   - default-web-site.xml
+   
    - secure-web-site.xml
+   - Create a keystore
+      >keytool -genkey -keyalg "RSA" -keystore /path/to/orion/keystore -storepass 123456 -validity 360
+   - Modify the security-web-site.xml, setting the storepass to your keystore's
+     password. 
+      <ssl-config keystore="../keystore" keystore-password="your_keystore_password_here" needs-client-auth="true" />
+   - TODO:  Add info about certificates
+      
    
 5. Start Orion
 
@@ -57,18 +91,18 @@ Install Instructions
      Scroll in the left-hand tree to find the node called 'Property'.  Review
      the entries and make sure you modify the following properties to 
      match your environment:
-      Required properties:
-      -	experiment_directory
-      -	experiment_test_directory
-      -	analyis_directory
-      -	analysis_test_directory
-      -	flowcell_directory
-      -	flowcell_test_directory
-      -	production_server
+      Required properties - Make sure all of these directories exist.
+      -	experiment_directory      
+      -	experiment_test_directory 
+      -	analyis_directory        
+      -	analysis_test_directory   
+      -	flowcell_directory				
+      -	flowcell_test_directory   
       -	lucene_index_directory
       -	lucene_experiment_index_directory
       -	lucene_analysis_index_directory
       -	lucene_protocol_index_directory
+	
       
       Optional properties:
       -  contact_name_software_bugs
@@ -77,6 +111,7 @@ Install Instructions
       -  contact_email_core_facility
      	-  contact_phone_core_facility
      	-  contact_email_software_tester
+      -	 production_server
       -  qc_instructions
       -  workauth_instructions
 

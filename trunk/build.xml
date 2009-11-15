@@ -249,6 +249,7 @@
       <fileset dir="${dist.dir}"		includes="${war.name}" />
       <fileset dir="${src.dir}"     includes="*.hbm.xml" />
       <fileset dir="${basedir}"     includes="*.cmd" />
+      <fileset dir="${basedir}"     includes="*.sh" />
       <fileset dir="${src.dir}"			includes="Dictionaries.xml" />
 
       <metainf dir="${metainf.dir}/ear" includes="*.xml" />

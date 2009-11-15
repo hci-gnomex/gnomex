@@ -77,7 +77,8 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
       System.err.println("FATAL: The JDBC driver was not found on the classpath \n" + cnfe.getMessage());
       return false;
     } catch (SQLException ex) {
-      System.err.println("FATAL: Unable to initialize hci.gnomex.security.SecurityManager");
+      System.err.println("FATAL: Unable to initialize hci.gnomex.security.SecurityManagerLocal");
+      System.err.println(ex.toString());
       return false;
     } finally {
       this.closeConnection(con);
