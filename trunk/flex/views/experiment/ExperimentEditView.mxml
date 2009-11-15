@@ -2061,7 +2061,7 @@
  	   <mx:ControlBar>
  		<mx:ViewStack id="buttonStack" width="100%">
 	 	    <mx:HBox width="100%" >
-				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.PNG')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
+				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.png')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
 				<mx:Button id="nextButton"  label="Next" enabled="false" click="nextTab()" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" fontWeight="normal">
 					<mx:disabledIcon>@Embed(source='../../assets/arrow_right_disabled.png')</mx:disabledIcon>
 				</mx:Button>

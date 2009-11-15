@@ -242,7 +242,7 @@
 	        public var iconRedBullet:Class;
 	        
 	        [Bindable]
-	        [Embed(source="assets/dna_diag.png")]
+	        [Embed(source="assets/DNA_diag.png")]
 	        public var iconSolexa:Class;
 	        
 	        [Bindable]
