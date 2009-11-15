@@ -16,7 +16,9 @@ To compile GNomEx:
 
 Install Instructions
 --------------------
-1. Install Java.  Make sure JAVA_HOME is set.
+1. Install Java.  If you will be building GNomEx from the source distribution,
+   download the SDK (Version 1.6); otherwise, you can download the JRE (Version
+   1.6).  Make sure JAVA_HOME is set.
 
 2. Install Orion application server.
    a. Download Orion application server and unzip
@@ -54,7 +56,7 @@ Install Instructions
    
 3. Copy gnomex/dist/gnomex.ear into /path/to/orion/applications.
 
-4. Copy gnomex/dist/hciEnv.ear to /path/to/orion/applications.
+4. Copy hciEnv/dist/hciEnv.ear to /path/to/orion/applications.
 
 5. Modify the orion configuration by revising the following
    files in /path/to/orion/config.  (Use the files in gnomex/orion/config
