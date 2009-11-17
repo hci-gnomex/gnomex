@@ -79,7 +79,7 @@ public class GNomExFrontController extends HttpServlet {
     String requestName = fullURI.substring((fullURI.lastIndexOf('/') + 1), fullURI.lastIndexOf('.'));
 
     // restrict commands to local host if request is not secure
-    if (!request.isSecure()) {
+    if (Constants.REQUIRE_SECURE_REMOTE && !request.isSecure()) {
       if (request.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
           || request.getRemoteAddr().equals("127.0.0.1")) {
         log.debug("Requested from local host");
@@ -90,6 +90,7 @@ public class GNomExFrontController extends HttpServlet {
         return;
       }
     }
+    
 
     // now get our command class and instantiate
     Class commandClass = null;
