@@ -18,6 +18,8 @@ import org.hibernate.SessionFactory;
 
 
 
+import hci.gnomex.constants.Constants;
+
 import javax.naming.*;
 import javax.servlet.ServletContext;
 
@@ -40,19 +42,12 @@ public class HibernateSession {
     }
     
     
-    /*
-    CallableStatement stmt;
-    Connection con = s.connection();    
-
-    stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
-
-    stmt.setString(1, username);
-
-    stmt.executeUpdate();
-    */
+    setAppName(s, null);
 
     return s;
   }
+  
+
 
   public static Session currentSession() throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
@@ -68,15 +63,7 @@ public class HibernateSession {
 
     CallableStatement stmt;
     try {
-      /*
-      Connection con = s.connection();
-      
-      stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
-      
-      stmt.setString(1, null);
-      
-      stmt.executeUpdate();
-      */
+      setAppName(s, null);
     }
     finally {
       session.set(null);
@@ -88,5 +75,14 @@ public class HibernateSession {
     return (session.get() != null);
   }
   
-  
+  public static void setAppName(Session s, String username) throws SQLException {
+    Connection con = s.connection();    
+    if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
+      CallableStatement stmt;
+      stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
+      stmt.setString(1, username);
+      stmt.executeUpdate();
+    }
+    
+  }
 }

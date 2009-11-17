@@ -37,16 +37,8 @@ public class HibernateGuestSession {
       guestSession.set(s);
     }
 
-    /*
-    CallableStatement stmt;
-    Connection con = s.connection();
-
-    stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
-
-    stmt.setString(1, username);
-
-    stmt.executeUpdate();
-    */
+    HibernateSession.setAppName(s, username);
+    
 
     return s;
   }
@@ -65,15 +57,8 @@ public class HibernateGuestSession {
 
     CallableStatement stmt;
     try {
-      /*
-      Connection con = s.connection();
-      
-      stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
-      
-      stmt.setString(1, null);
-      
-      stmt.executeUpdate();
-      */
+      HibernateSession.setAppName(s, null);
+
     }
     finally {
       guestSession.set(null);

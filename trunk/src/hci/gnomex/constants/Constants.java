@@ -11,6 +11,10 @@ public class Constants {
   
   public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
   
+  public static final boolean            REQUIRE_SECURE_REMOTE           = false;
+  
+  public static final String              SQL_SERVER                      = "SQL SERVER";
+  
   public static final String              WEBCONTEXT_DIR                  = "applications/gnomex/gnomex/";
   public static final String              INVOICE_FORM_CSS                = "css/invoiceForm.css";
   public static final String              REQUEST_FORM_CSS                = "css/requestForm.css";
