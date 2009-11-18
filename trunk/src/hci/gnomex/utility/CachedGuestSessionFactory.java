@@ -40,7 +40,6 @@ public class CachedGuestSessionFactory {
       return (SessionFactory) factories.get(jndiName);
     } else {
       Configuration config = new Configuration();
-      //config.setProperty("hibernate.connection.provider_class", "com.opensourceconnections.msjdbcproxy.HibernateProvider");	    
       config.configure( new File("applications/gnomex/lib/hibernateGuest.cfg.xml") ).buildSessionFactory();
       SessionFactory factory = (SessionFactory) new InitialContext().lookup(jndiName);
       factories.put(jndiName, factory);
