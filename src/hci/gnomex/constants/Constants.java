@@ -11,7 +11,7 @@ public class Constants {
   
   public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
   
-  public static final boolean            REQUIRE_SECURE_REMOTE           = false;
+  public static final boolean            REQUIRE_SECURE_REMOTE           = true;
   
   public static final String              SQL_SERVER                      = "SQL SERVER";
   
