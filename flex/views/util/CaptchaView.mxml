@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="314" height="230" 
+	xmlns:views="views.*" 
+	showCloseButton="true" 
+	close="{PopUpManager.removePopUp(this)}" 
+	title="Guest Login" 
+	borderThickness="4" defaultButton="{loginButton}">
+	
+	<mx:VBox verticalGap="20" fontSize="10" paddingTop="8" paddingLeft="8" width="100%" height="100%" verticalAlign="middle" styleName="form">
+		<mx:Image id="captcha" source="Captcha.jpg"/>
+		<mx:HBox width="100%">
+			<mx:Label text="Enter the code:"/>
+			<mx:TextInput  id="phrase"/> 
+		</mx:HBox> 
+		
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Login" click="submit()"  id="loginButton" enabled="{phrase.text != '' ? true : false}"/>
+		
+	</mx:ControlBar>
+	
+	<mx:HTTPService 
+    id="createSecurityAdvisorForGuest" 
+    url="CreateSecurityAdvisorForGuest.gx"
+    resultFormat="e4x"
+    result="onCreateSecurityAdvisorForGuest(event)"
+    fault="onFailCreateSecurityAdvisorForGuest(event)"
+    destination="createSecurityAdvisorForGuest"
+    showBusyCursor="false"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService > 	
+    
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;   
+			import mx.rpc.events.FaultEvent;   
+			import mx.controls.Alert; 
+			
+			private function submit():void {
+				var params:Object = new Object();
+				params.captchafield = phrase.text;
+				
+				createSecurityAdvisorForGuest.send(params);
+				
+			}
+			
+			private function onCreateSecurityAdvisorForGuest(event:ResultEvent):void {
+			 	if (!(createSecurityAdvisorForGuest.lastResult is XML) ||
+            	    createSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
+            		Alert.show("Login failed.");  
+            		return;	
+            	}
+            	PopUpManager.removePopUp(this);
+            	parentApplication.getSecurityAdvisorForGuest.send();
+            	
+			}
+
+			private function onFailCreateSecurityAdvisorForGuest(event:FaultEvent):void {
+				captcha.load("Captcha.jpg");
+            }
+
+		]]>
+	</mx:Script>
+</mx:TitleWindow>
