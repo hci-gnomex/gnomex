@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>  
+<?xml version="1.0" encoding="utf-8"?>   
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
 	xmlns:views="views.*"   
 	xmlns:workflow="views.workflow.*"  
@@ -32,12 +32,12 @@
     </mx:HTTPService > 
         	
 	<mx:HTTPService 
-    id="createSecurityAdvisorForGuest" 
+    id="getSecurityAdvisorForGuest" 
     url="getSecurityAdvisorInfo.jsp"
     resultFormat="e4x"
-    result="onCreateSecurityAdvisorForGuest(event)"
+    result="onGetSecurityAdvisorForGuest(event)"
 	fault="onFailHttpRequest('Failed to create security advisor for guest', event)"
-    destination="createSecurityAdvisorForGuest"
+    destination="getSecurityAdvisorForGuest"
     showBusyCursor="false"
     useProxy="false">
     <mx:request>
@@ -152,6 +152,7 @@
         	import views.util.AboutView;
         	import views.util.PriceView;
         	import views.util.AppProgressView;
+        	import views.util.CaptchaView;
         	import views.util.FileDownloadUtil;
         	import views.util.PromptXMLListCollection;
         	import mx.collections.Sort;
@@ -371,9 +372,17 @@
 
 				navExperimentView.checkSecurity();
 
-				var parms:Object = new Object();
-				parms.requestNumber = requestNumber;
-				navExperimentView.getRequestFromNav.send(parms);
+				
+    			var params:Object = new Object();
+				if (this.isGuestMode()) {
+					params.showSamples = "N";
+					params.showCategory = "N";
+					params.searchPublicProjects = 'Y';
+					navExperimentView.getProjectRequestList.send(params);			
+				} else {
+					params.requestNumber = requestNumber;
+					navExperimentView.getRequestFromNav.send(params);
+				}
 
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
@@ -457,8 +466,13 @@
 				navAnalysisView.checkSecurity();
 
 				var parms:Object = new Object();
-				parms.analysisNumber = analysisNumber;
-				navAnalysisView.getAnalysis.send(parms);
+				if (this.isGuestMode()) {
+					parms.searchPublicProjects = "Y";
+					navAnalysisView.getAnalysisGroupList.send(parms);				
+				} else {
+					parms.analysisNumber = analysisNumber;
+					navAnalysisView.getAnalysis.send(parms);
+				}
 
 				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
@@ -605,7 +619,11 @@
 			    this.showProgress(20);
 			    
             	if (isGuestMode() ) { 
-					createSecurityAdvisorForGuest.send();				
+            		var captchaWindow:CaptchaView = new CaptchaView();
+            		PopUpManager.addPopUp(captchaWindow, mainArea, false);
+            		PopUpManager.centerPopUp(captchaWindow);
+            		captchaWindow.phrase.setFocus();
+            				    
 				} else {
 	            	createSecurityAdvisor.send();
 				}
@@ -645,7 +663,7 @@
             
             public function getIdAppUser():Object {
             	if (isGuestMode()) {
-            		return createSecurityAdvisorForGuest.lastResult.@idAppUser;
+            		return getSecurityAdvisorForGuest.lastResult.@idAppUser;
             	} else {
             		return createSecurityAdvisor.lastResult.@idAppUser;
             	}
@@ -755,9 +773,9 @@
 				
             }
             
-            private function onCreateSecurityAdvisorForGuest(event:ResultEvent):void {
-            	if (!(createSecurityAdvisorForGuest.lastResult is XML) ||
-            	    createSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
+            private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
+            	if (!(getSecurityAdvisorForGuest.lastResult is XML) ||
+            	    getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
             		Alert.show("You must launch GNomEx from guest page.");  
             		return;	
             	}
