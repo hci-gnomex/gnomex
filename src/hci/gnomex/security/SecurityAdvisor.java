@@ -752,7 +752,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     globalPermissionMap.put(new Permission(CAN_PARTICIPATE_IN_GROUPS), null);
     
     // Can submit requests
-    globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);      
+    if (this.getAllMyGroups().size() > 0) {
+      globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
+    }
     
     
     // Can be lab member
@@ -881,6 +883,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
     return isMyLab;
   }
+  
   
   public boolean isGroupIAmMemberOrManagerOf(Integer idLab) {
     return isGroupIAmMemberOf(idLab) || isGroupIManage(idLab);
@@ -1088,7 +1091,28 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean addPublicOnlySecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd) {
 
     addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
-    addPublicCriteria(queryBuf, classShortName, false);        
+    queryBuf.append("(");
+    
+    addPublicCriteria(queryBuf, classShortName, false);
+
+    // Now exclude this users's groups
+    Set labs = getAllMyGroups();
+    if (!labs.isEmpty()) {
+      this.addWhereOrAnd(queryBuf, addWhereOrAnd);
+      queryBuf.append(classShortName);
+      queryBuf.append(".idLab not in ( ");
+      for (Iterator i = labs.iterator(); i.hasNext();) {
+        Lab theLab = (Lab) i.next();
+        queryBuf.append(theLab.getIdLab());
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }
+      queryBuf.append(" )");
+    }
+    
+    
+    queryBuf.append(")");
     
     return addWhereOrAnd;
   }
@@ -1189,6 +1213,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
   
+
   
   public void addPublicCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroups) {
     queryBuf.append(" ( ");
