@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
-	width="100%"    
-	height="100%"   
-	xmlns:util="views.util.*" >  
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+        width="100%"
+        creationPolicy="all" show="init()"
+        height="100%" xmlns:util="views.util.*" >
+
+
  
    <mx:HTTPService                
     id="getLab" 
@@ -138,6 +140,10 @@
         
         [Bindable]
         private var grandTotalPrice:String = "";
+        
+        private function init():void {
+        	initializeData();
+        }
 
       	public function initializeData():void
       	{
@@ -1211,4 +1217,5 @@
   </mx:VBox>
   
 	
+
 </mx:Canvas>

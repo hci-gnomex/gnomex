@@ -3,7 +3,8 @@
 	xmlns:search="views.search.*" 
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	label="Search"  defaultButton="{searchButton}"
-	width="100%" height="100%" creationPolicy="all" title="Advanced Search" icon="@Embed('../../assets/magnifier.png')">
+	creationPolicy="all" show="init()"
+	width="100%" height="100%"  title="Advanced Search" icon="@Embed('../../assets/magnifier.png')">
 	
 	<mx:Script>
     <![CDATA[ 
@@ -22,7 +23,12 @@
         
 		public function checkDirty():void {
 		}
-		 
+		
+		private function init():void {
+			this.searchView.checkSecurity();
+			this.searchView.initializeData();
+		}
+		
 		        
         private function getGridRowNumber(item:Object,col:int):String
         {
@@ -203,7 +209,8 @@
 <mx:VBox width="100%" verticalGap="0" height="100%">
 	<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="0">
         <mx:TabBar dataProvider="{searchViews}" 
-        	itemClick="onViewSwitch()" 
+        	itemClick="onViewSwitch()"  
+        	creationPolicy="all"
         	useHandCursor="true"  styleName="formTabBar">
         </mx:TabBar>
         <mx:Spacer width="140"/>

@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	label="Experiments" width="100%" height="100%" 
 	xmlns:views="views.*" xmlns:experiment="views.experiment.*"
+	creationPolicy="all"  show="init()"
 	cornerRadius="10"  >
      
 
@@ -163,6 +164,17 @@
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
 
 		public function checkDirty():void {
+		}
+		
+		private function init():void {
+			checkSecurity();
+			
+			// Only initialize experiments if the user clicked on
+			// Experiments link in top nav bar. (Bypass
+			// if looking up experiment based on its number.)
+			if (selectedRequestNumber == null) {
+            	initializeExperiments();
+   			} 
 		}
 		
 		public function checkSecurity():void {
@@ -388,6 +400,10 @@
   		
   		
   		private function collapseAllBrowseNodes():void {
+  			if (browseTree == null || browseTree.openItems == null) {
+  				return;
+  			}
+  			
   			browseTree.openItems = [];
   			browseTree.validateNow();
   		}
@@ -768,6 +784,25 @@
 			params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
 			
 			return params;
+		}
+		
+		public function resetSearchComponents():void {
+			
+			this.MicroarrayCheckbox.selected = false;
+			this.SolexaCheckbox.selected = false;
+			this.BioanalyzerCheckbox.selected = false;
+			
+			this.lastMonthCheckbox.selected = false;
+			this.lastWeekCheckbox.selected = false;
+			this.lastYearCheckbox.selected = false;
+			
+			if (this.currentState == null) {
+				this.myExperimentsCheckbox.selected = false;
+				this.myLabsExperimentsCheckbox.selected = false;
+				this.publicExperimentsOtherGroupsCheckbox.selected = false;
+			} else if (this.currentState == "AdminState") {
+				this.browseUserCombo.selectedItem = null;				
+			}
 		}
 		
 		public function refreshExperiments():void {

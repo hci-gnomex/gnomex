@@ -4,6 +4,7 @@
 	xmlns:views="views.*"
 	xmlns:util="views.util.*"
     xmlns:hci="hci.flex.controls.*"
+    creationPolicy="all" show="init()"
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	width="100%" height="100%">
 
@@ -145,6 +146,10 @@
 		[Bindable]
         [Embed(source="../../assets/images_disable.png")]
         public var iconSlideSetInActive:Class;
+		
+		private function init():void {
+			initializeData();
+		}
 		
 		public function checkDirty():void {
 		}		

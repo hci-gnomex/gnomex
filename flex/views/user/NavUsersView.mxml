@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:UsersView="UsersView.*" label="Users And Groups" 
 	width="100%" height="100%" xmlns:views="views.*" xmlns:user="views.user.*" 
+	creationPolicy="all" show="init()"
 	cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
  
@@ -124,6 +125,12 @@
           [Bindable]
 		  private var groupsToManage:XMLListCollection;
 		  
+		  
+		  private function init():void {
+			  checkSecurity();
+			  initializeData();		  	
+		  }
+            		
 		  public function isDirty():Boolean {
 		  	return userDetailView.dirty.isDirty() ||
 		  	 	   groupDetailView.dirty.isDirty() ||

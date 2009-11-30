@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	label="Analysis" width="100%" height="100%" 
 	xmlns:views="views.*" xmlns:analysis="views.analysis.*"
+	creationPolicy="all" show="init()"
 	cornerRadius="10"  >
 
 
@@ -143,6 +144,17 @@
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
 
 		public function checkDirty():void {
+		}
+		
+		private function init():void {
+			checkSecurity();
+			
+			// Only initialize analysis if the user clicked on
+			// Analysis link in top nav bar. (Bypass
+			// if looking up analysis based on its number.)
+			if (selectedAnalysisNumber == null) {
+	            initializeAnalysis();			
+			}
 		}
 		
 		public function checkSecurity():void {
@@ -787,7 +799,7 @@
 	   
 
 		
-	     <mx:ViewStack id="theViews" creationPolicy="all" visible="true" width="100%" height="100%">
+	     <mx:ViewStack id="theViews" visible="true" width="100%" height="100%">
 
 	        <analysis:AnalysisBrowseView id="browseView"  width="100%" height="100%">
 	        </analysis:AnalysisBrowseView>
