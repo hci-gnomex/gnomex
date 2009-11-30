@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>   
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns="*" 
-	xmlns:views="views.*"   
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+	xmlns="*" 
+	xmlns:views="views.*"    
 	xmlns:workflow="views.workflow.*"  
 	xmlns:experiment="views.experiment.*"  
 	xmlns:analysis="views.analysis.*" 
@@ -370,8 +371,6 @@
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 
-				navExperimentView.checkSecurity();
-
 				
     			var params:Object = new Object();
 				if (this.isGuestMode()) {
@@ -386,6 +385,9 @@
 
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
+				
+				// Reset the experiment search components.
+				callLater(navExperimentView.resetSearchComponents);
 				
 			}
 			
@@ -463,7 +465,7 @@
 				navAnalysisView.selectedIdLab = null;
 				navAnalysisView.selectedIdAnalysisGroup = null;
 
-				navAnalysisView.checkSecurity();
+				
 
 				var parms:Object = new Object();
 				if (this.isGuestMode()) {
@@ -488,17 +490,17 @@
 				theViews.selectedChild = protocolsView;
 				
 			}
+
             private function search():void {
             	theViews.visible = true;
-            	navSearchView.searchView.checkSecurity();            	
-            	navSearchView.searchView.initializeData();
-            	navSearchView.searchView.clearForm();
             	theViews.selectedChild = navSearchView;
  				navSearchView.searchViews.selectedChild = navSearchView.searchResultsGridView;
+            	
+            	callLater(navSearchView.searchView.clearForm);
+            	
             	var params:Object = new Object();
             	params.text = searchText.text;
             	
-            
             	CursorManager.setBusyCursor();
             	navSearchView.searchView.searchGNomEx.send(params);
             	CursorManager.removeBusyCursor();
@@ -507,57 +509,28 @@
             }
             
             private function onViewSelection():void {
+            	
             	if (currentView != null) {
 	            	currentView.checkDirty();
 	            	
 	            	// if we are leaving slide view, refresh dictionaries
-	            	if (currentView == this.slideManagementView) {
-	            		slideManagementView.refreshDictionaries();
+	            	if (currentState == "AdminState") {
+		            	if (currentView == this.slideManagementView) {
+		            		slideManagementView.refreshDictionaries();
+	    	        	}
 	            	}
+	            	
 	            	// if we are leaving protocol view, refresh dictionaries
-	            	else if (currentView == this.protocolsView) {
+	            	if (currentView == this.protocolsView) {
 	            		protocolsView.refreshDictionaries();
 	            	}
 	            	
             	}
             	
-            	theViews.creationPolicy="all";
-            	theViews.visible = true;
-            	if (theViews.selectedChild == submitRequestView) {
-            		submitRequestView.initializeData();
-            		submitRequestView.checkSecurity();
-            		submitRequestView.setupForm();
-            		submitRequestView.setupDataListeners();
-            	}
-            	if (theViews.selectedChild == this.navSearchView) {
-            		navSearchView.searchView.checkSecurity();
-            		navSearchView.searchView.initializeData();
-            	}
-            	if (theViews.selectedChild == navExperimentView) {
-            		navExperimentView.checkSecurity();
-					navExperimentView.selectedRequestNumber = null;
-            		navExperimentView.initializeExperiments();
-            	}
-            	if (theViews.selectedChild == navAnalysisView) {
-            		navAnalysisView.checkSecurity();
-					navAnalysisView.selectedAnalysisNumber = null;
-            		navAnalysisView.initializeAnalysis();
-            	}
-				if (theViews.selectedChild == navBillingView) {
-            		navBillingView.initializeData();
-            	}            	
-            	if (theViews.selectedChild == navUsersView) {
-            		navUsersView.checkSecurity();
-            		navUsersView.initializeData();
-            	}
-            	if (theViews.selectedChild == slideManagementView) {
-            		slideManagementView.initializeData();
-            	}
-            	if (theViews.selectedChild == protocolsView) {
-            		protocolsView.initializeData();
-            	}
-            	currentView = theViews.selectedChild;
             	
+            	theViews.visible = true;
+            	
+            	currentView = theViews.selectedChild;
             }
                         
             
@@ -642,13 +615,13 @@
 	            	if(appUserList[i].@idAppUser == item.@idAppUser) {
 	                	userName = getAppUserList.lastResult.AppUser[i].@displayName;
 	                    break;
-	             	}
-	             }
+	             	} 
+	             } 
 	             return userName;
-       	
+       	 
             }
             public function getLabName(item:Object, col:int):String 
-            { 
+            {  
 	        	var labName:String = "";
 	        	var labList:XMLList = getLabList.lastResult.Lab;     			
 	        	for(var i:Number = 0; i < labList.length(); i++) {
@@ -683,7 +656,7 @@
 				
 				return hasPermission;
             }
-            
+
             public function getGroupsToManage():Object {
             	if (isGuestMode()) {
             		return new XMLListCollection();
@@ -716,32 +689,17 @@
             }
               
             private function checkSecurity():void {
-				if (!hasPermission("canAdministerUsers") &&
-				    !hasGroupsToManage()) {
-					theViews.removeChild(navUsersView);
-				} 
-				if (!hasPermission("canSubmitRequests")) {
-					theViews.removeChild(submitRequestView);
-				} 
-				if (!hasPermission("canManageWorkflow")) {
-					theViews.removeChild(navWorkflowView);
-					theViews.removeChild(slideManagementView);
-				}
-				if (!hasPermission("canManageBilling")) {
-					theViews.removeChild(navBillingView);
-				}				
-				if (hasPermission("canWriteDictionaries")) {
-					dictionaryButton.enabled = true;
-					dictionaryButton.visible = true;
-				} else {
-					dictionaryButton.enabled = false;
-					dictionaryButton.visible = false;					
-				}            	
 				if (this.isGuestMode()) {
-					pricingButton.visible = false;
+					currentState = "GuestState";
+				} else if (hasPermission("canAccessAnyObject")) {
+					currentState = "AdminState";
+				} else if (hasGroupsToManage()) {
+					currentState = "ManagerState";
+				} else if (hasPermission("canSubmitRequests")) {
+					currentState = "UserState";
+				} else {
+					currentState = "UserNonSubmitterState";
 				}
-				this.navExperimentView.checkSecurity();
-				this.navExperimentView.detailView.checkSecurity();
             }
 
             private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
@@ -884,7 +842,9 @@
 	        
 	        
 	        private function enableApp():void {
-	        	if (currentState == "enabledState") {
+	        	// If we are already in an enabled state,
+	        	// just return.
+	        	if (currentState != null) {
 	        		return;
 	        	}
 	        	
@@ -1083,7 +1043,7 @@
 	    	height="100%" paddingTop="6" paddingBottom="0" paddingLeft="0" 
 	    	paddingRight="0" horizontalCenter="0">
           
- 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="all" paddingTop="0" paddingBottom="0" >
+ 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 		
 					<mx:Canvas>
 					</mx:Canvas>
@@ -1104,8 +1064,8 @@
 			        </workflow:NavWorkflowView> 
 		 
 		            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
-		            </billing:NavBillingView>
-		            
+		            </billing:NavBillingView> 
+		          
 			        <protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
 			        </protocol:ProtocolsView>
 		
@@ -1114,6 +1074,7 @@
 			        
 			        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 			        </user:NavUsersView>
+			        
 		           <search:NavSearchView id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 			        </search:NavSearchView>
 		        </mx:ViewStack>   
@@ -1136,10 +1097,31 @@
 	 		<mx:SetProperty target="{searchLabel}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{searchText}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{dictionaryButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{pricingButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{appLabel}" name="text" value="GNomEx"/>
 	 		
+	 	</mx:State>
+	 	<mx:State name="AdminState" basedOn="enabledState">
+	 		<mx:SetProperty target="{dictionaryButton}" name="enabled" value="true"/>
+	 		<mx:SetProperty target="{dictionaryButton}" name="visible" value="true"/>
+	 	</mx:State>
+	 	<mx:State name="UserState" basedOn="enabledState">
+	 		<mx:RemoveChild target="{navBillingView}"/>
+	 		<mx:RemoveChild target="{slideManagementView}"/>
+	 		<mx:RemoveChild target="{navUsersView}"/>
+	 		<mx:RemoveChild target="{navWorkflowView}"/>
+	 	</mx:State>
+	 	<mx:State name="ManagerState" basedOn="enabledState">
+	 		<mx:RemoveChild target="{navBillingView}"/>
+	 		<mx:RemoveChild target="{slideManagementView}"/>
+	 		<mx:RemoveChild target="{navWorkflowView}"/>
+	 	</mx:State>
+	 	<mx:State name="UserNonSubmitterState" basedOn="UserState">
+	 		<mx:RemoveChild target="{submitRequestView}"/>
+	 	</mx:State>
+	 	<mx:State name="GuestState" basedOn="UserState">
+	 		<mx:RemoveChild target="{submitRequestView}"/>
+	 		<mx:SetProperty target="{pricingButton}" name="visible" value="false"/>
 	 	</mx:State>
 	 </mx:states>
 	

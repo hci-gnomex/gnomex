@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:views="views.*" xmlns:workflow="views.workflow.*"  xmlns:WorkflowView="WorkflowView.*" 
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
+    creationPolicy="all"
 	label="Workflow" width="100%" height="100%" >
 
     <mx:Script>
