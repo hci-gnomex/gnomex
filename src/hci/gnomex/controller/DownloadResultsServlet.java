@@ -208,6 +208,7 @@ public class DownloadResultsServlet extends HttpServlet {
       e.printStackTrace(new PrintWriter(response.getOutputStream()));
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
+      System.out.println("An exception occurred while downloading experiment results: " + e.toString());
       e.printStackTrace();
     }
 
@@ -274,7 +275,11 @@ public class DownloadResultsServlet extends HttpServlet {
           boolean include = true;
           if (!includeAllJPGFiles && fileName.toLowerCase().endsWith(".jpg")) {
             include = false;
-          } else if (!includeAllTIFFiles && fileName.toLowerCase().endsWith(".tif")) {
+          } else if (!includeAllTIFFiles && 
+              (fileName.toLowerCase().endsWith(".tif") || 
+               fileName.toLowerCase().endsWith(".tif.gz") || 
+               fileName.toLowerCase().endsWith(".tif.gzip") || 
+               fileName.toLowerCase().endsWith(".tif.zip"))) {
             include = false;
           } else if (fileName.toUpperCase().endsWith(".DS_Store")) {
             include = false;
