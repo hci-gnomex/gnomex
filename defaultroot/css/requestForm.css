@@ -166,10 +166,15 @@
    
    a {
        font-family: Trebuchet MS;
-       font-size: 9pt;
+       font-size: 10pt;
        text-align: left;
    }
 
+   td {
+       font-family: Trebuchet MS;
+       font-size: 10pt;
+       text-align: left;
+   }
 
 
 
