@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
@@ -13,6 +14,8 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -34,6 +37,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.hibernate.Session;
 
 
@@ -44,9 +49,13 @@ public class DownloadResultsServlet extends HttpServlet {
   private String    includeTIF = "N";
   private String    includeJPG = "N";
 
+
   private String    baseDir;
   private String    baseDirFlowCell;
   
+  private ArchiveHelper archiveHelper = new ArchiveHelper();
+  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadResultsServlet.class);
   
   public void init() {
@@ -77,6 +86,8 @@ public class DownloadResultsServlet extends HttpServlet {
         return;
       }
     }
+    
+    
 
     // Get input parameters
     keysString = req.getParameter("resultKeys");
@@ -87,6 +98,10 @@ public class DownloadResultsServlet extends HttpServlet {
     if (req.getParameter("includeJPG") != null
         && !req.getParameter("includeJPG").equals("")) {
       includeJPG = req.getParameter("includeJPG");
+    }
+    // Get the parameter that tells us if we are handling a large download.
+    if (req.getParameter("mode") != null && !req.getParameter("mode").equals("")) {
+      archiveHelper.setMode(req.getParameter("mode"));
     }
 
 
@@ -108,17 +123,27 @@ public class DownloadResultsServlet extends HttpServlet {
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         baseDirFlowCell = dh.getFlowCellDirectory(req.getServerName());
         baseDir = dh.getMicroarrayDirectoryForReading(req.getServerName());
+        
+        archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));
        
         Map fileDescriptorMap = new HashMap();
         long compressedFileSizeTotal = getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, fileDescriptorMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
 
         
         
-        ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
-        byte b[] = new byte[102400];
+        
+        // Open the archive output stream
+        ZipOutputStream zipOut = null;
+        TarArchiveOutputStream tarOut = null;
+        if (archiveHelper.isZipMode()) {
+          zipOut = new ZipOutputStream(response.getOutputStream());
+        } else {
+          tarOut = new TarArchiveOutputStream(response.getOutputStream());
+        }
+        
 
         
-        int totalZipSize = 0;
+        int totalArchiveSize = 0;
         // For each request
         for(Iterator i = fileDescriptorMap.keySet().iterator(); i.hasNext();) {
           String requestNumber = (String)i.next();
@@ -143,42 +168,59 @@ public class DownloadResultsServlet extends HttpServlet {
           // For each file to be downloaded for the request
           for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
 
-            FileDescriptor fileDescriptor = (FileDescriptor) i1.next();
+            FileDescriptor fd = (FileDescriptor) i1.next();
 
             
-            FileInputStream in = new FileInputStream(fileDescriptor.getFileName());
+            // If we are using tar, compress the file first using
+            // zip.  If we are zipping the file, just open
+            // it to read.            
+            InputStream in = archiveHelper.getInputStreamToArchive(fd.getFileName(), fd.getZipEntryName());
+            
 
-            // Add ZIP entry to output stream.
+            // Add an entry to the archive 
             // (The file name starts after the year subdirectory)
-            ZipEntry zipEntry = new ZipEntry(fileDescriptor.getZipEntryName());
-            zout.putNextEntry(zipEntry);
-
-            // Transfer bytes from the file to the ZIP file
-            int numRead = 0;
-            int size = 0;
-
-            
-            while (numRead != -1) {
-              numRead = in.read(b);
-              if (numRead != -1) {
-                zout.write(b, 0, numRead);
-                size += numRead;
-              }
+            if (archiveHelper.isZipMode()) {
+              // Add ZIP entry 
+              zipOut.putNextEntry(new ZipEntry(archiveHelper.getArchiveEntryName()));              
+            } else {
+              // Add a TAR archive entry
+              TarArchiveEntry entry = new TarArchiveEntry(archiveHelper.getArchiveEntryName());
+              entry.setSize(archiveHelper.getArchiveFileSize());
+              tarOut.putArchiveEntry(entry);
             }
+            
 
-            zout.closeEntry();
-            totalZipSize += zipEntry.getCompressedSize();
+            // Transfer bytes from the file to the archive file
+            OutputStream out = null;
+            if (archiveHelper.isZipMode()) {
+              out = zipOut;
+            } else {
+              out = tarOut;
+            }
+            int size = archiveHelper.transferBytes(in, out);
+            totalArchiveSize += size;
+
+            if (archiveHelper.isZipMode()) {
+              zipOut.closeEntry();              
+            } else {
+              tarOut.closeArchiveEntry();
+            }
+            
+            // Remove temporary files
+            archiveHelper.removeTemporaryFile();
           }     
           
           
         }
         
-        response.setContentLength(totalZipSize);
+        response.setContentLength(totalArchiveSize);
         
-        zout.finish();
-        zout.flush();
-        
-
+        if (archiveHelper.isZipMode()) {
+          zipOut.finish();
+          zipOut.flush();          
+        } else {
+          tarOut.finish();
+        }
         
         long time3 = System.currentTimeMillis();
 
@@ -186,30 +228,16 @@ public class DownloadResultsServlet extends HttpServlet {
 
 
       } else {
-        response.setContentType("text/html");
-        response.getOutputStream().println(
-            "<html><head><title>Error</title></head>");
-        response.getOutputStream().println("<body><b>");
-        response.getOutputStream().println(
-            "You must have a SecurityAdvisor in order to run this command "
-                + "<br>");
-        response.getOutputStream().println("</body>");
-        response.getOutputStream().println("</html>");
+        response.setStatus(999);
+        System.out.println( "DownloadResultsServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
-      response.setContentType("text/html");
-      response.getOutputStream().println(
-          "<html><head><title>Error</title></head>");
-      response.getOutputStream().println("<body><b>");
-      response.getOutputStream().println(
-          "An error has occured while processing " + "<br>");
-      response.getOutputStream().println(
-          "Here is the exception: <br>" + e + "<br>");
-      e.printStackTrace(new PrintWriter(response.getOutputStream()));
-      response.getOutputStream().println("</body>");
-      response.getOutputStream().println("</html>");
-      System.out.println("An exception occurred while downloading experiment results: " + e.toString());
+      response.setStatus(999);
+      System.out.println( "DownloadResultsServlet: An exception occurred " + e.toString());
       e.printStackTrace();
+    } finally {
+      // Remove temporary files
+      archiveHelper.removeTemporaryFile();
     }
 
   }    
@@ -336,6 +364,8 @@ public class DownloadResultsServlet extends HttpServlet {
     } else if (fileName.toUpperCase().endsWith("CEL")) {
       compressionRatio = 2.8;
     } else if (fileName.toUpperCase().endsWith("ZIP")) {
+      compressionRatio = 1;
+    } else if (fileName.toUpperCase().endsWith("GZ")) {
       compressionRatio = 1;
     }     
     return new BigDecimal(fileSize / compressionRatio).longValue();

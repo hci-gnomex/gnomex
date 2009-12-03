@@ -505,7 +505,8 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (37,'billing_core_facility_account','','Always blank for open source GNomEx', 'Y'),
  (38,'billing_core_facility_fund','','Always blank for open source GNomEx', 'Y'),
  (39,'billing_core_facility_org','','Always blank for open source GNomEx', 'Y'),
- (40,'billing_core_facility_activity','','Always blank for open source GNomEx', 'Y');
+ (40,'billing_core_facility_activity','','Always blank for open source GNomEx', 'Y'),
+ (41,'temp_directory','/temp','The test file directory were experiment results are stored.', 'Y');
 
 
 

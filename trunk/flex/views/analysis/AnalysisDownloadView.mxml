@@ -216,6 +216,8 @@
 		if (event.detail==Alert.YES) {
 	        var parms:URLVariables = new URLVariables();
 	        parms.resultKeys = resultKeys;
+	        parms.mode = estimatedDownloadSize >=  views.experiment.ExperimentDownloadView.ZIP_MAX_SIZE ? "tar" : "zip";
+
     		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
     		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
 		}
@@ -235,8 +237,13 @@
 
 	private function onDownloadFiles(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
+	        
 	        var progressWindow:DownloadProgressView = new DownloadProgressView();
-    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+	        
+	        var parms:URLVariables = new URLVariables();
+	        parms.mode = estimatedDownloadSize >= views.experiment.ExperimentDownloadView.ZIP_MAX_SIZE ? "tar" : "zip";
+    		
+    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 		}
 	}    
     
