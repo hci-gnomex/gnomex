@@ -785,8 +785,12 @@
 			
 			return params;
 		}
-		
+		 
 		public function resetSearchComponents():void {
+			
+			if (this.MicroarrayCheckbox == null) {
+				return;
+			}
 			
 			this.MicroarrayCheckbox.selected = false;
 			this.SolexaCheckbox.selected = false;
