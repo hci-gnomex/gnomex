@@ -17,6 +17,8 @@ import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,6 +53,9 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
   private String                       appURL;
   
   private String                       serverName;
+  
+  private HashMap                      requestNotifyMap = new HashMap();
+  private HashMap                      requestNotifyLaneMap = new HashMap();
   
   
   
@@ -103,6 +108,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
               // Delete work item
               sess.delete(workItem);
               
+              
              
             }
             
@@ -111,17 +117,37 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
               SequenceLane lane = channel.getSequenceLane();
               
               Request request = (Request)sess.load(Request.class, lane.getIdRequest());
+              
+              // Keep track of requests to send out a confirmation email (just once per request)
+              // (Send email if at least one sequence lane has been completed pipeline.)
+              if (channel.getPipelineDate() != null) {  
+                requestNotifyMap.put(request.getNumber(), request);
+
+                Collection lanes = (Collection)requestNotifyLaneMap.get(request.getNumber());
+                if (lanes == null) {
+                  lanes = new ArrayList();
+                }
+                lanes.add(channel.getSequenceLane());
+                requestNotifyLaneMap.put(request.getNumber(), lanes);
+              }
 
               // Set the completed date on the request
               if (request.isConsideredFinished() && request.getCompletedDate() == null) {
                 request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
-                this.sendConfirmationEmail(sess, request);
               }
             }
             
           }
           
           sess.flush();
+          
+          // Now send out confirmation emails
+          for(Iterator i = requestNotifyMap.keySet().iterator(); i.hasNext();) {
+            String requestNumber = (String)i.next();
+            Request request = (Request)requestNotifyMap.get(requestNumber);
+            this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
+          }
+          
           
           parser.resetIsDirty();
 
@@ -159,14 +185,37 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
   
 
   
-  private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, Request request, Collection lanes) throws NamingException, MessagingException {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
-    StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
-    introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
-    introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
+
+    String finishedLaneText = "";
+    int finishedLaneCount = 0;
+    for(Iterator i = lanes.iterator(); i.hasNext();) {
+      SequenceLane lane = (SequenceLane)i.next();
+      if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getPipelineDate() != null) {
+        finishedLaneText += lane.getNumber();
+        finishedLaneCount++;
+        if (i.hasNext()) {
+          finishedLaneText += ", ";
+        }
+      }
+    }
+    String laneText = finishedLaneCount > 1 ? "Lanes" : "Lane";
+    String haveText = finishedLaneCount > 1 ? "have"  : "has";
+    
+    if (finishedLaneCount == 0) {
+      return;
+    }
+    
+    
+    
+    StringBuffer introNote = new StringBuffer();
+    introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
+    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
+    introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
