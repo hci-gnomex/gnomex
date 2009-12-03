@@ -33,6 +33,7 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        BILLING_CORE_FACILITY_FUND          = "billing_core_facility_fund";
   public static final String        BILLING_CORE_FACILITY_ORG           = "billing_core_facility_org";
   public static final String        BILLING_CORE_FACILITY_ACTIVITY      = "billing_core_facility_activity";
+  public static final String        TEMP_DIRECTORY                      = "temp_directory";
   
   
   private Integer  idProperty;

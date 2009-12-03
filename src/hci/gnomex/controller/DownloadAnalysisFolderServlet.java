@@ -5,6 +5,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
@@ -13,6 +14,8 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
@@ -32,6 +35,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.hibernate.Session;
 
 
@@ -43,6 +48,9 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadAnalysisFolderServlet.class);
   
+  private ArchiveHelper archiveHelper = new ArchiveHelper();
+  
+
   public void init() {
   
   }
@@ -52,6 +60,11 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
 
     // Get input parameters
     keysString = req.getParameter("resultKeys");
+    
+    // Get the parameter that tells us if we are handling a large download.
+    if (req.getParameter("mode") != null && !req.getParameter("mode").equals("")) {
+      archiveHelper.setMode(req.getParameter("mode"));
+    }
     
     
     try {
@@ -71,16 +84,26 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         baseDir = dh.getAnalysisDirectory(req.getServerName());
        
+        archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));        
+        
         Map fileNameMap = new HashMap();
         long compressedFileSizeTotal = getFileNamesToDownload(baseDir, keysString, fileNameMap);
 
         
         
-        ZipOutputStream zout = new ZipOutputStream(response.getOutputStream());
-        byte b[] = new byte[102400];
+        
+        // Open the archive output stream
+        ZipOutputStream zipOut = null;
+        TarArchiveOutputStream tarOut = null;
+        if (archiveHelper.isZipMode()) {
+          zipOut = new ZipOutputStream(response.getOutputStream());
+        } else {
+          tarOut = new TarArchiveOutputStream(response.getOutputStream());
+        }
+        
 
         
-        int totalZipSize = 0;
+        int totalArchiveSize = 0;
         // For each request
         for(Iterator i = fileNameMap.keySet().iterator(); i.hasNext();) {
           String analysisNumber = (String)i.next();
@@ -111,71 +134,82 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
           for (Iterator i1 = fileNames.iterator(); i1.hasNext();) {
 
             String filename = (String) i1.next();
-
+            String zipEntryName = "bioinformatics-analysis-" + filename.substring(baseDir.length() + 5);
+            archiveHelper.setArchiveEntryName(zipEntryName);
             
-            FileInputStream in = new FileInputStream(filename);
+            // If we are using tar, compress the file first using
+            // zip.  If we are zipping the file, just open
+            // it to read.            
+            InputStream in = archiveHelper.getInputStreamToArchive(filename, zipEntryName);
+            
 
-            // Add ZIP entry to output stream.
+            // Add an entry to the archive 
             // (The file name starts after the year subdirectory)
-            ZipEntry zipEntry = new ZipEntry("bioinformatics-analysis-" + filename.substring(baseDir.length() + 5));
-            zout.putNextEntry(zipEntry);
-
-            // Transfer bytes from the file to the ZIP file
-            int numRead = 0;
-            int size = 0;
-
-            
-            while (numRead != -1) {
-              numRead = in.read(b);
-              if (numRead != -1) {
-                zout.write(b, 0, numRead);
-                size += numRead;
-              }
+            ZipEntry zipEntry = null;
+            if (archiveHelper.isZipMode()) {
+              // Add ZIP entry 
+              zipEntry = new ZipEntry(archiveHelper.getArchiveEntryName());
+              zipOut.putNextEntry(zipEntry);              
+            } else {
+              // Add a TAR archive entry
+              TarArchiveEntry entry = new TarArchiveEntry(archiveHelper.getArchiveEntryName());
+              entry.setSize(archiveHelper.getArchiveFileSize());
+              tarOut.putArchiveEntry(entry);
             }
+            
 
-            zout.closeEntry();
-            totalZipSize += zipEntry.getCompressedSize();
+            // Transfer bytes from the file to the archive file
+            OutputStream out = null;
+            if (archiveHelper.isZipMode()) {
+              out = zipOut;
+            } else {
+              out = tarOut;
+            }
+            int size = archiveHelper.transferBytes(in, out);
+            totalArchiveSize += size;
+
+            if (archiveHelper.isZipMode()) {
+              zipOut.closeEntry();              
+              totalArchiveSize += zipEntry.getCompressedSize();
+            } else {
+              tarOut.closeArchiveEntry();
+              totalArchiveSize += archiveHelper.getArchiveFileSize();
+            }
+            
+            // Remove temporary files
+            archiveHelper.removeTemporaryFile();
+
           }     
           
           
         }
         
-        response.setContentLength(totalZipSize);
+        response.setContentLength(totalArchiveSize);
         
-        zout.finish();
-        zout.flush();
         
+        if (archiveHelper.isZipMode()) {
+          zipOut.finish();
+          zipOut.flush();          
+        } else {
+          tarOut.close();
+          tarOut.flush();
+        }
 
         
-        long time3 = System.currentTimeMillis();
-
         secAdvisor.closeReadOnlyHibernateSession();
 
-
       } else {
-        response.setContentType("text/html");
-        response.getOutputStream().println(
-            "<html><head><title>Error</title></head>");
-        response.getOutputStream().println("<body><b>");
-        response.getOutputStream().println(
-            "You must have a SecurityAdvisor in order to run this command "
-                + "<br>");
-        response.getOutputStream().println("</body>");
-        response.getOutputStream().println("</html>");
+        response.setStatus(999);
+        System.out.println( "DownloadAnalyisFolderServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
-      response.setContentType("text/html");
-      response.getOutputStream().println(
-          "<html><head><title>Error</title></head>");
-      response.getOutputStream().println("<body><b>");
-      response.getOutputStream().println(
-          "An error has occured while processing " + "<br>");
-      response.getOutputStream().println(
-          "Here is the exception: <br>" + e + "<br>");
-      e.printStackTrace(new PrintWriter(response.getOutputStream()));
-      response.getOutputStream().println("</body>");
-      response.getOutputStream().println("</html>");
+      response.setStatus(999);
+      System.out.println( "DownloadAnalyisFolderServlet: An exception occurred " + e.toString());
       e.printStackTrace();
+    } finally {
+      
+      // Remove temporary files
+      archiveHelper.removeTemporaryFile();
     }
 
   }    

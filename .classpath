@@ -10,5 +10,7 @@
 	<classpathentry kind="lib" path="lib/lucene-core-2.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/cos.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/ostermillerutils_1_07_00.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>

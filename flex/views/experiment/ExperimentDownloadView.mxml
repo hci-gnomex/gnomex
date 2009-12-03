@@ -98,6 +98,7 @@
   	private static const  KB:Number = Math.pow(2, 10);
   	private static const  MB:Number = Math.pow(2, 20);
   	private static const  GB:Number = Math.pow(2, 30);
+  	public static const   ZIP_MAX_SIZE:Number = (4 * GB);
       
     
     private var dateFormatter:DateFormatter = new DateFormatter();
@@ -129,7 +130,7 @@
     	    parms1.resultKeys = resultKeys;
         	parms1.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
         	parms1.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
-
+			parms1.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
 	    	getDownloadEstimatedSize.send(parms1);    		
     	}
 
@@ -240,6 +241,7 @@
 	        parms.resultKeys = resultKeys;
         	parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
         	parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
+        	parms.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
     		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
     		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
 		}
@@ -259,8 +261,10 @@
 
 	private function onDownloadFiles(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
+			var parms:URLVariables = new URLVariables();
+			parms.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
 	        var progressWindow:DownloadProgressView = new DownloadProgressView();
-    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, null, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 		}
 	}    
 
@@ -329,25 +333,29 @@
     	var size:Number = 0;
     	var sizeTxt:String = "";
     	if (theFileSize > GB ) {
-      		size = (Math.round((theFileSize / GB) / 10)) * 10;
+    		// Round gigabyte to the one decimal place
+      		size = Math.round((theFileSize / GB) * 10) / 10;
       		if (size == 0) {
       			size = 1;
       		} 
       		sizeTxt = size + " GB";
     	}  else if (theFileSize > MB ) {
-      		size = (Math.round((theFileSize / MB) / 10)) * 10;
+    		// Round megabyte to neareast whole number
+      		size = Math.round(theFileSize / MB);
       		if (size == 0) {
       			size = 1;
       		}
       		sizeTxt = size + " MB";
     	} else if (theFileSize > KB ) {
-      		size = (Math.round((theFileSize / KB) / 10)) * 10;
+    		// Round kb to the nearest 100th place
+      		size = Math.round((theFileSize / KB) / 100) * 100;
       		if (size == 0) {
       			size = 1;
       		}
       		sizeTxt = size + " KB";
     	} else {
-      		size = (Math.round(theFileSize / 10) * 10);
+    		// Round bytes to nearest 100th place
+      		size = Math.round(theFileSize / 100) * 100;
 			if (size == 0) {
       			size = 1;
       		}

@@ -41,15 +41,20 @@
 	    private var url:String = "";
 	    private var params:Object;
 	    private var theParent:DisplayObject;
-	    public var estimatedDownloadSize:int;
+	    public var estimatedDownloadSize:Number;
 	    private var suggestedFileName:String = "gnomex-data";
 	    private var finalizeProgressCount:int = 0;
+	    
+	    private var bytesTransferredLastRound:Number = 0;
+	    private var bytesLoadedLastRound:Number = 0;
+	    private var bytesLoaded:Number = 0;
+	    private var bytesTotal:Number = 0;
 	    
 	    private static var downloadWindowCount:int = 0;
 	    
 	    
 
-		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:int, suggestedFileName:String):void {
+		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:Number, suggestedFileName:String):void {
 			this.url = url;
 	    	this.params = params;
 			this.btn = startDownloadButton;
@@ -57,6 +62,10 @@
 			this.estimatedDownloadSize = estimatedDownloadSize;
 			this.suggestedFileName = suggestedFileName;
 			this.finalizeProgressCount = 0;
+			this.bytesLoadedLastRound = 0;
+			this.bytesTransferredLastRound = 0;
+			this.bytesLoaded = 0;
+			this.bytesTotal = 0;
 			
 			fr = new FileReference();
 	        fr.addEventListener(Event.OPEN, openHandler);
@@ -87,7 +96,12 @@
 	        }
 	        try {
 	        	var today:Date = new Date();
-	        	var fileName:String = suggestedFileName + "-" + dateFormatter.format(today) + '.zip';
+	        	var extension:String = ".zip";
+	        	if (params != null && params.mode != null) {
+	        		extension = "." + params.mode;
+	        	}
+	        	
+	        	var fileName:String = suggestedFileName + "-" + dateFormatter.format(today) + extension;
 		        fr.download(request, fileName);	        	
 	        } catch (error:Error) {
 	        	mx.controls.Alert.show("Unable to download file. " + error.message);
@@ -124,18 +138,36 @@
 	     * While the file is downloading, update the progress bar's status.
 	     */
 	    private function progressHandler(event:ProgressEvent):void
-	    {  
-	    	if (event.bytesTotal == 0 || event.bytesTotal <= event.bytesLoaded) {
-	    		if (event.bytesLoaded >= estimatedDownloadSize) {
-	    			showFinalizeProgress();
-	    		}
-				downloadProgress.setProgress(event.bytesLoaded, estimatedDownloadSize);    		
-	    	} else { 
-	    		if (event.bytesLoaded >= event.bytesTotal) {
-	    			showFinalizeProgress();
-	    		}
-				downloadProgress.setProgress(event.bytesLoaded, event.bytesTotal);    		
+	    {   
+	    	// If bytesLoaded has hit max int, use last bytes loaded to figure
+	    	// out bytes transferred last round
+	    	if (event.bytesLoaded == bytesLoadedLastRound) {	    		
+	    		bytesLoaded += bytesTransferredLastRound;
+	    	} else {	    		
+	    		bytesLoaded = event.bytesLoaded;
+	    		// Calculate how much we transferred this round
+	    		bytesTransferredLastRound = event.bytesLoaded - bytesLoadedLastRound;
+	    		// Keep track of last real bytes loaded.  We used this
+	    		// next round if to calculate bytes transferred
+	    		bytesLoadedLastRound = bytesLoaded;
 	    	}
+	    	
+	    	// If event.bytesTotal is not initialized, used the estimated
+	    	// download size instead.
+	    	if (event.bytesTotal == 0) {
+	    		bytesTotal = estimatedDownloadSize;
+	    	} else {
+	    		bytesTotal = event.bytesTotal;
+	    	}
+	    	
+	    	// If we have loaded all of the bytes, show the finalizing download
+	    	// message.
+	    	if (bytesLoaded >= bytesTotal) {
+	    		showFinalizeProgress();
+	    	}
+	    	
+	    	// We have more bytes to load, so show progress.
+	    	downloadProgress.setProgress(bytesLoaded, bytesTotal);    		
 	    }
 	    
 	    private function showFinalizeProgress():void {
