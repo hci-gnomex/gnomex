@@ -160,7 +160,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
                 confirmedRequestMap.put(request.getNumber(), request.getNumber());
               } else {
                 log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
-                          " is complete.  Request submitter or request submitter email is blank.");
+                          " sample quality is complete.  Request submitter or request submitter email is blank.");
               }
             }
           }
