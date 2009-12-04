@@ -130,8 +130,16 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
               if (request.getAppUser() != null && 
                   request.getAppUser().getEmail() != null &&
                   !request.getAppUser().getEmail().equals("")) {
-                this.sendConfirmationEmail(sess, request);       
-                confirmedRequestMap.put(request.getNumber(), request.getNumber());
+                try {
+                  this.sendConfirmationEmail(sess, request);       
+                  confirmedRequestMap.put(request.getNumber(), request.getNumber());
+                  
+                }catch (Exception e) {
+                  log.error("Unable to send confirmation email notifying submitter that request "
+                      + request.getNumber()
+                      + " has finished sample quality.  " + e.toString());
+                }
+                
               } else {
                 log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
                           " is complete.  Request submitter or request submitter email is blank.");

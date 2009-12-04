@@ -141,18 +141,23 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
           
           sess.flush();
           
-          // Now send out confirmation emails
-          for(Iterator i = requestNotifyMap.keySet().iterator(); i.hasNext();) {
-            String requestNumber = (String)i.next();
-            Request request = (Request)requestNotifyMap.get(requestNumber);
-            this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
-          }
-          
-          
           parser.resetIsDirty();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = out.outputString(workItemDoc);
+
+          // Now send out confirmation emails
+          for(Iterator i = requestNotifyMap.keySet().iterator(); i.hasNext();) {
+            String requestNumber = (String)i.next();
+            Request request = (Request)requestNotifyMap.get(requestNumber);
+            try {
+              this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
+            } catch (Exception e) {
+              log.error("Unable to send confirmation email notifying submitter that request "
+                  + request.getNumber()
+                  + " has sequence lanes that have completed the pipeline.  " + e.toString());
+            }
+          }
           
           setResponsePage(this.SUCCESS_JSP);  
         } else {
