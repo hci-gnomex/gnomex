@@ -21,6 +21,7 @@
     
     <mx:Script> 
     	<![CDATA[
+    		import mx.collections.ArrayCollection;
     		import mx.core.IFlexDisplayObject;
 
 		import mx.managers.PopUpManager;
@@ -49,6 +50,8 @@
 	    private var bytesLoadedLastRound:Number = 0;
 	    private var bytesLoaded:Number = 0;
 	    private var bytesTotal:Number = 0;
+	    private var bytesTransferredList:ArrayCollection = null;
+	    private var averageBytesTransferred:Number = -1;
 	    
 	    private static var downloadWindowCount:int = 0;
 	    
@@ -66,6 +69,8 @@
 			this.bytesTransferredLastRound = 0;
 			this.bytesLoaded = 0;
 			this.bytesTotal = 0;
+			this.bytesTransferredList = new ArrayCollection();
+			this.averageBytesTransferred = -1;
 			
 			fr = new FileReference();
 	        fr.addEventListener(Event.OPEN, openHandler);
@@ -141,12 +146,13 @@
 	    {   
 	    	// If bytesLoaded has hit max int, use last bytes loaded to figure
 	    	// out bytes transferred last round
-	    	if (event.bytesLoaded == bytesLoadedLastRound) {	    		
-	    		bytesLoaded += bytesTransferredLastRound;
+	    	if (event.bytesLoaded == int.MAX_VALUE) {	    		
+	    		bytesLoaded += getAverageBytesTransferred();
 	    	} else {	    		
 	    		bytesLoaded = event.bytesLoaded;
 	    		// Calculate how much we transferred this round
 	    		bytesTransferredLastRound = event.bytesLoaded - bytesLoadedLastRound;
+	    		this.bytesTransferredList.addItem(bytesTransferredLastRound);
 	    		// Keep track of last real bytes loaded.  We used this
 	    		// next round if to calculate bytes transferred
 	    		bytesLoadedLastRound = bytesLoaded;
@@ -168,6 +174,22 @@
 	    	
 	    	// We have more bytes to load, so show progress.
 	    	downloadProgress.setProgress(bytesLoaded, bytesTotal);    		
+	    }
+	    
+	    private function getAverageBytesTransferred():Number {
+	    	if (averageBytesTransferred == -1 ) {
+		    	var sum:Number = 0;
+		    	var mean:Number = 0;
+		    	for each(var bytesTransferred:Number in this.bytesTransferredList) {
+	                sum = sum + bytesTransferred;
+	      		}
+	            mean = sum / this.bytesTransferredList.length;
+	            //this is an optional rounding method
+	            mean = Math.round (mean);
+	      		
+	      		averageBytesTransferred = mean;
+	    	}
+      		return averageBytesTransferred;
 	    }
 	    
 	    private function showFinalizeProgress():void {
