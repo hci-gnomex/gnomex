@@ -255,6 +255,8 @@ public class SequenceLane extends HibernateDetailObject {
   public String getWorkflowStatus() {
     if (getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {
       return "Sequenced";
+    } else if (getPipelineStatus().equals(Constants.STATUS_TERMINATED)) {
+      return "Failed GA pipeline";
     } if (getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
       return "Completed seq run";
     } else if (getLastCycleStatus().equals(Constants.STATUS_TERMINATED)) {
