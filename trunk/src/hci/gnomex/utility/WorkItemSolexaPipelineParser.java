@@ -82,8 +82,8 @@ public class WorkItemSolexaPipelineParser implements Serializable {
         channel.setPipelineDate(new java.sql.Date(System.currentTimeMillis()));      
         channel.setPipelineFailed("N");        
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        channel.setPipelineFailed(null);      
-        channel.setFirstCycleFailed("Y");
+        channel.setPipelineDate(null);      
+        channel.setPipelineFailed("Y");
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
         channel.setPipelineDate(null);      
         channel.setPipelineFailed("N");

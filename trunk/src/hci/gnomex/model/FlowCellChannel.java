@@ -270,6 +270,8 @@ public class FlowCellChannel extends HibernateDetailObject {
     } else {
       if (getPipelineDate() != null) {
         return "Sequenced";
+      } else if (this.getPipelineFailed() != null && this.getPipelineFailed().equals("Y")) {
+        return "Failed GA pipeline";
       } else if (getLastCycleDate() != null) {
         return "Completed seq run";
       } else if (this.getLastCycleFailed() != null && this.getLastCycleFailed().equals("Y")) {
