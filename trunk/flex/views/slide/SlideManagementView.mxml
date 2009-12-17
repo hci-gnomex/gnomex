@@ -106,6 +106,8 @@
 		import mx.controls.Alert;
 		import mx.events.IndexChangedEvent;
 		import mx.rpc.events.ResultEvent;
+		import views.util.DirtyNote;
+		
 		
 		[Bindable]
 		public var slideList:XMLListCollection;
@@ -614,6 +616,12 @@
 				slideViewPanel.title = "Slide Set: "+fullSlideProduct.@name;
 				saveSlideButton.enabled=true;
 				spRemoveCategory.enabled = false;
+				for each(var item:Object in parentApplication.promptedLabList) {
+					if (item.@idLab == fullSlideProduct.@idLab) {
+						this.spIdLab.selectedItem = item;
+						break;
+					}
+				}
 			} else if ((view != null && view == "SlideDesign") || (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideDesign" && fullSlideDesign != null)) {
 				slideViews.selectedChild = slideDesignView;
 				slideViewPanel.title = "Slide: "+fullSlideDesign.@name;
@@ -623,7 +631,12 @@
 				newArrayName.text = null;
 				sdRemoveCategory.enabled = false;
 				sdRemoveArrayCoord.enabled = false;
-				
+				for each(var item:Object in parentApplication.promptedLabList) {
+					if (item.@idLab == fullSlideDesign.SlideProduct.@idLab) {
+						this.sdIdLab.selectedItem = item;
+						break;
+					}
+				}
 				if (browseSlides.selectedItem != null && browseSlides.selectedItem.@isInSlideSet == "Y") {
 					this.currentState = "SlideOfSetState";
 				}
@@ -698,23 +711,23 @@
 		<mx:TabNavigator width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 					
 			<mx:VBox label="Slide" width="100%" height="100%">
-				<mx:HBox left="10" top="10" right="10" verticalAlign="middle">
-					<mx:Label text="Slide Name:" left="10" top="10" height="18" width="74"/>
-					<mx:TextInput right="75" top="27" left="10" id="sdName" text="{fullSlideDesign.@name}" width="100%" change="dirty.setDirty()"/>
-					<hci:CheckBox checkedValue="Y" uncheckedValue="N" id="sdIsActive" label="Active" data="{fullSlideDesign.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
+				<mx:HBox width="100%" horizontalGap="10">
+					<mx:Label text="Slide Name:"/>
+					<mx:TextInput id="sdName" text="{fullSlideDesign.@name}" width="100%" change="dirty.setDirty()"/>
+					<mx:CheckBox id="sdIsActive" label="Active" selected="{fullSlideDesign.@isActive == 'Y' ? true : false}"  click="dirty.setDirty()"/>
 				</mx:HBox>
 		
 				<mx:HBox y="40" verticalAlign="middle" right="10" left="10" id="hbox2" width="100%">
-					<hci:CheckBox checkedValue="Y" uncheckedValue="N" id="sdIsCustom" label="Custom slide" data="{fullSlideDesign.SlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
+					<mx:CheckBox id="sdIsCustom" label="Custom slide" selected="{fullSlideDesign.SlideProduct.@isCustom == 'Y' ? true : false}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 				
 					<mx:Label text="For Group:" top="59" left="121" width="20%" id="label1"/>
-					<util:ComboBoxLabList top="57" left="188" right="75" 
+					<mx:ComboBox top="57" left="188" right="75" 
 						id="sdIdLab"
 						dataProvider="{parentApplication.promptedLabList}"
 						labelField="@name"
 						prompt=""
 						data="{fullSlideDesign.SlideProduct.@idLab}" width="100%" change="dirty.setDirty()">
-					</util:ComboBoxLabList>
+					</mx:ComboBox>
 				</mx:HBox>
 				<mx:HBox y="70" right="10" left="10" width="100%">
 						<mx:VBox left="10" top="79" width="25%" id="vbox3">
@@ -851,18 +864,18 @@
 					<mx:HBox left="10" right="10" top="10" verticalAlign="middle">
 						<mx:Label text="Slide Name:" left="10" top="10" height="18" width="82"/>
 						<mx:TextInput top="27" left="10" height="22" right="75" id="spName" text="{fullSlideProduct.@name}" width="100%" change="dirty.setDirty();"/>
-						<hci:CheckBox checkedValue="Y" uncheckedValue="N" id="spIsActive" label="Active" data="{fullSlideProduct.@isActive}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
+						<mx:CheckBox id="spIsActive" label="Active" selected="{fullSlideProduct.@isActive == 'Y' ? true : false}" right="10" top="27" height="22" width="57" click="dirty.setDirty()"/>
 					</mx:HBox>
 					<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
-					<hci:CheckBox checkedValue="Y"  uncheckedValue="N" id="spIsCustom" label="Custom slide"  data="{fullSlideProduct.@isCustom}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
+					<mx:CheckBox id="spIsCustom" label="Custom slide"  selected="{fullSlideProduct.@isCustom == 'Y' ? true : false}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
 					<mx:Label text="For Group:" top="59" left="121" width="10%"/>
-					<util:ComboBoxLabList top="57" left="188" right="75" 
+					<mx:ComboBox top="57" left="188" right="75" 
 						id="spIdLab"
 						dataProvider="{parentApplication.promptedLabList}"
 						labelField="@name"
 						prompt=" "
 						data="{fullSlideProduct.@idLab}" width="70%" change="dirty.setDirty();">
-					</util:ComboBoxLabList>
+					</mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox y="70" right="10" left="10">
 						<mx:VBox width="100%">
