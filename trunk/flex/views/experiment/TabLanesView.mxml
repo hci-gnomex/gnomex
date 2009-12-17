@@ -30,7 +30,8 @@
 					" analysisInstructions='" + template.@analysisInstructions + "'" + 
 					" idSeqRunType='" + template.@idSeqRunType + "'" +			
 					" idNumberSequencingCycles='" + template.@idNumberSequencingCycles + "'" +			
-					" idGenomeBuildAlignTo='" + template.@idGenomeBuildAlignTo + "'" +			
+					" idGenomeBuildAlignTo='" + template.@idGenomeBuildAlignTo + "'" +		
+					" canChangeSampleDesignations='Y'"	+
 				" idSample='0'" +
 				"/>");
 			
@@ -48,7 +49,8 @@
 					" idSample='" + laneToCopy.@idSample + "'" +
 					" idSeqRunType='" + laneToCopy.@idSeqRunType + "'" +			
 					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
-					" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +			
+					" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +		
+					" canChangeSampleDesignations='Y'"		+
 					"/>");
 			
 					parentDocument.lanes.addItem(emptyNode);
@@ -57,7 +59,7 @@
 			}
 		}
 		private function deleteLane():void {
-			if (lanesGrid.selectedItems.length > 0) {
+			if (lanesGrid.selectedItems.length > 0) { 
 				for each(var lane:Object in lanesGrid.selectedItems) {
 					promptToDeleteLane(lane);
 				}
@@ -65,8 +67,23 @@
 		}
 		
 		public function promptToDeleteLane(lane:Object):void {
+			// If we user is not an admin, he can only delete
+			// lanes that are truly edittable
+			if (!parentApplication.hasPermission("canWriteAnyObject")) {
+				if (canLaneBeChanged(lane)) {
+					// Okay to delete because it is a new lane or
+					// an edittable lane				    	
+				} else {
+					// Not okay for non-admin to delete.
+					Alert.show("Insufficient permissions to delete lane " + lane.@number + 
+					  ".  Please contact the " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + 
+					  " to assit in modifying this experiment.");
+					return; 
+				}
+			}
+			
 			laneToDelete = lane;
-			if (lane.@idFlowCellChannel != "") {
+			if (lane.hasOwnProperty("@idFlowCellChannel") && lane.@idFlowCellChannel != null && lane.@idFlowCellChannel != "" ) {
 				Alert.show("Warning: Lane " + lane.@number + " is already loaded on flow cell " + lane.@flowCellNumber + "-" + lane.@flowCellChannelNumber +  
 				           " Remove lane anyway?",
 							null, 
@@ -75,12 +92,23 @@
 			 
 			} else {
 				Alert.show("Remove lane " + lane.@number + "?",
-							null, 
+							"Confirm", 
 							(Alert.YES | Alert.NO), this, 
 							onPromptToDeleteLane);
 				
 			}
 			
+		}
+		
+		private function canLaneBeChanged(lane:Object):Boolean {
+			if (lane.@idSequenceLane.indexOf("SequenceLane") == 0 ||
+				(lane.@canChangeSeqRunType == 'Y' &&
+				 lane.@canChangeNumberSequencingCycles == 'Y' &&
+				 lane.@canChangeGenomeBuildAlignTo == 'Y')) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 		
 		
@@ -217,8 +245,8 @@
 	       }
 	       
 	        
-	       // Disallow operation if samples cannot be changed on hyb
-	       if (lanesGrid.selectedItem.@canChangeSampleDesignations == "Y" ||
+	       // For normal users, disallow operation if the lane is not edittable
+	       if (canLaneBeChanged(lanesGrid.selectedItem) ||
 	           parentApplication.hasPermission("canWriteAnyObject")) {
 	           	
 	       } else {
@@ -339,7 +367,7 @@
 	</mx:VBox>
 	
 	<mx:states>
-		<mx:State name="LanesAdminState">
+		<mx:State name="LanesEditState">
 		    <mx:AddChild relativeTo="{lanesContainer}" position="before">
 		        <mx:VBox  height="100%" verticalGap="4">
 		            <mx:Label text="Samples"/>
@@ -378,6 +406,8 @@
 			<mx:AddChild relativeTo="{buttonContainer}" position="before">
 			    <mx:Label id="lanesTitle" text="Sequencing Lanes (to assign sample to lane, drag sample onto lane)"/>				
 			</mx:AddChild>
+		</mx:State>
+		<mx:State name="LanesAdminState" basedOn="LanesEditState">			
 		</mx:State>
 	</mx:states>
 
