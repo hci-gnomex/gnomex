@@ -1232,7 +1232,7 @@
  				if (parentApplication.hasPermission("canWriteAnyObject")) {
 					lanesView.currentState = 'LanesAdminState';
 				} else {
-					lanesView.currentState = 'LanesEditState';
+					lanesView.currentState = '';
 				} 
 
 			} else if (request.@codeRequestCategory == 'QC') {
