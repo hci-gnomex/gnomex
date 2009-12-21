@@ -4,28 +4,43 @@
 
 <style>
 body {
-	font: 0.7em Tahoma, sans-serif;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	font-size:14px;
 	color: #666666;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-top: 20px;
+	line-height: 130%
+}
+
+h2 {
+	
+	font-size:18px;
+	font-weight:bold;
+	font-weight:bold;
+	margin-top: 0px;
+	margin-bottom: 0px;
 }
 h3 {
-	font: 0.7em Tahoma, sans-serif;
-	font-size:14px;
+	
 	font-weight:bold;
-	color:#4682B4;
+	color:#3B556A;
 }
 a {
-	font: 0.7em Tahoma, sans-serif;
-	font-size:11px;
-	font-weight:bold;
+	
+	
 	color:#4682B4;
+	font-size:14px;
 }
 a.email {
-	font: 0.7em Tahoma, sans-serif;
-	font-size:11px;
+	
 	font-weight:normal;
 	color:#4682B4;
+	font-size:14px;
 }
-image{
+
+img{
+  vertical-align: top;
 	border:solid 1px white;
 	background-color:white;
 	margin:10px;
@@ -34,59 +49,95 @@ image{
 
   
 }
+ul.nobullet
+{
+list-style-type: none;
+padding: 0px;
+margin: 0px;
+}
+ul
+{
+margin-top: 2px;
+margin-left: 20px;
+
+} 
+li
+{
+margin-top: 5px;
+} 
 
 </style>
 </HEAD>
 <BODY>
-<CENTER><H2>Microarray Core Facility - Ordering Instructions</H2></CENTER>
+<CENTER><H2>Microarray and Genomic Analysis Core Facility</H2></CENTER>
+<CENTER><H2>Ordering Instructions</H2></CENTER>
 <P>
-The Microarray Core Facility is using a web-based ordering system named <B>GNomEx</B> (Experimental Genomic Data Repository and Core LIMS). <B>GNomEx</B> lets you order
-microarray experiments, check the status of those experiments, and
-collect results. In addition to capturing basic experiment request information, <b>GNomEx</b> allows you to 
-enter structured annotations on the experiment and the samples.  Additionally, <b>GNomEx</b> 
-has functionality to organize experiments in projects and perform advanced searches on the experiment and sample annotations.
-<p>The most recent release (May 3, 2008) has a revamped user interface which uses the Flash player (instead of the Java plug-in).  This 
-release also lets you submit Solexa sequencing requests to the Core facility.  Future releases of this application will provide functionality to 
-organize, track, search, and download the associated downstream analysis on experiments.  
+The Microarray Core Facility uses a web-based ordering system named <B>GNomEx</B> (Experimental Genomic Data Repository and Core LIMS),
+a software solution that documents information about microarray and signature sequencing experimental parameters. 
+<B>GNomEx</B> serves as both a data repository and as a laboratory information management system that records
+information relevant to all steps of the experimental process.  Functionality of this software includes
+management of client and lab group information, ability for researchers to electronically submit
+and annotate experimental requests, workflow tracking of experimental processes, organization and distribution of experiment results and associated analysis, 
+and electronic invoicing and billing capabilities. 
 </P>
 <P>
 <CENTER><A HREF="https://hci-as1.hci.utah.edu/gnomex"
-target="new">Launch GNomEx now.</A></CENTER>
+target="new">Launch GNomEx</A></CENTER>
 </P>
-<P>
-<A href="#sysreq">System Requirements</a><br>
-<A href="#login">Logging In</a><br>
-<A href="#submit">New Experiment Requests</a><br>
-<A href="#track">Checking the Status of Requests</a><br>
-<A href="#fetch">Fetching Results</a><br>
-<A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm">GNomEx User Guide</a><br>
-<A href="#contact">Questions, Comments, or Problems</a><br>
-<br>
+
+<ul class="nobullet">
+<li><A href="#pricing">Core Facility Services and Pricing</a></li>
+<li><A href="#sysreq">GNomEx System Requirements</a></li>
+<li><A href="#login">Logging in to GNomEx</a></li>
+<li><A href="#submit">New Experiment Request</a></li>
+<li><A href="#track">Checking the Status of Requests</a></li>
+<li><A href="#fetch">Downloading Results and Data Files</a></li>
+<li><A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm">GNomEx User Guide</a></li>
+<li><A href="#contact">Questions, Comments, or Problems</a></li>
+</ul>
+
 <br>
 <hr>
 
-
+<a name="pricing"><h3>Core Facility Services and Pricing</h3></a>
+The Microarray and Genomic Analysis Core Facility provides access to the Affymetrix and Agilent Technologies microarray platforms 
+and an Illumina Genome Analyzer, which enables massively parallel DNA sequencing.  Together these technologies offer 
+investigators a diverse set of tools to measure, gene, exon, or small RNA expression, SNP/CNV and DNA copy number profiling, 
+location analysis of DNA binding proteins, DNA methylation status, and the sequencing of genomic DNA or resequencing of targeted regions of DNA.  
+The resource is operated as a full service facility that provides experimental handling of all aspects of the Agilent and Affymetrix microarray 
+and of the Illumina sequencing processes.  These services include evaluation of nucleic acid sample quality, labeling of samples with modified 
+nucleotides (ch dyes or biotin), microarray hybridization, microarray scanning, feature extraction and annotation of scanned images, 
+Illumina sequencing library preparation, Illumina cluster generation and sequencing of prepared libraries on an Illumina Genome Analyzer.  
+The Bioinformatics Core Facility provides support for additional analysis of data generated by the facility.
+<p>
+<ul class="nobullet">
+<li><a href="https://hci-as1.hci.utah.edu/gnomex/doc/microarray_core_pricing_affy.pdf" target="affy_pricing">Affymetrix pricing</a>
+<li><a href="https://hci-as1.hci.utah.edu/gnomex/doc/microarray_core_pricing_agilent.pdf" target="agilent_pricing">Agilent pricing</a>
+<li><a href="https://hci-as1.hci.utah.edu/gnomex/doc/microarray_core_pricing_illumina.pdf" target="illumina_pricing">Sequencing pricing</a>
+<li><a href="https://hci-as1.hci.utah.edu/gnomex/doc/microarray_core_pricing_sampleQuality.pdf" target="samplequal_pricing">Sample Quality pricing</a>
+</ul>
+<br>
+<br>
+<hr>
 <a name="sysreq"><h3>System Requirements</h3></a>
-<ul>
-<li><b>GNomEx</b> is a web-based application that will run in a web-browser.  
+
+<b>GNomEx</b> is a web-based application that will run in a web-browser.  
 It requires the Adobe Flash player.  If you do not have this installed, 
- <a href="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash" target="_download">click here to download.</a>
-<li>Please make sure that your browser allows popups to the site <b>https://hci-as1.hci.utah.edu/gnomex</b>.  Also, please register this site as a trusted site.
+<a href="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash" target="_download">click here to download Adobe Flash Player.</a>
+<p>
+Please make sure that your browser allows popups to the site <b>https://hci-as1.hci.utah.edu/gnomex</b>.  Also, please register this site as a trusted site.
 </ul>
 <br>
 <br>
 <hr>
 <a name="login"><h3>Logging In</h3></a>
-<ul>
-<li>
+<p>
 Your login to GNomEx is your <b>uNID</b>. This is a "u" followed by the last
 7 digits of your university employee id number, for example "u0123456".
 If you've never used your uNID before, <A
-HREF="http://gate.acs.utah.edu/" target="_new">click here to activate
-it.</A>
-
-<li>
-<B><FONT color="red">Note for first-time GNomEx users:</FONT></B> Your uNID
+HREF="http://gate.acs.utah.edu/" target="_new">click here to activate your uNID account.</A>
+<p>
+<B>Note for first-time GNomEx users:</FONT></B> Your uNID
 must be registered in GNomEx before you can use the system. 
 Please
 <A href="mailto:brett.milash@hci.utah.edu;brian.dalley@hci.utah.edu?
@@ -100,14 +151,12 @@ My phone number: %0D%0A
 My department: %0D%0A
 I work in the lab of: %0D%0A
 %0D%0A
-Thanks, and have a nice day.">click here to register.</A>
-<li>
+Thanks, and have a nice day.">click here to request a GNomEx login.</A>
+<p>
 Once you have been registered, <A HREF="https://hci-as1.hci.utah.edu/gnomex"
 target="new">launch GNomEx.</A>
-<br>
-<IMG SRC="images/home_small.png"  >
-
-<li>Enter your uNID and password on 
+<p>
+Enter your uNID and password on 
 the GNomEx login page to log in.
 <br>
 <IMG SRC="images/login_gnomex.png" >
@@ -116,28 +165,24 @@ the GNomEx login page to log in.
 
 <hr>
 <a name="submit"><h3>New Experiment Requests</h3></a>
-<ul>
-<li>To submit an experiment request, click on the "Submit Request" link from the navigation bar.
+To submit an experiment request, click on the "Submit Request" link from the navigation bar.
 <br>
 <image src="images/submit_link_small.png"/>
-<li><b>Request Setup</b>
-<ul>
-<li>Select the request category, submitting lab, the account number to be billed.
-<li>Select a project or create a new project.  
-Projects provide a way to organize your microarray experiments.
-<li>If your request is similiar to a previously submitted request, you can select that request and its information will be
-copied to your new request (optional).
-Click on the "Continue" button to continue to the next window.
-</ul>
+<br><br>
+<b>Request Setup</b>
+<br>
+Verify your lab and pick the account to be billed. Then choose the kind of request and select a project or create a new project.  
+(Projects provide a way to organize your microarray experiments.) Click on the "Next" button to continue to the next window.
+<br>
 <IMG SRC="images/submit1_small.png" >
-
-<li>The subsequent tabs allow you to fill out sample and hybridization information. 
+<br>
+The subsequent tabs allow you to fill out sample and hybridization information (microarray requests). 
 <ul><li><b>Sample Setup</b> - prompts you for sample information. 
 <li><b>Annotations</b> - Check off those columns that you wish to show for annotating your samples.  
 <li><b>Samples</b> - Fill out one line of information for each of your samples. If you need additional lines for more samples, click the
 "Add Sample" button.  To copy an existing sample line, select the sample line you wish to copy (click on the left most column of the row in the list) and then click the "Copy Sample" button.  
-<li><b>Hyb Setup</b> - You will be prompted for information about the microarray slide and the number of hybridizations.  
-<li><b>Hybs</b> - Fill out a line for each hybridization, selecting the sample or pair of samples to be hybridized on the slide. 
+<li><b>Hyb Setup (Microarray requests)</b> - You will be prompted for information about the microarray slide and the number of hybridizations.  
+<li><b>Hybs (Microarray requests)</b> - Fill out a line for each hybridization, selecting the sample or pair of samples to be hybridized on the slide. 
 If you need additional lines for more hybridizations click the "Add Hyb" button (or "Copy Hyb" button to copy an existing hybridization line).
 <li>Now you be presented with a confirmation window which summarizes your experiment request.  
 Review the information (press "Previous" button to modify the request) and then press the "Submit" 
@@ -148,16 +193,8 @@ listing your experiment request details. <em><B>Please print out this page and
 bring the printout with you when you leave your samples at the Microarray
 Core facility.</B></em>
 </ul>
-
-<br>
 <IMG SRC="images/submit2_small.png">
 <br>
-
-<br>
-
-<P>
-
-
 </ul>
 <br>
 <br>
@@ -171,11 +208,11 @@ To check the status of pending requests, click
 on the "Experiments" link (from the navigation bar). 
 <br>
 <IMG SRC="images/track_link_small.png">
-
+<br>
 This will display a tree of your lab's projects.  Click on the project containing your request.  The right hand list will show status for each of the items of the request.  
 <br>
 <IMG SRC="images/track_small.png">
-
+<br>
 </P>
 <br>
 <hr>
@@ -202,8 +239,6 @@ click the "Download" button.
 
 <br>
 <IMG SRC="images/download_small.png">
-<br>
-<br>
 <br>
 
 
