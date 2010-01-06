@@ -16,73 +16,15 @@
 	<servlet>
     <servlet-name>Captcha</servlet-name>
 		<display-name>Captcha</display-name>
-    <servlet-class>nl.captcha.servlet.CaptchaServlet</servlet-class>
+    <servlet-class>hci.gnomex.controller.CustomCaptchaServlet</servlet-class>
 		<init-param>
-			<param-name>cap.border</param-name>
-			<param-value>yes</param-value>
-		</init-param>
-		<!--color of the border. Legal values are r,g,b(and optional alpaha) or white,black,etc. Other values will be ignored-->
-		<init-param>
-			<param-name>cap.border.c</param-name>
-			<param-value>black</param-value>
-		</init-param>
-		<!--thickness of the border around captcha. Legal values are > 0 other values will be ignored. Defaults to one-->
-		<init-param>
-			<param-name>cap.border.th</param-name>
-			<param-value>1</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>cap.cap.producer</param-name>
-			<param-value>nl.captcha.obscurity.DefaultCaptchaIml</param-value>
-		</init-param>
-
-
-		<init-param>
-			<param-name>cap.word.imp</param-name>
-			<param-value>nl.captcha.text.imp.DefaultWordRenderer</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>cap.text.producer</param-name>
-			<!--<param-value>nl.captcha.sandbox.ChineseTextProducer</param-value>-->
-			<param-value>nl.captcha.text.imp.FiveLetterFirstNameTextCreator</param-value>
+			<param-name>width</param-name>
+			<param-value>180</param-value>
 		</init-param>
 		<init-param>
-			<param-name>cap.char.arr</param-name>
-			<param-value>2,3,4,6,7,8,a,b,c,d,e,f,g,h,k,o,r,s,t,x,y</param-value>
+			<param-name>height</param-name>
+			<param-value>60</param-value>
 		</init-param>
-		<!--if default captcha producer is slelected this value represents the amount of chars that are supplied in the captcha. values below 2 are not exepted when omitted defaults to 5-->
-		<init-param>
-			<param-name>cap.char.arr.l</param-name>
-			<param-value>6</param-value>
-		</init-param>
-		<init-param>
-			<param-name>cap.font.arr</param-name>
-
-			<param-value>Arial,Helvetica,Courier,TimesRoman</param-value>
-
-		</init-param>
-		<init-param>
-			<param-name>cap.font.size</param-name>
-			<param-value>40</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>cap.font.color</param-name>
-			<param-value>0,100,0</param-value>
-		</init-param>
-
-	 
-
-		<init-param>
-			<param-name>cap.noise.c</param-name>
-			<param-value>190,190,190</param-value>
-		</init-param>
-
-
-
-
     </servlet>
 
 
@@ -156,7 +98,6 @@
 		<servlet-name>Captcha</servlet-name>
 		<url-pattern>/Captcha.jpg</url-pattern>
 	</servlet-mapping>
-	
 	<!-- Session timeout set to 4 hours -->
 	<session-config>
 		<session-timeout>240</session-timeout>
