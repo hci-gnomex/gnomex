@@ -11,6 +11,8 @@ import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.*;
 import hci.framework.model.DetailObject;
 
+import nl.captcha.Captcha;
+
 import org.hibernate.*;
 import org.hibernate.type.*;
 import org.jdom.*;
@@ -59,18 +61,18 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     this.validate();
     
-    String userPhrase    = (String)session.getAttribute(nl.captcha.servlet.Constants.SIMPLE_CAPCHA_SESSION_KEY) ;
+    Captcha captcha = (Captcha) session.getAttribute(Captcha.NAME);
     String captchaPhrase = (String) request.getParameter("captchafield");
     launchAction  = (String) request.getParameter("launchAction");
     errorAction   = (String) request.getParameter("errorAction");
 
 
 
-    if ( userPhrase == null || userPhrase.equals("")) {
+    if ( captchaPhrase == null || captchaPhrase.equals("")) {
       this.addInvalidField("captcha", "Please enter the text that matches the image");
-    } else if ( captchaPhrase == null || captchaPhrase.equals("")) {
+    } else if ( captcha == null) {
       this.addInvalidField("captcha", "No captcha phrase");
-    } else if (!userPhrase.equals(captchaPhrase)) {
+    } else if (!captcha.isCorrect(captchaPhrase)) {
       this.addInvalidField("captch", "Text does not match image.  Please try again.");
     }
 
