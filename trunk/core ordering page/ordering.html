@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>Microarray Core Facility - Ordering Instructions</TITLE>
+<TITLE>Microarray and Genomic Analysis Core Facility</TITLE>
 
 <style>
 body {
@@ -12,25 +12,35 @@ body {
 	margin-top: 20px;
 	line-height: 130%
 }
-
-h2 {
+h1 {
 	
-	font-size:18px;
-	font-weight:bold;
+	font-size:20px;
 	font-weight:bold;
 	margin-top: 0px;
 	margin-bottom: 0px;
+}
+h2 {
+	
+	font-weight:bold;
+	color:#3B556A;
+	font-size:16px;
 }
 h3 {
 	
 	font-weight:bold;
 	color:#3B556A;
+	font-size:16px;
 }
 a {
-	
-	
 	color:#4682B4;
 	font-size:14px;
+}
+
+a.big {
+	
+	font-weight:bold;
+	color:#4682B4;
+	font-size:16px;
 }
 a.email {
 	
@@ -49,6 +59,14 @@ img{
 
   
 }
+ul.nobulletindent
+{
+list-style-type: none;
+padding: 0px;
+margin-top: 0px;
+margin-bottom: 0px;
+margin-left: 15px;
+}
 ul.nobullet
 {
 list-style-type: none;
@@ -57,6 +75,7 @@ margin: 0px;
 }
 ul
 {
+line-height: 100%
 margin-top: 2px;
 margin-left: 20px;
 
@@ -69,37 +88,37 @@ margin-top: 5px;
 </style>
 </HEAD>
 <BODY>
-<CENTER><H2>Microarray and Genomic Analysis Core Facility</H2></CENTER>
-<CENTER><H2>Ordering Instructions</H2></CENTER>
-<P>
-The Microarray Core Facility uses a web-based ordering system named <B>GNomEx</B> (Experimental Genomic Data Repository and Core LIMS),
+<p>
+<center><h1>Microarray and Genomic Analysis Core Facility</h1></center><br>
+The Microarray and Genomic Analysis Core Facility uses a web-based ordering system named <b>GNomEx</b> (<b><u>G</b></u>e<b><u>nom</u></b>ic <b><u>Ex</u></b>periment 
+Data Repository and Core LIMS)</b>,
 a software solution that documents information about microarray and signature sequencing experimental parameters. 
 <B>GNomEx</B> serves as both a data repository and as a laboratory information management system that records
 information relevant to all steps of the experimental process.  Functionality of this software includes
 management of client and lab group information, ability for researchers to electronically submit
-and annotate experimental requests, workflow tracking of experimental processes, organization and distribution of experiment results and associated analysis, 
+and annotate experimental requests, workflow tracking of experimental processes, organization and distribution 
+of experiment results and associated analysis, 
 and electronic invoicing and billing capabilities. 
 </P>
-<P>
-<CENTER><A HREF="https://hci-as1.hci.utah.edu/gnomex"
-target="new">Launch GNomEx</A></CENTER>
-</P>
+<CENTER><A class="big" HREF="https://hci-as1.hci.utah.edu/gnomex"
+target="new"><IMG SRC="images/launch.png" ></A></CENTER>
 
-<ul class="nobullet">
+<ul class="nobullet" >
 <li><A href="#pricing">Core Facility Services and Pricing</a></li>
 <li><A href="#sysreq">GNomEx System Requirements</a></li>
 <li><A href="#login">Logging in to GNomEx</a></li>
-<li><A href="#submit">New Experiment Request</a></li>
+<li><A href="#submit">Submitting an Experiment Request</a></li>
 <li><A href="#track">Checking the Status of Requests</a></li>
 <li><A href="#fetch">Downloading Results and Data Files</a></li>
-<li><A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm">GNomEx User Guide</a></li>
-<li><A href="#contact">Questions, Comments, or Problems</a></li>
+<li><A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm" target="gnomex_userguide">GNomEx User Guide</a></li>
+<li><A href="#contact">Contact Us</a></li>
 </ul>
-
 <br>
-<hr>
 
-<a name="pricing"><h3>Core Facility Services and Pricing</h3></a>
+
+
+<hr>
+<a name="pricing"><h2>Core Facility Services and Pricing</h2></a>
 The Microarray and Genomic Analysis Core Facility provides access to the Affymetrix and Agilent Technologies microarray platforms 
 and an Illumina Genome Analyzer, which enables massively parallel DNA sequencing.  Together these technologies offer 
 investigators a diverse set of tools to measure, gene, exon, or small RNA expression, SNP/CNV and DNA copy number profiling, 
@@ -116,10 +135,12 @@ The Bioinformatics Core Facility provides support for additional analysis of dat
 <li><a href="https://hci-as1.hci.utah.edu/gnomex/doc/microarray_core_pricing_illumina.pdf" target="illumina_pricing">Sequencing pricing</a>
 <li><a href="https://hci-as1.hci.utah.edu/gnomex/doc/microarray_core_pricing_sampleQuality.pdf" target="samplequal_pricing">Sample Quality pricing</a>
 </ul>
-<br>
-<br>
+
+
+
+<br><br>
 <hr>
-<a name="sysreq"><h3>System Requirements</h3></a>
+<a name="sysreq"><h3>GNomEx System Requirements</h3></a>
 
 <b>GNomEx</b> is a web-based application that will run in a web-browser.  
 It requires the Adobe Flash player.  If you do not have this installed, 
@@ -130,7 +151,7 @@ Please make sure that your browser allows popups to the site <b>https://hci-as1.
 <br>
 <br>
 <hr>
-<a name="login"><h3>Logging In</h3></a>
+<a name="login"><h3>Logging in to GNomEx</h3></a>
 <p>
 Your login to GNomEx is your <b>uNID</b>. This is a "u" followed by the last
 7 digits of your university employee id number, for example "u0123456".
@@ -162,13 +183,14 @@ the GNomEx login page to log in.
 <IMG SRC="images/login_gnomex.png" >
 </ul>
 
-
 <hr>
+
 <a name="submit"><h3>New Experiment Requests</h3></a>
 To submit an experiment request, click on the "Submit Request" link from the navigation bar.
 <br>
 <image src="images/submit_link_small.png"/>
 <br><br>
+
 <b>Request Setup</b>
 <br>
 Verify your lab and pick the account to be billed. Then choose the kind of request and select a project or create a new project.  
@@ -191,17 +213,17 @@ that the request has submitted to the system.
 <li>Once your request has been submitted, press the "Print" button.  In a separate browser window, you will be shown a summary page 
 listing your experiment request details. <em><B>Please print out this page and
 bring the printout with you when you leave your samples at the Microarray
-Core facility.</B></em>
+and Genomic Analysis Core facility.</B></em>
 </ul>
 <IMG SRC="images/submit2_small.png">
 <br>
 </ul>
 <br>
 <br>
+
+
+
 <hr>
-
-
-
 <a name="track"><h3>Checking the Status of Requests</h3></a>
 <P>
 To check the status of pending requests, click
@@ -215,12 +237,13 @@ This will display a tree of your lab's projects.  Click on the project containin
 <br>
 </P>
 <br>
+
+
+
 <hr>
 
 
-
-
-<a name="fetch"><h3>Fetching Results</h3></a>
+<a name="fetch"><h3>Downloading Results and Data Files</h3></a>
 <P>
 Once an experiment's status has become "Complete" you will receive 
 notification by email.  You can retrieve the
@@ -240,17 +263,19 @@ click the "Download" button.
 <br>
 <IMG SRC="images/download_small.png">
 <br>
-
-
-
 <hr>
-<a name="contact"><h3>Questions, Comments, or Problems</h3></a>
+<a name="contact"><h2>Contact Us</h2></a>
 <P>
-If you have questions or comments about the new system please contact
-Microarray Bioinformatics (<A
-href="mailto:bioinformaticscore@utah.edu">bioinformaticscore@utah.edu</A>,
-585-0567) or the staff of the Microarray Core Facility (<A
-href="mailto:brian.dalley@hci.utah.edu">brian.dalley@hci.utah.edu</A>,585-7192 or 585-6346).
-</P>
+Microarray and Genomic Analysis Core Facility<br>
+Brian Dalley, Ph.D. , director<br>
+Huntsman Cancer Institute Room 3350<br>
+2000 Circle of Hope<br>
+University of Utah<br>
+Salt Lake City, UT  84112<br>
+801-585-7192 (office)<br>
+801-581-6346 (lab)<br>
+<A href="mailto:brian.dalley@hci.utah.edu">brian.dalley@hci.utah.edu</A><br>
+<br>
+To report software problems, please email <A href="mailto:bioinformaticscore@utah.edu">bioinformaticscore@utah.edu</A><br>
 </BODY>
 </HTML>
