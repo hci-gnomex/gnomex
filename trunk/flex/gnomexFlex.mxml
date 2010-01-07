@@ -216,6 +216,10 @@
 	        public var iconMicroarray:Class; 
 
 	        [Bindable]
+	        [Embed(source="assets/microarray_small_single_color.png")]
+	        public var iconMicroarraySingleColor:Class; 
+
+	        [Bindable]
 	        [Embed(source="assets/microarray_chip.png")]
 	        public var iconMicroarrayAffy:Class; 
 	        

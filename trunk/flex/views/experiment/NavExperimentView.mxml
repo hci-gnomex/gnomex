@@ -704,6 +704,8 @@
 					return parentApplication.iconMicroarrayAffy;
 				}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
 					return parentApplication.iconMicroarray;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
+					return parentApplication.iconMicroarraySingleColor;
 				} else {
 					return parentApplication.iconMicroarrayOther;
 				}

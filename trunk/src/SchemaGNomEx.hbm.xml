@@ -286,7 +286,7 @@
 			<key column="idLab"/>
 			<one-to-many class="hci.gnomex.model.Project" />
 		</set>
-		<set name="billingAccounts" table="BillingAccount" lazy="false" cascade="delete">
+		<set name="billingAccounts" table="BillingAccount" lazy="false" cascade="delete" sort="hci.gnomex.utility.BillingAccountComparator" >
 			<key column="idLab"/>
 			<one-to-many class="hci.gnomex.model.BillingAccount" />
 		</set>
@@ -887,6 +887,7 @@
 		<property name="idVendor" column="idVendor" type="integer"/>
 		<property name="numberOfChannels" column="numberOfChannels" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="notes" column="notes" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryMicroarrayCategory -->

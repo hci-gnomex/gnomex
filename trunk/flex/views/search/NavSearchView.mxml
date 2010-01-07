@@ -131,6 +131,9 @@
 				} else if (item.name() == "RequestNode" &&
 				           item.@codeRequestCategory == "AGIL") {
 					return parentApplication.iconMicroarray;
+				} else if (item.name() == "RequestNode" &&
+				           item.@codeRequestCategory == "AGIL1") {
+					return parentApplication.iconMicroarraySingleColor;
 				} else if (item.name() == "Protocol") {
 					return parentApplication.iconProtocol;
 				} else if (item.name() == "AnalysisNode") {
