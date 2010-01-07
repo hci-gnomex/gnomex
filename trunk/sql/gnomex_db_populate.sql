@@ -267,7 +267,44 @@ VALUES  (1,1,NULL,'Bioanalyzer RNA Nano','RNANANO',NULL,'0.00','Y'),
  (75,4,2,'Agilent 180K microarray','19',NULL,'0.00','Y'),
  (76,3,2,'Agilent CGH 180K','13',NULL,'0.00','Y'),
  (77,7,NULL,'76 Cycle SR','4','3','0.00','Y'),
- (78,7,NULL,'76 Cycle PE','4','4','0.00','Y');
+ (78,7,NULL,'76 Cycle PE','4','4','0.00','Y'),
+ (5,2,5,'Agilent Gene Expression','AGIL1','EXP','0.00','Y'),
+ (6,2,5,'Agilent CGH','AGIL1','CGH','0.00','Y'),
+ (7,2,5,'Agilent ChIP-on-chip','AGIL1','CHIP','0.00','Y'),
+ (8,2,5,'Agilent DNA Methylation','AGIL1','METH','0.00','Y'),
+ (9,2,5,'Agilent HybMap','AGIL1','WTRANSCRP','0.00','Y'),
+ (10,2,5,'Agilent SNP','AGIL1','SNP','0.00','Y'),
+ (11,2,5,'Agilent miRNA','AGIL1','MIRNA','0.00','Y'),
+ (12,2,5,'Agilent Exon','AGIL1','EXON','0.00','Y'),
+ (13,3,5,'Agilent Gene Expression 44K','1',NULL,'0.00','Y'),
+ (14,3,5,'Aglient CGH 244K','2',NULL,'0.00','Y'),
+ (15,3,5,'Agilent CGH 105K','3',NULL,'0.00','Y'),
+ (16,3,5,'Agilent CGH 44K','4',NULL,'0.00','Y'),
+ (17,3,5,'Agilent CGH 15K','5',NULL,'0.00','Y'),
+ (18,3,5,'Agilent ChIP-on-chip 244K','6',NULL,'0.00','Y'),
+ (19,3,5,'Agilent ChIP-on-chip 105K','7',NULL,'0.00','Y'),
+ (20,3,5,'Agilent ChIP-on-chip 44K','8',NULL,'0.00','Y'),
+ (21,3,5,'Agilent ChIP-on-chip 15K','9',NULL,'0.00','Y'),
+ (22,3,5,'Agilent HybMap 244K','10',NULL,'0.00','Y'),
+ (23,3,5,'Agilent HybMap 44K','11',NULL,'0.00','Y'),
+ (26,4,5,'Agilent 244K Microarray','1',NULL,'0.00','Y'),
+ (27,4,5,'Agilent 105K Microarray','2',NULL,'0.00','Y'),
+ (28,4,5,'Agilent 44K Microarray','3',NULL,'0.00','Y'),
+ (29,4,5,'Agilent 15K Microarray','4',NULL,'0.00','Y'),
+ (30,4,5,'Affymetrix SNP 250K Microarray','5',NULL,'0.00','Y'),
+ (45,3,5,'Agilent HybMap 15K','15',NULL,'0.00','Y'),
+ (46,9,5,'Slide Re-use Preparation',NULL,NULL,'0.00','Y'),
+ (53,3,5,'Agilent Zebrafish Custom','16',NULL,'0.00','Y'),
+ (54,3,5,'Agilent 15K miRNA','16',NULL,'0.00','Y'),
+ (59,2,5,'Agilent cDNA synthesis/Agilent ChIP-on-chip Labeling',NULL,NULL,'0.00','Y'),
+ (64,3,5,'Agilent Gene Expression 244K','17',NULL,'0.00','Y'),
+ (68,4,5,'Agilent miRNA 15K','11',NULL,'0.00','Y'),
+ (69,4,5,'Agilent 1M microarray','12',NULL,'0.00','Y'),
+ (70,3,5,'Agilent HybMap 1M','18',NULL,'0.00','Y'),
+ (71,2,5,'Agilent HQ Gene Expression',NULL,NULL,'0.00','Y'),
+ (75,4,5,'Agilent 180K microarray','19',NULL,'0.00','Y'),
+ (76,3,5,'Agilent CGH 180K','13',NULL,'0.00','Y');
+
 
 INSERT INTO `gnomex`.`BillingSlideProductClass`(`idBillingSlideProductClass`, `billingSlideProductClass`, `isActive`)
 VALUES (1, 'Agilent 244K microarray', 'Y'),
@@ -314,9 +351,10 @@ VALUES ('APPROVED', 'Approved', 'Y'),
 
 INSERT INTO `gnomex`.`BillingTemplate`(`idBillingTemplate`, `description`, `codeRequestCategory`, `isActive`)
 VALUES (1, 'Sample Quality Request', 'QC', 'Y'),
-  (2, 'Agilent Microarray', 'AGIL', 'Y'),
+  (2, 'Agilent 2-color Microarray', 'AGIL', 'Y'),
   (3, 'Affymetrix Microarray', 'AFFY', 'Y'),
-  (4, 'Illumina Sequencing', 'SOLEXA', 'Y');
+  (4, 'Illumina Sequencing', 'SOLEXA', 'Y'),
+  (5, 'Agilent 1-color Microarray', 'AGIL1', 'Y');
 
 INSERT INTO `gnomex`.`BillingTemplateEntry`(`idBillingTemplate`, `idBillingCategory`, `sortOrder`)
 VALUES (1, 1, 1),
@@ -333,7 +371,13 @@ VALUES (1, 1, 1),
   (4, 7, 5),
   (4, 8, 3),
   (2, 9, 5),
-  (4, 10, 6);
+  (4, 10, 6),
+  (5, 1, 1),
+  (5, 2, 2),
+  (5, 3, 3),
+  (5, 4, 4),
+  (5, 9, 5);
+
 
 INSERT INTO `gnomex`.`BioanalyzerChipType`(`codeBioanalyzerChipType`, `bioanalyzerChipType`, `concentrationRange`, `maxSampleBufferStrength`, `costPerSample`, `sampleWellsPerChip`, `isActive`, `codeConcentrationUnit`)
 VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/l', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul'),
@@ -528,14 +572,15 @@ VALUES ('BIOREPL', 'Biological Replicate', 'biological_replicate', NULL, 'Y'),
   ('TECHREPL', 'Technical Replicate', 'technical_replicate', NULL, 'Y');
 
 
-INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`)
-VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1),
-  ('AGIL', 'Agilent Microarray', 1, 'Y', 2),
+INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`)
+VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis'),
+  ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip'),
   ('INHOUSE', 'In-house Spotted Microarray', 4, 'N', 2),
   ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2),
   ('OTHER', 'Microarray (Other)', NULL, 'N', NULL),
-  ('QC', 'Sample Quality', NULL, 'Y', NULL),
-  ('SOLEXA', 'Illumina Sequencing', 7, 'Y', NULL);
+  ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel'),
+  ('SOLEXA', 'Illumina Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq'),
+  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA');
 
 INSERT INTO `gnomex`.`RequestCategoryMicroarrayCategory`(`codeRequestCategory`, `codeMicroarrayCategory`)
 VALUES ('AFFY', 'CHIP'),
@@ -548,6 +593,12 @@ VALUES ('AFFY', 'CHIP'),
   ('AGIL', 'METH'),
   ('AGIL', 'MIRNA'),
   ('AGIL', 'WTRANSCRP'),
+  ('AGIL1', 'CGH'),
+  ('AGIL1', 'CHIP'),
+  ('AGIL1', 'EXP'),
+  ('AGIL1', 'METH'),
+  ('AGIL1', 'MIRNA'),
+  ('AGIL1', 'WTRANSCRP'),
   ('INHOUSE', 'EXP'),
   ('NIMBLE', 'EXP'),
   ('NIMBLE', 'METH');
@@ -654,7 +705,24 @@ VALUES (1, 1, 'AGIL'),
   (54, 33, 'SOLEXA'),
   (55, 34, 'SOLEXA'),
   (56, 35, 'SOLEXA'),
-  (57, 39, 'SOLEXA');
+  (57, 39, 'SOLEXA'),
+  (58, 1, 'AGIL1'),
+  (59, 2, 'AGIL1'),
+  (60, 3, 'AGIL1'),
+  (61, 4, 'AGIL1'),
+  (62, 5, 'AGIL1'),
+  (63, 6, 'AGIL1'),
+  (64, 20, 'AGIL1'),
+  (65, 21, 'AGIL1'),
+  (66, 22, 'AGIL1'),
+  (67, 23, 'AGIL1'),
+  (68, 24, 'AGIL1'),
+  (69, 25, 'AGIL1'),
+  (70, 26, 'AGIL1'),
+  (71, 27, 'AGIL1'),
+  (72, 28, 'AGIL1'),
+  (73, 29, 'AGIL1'),
+  (74, 30, 'AGIL1');
 
 INSERT INTO `gnomex`.`SamplePrepMethodSampleType`(`idSamplePrepMethodSampleType`, `idSampleType`, `idSamplePrepMethod`, `isDefaultForSampleType`, `isActive`)
 VALUES (2, 5, 23, 'N', 'Y'),
@@ -772,7 +840,16 @@ VALUES (1, 1, 'AGIL'),
   (33, 9, 'SOLEXA'),
   (34, 10, 'SOLEXA'),
   (35, 11, 'SOLEXA'),
-  (36, 12, 'SOLEXA');
+  (36, 12, 'SOLEXA'),
+  (37, 2, 'AGIL1'),
+  (38, 3, 'AGIL1'),
+  (39, 4, 'AGIL1'),
+  (40, 5, 'AGIL1'),
+  (41, 6, 'AGIL1'),
+  (42, 7, 'AGIL1'),
+  (43, 8, 'AGIL1'),
+  (44, 9, 'AGIL1');
+
 
 
 INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`)
