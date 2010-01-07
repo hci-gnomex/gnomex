@@ -720,6 +720,11 @@
     		<mx:RemoveChild target="{cy5SampleDragGrid}"/>
     		<mx:RemoveChild target="{label4}"/>
     	</mx:State>
+    	<mx:State name="HybsOneColorState" basedOn="HybsState">
+    		<mx:RemoveChild target="{label4}"/>
+    		<mx:RemoveChild target="{cy5SampleDragGrid}"/>
+    		<mx:SetProperty target="{label2}" name="text" value="Drag sample onto Cy3 Sample cell"/>
+    	</mx:State>
     	
     </mx:states>
 
