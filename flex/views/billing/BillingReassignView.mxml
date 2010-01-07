@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Reassign Account for Experiment ' + request.@requestNumber}" 
-	width="510" height="134" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')"> 
+	width="604" height="134" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -126,15 +126,15 @@
 				  change="refreshLab()" 
 				  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 				  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
- width="400"/>
+ width="500"/>
 		</mx:HBox>
 		<mx:HBox>
 			<mx:Label text="Account:"  width="80"/>
 			<mx:ComboBox id="billingAccountCombo"
-			   	  labelField="@accountName" 
+			   	  labelField="@accountNameAndNumber" 
 			   	  dataProvider="{billingAccounts}" 
 			   	  enabled="true"
-			   	  width="400"/>
+			   	  width="500"/>
 		</mx:HBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">

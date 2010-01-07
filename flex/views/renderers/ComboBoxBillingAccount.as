@@ -15,7 +15,7 @@ package views.renderers
 				{ dataField: dataField,				
 				  updateData: true,
 				  valueField: '@idBillingAccount',
-				  labelField: '@accountName'});							  
+				  labelField: '@accountNameDisplay'});							  
 			}			    	    
             
             override protected function initializationComplete():void
@@ -23,12 +23,12 @@ package views.renderers
             	super.initializationComplete();
             	this.dataProvider = parentDocument.billingAccounts;
             }                     
-       
+      
  			protected override function assignData():void {
  				super.assignData();
  				data.@accountName  = this.selectedItem.@accountName;
             }           
-			
+	
             
 	}
 
