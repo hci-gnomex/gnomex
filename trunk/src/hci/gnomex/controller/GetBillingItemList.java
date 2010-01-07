@@ -99,7 +99,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
         requestNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
         requestNode.setAttribute("billingLabName", labName);        
-        requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountName());       
+        requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountNameAndNumber());       
         requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
         requestNode.setAttribute("isDirty", "N");
         

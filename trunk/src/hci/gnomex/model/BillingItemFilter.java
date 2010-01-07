@@ -43,7 +43,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("            appUser, ");
     queryBuf.append("            req.createDate, ");
     queryBuf.append("            req.completedDate, ");
-    queryBuf.append("            ba.accountName ");
+    queryBuf.append("            ba ");
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
     queryBuf.append(" JOIN       req.billingAccount as ba ");
@@ -81,8 +81,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        appUser, ");
     queryBuf.append("        req.createDate, ");
     queryBuf.append("        req.completedDate, ");
-    queryBuf.append("        bi.idBillingAccount, ");
-    queryBuf.append("        ba.accountName, ");
+    queryBuf.append("        ba, ");
     queryBuf.append("        lab.isExternal ");
     
     queryBuf.append(" FROM        Request as req ");

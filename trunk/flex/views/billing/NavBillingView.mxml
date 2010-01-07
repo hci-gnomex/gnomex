@@ -266,6 +266,8 @@
 						return parentApplication.iconMicroarrayAffy; 
 					} else if (item.@codeRequestCategory == "AGIL") {
 						return parentApplication.iconMicroarray;
+					} else if (item.@codeRequestCategory == "AGIL1") {
+						return parentApplication.iconMicroarraySingleColor;
 					} else if (item.@codeRequestCategory == "QC") {
 						return parentApplication.iconQC; 
 					} else {
@@ -906,7 +908,7 @@
 	       				var newBillingAccount:XML = new XML(
 		   				 "<BillingAccount " + 
 	   			 	 	 " idBillingAccount='" + billingItem.@idBillingAccount + "'" +
-	   			 	 	 " accountName='" + billingItem.@accountName + "'" +
+	   			 	 	 " accountName='" + billingItem.@accountNameAndNumber + "'" +
 	   			 	 	 " idLab='" + billingItem.@idLab + "'" +
 	   			 	 	 " labName='" + billingItem.@labName + "'" +
 	   			 	 	 " percentage='" + billingItem.@percentageDisplay + "'" +
@@ -1030,7 +1032,7 @@
   <mx:VBox width="100%" verticalGap="4" height="100%">
 	    <mx:HBox width="100%" styleName="navBox" horizontalGap="8">
 
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+		    	<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
 					<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" paddingBottom="0"/>
 					<mx:ComboBox id="billingPeriodCombo" 
 						labelField="@display"
@@ -1044,21 +1046,30 @@
 					<mx:ComboBox id="labCombo" 
 						labelField="@name"
 						dataProvider="{parentApplication.promptedLabList}"
-						visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
+						visible="true"  width="160" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
 					</mx:ComboBox>
 			   </mx:HBox>
 
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="right" paddingRight="0">
 					<mx:Label id="billingAccountLabel" visible="true" text="Billing Account" paddingBottom="0"/>
-					<mx:ComboBox id="billingAccountCombo" 
-						labelField="@accountName"
-						 visible="true"  width="150" change="requestNumberText.text = &quot;&quot;;refresh()">
-					</mx:ComboBox>			   	
+					<mx:VBox width="100%" height="100%" verticalGap="0" horizontalGap="0">
+						<mx:ComboBox id="billingAccountCombo" 
+							labelField="@accountNameDisplay"
+							 visible="true"  width="400" change="requestNumberText.text = &quot;&quot;;refresh()">
+						</mx:ComboBox>
+						<mx:HBox width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
+							<mx:RadioButton label="Account name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
+							</mx:RadioButton>
+							<mx:RadioButton label="Account number" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0">
+								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
+							</mx:RadioButton>
+						</mx:HBox>
+					</mx:VBox>
+			   	
 		    	</mx:HBox> 
-				
-				<mx:VRule height="20"/>
 	    	
-				<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+				<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
 					<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0"/>
 					<mx:TextInput id="requestNumberText" width="60">
 					</mx:TextInput>			   	
@@ -1086,12 +1097,13 @@
 						itemClick="onRequestNodeSelected()"
 						iconFunction="getTreeIcon"  
 						labelFunction="getTreeLabel"
+						showDataTips="true"
 						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="true">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
 				        </mx:dataProvider>		 				  
 				        <mx:columns>
-  						  <mx:AdvancedDataGridColumn dataField="@label" showDataTips="true" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@label"  dataTipField="@dataTip"/> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
   				    <mx:ControlBar width="100%" verticalAlign="top" paddingTop="2">
@@ -1162,6 +1174,7 @@
                     allowMultipleSelection="false" 
                     iconFunction="getTreeIcon" 
                     wordWrap="true" 
+                    showDataTips="true"
                     headerWordWrap="true" 
                     selectionMode="singleRow" 
                      alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
@@ -1172,7 +1185,7 @@
         				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
         				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="10" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
-        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false" dataTipField="@billingAccountName"/>
         				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="13"  wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"   

@@ -199,6 +199,31 @@ public class BillingAccount extends HibernateDetailObject {
     this.idFundingAgency = idFundingAgency;
   }
 
+  public String getAccountNameAndNumber() {
+    String number = " - " + getAccountNumber();
+    if (getAccountNumber().trim().length() == 0) {
+      number = "";
+    }
+    return getAccountName() + number;
+  }
  
+  private String getActiveDisplay() {
+    return getIsActive().equals("N") ?"(inactive) " : "";
+  }
+  
+  public String getAccountNameDisplay() {
+    String number =  " - " + getAccountNumber();
+    if (getAccountNumber().trim().length() == 0) {
+      number = "";
+    }    return  getActiveDisplay() + getAccountName() + number;
+  }
+  
+  public String getAccountNumberDisplay() {
+    String number = getAccountNumber() + " - ";
+    if (getAccountNumber().trim().length() == 0) {
+      number = "";
+    }
+    return getActiveDisplay() + number + getAccountName();       
+  }
   
 }

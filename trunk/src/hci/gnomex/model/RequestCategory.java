@@ -21,6 +21,7 @@ public class RequestCategory extends DictionaryEntry implements Serializable {
   private Integer  idVendor;
   private String   isActive;
   private Integer  numberOfChannels;
+  private String   notes;
 
   
   
@@ -81,6 +82,16 @@ public class RequestCategory extends DictionaryEntry implements Serializable {
   
   public void setNumberOfChannels(Integer numberOfChannels) {
     this.numberOfChannels = numberOfChannels;
+  }
+
+  
+  public String getNotes() {
+    return notes;
+  }
+
+  
+  public void setNotes(String notes) {
+    this.notes = notes;
   }
   
   

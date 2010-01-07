@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
@@ -104,7 +105,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         AppUser submitter          = (AppUser)row[6];
         Date createDate            = (Date)row[7];
         Date completedDate         = (Date)row[8];
-        String billingAcctName     = (String)row[9]  == null ? ""  : (String)row[9];
+        BillingAccount billingAcct = (BillingAccount)row[9];
         
         String labName = Lab.formatLabName(labLastName, labFirstName);
         
@@ -130,7 +131,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
         node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
       
-        String labBillingName = labName + " (" + billingAcctName + ")";
+        String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
         String requestNumberBilled = requestNumber + labBillingName;
 
         // Hash the status node.
@@ -180,9 +181,8 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       AppUser submitter          = (AppUser)row[7];
       Date createDate            = (Date)row[8];
       Date completedDate         = (Date)row[9];
-      Integer idBillingAcct      = (Integer)row[10];
-      String billingAcctName     = (String)row[11]  == null ? ""  : (String)row[11];
-      String labIsExternal       = (String)row[12];
+      BillingAccount billingAcct = (BillingAccount)row[10];
+      String labIsExternal       = (String)row[11];
   
       
       String labName = Lab.formatLabName(labLastName, labFirstName);
@@ -190,7 +190,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       
       String toolTip = requestNumber + " " + labName;
       
-      String labBillingName = labName + " (" + billingAcctName + ")";
+      String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
       String requestNumberBilled = requestNumber + labBillingName;
       
       if (createDate != null) {
@@ -217,10 +217,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       if (labNode == null) {
         labNode = new Element("Lab");
         labNode.setAttribute("label", labBillingName);
+        labNode.setAttribute("dataTip", labBillingName);
         labNode.setAttribute("idLab", idLab != null ? idLab.toString() : "");
         labNode.setAttribute("name", labName);
-        labNode.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
-        labNode.setAttribute("billingAccountName", billingAcctName);
+        labNode.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
+        labNode.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
         labNodeMap.put(labBillingName, labNode);
       }
       
@@ -242,8 +243,8 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
       node.setAttribute("labName", labName != null ? labName : "");
-      node.setAttribute("idBillingAccount", idBillingAcct != null ? idBillingAcct.toString() : "");
-      node.setAttribute("billingAccountName", billingAcctName);
+      node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
+      node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
       
       // There can be multiple requests nodes for a given request number when
       // the request's billing items are split among multiple billing 
@@ -354,6 +355,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           if (labNode == null) {
             labNode = new Element("Lab");
             labNode.setAttribute("label", requestNode.getAttributeValue("labBillingName"));
+            labNode.setAttribute("dataTip", requestNode.getAttributeValue("labBillingName"));
             labNode.setAttribute("idLab", requestNode.getAttributeValue("idLab"));
             labNode.setAttribute("name", requestNode.getAttributeValue("labBillingName"));
             labNode.setAttribute("idBillingAccount", requestNode.getAttributeValue("idBillingAccount"));

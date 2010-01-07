@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Split Accounts for Experiment ' + request.@requestNumber}" 
-	width="480" height="232" defaultButton="{saveButton}"> 
+	width="754" height="216" defaultButton="{saveButton}"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -84,6 +84,7 @@
     	   				 "<BillingAccount " + 
        			 	 	 " idBillingAccount='" + "'" +
        			 	 	 " accountName='" + "'" +
+       			 	 	 " accountNumber='" + "'" +
        			 	 	 " idLab='"  + "'" +
        			 	 	 " labName='" + "'" +
        			 	 	 " percentage='" + "'" +
@@ -149,7 +150,7 @@
 			<mx:LinkButton textDecoration="underline" label="Add" click="addAccountEntry()" icon="@Embed(source='../../assets/add.png')" id="addAccountButton" toolTip="Add account" />
 			<mx:LinkButton textDecoration="underline" label="Remove" click="removeAccountEntry()" icon="@Embed(source='../../assets/delete.png')" id="deleteAccountButton" toolTip="Remove account" />
 		</mx:HBox> 
-		<mx:DataGrid id="accountsGrid" width="100%" height="100%"  editable="true" allowMultipleSelection="false">
+		<mx:DataGrid id="accountsGrid" width="100%" height="100%"  editable="true" allowMultipleSelection="false" >
 			<mx:columns>
 				<mx:DataGridColumn headerText="Group" width="50" dataField="@idLab" editable="true"
 					editorDataField="value" 
@@ -157,11 +158,13 @@
         			labelFunction="getLabName"
         			itemRenderer="{hci.flex.controls.Label.create('@idLab')}"
 					itemEditor="{ComboBoxGroup.create('@idLab')}"/>        				
-				<mx:DataGridColumn headerText="Billing Account" width="80"  dataField="@idBillingAccount" editable="true"
+				<mx:DataGridColumn headerText="Billing Account" width="180"  dataField="@idBillingAccount" editable="true"
+					dataTipFunction="getBillingAccountName"
+					showDataTips="true" 
 					editorDataField="value"  
         			labelFunction="getBillingAccountName"
         			rendererIsEditor="false"
-        			itemRenderer="{hci.flex.controls.Label.create('@idBillingAccount')}"
+        			itemRenderer="mx.controls.Label"
 					itemEditor="{ComboBoxBillingAccount.create('@idBillingAccount')}"/>        
 				<mx:DataGridColumn headerText="%" width="13" dataField="@percentage" editable="true"
 					editorDataField="text" 

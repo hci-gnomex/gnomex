@@ -71,6 +71,7 @@
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}"/>
+					<mx:Text text="{parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}"/>
 				</mx:VBox>
 			</mx:HBox>
 			
