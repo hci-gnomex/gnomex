@@ -518,7 +518,7 @@
 		public function setRequestCategoryName():void {
 			var requestCategory:Object = getRequestCategory();
 			requestCategoryName = requestCategory.@display.toString();
-
+			this.setupView.requestRadioAgilentSingleColor.setStyle("fontWeight",this.setupView.requestRadioAgilentSingleColor.selected    == true ?  "bold" : "normal");	
 			this.setupView.requestRadioAffy.setStyle(   "fontWeight",this.setupView.requestRadioAffy.selected    == true ?  "bold" : "normal");	
 			this.setupView.requestRadioAgilent.setStyle("fontWeight",this.setupView.requestRadioAgilent.selected == true ?  "bold" : "normal");	
 			this.setupView.requestRadioQC.setStyle(     "fontWeight",this.setupView.requestRadioQC.selected      == true ?  "bold" : "normal");	
@@ -1870,7 +1870,7 @@
 
 		private function showPrintableRequestForm():void {
 			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest);
-			navigateToURL(url, '_blank');			
+			navigateToURL(url, '_blank');	
 		}
 		
 		private function underlyingHybDataChange(event:CollectionEvent):void {
