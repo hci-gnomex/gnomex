@@ -11,6 +11,7 @@ public class MicroarrayCategory extends DictionaryEntry implements Serializable,
   public static final String   CHIP_ON_CHIP_MICROARRAY_CATEGORY = "CHIP";
   public static final String   SNP_MICROARRAY_CATEGORY          = "SNP";
   public static final String   HYBMAP_MICROARRAY_CATEGORY       = "WTRANSCRP";
+  public static final String   MIRNA_MICROARRAY_CATEGORY        = "MIRNA";
   
 
   private String codeMicroarrayCategory;
