@@ -590,11 +590,10 @@
             
             private function init():void {
             	appProgressBar = new AppProgressView();
+            	appProgressBar.currentState = "StartupState";
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 				PopUpManager.centerPopUp(appProgressBar);
-			    
-			    this.showProgress(20);
-			    
+
             	if (isGuestMode() ) { 
             		var captchaWindow:CaptchaView = new CaptchaView();
             		PopUpManager.addPopUp(captchaWindow, mainArea, false);
@@ -707,7 +706,7 @@
             }
 
             private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
-            	Alert.show("Authentication to application has failed.  Please try launching app again.");
+            	this.appProgressBar.currentState = "AuthenticationFailedState";
             }
             
             private function onCreateSecurityAdvisor(event:ResultEvent):void {
@@ -716,26 +715,34 @@
             		Alert.show("Authentication failed.");  
             		return;	
             	}
-            	userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
+			    
+			    this.appProgressBar.currentState = "LoadingState";
+			    this.showProgress(10);
+			    
+			    userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 			    
 			    		
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
 			    
-			    this.showProgress(20);
 				
             	getAppUserList.send();
             	getExperimentDesignList.send();
             	getExperimentFactorList.send();
             	getLabList.send();
             	getSlideProductList.send();
+            	getSlideDesignList.send();
             	getProjectList.send();
 
+			    this.showProgress(10);
 				
             }
             
             private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
+			    this.appProgressBar.currentState = "LoadingState";
+            	this.showProgress(10);
+
             	if (!(getSecurityAdvisorForGuest.lastResult is XML) ||
             	    getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
             		Alert.show("You must launch GNomEx from guest page.");  
@@ -746,8 +753,7 @@
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
-			    
-			    this.showProgress(20);
+
 
             	getAppUserList.send(); 
             	getExperimentDesignList.send();
@@ -828,6 +834,9 @@
             private function onGetSlideDesignList(event:ResultEvent):void {
 	        	var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
 	        	slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
+	        	
+	        	showProgress(10);
+	        	enableApp();
             }
             
             private function onGetProjectList(event:ResultEvent):void {
@@ -859,6 +868,7 @@
 	        	    filteredProjectList != null &&
 	        	    promptedAppUserList != null &&
 	        	    promptedLabList != null &&
+	        	    slideDesignList != null &&
 	        	    filteredSlideProductList != null) {
 	        	    	
 					appProgressBar.bar.setProgress(100, 100);

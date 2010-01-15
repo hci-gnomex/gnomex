@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Hybs" width="100%" height="100%" enabled="false" >
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Hyb View" width="100%" height="100%" enabled="false" >
 <mx:Script> 
 	<![CDATA[ 
 		import mx.events.CloseEvent;
@@ -398,12 +398,15 @@
     <mx:XMLListCollection id="cy3Samples"/>
     <mx:XMLListCollection id="cy5Samples"/>
     <mx:VBox width="100%" height="100%" verticalGap="0">
-      <mx:HBox>
-		  <mx:Label text="Drag sample onto Cy3 or Cy5 Sample cell" id="label2" fontStyle="italic"></mx:Label>      	
-      </mx:HBox>
+
+  		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2">
+  			  <mx:TextArea styleName="instructionBox" width="700" wordWrap="true" height="80" id="textarea1">
+  			  	  <mx:htmlText><![CDATA[Instructions<br>  1.  Pairwise combinations of samples to be hybridized to microarrays are defined on this page. These combinations <br>      are designated by dragging a Cy3 sample to an appropriate cell in the green column and the corresponding<br>      Cy5 sample to an adjacent cell in the red column. <br>  2.  After defining the microarray hybrid pairs on this screen, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+			  </mx:TextArea>
+		</mx:VBox>
 			   	
 	    <mx:HDividedBox height="100%" width="100%" paddingTop="6">
-	        <mx:VBox height="100%" verticalGap="2"   width="125" borderStyle="none" id="vbox1">
+	        <mx:VBox height="100%" verticalGap="2"   width="135" borderStyle="none" id="vbox1">
 	            <mx:Label text="Cy3 Samples (green)" paddingTop="2" id="label3"/>
 	        	<mx:DataGrid
 	        		 height="100%" width="100%"  showHeaders="false"
@@ -491,6 +494,7 @@
 			                    </mx:Component>
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
+			            <mx:DataGridColumn id="arrayCoordinateColumn" headerText="Coord" dataField="@arrayCoordinate" width="45"/>
 					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="100"  
 					    	labelFunction="parentDocument.getSampleChannel1Name" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" 
@@ -702,13 +706,18 @@
     			    <mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE" click="showExtWorkflowCols(showExtFieldsCheckBox.selected)" paddingLeft="0" paddingRight="0"/>
     			   </mx:HBox>
     		</mx:AddChild>
+    		<mx:SetProperty target="{textarea1}" name="htmlText">
+    			<mx:value><![CDATA[Instructions<br>  1. Samples to be hybridized to microarrays are defined on this page. These hybridizations <br>      are designated by dragging a Cy3 sample to an appropriate cell in the green column. <br>  2.  Click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
+    		</mx:SetProperty>
+    		<mx:SetProperty target="{textarea1}" name="width" value="560"/>
+    		<mx:SetProperty target="{textarea1}" name="height" value="64"/>
     	</mx:State>
     	<mx:State name="HybsEditState" basedOn="HybsState">
     		<mx:RemoveChild target="{buttonContainer}"/>
     		<mx:RemoveChild target="{vbox1}"/>
     		<mx:SetStyle target="{hybsContainer}" name="borderStyle" value="none"/>
-    		<mx:SetProperty target="{label2}" name="text" value="Hybridizations"/>
-    		<mx:SetStyle target="{label2}" name="fontStyle" value="normal"/>
+    		<mx:RemoveChild target="{textarea1}"/>
+    		<mx:RemoveChild target="{vbox2}"/>
     	</mx:State>
     	<mx:State name="HybsAdminState" basedOn="HybsState">
     		<mx:RemoveChild target="{addHybButton}"/>
@@ -719,11 +728,12 @@
     		<mx:SetProperty target="{label3}" name="text" value="Samples"/>
     		<mx:RemoveChild target="{cy5SampleDragGrid}"/>
     		<mx:RemoveChild target="{label4}"/>
+    		<mx:RemoveChild target="{textarea1}"/>
+    		<mx:RemoveChild target="{vbox2}"/>
     	</mx:State>
     	<mx:State name="HybsOneColorState" basedOn="HybsState">
     		<mx:RemoveChild target="{label4}"/>
     		<mx:RemoveChild target="{cy5SampleDragGrid}"/>
-    		<mx:SetProperty target="{label2}" name="text" value="Drag sample onto Cy3 Sample cell"/>
     	</mx:State>
     	
     </mx:states>

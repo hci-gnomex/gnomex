@@ -4,10 +4,8 @@
       <mx:State name="AdminState">
          <mx:AddChild relativeTo="{accountBox}" position="before">
             <mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
-                   <mx:Text width="170">
-                      <mx:htmlText>
-					  	<![CDATA[(2) Pick the user <br> submitting the request:]]>
-					  </mx:htmlText>
+                   <mx:Text width="200">
+                          <mx:htmlText>(2) Verify your name.</mx:htmlText>
 					</mx:Text>
             		<mx:ComboBox dataProvider="{appUsers}" 
             			selectedIndex="-1" labelField="@displayName" 
@@ -406,9 +404,14 @@
           
 
         	
-		<mx:VBox width="100%" height="100%" verticalGap="14" paddingTop="10" id="vbox1">
+		<mx:VBox width="100%" height="100%" verticalGap="14" paddingTop="2" id="vbox1">
+			<mx:VBox  horizontalAlign="center" paddingLeft="4">
+  			  <mx:TextArea styleName="instructionBox" width="620" wordWrap="true" height="64">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio button options for each line.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will be electronically billed following completion of the work.]]></mx:htmlText>
+			  </mx:TextArea>
+			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-				<mx:Label text="(1) Verify your lab:" width="170"/>
+				<mx:Label text="(1) Verify your lab group." width="200"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
 					width="340"
@@ -417,18 +420,17 @@
 			</mx:HBox>
 			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
 				<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top">
-					<mx:Text  width="170"  id="text1">
-					  <mx:htmlText>
-					  	<![CDATA[(2) Pick the account to be <br> billed:]]>
-					  </mx:htmlText>
+					<mx:Text  width="200"  id="text1">
+						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
-					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="20" width="100%">
+					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
 						<mx:ComboBox labelField="@accountNameAndNumber" width="100%" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 						</mx:ComboBox>
-						<mx:Text width="100%" id="workAuthInstructions" fontStyle="italic" fontSize="9" >
-						</mx:Text>
-						<mx:HBox horizontalGap="2" paddingTop="0" paddingBottom="0">
+						
+						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0">
+						    <mx:Text width="400" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
+						    </mx:Text>
 							<mx:LinkButton label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0"> 
 								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_PDF_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
@@ -447,20 +449,11 @@
 				
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top">
-				<mx:Label text="(3) Select a service:" width="166" id="label11"/>
+				<mx:Label text="(3) Select a service category." width="200" id="label11"/>
 				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="1" paddingBottom="0" width="100%">
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:Text text="Service" width="207" fontWeight="normal" textDecoration="underline" fontStyle="normal"/>
 					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline"/>
-					</mx:HBox>
-					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
-					    <mx:HBox horizontalAlign="center">
-					     <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
-					    </mx:HBox>
-					    <mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 1-color Microarray" value="AGIL1" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilentSingleColor" width="180"/>							
-					    </mx:HBox>
-					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
@@ -471,6 +464,15 @@
 					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 2-color Microarray " value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="180"/>							
 					    </mx:HBox>
 					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%"/>
+					</mx:HBox>
+					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
+					    <mx:HBox horizontalAlign="center">
+					     <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
+					    </mx:HBox>
+					    <mx:HBox>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 1-color Microarray" value="AGIL1" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilentSingleColor" width="180"/>							
+					    </mx:HBox>
+					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
@@ -498,8 +500,8 @@
 				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top">
-				<mx:Text width="170" id="text2">
-					<mx:htmlText>(4) Pick a project folder for organizing this request:</mx:htmlText>
+				<mx:Text width="200" id="text2">
+					<mx:htmlText>(4) Select a project folder for organizing experiment information and data linked to this request.</mx:htmlText>
 				</mx:Text>
 				<mx:HBox verticalGap="2" horizontalGap="4">
 				    <mx:VBox verticalGap="2" id="vbox2">
