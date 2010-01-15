@@ -12,8 +12,6 @@
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				
-				fragmentSizeFromConfirmCol.visible = true;
-				fragmentSizeToConfirmCol.visible = true;
 				preppedByCoreCol.visible = true;
 				
 				if (!parentDocument.isEditState() &&
@@ -27,16 +25,12 @@
 				sampleOrganismConfirmColumn.visible = false;
 				chipTypeConfirmColumn.visible = true; 
 				samplePrepMethodConfirmCol.visible = true;
-				fragmentSizeFromConfirmCol.visible = false;
-				fragmentSizeToConfirmCol.visible = false;
 				preppedByCoreCol.visible = false;
 			} else {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				samplePrepMethodConfirmCol.visible = true;
-				fragmentSizeFromConfirmCol.visible = false;
-				fragmentSizeToConfirmCol.visible = false;
 				preppedByCoreCol.visible = false;
 			}
 			// If this is a QC request, hide the annotation columns 
@@ -106,10 +100,6 @@
 
 
 
-						<mx:DataGridColumn id="fragmentSizeFromConfirmCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom">
-						</mx:DataGridColumn>
-						<mx:DataGridColumn id="fragmentSizeToConfirmCol" headerText="Size To" width="54"  dataField="@fragmentSizeTo">
-						</mx:DataGridColumn>
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
@@ -134,7 +124,6 @@
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideDesign').DictionaryEntry, '@display', '@value', '@idSlideDesign')}"/>
 					     <mx:DataGridColumn headerText="Slide Source"  width="52" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>
-						<mx:DataGridColumn headerText="Notes" width="100" dataField="@notes"/>
 					</mx:columns>
 				</mx:DataGrid>
 				

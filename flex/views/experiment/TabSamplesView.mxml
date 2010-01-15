@@ -69,8 +69,6 @@
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
 					" idSamplePrepMethod=''"  +				
 					" seqPrepByCore = 'Y'" +
-					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
-					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
@@ -174,8 +172,6 @@
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
 					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
-					" fragmentSizeFrom='" + sampleToCopy.@fragmentSizeFrom + "'" +				
-					" fragmentSizeTo='" + sampleToCopy.@fragmentSizeTo + "'" +				
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
 					" treatment='" + sampleToCopy.@treatment + "'" +		
@@ -258,8 +254,6 @@
 		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
 	        			if (isEntered(sample, "@name") &&
 	        			    isEntered(sample, "@idSampleType") &&
-	        			    isEntered(sample, "@fragmentSizeFrom") &&
-	        			    isEntered(sample, "@fragmentSizeTo") &&
 	        			    isEntered(sample, "@idOrganism") &&
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
@@ -274,8 +268,6 @@
 			        		isEntered(sample, "@idSampleType") &&	        		
 			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
 			        		isEntered(sample, "@concentration") &&
-			        		isEntered(sample, "@fragmentSizeFrom") &&
-			        		isEntered(sample, "@fragmentSizeTo") &&
 			        		isEntered(sample, "@idOrganism") &&
 			        		isEntered(sample, "@idSeqRunType") &&
 			        		isEntered(sample, "@idNumberSequencingCycles")) {
@@ -494,20 +486,6 @@
 				}
 			}
 		}       
-		public function propagateFragmentSizeFrom(fragmentSizeFrom:String):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@fragmentSizeFrom = fragmentSizeFrom;
-				}
-			}
-		}		
-		public function propagateFragmentSizeTo(fragmentSizeTo:String):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@fragmentSizeTo = fragmentSizeTo;
-				}
-			}
-		}		
         public function showHideColumns():void {
         	sampleNumberCol.visible = parentDocument.isEditState();
         	sampleRowNumberCol.visible = !parentDocument.isEditState();
@@ -528,8 +506,6 @@
 				numberSequencingCyclesCol.visible =  false;
 				preppedByCoreCol.visible =  false;
 				idSeqRunTypeCol.visible =  false;
-				fragmentSizeFromCol.visible = false;
-				fragmentSizeToCol.visible = false;
 
         	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
@@ -541,8 +517,6 @@
 				sampleOrganismColumn.visible = true;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = true;
-				fragmentSizeFromCol.visible = true;
-				fragmentSizeToCol.visible = true;
 				labelColumn.visible = false;
 				
 				if (!parentDocument.isEditState() &&
@@ -563,8 +537,6 @@
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = true; 
-				fragmentSizeFromCol.visible = false;
-				fragmentSizeToCol.visible = false;
 				labelColumn.visible = false;
 				
 			} else {
@@ -577,8 +549,6 @@
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
-				fragmentSizeFromCol.visible = false;
-				fragmentSizeToCol.visible = false;
 				labelColumn.visible = !parentDocument.isEditState();
 			}
 			
@@ -727,12 +697,6 @@
 					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/> 
 
 
-					<mx:DataGridColumn id="fragmentSizeFromCol" headerText="Size From" width="54" editorDataField="text" dataField="@fragmentSizeFrom" rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@fragmentSizeFrom')}"                
- 	                   itemEditor="views.renderers.TextInputSampleFragSizeFrom"      />          
-					<mx:DataGridColumn id="fragmentSizeToCol" headerText="Size To" width="54" editorDataField="text" dataField="@fragmentSizeTo"  rendererIsEditor="false"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@fragmentSizeTo')}"                
- 	                   itemEditor="views.renderers.TextInputSampleFragSizeTo"       />          
 	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
                         itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
