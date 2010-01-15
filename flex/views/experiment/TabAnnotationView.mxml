@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="false" >
+<mx:Canvas label="Annotation Setup"  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="false" >
+	<mx:states>
+		<mx:State name="EditState">
+			<mx:SetProperty target="{textarea1}" name="htmlText">
+				<mx:value><![CDATA[Instructions<br>  1.  Optional: Characterisitics that are listed on this page can be used to provide <br>       additional annotation of your samples on a subsequent screen.<br>       Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.]]></mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{textarea1}" name="height" value="80"/>
+		</mx:State>
+	</mx:states>
 <mx:Script>
 	<![CDATA[
 		import views.util.AnnotationDataGridColumn;
@@ -298,11 +306,17 @@
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%">
+	    <mx:VBox  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
+  			  <mx:TextArea styleName="instructionBox" width="620" wordWrap="true" height="90" visible="true" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characterisitics that are listed on this page can be used to provide <br>       additional annotation of your samples on a subsequent screen.<br>       Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+			  </mx:TextArea>
+		</mx:VBox>
+		
 		<mx:HBox width="100%" height="100%" horizontalGap="24">
 			<mx:VBox height="100%" verticalGap="1">
 			    <mx:HBox>
-				    <mx:Text width="100%" height="100%">
-				    	<mx:text>(1) Specify all sample characteristics you wish to annotate in subsequent columns:</mx:text>
+				    <mx:Text width="300" height="100%">
+				    	<mx:text>(1) Check sample characteristics:</mx:text>
 				    </mx:Text>
 			    	
 			    </mx:HBox>

@@ -156,7 +156,11 @@
 		public var requestToClone:Object;
 		
 		[Bindable]
-		public var userWarnings:String = "";
+		public var userWarningsSamples:String = "";
+		[Bindable]
+		public var userWarningsSampleSetup:String = "";
+		[Bindable]
+		public var userWarningsHybSetup:String = "";
 		
 		public var concentrationValidator:NumberValidator = new NumberValidator();
 
@@ -436,9 +440,9 @@
 				if (isSolexaState()) {
 					sampleSetupView.fragmentSizeFrom.text = '';
 					sampleSetupView.fragmentSizeTo.text = '';
-					sampleSetupView.numberSequencingCyclesCombo.selectedIndex = 0;
-					sampleSetupView.genomeBuildCombo.selectedIndex = 0;
-					sampleSetupView.analysisInstructions.text = '';
+				    seqSetup1View.numberSequencingCyclesCombo.selectedIndex = 0;
+					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
+					seqSetup1View.analysisInstructions.text = '';
 				}
 			}
 					
@@ -511,6 +515,15 @@
 			} else {
 				backButton.enabled = false;
 			}
+			if (theTab.selectedChild == this.samplesView) {
+				this.userWarningStack.selectedChild = this.userWarningsBoxSamples;
+			} else if (!this.isEditState() && theTab.selectedChild == this.sampleSetupView) {
+				this.userWarningStack.selectedChild = this.userWarningsBoxSampleSetup;
+			} else if (this.isMicroarrayState() && theTab.selectedChild == this.hybSetupView) {
+				this.userWarningStack.selectedChild = this.userWarningsBoxHybSetup;
+			} else {
+				this.userWarningStack.selectedIndex = 0;
+			}
 		}
 
 		
@@ -536,8 +549,8 @@
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
-				this.sampleSetupView.seqRunTypeValidator.validate();
-				this.sampleSetupView.numberSeqCyclesValidator.validate();
+				this.seqSetup1View.seqRunTypeValidator.validate();
+				this.seqSetup1View.numberSeqCyclesValidator.validate();
 				this.sampleSetupView.fragmentSizeFromValidator.validate();
 				this.sampleSetupView.fragmentSizeToValidator.validate();
 				
@@ -779,12 +792,12 @@
         	// (if specified).
         	var doesMatchSeqRunType:Boolean = true;
         	if (isSolexaState()) {
-        		if (sampleSetupView.seqRunTypeCombo.selectedItem != null &&
-        		    sampleSetupView.seqRunTypeCombo.selectedItem.@value != "") {
+        		if (seqSetup1View.seqRunTypeCombo.selectedItem != null &&
+        		    seqSetup1View.seqRunTypeCombo.selectedItem.@value != "") {
         			doesMatchSeqRunType = false;
 	        	   	var matchingSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSeqRunType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
     	    	   	for each (var matchingEntry:Object in matchingSamplePrepMethods) {
-        		   		if (matchingEntry.@idSeqRunType.toString() == sampleSetupView.seqRunTypeCombo.selectedItem.@value.toString()) {
+        		   		if (matchingEntry.@idSeqRunType.toString() == seqSetup1View.seqRunTypeCombo.selectedItem.@value.toString()) {
     	   					doesMatchSeqRunType = true;
 	    	   			    break;
         	   			}
@@ -1225,6 +1238,7 @@
 
 			if (request.@codeRequestCategory == 'SOLEXA') {
 				currentState = 'SolexaEditState';
+				this.annotationView.currentState = 'EditState';			
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
 					samplesView.currentState = 'SolexaSamplesAdminState';						
 				} else {
@@ -1249,8 +1263,10 @@
 
 			} else {
 				currentState = 'MicroarrayEditState';
+				this.hybSetupView.currentState = 'EditState';
+				this.annotationView.currentState = 'EditState';			
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					samplesView.currentState = 'MicroarraySamplesAdminState';				
+					samplesView.currentState = 'MicroarraySamplesAdminState';	
 					hybsView.currentState = 'HybsAdminState';	
 				} else {
 					samplesView.currentState = 'MicroarraySamplesEditState';					
@@ -1374,7 +1390,7 @@
 
 				var microarrayCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', request.@codeMicroarrayCategory);
 				hybSetupView.microarrayCategoryCombo.selectedItem = microarrayCategory[0];
-				checkForSampleTypeCompatibility();
+				hybSetupView.checkForSampleTypeCompatibility();
 
 				hybSetupView.initializeSlideProductCombo();
 				hybSetupView.slideProductValidator.validate();
@@ -1477,28 +1493,7 @@
         		
         	}
         	return compatible;
-        }
-        
-        public function checkForSampleTypeCompatibility():void {
-        	if (!this.isSampleTypeCompatibile()) {
-        		if (isEditState()) {
-					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', request.@idSampleTypeDefault);
-					var sampleTypeName:String = sampleType.@display.toString();
-        			
-	        		Alert.show('Sample type ' + sampleTypeName + 
-	        		' cannot be used for ' + hybSetupView.microarrayCategoryCombo.selectedItem.@display + 
-	        		' experiments.  Please change the microarray category.');
-        			
-        		} else {
-	        		Alert.show('Sample type ' + sampleSetupView.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + hybSetupView.microarrayCategoryCombo.selectedItem.@display + 
-	        		' experiments.  Please change the sample type or microarray category.');
-        			
-        		}
-
-        		hybSetupView.slideProductCombo.selectedIndex = 0;
-        	}
-        }
+        }        
 
 		private function validateRequest():void {
 			errorMessage = '';
@@ -2043,6 +2038,9 @@
 		    
 		    <experiment:TabSampleSetupView id="sampleSetupView">		    	
 		    </experiment:TabSampleSetupView>
+
+		    <experiment:TabSeqSetup1View id="seqSetup1View">		    	
+		    </experiment:TabSeqSetup1View>
 		   
 		    <experiment:TabAnnotationView id="annotationView">		    	
 		    </experiment:TabAnnotationView> 
@@ -2070,9 +2068,19 @@
 				</mx:Button>
 				<mx:ViewStack id="confirmButtonStack" width="100%">
 							<mx:HBox  height="22" horizontalScrollPolicy="off" width="100%"   verticalAlign="middle">
-							  <mx:HBox width="100%" horizontalScrollPolicy="off" visible="{userWarnings == '' ? false : true}">
-									<mx:Label id="errorMessageLabel" text="{userWarnings}" width="100%" color="#D00E0E" fontWeight="bold"/>
-							  </mx:HBox>
+							  <mx:ViewStack id="userWarningStack" width="100%">
+							      <mx:HBox width="100%">
+							      </mx:HBox>
+								  <mx:HBox id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}">
+										<mx:Label  text="{userWarningsSamples}" width="100%" color="#D00E0E" fontWeight="bold"/>
+								  </mx:HBox>							  	
+								  <mx:HBox id="userWarningsBoxSampleSetup" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}">
+										<mx:Label  text="{userWarningsSampleSetup}" width="100%" color="#D00E0E" fontWeight="bold"/>
+								  </mx:HBox>
+								  <mx:HBox id="userWarningsBoxHybSetup" width="100%" horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}">
+										<mx:Label  text="{userWarningsHybSetup}" width="100%" color="#D00E0E" fontWeight="bold"/>
+								  </mx:HBox>
+							  </mx:ViewStack>
 							</mx:HBox>
 								
 							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
@@ -2173,13 +2181,17 @@
     				
     			</mx:HBox>
     		</mx:AddChild>
+    		<mx:RemoveChild target="{seqSetup1View}"/>
     	</mx:State>
-        <mx:State name="MicroarrayState"/>
+        <mx:State name="MicroarrayState">
+            <mx:RemoveChild target="{seqSetup1View}"/>
+        </mx:State>
         <mx:State name="QCState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+            <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
@@ -2202,7 +2214,7 @@
 						</mx:columns>
 					</mx:DataGrid>
 					
-				</mx:VBox>					        			
+				</mx:VBox>	
             </mx:AddChild>
          </mx:State>
         <mx:State name="QCEditState" basedOn="EditState">

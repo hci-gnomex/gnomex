@@ -4,15 +4,46 @@
 	label="horizontal" horizontalAlign="center" verticalAlign="middle"  
 	styleName="appProgressWindow" borderStyle="solid" cornerRadius="3" 
 	modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7">
-	 <mx:ProgressBar id="bar"  
-	 	   styleName="appProgressBar"
-            minimum="0" 
-            visible="true"
-            maximum="100"
-            fontWeight="normal"  
-		  	labelPlacement="top" 
-		  	textAlign="left" 
-            direction="right" mode="manual" width="100%" 
-            height="100%" label="Loading application settings..." />
+	 <mx:states>
+	 	 <mx:State name="StartupState">
+	 	 	 <mx:RemoveChild target="{label1}"/>
+	 	 	 <mx:AddChild position="lastChild">
+	 	 	 	 <mx:Label text="Getting security settings..." color="#4D4343" id="label2"/>
+	 	 	 </mx:AddChild>
+	 	 	 <mx:AddChild relativeTo="{label2}" position="before">
+	 	 	 	 <mx:Label text="Welcome to GNomEx" color="#FFFFFF" id="label3"/>
+	 	 	 </mx:AddChild>
+	 	 	 <mx:SetStyle name="verticalAlign" value="top"/>
+	 	 	 <mx:SetStyle name="paddingTop" value="10"/>
+	 	 </mx:State>
+	 	 <mx:State name="LoadingState">
+	 	 	 <mx:RemoveChild target="{label1}"/>
+	 	 	 <mx:AddChild position="lastChild">
+	 	 	 	 <mx:ProgressBar id="bar"  
+	 	 	 	 	   styleName="appProgressBar"
+	 	 	 	        minimum="0" 
+	 	 	 	        visible="true"
+	 	 	 	        maximum="100"
+	 	 	 	        fontWeight="normal"  
+	 	 	 	   	labelPlacement="top" 
+	 	 	 	   	textAlign="left" 
+	 	 	 	        direction="right" mode="manual" width="100%" 
+	 	 	 	        height="100%" label="Loading application settings..." />
+	 	 	 </mx:AddChild>
+	 	 </mx:State>
+	 	 <mx:State name="AuthenticationFailedState" basedOn="StartupState">
+	 	 	 <mx:RemoveChild target="{label3}"/>
+	 	 	 <mx:SetProperty target="{label2}" name="text">
+	 	 	 	 <mx:value>Unable to authenticate to GNomEx.</mx:value>
+	 	 	 </mx:SetProperty>
+	 	 	 <mx:AddChild position="lastChild">
+	 	 	 	 <mx:Label text="Please try logging in again." color="#4D4343"/>
+	 	 	 </mx:AddChild>
+	 	 	 <mx:SetStyle name="verticalGap" value="0"/>
+	 	 	 <mx:SetStyle name="paddingTop" value="14"/>
+	 	 	 <mx:SetStyle target="{label2}" name="color" value="#4D4343"/>
+	 	 </mx:State>
+	 </mx:states>
+	 <mx:Label text="Welcome to GNomEx" color="#FFFFFF" id="label1"/>
 
 </mx:Panel>

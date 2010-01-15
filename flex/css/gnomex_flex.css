@@ -396,5 +396,9 @@ TextArea {
 {
 	fontFamily: "Arial Narrow";
 }
+VBox.instructionBox
+{
+	backgroundColor: #FFFEC3;
+}
 
 

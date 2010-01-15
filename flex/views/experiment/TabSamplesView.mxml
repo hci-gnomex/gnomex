@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
     xmlns:views="*.views"
-	label="Samples" width="100%" height="100%"  enabled="false">
+	label="Sample View" width="100%" height="100%"  enabled="false">
 <mx:Script>
 	<![CDATA[
 		import views.renderers.TextInputSeqPrepByCore;
@@ -33,15 +33,15 @@
    					" canChangeNumberSequencingLanes='Y'" + 
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
-					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
-					" idSeqRunType='" + parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
+					" idSeqRunType='" + parentDocument.seqSetup1View.seqRunTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" seqPrepByCore = 'N'" +
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
-					" analysisInstructions='" + parentDocument.sampleSetupView.analysisInstructions.text + "'" +				
+					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
+					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
 					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
@@ -60,13 +60,13 @@
    					" canChangeNumberSequencingCycles='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration=''" +
-					" idNumberSequencingCycles='" + parentDocument.sampleSetupView.numberSequencingCyclesCombo.selectedItem.@value + "'" +
-					" idSeqRunType='" +	parentDocument.sampleSetupView.seqRunTypeCombo.selectedItem.@value + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesCombo.selectedItem.@value + "'" +
+					" idSeqRunType='" +	parentDocument.seqSetup1View.seqRunTypeCombo.selectedItem.@value + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-					" idGenomeBuildAlignTo='" + parentDocument.sampleSetupView.genomeBuildCombo.selectedItem.@value + "'" +				
-					" analysisInstructions='" + parentDocument.sampleSetupView.analysisInstructions.text + "'" +				
+					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
+					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
 					" idSamplePrepMethod=''"  +				
 					" seqPrepByCore = 'Y'" +
 					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
@@ -249,7 +249,7 @@
         }		
         
         public function checkSamplesCompleteness():void {
-        	parentDocument.userWarnings = "";
+        	parentDocument.userWarningsSamples = "";
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
         		if (currentState.indexOf('SolexaSamples') >= 0) {
@@ -336,7 +336,7 @@
     		for each (var s1:Object in parentDocument.samples) {
     			var vr:ValidationResultEvent = parentDocument.concentrationValidator.validate(s1.@concentration);
 	    		if (vr.type == ValidationResultEvent.INVALID) {
-	    			parentDocument.userWarnings += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
+	    			parentDocument.userWarningsSamples += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
 	    			isComplete = false;
 	    		}
     		}
@@ -356,7 +356,7 @@
         		for each (var s:Object in parentDocument.samples) {
     				if (s.@numberSequencingLanes > 100) {
     					callLater(showMaxLaneError, [s.@numberSequencingLanes]);
-    					parentDocument.userWarnings += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
+    					parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
     					isValidNumberSeqLanes = false;
     					break;
     				}
@@ -618,13 +618,14 @@
 </mx:Script>	
 
 	<mx:VBox width="100%" height="100%">
-			<mx:HBox id="headerContainer"  horizontalGap="0" width="100%">
-				<mx:Label id="samplesTitle" text="Samples"/>
-				<mx:Spacer width="10"/>
-				<mx:Label text="Please fill in all highlighted fields."  fontStyle="italic" paddingRight="0" id="label1"/>	
-			</mx:HBox>
+	        <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1">
+  			  <mx:TextArea styleName="instructionBox" width="680" wordWrap="true" height="90">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+			  </mx:TextArea>
+			</mx:VBox>
 			<mx:Spacer width="8"/>
 			<mx:HBox id="buttonsContainer">
+				<mx:Label id="samplesTitle" text="Samples:" height="100%" paddingTop="2"/>
 				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
@@ -637,13 +638,13 @@
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
-					<mx:DataGridColumn headerText="Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+					<mx:DataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 					   editable="true"
  	                   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
  	                   itemEditor="views.renderers.TextInputSampleName"      />           
 
 					<mx:DataGridColumn id="labelColumn" headerText="Label"  editable="false"
-	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="42">
+	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="48">
 	 		 			 <mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -796,9 +797,11 @@
 	<mx:states>
 		<mx:State name="SamplesEditState" >
 			<mx:RemoveChild target="{buttonsContainer}"/>
+			<mx:RemoveChild target="{vbox1}"/>
 		</mx:State>
 
 		<mx:State name="SamplesAdminState">
+			<mx:RemoveChild target="{vbox1}"/>
 		</mx:State>
 
 
@@ -809,7 +812,6 @@
 		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
 			<mx:RemoveChild target="{addSampleButton}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
-			<mx:SetStyle target="{headerContainer}" name="verticalAlign" value="middle"/>
 			<mx:SetProperty target="{samplesTitle}" name="text" value="Samples"/>
 
 		</mx:State>
@@ -824,9 +826,6 @@
 		</mx:State>
 
 		<mx:State name="MicroarraySamplesState" >
-			<mx:SetProperty target="{label1}" name="text">
-				<mx:value><![CDATA[Please fill in all highlighted fields.  Select dye label by clicking on the appropriate colored circle. ]]></mx:value>
-			</mx:SetProperty>
 		</mx:State>
 		<mx:State name="MicroarraySamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
