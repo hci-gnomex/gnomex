@@ -438,8 +438,6 @@
 					annotationView.enabled = false;								
 				}
 				if (isSolexaState()) {
-					sampleSetupView.fragmentSizeFrom.text = '';
-					sampleSetupView.fragmentSizeTo.text = '';
 				    seqSetup1View.numberSequencingCyclesCombo.selectedIndex = 0;
 					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
 					seqSetup1View.analysisInstructions.text = '';
@@ -551,8 +549,6 @@
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 				this.seqSetup1View.seqRunTypeValidator.validate();
 				this.seqSetup1View.numberSeqCyclesValidator.validate();
-				this.sampleSetupView.fragmentSizeFromValidator.validate();
-				this.sampleSetupView.fragmentSizeToValidator.validate();
 				
 				
 				this.samplesView.currentState = 'SolexaSamplesState';	
@@ -1025,8 +1021,6 @@
    				sample.@canChangeNumberSequencingCycles='Y';
    				sample.@numberSequencingLanes = '';
    				sample.@concentration = '';
-   				sample.@fragmentSizeFrom = '';
-   				sample.@fragmentSizeTo = '';
    				sample.@seqPrepDate = '';
    				sample.@seqPrepLibConcentration = '';
    				sample.@seqPrepGelFragmentSizeFrom = '';
