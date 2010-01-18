@@ -10,7 +10,7 @@ import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Label;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
@@ -123,10 +123,10 @@ public class DictionaryHelper implements Serializable {
       BioanalyzerChipType ct = (BioanalyzerChipType)i.next();
       chipMap.put(ct.getCodeBioanalyzerChipType(), ct.getBioanalyzerChipType());
     }
-    List microarrayCategories = sess.createQuery("SELECT mc from MicroarrayCategory as mc").list();
+    List microarrayCategories = sess.createQuery("SELECT mc from Application as mc").list();
     for(Iterator i = microarrayCategories.iterator(); i.hasNext();) {
-      MicroarrayCategory mc = (MicroarrayCategory)i.next();
-      microarrayCategoryMap.put(mc.getCodeMicroarrayCategory(), mc.getMicroarrayCategory());
+      Application mc = (Application)i.next();
+      microarrayCategoryMap.put(mc.getCodeApplication(), mc.getApplication());
     }
     List requestCategories = sess.createQuery("SELECT mc from RequestCategory as mc").list();
     for(Iterator i = requestCategories.iterator(); i.hasNext();) {
@@ -349,7 +349,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-  public String getMicroarrayCategory(String code) {
+  public String getApplication(String code) {
     String name = "";
     if (code != null) {
       name = (String)microarrayCategoryMap.get(code);

@@ -19,7 +19,7 @@ public class ProjectRequestFilter extends DetailObject {
   private Integer               idRequest;
   private Integer               idProject;
   private String                codeRequestCategory;
-  private String                codeMicroarrayCategory;
+  private String                codeApplication;
   private Integer               idSlideProduct;
   private Integer               idOrganism;
   private String                projectDescriptionText1;
@@ -63,7 +63,7 @@ public class ProjectRequestFilter extends DetailObject {
         (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
         (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
         (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
-        (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")) ||
+        (codeApplication != null && !codeApplication.equals("")) ||
         idSlideProduct != null ||
         idOrganism != null ||
         (projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
@@ -88,7 +88,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append("        req.idRequest, req.number, req.createDate,  ");
     queryBuf.append("        sample.name, sample.idSampleType, ");
     queryBuf.append("        req.idSlideProduct, sample.idSample, ");
-    queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeMicroarrayCategory, lab.lastName, lab.firstName, slideProduct.name, projectLab.lastName, projectLab.firstName, ");
+    queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeApplication, lab.lastName, lab.firstName, slideProduct.name, projectLab.lastName, projectLab.firstName, ");
     queryBuf.append("        '', req.codeVisibility,");
     queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName ");
@@ -129,7 +129,7 @@ public class ProjectRequestFilter extends DetailObject {
       addSlideProductCriteria();
     }
     
-    queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.codeRequestCategory, req.codeMicroarrayCategory, req.createDate desc, req.idRequest desc, sample.number asc");
+    queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.codeRequestCategory, req.codeApplication, req.createDate desc, req.idRequest desc, sample.number asc");
   
   }
   
@@ -308,11 +308,11 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(codeRequestCategory);
       queryBuf.append("'");
     }
-    //  Search by  MicroarrayCategory 
-    if (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")){
+    //  Search by  Application 
+    if (codeApplication != null && !codeApplication.equals("")){
       this.addWhereOrAnd();
-      queryBuf.append(" req.codeMicroarrayCategory = '");
-      queryBuf.append(codeMicroarrayCategory);
+      queryBuf.append(" req.codeApplication = '");
+      queryBuf.append(codeApplication);
       queryBuf.append("'");
     } 
     
@@ -520,13 +520,13 @@ public class ProjectRequestFilter extends DetailObject {
   }
 
   
-  public String getCodeMicroarrayCategory() {
-    return codeMicroarrayCategory;
+  public String getCodeApplication() {
+    return codeApplication;
   }
 
   
-  public void setCodeMicroarrayCategory(String codeMicroarrayCategory) {
-    this.codeMicroarrayCategory = codeMicroarrayCategory;
+  public void setCodeApplication(String codeApplication) {
+    this.codeApplication = codeApplication;
   }
 
   

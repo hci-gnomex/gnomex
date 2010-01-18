@@ -113,13 +113,13 @@
 					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.request.@idSampleTypeDefault);
 					var sampleTypeName:String = sampleType.@display.toString();
         			mx.controls.Alert.show( 'Sample type ' + sampleTypeName + 
-	        		  ' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
+	        		  ' cannot be used for ' + applicationCombo.selectedItem.@display + 
 	        		  ' experiments.  Please change the microarray category.',
 	        		  'Warning');
         			
         		} else {
 	        		this.parentDocument.userWarningsHybSetup += 'Sample type ' + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + microarrayCategoryCombo.selectedItem.@display + 
+	        		' cannot be used for ' + applicationCombo.selectedItem.@display + 
 	        		' experiments.  Please change the sample type or microarray category.';
         			
         		}
@@ -276,8 +276,8 @@
         lowerThanMinError="This field is required."
         property="selectedIndex"
         minValue="1" /> 
-    <mx:NumberValidator id="microarrayCategoryValidator"
-        source="{this.microarrayCategoryCombo}"
+    <mx:NumberValidator id="applicationValidator"
+        source="{this.applicationCombo}"
         lowerThanMinError="This field is required."
         property="selectedIndex"
         minValue="1" />         
@@ -301,9 +301,9 @@
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(2) Select an experiment category." width="300" />
-			<mx:ComboBox labelField="@display" width="300" id="microarrayCategoryCombo">							
-				<mx:dataProvider>{parentDocument.filteredMicroarrayCategoryListForSubmitRequests}</mx:dataProvider>
+			<mx:Label text="(2) Select the microarray application." width="300" />
+			<mx:ComboBox labelField="@display" width="300" id="applicationCombo">							
+				<mx:dataProvider>{parentDocument.filteredApplicationListForSubmitRequests}</mx:dataProvider>
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)</mx:change>
 			</mx:ComboBox>
 		</mx:HBox>
@@ -328,7 +328,7 @@
 					</mx:ComboBox>
 			    </mx:HBox>
 			    <mx:HBox width="100%" backgroundColor="#ffffff" borderStyle="inset" verticalAlign="middle">
-					<mx:Text width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + microarrayCategoryCombo.selectedItem.@display + ' slides are listed.  Please contact Brian Dalley about slide stock.'}" color="#0000ff">								
+					<mx:Text width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + applicationCombo.selectedItem.@display + ' slides are listed.  Please contact Brian Dalley about slide stock.'}" color="#0000ff">								
 					</mx:Text>						    	
 			    </mx:HBox>
 				

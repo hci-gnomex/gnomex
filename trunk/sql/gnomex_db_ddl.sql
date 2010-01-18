@@ -846,12 +846,12 @@ CREATE TABLE `gnomex`.`LabUser` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`MicroarrayCategory`;
-CREATE TABLE `gnomex`.`MicroarrayCategory` (
-  `codeMicroarrayCategory` VARCHAR(10) NOT NULL,
-  `microarrayCategory` VARCHAR(50) NULL,
+DROP TABLE IF EXISTS `gnomex`.`Application`;
+CREATE TABLE `gnomex`.`Application` (
+  `codeApplication` VARCHAR(10) NOT NULL,
+  `application` VARCHAR(50) NULL,
   `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`codeMicroarrayCategory`)
+  PRIMARY KEY (`codeApplication`)
 )
 ENGINE = INNODB;
 
@@ -967,7 +967,7 @@ CREATE TABLE `gnomex`.`Request` (
   `idAppUser` INT(10) NULL,
   `idBillingAccount` INT(10) NULL,
   `codeRequestCategory` VARCHAR(10) NULL,
-  `codeMicroarrayCategory` VARCHAR(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
   `idProject` INT(10) NULL,
   `idSlideProduct` INT(10) NULL,
   `idSampleTypeDefault` INT(10) NULL,
@@ -986,6 +986,10 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_SlideProduct` FOREIGN KEY `FK_Request_SlideProduct` (`idSlideProduct`)
     REFERENCES `gnomex`.`SlideProduct` (`idSlideProduct`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_Application` FOREIGN KEY `FK_Request_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_Organism` FOREIGN KEY `FK_Request_Organism` (`idOrganismSampleDefault`)
@@ -1023,11 +1027,11 @@ CREATE TABLE `gnomex`.`RequestCategory` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`RequestCategoryMicroarrayCategory`;
-CREATE TABLE `gnomex`.`RequestCategoryMicroarrayCategory` (
+DROP TABLE IF EXISTS `gnomex`.`RequestCategoryApplication`;
+CREATE TABLE `gnomex`.`RequestCategoryApplication` (
   `codeRequestCategory` VARCHAR(10) NOT NULL,
-  `codeMicroarrayCategory` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`codeRequestCategory`, `codeMicroarrayCategory`)
+  `codeApplication` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`codeRequestCategory`, `codeApplication`)
 )
 ENGINE = INNODB;
 
@@ -1226,39 +1230,39 @@ CREATE TABLE `gnomex`.`SampleType` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`SampleTypeMicroarrayCategory`;
-CREATE TABLE `gnomex`.`SampleTypeMicroarrayCategory` (
-  `idMicroarrayCategorySampleType` INT(10) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
+CREATE TABLE `gnomex`.`SampleTypeApplication` (
+  `idSampleTypeApplication` INT(10) NOT NULL AUTO_INCREMENT,
   `idSampleType` INT(10) NULL,
-  `codeMicroarrayCategory` VARCHAR(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
   `idLabelingProtocolDefault` INT(10) NULL,
   `idHybProtocolDefault` INT(10) NULL,
   `idScanProtocolDefault` INT(10) NULL,
   `idFeatureExtractionProtocolDefault` INT(10) NULL,
   `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idMicroarrayCategorySampleType`),
-  UNIQUE INDEX `IX_MicroarrayCategorySampleType` (`idSampleType`, `codeMicroarrayCategory`),
-  CONSTRAINT `FK_MicroarrayCategorySampleType_SampleType` FOREIGN KEY `FK_MicroarrayCategorySampleType_SampleType` (`idSampleType`)
+  PRIMARY KEY (`idSampleTypeApplication`),
+  UNIQUE INDEX `IX_ApplicationSampleType` (`idSampleType`, `codeApplication`),
+  CONSTRAINT `FK_ApplicationSampleType_SampleType` FOREIGN KEY `FK_ApplicationSampleType_SampleType` (`idSampleType`)
     REFERENCES `gnomex`.`SampleType` (`idSampleType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_MicroarrayCategorySampleType_MicroarrayCategory` FOREIGN KEY `FK_MicroarrayCategorySampleType_MicroarrayCategory` (`codeMicroarrayCategory`)
-    REFERENCES `gnomex`.`MicroarrayCategory` (`codeMicroarrayCategory`)
+  CONSTRAINT `FK_ApplicationSampleType_Application` FOREIGN KEY `FK_ApplicationSampleType_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeMicroarrayCategory_HybProtocol` FOREIGN KEY `FK_SampleTypeMicroarrayCategory_HybProtocol` (`idHybProtocolDefault`)
+  CONSTRAINT `FK_SampleTypeApplication_HybProtocol` FOREIGN KEY `FK_SampleTypeApplication_HybProtocol` (`idHybProtocolDefault`)
     REFERENCES `gnomex`.`HybProtocol` (`idHybProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeMicroarrayCategory_LabelingProtocol` FOREIGN KEY `FK_SampleTypeMicroarrayCategory_LabelingProtocol` (`idLabelingProtocolDefault`)
+  CONSTRAINT `FK_SampleTypeApplication_LabelingProtocol` FOREIGN KEY `FK_SampleTypeApplication_LabelingProtocol` (`idLabelingProtocolDefault`)
     REFERENCES `gnomex`.`LabelingProtocol` (`idLabelingProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeMicroarrayCategory_ScanProtocol` FOREIGN KEY `FK_SampleTypeMicroarrayCategory_ScanProtocol` (`idScanProtocolDefault`)
+  CONSTRAINT `FK_SampleTypeApplication_ScanProtocol` FOREIGN KEY `FK_SampleTypeApplication_ScanProtocol` (`idScanProtocolDefault`)
     REFERENCES `gnomex`.`ScanProtocol` (`idScanProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeMicroarrayCategory_FeatureExtractionProtocol` FOREIGN KEY `FK_SampleTypeMicroarrayCategory_FeatureExtractionProtocol` (`idFeatureExtractionProtocolDefault`)
+  CONSTRAINT `FK_SampleTypeApplication_FeatureExtractionProtocol` FOREIGN KEY `FK_SampleTypeApplication_FeatureExtractionProtocol` (`idFeatureExtractionProtocolDefault`)
     REFERENCES `gnomex`.`FeatureExtractionProtocol` (`idFeatureExtractionProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -1398,7 +1402,7 @@ CREATE TABLE `gnomex`.`SlideProduct` (
   `catalogNumber` VARCHAR(100) NULL,
   `isCustom` CHAR(1) NULL,
   `idLab` INT(10) NULL,
-  `codeMicroarrayCategory` VARCHAR(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
   `idVendor` INT(10) NULL,
   `idOrganism` INT(10) NULL,
   `arraysPerSlide` INT(10) NULL,
@@ -1412,8 +1416,8 @@ CREATE TABLE `gnomex`.`SlideProduct` (
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SlideProduct_MicroarrayCategory` FOREIGN KEY `FK_SlideProduct_MicroarrayCategory` (`codeMicroarrayCategory`)
-    REFERENCES `gnomex`.`MicroarrayCategory` (`codeMicroarrayCategory`)
+  CONSTRAINT `FK_SlideProduct_Application` FOREIGN KEY `FK_SlideProduct_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_SlideProduct_Vendor` FOREIGN KEY `FK_SlideProduct_Vendor` (`idVendor`)
@@ -1435,17 +1439,17 @@ CREATE TABLE `gnomex`.`SlideProduct` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`SlideProductMicroarrayCategory`;
-CREATE TABLE `gnomex`.`SlideProductMicroarrayCategory` (
+DROP TABLE IF EXISTS `gnomex`.`SlideProductApplication`;
+CREATE TABLE `gnomex`.`SlideProductApplication` (
   `idSlideProduct` INT(10) NOT NULL,
-  `codeMicroarrayCategory` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`idSlideProduct`, `codeMicroarrayCategory`),
-  CONSTRAINT `FK_SlideProductMicroarrayCategory_SlideProduct` FOREIGN KEY `FK_SlideProductMicroarrayCategory_SlideProduct` (`idSlideProduct`)
+  `codeApplication` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idSlideProduct`, `codeApplication`),
+  CONSTRAINT `FK_SlideProductApplication_SlideProduct` FOREIGN KEY `FK_SlideProductApplication_SlideProduct` (`idSlideProduct`)
     REFERENCES `gnomex`.`SlideProduct` (`idSlideProduct`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SlideProductMicroarrayCategory_MicroarrayCategory` FOREIGN KEY `FK_SlideProductMicroarrayCategory_MicroarrayCategory` (`codeMicroarrayCategory`)
-    REFERENCES `gnomex`.`MicroarrayCategory` (`codeMicroarrayCategory`)
+  CONSTRAINT `FK_SlideProductApplication_Application` FOREIGN KEY `FK_SlideProductApplication_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

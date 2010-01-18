@@ -22,6 +22,7 @@
       <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
 
+	<Dictionary displayName="Application" className="hci.gnomex.model.Application" />
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
@@ -50,8 +51,8 @@
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Type (Microarray defaults)" className="hci.gnomex.model.SampleTypeMicroarrayCategory" >
-  	  <Filter className="hci.gnomex.model.MicroarrayCategory"        filterField="codeMicroarrayCategory"/>
+	<Dictionary displayName="Sample Type (Microarray defaults)" className="hci.gnomex.model.SampleTypeApplication" >
+  	  <Filter className="hci.gnomex.model.Application"               filterField="codeApplication"/>
   	  <Filter className="hci.gnomex.model.SampleType"                filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
   	  <Filter className="hci.gnomex.model.HybProtocol"               filterField="idHybProtocolDefault"/>
@@ -116,10 +117,9 @@
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
 	<Dictionary displayName="Microarray Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
-	<Dictionary displayName="Microarray Application" className="hci.gnomex.model.MicroarrayCategory" />
-	<Dictionary displayName="Microarray Application (Request defaults)" className="hci.gnomex.model.RequestCategoryMicroarrayCategory" >
+	<Dictionary displayName="Microarray Application (Request defaults)" className="hci.gnomex.model.RequestCategoryApplication" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
-  	  <Filter className="hci.gnomex.model.MicroarrayCategory" filterField="codeMicroarrayCategory"/>
+  	  <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
 	</Dictionary>
 	<Dictionary displayName="Microarray Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>

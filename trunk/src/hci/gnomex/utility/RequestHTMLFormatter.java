@@ -97,7 +97,7 @@ public class RequestHTMLFormatter {
     if (request.getCodeRequestCategory() != null && 
         !request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) && 
         !request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      table.addContent(makeRow("Category",     dictionaryHelper.getMicroarrayCategory(request.getCodeMicroarrayCategory()), 
+      table.addContent(makeRow("Category",     dictionaryHelper.getApplication(request.getCodeApplication()), 
                                "Phone",        phone));      
       table.addContent(makeRow("Account Name", accountName,
                                "Email",        email));

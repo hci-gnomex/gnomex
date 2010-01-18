@@ -5,49 +5,49 @@ import java.io.Serializable;
 
 
 
-public class SampleTypeMicroarrayCategory extends DictionaryEntry implements Serializable {
-  private Integer  idMicroarrayCategorySampleType;
-  private String   codeMicroarrayCategory;
+public class SampleTypeApplication extends DictionaryEntry implements Serializable {
+  private Integer  idSampleTypeApplication;
+  private String   codeApplication;
   private Integer  idSampleType;
   private Integer  idLabelingProtocolDefault;
   private Integer  idHybProtocolDefault;
   private Integer  idScanProtocolDefault;
   private Integer  idFeatureExtractionProtocolDefault;
   private SampleType          sampleType;
-  private MicroarrayCategory  microarrayCategory;
+  private Application  application;
   
   private String   isActive;
   
   public String getDisplay() {
     String display =  (getSampleType() != null ? getSampleType().getSampleType() : "?") + 
                       " - " + 
-                      (getMicroarrayCategory() != null ? getMicroarrayCategory().getMicroarrayCategory() : "?");
+                      (getApplication() != null ? getApplication().getApplication() : "?");
     return display;
   }
 
   public String getValue() {
-    return getIdMicroarrayCategorySampleType().toString();
+    return getIdSampleTypeApplication().toString();
   }
 
   
-  public String getCodeMicroarrayCategory() {
-    return codeMicroarrayCategory;
+  public String getCodeApplication() {
+    return codeApplication;
   }
 
   
-  public void setCodeMicroarrayCategory(String codeMicroarrayCategory) {
-    this.codeMicroarrayCategory = codeMicroarrayCategory;
+  public void setCodeApplication(String codeApplication) {
+    this.codeApplication = codeApplication;
   }
 
   
-  public Integer getIdMicroarrayCategorySampleType() {
-    return idMicroarrayCategorySampleType;
+  public Integer getIdSampleTypeApplication() {
+    return idSampleTypeApplication;
   }
 
   
-  public void setIdMicroarrayCategorySampleType(
-      Integer idMicroarrayCategorySampleType) {
-    this.idMicroarrayCategorySampleType = idMicroarrayCategorySampleType;
+  public void setIdSampleTypeApplication(
+      Integer idSampleTypeApplication) {
+    this.idSampleTypeApplication = idSampleTypeApplication;
   }
 
   
@@ -122,13 +122,13 @@ public class SampleTypeMicroarrayCategory extends DictionaryEntry implements Ser
   }
 
   
-  private MicroarrayCategory getMicroarrayCategory() {
-    return microarrayCategory;
+  private Application getApplication() {
+    return application;
   }
 
   
-  private void setMicroarrayCategory(MicroarrayCategory microarrayCategory) {
-    this.microarrayCategory = microarrayCategory;
+  private void setApplication(Application application) {
+    this.application = application;
   }
   
 

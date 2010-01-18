@@ -368,7 +368,7 @@
 		<property name="idProject" column="idProject" type="integer"/>
     <many-to-one name="project" column="idProject" class="hci.gnomex.model.Project" cascade="none" insert="false" update="false" />
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
-		<property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
+		<property name="codeApplication" column="codeApplication" type="string"/>
 		<property name="idSlideProduct" column="idSlideProduct" type="integer"/>
     <many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
@@ -555,6 +555,15 @@
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<property name="description" column="description" type="string"/>
 		<property name="url" column="url" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.Application -->
+	<class name="hci.gnomex.model.Application" table="Application">
+		<id name="codeApplication" column="codeApplication" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="application" column="application" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
   <!-- hci.gnomex.model.AppUserLite -->
@@ -816,15 +825,6 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
-	<!-- hci.gnomex.model.MicroarrayCategory -->
-	<class name="hci.gnomex.model.MicroarrayCategory" table="MicroarrayCategory">
-		<id name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string">
-			<generator class="assigned"/>
-		</id>
-		<property name="microarrayCategory" column="microarrayCategory" type="string"/>
-		<property name="isActive" column="isActive" type="string"/>
-	</class>
-	
 	<!-- hci.gnomex.model.NumberSequencingCycles -->
 	<class name="hci.gnomex.model.NumberSequencingCycles" table="NumberSequencingCycles">
 		<id name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer">
@@ -890,15 +890,15 @@
 		<property name="notes" column="notes" type="string"/>
 	</class>
 	
-	<!-- hci.gnomex.model.RequestCategoryMicroarrayCategory -->
-	<class name="hci.gnomex.model.RequestCategoryMicroarrayCategory" table="RequestCategoryMicroarrayCategory">
+	<!-- hci.gnomex.model.RequestCategoryApplication -->
+	<class name="hci.gnomex.model.RequestCategoryApplication" table="RequestCategoryApplication">
 	    <composite-id>
 			  <key-property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
-		  	<key-property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
+		  	<key-property name="codeApplication" column="codeApplication" type="string"/>
 	   	</composite-id>
 		
 		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
-		<many-to-one name="microarrayCategory"  column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory" cascade="none" insert="false" update="false" />
+		<many-to-one name="application"  column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
 	</class>
 	<!-- hci.gnomex.model.SampleCharacteristic -->
 	<class name="hci.gnomex.model.SampleCharacteristic" table="SampleCharacteristic">
@@ -931,12 +931,12 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
-	<!-- hci.gnomex.model.SampleTypeMicroarrayCategory -->
-	<class name="hci.gnomex.model.SampleTypeMicroarrayCategory" table="SampleTypeMicroarrayCategory">
-		<id name="idMicroarrayCategorySampleType" column="idMicroarrayCategorySampleType" type="integer">
+	<!-- hci.gnomex.model.SampleTypeApplication -->
+	<class name="hci.gnomex.model.SampleTypeApplication" table="SampleTypeApplication">
+		<id name="idSampleTypeApplication" column="idSampleTypeApplication" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="codeMicroarrayCategory" column="codeMicroarrayCategory" type="string"/>
+		<property name="codeApplication" column="codeApplication" type="string"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="idLabelingProtocolDefault" column="idLabelingProtocolDefault" type="integer"/>
 		<property name="idHybProtocolDefault" column="idHybProtocolDefault" type="integer"/>
@@ -944,7 +944,7 @@
 		<property name="idFeatureExtractionProtocolDefault" column="idFeatureExtractionProtocolDefault" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<many-to-one name="sampleType"  column="idSampleType" class="hci.gnomex.model.SampleType" cascade="none" insert="false" update="false" />
-		<many-to-one name="microarrayCategory"  column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory" cascade="none" insert="false" update="false" />
+		<many-to-one name="application"  column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
 		
 	</class>
 
@@ -1057,9 +1057,9 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idBillingSlideProductClass" column="idBillingSlideProductClass" type="integer"/>
 		<property name="idBillingSlideServiceClass" column="idBillingSlideServiceClass" type="integer"/>
-	    <set name="microarrayCategories" table="SlideProductMicroarrayCategory" lazy="false">
+	    <set name="applications" table="SlideProductApplication" lazy="false">
 			<key column="idSlideProduct"/>
-			<many-to-many column="codeMicroarrayCategory" class="hci.gnomex.model.MicroarrayCategory"/>
+			<many-to-many column="codeApplication" class="hci.gnomex.model.Application"/>
 		</set>
 		<set name="slideDesigns" table="SlideDesign" lazy="true" cascade="delete" order-by="name">
 			<key column="idSlideProduct"/>

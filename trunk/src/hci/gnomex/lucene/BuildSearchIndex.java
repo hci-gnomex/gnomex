@@ -243,7 +243,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idLab,  ");
     buf.append("       labReq.lastName,  ");
     buf.append("       labReq.firstName,  ");
-    buf.append("       req.codeMicroarrayCategory, ");
+    buf.append("       req.codeApplication, ");
     buf.append("       reqOwner.firstName, ");
     buf.append("       reqOwner.lastName, ");
     buf.append("       '', ");
@@ -306,7 +306,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idLab,  ");
     buf.append("       labReq.lastName,  ");
     buf.append("       labReq.firstName,  ");
-    buf.append("       req.codeMicroarrayCategory, ");
+    buf.append("       req.codeApplication, ");
     buf.append("       reqOwner.firstName, ");
     buf.append("       reqOwner.lastName, ");
     buf.append("       '', ");
@@ -625,8 +625,8 @@ public class BuildSearchIndex extends DetailObject {
     Integer      idLabRequest = null;
     String       labLastNameRequest = null;
     String       labFirstNameRequest = null;
-    String       codeMicroarrayCategory = null;
-    String       microarrayCategory = null;
+    String       codeApplication = null;
+    String       application = null;
     String       requestOwnerFirstName = null;
     String       requestOwnerLastName = null;
     String       requestCodeVisibility = null;
@@ -688,7 +688,7 @@ public class BuildSearchIndex extends DetailObject {
       idLabRequest             = (Integer)row[20];
       labLastNameRequest       = (String) row[21];
       labFirstNameRequest      = (String) row[22];
-      codeMicroarrayCategory   = (String) row[23];
+      codeApplication          = (String) row[23];
       requestOwnerFirstName    = (String) row[24];
       requestOwnerLastName     = (String) row[25];      
       requestCodeVisibility    = (String) row[27];
@@ -697,7 +697,7 @@ public class BuildSearchIndex extends DetailObject {
       slideProduct             = idSlideProduct != null ? dh.getSlideProductName(idSlideProduct) : null;
       slideProductOrganism     = idOrganismSlideProduct != null ? dh.getOrganism(idOrganismSlideProduct) : null;
       requestCategory          = dh.getRequestCategory(codeRequestCategory);
-      microarrayCategory       = dh.getMicroarrayCategory(codeMicroarrayCategory);
+      application       = dh.getApplication(codeApplication);
       if (requestCodeVisibility != null && requestCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
         requestPublicNote = "(Public) ";
       }
@@ -843,7 +843,7 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_FIRST_NAME, requestOwnerFirstName);
     nonIndexedFieldMap.put(ExperimentIndexHelper.OWNER_LAST_NAME, requestOwnerLastName);
     nonIndexedFieldMap.put(ExperimentIndexHelper.CREATE_DATE, requestCreateDate != null ? this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL) : null);
-    nonIndexedFieldMap.put(ExperimentIndexHelper.MICROARRAY_CATEGORY, microarrayCategory);
+    nonIndexedFieldMap.put(ExperimentIndexHelper.APPLICATION, application);
     nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, "");
     nonIndexedFieldMap.put(ExperimentIndexHelper.PUBLIC_NOTE, requestPublicNote);
     
@@ -860,7 +860,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_TYPES, idSampleTypes.toString());
     indexedFieldMap.put(ExperimentIndexHelper.REQUEST_CATEGORY, requestCategory);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_REQUEST_CATEGORY, codeRequestCategory);
-    indexedFieldMap.put(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY, codeMicroarrayCategory);
+    indexedFieldMap.put(ExperimentIndexHelper.CODE_APPLICATION, codeApplication);
     indexedFieldMap.put(ExperimentIndexHelper.ID_SLIDE_PRODUCT, idSlideProduct != null ? idSlideProduct.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.SLIDE_PRODUCT, slideProduct);
     indexedFieldMap.put(ExperimentIndexHelper.SLIDE_PRODUCT_ORGANISM, slideProductOrganism);

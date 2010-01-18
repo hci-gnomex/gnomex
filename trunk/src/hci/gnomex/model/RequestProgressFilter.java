@@ -70,7 +70,7 @@ public class RequestProgressFilter extends DetailObject {
     addWhere = true;
     
     queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
-    queryBuf.append("        req.codeMicroarrayCategory, req.idAppUser, ");
+    queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        '', s.qualDate, s.number, s.name, ");
@@ -91,7 +91,7 @@ public class RequestProgressFilter extends DetailObject {
     addWhere = true;
     
     queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
-    queryBuf.append("        req.codeMicroarrayCategory, req.idAppUser, ");
+    queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        hyb.number, hyb.hybDate, ");
     queryBuf.append("        hyb.extractionDate, hyb.hybFailed, ");
     queryBuf.append("        ls1.labelingDate, s1.qualDate, s1.number, s1.name, ");

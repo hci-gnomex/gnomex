@@ -56,7 +56,7 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
       SlideProduct sp = (SlideProduct)i.next();
       Hibernate.initialize(sp.getSlideDesigns());
-      Hibernate.initialize(sp.getMicroarrayCategories());
+      Hibernate.initialize(sp.getApplications());
       
       Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       

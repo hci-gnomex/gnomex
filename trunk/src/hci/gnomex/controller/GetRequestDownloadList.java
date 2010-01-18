@@ -223,7 +223,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
         n.setAttribute("requestNumber", (String)row[1]);
         n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
-        n.setAttribute("codeMicroarrayCategory", row[3] == null ? "" : (String)row[3]);
+        n.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
         n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
         n.setAttribute("itemNumber", row[5] == null ? "" : (String)row[5]);
         n.setAttribute("hybDate", row[6] == null || row[6].equals("") ? "" : this.formatDate((java.sql.Date)row[6]));
@@ -341,7 +341,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               n1.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
               n1.setAttribute("requestNumber", (String)row[1]);
               n1.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
-              n1.setAttribute("codeMicroarrayCategory", row[3] == null ? "" : (String)row[3]);
+              n1.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
               n1.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
               n1.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
               n1.setAttribute("results", "flow cell quality report");

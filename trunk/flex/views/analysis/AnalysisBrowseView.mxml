@@ -67,10 +67,10 @@
     	}
     }
     public function getExperimentKind(item:Object, col:int):String {
-    	if (item.@codeMicroarrayCategory == "") {
+    	if (item.@codeApplication == "") {
     		return getRequestKind(item, col);
     	} else {
-	    	var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.MicroarrayCategory', item.@codeMicroarrayCategory);
+	    	var de:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', item.@codeApplication);
 	    	if (de.length() == 1) {
 		    	return de[0].@display;    		
 	    	} else {

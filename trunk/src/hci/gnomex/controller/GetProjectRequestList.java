@@ -134,7 +134,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       Integer prevIdProject  = new Integer(-1);
       Integer prevIdRequest  = new Integer(-1);
       String prevCodeRequestCategory    = "999";
-      String prevCodeMicroarrayCategory = "999";
+      String prevCodeApplication = "999";
       
       Document doc = new Document(new Element(listKind));
       rootNode = doc.getRootElement();
@@ -146,7 +146,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         Integer idRequest = row[4] == null ? new Integer(-2) : (Integer)row[4];
         Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];    
         String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
-        String  codeMicroarrayCategory     = row[16]== null ? "" : (String)row[16];
+        String  codeApplication     = row[16]== null ? "" : (String)row[16];
         StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
         
         Element n = null;
@@ -170,7 +170,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
             addSampleNode(row);
           }
         } else if (!codeRequestCategory.equals(prevCodeRequestCategory) ||
-                    !codeMicroarrayCategory.equals(prevCodeMicroarrayCategory)) {
+                    !codeApplication.equals(prevCodeApplication)) {
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
             addRequestNode(row, analysisNames);          
@@ -191,7 +191,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         prevIdProject = idProject;
         prevIdLab     = idLab;
         prevCodeRequestCategory = codeRequestCategory;
-        prevCodeMicroarrayCategory = codeMicroarrayCategory;
+        prevCodeApplication = codeApplication;
       }
       
       
@@ -284,7 +284,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       requestCatNode = new Element("RequestCategory");
       requestCatNode.setAttribute("idProject",              row[0] == null ? ""     : ((Integer)row[0]).toString());
       requestCatNode.setAttribute("codeRequestCategory",    row[15] == null ? ""    : (String)row[15]);
-      requestCatNode.setAttribute("codeMicroarrayCategory", row[16] == null ? ""    : (String)row[16]);
+      requestCatNode.setAttribute("codeApplication", row[16] == null ? ""    : (String)row[16]);
       requestCatNode.setAttribute("label",                  row[16] == null ? ""    : (String)row[16]);
       projectNode.addContent(requestCatNode);
       
@@ -306,7 +306,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("idLab",                  row[12] == null ? "" : ((Integer)row[12]).toString());
     requestNode.setAttribute("idAppUser",              row[14] == null ? "" : ((Integer)row[14]).toString());
     requestNode.setAttribute("codeRequestCategory",    row[15] == null ? "" : ((String)row[15]).toString());
-    requestNode.setAttribute("codeMicroarrayCategory", row[16] == null ? "" : ((String)row[16]).toString());
+    requestNode.setAttribute("codeApplication", row[16] == null ? "" : ((String)row[16]).toString());
     requestNode.setAttribute("labName",                labName);
     requestNode.setAttribute("slideProductName",       row[19] == null ? "" : (String)row[19]);
     requestNode.setAttribute("projectLabName",         projectLabName);

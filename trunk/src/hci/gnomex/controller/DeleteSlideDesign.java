@@ -92,7 +92,7 @@ public class DeleteSlideDesign extends GNomExCommand implements Serializable {
           SlideProduct oldSlideProduct = (SlideProduct)sess.load(SlideProduct.class, idSlideProductOld);
          
           if (oldSlideProduct.getSlideDesigns().size() == 0) {
-            oldSlideProduct.setMicroarrayCategories(null);
+            oldSlideProduct.setApplications(null);
             sess.delete(oldSlideProduct);
           } else {
             oldSlideProduct.setSlidesInSet(new Integer(oldSlideProduct.getSlideDesigns().size()));

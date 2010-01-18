@@ -465,7 +465,7 @@ INSERT INTO `gnomex`.`LabelingReactionSize`(`codeLabelingReactionSize`, `labelin
 VALUES ('STD', 'Standard', 'Y', 1),
   ('LRG', 'Large', 'Y', 2);
 
-INSERT INTO `gnomex`.`MicroarrayCategory`(`codeMicroarrayCategory`, `microarrayCategory`, `isActive`)
+INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`)
 VALUES ('CGH', 'CGH', 'Y'),
   ('CHIP', 'ChiP-on-chip', 'Y'),
   ('EXON', 'Exon', 'Y'),
@@ -582,7 +582,7 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('SOLEXA', 'Illumina Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq'),
   ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA');
 
-INSERT INTO `gnomex`.`RequestCategoryMicroarrayCategory`(`codeRequestCategory`, `codeMicroarrayCategory`)
+INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
 VALUES ('AFFY', 'CHIP'),
   ('AFFY', 'EXON'),
   ('AFFY', 'EXP'),
@@ -790,7 +790,7 @@ VALUES (1, 'DNA', 3, 'Y'),
   (11, 'cap RNA', 6, 'Y'),
   (12, 'small RNA', 10, 'Y');
 
-INSERT INTO `gnomex`.`SampleTypeMicroarrayCategory`(`idMicroarrayCategorySampleType`, `idSampleType`, `codeMicroarrayCategory`, `idLabelingProtocolDefault`, `idHybProtocolDefault`, `idScanProtocolDefault`, `idFeatureExtractionProtocolDefault`, `isActive`)
+INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `idLabelingProtocolDefault`, `idHybProtocolDefault`, `idScanProtocolDefault`, `idFeatureExtractionProtocolDefault`, `isActive`)
 VALUES (2, 5, 'EXP', null, null, null, null, 'Y'),
   (3, 4, 'EXP', NULL, NULL, NULL, NULL, 'Y'),
   (4, 3, 'EXP', NULL, NULL, NULL, NULL, 'Y'),
@@ -916,7 +916,7 @@ VALUES (3,'Whole human genome microarray (44K)','012391',2,'A-AGIL-28','N'),
  (179,'Human miRNA v3 (8x15K)','021827',170,NULL,'Y');
 
 
-INSERT INTO `gnomex`.`SlideProduct`(`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeMicroarrayCategory`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`)
+INSERT INTO `gnomex`.`SlideProduct`(`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`)
 VALUES  (2,'Whole human genome expression array (44K)',NULL,'N',NULL,'EXP',1,1,1,1,'N','N',NULL,NULL),
  (3,'Human promoter ChIP-on-chip Set (2 slides) (44K)',NULL,'N',NULL,'CHIP',1,1,1,2,'Y','N',3,8),
  (5,'Human 1A GE microarray (22K)',NULL,'N',NULL,'EXP',1,1,1,1,'N','N',NULL,NULL),
@@ -965,7 +965,7 @@ VALUES  (2,'Whole human genome expression array (44K)',NULL,'N',NULL,'EXP',1,1,1
  (170,'Human miRNA v3 (8x15K)',NULL,'N',NULL,NULL,1,1,1,1,'N','Y',11,16);
 
 
-INSERT INTO `gnomex`.`SlideProductMicroarrayCategory`(`idSlideProduct`, `codeMicroarrayCategory`)
+INSERT INTO `gnomex`.`SlideProductApplication`(`idSlideProduct`, `codeApplication`)
 VALUES  (7,'CGH'),
  (10,'CGH'),
  (111,'CGH'),

@@ -219,7 +219,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     requestNode.setAttribute("createDateDisplay",      row[2] == null ? ""  : this.formatDate((java.sql.Date)row[2], this.DATE_OUTPUT_SQL));
     requestNode.setAttribute("number",                 row[3] == null ? ""  : (String)row[3]);
     requestNode.setAttribute("codeRequestCategory",    row[4] == null ? "" : ((String)row[4]).toString());
-    requestNode.setAttribute("codeMicroarrayCategory", row[5] == null ? "" : ((String)row[5]).toString());
+    requestNode.setAttribute("codeApplication", row[5] == null ? "" : ((String)row[5]).toString());
     requestNode.setAttribute("slideProduct",           row[6] == null ? ""  : ((String)row[6]).toString());
     requestNode.setAttribute("isSlideSet",             row[7] == null ? ""  : ((String)row[7]).toString());
     requestNode.setAttribute("ownerFirstName",         row[8] == null ? "" : (String)row[8]);
