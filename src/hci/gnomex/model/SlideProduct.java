@@ -20,7 +20,7 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
   private String   isSlideSet;
   private String   isActive;
   private Set      slideDesigns;
-  private Set      microarrayCategories;
+  private Set      applications;
   private Integer  idBillingSlideServiceClass;
   private Integer  idBillingSlideProductClass;
   
@@ -166,13 +166,13 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
   }
 
   
-  public Set getMicroarrayCategories() {
-    return microarrayCategories;
+  public Set getApplications() {
+    return applications;
   }
 
   
-  public void setMicroarrayCategories(Set microarrayCategories) {
-    this.microarrayCategories = microarrayCategories;
+  public void setApplications(Set applications) {
+    this.applications = applications;
   }
 
   

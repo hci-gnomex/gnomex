@@ -459,8 +459,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     Integer idLab     = new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT));
     Integer idRequest          = doc.get(ExperimentIndexHelper.ID_REQUEST).equals("unknown") ? null : new Integer(doc.get(ExperimentIndexHelper.ID_REQUEST));
     String codeRequestCategory = doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_REQUEST_CATEGORY) : null;
-    String codeMicroarrayCategory = doc.get(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY) != null ? doc.get(ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY) : null;
-    String catKey = idProject + "-" + codeRequestCategory + "-" + codeMicroarrayCategory;      
+    String codeApplication = doc.get(ExperimentIndexHelper.CODE_APPLICATION) != null ? doc.get(ExperimentIndexHelper.CODE_APPLICATION) : null;
+    String catKey = idProject + "-" + codeRequestCategory + "-" + codeApplication;      
     
     Element labNode = (Element)labMap.get(idLab);
     if (labNode == null) {
@@ -498,8 +498,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       if (categoryNode == null) {
         Element node = new Element("RequestCategory");
         node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
-        node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
-        node.setAttribute("label", codeRequestCategory + " " + codeMicroarrayCategory);
+        node.setAttribute("codeApplication", codeApplication != null ? codeApplication : "");
+        node.setAttribute("label", codeRequestCategory + " " + codeApplication);
         node.setAttribute("idProject",idProject.toString());     
         categoryMap.put(catKey, node);
       }
@@ -509,8 +509,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       if (requestNode == null) {
         Element node = new Element("RequestNode");
         Element node1 = new Element("Request");
-        buildRequestNode(node, idRequest, codeRequestCategory, codeMicroarrayCategory, doc, score, rank);
-        buildRequestNode(node1, idRequest, codeRequestCategory, codeMicroarrayCategory, doc, score, rank);
+        buildRequestNode(node, idRequest, codeRequestCategory, codeApplication, doc, score, rank);
+        buildRequestNode(node1, idRequest, codeRequestCategory, codeApplication, doc, score, rank);
         
         requestMap.put(idRequest, node);
         rankedRequestNodes.add(node1);
@@ -632,7 +632,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   }
   
-  private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeMicroarrayCategory, Document doc, float score, int rank) {
+  private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeApplication, Document doc, float score, int rank) {
     node.setAttribute("idRequest", idRequest.toString());
     node.setAttribute("requestNumber", doc.get(ExperimentIndexHelper.REQUEST_NUMBER));
     node.setAttribute("requestCreateDate", doc.get(ExperimentIndexHelper.CREATE_DATE));
@@ -645,7 +645,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("ownerLastName", doc.get(ExperimentIndexHelper.OWNER_LAST_NAME) != null ? doc.get(ExperimentIndexHelper.OWNER_LAST_NAME) : "");
     node.setAttribute("slideProductName", doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) : "");
     node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
-    node.setAttribute("codeMicroarrayCategory", codeMicroarrayCategory != null ? codeMicroarrayCategory : "");
+    node.setAttribute("codeApplication", codeApplication != null ? codeApplication : "");
     node.setAttribute("requestLabName", doc.get(ExperimentIndexHelper.LAB_NAME) != null ? doc.get(ExperimentIndexHelper.LAB_NAME) : "");
     node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     node.setAttribute("idSlideProduct", doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) : "");

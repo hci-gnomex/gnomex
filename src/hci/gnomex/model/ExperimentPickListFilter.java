@@ -28,7 +28,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        req.createDate, ");
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.codeRequestCategory, "); 
-    queryBuf.append("        req.codeMicroarrayCategory, ");
+    queryBuf.append("        req.codeApplication, ");
     queryBuf.append("        slideProduct.name, ");
     queryBuf.append("        slideProduct.isSlideSet, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");

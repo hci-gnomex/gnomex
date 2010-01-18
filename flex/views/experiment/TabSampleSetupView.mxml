@@ -177,13 +177,13 @@
 					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.request.@idSampleTypeDefault);
 					var sampleTypeName:String = sampleType.@display.toString();
         			mx.controls.Alert.show('Sample type ' + sampleTypeName + 
-	        		  ' cannot be used for ' + parentDocument.hybSetupView.microarrayCategoryCombo.selectedItem.@display + 
+	        		  ' cannot be used for ' + parentDocument.hybSetupView.applicationCombo.selectedItem.@display + 
 	        		  ' experiments.  Please change the microarray category.',
 	        		  'Warning');
         			
         		} else {
 	        		this.parentDocument.userWarningsSampleSetup += 'Sample type ' + this.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + parentDocument.hybSetupView.microarrayCategoryCombo.selectedItem.@display + 
+	        		' cannot be used for ' + parentDocument.hybSetupView.applicationCombo.selectedItem.@display + 
 	        		' experiments.  Please change the sample type or microarray category.';
         			
         		}

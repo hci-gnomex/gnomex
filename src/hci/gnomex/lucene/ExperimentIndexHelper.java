@@ -17,7 +17,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       OWNER_FIRST_NAME = "requestOwnerFirstName";
   public static final String       OWNER_LAST_NAME = "requestOwnerLastName";
   public static final String       CREATE_DATE = "requestCreateDate";
-  public static final String       MICROARRAY_CATEGORY = "microarrayCategory";
+  public static final String       APPLICATION = "application";
   public static final String       PROJECT_PUBLIC_NOTE = "projectPublicNote";
   public static final String       PUBLIC_NOTE = "requestPublicNote";  
   
@@ -33,7 +33,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       SAMPLE_SOURCES = "sampleSources";
   public static final String       REQUEST_CATEGORY = "requestCategory";
   public static final String       CODE_REQUEST_CATEGORY = "codeRequestCategory";
-  public static final String       CODE_MICROARRAY_CATEGORY = "codeMicroarrayCategory";
+  public static final String       CODE_APPLICATION = "codeApplication";
   public static final String       ID_SLIDE_PRODUCT = "idSlideProduct";
   public static final String       SLIDE_PRODUCT = "slideProduct";
   public static final String       SLIDE_PRODUCT_ORGANISM = "slideProductOrganism";

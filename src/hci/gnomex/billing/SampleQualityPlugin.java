@@ -6,7 +6,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -54,19 +54,19 @@ public class SampleQualityPlugin implements BillingPlugin {
         } 
         
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
-                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.CGH_MICROARRAY_CATEGORY)) {
+                  request.getCodeApplication().equals(Application.CGH_MICROARRAY_CATEGORY)) {
           filter1 = this.DNA_GEL;
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
-                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.CHIP_ON_CHIP_MICROARRAY_CATEGORY)) {
+                  request.getCodeApplication().equals(Application.CHIP_ON_CHIP_MICROARRAY_CATEGORY)) {
           filter1 = BioanalyzerChipType.DNA1000;
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) &&
-                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
+                  request.getCodeApplication().equals(Application.EXPRESSION_MICROARRAY_CATEGORY)) {
           filter1 = BioanalyzerChipType.RNA_NANO;
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY) &&
-                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
+                  request.getCodeApplication().equals(Application.EXPRESSION_MICROARRAY_CATEGORY)) {
         filter1 = BioanalyzerChipType.RNA_NANO;
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY) &&
-                  request.getCodeMicroarrayCategory().equals(MicroarrayCategory.SNP_MICROARRAY_CATEGORY)) {
+                  request.getCodeApplication().equals(Application.SNP_MICROARRAY_CATEGORY)) {
         filter1 = this.DNA_GEL;
       } else {
         filter1 = sample.getCodeBioanalyzerChipType();

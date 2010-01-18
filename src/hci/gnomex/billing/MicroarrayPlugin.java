@@ -61,7 +61,7 @@ public class MicroarrayPlugin implements BillingPlugin {
     if (billingPrice != null) {
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       String slideCategoryName = dh.getOrganism(request.getSlideProduct().getIdOrganism());
-      slideCategoryName += " " + dh.getMicroarrayCategory(request.getCodeMicroarrayCategory());
+      slideCategoryName += " " + dh.getApplication(request.getCodeApplication());
       
       BillingItem billingItem = new BillingItem();
       billingItem.setCategory(billingPrice.getDescription());

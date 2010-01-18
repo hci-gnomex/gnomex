@@ -1,13 +1,13 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.ArrayCoordinate;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ArrayCoordinateParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MicroarrayCategoryParser;
+import hci.gnomex.utility.ApplicationParser;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -57,9 +57,9 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
   private Document                  acDoc;
   private ArrayCoordinateParser     acParser;
   
-  private String                    microarrayCategoryXMLString = null;
+  private String                    applicationXMLString = null;
   private Document                  mcDoc;
-  private MicroarrayCategoryParser  mcParser;
+  private ApplicationParser  applicationParser;
   
   public void validate() {
   }
@@ -85,17 +85,17 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
     this.addInvalidFields(errors);
 
     
-    if (request.getParameter("microarrayCategoryXMLString") != null && !request.getParameter("microarrayCategoryXMLString").equals("")) {
-      microarrayCategoryXMLString = request.getParameter("microarrayCategoryXMLString");
+    if (request.getParameter("applicationXMLString") != null && !request.getParameter("applicationXMLString").equals("")) {
+      applicationXMLString = request.getParameter("applicationXMLString");
       
-      StringReader reader = new StringReader(microarrayCategoryXMLString);
+      StringReader reader = new StringReader(applicationXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
         mcDoc = sax.build(reader);
-        mcParser = new MicroarrayCategoryParser(mcDoc);
+        applicationParser = new ApplicationParser(mcDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse microarrayCategoryXMLString", je );
-        this.addInvalidField( "microarrayCategoryXMLString", "Invalid microarrayCategoryXMLString");
+        log.error( "Cannot parse applicationXMLString", je );
+        this.addInvalidField( "applicationXMLString", "Invalid applicationXMLString");
       }
     }
 
@@ -126,8 +126,8 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         }
 
         // Parse microarray category xml
-        if (mcParser != null) {
-          mcParser.parse(sess);
+        if (applicationParser != null) {
+          applicationParser.parse(sess);
         }
         
         
@@ -227,17 +227,17 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
           }        
         }
         
-        if (mcParser != null && isInSlideSet.equals("N")) {
+        if (applicationParser != null && isInSlideSet.equals("N")) {
           //
-          // Save microarrayCategories
+          // Save applications
           //
-          Set microarrayCategories = new TreeSet();
-          for(Iterator i = mcParser.getCodeMicroarrayCategoryMap().keySet().iterator(); i.hasNext();) {
-            String codeMicroarrayCategory = (String)i.next();
-            MicroarrayCategory microarrayCategory = (MicroarrayCategory)mcParser.getCodeMicroarrayCategoryMap().get(codeMicroarrayCategory);
-            microarrayCategories.add(microarrayCategory);
+          Set applications = new TreeSet();
+          for(Iterator i = applicationParser.getCodeApplicationMap().keySet().iterator(); i.hasNext();) {
+            String codeApplication = (String)i.next();
+            Application application = (Application)applicationParser.getCodeApplicationMap().get(codeApplication);
+            applications.add(application);
           }
-          slideProduct.setMicroarrayCategories(microarrayCategories);
+          slideProduct.setApplications(applications);
         }
         
         sess.flush();

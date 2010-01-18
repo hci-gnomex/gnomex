@@ -32,7 +32,7 @@ public class Request extends HibernateDetailObject {
   private Integer        idBillingAccount;
   private BillingAccount billingAccount;
   private String         codeRequestCategory;
-  private String         codeMicroarrayCategory;
+  private String         codeApplication;
   private Integer        idSlideProduct;
   private SlideProduct   slideProduct;
   private Integer        idSampleTypeDefault;
@@ -56,15 +56,15 @@ public class Request extends HibernateDetailObject {
   // permission field
   private boolean     canUpdateVisibility;
   
-  
-  public String getCodeMicroarrayCategory() {
-    return codeMicroarrayCategory;
+  public String getCodeApplication() {
+    return codeApplication;
   }
+
   
-  public void setCodeMicroarrayCategory(String codeMicroarrayCategory) {
-    this.codeMicroarrayCategory = codeMicroarrayCategory;
+  public void setCodeApplication(String codeApplication) {
+    this.codeApplication = codeApplication;
   }
-  
+   
   public String getCodeProtocolType() {
     return codeProtocolType;
   }
@@ -575,6 +575,7 @@ public class Request extends HibernateDetailObject {
   public void setBillingAccount(BillingAccount billingAccount) {
     this.billingAccount = billingAccount;
   }
-  
+
+ 
   
 }

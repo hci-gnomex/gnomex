@@ -6,7 +6,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -46,7 +46,7 @@ public class LabelingReactionPlugin implements BillingPlugin {
     BillingPrice billingPrice = null;
     
     // Bypass labeling for HybMap microarray experiments
-    if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.HYBMAP_MICROARRAY_CATEGORY)) {
+    if (request.getCodeApplication().equals(Application.HYBMAP_MICROARRAY_CATEGORY)) {
       return billingItems;
     }
     
@@ -70,7 +70,7 @@ public class LabelingReactionPlugin implements BillingPlugin {
         }        
       } else {
         if (bp.getFilter1() != null && bp.getFilter1().equals(request.getCodeRequestCategory())) {
-          if (bp.getFilter2() != null && bp.getFilter2().equals(request.getCodeMicroarrayCategory())) {
+          if (bp.getFilter2() != null && bp.getFilter2().equals(request.getCodeApplication())) {
             billingPrice = bp;
             break;          
           }        

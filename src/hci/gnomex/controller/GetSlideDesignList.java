@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.ArrayCoordinate;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideDesignFilter;
 import hci.gnomex.model.SlideProduct;
@@ -75,19 +75,19 @@ public class GetSlideDesignList extends GNomExCommand implements Serializable {
         sdNode.setAttribute("idSlideProductSlideSet", "");
       }
       
-      if (sp.getMicroarrayCategories() != null) {
-        Element mcRootNode = new Element("microarrayCategories");
+      if (sp.getApplications() != null) {
+        Element mcRootNode = new Element("applications");
         sdNode.addContent(mcRootNode);
-        StringBuffer concatMicroarrayCategories = new StringBuffer();
-        for(Iterator i1 = sp.getMicroarrayCategories().iterator(); i1.hasNext();) {
-          MicroarrayCategory mc = (MicroarrayCategory)i1.next();
+        StringBuffer concatApplications = new StringBuffer();
+        for(Iterator i1 = sp.getApplications().iterator(); i1.hasNext();) {
+          Application mc = (Application)i1.next();
           mcRootNode.addContent(mc.toXMLDocument(null).getRootElement());
-          concatMicroarrayCategories.append(mc.getMicroarrayCategory());
+          concatApplications.append(mc.getApplication());
           if (i1.hasNext()) {
-            concatMicroarrayCategories.append(", ");
+            concatApplications.append(", ");
           }
         }
-        sdNode.setAttribute("microarrayCategories", concatMicroarrayCategories.toString());
+        sdNode.setAttribute("applications", concatApplications.toString());
       }
       
       if (sp.getArraysPerSlide() != null && sp.getArraysPerSlide().intValue() > 1) {

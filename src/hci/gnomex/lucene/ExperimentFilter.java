@@ -16,7 +16,7 @@ public class ExperimentFilter extends DetailObject {
   // Criteria
   private Integer               idLab;
   private String                codeRequestCategory;
-  private String                codeMicroarrayCategory;
+  private String                codeApplication;
   private Integer               idSlideProduct;
   private Integer               idSampleType;
   private Integer               idOrganism;
@@ -37,7 +37,7 @@ public class ExperimentFilter extends DetailObject {
   // Display fields
   private String                lab;
   private String                requestCategory; 
-  private String                microarrayCategory; 
+  private String                application; 
   private String                slideProduct; 
   private String                sampleSource; 
   private String                sampleType; 
@@ -205,15 +205,15 @@ public class ExperimentFilter extends DetailObject {
 
 
     //
-    //  Search by  MicroarrayCategory
+    //  Search by  Application
     //
-    if (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")){
+    if (codeApplication != null && !codeApplication.equals("")){
       this.addLogicalOperator();
-      searchText.append(" " + ExperimentIndexHelper.CODE_MICROARRAY_CATEGORY + ":");
-      searchText.append(codeMicroarrayCategory);
+      searchText.append(" " + ExperimentIndexHelper.CODE_APPLICATION + ":");
+      searchText.append(codeApplication);
       searchText.append("'");
       
-      displayText.append(" experiment category = " + microarrayCategory);
+      displayText.append(" experiment category = " + application);
     } 
 
     //
@@ -330,13 +330,13 @@ public class ExperimentFilter extends DetailObject {
 
 
   
-  public String getCodeMicroarrayCategory() {
-    return codeMicroarrayCategory;
+  public String getCodeApplication() {
+    return codeApplication;
   }
 
   
-  public void setCodeMicroarrayCategory(String codeMicroarrayCategory) {
-    this.codeMicroarrayCategory = codeMicroarrayCategory;
+  public void setCodeApplication(String codeApplication) {
+    this.codeApplication = codeApplication;
   }
 
   
@@ -518,13 +518,13 @@ public class ExperimentFilter extends DetailObject {
   }
 
   
-  public String getMicroarrayCategory() {
-    return microarrayCategory;
+  public String getApplication() {
+    return application;
   }
 
   
-  public void setMicroarrayCategory(String microarrayCategory) {
-    this.microarrayCategory = microarrayCategory;
+  public void setApplication(String application) {
+    this.application = application;
   }
 
   

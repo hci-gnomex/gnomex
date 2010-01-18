@@ -6,7 +6,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -303,10 +303,10 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
         } 
       } 
     } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-      if (request.getCodeMicroarrayCategory() != null) {
-        if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
+      if (request.getCodeApplication() != null) {
+        if (request.getCodeApplication().equals(Application.EXPRESSION_MICROARRAY_CATEGORY)) {
           fileName = "submission_instructions_affy_ge_microarray.html";
-        } else if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.SNP_MICROARRAY_CATEGORY)) {
+        } else if (request.getCodeApplication().equals(Application.SNP_MICROARRAY_CATEGORY)) {
           if (request.getIdSlideProduct() != null) {
               if (dictionaryHelper.getSlideProductName(request.getIdSlideProduct()).toUpperCase().indexOf("5.0") >= 0) {
                 fileName = "submission_instructions_affy_5.0_6.0_snp.html";
@@ -320,14 +320,14 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       }
     } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) ||
                 this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) {
-      if (request.getCodeMicroarrayCategory() != null) {
-        if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.EXPRESSION_MICROARRAY_CATEGORY)) {
+      if (request.getCodeApplication() != null) {
+        if (request.getCodeApplication().equals(Application.EXPRESSION_MICROARRAY_CATEGORY)) {
           fileName = "submission_instructions_agilent_ge_microarray.html";
-        } else if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.CGH_MICROARRAY_CATEGORY)) {
+        } else if (request.getCodeApplication().equals(Application.CGH_MICROARRAY_CATEGORY)) {
           fileName = "submission_instructions_agilent_cgh_microarray.html";
-        } else if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.CHIP_ON_CHIP_MICROARRAY_CATEGORY)) {
+        } else if (request.getCodeApplication().equals(Application.CHIP_ON_CHIP_MICROARRAY_CATEGORY)) {
           fileName = "submission_instructions_agilent_chip_on_chip_microarray.html";
-        } else if (request.getCodeMicroarrayCategory().equals(MicroarrayCategory.MIRNA_MICROARRAY_CATEGORY)) {
+        } else if (request.getCodeApplication().equals(Application.MIRNA_MICROARRAY_CATEGORY)) {
           fileName = "submission_instructions_agilent_mirna_microarray.html";
         } 
       }

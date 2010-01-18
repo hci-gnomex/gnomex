@@ -147,7 +147,7 @@ public class RequestParser implements Serializable {
     
     otherCharacteristicLabel = this.unEscape(n.getAttributeValue(SampleCharacteristicEntry.OTHER_LABEL));
     
-    request.setCodeMicroarrayCategory(n.getAttributeValue("codeMicroarrayCategory"));
+    request.setCodeApplication(n.getAttributeValue("codeApplication"));
     request.setCodeRequestCategory(n.getAttributeValue("codeRequestCategory"));
     
     if (n.getAttributeValue("idAppUser") != null && !n.getAttributeValue("idAppUser").equals("")) {

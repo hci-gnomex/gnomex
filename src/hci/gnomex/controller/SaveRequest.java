@@ -453,9 +453,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // Figure out the default protocol for the given sample type and microarray category.
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT x.idLabelingProtocolDefault, x.idHybProtocolDefault, x.idScanProtocolDefault, x.idFeatureExtractionProtocolDefault ");
-    buf.append(" FROM  SampleTypeMicroarrayCategory x ");
+    buf.append(" FROM  SampleTypeApplication x ");
     buf.append(" WHERE x.idSampleType = " + requestParser.getRequest().getIdSampleTypeDefault());
-    buf.append(" AND   x.codeMicroarrayCategory = '" + requestParser.getRequest().getCodeMicroarrayCategory() + "'");
+    buf.append(" AND   x.codeApplication = '" + requestParser.getRequest().getCodeApplication() + "'");
     List defaultProtocolIds = sess.createQuery(buf.toString()).list();
     if (defaultProtocolIds.size() > 0) {
       Object[] row = (Object[])defaultProtocolIds.get(0);

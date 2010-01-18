@@ -105,7 +105,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
         n.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
         n.setAttribute("requestNumber", (String)row[1]);
         n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
-        n.setAttribute("codeMicroarrayCategory", row[3] == null ? "" : (String)row[3]);
+        n.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
         n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
         n.setAttribute("hybNumber", row[5] == null ? "" : (String)row[5]);
         n.setAttribute("hybDate", row[6] == null || row[6].equals("") ? "" : this.formatDate((java.sql.Date)row[6]));

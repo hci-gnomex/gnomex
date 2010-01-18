@@ -12,7 +12,7 @@ public class SlideDesignFilter extends DetailObject {
   
   
   // Criteria
-  private String                codeMicroarrayCategory;
+  private String                codeApplication;
   private Integer               idVendor;
   private String                slideDesignProtocolName;
   private String                slideDesignName;
@@ -62,11 +62,11 @@ public class SlideDesignFilter extends DetailObject {
       queryBuf.append(" sd.idSlideDesign =");
       queryBuf.append(idSlideDesign);
     } 
-    // Search by codeMicroarrayCategory number 
-    if (codeMicroarrayCategory != null && !codeMicroarrayCategory.equals("")){
+    // Search by codeApplication number 
+    if (codeApplication != null && !codeApplication.equals("")){
       this.addWhereOrAnd();
-      queryBuf.append(" sp.microarrayCategories.codeMicroarrayCategory = '");
-      queryBuf.append(codeMicroarrayCategory);
+      queryBuf.append(" sp.microarrayCategories.codeApplication = '");
+      queryBuf.append(codeApplication);
       queryBuf.append("'");
     } 
     // Search by vendor 
@@ -124,13 +124,13 @@ public class SlideDesignFilter extends DetailObject {
   }
 
   
-  public String getCodeMicroarrayCategory() {
-    return codeMicroarrayCategory;
+  public String getCodeApplication() {
+    return codeApplication;
   }
 
   
-  public void setCodeMicroarrayCategory(String codeMicroarrayCategory) {
-    this.codeMicroarrayCategory = codeMicroarrayCategory;
+  public void setCodeApplication(String codeApplication) {
+    this.codeApplication = codeApplication;
   }
 
   

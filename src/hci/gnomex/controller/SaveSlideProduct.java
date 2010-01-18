@@ -2,12 +2,12 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.MicroarrayCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MicroarrayCategoryParser;
+import hci.gnomex.utility.ApplicationParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -36,7 +36,7 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
   
   private String microarrayCategoryXMLString = null;
   private Document mcDoc;
-  private MicroarrayCategoryParser mcParser;
+  private ApplicationParser applicationParser;
   
   public Command execute() throws RollBackCommandException {
     
@@ -47,9 +47,9 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
       Integer successId = null;
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         
-        // Parse microarray category xml
-        if (mcParser != null) {
-          mcParser.parse(sess);
+        // Parse application xml
+        if (applicationParser != null) {
+          applicationParser.parse(sess);
         }
         
         // update current slide product 
@@ -57,8 +57,8 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
           load = (SlideProduct) sess.load(SlideProduct.class, this.slideProductScreen.getIdSlideProduct());
           load.copyEditableDataFrom(slideProductScreen);
           sess.update(load);
-          // save microarray categories
-          saveMicroarrayCategories(load, mcParser);
+          // save applications 
+          saveApplications(load, applicationParser);
           successId = load.getIdSlideProduct();
        // make a new one
         } else { 
@@ -68,8 +68,8 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
           this.slideProductScreen.setArraysPerSlide(new Integer(1));
           sess.save(slideProductScreen);
           sess.flush();
-          // save microarray categories
-          saveMicroarrayCategories(this.slideProductScreen, mcParser);
+          // save applications
+          saveApplications(this.slideProductScreen, applicationParser);
           this.slideProductScreen.getIdSlideProduct();
           // now make the new slide design
           SlideDesign newSlide = new SlideDesign();
@@ -130,7 +130,7 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         mcDoc = sax.build(reader);
-        mcParser = new MicroarrayCategoryParser(mcDoc);
+        applicationParser = new ApplicationParser(mcDoc);
       } catch (JDOMException je ) {
         log.error( "Cannot parse microarrayCategoryXMLString", je );
         this.addInvalidField( "microarrayCategoryXMLString", "Invalid microarrayCategoryXMLString");
@@ -142,18 +142,18 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
   public void validate() {
   }
 
-  private void saveMicroarrayCategories(SlideProduct slideProduct, MicroarrayCategoryParser mcParser) {
-    if (mcParser != null) {
+  private void saveApplications(SlideProduct slideProduct, ApplicationParser applicationParser) {
+    if (applicationParser != null) {
       //
-      // Save microarrayCategories
+      // Save applications
       //
-      Set microarrayCategories = new TreeSet();
-      for(Iterator i = mcParser.getCodeMicroarrayCategoryMap().keySet().iterator(); i.hasNext();) {
-        String codeMicroarrayCategory = (String)i.next();
-        MicroarrayCategory microarrayCategory = (MicroarrayCategory)mcParser.getCodeMicroarrayCategoryMap().get(codeMicroarrayCategory);
-        microarrayCategories.add(microarrayCategory);
+      Set applications = new TreeSet();
+      for(Iterator i = applicationParser.getCodeApplicationMap().keySet().iterator(); i.hasNext();) {
+        String codeApplication = (String)i.next();
+        Application application = (Application)applicationParser.getCodeApplicationMap().get(codeApplication);
+        applications.add(application);
       }
-      slideProduct.setMicroarrayCategories(microarrayCategories);
+      slideProduct.setApplications(applications);
     }
     
   }

@@ -28,7 +28,7 @@
             <codeRequestCategory>{requestCategoryCombo.selectedItem.@value}</codeRequestCategory>
             <searchOrganismOnSlideProduct>{searchOrganismOnSlideProductCheck.selected == true ? "Y" : "N" }</searchOrganismOnSlideProduct>
             <searchOrganismOnSample>{searchOrganismOnSampleCheck.selected == true ? "Y" : "N" }</searchOrganismOnSample>
-            <codeMicroarrayCategory>{microarrayCategoryCombo.selectedItem.@value}</codeMicroarrayCategory>
+            <codeApplication>{applicationCombo.selectedItem.@value}</codeApplication>
             <idSlideProduct>{microarrayCombo.selectedItem.@idSlideProduct}</idSlideProduct>
             <idAnalysisType>{analysisTypeCombo.selectedItem.@value}</idAnalysisType>
             <idAnalysisProtocol>{analysisProtocolCombo.selectedItem.@value}</idAnalysisProtocol>
@@ -37,7 +37,7 @@
             <lab>{labCombo.selectedItem.@name}</lab>
             <organism>{organismCombo.selectedItem.@organism}</organism>
             <slideProduct>{microarrayCombo.selectedItem.@name}</slideProduct>
-            <microarrayCategory>{microarrayCategoryCombo.selectedItem.@display}</microarrayCategory>
+            <application>{applicationCombo.selectedItem.@display}</application>
             <requestCategory>{requestCategoryCombo.selectedItem.@display}</requestCategory>
             <sampleType>{sampleTypeCombo.selectedItem.@display}</sampleType>
             <analysisType>{analysisTypeCombo.selectedItem.@display}</analysisType>
@@ -80,7 +80,7 @@
        	parentApplication.filteredSlideProductList.refresh();
        	microarrayCombo.dataProvider = parentApplication.filteredSlideProductList;
        	
-       	microarrayCategoryCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.MicroarrayCategory');
+       	applicationCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application');
        	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');
        	requestCategoryCombo.dataProvider        = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategory');
        	sampleTypeCombo.dataProvider             = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType');
@@ -123,13 +123,13 @@
         		}
         	}
         	var doesMatchExperimentCategory:Boolean = true;
-        	if (microarrayCategoryCombo.selectedItem != null && 
-        	    microarrayCategoryCombo.selectedItem.@value != null &&
-        	    microarrayCategoryCombo.selectedItem.@value != "") {
+        	if (applicationCombo.selectedItem != null && 
+        	    applicationCombo.selectedItem.@value != null &&
+        	    applicationCombo.selectedItem.@value != "") {
         		doesMatchExperimentCategory = false;
-        		var categoriesForSlideProduct:XMLList  = item.microarrayCategories.MicroarrayCategory;
+        		var categoriesForSlideProduct:XMLList  = item.applications.Application;
         		for(var x:Number = 0; x < categoriesForSlideProduct.length(); x++) {
-        			if (categoriesForSlideProduct[x].@codeMicroarrayCategory == microarrayCategoryCombo.selectedItem.@value) {
+        			if (categoriesForSlideProduct[x].@codeApplication == applicationCombo.selectedItem.@value) {
         				doesMatchExperimentCategory = true;
         				break;
         			}
@@ -187,7 +187,7 @@
 			this.text4.text = "";
 			this.labCombo.selectedIndex = 0;
 			this.organismCombo.selectedIndex = 0;
-			this.microarrayCategoryCombo.selectedIndex = 0;
+			this.applicationCombo.selectedIndex = 0;
 			this.microarrayCombo.selectedIndex = 0;
 			this.requestCategoryCombo.selectedIndex = 0;
 			this.sampleTypeCombo.selectedIndex = 0;
@@ -259,7 +259,7 @@
         		(this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != "") ||
         		(this.searchOrganismOnSampleCheck.selected) ||
         		(this.searchOrganismOnSlideProductCheck.selected) ||
-        		(this.microarrayCategoryCombo.selectedItem != null && this.microarrayCategoryCombo.selectedItem.@value != "") ||
+        		(this.applicationCombo.selectedItem != null && this.applicationCombo.selectedItem.@value != "") ||
         		(this.microarrayCombo.selectedItem != null && this.microarrayCombo.selectedItem.@idSlideProduct != "") ||
         		(hasExperimentFactorCodes) ||
         		(hasExperimentDesignCodes)) {
@@ -336,8 +336,8 @@
                </mx:ComboBox>
             </mx:HBox>
             <mx:HBox>
-             <mx:Label text="Experiment Microarray Category:" textAlign="left" width="190" id="label8"/>
-             <mx:ComboBox id="microarrayCategoryCombo"  labelField="@display" 
+             <mx:Label text="Experiment Application:" textAlign="left" width="190" id="label8"/>
+             <mx:ComboBox id="applicationCombo"  labelField="@display" 
              	 width="200" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
              </mx:ComboBox>
             </mx:HBox>
@@ -427,7 +427,7 @@
 		<mx:SetProperty target="{sampleTypeCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSlideProductCheck}" name="enabled" value="false"/>
 		<mx:SetProperty target="{searchOrganismOnSampleCheck}" name="enabled" value="false"/>
-		<mx:SetProperty target="{microarrayCategoryCombo}" name="enabled" value="false"/>
+		<mx:SetProperty target="{applicationCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{microarrayCombo}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label3}" name="enabled" value="false"/>
 		<mx:SetProperty target="{label4}" name="enabled" value="false"/>
