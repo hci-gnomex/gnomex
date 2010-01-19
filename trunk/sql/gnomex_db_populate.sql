@@ -473,7 +473,14 @@ VALUES ('CGH', 'CGH', 'Y'),
   ('METH', 'DNA Methylation', 'Y'),
   ('MIRNA', 'miRNA', 'Y'),
   ('SNP', 'SNP', 'Y'),
-  ('WTRANSCRP', 'HybMap', 'Y');
+  ('WTRANSCRP', 'HybMap', 'Y'),
+  ('CHIPSEQ', 'ChIP-Seq', 'Y'),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y'),
+  ('DNASEQ', 'Genomic DNA Sequencing', 'Y'),
+  ('TDNASEQ', 'Targeted Genomic DNA Sequencing (capture/release)', 'Y'),
+  ('MRNASEQ', 'mRNA Sequencing', 'Y'),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y'),
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y');
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
 VALUES (1, 18, 'N'),
