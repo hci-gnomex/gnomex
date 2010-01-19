@@ -69,11 +69,11 @@ public class RequestHTMLFormatter {
  public Element makeRequestTable() {
     
     
-    String userAndLab = "";
+    String userName = "";
     String phone = "";
     String email = "";
     if (appUser != null) {
-      userAndLab = appUser.getFirstName() + " " + appUser.getLastName();
+      userName = appUser.getFirstName() + " " + appUser.getLastName();
       phone    = appUser.getPhone();
       email    = appUser.getEmail();
     }
@@ -87,29 +87,22 @@ public class RequestHTMLFormatter {
     }
     String labName = "";
     if (request.getLab() != null) {
-      userAndLab += " (" + request.getLab().getName() + ")";
+      labName = request.getLab().getName();
     }
     
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
     table.addContent(makeRow("Request #",    request.getNumber(), 
-                              "Requester", userAndLab));
-    if (request.getCodeRequestCategory() != null && 
-        !request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) && 
-        !request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      table.addContent(makeRow("Category",     dictionaryHelper.getApplication(request.getCodeApplication()), 
-                               "Phone",        phone));      
-      table.addContent(makeRow("Account Name", accountName,
-                               "Email",        email));
-      table.addContent(makeRow("", accountNumber,
-                                "",        ""));
-    } else {
-      table.addContent(makeRow("Account", accountName,
-                               "Phone",        phone));
-      table.addContent(makeRow("", accountNumber,
-                                "Email",        email));
-    }
-   
+                              "Requester", userName));
+
+    table.addContent(makeRow("Account",     "accountName", 
+          "Lab",        labName));      
+
+    table.addContent(makeRow("", accountNumber,
+        "Phone",        phone));      
+    table.addContent(makeRow("", "",
+        "Email",        email));
+
     
     
     

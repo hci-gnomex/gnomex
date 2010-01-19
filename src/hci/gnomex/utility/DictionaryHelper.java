@@ -47,7 +47,7 @@ public class DictionaryHelper implements Serializable {
   private Map              slideDesignMap = new HashMap();
   private Map              slideProductMap = new HashMap();
   private Map              chipMap = new HashMap();
-  private Map              microarrayCategoryMap = new HashMap();
+  private Map              applicationMap = new HashMap();
   private Map              requestCategoryMap = new HashMap();
   private Map              slideSourceMap = new HashMap();
   private Map              sampleSourceMap = new HashMap();
@@ -126,7 +126,7 @@ public class DictionaryHelper implements Serializable {
     List microarrayCategories = sess.createQuery("SELECT mc from Application as mc").list();
     for(Iterator i = microarrayCategories.iterator(); i.hasNext();) {
       Application mc = (Application)i.next();
-      microarrayCategoryMap.put(mc.getCodeApplication(), mc.getApplication());
+      applicationMap.put(mc.getCodeApplication(), mc.getApplication());
     }
     List requestCategories = sess.createQuery("SELECT mc from RequestCategory as mc").list();
     for(Iterator i = requestCategories.iterator(); i.hasNext();) {
@@ -352,7 +352,7 @@ public class DictionaryHelper implements Serializable {
   public String getApplication(String code) {
     String name = "";
     if (code != null) {
-      name = (String)microarrayCategoryMap.get(code);
+      name = (String)applicationMap.get(code);
     }
     return name;
   }
