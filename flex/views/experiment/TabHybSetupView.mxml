@@ -164,8 +164,13 @@
 			}
 			
 		}
+		private function initializeApplicationName():void {
+			if (this.applicationCombo.selectedItem != null) {
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.applicationCombo.selectedItem.@value);
+				this.parentDocument.applicationName = application.@display;
+			}			
+		}
 		public function assignSlideNumbers():void {
-			
 			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
 				return;
 			}
@@ -323,7 +328,7 @@
 			</mx:Text>
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 			    <mx:HBox>
-					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();arrayCoordinates = null;parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness()}" >							
+					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();arrayCoordinates = null;parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness();initializeApplicationName()}" >							
 						<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 					</mx:ComboBox>
 			    </mx:HBox>
