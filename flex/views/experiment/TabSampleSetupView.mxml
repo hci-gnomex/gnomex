@@ -202,7 +202,8 @@
         	}else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '') {
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
  						if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
@@ -296,6 +297,23 @@
         	this.checkSampleSetupCompleteness();
         }
 
+		private function pickSeqApp():void {
+			if (this.radioGroupSeqApp.selectedValue != null) {
+				this.seqAppBox.styleName = 'normalBox';
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+				this.parentDocument.applicationName = application.@display;
+			} else {
+				this.seqAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+			}
+			
+			this.sampleTypeCombo.selectedIndex = -1;
+			parentDocument.filteredSampleTypeList.refresh();
+			if (parentDocument.filteredSampleTypeList.length == 2) {
+				this.sampleTypeCombo.selectedIndex = 1;
+			}
+			this.checkSampleSetupCompleteness();
+		}
 		
 	]]>
 </mx:Script>
@@ -320,12 +338,12 @@
         
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer">
-			<mx:VBox  horizontalAlign="center" paddingLeft="4">
+			<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2">
   			  <mx:TextArea styleName="instructionBox" width="570" wordWrap="true" height="48">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 			</mx:VBox>
-			<mx:HBox width="100%" horizontalGap="0">
+			<mx:HBox width="100%" horizontalGap="0" id="hbox3">
 				<mx:Label text="(1) How many samples will you be submitting?" width="310"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
 					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
@@ -432,7 +450,7 @@
                 		    <mx:Spacer width="15"/>
                 </mx:HBox>
             </mx:AddChild>
-            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="10"/>
+            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
             <mx:SetProperty target="{sampleOrganismCombo}" name="width" value="170"/>
             <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
                 <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();this.checkForSampleTypeCompatibility();parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();selectDefaultSeqRunType()</mx:handler>
@@ -450,14 +468,38 @@
             <mx:RemoveChild target="{samplePrepContainer}"/>
             <mx:SetProperty target="{samplePrepMethodCombo}" name="width" value="400"/>
             <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="false"/>
-            <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
-            <mx:SetProperty target="{label8}" name="text" value="(2) Which category best describes your samples?"/>
+            <mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
+            <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
             <mx:SetProperty target="{label7}" name="text">
-                <mx:value>(3) Which organism is the source for these samples?</mx:value>
+                <mx:value>(4) Which organism is the source for these samples?</mx:value>
             </mx:SetProperty>
             <mx:SetProperty target="{label5}" name="width" value="314"/>
             <mx:SetProperty target="{label8}" name="width" value="314"/>
             <mx:SetProperty target="{label7}" name="width" value="314"/>
+            <mx:AddChild relativeTo="{hbox3}" position="before">
+                <mx:HBox width="100%" horizontalGap="0">
+                    <mx:Text text="(1) Select a sequencing application." width="314" id="labelApplication"/>
+                    <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+                        <mx:RadioButtonGroup id="radioGroupSeqApp"/>
+                        <mx:RadioButton label="Genomic DNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationGenomicSeq" paddingBottom="0" value="DNASEQ" click="pickSeqApp()"/>
+                        <mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationArrayCapture" label="Targeted Genomic DNA sequencing (capture/release)" paddingTop="0" paddingBottom="0" value="TDNASEQ">
+                            <mx:click>pickSeqApp()</mx:click>
+                        </mx:RadioButton>
+                        <mx:RadioButton label="ChIP-Seq DNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationChipSeq" paddingTop="0" paddingBottom="0" value="CHIPSEQ">
+                            <mx:click>pickSeqApp()</mx:click>
+                        </mx:RadioButton>
+                        <mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationmRNASeq" label="mRNA sequencing" paddingTop="0" paddingBottom="0" value="MRNASEQ">
+                            <mx:click>pickSeqApp()</mx:click>
+                        </mx:RadioButton>
+                        <mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationmDirmRNASeq" label="Directional mRNA sequencing" paddingBottom="0" paddingTop="0" value="DMRNASEQ">
+                            <mx:click>pickSeqApp()</mx:click>
+                        </mx:RadioButton>
+                        <mx:RadioButton label="Small mRNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationSmallmRNASeq" paddingTop="0" paddingBottom="0" value="SMRNASEQ">
+                            <mx:click>pickSeqApp()</mx:click>
+                        </mx:RadioButton>
+                    </mx:VBox>
+                </mx:HBox>
+            </mx:AddChild>
 
 			
         </mx:State>
@@ -469,18 +511,9 @@
             <mx:RemoveChild target="{samplePrepMethodCombo}"/>
             <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{samplePrepMethodCombo}"/>
             <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="true"/>
-            <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
-            <mx:SetProperty target="{label8}" name="text" value="(2) Which category best describes your samples?"/>
-            <mx:SetProperty target="{label7}" name="text">
-                <mx:value>(3) Which organism is the source for these samples?</mx:value>
-            </mx:SetProperty>
             <mx:SetProperty target="{text1}" name="text">
                 <mx:value>(5) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
             </mx:SetProperty>
-            <mx:SetProperty target="{text1}" name="width" value="314"/>
-            <mx:SetProperty target="{label7}" name="width" value="314"/>
-            <mx:SetProperty target="{label8}" name="width" value="314"/>
-            <mx:SetProperty target="{label5}" name="width" value="314"/>
         </mx:State>
    	
    </mx:states>

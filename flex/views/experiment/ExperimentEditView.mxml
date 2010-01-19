@@ -128,6 +128,9 @@
 		public var requestCategoryName:String;
 		
 		[Bindable]
+		public var applicationName:String;
+		
+		[Bindable]
 		public var request:Object;
 		
 		[Bindable]
@@ -824,7 +827,25 @@
     	   		    break;
     	   		}
     	   	}
-        	return doesMatchRequestCategory;
+
+			// If this is a solexa request, filter the sample type
+			// by the selected application
+			var doesMatchApplication:Boolean = true;
+			if (this.isSolexaState()) {
+				var codeApplication:Object = this.sampleSetupView.radioGroupSeqApp.selectedValue;
+				if (codeApplication != null) {
+					doesMatchApplication = false;
+		        	var theSampleTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeApplication').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
+		    	   	for each (var xref2:Object in theSampleTypes) {
+		    	   		if (xref2.@codeApplication.toString() == codeApplication.toString()) {
+			   				doesMatchApplication = true;
+		    	   		    break;
+		    	   		}
+		    	   	}
+	    	   	}
+			}
+
+        	return doesMatchRequestCategory && doesMatchApplication;
         }  
 
 		private function filterApplication(item:Object):Boolean {
@@ -1689,7 +1710,9 @@
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeApplication = hybSetupView.applicationCombo.selectedItem.@codeApplication;				
 			}
-			
+			if (this.isSolexaState()) {
+				request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;				
+			}
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
 			
 			request.replace("samples", <samples></samples>); 
@@ -1705,7 +1728,6 @@
 					request.hybridizations.appendChild(hyb);
 				 }
 			} else {
-				request.@codeApplication = '';
 				request.@idSlideProduct = '';
 			}
 			request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 

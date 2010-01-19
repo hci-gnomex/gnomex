@@ -53,6 +53,7 @@
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Request Kind" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel"/>
+					<mx:Text text="{parentDocument.applicationName}" id="appLabel"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>
