@@ -147,15 +147,20 @@ public class RequestEmailBodyFormatter extends DetailObject{
     Element center = new Element("CENTER");
     body.addContent(center);
     
-    Element h3 = new Element("H3");
+    Element h3 = new Element("H2");
     h3.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
     center.addContent(h3);
     
     Element center1 = new Element("CENTER");
     body.addContent(center1);
     
+    if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
+      Element hApp = new Element("H4");
+      hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
+      center1.addContent(hApp);              
+    }
     
-    Element h2 = new Element("H2");
+    Element h2 = new Element("H4");
     h2.addContent(formatDate(request.getCreateDate()));
     center1.addContent(h2);
     
