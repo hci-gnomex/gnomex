@@ -51,7 +51,7 @@
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Type (Microarray defaults)" className="hci.gnomex.model.SampleTypeApplication" >
+	<Dictionary displayName="Sample Type (Application)" className="hci.gnomex.model.SampleTypeApplication" >
   	  <Filter className="hci.gnomex.model.Application"               filterField="codeApplication"/>
   	  <Filter className="hci.gnomex.model.SampleType"                filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
