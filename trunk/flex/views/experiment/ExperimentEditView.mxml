@@ -580,7 +580,6 @@
  					
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
 					this.hybSetupView.currentState = "";
 					this.hybsView.currentState = '';
 					
@@ -594,11 +593,13 @@
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
+						this.samplesView.currentState = 'MicroarraySamplesState';
 						this.hybsView.currentState = "";
 						hybsView.channel2SampleColumn.visible = true;
 						samplesView.labelColumn.visible = true;
 						confirmView.channel2SampleConfirmColumn.visible = true;
 					} else {
+						this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 						this.hybsView.currentState = "HybsOneColorState";
 						hybsView.channel2SampleColumn.visible = false;
 						samplesView.labelColumn.visible = false;
@@ -608,6 +609,8 @@
 						}
 					}
 	
+					this.samplesView.checkSamplesCompleteness();	
+					
 				}
 			}
 			
