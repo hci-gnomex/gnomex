@@ -307,8 +307,8 @@
 </mx:Script>
 	<mx:VBox width="100%" height="100%">
 	    <mx:VBox  horizontalAlign="left" paddingLeft="4" width="100%" id="vbox1">
-  			  <mx:TextArea styleName="instructionBox" width="620" wordWrap="true" height="90" visible="true" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characterisitics that are listed on this page can be used to provide <br>       additional annotation of your samples on a subsequent screen.<br>       Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+  			  <mx:TextArea styleName="instructionBox" width="760" wordWrap="true" height="78" visible="true" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a<br>       subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 		</mx:VBox>
 		
