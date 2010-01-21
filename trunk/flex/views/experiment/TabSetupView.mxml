@@ -17,8 +17,10 @@
          <mx:SetProperty target="{text1}" name="htmlText" value="(3) Pick the account to be &lt;br&gt; billed:"/>
          <mx:SetProperty target="{label11}" name="text" value="(4) Select a service:"/>
          <mx:SetProperty target="{text2}" name="htmlText">
-            <mx:value>(5) Pick a project folder for organizing this request:</mx:value>
+            <mx:value>(5) Select a project folder for organizing experiment information and data linked to this request.</mx:value>
          </mx:SetProperty>
+         <mx:SetProperty target="{text2}" name="width" value="200"/>
+         <mx:SetStyle target="{vbox1}" name="verticalGap" value="12"/>
       </mx:State>
    </mx:states>
    
@@ -424,7 +426,7 @@
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
-						<mx:ComboBox labelField="@accountNameAndNumber" width="100%" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+						<mx:ComboBox labelField="@accountNameAndNumber" width="700" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 						</mx:ComboBox>
 						
@@ -452,7 +454,7 @@
 				<mx:Label text="(3) Select a service category." width="200" id="label11"/>
 				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="1" paddingBottom="0" width="100%">
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
-					    <mx:Text text="Service" width="207" fontWeight="normal" textDecoration="underline" fontStyle="normal"/>
+					    <mx:Text text="Service" width="196" fontWeight="normal" textDecoration="underline" fontStyle="normal"/>
 					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
@@ -460,41 +462,35 @@
 					     <mx:Image source="{parentApplication.iconMicroarray}"/>						    	
 					    </mx:HBox>
 					    <mx:RadioButtonGroup id="requestTypeGroup" />
-					    <mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 2-color Microarray " value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="180"/>							
-					    </mx:HBox>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 2-color Microarray " value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="170"/>							
 					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
 					     <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
 					    </mx:HBox>
-					    <mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 1-color Microarray" value="AGIL1" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilentSingleColor" width="180"/>							
-					    </mx:HBox>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 1-color Microarray" value="AGIL1" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilentSingleColor" width="170"/>							
 					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
 					     <mx:Image source="{parentApplication.iconMicroarrayAffy}" />						    	
 					    </mx:HBox>
-					    <mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="180"/>							
-					    </mx:HBox>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="170"/>							
 					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">									
+					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">									
 					    <mx:HBox horizontalAlign="center">
 					    	<mx:Image source="{parentApplication.iconQC}"/>
 					    </mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0" width="180"/>					
+					    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0" width="170"/>					
 					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'QC').@notes}" width="100%"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="2" paddingLeft="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
+					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
 					     <mx:Image source="{parentApplication.iconSolexa}"/>						    	
 					    </mx:HBox>
-						<mx:RadioButton groupName="requestTypeGroup" label="Illumina Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa" width="180"/>																							
+						<mx:RadioButton groupName="requestTypeGroup" label="Illumina Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa" width="170"/>																							
 						<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%"/>
 					</mx:HBox>
 				</mx:VBox>
