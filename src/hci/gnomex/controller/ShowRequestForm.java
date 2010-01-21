@@ -11,6 +11,7 @@ import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SubmissionInstruction;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -27,8 +28,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.naming.NamingException;
@@ -52,6 +57,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
   private Integer          idRequest;
   private Request          request;
   
+  private String           appURL = "";
+  
   private AppUser          appUser;
   private BillingAccount   billingAccount;
   private Project          project;
@@ -71,6 +78,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       idRequest = new Integer(request.getParameter("idRequest"));
     } else {
       this.addInvalidField("idRequest", "idRequest is required");
+    }
+    try {
+      this.appURL = this.getAppURL(request);      
+    } catch (Exception e) {
+      log.warn("Unable to obtain gnomex app url", e);
     }
   }
 
@@ -181,21 +193,23 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(formatter.makeSequenceLaneTable(request.getSequenceLanes()));          
             }
             
-            maindiv.addContent(new Element("BR"));
-            maindiv.addContent(new Element("BR"));
-            maindiv.addContent(new Element("HR"));
+            
                        
-            Element pb = new Element("P");
-            pb.setAttribute("CLASS", "break");
-            maindiv.addContent(pb);
-            maindiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
             String instructions = this.getInstructions();
-            // Convert degree and micro symbols to html escape codes
-            instructions = instructions.replaceAll("\\xB0", "&#176;");
-            instructions = instructions.replaceAll("\\xB5", "&#181;");
+            if (instructions != null) {
+              maindiv.addContent(new Element("BR"));
+              maindiv.addContent(new Element("BR"));
+              maindiv.addContent(new Element("HR"));
 
-            
-            
+              Element pb = new Element("P");
+              pb.setAttribute("CLASS", "break");
+              maindiv.addContent(pb);
+              maindiv.addContent(new Element("BR"));
+              maindiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
+              // Convert degree and micro symbols to html escape codes
+              instructions = instructions.replaceAll("\\xB0", "&#176;");
+              instructions = instructions.replaceAll("\\xB5", "&#181;");              
+            }
           
             XMLOutputter out = new org.jdom.output.XMLOutputter();
             out.setOmitEncoding(true);
@@ -269,75 +283,120 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     
     SAXBuilder parser = new SAXBuilder();
-    Document inputDoc = parser.build(new FileInputStream(Constants.WEBCONTEXT_DIR + "doc/" + getSubmissionInstructionsFileName()));
-    
-    Document tempDoc = new Document(new Element("div"));
-    for(Iterator i = inputDoc.getRootElement().getChildren("body").iterator(); i.hasNext();) {
-      Element body = (Element)i.next();
-      for(Iterator i1 = body.getChildren().iterator(); i1.hasNext();) {
-          Element node = (Element)i1.next();
-          tempDoc.getRootElement().addContent((Element)node.clone());
-      }
+    parser.setValidation(false);
+    String instructionURL = this.getSubmissionInstructionsUrl();
+    if (instructionURL == null) {
+      return null;
+    }
+
+    Document instructionDoc = null;
+    if (instructionURL.toLowerCase().startsWith("http")) {
+      // We load the instructions document from a web site
+      instructionURL = this.appURL + "/" + instructionURL;
+      try {
+        URL url = new URL(instructionURL);
+        instructionDoc = parser.build(url.openStream());  
+     } catch (Exception e) {
+       log.warn("Unable to parse submission instructions " + instructionURL, e);
+     }
+    } else {
+      // We load the doc directly from the app root
+      instructionDoc = parser.build(new FileInputStream(Constants.WEBCONTEXT_DIR + instructionURL));
     }
     
-    return out.outputString(tempDoc.getRootElement());
+    if (instructionDoc != null) {                  
+      Document tempDoc = new Document(new Element("div"));
+      for(Iterator i = instructionDoc.getRootElement().getChildren("body").iterator(); i.hasNext();) {
+        Element body = (Element)i.next();
+        for(Iterator i1 = body.getChildren().iterator(); i1.hasNext();) {
+            Element node = (Element)i1.next();
+            tempDoc.getRootElement().addContent((Element)node.clone());
+        }
+      }
+      
+      return out.outputString(tempDoc.getRootElement());
+    } else {
+      return null;
+    }
+    
   }
 
-  private String getSubmissionInstructionsFileName() {
-    String fileName = "";
-    if (this.request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-      if (request.getIdSampleTypeDefault() != null) {
-        if (dictionaryHelper.getSampleType(this.request.getIdSampleTypeDefault()).toUpperCase().indexOf("CHIP") >= 0 ||
-            dictionaryHelper.getSampleType(this.request.getIdSampleTypeDefault()).toUpperCase().indexOf("CHROMATIN IP") >= 0) {
-          fileName = "submission_instructions_illumina_chipseq.html";
-        } else if (dictionaryHelper.getSampleType(this.request.getIdSampleTypeDefault()).toUpperCase().indexOf("DNA") >= 0) {
-          fileName = "submission_instructions_illumina_genomic_dna.html";
-        } else if (dictionaryHelper.getSampleType(this.request.getIdSampleTypeDefault()).toUpperCase().indexOf("SMALL RNA") >= 0) {
-          fileName = "submission_instructions_illumina_smallrna_seq.html";
-        } else if (dictionaryHelper.getSampleType(this.request.getIdSampleTypeDefault()).toUpperCase().indexOf("RNA") >= 0) {
-          fileName = "submission_instructions_illumina_mrna_seq.html";
+  @SuppressWarnings("unchecked")
+  private String getSubmissionInstructionsUrl() {
+    TreeMap<Integer, List<SubmissionInstruction>> matchMap = new TreeMap<Integer, List<SubmissionInstruction>>();
+    
+    for(Iterator i = dictionaryHelper.getSubmissionInstructionMap().keySet().iterator(); i.hasNext();) {
+      int matchCount = 0;
+      Integer idSubmissionInstruction = (Integer)i.next();
+      SubmissionInstruction si = (SubmissionInstruction)dictionaryHelper.getSubmissionInstructionMap().get(idSubmissionInstruction);
+      
+      if (si.getCodeRequestCategory().equals(this.request.getCodeRequestCategory())) {
+        matchCount++;
+      } else {
+        // Bypass submission instruction if the request category (required) 
+        // doesn't match
+        continue;
+      }
+      
+      if (si.getCodeApplication() != null) {
+        if (this.request.getCodeApplication() != null && 
+            si.getCodeApplication().equals(this.request.getCodeApplication())) {
+          matchCount++;
+        } else {
+          // Bypass submission instruction if the codeApplication is provided 
+          // and it doesn't match the request
+          continue;
         }
-      } 
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      if (request.getCodeBioanalyzerChipType() != null && !request.getCodeBioanalyzerChipType().equals("")) {
-        if (request.getCodeBioanalyzerChipType().equals(BioanalyzerChipType.DNA1000)) {
-          fileName = "submission_instructions_agilent_bioanalyzer_dna_1000_chip.html";
-        } else if (request.getCodeBioanalyzerChipType().equals(BioanalyzerChipType.RNA_NANO)) {
-          fileName = "submission_instructions_agilent_bioanalyzer_rna_nano_chip.html";
-        } else if (request.getCodeBioanalyzerChipType().equals(BioanalyzerChipType.RNA_PICO)) {
-          fileName = "submission_instructions_agilent_bioanalyzer_rna_pico_chip.html";
-        } 
-      } 
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-      if (request.getCodeApplication() != null) {
-        if (request.getCodeApplication().equals(Application.EXPRESSION_MICROARRAY_CATEGORY)) {
-          fileName = "submission_instructions_affy_ge_microarray.html";
-        } else if (request.getCodeApplication().equals(Application.SNP_MICROARRAY_CATEGORY)) {
-          if (request.getIdSlideProduct() != null) {
-              if (dictionaryHelper.getSlideProductName(request.getIdSlideProduct()).toUpperCase().indexOf("5.0") >= 0) {
-                fileName = "submission_instructions_affy_5.0_6.0_snp.html";
-              } else if (dictionaryHelper.getSlideProductName(request.getIdSlideProduct()).toUpperCase().indexOf("5.0") >= 0) {
-                fileName = "submission_instructions_affy_5.0_6.0_snp.html";
-              } else {
-                fileName = "submission_instructions_affy_250k_snp.html";
-              }
-          }
-        } 
       }
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) ||
-                this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) {
-      if (request.getCodeApplication() != null) {
-        if (request.getCodeApplication().equals(Application.EXPRESSION_MICROARRAY_CATEGORY)) {
-          fileName = "submission_instructions_agilent_ge_microarray.html";
-        } else if (request.getCodeApplication().equals(Application.CGH_MICROARRAY_CATEGORY)) {
-          fileName = "submission_instructions_agilent_cgh_microarray.html";
-        } else if (request.getCodeApplication().equals(Application.CHIP_ON_CHIP_MICROARRAY_CATEGORY)) {
-          fileName = "submission_instructions_agilent_chip_on_chip_microarray.html";
-        } else if (request.getCodeApplication().equals(Application.MIRNA_MICROARRAY_CATEGORY)) {
-          fileName = "submission_instructions_agilent_mirna_microarray.html";
-        } 
+          
+      if (si.getCodeBioanalyzerChipType() != null) {
+        if (this.request.getCodeBioanalyzerChipType() != null && 
+            si.getCodeBioanalyzerChipType().equals(this.request.getCodeBioanalyzerChipType())) {
+          matchCount++;
+        } else {
+          //Bypass submission instruction if the codeBioanalyzerChipType is provided 
+          // and it doesn't match the request
+          continue;
+        }
       }
+
+      if (si.getIdBillingSlideServiceClass() != null) {
+        if (this.request.getSlideProduct() != null && 
+            this.request.getSlideProduct().getIdBillingSlideServiceClass() != null && 
+            si.getIdBillingSlideServiceClass().equals(this.request.getSlideProduct().getIdBillingSlideServiceClass())) {
+          matchCount++;
+        } else {
+          //Bypass submission instruction if the idBillingSlideServiceClass is provided 
+          // and it doesn't match the request
+          continue;
+        }
+      }
+      Integer key = new Integer(matchCount);
+      List<SubmissionInstruction> instructions = matchMap.get(key);
+      if (instructions == null) {
+        instructions = new ArrayList<SubmissionInstruction>();
+      }
+      instructions.add(si);
+      matchMap.put(key, instructions);
     }
-    return fileName;
+    
+    // Find the submission instructions with the highest match count.
+    // If multiple submission instructions have the same match
+    // count, return null because we don't have an exact match.
+    if (matchMap.size() > 0) {
+      Integer maxMatchCount = (Integer)matchMap.descendingKeySet().iterator().next();
+      List<SubmissionInstruction> instructions = (List<SubmissionInstruction>)matchMap.get(maxMatchCount);
+      if (maxMatchCount.intValue() > 0 && instructions != null && instructions.size() == 1) {
+        SubmissionInstruction instruction = instructions.get(0);
+        return instruction.getUrl();
+      } else {
+        log.warn("Cannot find exact matching Submission Instructions for request " + request.getNumber());
+        return null;
+      }      
+    } else {
+      log.warn("No matching Submission Instructions for request " + request.getNumber());
+      return null;
+    }
+    
   }
 }
