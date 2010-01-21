@@ -275,4 +275,112 @@
 	</target>
 
 
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- release-opensource                             -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="release-opensource" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Releasing open source                               +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete dir="${dist.dir}/opensource"/>
+	  <copy todir="${dist.dir}/opensource/gnomex">
+	  	 <fileset dir="${basedir}">
+		    	<include name="build.properties"/>
+		    	<include name="build.xml"/>
+		    	<include name="README.TXT"/>
+		    	<include name="*.sql"/>
+		    	<include name="*.sh"/>
+		    	<include name="*.cmd"/>
+		      <include name="flex/**"/>
+		      <include name="src/**"/>
+		      <include name="lib/**"/>
+		      <include name="META-INF/**"/>
+		      <include name="defaultroot/**"/>
+		      <exclude name="defaultroot/doc/**"/>	  	
+		      <exclude name="**/CVS"/>
+		      <exclude name="**/.cvsignore"/>
+ 	        <exclude name="**/Thumbs.db"/>
+	        <exclude name="**/.settings/**"/>
+		      <exclude name="**/SecurityManager.java"/>
+		      <exclude name="**/SecurityManagerLocal.java"/>
+	  	 	</fileset>
+	  </copy>
+	  <copy todir="${dist.dir}/opensource/gnomex/defaultroot/doc">
+	    <fileset dir="${basedir}/defaultroot/doc">
+	      <include name="**/blank*.*"/>
+	    </fileset>
+	  </copy>
+		<replace dir="${dist.dir}/opensource/gnomex/lib"
+		         token="&lt;property name=&quot;connection.provider_class&quot;&gt;com.opensourceconnections.msjdbcproxy.HibernateProvider&lt;/property&gt;"
+		         value="">
+			<include name="hibernate*.cfg.xml"/>
+		</replace>
+		<replace dir="${dist.dir}/opensource/gnomex/lib"
+				     token="SQLServerDialect"
+		         value="MySQLDialect">
+			<include name="hibernate*.cfg.xml"/>
+		</replace>
+	  <copy todir="${dist.dir}/opensource/hciEnv">
+	    <fileset dir="${hcienv.dir}">
+	      <include name="lib/**"/>
+	      <include name="dist/*.ear"/>
+	      <exclude name="**/CVS"/>
+	      <exclude name="**/.cvsignore"/>
+	      <exclude name="**/Thumbs.db"/>
+	    </fileset>
+	  </copy>
+	  <copy todir="${dist.dir}/opensource/HCIFlex2">
+	    <fileset dir="${hciflex.dir}">
+	      <include name="assets/**"/>
+	      <include name="hci/**"/>
+	      <exclude name="**/CVS"/>
+	      <exclude name="**/.cvsignore"/>
+	      <exclude name="**/Thumbs.db"/>
+	    </fileset>
+	  </copy>
+	  <copy todir="${dist.dir}/opensource/orion">
+	    <fileset dir="${orion.dir}">
+	      <include name="tools.jar"/>
+	      <include name="lib/commons*.jar"/>
+	      <include name="lib/dom4j*.jar"/>
+	      <include name="lib/hci_*.jar"/>
+	      <include name="lib/Hibernate*.jar"/>
+	      <include name="lib/hsql*.jar"/>
+	      <include name="lib/dom4j*.jar"/>
+	      <include name="lib/jaas*.jar"/>
+		    <include name="lib/jcs*.jar"/>
+		    <include name="lib/jdom*.jar"/>
+	      <include name="lib/jta*.jar"/>
+	      <include name="lib/jtds*.jar"/>
+		    <include name="lib/log4j*.jar"/>
+		    <include name="lib/mysql*.jar"/>
+		    <include name="lib/naming-common.jar"/>
+		    <include name="lib/rowset*.jar"/>
+		    <include name="lib/tools.jar"/>
+	      <exclude name="**/CVS"/>
+	      <exclude name="**/.cvsignore"/>
+	    </fileset>
+	  </copy>
+	  <copy todir="${dist.dir}/opensource/orion/config">
+	    <fileset dir="${basedir}/orion_config">
+	      <include name="*/**"/>
+	      <exclude name="**/CVS"/>
+	      <exclude name="**/.cvsignore"/>
+	    </fileset>
+	  </copy>
+		<replace file="${dist.dir}/opensource/orion/config/data-sources.xml"
+				     token="connection-driver=&quot;com.microsoft.jdbc.sqlserver.SQLServerDriver&quot;"
+		         value="connection-driver=&quot;com.mysql.jdbc.Driver&quot;">
+		</replace>
+		<replace file="${dist.dir}/opensource/orion/config/data-sources.xml"
+				     token="url=&quot;jdbc:microsoft:sqlserver://hci-dbdev:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
+		         value="url=&quot;jdbc:mysql://localhost:3306/gnomex&quot;">
+		</replace>
+	</target>
+
+
 </project>
