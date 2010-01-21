@@ -1094,6 +1094,20 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 	
+	<!-- hci.gnomex.model.SubmissionInstruction -->
+	<class name="hci.gnomex.model.SubmissionInstruction" table="SubmissionInstruction">
+		<id name="idSubmissionInstruction" column="idSubmissionInstruction" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="description" column="description" type="string"/>
+		<property name="url" column="url" type="string"/>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<property name="codeApplication" column="codeApplication" type="string"/>
+		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
+		<property name="idBillingSlideServiceClass" column="idBillingSlideServiceClass" type="integer"/>
+	</class>
+	
+	
 	<!-- hci.gnomex.model.UserPermissionKind -->
 	<class name="hci.gnomex.model.UserPermissionKind" table="UserPermissionKind">
 		<id name="codeUserPermissionKind" column="codeUserPermissionKind" type="string">
