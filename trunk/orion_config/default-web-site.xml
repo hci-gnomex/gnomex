@@ -1,0 +1,1 @@
+	<web-app application="gnomex" name="gnomex" root="/gnomex" shared="true" />
