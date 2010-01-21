@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" >
+<mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false">
 <mx:Script>
 	<![CDATA[
        	public function propagateSeqRunType():void {
@@ -136,7 +136,7 @@
 				<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
 					<mx:HBox width="100%" horizontalGap="2">
 						<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;};this.checkSeqSetup1Completeness();}" selected="true"/>
-						<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="this.parentDocument.sampleSetupView.propagateGenomeBuild();this.checkSeqSetup1Completeness();" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}">							
+						<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="this.propagateGenomeBuild();this.checkSeqSetup1Completeness();" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}">							
 						  	</mx:ComboBox>                			
 					</mx:HBox>
 						<mx:HBox width="100%" horizontalGap="0">
