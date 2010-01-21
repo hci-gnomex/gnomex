@@ -1,0 +1,11 @@
+
+        <mail-session location="mail/MailSession" smtp-host="yourmailserver.somewhere.edu">
+		<property name="mail.transport.protocol" value="smtp" />
+	</mail-session>
+
+	<web-site path="./default-web-site.xml" />
+   	<web-site path="./secure-web-site.xml" />
+
+        <application name="hciEnv" path="../applications/hciEnv.ear" auto-start="true" />
+        <application name="gnomex" path="../applications/gnomex.ear" parent="hciEnv" auto-start="true"/>
+
