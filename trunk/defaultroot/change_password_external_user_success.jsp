@@ -7,7 +7,7 @@
 
 
 <h3>Your password has been successfully changed.</h3>
-<a href="/gnomex/go.jsp">Click here to login to GNomEx</a>
+<a href="/gnomex">Click here to login to GNomEx</a>
 
 
 </BODY>
