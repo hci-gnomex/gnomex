@@ -401,4 +401,22 @@ VBox.instructionBox
 	backgroundColor: #FFFEC3;
 }
 
+Text.welcome
+{
+	color: #2E2E2E;
+	fontFamily: Arial;
+	fontSize: 12px;
+}
+Text.welcomeTitle
+{
+	color: #FAFAE2;
+	fontFamily: Arial;
+	fontSize: 16px;
+}
+Text.welcomeHeader
+{
+	color: #FAFAE2;
+	fontFamily: Arial;
+	fontSize: 14px;
+}
 
