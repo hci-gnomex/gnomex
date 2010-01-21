@@ -559,7 +559,6 @@
 				for each (var sample:Object in samples) {
 					sample.@seqPrepByCore = 'Y';
 					sample.@numberSequencingLanes = '1';
-					sample.@idSeqRunType = '';
 					sample.@label = '';
 				}
 				this.samplesView.showHideColumns();		
