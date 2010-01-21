@@ -95,7 +95,7 @@ public class RequestHTMLFormatter {
     table.addContent(makeRow("Request #",    request.getNumber(), 
                               "Requester", userName));
 
-    table.addContent(makeRow("Account",     "accountName", 
+    table.addContent(makeRow("Account",     accountName, 
           "Lab",        labName));      
 
     table.addContent(makeRow("", accountNumber,
