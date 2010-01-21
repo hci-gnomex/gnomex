@@ -1,4 +1,4 @@
--- ----------------------------------------------------------------------
+﻿-- ----------------------------------------------------------------------
 -- MySQL Migration Toolkit
 -- SQL Create Script
 -- ----------------------------------------------------------------------
@@ -1482,6 +1482,74 @@ CREATE TABLE `gnomex`.`Step` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
+CREATE TABLE `gnomex`.`SampleTypeApplication` (
+  `idSampleTypeApplication` INT(10) NOT NULL AUTO_INCREMENT,
+  `idSampleType` INT(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
+  `idLabelingProtocolDefault` INT(10) NULL,
+  `idHybProtocolDefault` INT(10) NULL,
+  `idScanProtocolDefault` INT(10) NULL,
+  `idFeatureExtractionProtocolDefault` INT(10) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idSampleTypeApplication`),
+  UNIQUE INDEX `IX_ApplicationSampleType` (`idSampleType`, `codeApplication`),
+  CONSTRAINT `FK_ApplicationSampleType_SampleType` FOREIGN KEY `FK_ApplicationSampleType_SampleType` (`idSampleType`)
+    REFERENCES `gnomex`.`SampleType` (`idSampleType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_ApplicationSampleType_Application` FOREIGN KEY `FK_ApplicationSampleType_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_HybProtocol` FOREIGN KEY `FK_SampleTypeApplication_HybProtocol` (`idHybProtocolDefault`)
+    REFERENCES `gnomex`.`HybProtocol` (`idHybProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_LabelingProtocol` FOREIGN KEY `FK_SampleTypeApplication_LabelingProtocol` (`idLabelingProtocolDefault`)
+    REFERENCES `gnomex`.`LabelingProtocol` (`idLabelingProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_ScanProtocol` FOREIGN KEY `FK_SampleTypeApplication_ScanProtocol` (`idScanProtocolDefault`)
+    REFERENCES `gnomex`.`ScanProtocol` (`idScanProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_FeatureExtractionProtocol` FOREIGN KEY `FK_SampleTypeApplication_FeatureExtractionProtocol` (`idFeatureExtractionProtocolDefault`)
+    REFERENCES `gnomex`.`FeatureExtractionProtocol` (`idFeatureExtractionProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SubmissionInstruction`;
+CREATE TABLE `gnomex`.`SubmissionInstruction` (
+  `idSubmissionInstruction` INT(10) NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(200) NULL,
+  `url` VARCHAR(2000) NULL,
+  `codeRequestCategory` VARCHAR(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
+  `codeBioanalyzerChipType` VARCHAR(10) NULL,
+  `idBillingSlideServiceClass` INT(10) NULL,
+  PRIMARY KEY (`idSubmissionInstruction`),
+  CONSTRAINT `FK_SubmissionInstruction_BillingSlideServiceClass` FOREIGN KEY `FK_SubmissionInstruction_BillingSlideServiceClass` (`idBillingSlideServiceClass`)
+    REFERENCES `gnomex`.`BillingSlideServiceClass` (`idBillingSlideServiceClass`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SubmissionInstruction_RequestCategory` FOREIGN KEY `FK_SubmissionInstruction_RequestCategory` (`codeRequestCategory`)
+    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SubmissionInstruction_Application` FOREIGN KEY `FK_SubmissionInstruction_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SubmissionInstruction_BioanalyzerChipType` FOREIGN KEY `FK_SubmissionInstruction_BioanalyzerChipType` (`codeBioanalyzerChipType`)
+    REFERENCES `gnomex`.`BioanalyzerChipType` (`codeBioanalyzerChipType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`TreatmentEntry`;
 CREATE TABLE `gnomex`.`TreatmentEntry` (
   `idTreatmentEntry` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1568,4 +1636,3 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------
 -- EOF
-
