@@ -25,6 +25,7 @@ import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.SlideSource;
+import hci.gnomex.model.SubmissionInstruction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class DictionaryHelper implements Serializable {
   private Map              sampleTypeToDefaultSamplePrepMethodMap = new HashMap();
   private Map              labelMap = new HashMap();
   private Map              propertyMap = new HashMap();
+  private Map              submissionInstructionMap = new HashMap();
   
   
   
@@ -200,6 +202,11 @@ public class DictionaryHelper implements Serializable {
     for(Iterator i = props.iterator(); i.hasNext();) {
       Property p = (Property)i.next();
       propertyMap.put(p.getPropertyName(), p.getPropertyValue());
+    }
+    List instructions = sess.createQuery("SELECT i from SubmissionInstruction as i").list();
+    for(Iterator i = instructions.iterator(); i.hasNext();) {
+      SubmissionInstruction instruction = (SubmissionInstruction)i.next();
+      submissionInstructionMap.put(instruction.getIdSubmissionInstruction(), instruction);
     }
     
    }
@@ -449,6 +456,10 @@ public class DictionaryHelper implements Serializable {
     } else {
       return null;
     }
+  }
+  
+  public Map getSubmissionInstructionMap() {
+    return submissionInstructionMap;
   }
   
   public Map getChipMap() {

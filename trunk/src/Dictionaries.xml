@@ -2,10 +2,11 @@
 <Dictionaries>
 
 
-	<Dictionary displayName="Admin Funding Agency" className="hci.gnomex.model.FundingAgency"  >
+	<Dictionary displayName="Admin - Funding Agency" className="hci.gnomex.model.FundingAgency"  >
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
-  <Dictionary displayName="Admin State" className="hci.gnomex.model.State" />
+	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.Property" scrub="Y"/>
+  <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />
 
 
@@ -16,7 +17,7 @@
 	<Dictionary displayName="Experiment Factor" className="hci.gnomex.model.ExperimentFactor" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-   <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
+  <Dictionary displayName="Genome Build" className="hci.gnomex.model.GenomeBuild" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
       <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
       <Filter className="YN" filterField="isLatestBuild"/>
@@ -26,7 +27,6 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-	<Dictionary displayName="Property" className="hci.gnomex.model.Property" scrub="Y"/>
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
 	</Dictionary>
@@ -63,6 +63,12 @@
   <Dictionary displayName="Sample Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
   </Dictionary>
+  <Dictionary displayName="Submission Instructions" className="hci.gnomex.model.SubmissionInstruction" >
+			<Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+      <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
+      <Filter className="hci.gnomex.model.BioanalyzerChipType" filterField="codeBioanalyzerChipType"/>
+      <Filter className="hci.gnomex.model.BillingSlideServiceClass" filterField="idBillingSlideServiceClass"/>
+	</Dictionary>
 	
 
 
