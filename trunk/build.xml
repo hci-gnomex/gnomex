@@ -286,12 +286,12 @@
 		<echo>+  Releasing open source                               +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		<delete dir="${dist.dir}/opensource"/>
-	  <copy todir="${dist.dir}/opensource/gnomex">
+		<delete dir="${opensource.dir}"/>
+		<copy todir="${opensource.dir}" file="${basedir}/README.TXT"/>
+	  <copy todir="${opensource.dir}/gnomex">
 	  	 <fileset dir="${basedir}">
 		    	<include name="build.properties"/>
 		    	<include name="build.xml"/>
-		    	<include name="README.TXT"/>
 		    	<include name="*.sql"/>
 		    	<include name="*.sh"/>
 		    	<include name="*.cmd"/>
@@ -309,22 +309,30 @@
 		      <exclude name="**/SecurityManagerLocal.java"/>
 	  	 	</fileset>
 	  </copy>
-	  <copy todir="${dist.dir}/opensource/gnomex/defaultroot/doc">
+		<replace file="${opensource.dir}/gnomex/build.properties"
+				     token="c:/orion"
+		         value="/path/to/orion">
+		</replace>
+		<replace file="${opensource.dir}/gnomex/build.properties"
+				     token="c:/flex_sdk"
+		         value="/path/to/flex_sdk">
+		</replace>
+		<copy todir="${opensource.dir}/gnomex/defaultroot/doc">
 	    <fileset dir="${basedir}/defaultroot/doc">
 	      <include name="**/blank*.*"/>
 	    </fileset>
 	  </copy>
-		<replace dir="${dist.dir}/opensource/gnomex/lib"
+		<replace dir="${opensource.dir}/gnomex/lib"
 		         token="&lt;property name=&quot;connection.provider_class&quot;&gt;com.opensourceconnections.msjdbcproxy.HibernateProvider&lt;/property&gt;"
 		         value="">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
-		<replace dir="${dist.dir}/opensource/gnomex/lib"
+		<replace dir="${opensource.dir}/gnomex/lib"
 				     token="SQLServerDialect"
 		         value="MySQLDialect">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
-	  <copy todir="${dist.dir}/opensource/hciEnv">
+	  <copy todir="${opensource.dir}/hciEnv">
 	    <fileset dir="${hcienv.dir}">
 	      <include name="lib/**"/>
 	      <include name="dist/*.ear"/>
@@ -333,7 +341,7 @@
 	      <exclude name="**/Thumbs.db"/>
 	    </fileset>
 	  </copy>
-	  <copy todir="${dist.dir}/opensource/HCIFlex2">
+	  <copy todir="${opensource.dir}/HCIFlex2">
 	    <fileset dir="${hciflex.dir}">
 	      <include name="assets/**"/>
 	      <include name="hci/**"/>
@@ -342,7 +350,7 @@
 	      <exclude name="**/Thumbs.db"/>
 	    </fileset>
 	  </copy>
-	  <copy todir="${dist.dir}/opensource/orion">
+	  <copy todir="${opensource.dir}/orion">
 	    <fileset dir="${orion.dir}">
 	      <include name="tools.jar"/>
 	      <include name="lib/commons*.jar"/>
@@ -365,19 +373,27 @@
 	      <exclude name="**/.cvsignore"/>
 	    </fileset>
 	  </copy>
-	  <copy todir="${dist.dir}/opensource/orion/config">
+	  <copy todir="${opensource.dir}/orion/config">
 	    <fileset dir="${basedir}/orion_config">
 	      <include name="*/**"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
 	    </fileset>
 	  </copy>
-		<replace file="${dist.dir}/opensource/orion/config/data-sources.xml"
+		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+				     token="SysGNomEx"
+		         value="gnomex">
+		</replace>
+		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+				     token="GuestGNomEx"
+		         value="gnomexGuest">
+		</replace>		
+		<replace file="${opensource.dir}/orion/config/data-sources.xml"
 				     token="connection-driver=&quot;com.microsoft.jdbc.sqlserver.SQLServerDriver&quot;"
 		         value="connection-driver=&quot;com.mysql.jdbc.Driver&quot;">
 		</replace>
-		<replace file="${dist.dir}/opensource/orion/config/data-sources.xml"
-				     token="url=&quot;jdbc:microsoft:sqlserver://hci-dbdev:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
+		<replace file="${opensource.dir}/orion/config/data-sources.xml"
+				     token="url=&quot;jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
 		         value="url=&quot;jdbc:mysql://localhost:3306/gnomex&quot;">
 		</replace>
 	</target>

@@ -23,9 +23,10 @@ Install Instructions
 2. Install Orion application server.
    a. Download Orion application server and unzip
 	 b. Modify Orion configuration
-	   - Copy tool.jar file in gnomex/orion/ to /path/to/orion
+	   - Copy tools.jar file in gnomex/orion/ to /path/to/orion
 	   - Copy all jar files in gnomex/orion/lib to /path/to/orion
-	 c. Start Orion application server
+	 c. Login as root
+	 d. Start Orion application server
 	    >cd /path/to/orion
 	    >java -Xms256m -Xms900m -jar orion.jar [-out log/orion_out.log]
 	 		Try to access orion from browser (http://myserver) to make sure 
@@ -34,7 +35,7 @@ Install Instructions
 3. Install MySQL database server
    - Create a database user called gnomex and gnomexGuest. Grant all
      privileges on gnomex database to gnomexUser, but only read access 
-     on gnomex databae to gnomexGuest.
+     on gnomex database to gnomexGuest.
      
      >mysql -u root -p
      [enter root password]     
@@ -78,9 +79,9 @@ Install Instructions
         gnomex must run from a secure website; gnomex can be compiled so
         that gnomex can run from a non-secure webite.  See build instructions
         below.)
-   d. security-seb-site.xml
+   d. secure-web-site.xml
       - Add the <web-app> entry for gnomex
-      - Add the  <ssl-config> entry.  Once you keystore, change the -storepass
+      - Add the  <ssl-config> entry.  Once you have a keystore, change the -storepass
         parameter to match the keystore password.  See detailed instructions
         for getting SSL configured to run under Orion.)
          

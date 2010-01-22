@@ -1,26 +1,24 @@
 
-        <!--             -->
-        <!-- GNOMEX      -->
-        <!--             -->
-				<data-source class="com.evermind.sql.DriverManagerDataSource"
-					name="GNOMEX" 
-					location="jdbc/GNOMEX" 
-					xa-location="jdbc/xa/GNOMEX"
-					ejb-location="jdbc/GNOMEX" 
-					connection-driver="com.mysql.jdbc.Driver"
-					username="gnomex" 
-					password="gnomex_password_goes_here"
-					url="jdbc:mysql://localhost:3306/gnomex" 
-					inactivity-timeout="30" />
-				<data-source class="com.evermind.sql.DriverManagerDataSource"
-					name="GNOMEX_GUEST" 
-					location="jdbc/GNOMEX_GUEST"
-					xa-location="jdbc/xa/GNOMEX_GUEST" 
-					ejb-location="jdbc/GNOMEX_GUEST"
-					connection-driver="com.mysql.jdbc.Driver" 
-					username="gnomexGuest"
-					password="gnomex_guest_password_goes_here" 
-					url="jdbc:mysql://localhost:3306/gnomex"
-					inactivity-timeout="30" />
-				
-				
+	<!--             -->
+	<!-- GNOMEX      -->
+	<!--             -->
+	<data-source class="com.evermind.sql.DriverManagerDataSource"
+		name="GNOMEX" location="jdbc/GNOMEX" 
+		xa-location="jdbc/xa/GNOMEX"
+		ejb-location="jdbc/GNOMEX"
+		connection-driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+		username="SysGNomEx" 
+		password="gnomex_password_goes_here"
+		url="jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
+		inactivity-timeout="30" />
+
+	<data-source class="com.evermind.sql.DriverManagerDataSource"
+		name="GNOMEX_GUEST" 
+		location="jdbc/GNOMEX_GUEST"
+		xa-location="jdbc/xa/GNOMEX_GUEST" 
+		ejb-location="jdbc/GNOMEX_GUEST"
+		connection-driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+		username="GuestGNomEx" 
+		password="gnomex_guest_password_goes_here"
+		url="jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
+		inactivity-timeout="30" />
