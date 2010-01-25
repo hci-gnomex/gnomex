@@ -292,7 +292,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     Document instructionDoc = null;
     if (instructionURL.toLowerCase().startsWith("http")) {
       // We load the instructions document from a web site
-      instructionURL = this.appURL + "/" + instructionURL;
       try {
         URL url = new URL(instructionURL);
         instructionDoc = parser.build(url.openStream());  
