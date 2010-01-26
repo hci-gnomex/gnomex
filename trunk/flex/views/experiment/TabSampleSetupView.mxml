@@ -491,9 +491,11 @@
                         <mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationmRNASeq" label="mRNA sequencing" paddingTop="0" paddingBottom="0" value="MRNASEQ">
                             <mx:click>pickSeqApp()</mx:click>
                         </mx:RadioButton>
-                        <mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationmDirmRNASeq" label="Directional mRNA sequencing" paddingBottom="0" paddingTop="0" value="DMRNASEQ">
+                        
+                        <!--<mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationmDirmRNASeq" label="Directional mRNA sequencing" paddingBottom="0" paddingTop="0" value="DMRNASEQ">
                             <mx:click>pickSeqApp()</mx:click>
                         </mx:RadioButton>
+                        -->
                         <mx:RadioButton label="Small mRNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationSmallmRNASeq" paddingTop="0" paddingBottom="0" value="SMRNASEQ">
                             <mx:click>pickSeqApp()</mx:click>
                         </mx:RadioButton>
