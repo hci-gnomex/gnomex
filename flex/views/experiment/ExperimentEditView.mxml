@@ -2090,13 +2090,13 @@
 							      <mx:HBox width="100%">
 							      </mx:HBox>
 								  <mx:HBox id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}">
-										<mx:Label  text="{userWarningsSamples}" width="100%" color="#D00E0E" fontWeight="bold"/>
+										<mx:Label  text="{userWarningsSamples}" width="100%" color="#D00E0E" />
 								  </mx:HBox>							  	
 								  <mx:HBox id="userWarningsBoxSampleSetup" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}">
-										<mx:Label  text="{userWarningsSampleSetup}" width="100%" color="#D00E0E" fontWeight="bold"/>
+										<mx:Label  text="{userWarningsSampleSetup}" width="100%" color="#D00E0E"/>
 								  </mx:HBox>
 								  <mx:HBox id="userWarningsBoxHybSetup" width="100%" horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}">
-										<mx:Label  text="{userWarningsHybSetup}" width="100%" color="#D00E0E" fontWeight="bold"/>
+										<mx:Label  text="{userWarningsHybSetup}" width="100%" color="#D00E0E" />
 								  </mx:HBox>
 							  </mx:ViewStack>
 							</mx:HBox>
