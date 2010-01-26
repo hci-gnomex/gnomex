@@ -114,13 +114,13 @@
 					var sampleTypeName:String = sampleType.@display.toString();
         			mx.controls.Alert.show( 'Sample type ' + sampleTypeName + 
 	        		  ' cannot be used for ' + applicationCombo.selectedItem.@display + 
-	        		  ' experiments.  Please change the microarray category.',
+	        		  ' experiments.  Please change the microarray application.',
 	        		  'Warning');
         			
         		} else {
 	        		this.parentDocument.userWarningsHybSetup += 'Sample type ' + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@display + 
 	        		' cannot be used for ' + applicationCombo.selectedItem.@display + 
-	        		' experiments.  Please change the sample type or microarray category.';
+	        		' experiments.  Please change the sample type or microarray application.';
         			
         		}
 
