@@ -479,6 +479,33 @@ public class Request extends HibernateDetailObject {
     return isFinished;
     
   }
+  
+  /**
+   * Have all samples passed (or bypassed QC)?
+   */
+  public boolean isCompleteWithQC() {
+    boolean isCompleteWithQC = false;
+    
+    int completedSampleCount = 0;
+    for (Iterator i1 = this.getSamples().iterator(); i1.hasNext();) {
+      Sample s = (Sample) i1.next();
+      // We don't consider it complete if any sample failed QC
+      if (s.getQualFailed() != null && s.getQualFailed().equals("Y")) {
+        continue;
+      }
+      if (s.getQualDate() != null ||
+          (s.getQualBypassed() != null && s.getQualBypassed().equalsIgnoreCase( "Y"))) {
+        completedSampleCount++;
+      }
+    }
+    if (completedSampleCount == this.getSamples().size()) {
+      isCompleteWithQC = true;
+    }
+
+    return isCompleteWithQC;
+    
+  }
+
 
   
   public String getCodeVisibility() {

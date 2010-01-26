@@ -145,8 +145,9 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
             }
             
             // Send confirmation email on QC requests; send progress email
-            // on Hyb requests. (Send only once for entire request.)
-            if (request.isFinishedWithQC()  && !confirmedRequestMap.containsKey(request.getNumber())) {
+            // on Hyb requests. (Send only once for entire request and don't
+            // send if any of the QC work items were terminated.)
+            if (request.isCompleteWithQC()  && !confirmedRequestMap.containsKey(request.getNumber())) {
               if (request.getAppUser() != null && 
                   request.getAppUser().getEmail() != null &&
                   !request.getAppUser().getEmail().equals("")) {
