@@ -11,5 +11,6 @@ set JDBC_DRIVER=%ORION_HOME%\lib\mysql-connector-java-5.1.7-bin.jar;%ORION_HOME%
 set CP=.;%GNOMEX_JAR%;%GNOMEX_HOME%\lib;%LUCENE_JAR%;%JDBC_DRIVER%;%HIBERNATE_HOME%;%LIB%\hibernate3.jar;%ORION_HOME%\lib;%ORION_HOME%\lib\hci_utils.jar;%ORION_HOME%\lib\hci_framework.jar;%LIB%\Hibernate3Utils.jar;%ORION_HOME%\lib\dom4j-1.6.1.jar;%ORION_HOME%\lib\log4j-1.2.11.jar;%ORION_HOME%\lib\commons-logging-1.0.4.jar;%ORION_HOME%\lib\commons-collections-2.1.1.jar;%ORION_HOME%\lib\jta.jar;%ORION_HOME%\lib\jdom.jar;
 for %%i in (%LIB%\*.jar) do call append_classpath.cmd %%i
 
+set PATH=c:\jdk1.6.0_13\bin\;%PATH%
 
 java -classpath %CP% hci.gnomex.lucene.BuildSearchIndex 
