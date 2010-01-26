@@ -476,18 +476,18 @@
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
-				                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected}" headerText="QC Bioanalyzer method"  width="120" 
+				                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
 	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
-					 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
+					 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
+								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
 								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
 
-				                <mx:DataGridColumn  visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
+				                <mx:DataGridColumn  visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
 	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"/>
-								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
-								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
-								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
-								<mx:DataGridColumn visible="{showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
+								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
+								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
+								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
+								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 
 								
 								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
