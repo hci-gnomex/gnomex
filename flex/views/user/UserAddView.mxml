@@ -58,6 +58,7 @@
           parentApplication.navUsersView.fullUser = getAppUser.lastResult.AppUser.(@idAppUser = savedIdAppUser);
           parentApplication.navUsersView.userDetailView.isActive.selected =  parentApplication.navUsersView.fullUser.@isActive == 'Y' ? true : false;
           parentApplication.navUsersView.refreshAppUserList();
+          parentApplication.navUsersView.checkSecurity();
           parentApplication.navUsersView.userSearchText.text = parentApplication.navUsersView.fullUser.@lastName;
         }
 	]]>
