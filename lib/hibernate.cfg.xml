@@ -8,13 +8,13 @@
         <property name="jdbc.use_streams_for_binary">true</property>
         <property name="connection.datasource">jdbc/GNOMEX</property>
         
-        <property name="connection.provider_class">com.opensourceconnections.msjdbcproxy.HibernateProvider</property>
+        <!--  <property name="connection.provider_class">com.opensourceconnections.msjdbcproxy.HibernateProvider</property> -->
         <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
        
 
         <!-- ENTER ALL MAPPING FILES HERE, USE THE FOLLOWING AS AN EXAMPLE -->
         <mapping file="applications/gnomex/SchemaGNomEx.hbm.xml"/>
-        <mapping file="applications/hciEnv/SchemaAssoc.hbm.xml"/>
+
     </session-factory>
 </hibernate-configuration>
 
