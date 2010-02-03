@@ -12,6 +12,7 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.NumberSequencingCycles;
+import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
@@ -64,6 +65,7 @@ public class DictionaryHelper implements Serializable {
   private Map              labelMap = new HashMap();
   private Map              propertyMap = new HashMap();
   private Map              submissionInstructionMap = new HashMap();
+  private Map              oligoBarcodeMap = new HashMap();
   
   
   
@@ -207,6 +209,11 @@ public class DictionaryHelper implements Serializable {
     for(Iterator i = instructions.iterator(); i.hasNext();) {
       SubmissionInstruction instruction = (SubmissionInstruction)i.next();
       submissionInstructionMap.put(instruction.getIdSubmissionInstruction(), instruction);
+    }
+    List oligoBarcodes = sess.createQuery("SELECT b from OligoBarcode as b").list();
+    for(Iterator i = oligoBarcodes.iterator(); i.hasNext();) {
+      OligoBarcode bc = (OligoBarcode)i.next();
+      oligoBarcodeMap.put(bc.getIdOligoBarcode(), bc);
     }
     
    }
@@ -553,6 +560,17 @@ public class DictionaryHelper implements Serializable {
   }
   public  int getFlowCellDirectryNameLength() {
     return getProperty(Property.FLOWCELL_DIRECTORY).length();
+  }
+  
+  public String getBarcodeSequence(Integer idOligoBarcode) {
+    String barcodeSequence = null;
+    if (idOligoBarcode != null) {
+      OligoBarcode bc = (OligoBarcode)oligoBarcodeMap.get(idOligoBarcode);
+      if (bc != null) {
+        barcodeSequence = bc.getBarcodeSequence();
+      }
+    }
+    return barcodeSequence;
   }
   
  

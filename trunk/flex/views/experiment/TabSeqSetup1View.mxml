@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false">
+	<mx:states>
+		<mx:State name="BarcodeState">
+			<mx:AddChild relativeTo="{seqRunTypeContainer}" position="before">
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="314"/>
+					<mx:ComboBox width="400" labelField="@display" id="barcodeSchemeCombo">
+						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.propagateBarcode();this.checkSeqSetup1Completeness();</mx:change>
+						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive != &quot;N&quot;)}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:SetProperty target="{label9}" name="text" value="(2) Select the sequencing run type:"/>
+			<mx:SetProperty target="{label10}" name="text">
+				<mx:value>(3) Select the desired number of sequencing cycles.</mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{label11}" name="text" value="(4) Do you want the sequence data to be aligned?"/>
+			<mx:SetProperty target="{label12}" name="text" value="(5) Provide any special analysis instructions."/>
+		</mx:State>
+	</mx:states>
 <mx:Script>
 	<![CDATA[
+		import mx.collections.XMLListCollection;
+		
+		private var barcodes:XMLListCollection = null;
+	
        	public function propagateSeqRunType():void {
 
 			var idSeqRunType:String = ''; 
@@ -17,6 +40,21 @@
 				callLater(parentDocument.samplesView.checkSamplesCompleteness);
 				
 			}
+		}
+       	public function propagateBarcode():void {
+       		var x:int = 0;
+			for each (var sample:Object in parentDocument.samples) {
+				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
+					if (x == barcodes.length) {
+						x = 0;
+					}
+					sample.@idOligoBarcode = barcodes.getItemAt(x).@value;
+					x++;
+				} else {
+					sample.@idOligoBarcode = '';
+				}
+			} 
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
        	private function propagateGenomeBuild():void {
 			for each (var sample:Object in parentDocument.samples) {
@@ -66,7 +104,14 @@
 	        	    this.seqRunTypeCombo.selectedItem != null && this.seqRunTypeCombo.selectedItem.@value != '' &&
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
 	        	
-	        		isComplete = true;
+	        		if (this.currentState == 'BarcodeState') {
+						if (this.barcodeSchemeCombo.selectedItem != null && this.barcodeSchemeCombo.selectedItem.@value != '') {
+							isComplete = true;							
+						}        			
+	        		} else {
+		        		isComplete = true;
+	        			
+	        		}
 	        	    
 	        	 }
         	
@@ -95,6 +140,31 @@
     			parentDocument.samplesView.checkSamplesCompleteness();
     		}
         	
+        }
+        
+        private function initializeBarcodes():void {
+        	barcodes = new XMLListCollection();
+        	if (this.currentState == 'BarcodeState' && this.barcodeSchemeCombo.selectedItem != null && this.barcodeSchemeCombo.selectedItem.@value != '') {
+        		barcodes = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeSchemeCombo.selectedItem.@value));
+        	} else {
+        		barcodes = new XMLListCollection();
+        	}
+        }
+        
+        public function pickBarcodeScheme():void {
+        	if (parentDocument.sampleSetupView.radioYesBarcoding.selected) {
+        		currentState = 'BarcodeState';
+	        	this.parentDocument.samplesView.barcodeColumn.visible = true;
+	        	this.parentDocument.samplesView.barcodeColumn.editable = false;    			
+	        	this.parentDocument.confirmView.barcodeColumn.visible = true;
+        	} else {
+        		currentState = '';
+        		this.parentDocument.samplesView.barcodeColumn.visible = false;
+	        	this.parentDocument.samplesView.barcodeColumn.editable = false;    			
+    	    	this.parentDocument.confirmView.barcodeColumn.visible = false;        			        		
+        	}
+        	this.initializeBarcodes();
+		    this.propagateBarcode();
         }
 
 		

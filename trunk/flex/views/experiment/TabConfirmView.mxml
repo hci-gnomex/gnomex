@@ -84,6 +84,10 @@
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
+	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Barcode" width="60" dataField="@idOlogiBarcode" 
+	                      editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
+	                      visible="false"
+ 	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode')}" />
 
 						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="false" visible="{parentDocument.request.@AGE == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="false" visible="{parentDocument.request.@CELLLINE == 'Y' ? true : false}"/>
@@ -102,7 +106,7 @@
 						<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="false" visible="{parentDocument.request.@TIME == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="false" visible="{parentDocument.request.@OTHER == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
-						<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/>
+						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
 
 
 

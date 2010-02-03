@@ -115,6 +115,17 @@
       padding-left: 4;
   }
   
+   td.gridnoborder {
+
+      font-size: 9pt;
+      border-top: none;
+      border-left: thin solid;
+      border-color: #CDCDC1;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4;
+  } 
     td.gridreverse {
 
       font-size: 9pt;
@@ -140,7 +151,17 @@
       padding-right: 4;
       padding-left: 4;
   }
+  
+  td.gridleftnoborder {
 
+      font-size: 9pt;
+      border-top: none;
+      border-color: #CDCDC1;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4;
+  }
   td.gridempty {
       
       border-top: thin solid;

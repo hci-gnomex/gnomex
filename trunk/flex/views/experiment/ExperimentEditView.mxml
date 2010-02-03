@@ -537,7 +537,9 @@
 			this.setupView.requestRadioAgilent.setStyle("fontWeight",this.setupView.requestRadioAgilent.selected == true ?  "bold" : "normal");	
 			this.setupView.requestRadioQC.setStyle(     "fontWeight",this.setupView.requestRadioQC.selected      == true ?  "bold" : "normal");	
 			this.setupView.requestRadioSolexa.setStyle( "fontWeight",this.setupView.requestRadioSolexa.selected  == true ?  "bold" : "normal");	
-
+			
+			this.confirmView.barcodeColumn.visible = false;        	
+				
 			if (this.setupView.requestRadioAffy.selected ||
 			    this.setupView.requestRadioAgilent.selected ||
 			    this.setupView.requestRadioQC.selected ||
@@ -552,7 +554,6 @@
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 				this.seqSetup1View.seqRunTypeValidator.validate();
 				this.seqSetup1View.numberSeqCyclesValidator.validate();
-				
 				
 				this.samplesView.currentState = 'SolexaSamplesState';	
 				this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;

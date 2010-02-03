@@ -72,6 +72,7 @@
 			
 		 	var isComplete:Boolean = false;
 			parentDocument.userWarningsHybSetup = "";
+			this.checkForSampleTypeCompatibility();
 			
         	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
         	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
@@ -309,7 +310,7 @@
 			<mx:Label text="(2) Select the microarray application." width="300" />
 			<mx:ComboBox labelField="@display" width="300" id="applicationCombo">							
 				<mx:dataProvider>{parentDocument.filteredApplicationListForSubmitRequests}</mx:dataProvider>
-				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)</mx:change>
+				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">

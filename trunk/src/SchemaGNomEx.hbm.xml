@@ -206,8 +206,10 @@
 		<property name="number" column="number" type="int"/>
 		<property name="idFlowCell" column="idFlowCell" type="integer"/>
 		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none" insert="false" update="false" />
-		<many-to-one name="sequenceLane" column="idSequenceLane" class="hci.gnomex.model.SequenceLane" cascade="none" insert="false" update="false" />
-		<property name="idSequenceLane" column="idSequenceLane" type="integer"/>
+		<set name="sequenceLanes" table="SequenceLane" lazy="true" cascade="delete" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
+			<key column="idFlowCellChannel"/>
+			<one-to-many class="hci.gnomex.model.SequenceLane" />
+		</set>
 		<many-to-one name="sequencingControl" column="idSequencingControl" class="hci.gnomex.model.SequencingControl" cascade="none" insert="false" update="false" />
 		<property name="idSequencingControl" column="idSequencingControl" type="integer"/>
 		<property name="numberSequencingCyclesActual" column="numberSequencingCyclesActual" type="integer"/>
@@ -424,6 +426,7 @@
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
+		<property name="idOligoBarcode" column="idOligoBarcode" type="integer"/>
 		<property name="qualDate" column="qualDate" type="date"/>
 		<property name="qualFailed" column="qualFailed" type="string"/>
 		<property name="qualBypassed" column="qualBypassed" type="string"/>
@@ -833,7 +836,29 @@
 		<property name="numberSequencingCycles" column="numberSequencingCycles" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
+
+  <!-- hci.gnomex.model.OligoBarcode -->
+	<class name="hci.gnomex.model.OligoBarcode" table="OligoBarcode">
+		<id name="idOligoBarcode" column="idOligoBarcode" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="barcodeSequence" column="barcodeSequence" type="string"/>		
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="idOligoBarcodeScheme" column="idOligoBarcodeScheme" type="integer"/>
+		<many-to-one name="oligoBarcodeScheme"  column="idOligoBarcodeScheme" class="hci.gnomex.model.OligoBarcodeScheme" cascade="none" insert="false" update="false" />
+		
+	</class>
 	
+	<!-- hci.gnomex.model.OligoBarcodeScheme -->
+	<class name="hci.gnomex.model.OligoBarcodeScheme" table="OligoBarcodeScheme">
+		<id name="idOligoBarcodeScheme" column="idOligoBarcodeScheme" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="oligoBarcodeScheme" column="oligoBarcodeScheme" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+		
 	<!-- hci.gnomex.model.Organism -->
 	<class name="hci.gnomex.model.Organism" table="Organism">
 		<id name="idOrganism" column="idOrganism" type="integer">

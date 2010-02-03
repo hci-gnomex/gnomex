@@ -34,6 +34,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     idSampleType;
   private Integer     idSamplePrepMethod;
   private String      codeBioanalyzerChipType;
+  private Integer     idOligoBarcode;
   private Date        qualDate;
   private String      qualFailed;
   private String      qualBypassed;
@@ -527,6 +528,16 @@ public class Sample extends HibernateDetailObject {
   
   public void setSeqPrepGelFragmentSizeTo(Integer seqPrepGelFragmentSizeTo) {
     this.seqPrepGelFragmentSizeTo = seqPrepGelFragmentSizeTo;
+  }
+
+  
+  public Integer getIdOligoBarcode() {
+    return idOligoBarcode;
+  }
+
+  
+  public void setIdOligoBarcode(Integer idOligoBarcode) {
+    this.idOligoBarcode = idOligoBarcode;
   }
 
 

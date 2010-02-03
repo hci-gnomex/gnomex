@@ -267,6 +267,7 @@
 				preppedByLabCol.visible = false;
 				samplePrepCol.visible = false;
 				chipTypeCol.visible = false;
+				barcodeCol.visible = false;
 				concentrationUnitCol.visible = false;
 
 				AGE0.visible = false;
@@ -315,6 +316,7 @@
 					preppedByLabCol.visible = true;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
+					barcodeCol.visible = true;
 					concentrationUnitCol.visible = false;
 	        		
 	        	} else if (currentState == 'QCState') {
@@ -324,6 +326,7 @@
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = true;
+					barcodeCol.visible = false;
 					concentrationUnitCol.visible = true;
 	        		
 	        	} else {
@@ -333,6 +336,7 @@
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
+					barcodeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
         		}
         	} 
@@ -462,6 +466,8 @@
 								<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 				                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
+				                <mx:DataGridColumn id="barcodeCol" visible="{true}" headerText="Barcode"  width="80" 
+	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode')}"/>
 					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
 	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 

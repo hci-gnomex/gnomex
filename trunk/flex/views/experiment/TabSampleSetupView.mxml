@@ -203,7 +203,8 @@
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
+	        	    this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '' &&
+	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
  						if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
@@ -313,6 +314,16 @@
 				this.sampleTypeCombo.selectedIndex = 1;
 			}
 			this.checkSampleSetupCompleteness();
+		}
+		
+		private function pickRadioBarcoding():void {
+			if (this.barcodeRadioGroup.selectedValue != null) {
+				this.barcodeRadioBox.styleName = 'normalBox';				
+			} else {
+				this.barcodeRadioBox.styleName = 'requiredBox';				
+			}
+			this.checkSampleSetupCompleteness();
+			this.parentDocument.seqSetup1View.pickBarcodeScheme();
 		}
 		
 	]]>
@@ -429,7 +440,7 @@
             
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
 					<mx:Text text="(5) Do you want the Core Facility to perform library preparation on the samples?" width="314"  id="text1"/>
-					<mx:VBox width="100%" verticalGap="0">
+					<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
 					    <mx:HBox id="hbox2" width="100%">
 							<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please prep library" selected="true"
 								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
@@ -481,7 +492,7 @@
                     <mx:Text text="(1) Select a sequencing application." width="314" id="labelApplication"/>
                     <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
                         <mx:RadioButtonGroup id="radioGroupSeqApp"/>
-                        <mx:RadioButton label="Genomic DNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationGenomicSeq" paddingBottom="0" value="DNASEQ" click="pickSeqApp()"/>
+                        <mx:RadioButton label="Genomic DNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationGenomicSeq" paddingBottom="0" value="DNASEQ" click="pickSeqApp()" paddingTop="0"/>
                         <mx:RadioButton groupName="radioGroupSeqApp" id="radioIlluminaApplicationArrayCapture" label="Targeted Genomic DNA sequencing (capture/release)" paddingTop="0" paddingBottom="0" value="TDNASEQ">
                             <mx:click>pickSeqApp()</mx:click>
                         </mx:RadioButton>
@@ -502,6 +513,18 @@
                     </mx:VBox>
                 </mx:HBox>
             </mx:AddChild>
+            <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+                <mx:HBox id="barcodeContainer" width="100%" horizontalGap="0">
+                	<mx:Label text="(6) Does this sequencing request require barcoding?" width="314."  id="label13"/>
+                	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="barcodeRadioBox">
+                		<mx:RadioButtonGroup id="barcodeRadioGroup"/>
+                		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require barcoding" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()">
+                		</mx:RadioButton>
+                		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()">
+                		</mx:RadioButton>
+                	</mx:VBox>
+                </mx:HBox>
+            </mx:AddChild>
 
 			
         </mx:State>
@@ -516,6 +539,7 @@
             <mx:SetProperty target="{text1}" name="text">
                 <mx:value>(5) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
             </mx:SetProperty>
+            <mx:SetProperty target="{radioYesBarcoding}" name="enabled" value="false"/>
         </mx:State>
    	
    </mx:states>

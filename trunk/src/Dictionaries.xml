@@ -109,6 +109,11 @@
 	<Dictionary displayName="Illumina Control Library" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
+	<Dictionary displayName="Illumina Oligo Barcode Scheme" className="hci.gnomex.model.OligoBarcodeScheme"  editable="Y"  >
+	</Dictionary>
+	<Dictionary displayName="Illumina Oligo Barcode" className="hci.gnomex.model.OligoBarcode"  editable="Y"  >
+			<Filter className="hci.gnomex.model.OligoBarcodeScheme" filterField="idOligoBarcodeScheme"/>
+	</Dictionary>
 
 	
 	

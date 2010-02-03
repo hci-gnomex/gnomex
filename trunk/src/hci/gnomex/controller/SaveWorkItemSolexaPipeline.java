@@ -113,27 +113,30 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
             }
             
             // Check to see if all of the sequence lanes for each request have been completed.
-            if (channel.getSequenceLane() != null) {
-              SequenceLane lane = channel.getSequenceLane();
-              
-              Request request = (Request)sess.load(Request.class, lane.getIdRequest());
-              
-              // Keep track of requests to send out a confirmation email (just once per request)
-              // (Send email if at least one sequence lane has been completed pipeline.)
-              if (channel.getPipelineDate() != null) {  
-                requestNotifyMap.put(request.getNumber(), request);
+            if (channel.getSequenceLanes() != null) {
+              for(Iterator i1 = channel.getSequenceLanes().iterator(); i1.hasNext();) {
+                SequenceLane lane = (SequenceLane)i1.next();
+                
+                Request request = (Request)sess.load(Request.class, lane.getIdRequest());
+                
+                // Keep track of requests to send out a confirmation email (just once per request)
+                // (Send email if at least one sequence lane has been completed pipeline.)
+                if (channel.getPipelineDate() != null) {  
+                  requestNotifyMap.put(request.getNumber(), request);
 
-                Collection lanes = (Collection)requestNotifyLaneMap.get(request.getNumber());
-                if (lanes == null) {
-                  lanes = new ArrayList();
+                  Collection lanes = (Collection)requestNotifyLaneMap.get(request.getNumber());
+                  if (lanes == null) {
+                    lanes = new ArrayList();
+                  }
+                  lanes.add(lane);
+                  requestNotifyLaneMap.put(request.getNumber(), lanes);
                 }
-                lanes.add(channel.getSequenceLane());
-                requestNotifyLaneMap.put(request.getNumber(), lanes);
-              }
 
-              // Set the completed date on the request
-              if (request.isConsideredFinished() && request.getCompletedDate() == null) {
-                request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                // Set the completed date on the request
+                if (request.isConsideredFinished() && request.getCompletedDate() == null) {
+                  request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                }
+                
               }
             }
             

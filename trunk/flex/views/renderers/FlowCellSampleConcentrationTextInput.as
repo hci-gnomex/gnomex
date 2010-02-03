@@ -19,10 +19,13 @@ package views.renderers
           if (data == null) {
           	return;
           }
-          this.setStyle("backgroundColor", data.name() == "WorkItem" && data[dataField] == '' ? missingRequiredFieldBackground : "0xffffff");
-          
-          this.editable = true;
+          this.setStyle("backgroundColor", data.name() == "WorkItem" && data[dataField] == '' && data['@editable'] == 'true' ? missingRequiredFieldBackground : "0xffffff");
 
+		  if (data['@editable'] == 'true') {
+		  	this.editable = true;
+		  } else {
+		  	this.editable = false;
+		  }
 	    }
 	}
 }
