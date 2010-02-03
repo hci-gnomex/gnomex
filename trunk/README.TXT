@@ -23,7 +23,7 @@ Install Instructions
 2. Install Orion application server.
    a. Download Orion application server and unzip
 	 b. Modify Orion configuration
-	   - Copy tools.jar file in gnomex/orion/ to /path/to/orion
+	   - Copy tools.jar file located in the Java SDK lib direcotyr  to /path/to/orion and /path/to/orion/lib
 	   - Copy all jar files in gnomex/orion/lib to /path/to/orion
 	 c. Login as root
 	 d. Start Orion application server
@@ -47,8 +47,8 @@ Install Instructions
       
       mysql> CREATE USER 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
       mysql> CREATE USER 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
-      mysql> GRANT SELECT PRIVILEGES ON gnomex.* TO 'gnomexGuest'@'localhost';
-      mysql> GRANT SELECT PRIVILEGES ON gnomex.* TO 'gnomexGuest'@'%';
+      mysql> GRANT SELECT ON gnomex.* TO 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
+      mysql> GRANT SELECT ON gnomex.* TO 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
       
       mysql> FLUSH PRIVILEGES;  
      
@@ -74,16 +74,20 @@ Install Instructions
         gnomex over secure socket layer (SSL).
       - Add the <application> entries for hciEnv and gnomex
    c. default-web-site.xml 
-      - If gnomex can run from a non-secure site (http:), add the <web-app> 
-        entry for gnomex; otherwise, leave this entry out. (By default,
-        gnomex must run from a secure website; gnomex can be compiled so
-        that gnomex can run from a non-secure webite.  See build instructions
-        below.)
-   d. secure-web-site.xml
       - Add the <web-app> entry for gnomex
+      
+   d. secure-web-site.xml
+      - Add the <web-app> entry from gnomex.  
       - Add the  <ssl-config> entry.  Once you have a keystore, change the -storepass
         parameter to match the keystore password.  See detailed instructions
         for getting SSL configured to run under Orion.)
+
+        NOTE: By default, gnomex must run from a secure website (https:), so this <web-app>
+        entry must be present in secure-web-site.xml.  However; gnomex can
+        be configured to run from a non-secure website (http:).  In this case,
+        leave out the <web-app> entry and <ssl-config> entry and
+        build gnomex to allow for non-secure hosting.  (See build instructions
+        below.)
          
 5. Start Orion
 
