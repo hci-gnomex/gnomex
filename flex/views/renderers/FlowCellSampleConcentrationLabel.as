@@ -24,7 +24,7 @@ package views.renderers
           
 	      var g:Graphics = graphics;
     	  g.clear();
-       	  g.beginFill( data.name() == "WorkItem" && data[_dataField] == '' ? missingRequiredFieldBackground : 0xffffff );
+       	  g.beginFill( data.name() == "WorkItem" && data[_dataField] == '' && data['@editable'] == 'true' ? missingRequiredFieldBackground : 0xffffff );
           g.drawRect(0,0,unscaledWidth,unscaledHeight);
           g.endFill();
       }

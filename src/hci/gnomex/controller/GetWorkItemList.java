@@ -2,6 +2,8 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ArrayCoordinate;
+import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItemFilter;
@@ -102,12 +104,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             Integer idLabeledSample = row[18] == null || row[18].equals("") ? null : (Integer)row[18];
             key = requestNumber + "," + sampleNumber + "," + idLabel  + "," + idLabeledSample;
           } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
-            String flowCellNumber              = (String) row[24];
-            Integer flowCellChannelNumber      = (Integer) row[17];
+            FlowCell fc = (FlowCell)row[13];
+            FlowCellChannel ch = (FlowCellChannel)row[14];
+            String flowCellNumber              = fc.getNumber();
+            Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE)) {
-            String flowCellNumber              = (String) row[21];
-            Integer flowCellChannelNumber      = (Integer) row[17];
+            FlowCell fc = (FlowCell)row[13];
+            FlowCellChannel ch = (FlowCellChannel)row[14];
+            String flowCellNumber              = fc.getNumber();
+            Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else {
             key = requestNumber + "," + itemNumber;
@@ -160,13 +166,15 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           String flowCellNumber = null; 
           
           if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
-            flowCellNumber            = (String) row[24];
+            FlowCell fc = (FlowCell)row[13];
+            flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
               alt = !alt;
             }
             
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE)) {
-            flowCellNumber            = (String) row[21];
+            FlowCell fc = (FlowCell)row[13];
+            flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
               alt = !alt;
             }
@@ -334,9 +342,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
             n.setAttribute("idSequenceLane",               row[13] == null ? "" :  ((Integer)row[13]).toString());
-            n.setAttribute("idSeqRunType",                row[14] == null ? "" :  ((Integer)row[14]).toString());
+            n.setAttribute("idSeqRunType",                 row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("idOrganism",                   row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[16] == null ? "" :  ((Integer)row[16]).toString());
+            n.setAttribute("idOligoBarcode",               row[17] == null ? "" :  ((Integer)row[17]).toString());
             
             
             
@@ -364,28 +373,28 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN)) {
             
            
-            n.setAttribute("idFlowCellChannel",            row[13] == null ? "" :  ((Integer)row[13]).toString());
-            n.setAttribute("idSeqRunType",                 row[14] == null ? "" :  ((Integer)row[14]).toString());
-            n.setAttribute("idNumberSequencingCycles",     row[15] == null ? "" :  ((Integer)row[15]).toString());
-            n.setAttribute("number",                       row[16] == null ? "" :  ((String)row[16]));
-            n.setAttribute("channelNumber",                row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("sequencingControl",            row[18] == null ? "" :  ((String)row[18]));
-            n.setAttribute("firstCycleDate",               row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
-            n.setAttribute("firstCycleCompleted",          row[19] == null ? "N" : "Y");
-            n.setAttribute("firstCycleFailed",             row[20] == null ? "" :  ((String)row[20]));
-            n.setAttribute("lastCycleDate",                row[21] == null ? "" :  this.formatDate((java.sql.Date)row[21]));
-            n.setAttribute("lastCycleCompleted",           row[21] == null ? "N" : "Y");
-            n.setAttribute("lastCycleFailed",              row[22] == null ? "" :  ((String)row[22]));
-            n.setAttribute("firstCycleStartDate",          row[23] == null ? "" :   this.formatDate((java.sql.Date)row[23]));
-            n.setAttribute("flowCellNumber",               row[24] == null ? "" :  ((String)row[24]));
-            n.setAttribute("numberSequencingCyclesActual", row[25] == null ? "" :  ((Integer)row[25]).toString());
-            n.setAttribute("clustersPerTile",              row[26] == null ? "" :  clustersPerTileFormat.format((Integer)row[26]));
-            n.setAttribute("fileName",                     row[27] == null ? "" :  ((String)row[27]));
-            n.setAttribute("flowCellBarcode",              row[28] == null ? "" :  ((String)row[28]));
+            FlowCell fc = (FlowCell)row[13];
+            FlowCellChannel ch = (FlowCellChannel)row[14];
             
-            if (!n.getAttributeValue("sequencingControl").equals("")) {
-              n.setAttribute("number", n.getAttributeValue("sequencingControl"));
-            }
+            n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
+            n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
+            n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles().toString());
+            n.setAttribute("number",                       ch.getContentNumbers());
+            n.setAttribute("channelNumber",                ch.getNumber().toString());
+            n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
+            n.setAttribute("firstCycleDate",               ch.getFirstCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
+            n.setAttribute("firstCycleCompleted",          ch.getFirstCycleDate() == null ? "N" : "Y");
+            n.setAttribute("firstCycleFailed",             ch.getFirstCycleFailed() == null ? "" :  ((String)ch.getFirstCycleFailed()));
+            n.setAttribute("lastCycleDate",                ch.getLastCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getLastCycleDate()));
+            n.setAttribute("lastCycleCompleted",           ch.getLastCycleDate() == null ? "N" : "Y");
+            n.setAttribute("lastCycleFailed",              ch.getLastCycleFailed() == null ? "" :  ((String)ch.getLastCycleFailed()));
+            n.setAttribute("firstCycleStartDate",          ch.getFirstCycleDate() == null ? "" :   this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
+            n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
+            n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
+            n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
+            n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
+            n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
+
 
             String firstCycleStatus = "";
             if (n.getAttributeValue("firstCycleCompleted").equals("Y")) {
@@ -407,27 +416,25 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
          
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE)) {
-            
-           
-            n.setAttribute("idFlowCellChannel",            row[13] == null ? "" :  ((Integer)row[13]).toString());
-            n.setAttribute("idSeqRunType",                 row[14] == null ? "" :  ((Integer)row[14]).toString());
-            n.setAttribute("idNumberSequencingCycles",     row[15] == null ? "" :  ((Integer)row[15]).toString());
-            n.setAttribute("number",                       row[16] == null ? "" :  ((String)row[16]));
-            n.setAttribute("channelNumber",                row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("sequencingControl",            row[18] == null ? "" :  ((String)row[18]));
-            n.setAttribute("pipelineDate",                 row[19] == null ? "" :  this.formatDate((java.sql.Date)row[19]));
-            n.setAttribute("pipelineCompleted",            row[19] == null ? "N" : "Y");
-            n.setAttribute("pipelineFailed",               row[20] == null ? "" :  ((String)row[20]));
-            n.setAttribute("flowCellNumber",               row[21] == null ? "" :  ((String)row[21]));
-            n.setAttribute("numberSequencingCyclesActual", row[22] == null ? "" :  ((Integer)row[22]).toString());
-            n.setAttribute("clustersPerTile",              row[23] == null ? "" :  clustersPerTileFormat.format((Integer)row[23]));
-            n.setAttribute("fileName",                     row[24] == null ? "" :  ((String)row[24]));
-            n.setAttribute("flowCellBarcode",              row[25] == null ? "" :  ((String)row[25]));
-            
-            if (!n.getAttributeValue("sequencingControl").equals("")) {
-              n.setAttribute("number", n.getAttributeValue("sequencingControl"));
-            }
 
+            FlowCell fc = (FlowCell)row[13];
+            FlowCellChannel ch = (FlowCellChannel)row[14];
+           
+            n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
+            n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
+            n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles().toString());
+            n.setAttribute("number",                       ch.getContentNumbers());
+            n.setAttribute("channelNumber",                ch.getNumber().toString());
+            n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
+            n.setAttribute("pipelineDate",                 ch.getPipelineDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getPipelineDate()));
+            n.setAttribute("pipelineCompleted",            ch.getPipelineDate() == null ? "N" : "Y");
+            n.setAttribute("pipelineFailed",               ch.getPipelineFailed() == null ? "" :  ((String)ch.getPipelineFailed()));
+            n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
+            n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
+            n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
+            n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
+            n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
+            
 
             String pipelineStatus = "";
             if (n.getAttributeValue("pipelineCompleted").equals("Y")) {

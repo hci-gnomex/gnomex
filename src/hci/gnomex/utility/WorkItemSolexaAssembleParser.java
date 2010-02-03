@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -20,10 +22,8 @@ import org.jdom.Element;
 public class WorkItemSolexaAssembleParser implements Serializable {
   
   private Document   doc;
-  private List       flowCellChannelContents = new ArrayList();
-  private Map        sampleConcentrationMap = new HashMap();
-  private Map        sampleConcentrationForControlMap = new HashMap();
-  private Map        workItemMap = new HashMap();
+  private TreeMap    channelContentMap = new TreeMap();
+  private TreeMap    channelConcentrationMap = new TreeMap();
   
   
   public WorkItemSolexaAssembleParser(Document doc) {
@@ -38,6 +38,9 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     
     for(Iterator i = workItemListNode.getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
+      String channelNumber        = node.getAttributeValue("channelNumber");
+      ChannelContent cc = new ChannelContent();
+      String sampleConcentration  = node.getAttributeValue("sampleConcentrationpM");
       
       if (node.getName().equals("WorkItem")) {
         String idSequenceLaneString = node.getAttributeValue("idSequenceLane");
@@ -45,17 +48,25 @@ public class WorkItemSolexaAssembleParser implements Serializable {
         
         SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(idSequenceLaneString));
         WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
-        flowCellChannelContents.add(lane);
-        workItemMap.put(lane.getIdSequenceLane(), workItem);
-        sampleConcentrationMap.put(lane.getIdSequenceLane(), node.getAttributeValue("sampleConcentrationpM"));
         
+        cc.setSequenceLane(lane);
+        cc.setWorkItem(workItem);
       } else {
         String idSequencingControlString = node.getAttributeValue("idSequencingControl");
         SequencingControl control = (SequencingControl)sess.load(SequencingControl.class, new Integer(idSequencingControlString));
-        flowCellChannelContents.add(control);
-        sampleConcentrationForControlMap.put(control.getIdSequencingControl(), node.getAttributeValue("sampleConcentrationpM"));
+        cc.setSequenceControl(control);
       }
       
+      List channelContents = (List)channelContentMap.get(channelNumber);
+      if (channelContents == null) {
+        channelContents = new ArrayList();
+      }
+      channelContents.add(cc);
+      channelContentMap.put(channelNumber, channelContents);
+      
+      if (sampleConcentration != null && !sampleConcentration.equals("")) {
+          channelConcentrationMap.put(channelNumber, sampleConcentration);    	  
+      }
       
     }
     
@@ -76,16 +87,28 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   }
 
   
-  public List getFlowCellChannelContents() {
-    return flowCellChannelContents;
+  public Set getChannelNumbers() {
+    return channelContentMap.keySet();
+  }
+  
+  public List getChannelContents(String channelNumber) {
+    return (List)channelContentMap.get(channelNumber);
   }
 
-  public WorkItem getWorkItem(Integer idSequenceLane) {
-    return (WorkItem)workItemMap.get(idSequenceLane);
+  public List getWorkItems(String channelNumber) {
+    List channelContents =  (List)channelContentMap.get(channelNumber);
+    List workItems = new ArrayList();
+    for(Iterator i = channelContents.iterator(); i.hasNext();) {
+      ChannelContent cc = (ChannelContent)i.next();
+      if (cc.getWorkItem() != null) {
+        workItems.add(cc.getWorkItem());
+      }
+    }
+    return workItems;
   }
   
-  public BigDecimal getSampleConcentrationpm(Integer idSequenceLane) {
-    String sc = (String)sampleConcentrationMap.get(idSequenceLane);
+  public BigDecimal getSampleConcentrationpm(String channelNumber) {
+    String sc = (String)channelConcentrationMap.get(channelNumber);
     if (sc != null && !sc.equals("")) {
       return new BigDecimal(sc);
     } else {
@@ -93,15 +116,37 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     }
   }
   
-  public BigDecimal getSampleConcentrationpmForControl(Integer idSequencingControl) {
-    String sc = (String)sampleConcentrationForControlMap.get(idSequencingControl);
-    if (sc != null && !sc.equals("")) {
-      return new BigDecimal(sc);
-    } else {
-      return null;
+  
+  public static class ChannelContent implements Serializable{
+    private SequenceLane sequenceLane;
+    private SequencingControl sequenceControl;
+    private WorkItem workItem;
+
+    
+    public SequenceLane getSequenceLane() {
+      return sequenceLane;
+    }
+    
+    public void setSequenceLane(SequenceLane sequenceLane) {
+      this.sequenceLane = sequenceLane;
+    }
+    
+    public SequencingControl getSequenceControl() {
+      return sequenceControl;
+    }
+    
+    public void setSequenceControl(SequencingControl sequenceControl) {
+      this.sequenceControl = sequenceControl;
+    }
+    
+    public WorkItem getWorkItem() {
+      return workItem;
+    }
+    
+    public void setWorkItem(WorkItem workItem) {
+      this.workItem = workItem;
     }
   }
-  
 
 
 }

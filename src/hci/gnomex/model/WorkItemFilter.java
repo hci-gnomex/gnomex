@@ -83,7 +83,7 @@ public class WorkItemFilter extends DetailObject {
     queryBuf.append("       lane.idSequenceLane " );
     queryBuf.append("FROM   FlowCell fc ");
     queryBuf.append("JOIN   fc.flowCellChannels ch ");
-    queryBuf.append("JOIN   ch.sequenceLane lane ");
+    queryBuf.append("JOIN   ch.sequenceLanes lane ");
     queryBuf.append("WHERE  lane.idSample in (");
     for(Iterator i = idSampleList.iterator(); i.hasNext();) {
       Integer idSample = (Integer)i.next();
@@ -195,41 +195,18 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    l.idSequenceLane, ");
       queryBuf.append("    l.idSeqRunType, ");
       queryBuf.append("    s.idOrganism, ");
-      queryBuf.append("    l.idNumberSequencingCycles ");
+      queryBuf.append("    l.idNumberSequencingCycles, ");
+      queryBuf.append("    s.idOligoBarcode ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN)) {
       queryBuf.append("      , ");
-      queryBuf.append("    ch.idFlowCellChannel, ");
-      queryBuf.append("    lane.idSeqRunType, ");
-      queryBuf.append("    lane.idNumberSequencingCycles, ");
-      queryBuf.append("    lane.number, ");
-      queryBuf.append("    ch.number, ");
-      queryBuf.append("    control.sequencingControl, ");
-      queryBuf.append("    ch.firstCycleDate, ");
-      queryBuf.append("    ch.firstCycleFailed, ");
-      queryBuf.append("    ch.lastCycleDate, ");
-      queryBuf.append("    ch.lastCycleFailed, ");
-      queryBuf.append("    ch.startDate, ");
-      queryBuf.append("    fc.number, ");
-      queryBuf.append("    ch.numberSequencingCyclesActual, ");
-      queryBuf.append("    ch.clustersPerTile, ");
-      queryBuf.append("    ch.fileName, ");
-      queryBuf.append("    fc.barcode ");
+      queryBuf.append("    fc, ");
+      queryBuf.append("    ch ");
+
       
     } else if (this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
       queryBuf.append("      , ");
-      queryBuf.append("    ch.idFlowCellChannel, ");
-      queryBuf.append("    lane.idSeqRunType, ");
-      queryBuf.append("    lane.idNumberSequencingCycles, ");
-      queryBuf.append("    lane.number, ");
-      queryBuf.append("    ch.number, ");
-      queryBuf.append("    control.sequencingControl, ");
-      queryBuf.append("    ch.pipelineDate, ");
-      queryBuf.append("    ch.pipelineFailed, ");
-      queryBuf.append("    fc.number, ");
-      queryBuf.append("    ch.numberSequencingCyclesActual, ");
-      queryBuf.append("    ch.clustersPerTile, ");
-      queryBuf.append("    ch.fileName, ");
-      queryBuf.append("    fc.barcode ");
+      queryBuf.append("    fc, ");
+      queryBuf.append("    ch ");
       
     }
     
@@ -261,7 +238,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append(" LEFT JOIN    wi.request as req ");
       queryBuf.append(" LEFT JOIN    wi.flowCellChannel as ch ");
       queryBuf.append(" LEFT JOIN    ch.flowCell as fc ");
-      queryBuf.append(" LEFT JOIN    ch.sequenceLane as lane ");
+      queryBuf.append(" LEFT JOIN    ch.sequenceLanes as lane ");
+      queryBuf.append(" LEFT JOIN    lane.sample as s ");
       queryBuf.append(" LEFT JOIN    ch.sequencingControl as control ");
     }
   }

@@ -42,8 +42,6 @@
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
-					" fragmentSizeFrom='" + parentDocument.sampleSetupView.fragmentSizeFrom.text + "'" +				
-					" fragmentSizeTo='" + parentDocument.sampleSetupView.fragmentSizeTo.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
@@ -74,6 +72,7 @@
 					"/>");
 					
 				}
+				
 				
 			}
 			else if ((currentState.indexOf('QCSamples') >= 0)) {
@@ -117,8 +116,11 @@
 				"/>");
 			}
 			
-			parentDocument.samples.addItem(emptyNode); 
-	        	
+			parentDocument.samples.addItem(emptyNode);
+			 
+			if (parentDocument.isSolexaState() && !parentDocument.isEditState()) {
+				this.parentDocument.seqSetup1View.propagateBarcode();	
+			}
 		}
 		
 
@@ -152,6 +154,11 @@
 				parentDocument.hybsView.hybsGrid.invalidateList();
 				parentDocument.hybsView.hybsGrid.invalidateDisplayList();
 			}
+			if (parentDocument.isSolexaState() && !parentDocument.isEditState()) {
+				this.parentDocument.seqSetup1View.propagateBarcode();	
+			}
+
+
 		}
 		
 		private function copySample():void {
@@ -204,6 +211,10 @@
 					
 				}
 			}
+			if (parentDocument.isSolexaState() && !parentDocument.isEditState()) {
+				this.parentDocument.seqSetup1View.propagateBarcode();	
+			}
+
 		}
        	public function initializeSamplesGrid():void {
         	if (parentDocument.requestToClone != null) {
@@ -500,6 +511,7 @@
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
+				barcodeColumn.visible = false; 
 				samplePrepMethodCol.visible = false;
 				preppedByCoreCol.visible = false;
 				numberSequencingLanesCol.visible = false;
@@ -516,6 +528,7 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				chipTypeColumn.visible = false; 
+				barcodeColumn.visible = true; 
 				samplePrepMethodCol.visible = true;
 				labelColumn.visible = false;
 				
@@ -537,6 +550,7 @@
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = true; 
+				barcodeColumn.visible = false; 
 				labelColumn.visible = false;
 				
 			} else {
@@ -549,6 +563,7 @@
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
+				barcodeColumn.visible = false; 
 				labelColumn.visible = !parentDocument.isEditState();
 			}
 			
@@ -632,6 +647,10 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit', true)}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true)}"/>
+	                <mx:DataGridColumn id="barcodeColumn" visible="{!showQCFieldsCheckBox.selected &amp;&amp; parentDocument.isSolexaState() ? false : true}" headerText="Barcode" width="60" dataField="@idOlogiBarcode" 
+	                   editorDataField="value" sortable="false" editable="{parentApplication.hasPermission('canWriteAnyObject')}" rendererIsEditor="false" 
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode', true)}"                
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode', true)}"/>
 					
 					
 	 		 	  
@@ -694,7 +713,7 @@
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>
  	                   
-					<mx:DataGridColumn headerText="Description" width="100" dataField="@description"/> 
+					<mx:DataGridColumn headerText="Description" width="140" dataField="@description"/> 
 
 
 	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"

@@ -268,6 +268,11 @@ public class RequestParser implements Serializable {
     } else {
       sample.setCodeBioanalyzerChipType(null);
     }
+    if (n.getAttributeValue("idOligoBarcode") != null && !n.getAttributeValue("idOligoBarcode").equals("")) {
+      sample.setIdOligoBarcode(new Integer(n.getAttributeValue("idOligoBarcode")));
+    } else {
+      sample.setIdOligoBarcode(null);
+    }
     if (n.getAttributeValue("seqPrepByCore") != null && !n.getAttributeValue("seqPrepByCore").equals("")) {
       sample.setSeqPrepByCore(n.getAttributeValue("seqPrepByCore"));
     } else {

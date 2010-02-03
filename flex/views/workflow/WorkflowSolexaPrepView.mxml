@@ -5,6 +5,7 @@
 	xmlns:util="views.util.*"
 	width="100%" height="100%" 
 	title="Illumina Lib Prep" 
+	show="init()"
 	borderThicknessTop="2">
 	
 	<mx:HTTPService 
@@ -63,6 +64,30 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
+        
+        public var samplePrepMethods:XMLListCollection;
+        
+        private function init():void {
+        	samplePrepMethods = new XMLListCollection();
+
+        	var de:Object;
+        	// Filter to only show Illumina seq prep methods
+        	for each(de in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod')) {
+        		
+	        	var doesMatchRequestCategory:Boolean = false;
+    			var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == de.@value.toString());
+	   			for each (var xref1:Object in theSamplePrepMethods) {
+	   				if (xref1.@codeRequestCategory.toString() == "SOLEXA") {
+   						doesMatchRequestCategory = true;
+	   		    		break;
+	   				}
+	   			}
+	   			if (doesMatchRequestCategory || de.@value == '') {
+	   				samplePrepMethods.addItem(de);
+	   			}				
+        		
+        	}
+        }
         
         private function refreshWorkList():void {
         	dirty.resetDirty();

@@ -115,52 +115,65 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     
     for(Iterator i = channels.iterator(); i.hasNext();) {
       FlowCellChannel channel = (FlowCellChannel)i.next();
-      
+
+      if (channel.getSequencingControl() != null ){
+        Element row = new Element("TR");
+        table.addContent(row);
+        this.addLeftCell(row, channel.getNumber().toString());
+
+        this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+      } else if (channel.getSequenceLanes() != null) { 
+    	boolean firstLaneInChannel = true;
+        for (Iterator i1 = channel.getSequenceLanes().iterator(); i1.hasNext();) {
+          SequenceLane lane = (SequenceLane)i1.next();
+
+          Element row = new Element("TR");
+          table.addContent(row);
+          if (firstLaneInChannel) {
+            this.addLeftCell(row, channel.getNumber().toString() );            
+          } else {
+            this.addLeftNoBorderCell(row, "&nbsp;");                        
+          }
      
-      String requester = "&nbsp;";
-      if (channel.getSequenceLane() != null) {
-        Request request = (Request)sess.get(Request.class, channel.getSequenceLane().getIdRequest());
-        requester = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";        
-      }
-      
-      
-      Element row = new Element("TR");
-      table.addContent(row);
-      this.addLeftCell(row, channel.getNumber().toString());
-      this.addCell(row, requester);
-      this.addCell(row, channel.getContentNumber());
-      
-      String gelSize = "";
-      if (channel.getSequenceLane() != null) {
-        SequenceLane lane = channel.getSequenceLane();
-        
-        
-        
-        
-        if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
-          gelSize += lane.getSample().getSeqPrepGelFragmentSizeFrom() + "-";
-        } else {
-          gelSize += "?-";
+          String requester = "&nbsp;";
+          Request request = (Request)sess.get(Request.class, lane.getIdRequest());
+          if (request.getAppUser() != null) {
+            requester = request.getAppUser().getDisplayName();
+          } 
+          
+          
+          
+          this.addCell(row, requester);
+          this.addCell(row, lane.getNumber());
+          
+          String gelSize = "";
+          if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
+            gelSize += lane.getSample().getSeqPrepGelFragmentSizeFrom() + "-";
+          } else {
+            gelSize += "?-";
+          }
+          if (lane.getSample().getSeqPrepGelFragmentSizeTo() != null) {
+            gelSize += lane.getSample().getSeqPrepGelFragmentSizeTo();
+          } else {
+            gelSize += "?";
+          }
+
+          this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+          this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
+          this.addCell(row, channel.getNumberSequencingCyclesActual() != null && !channel.getNumberSequencingCyclesActual().equals("") ? channel.getNumberSequencingCyclesActual().toString() : "&nbsp;");
+          this.addCell(row, gelSize);
+          this.addCell(row, channel.getClustersPerTile() != null && !channel.getClustersPerTile().equals("") ? channel.getClustersPerTile().toString() : "&nbsp;");
+          firstLaneInChannel = false;
         }
-        if (lane.getSample().getSeqPrepGelFragmentSizeTo() != null) {
-          gelSize += lane.getSample().getSeqPrepGelFragmentSizeTo();
-        } else {
-          gelSize += "?";
-        }
-        
-        this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-        this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
-        this.addCell(row, channel.getNumberSequencingCyclesActual() != null && !channel.getNumberSequencingCyclesActual().equals("") ? channel.getNumberSequencingCyclesActual().toString() : "&nbsp;");
-        this.addCell(row, gelSize);
-        this.addCell(row, channel.getClustersPerTile() != null && !channel.getClustersPerTile().equals("") ? channel.getClustersPerTile().toString() : "&nbsp;");
-        
-      } else {
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-      }
+          
+      } 
+     
     }
     
     return table;
@@ -181,6 +194,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     Element rowh = new Element("TR");
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Channel #", "left");
+    this.addHeaderCell(rowh, "Flow Cell Final Sample Conc. (pM)"    );
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Sequence Sample #"    );
     this.addHeaderCell(rowh, "Seq Run Type");
@@ -188,59 +202,70 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "# Cycles (requested)");
     this.addHeaderCell(rowh, "Gel Size Range"    );
     this.addHeaderCell(rowh, "Flow Cell 10nM Stock Vol (uL)"    );
-    this.addHeaderCell(rowh, "Flow Cell Final Sample Conc. (pM)"    );
 
     
     Session sess = HibernateGuestSession.currentGuestSession();
     
     for(Iterator i = channels.iterator(); i.hasNext();) {
       FlowCellChannel channel = (FlowCellChannel)i.next();
-      
-     
-      String requester = "&nbsp;";
-      if (channel.getSequenceLane() != null) {
-        Request request = (Request)sess.get(Request.class, channel.getSequenceLane().getIdRequest());
-        requester = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";        
-      }
-      
-      Element row = new Element("TR");
-      table.addContent(row);
-      this.addLeftCell(row, channel.getNumber().toString());
-      this.addCell(row, requester);
-      this.addCell(row, channel.getContentNumber());
-      
-      
-      String gelSize = "";
-      if (channel.getSequenceLane() != null) {
-        SequenceLane lane = channel.getSequenceLane();
+    
+      if (channel.getSequencingControl() != null) {
+        Element row = new Element("TR");
+        table.addContent(row);
+        this.addLeftCell(row, channel.getNumber().toString());
         
-        
-        if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
-          gelSize += lane.getSample().getSeqPrepGelFragmentSizeFrom() + "-";
-        } else {
-          gelSize += "?-";
+        this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay() : "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+        this.addCell(row, "&nbsp;");
+      } else if (channel.getSequenceLanes() != null) {
+    	boolean firstLaneInChannel = true;
+        for(Iterator i1 = channel.getSequenceLanes().iterator(); i1.hasNext();) {
+          SequenceLane lane = (SequenceLane)i1.next();
+          Element row = new Element("TR");
+          table.addContent(row);
+          if (firstLaneInChannel) {
+            this.addLeftCell(row, channel.getNumber().toString() );            
+            this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay(): "&nbsp;");
+          } else {
+            this.addLeftNoBorderCell(row, "&nbsp;");                        
+            this.addNoBorderCell(row, "&nbsp;");
+          }
+          
+          String requester = "&nbsp;";
+          if (lane != null) {
+            Request request = (Request)sess.get(Request.class, lane.getIdRequest());
+            requester = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";        
+          }
+
+          this.addCell(row, requester);
+          this.addCell(row, lane.getNumber());
+          
+          String gelSize = "";
+          if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
+            gelSize += lane.getSample().getSeqPrepGelFragmentSizeFrom() + "-";
+          } else {
+            gelSize += "?-";
+          }
+          if (lane.getSample().getSeqPrepGelFragmentSizeTo() != null) {
+            gelSize += lane.getSample().getSeqPrepGelFragmentSizeTo();
+          } else {
+            gelSize += "?";
+          }
+          
+          this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+          this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
+          this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+          this.addCell(row, gelSize);
+          this.addCell(row, lane.getSample().getSeqPrepStockLibVol() != null  ? lane.getSample().getSeqPrepStockLibVol().toString() : "&nbsp;");
+          firstLaneInChannel = false;
         }
-        if (lane.getSample().getSeqPrepGelFragmentSizeTo() != null) {
-          gelSize += lane.getSample().getSeqPrepGelFragmentSizeTo();
-        } else {
-          gelSize += "?";
-        }
         
-        this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-        this.addCell(row, lane.getIdOrganism() != null  ? dictionaryHelper.getOrganism(lane.getIdOrganism()) : "&nbsp;");
-        this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
-        this.addCell(row, gelSize);
-        this.addCell(row, lane.getSample().getSeqPrepStockLibVol() != null  ? lane.getSample().getSeqPrepStockLibVol().toString() : "&nbsp;");
-        this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay(): "&nbsp;");
-        
-      } else {
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-      }
+      } 
     }
     
     return table;
@@ -263,8 +288,15 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     cell.setAttribute("CLASS", "gridleft");      
     cell.addContent(value);
     row.addContent(cell);
-}
-
+  }
+  
+  private void addLeftNoBorderCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "gridleftnoborder");      
+    cell.addContent(value);
+    row.addContent(cell);
+  }
+ 
   private void addCell(Element row, String value) {
       Element cell = new Element("TD");
       cell.setAttribute("CLASS", "grid");      
@@ -272,7 +304,13 @@ public class FlowCellHTMLFormatter  extends DetailObject {
       row.addContent(cell);
   }
   
- 
+  private void addNoBorderCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "gridnoborder");      
+    cell.addContent(value);
+    row.addContent(cell);
+}
+
   
   private void addEmptyCell(Element row) {
     Element cell = new Element("TD");

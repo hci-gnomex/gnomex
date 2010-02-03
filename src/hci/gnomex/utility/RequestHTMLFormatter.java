@@ -134,7 +134,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-      this.addHeaderCell(rowh, "Frag size", rowSpan, new Integer(1));
+      this.addHeaderCell(rowh, "Barcode", rowSpan, new Integer(1));
       this.addHeaderCell(rowh, "Core to perform library prep?", rowSpan, new Integer(1));
     } 
     this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
@@ -175,17 +175,7 @@ public class RequestHTMLFormatter {
       Element row = new Element("TR");
       table.addContent(row);
       
-      String fragmentSizeRange = "";
-      if (sample.getFragmentSizeFrom() != null) {
-        fragmentSizeRange = sample.getFragmentSizeFrom().toString() + " - ";
-      } else {
-        fragmentSizeRange = "? - ";
-      }
-      if (sample.getFragmentSizeTo() != null) {
-        fragmentSizeRange += sample.getFragmentSizeTo().toString();
-      } else {
-        fragmentSizeRange += "?";
-      }
+
       
       String concentration = "";
       if (sample.getConcentration() != null) {
@@ -201,7 +191,7 @@ public class RequestHTMLFormatter {
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-        this.addCell(row, fragmentSizeRange);
+        this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");
         this.addCell(row, sample.getSeqPrepByCore() != null ? sample.getSeqPrepByCore() : "&nbsp;");
       }
       this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
@@ -549,14 +539,17 @@ public class RequestHTMLFormatter {
       table.addContent(row);
       this.addLeftCell(row, channel.getNumber().toString());
 
-      if (channel.getSequenceLane() != null) {
-        SequenceLane lane = channel.getSequenceLane();
+      if (channel.getSequenceLanes() != null) {
+        for (Iterator i1 = channel.getSequenceLanes().iterator(); i1.hasNext();) {
+          SequenceLane lane = (SequenceLane)i1.next();
 
-        this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-        this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-        this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
-        this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
-        this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
+          this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
+          this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+          this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+          this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
+          this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
+          
+        }
         
       } else if (channel.getSequencingControl() != null) {
         SequencingControl control = channel.getSequencingControl();

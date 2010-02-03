@@ -864,6 +864,31 @@ CREATE TABLE `gnomex`.`NumberSequencingCycles` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`OligoBarcodeScheme`;
+CREATE TABLE `gnomex`.`OligoBarcodeScheme` (
+  `idOligoBarcodeScheme` INT(10) NOT NULL AUTO_INCREMENT,
+  `oligoBarcodeScheme` VARCHAR(200) NULL,
+  `description` VARCHAR(2000) NULL,
+  `isActive` CHAR(1) NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`idOligoBarcodeScheme`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`OligoBarcode`;
+CREATE TABLE `gnomex`.`OligoBarcode` (
+  `idOligoBarcode` INT(10) NOT NULL AUTO_INCREMENT,
+  `barcodeSequence` VARCHAR(20) NOT NULL,
+  `idOligoBarcodeScheme` INT(10) NOT NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idOligoBarcode`),
+  CONSTRAINT `FK_OligoBarcode_OligoBarcodeScheme` FOREIGN KEY `FK_OligoBarcode_OligoBarcodeScheme` (`idOligoBarcodeScheme`)
+    REFERENCES `gnomex`.`OligoBarcodeScheme` (`idOligoBarcodeScheme`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
 DROP TABLE IF EXISTS `gnomex`.`Organism`;
 CREATE TABLE `gnomex`.`Organism` (
   `idOrganism` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1064,6 +1089,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `idSampleSource` INT(10) NULL,
   `idSamplePrepMethod` INT(10) NULL,
   `codeBioanalyzerChipType` VARCHAR(10) NULL,
+  `idOligoBarcode` INT(10) NULL,
   `qualDate` DATETIME NULL,
   `qualFailed` CHAR(1) NULL,
   `qualBypassed` CHAR(1) NULL,
@@ -1101,6 +1127,10 @@ CREATE TABLE `gnomex`.`Sample` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Sample_BioanalyzerChipType` FOREIGN KEY `FK_Sample_BioanalyzerChipType` (`seqPrepQualCodeBioanalyzerChipType`)
     REFERENCES `gnomex`.`BioanalyzerChipType` (`codeBioanalyzerChipType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+ CONSTRAINT `FK_Sample_OligoBarcode` FOREIGN KEY `FK_Sample_OligoBarcode` (`idOligoBarcode`)
+    REFERENCES `gnomex`.`OligoBarcode` (`idOligoBarcode`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Sample_ConcentrationUnit` FOREIGN KEY `FK_Sample_ConcentrationUnit` (`codeConcentrationUnit`)

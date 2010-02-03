@@ -121,14 +121,17 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
             }
             
             // Check to see if all of the sequence lanes for each request have been completed.
-            if (channel.getSequenceLane() != null) {
-              SequenceLane lane = channel.getSequenceLane();
-              
-              Request request = (Request)sess.load(Request.class, lane.getIdRequest());
+            if (channel.getSequenceLanes() != null) {
+              for (Iterator i1 = channel.getSequenceLanes().iterator(); i1.hasNext();) {
+                SequenceLane lane =(SequenceLane)i1.next();
+                
+                Request request = (Request)sess.load(Request.class, lane.getIdRequest());
 
-              // Set the completed date on the request
-              if (request.isConsideredFinished() && request.getCompletedDate() == null) {
-                request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                // Set the completed date on the request
+                if (request.isConsideredFinished() && request.getCompletedDate() == null) {
+                  request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                }
+                
               }
             }
             

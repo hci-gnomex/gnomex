@@ -3,6 +3,7 @@ package hci.gnomex.model;
 import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.math.BigDecimal;
@@ -15,8 +16,6 @@ public class FlowCellChannel extends HibernateDetailObject {
   private Integer           number;
   private FlowCell          flowCell;
   private Integer           idFlowCell;
-  private SequenceLane      sequenceLane;
-  private Integer           idSequenceLane;
   private SequencingControl sequencingControl;
   private Integer           idSequencingControl;
   private Date              startDate;
@@ -30,6 +29,7 @@ public class FlowCellChannel extends HibernateDetailObject {
   private Integer           numberSequencingCyclesActual;
   private Date              pipelineDate;
   private String            pipelineFailed;
+  private Set               sequenceLanes;
   
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
@@ -47,13 +47,6 @@ public class FlowCellChannel extends HibernateDetailObject {
     this.idFlowCell = idFlowCell;
   }
   
-  public Integer getIdSequenceLane() {
-    return idSequenceLane;
-  }
-  
-  public void setIdSequenceLane(Integer idSequenceLane) {
-    this.idSequenceLane = idSequenceLane;
-  }
   
   public Integer getIdSequencingControl() {
     return idSequencingControl;
@@ -144,16 +137,6 @@ public class FlowCellChannel extends HibernateDetailObject {
   }
 
   
-  public SequenceLane getSequenceLane() {
-    return sequenceLane;
-  }
-
-  
-  public void setSequenceLane(SequenceLane sequenceLane) {
-    this.sequenceLane = sequenceLane;
-  }
-
-  
   public SequencingControl getSequencingControl() {
     return sequencingControl;
   }
@@ -163,129 +146,48 @@ public class FlowCellChannel extends HibernateDetailObject {
     this.sequencingControl = sequencingControl;
   }
   
-  public String getContentNumber() {
-    if (sequenceLane != null) {
-      return sequenceLane.getNumber();
-    } else if (sequencingControl != null){
-      return sequencingControl.getSequencingControl();
-    }else {
+  public String getContentNumbers() {
+    
+    if (sequencingControl != null){
+      String sc =  sequencingControl.getSequencingControl();
+      return sc;
+    } else if (getSequenceLanes() != null) {
+      String sampleNumbers = "";
+      for (Iterator i = getSequenceLanes().iterator(); i.hasNext();) {
+        SequenceLane sequenceLane = (SequenceLane)i.next();
+        sampleNumbers += sequenceLane.getNumber();
+        if (i.hasNext()) {
+          sampleNumbers += ", ";
+        }
+      }
+      return sampleNumbers;
+    } else {
       return "";
     }
   }
   
-  public Integer getIdSeqRunType() {
-    if (sequenceLane != null) {
-      return sequenceLane.getIdSeqRunType();
-    } else {
-      return null;
-    }
-  }
-
-  public Integer getIdOrganism() {
-    if (sequenceLane != null) {
-      return sequenceLane.getIdOrganism();
-    } else {
-      return null;
-    }
-  }
-
-
-  public Integer getIdNumberSequencingCycles() {
-    if (sequenceLane != null) {
-      return sequenceLane.getIdNumberSequencingCycles();
-    } else {
-      return null;
-    }
-  }
-  
-  public Integer getFragmentSizeFrom() {
-    if (sequenceLane != null) {
-      return sequenceLane.getFragmentSizeFrom();
-    } else {
-      return null;
-    }
-  }
-
-  public Integer getFragmentSizeTo() {
-    if (sequenceLane != null) {
-      return sequenceLane.getFragmentSizeTo();
-    } else {
-      return null;
-    }
-  }
-  
-  public BigDecimal getCalcConcentration() {
-    if (sequenceLane != null) {
-      return sequenceLane.getCalcConcentration();
-    } else {
-      return null;
-    }
-  }
-  
-  public Integer getSeqPrepLibConcentration() {
-    if (sequenceLane != null && sequenceLane.getSample() != null) {
-      return sequenceLane.getSample().getSeqPrepLibConcentration();
-    } else {
-      return null;
-    }
-  }  
- 
-  public Integer getSeqPrepGelFragmentSizeFrom() {
-    if (sequenceLane != null && sequenceLane.getSample() != null) {
-      return sequenceLane.getSample().getSeqPrepGelFragmentSizeFrom();
-    } else {
-      return null;
-    }
-  }
-
-  public Integer getSeqPrepGelFragmentSizeTo() {
-    if (sequenceLane != null && sequenceLane.getSample() != null) {
-      return sequenceLane.getSample().getSeqPrepGelFragmentSizeTo();
-    } else {
-      return null;
-    }
-  }
-  
-  public BigDecimal getSeqPrepStockLibVol() {
-    if (sequenceLane != null && sequenceLane.getSample() != null) {
-      return sequenceLane.getSample().getSeqPrepStockLibVol();
-    } else {
-      return null;
-    }
-  }
- 
-  
-  public BigDecimal getSeqPrepStockEBVol() {
-    if (sequenceLane != null && sequenceLane.getSample() != null) {
-      return sequenceLane.getSample().getSeqPrepStockEBVol();
-    } else {
-      return null;
-    }
-  }
  
   
   public String getWorkflowStatus() {
-    if (sequenceLane != null) {
-      return sequenceLane.getWorkflowStatus();
-    } else {
-      if (getPipelineDate() != null) {
-        return "Sequenced";
-      } else if (this.getPipelineFailed() != null && this.getPipelineFailed().equals("Y")) {
-        return "Failed GA pipeline";
-      } else if (getLastCycleDate() != null) {
-        return "Completed seq run";
-      } else if (this.getLastCycleFailed() != null && this.getLastCycleFailed().equals("Y")) {
-        return "Failed seq run";
-      } else if (this.getFirstCycleFailed() != null && this.getFirstCycleFailed().equals("Y")) {
-        return "Failed 1st cycle seq run";
-      } else if (getFirstCycleDate() != null) {
-        return "1st cycle done";
-      } else {
-        return "Ready for seq run";
-      }
-    }
-  }
 
+    if (getPipelineDate() != null) {
+      return "Sequenced";
+    } else if (this.getPipelineFailed() != null && this.getPipelineFailed().equals("Y")) {
+      return "Failed GA pipeline";
+    } else if (getLastCycleDate() != null) {
+      return "Completed seq run";
+    } else if (this.getLastCycleFailed() != null && this.getLastCycleFailed().equals("Y")) {
+      return "Failed seq run";
+    } else if (this.getFirstCycleFailed() != null && this.getFirstCycleFailed().equals("Y")) {
+      return "Failed 1st cycle seq run";
+    } else if (getFirstCycleDate() != null) {
+      return "1st cycle done";
+    } else {
+      return "Ready for seq run";
+    }
+
+  }
+  
   
   public FlowCell getFlowCell() {
     return flowCell;
@@ -333,6 +235,16 @@ public class FlowCellChannel extends HibernateDetailObject {
   
   public void setPipelineFailed(String pipelineFailed) {
     this.pipelineFailed = pipelineFailed;
+  }
+
+  
+  public Set getSequenceLanes() {
+    return sequenceLanes;
+  }
+
+  
+  public void setSequenceLanes(Set sequenceLanes) {
+    this.sequenceLanes = sequenceLanes;
   }
 
   
