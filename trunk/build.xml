@@ -309,6 +309,10 @@
 		      <exclude name="**/SecurityManagerLocal.java"/>
 	  	 	</fileset>
 	  </copy>
+		<replace file="${opensource.dir}/gnomex/defaultroot/WEB-INF/web.xml"
+				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
+      	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
+		</replace>
 		<replace file="${opensource.dir}/gnomex/build.properties"
 				     token="c:/orion"
 		         value="/path/to/orion">
@@ -317,6 +321,18 @@
 				     token="c:/flex_sdk"
 		         value="/path/to/flex_sdk">
 		</replace>
+		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
+				     match="lib\.hcienv\.dir=(.*)"
+		         replace="">
+		</replaceregexp>
+		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
+				     match="hcienv\.dir=(.*)"
+		         replace="">
+		</replaceregexp>
+		<replaceregexp  file="${opensource.dir}/gnomex/build.xml"
+				     match="&lt;fileset(.*)dir=&quot;(.*)lib.hcienv.dir}(.*)"
+		         replace="">
+		</replaceregexp>
 		<copy todir="${opensource.dir}/gnomex/defaultroot/doc">
 	    <fileset dir="${basedir}/defaultroot/doc">
 	      <include name="**/blank*.*"/>
@@ -332,10 +348,18 @@
 		         value="MySQLDialect">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
-	  <copy todir="${opensource.dir}/hciEnv">
-	    <fileset dir="${hcienv.dir}">
-	      <include name="lib/**"/>
-	      <include name="dist/*.ear"/>
+	  <copy todir="${opensource.dir}/gnomex/lib">
+	    <fileset dir="${hcienv.dir}/lib">
+	      <include name="altio_cod.jar"/>
+	      <include name="antlr-2.7.6rc1.jar"/>
+	      <include name="asm.jar"/>
+	      <include name="asm-attrs.jar"/>
+	      <include name="cglib-2.1.3.jar"/>
+		    <include name="ehcache-1.1.jar"/>
+	      <include name="hibernate3.jar"/>
+	      <include name="Hibernate3Utils.jar"/>
+	      <include name="HCIDictionary.jar"/>
+	      <include name="HCIReport.jar"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
 	      <exclude name="**/Thumbs.db"/>
@@ -352,11 +376,10 @@
 	  </copy>
 	  <copy todir="${opensource.dir}/orion">
 	    <fileset dir="${orion.dir}">
-	      <include name="tools.jar"/>
 	      <include name="lib/commons*.jar"/>
 	      <include name="lib/dom4j*.jar"/>
 	      <include name="lib/hci_*.jar"/>
-	      <include name="lib/Hibernate*.jar"/>
+	      <include name="lib/Hibernate3*.jar"/>
 	      <include name="lib/hsql*.jar"/>
 	      <include name="lib/dom4j*.jar"/>
 	      <include name="lib/jaas*.jar"/>
@@ -368,7 +391,6 @@
 		    <include name="lib/mysql*.jar"/>
 		    <include name="lib/naming-common.jar"/>
 		    <include name="lib/rowset*.jar"/>
-		    <include name="lib/tools.jar"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
 	    </fileset>
@@ -396,6 +418,9 @@
 				     token="url=&quot;jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
 		         value="url=&quot;jdbc:mysql://localhost:3306/gnomex&quot;">
 		</replace>
+		<zip destfile="${opensource.dir}/gnomex.zip" basedir="${opensource.dir}">
+			<include name="gnomex/**" />
+		</zip>
 	</target>
 
 
