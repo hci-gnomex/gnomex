@@ -599,6 +599,7 @@
             		var captchaWindow:CaptchaView = new CaptchaView();
             		PopUpManager.addPopUp(captchaWindow, mainArea, false);
             		PopUpManager.centerPopUp(captchaWindow);
+            		captchaWindow.init();
             		captchaWindow.phrase.setFocus();
             				    
 				} else {
@@ -763,7 +764,7 @@
             	getSlideProductList.send();
             	getProjectList.send();
             	
-            	showProgress(10);
+            	showProgress(20);
             }
  
             public function onDictionariesLoaded(event:Event):void {
@@ -869,15 +870,20 @@
 	        	    filteredProjectList != null &&
 	        	    promptedAppUserList != null &&
 	        	    promptedLabList != null &&
-	        	    slideDesignList != null &&
 	        	    filteredSlideProductList != null) {
-	        	    	
-					appProgressBar.bar.setProgress(100, 100);
+	        	    
+	        	    // We only need the slide design for non-guest users,
+	        	    // i.e. users that can submit requests	
+	        	    if (this.isGuestMode() || slideDesignList != null) {
+						appProgressBar.bar.setProgress(100, 100);
 
-	        	    PopUpManager.removePopUp(appProgressBar);
-	        	    currentState = "enabledState"
-					checkSecurity();
-		        	callLater(launchStartWindow);
+		        	    PopUpManager.removePopUp(appProgressBar);
+	    	    	    currentState = "enabledState"
+						checkSecurity();
+		        		callLater(launchStartWindow);
+	        	    	
+	        	    }
+	        	    	
 	        	}
 	        	
 	        }
