@@ -329,10 +329,27 @@
 				     match="hcienv\.dir=(.*)"
 		         replace="">
 		</replaceregexp>
+		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
+				     match="hciflex\.dir=(.*)"
+		         replace="">
+		</replaceregexp>
 		<replaceregexp  file="${opensource.dir}/gnomex/build.xml"
 				     match="&lt;fileset(.*)dir=&quot;(.*)lib.hcienv.dir}(.*)"
 		         replace="">
 		</replaceregexp>
+		<replaceregexp  file="${opensource.dir}/gnomex/build.xml"
+			       match="&lt;source-path\spath-element=&quot;(.*)hciflex.dir(.*)"
+		         replace="">
+		</replaceregexp>		
+		<replaceregexp  file="${opensource.dir}/gnomex/index_gnomex.sh"
+			       match="HIBERNATE_HOME=\$ORION_HOME/applications/hciEnv"
+             replace="HIBERNATE_HOME=$$ORION_HOME/applications/gnomex">
+		</replaceregexp>
+		<replaceregexp  file="${opensource.dir}/gnomex/index_gnomex.cmd"
+			       match="HIBERNATE_HOME=\%ORION_HOME\%\\applications\\hciEnv"
+             replace="HIBERNATE_HOME=\%ORION_HOME\%\\\\applications\\\\gnomex">
+		</replaceregexp>
+
 		<copy todir="${opensource.dir}/gnomex/defaultroot/doc">
 	    <fileset dir="${basedir}/defaultroot/doc">
 	      <include name="**/blank*.*"/>
@@ -365,10 +382,11 @@
 	      <exclude name="**/Thumbs.db"/>
 	    </fileset>
 	  </copy>
-	  <copy todir="${opensource.dir}/HCIFlex2">
+	  <copy todir="${opensource.dir}/gnomex/flex">
 	    <fileset dir="${hciflex.dir}">
 	      <include name="assets/**"/>
 	      <include name="hci/**"/>
+	      <exclude name="hci/**/cod/**"/>
 	      <exclude name="**/CVS"/>
 	      <exclude name="**/.cvsignore"/>
 	      <exclude name="**/Thumbs.db"/>
@@ -418,7 +436,12 @@
 				     token="url=&quot;jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor&quot;"
 		         value="url=&quot;jdbc:mysql://localhost:3306/gnomex&quot;">
 		</replace>
-		<zip destfile="${opensource.dir}/gnomex.zip" basedir="${opensource.dir}">
+		<replaceregexp  file="${opensource.dir}/orion/config/server.xml"
+					       match="&lt;application\sname=&quot;hciEnv&quot;(.*)"
+				         replace="">
+		</replaceregexp>
+
+		<zip destfile="${opensource.dir}/gnomex_opensource.zip" basedir="${opensource.dir}">
 			<include name="gnomex/**" />
 		</zip>
 	</target>
