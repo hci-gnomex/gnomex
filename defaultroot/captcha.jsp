@@ -2,7 +2,7 @@
 <BODY>
 <HTML>
 <HEAD>
-<TITLE>ExGen</TITLE>
+<TITLE>GNomEx Guest Login</TITLE>
 
 <%
 String parm1 = request.getParameter("parm1");
