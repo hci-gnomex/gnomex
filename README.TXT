@@ -11,28 +11,30 @@ System Requirements
 
 To compile GNomEx:
  - Ant (http://ant.apache.org/)
- - Flex Builder 3.0+ (http://www.adobe.com/products/flex/)
+ - Flex SDK 3.0+ (http://www.adobe.com/products/flex/)
 
 
 Install Instructions
 --------------------
-1. Install Java.  If you will be building GNomEx from the source distribution,
-   download the SDK (Version 1.6); otherwise, you can download the JRE (Version
-   1.6).  Make sure JAVA_HOME is set.
+1. Download the gnomex open source distribution (gnomex_opensource.zip) on SourceForge.
+   Extract the files to a local directory (/path/to/gnomexinstall)
+ 
+2. Install Java.  Download the SDK (Version 1.6). Make sure JAVA_HOME is set.
 
-2. Install Orion application server.
+3. Install Orion application server.
    a. Download Orion application server and unzip
 	 b. Modify Orion configuration
-	   - Copy tools.jar file located in the Java SDK lib direcotyr  to /path/to/orion and /path/to/orion/lib
-	   - Copy all jar files in gnomex/orion/lib to /path/to/orion
+	   - Copy tools.jar file located in the Java SDK lib directory  to /path/to/orion and /path/to/orion/lib
+	   - Copy all jar files in /path/to/gnomexinstall/orion/lib to /path/to/orion/lib
 	 c. Login as root
 	 d. Start Orion application server
 	    >cd /path/to/orion
 	    >java -Xms256m -Xms900m -jar orion.jar [-out log/orion_out.log]
 	 		Try to access orion from browser (http://myserver) to make sure 
-	 		Orion Application Server page appears.
+	 		Orion Application Server page appears.  You may need to open
+	 		up port 80 to gain access.
 	 
-3. Install MySQL database server
+4. Install MySQL database server
    - Create a database user called gnomex and gnomexGuest. Grant all
      privileges on gnomex database to gnomexUser, but only read access 
      on gnomex database to gnomexGuest.
@@ -53,17 +55,15 @@ Install Instructions
       mysql> FLUSH PRIVILEGES;  
      
    - Login into MySQL as gnomex user and run the SQL script 
-     'gnomex_db_ddl.sql' to create the gnomex database.
+     /path/to/gnomexinstall/gnomex/'gnomex_db_ddl.sql' to create the gnomex database.
      
    - Login into MySQL as gnomex user and run the SQL script 
-     'gnomex_db_populate.sql' to load the dictionaries.
+     /path/to/gnomexinstall/gnomex/'gnomex_db_populate.sql' to load the dictionaries.
    
-3. Copy gnomex/dist/gnomex.ear into /path/to/orion/applications.
+5. Copy /path/to/gnomexinstall/gnomex/dist/gnomex.ear into /path/to/orion/applications.
 
-4. Copy hciEnv/dist/hciEnv.ear to /path/to/orion/applications.
-
-5. Modify the orion configuration by revising the following
-   files in /path/to/orion/config.  (Use the files in gnomex/orion/config
+6. Modify the orion configuration by revising the following
+   files in /path/to/orion/config.  (Use the files in /path/to/gnomexinstall/orion/config
    copy  the necessary entries into each file.) 
    a. datasources.xml 
       - Change the password to match your MySQL gnomex user and 
@@ -89,11 +89,11 @@ Install Instructions
         build gnomex to allow for non-secure hosting.  (See build instructions
         below.)
          
-5. Start Orion
+7. Start Orion
 
-6. Run GNomEx Flex application from browser window.
+8. Run GNomEx Flex application from browser window.
    - From browser window, type in URL:  https://myserver/gnomex/gnomexFlex.jsp
-   - The flex application should load and then a login dialog should appear.
+   - The flex application should load and then a login popup window should appear.
    - Enter the user name 'admin' and the password 'admin'.
    - The first thing to do is get rid the the 'admin' user account and add
      yourself as an admin.  Click and the 'Users and Groups' link.  Click
@@ -116,19 +116,7 @@ Install Instructions
       -	lucene_index_directory
       -	lucene_experiment_index_directory
       -	lucene_analysis_index_directory
-      -	lucene_protocol_index_directory
-	
-      
-      Optional properties:
-      -  contact_name_software_bugs
-      -  contact_email_software_bugs
-      -  contact_name_core_facility
-      -  contact_email_core_facility
-     	-  contact_phone_core_facility
-     	-  contact_email_software_tester
-      -	 production_server
-      -  qc_instructions
-      -  workauth_instructions
+      -	lucene_protocol_index_directory	
       
       
 Configuring Orion application server for SSL
