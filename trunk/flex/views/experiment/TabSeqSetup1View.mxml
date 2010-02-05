@@ -5,10 +5,9 @@
 			<mx:AddChild relativeTo="{seqRunTypeContainer}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="314"/>
-					<mx:ComboBox width="400" labelField="@display" id="barcodeSchemeCombo">
+					<mx:NumericStepper id="numberSamplesPerChannel" minimum="2" value="2" stepSize="1" maximum="{this.maxSamplesPerChannel}">
 						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.propagateBarcode();this.checkSeqSetup1Completeness();</mx:change>
-						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive != &quot;N&quot;)}</mx:dataProvider>
-					</mx:ComboBox>
+					</mx:NumericStepper>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:SetProperty target="{label9}" name="text" value="(2) Select the sequencing run type:"/>
@@ -25,6 +24,9 @@
 		
 		private var barcodes:XMLListCollection = null;
 	
+		[Bindable]
+		private var maxSamplesPerChannel:int = 2;
+		
        	public function propagateSeqRunType():void {
 
 			var idSeqRunType:String = ''; 
@@ -45,7 +47,7 @@
        		var x:int = 0;
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
-					if (x == barcodes.length) {
+					if (x == this.numberSamplesPerChannel.value) {
 						x = 0;
 					}
 					sample.@idOligoBarcode = barcodes.getItemAt(x).@value;
@@ -105,7 +107,7 @@
 	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
 	        	
 	        		if (this.currentState == 'BarcodeState') {
-						if (this.barcodeSchemeCombo.selectedItem != null && this.barcodeSchemeCombo.selectedItem.@value != '') {
+						if (this.numberSamplesPerChannel.value > 0 && this.barcodes.length > 0) {
 							isComplete = true;							
 						}        			
 	        		} else {
@@ -144,8 +146,20 @@
         
         private function initializeBarcodes():void {
         	barcodes = new XMLListCollection();
-        	if (this.currentState == 'BarcodeState' && this.barcodeSchemeCombo.selectedItem != null && this.barcodeSchemeCombo.selectedItem.@value != '') {
-        		barcodes = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeSchemeCombo.selectedItem.@value));
+        	var bestFitBarcodeCount:int = 99;
+        	if (this.currentState == 'BarcodeState') {
+	        	for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
+    	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
+    	    		if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
+    	    		   	if (theBarcodes.length < bestFitBarcodeCount) {
+    	    		   		barcodes = theBarcodes;
+    	    		   		bestFitBarcodeCount = theBarcodes.length;
+    	    		   	}
+    	    		}
+        		}
+        		if (barcodes.length == 0) {
+        			mx.controls.Alert.show("Unable to initialize barcodes.", "Error");
+        		}
         	} else {
         		barcodes = new XMLListCollection();
         	}
@@ -154,6 +168,14 @@
         public function pickBarcodeScheme():void {
         	if (parentDocument.sampleSetupView.radioYesBarcoding.selected) {
         		currentState = 'BarcodeState';
+        		for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
+    	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
+    	    		if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
+    	    		   	if (theBarcodes.length > this.maxSamplesPerChannel) {
+    	    		   		this.maxSamplesPerChannel = theBarcodes.length;
+    	    		   	}
+    	    		}
+        		}
 	        	this.parentDocument.samplesView.barcodeColumn.visible = true;
 	        	this.parentDocument.samplesView.barcodeColumn.editable = false;    			
 	        	this.parentDocument.confirmView.barcodeColumn.visible = true;
