@@ -105,6 +105,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Channel #", "left");
     this.addHeaderCell(rowh, "Client");
     this.addHeaderCell(rowh, "Sequence Sample #"    );
+    this.addHeaderCell(rowh, "Sample Barcode"    );
     this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (actual)");
@@ -122,6 +123,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         this.addLeftCell(row, channel.getNumber().toString());
 
         this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
+        this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
@@ -151,6 +153,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
           
           this.addCell(row, requester);
           this.addCell(row, lane.getNumber());
+          this.addCell(row, lane.getSample().getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(lane.getSample().getIdOligoBarcode()) : "&nbsp;");
           
           String gelSize = "";
           if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
@@ -197,6 +200,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Flow Cell Final Sample Conc. (pM)"    );
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Sequence Sample #"    );
+    this.addHeaderCell(rowh, "Sample Barcode"    );
     this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (requested)");
@@ -217,6 +221,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay() : "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
+        this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
@@ -244,6 +249,8 @@ public class FlowCellHTMLFormatter  extends DetailObject {
 
           this.addCell(row, requester);
           this.addCell(row, lane.getNumber());
+          this.addCell(row, lane.getSample().getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(lane.getSample().getIdOligoBarcode()) : "&nbsp;");
+
           
           String gelSize = "";
           if (lane.getSample().getSeqPrepGelFragmentSizeFrom() != null) {
