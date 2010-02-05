@@ -1833,6 +1833,10 @@
 					annotationView.enabled = false;
 				}
 				samplesView.enabled = false;
+				
+				if (this.isSolexaState()) {
+					this.seqSetup1View.enabled = false;
+				}
 
 				if (this.isSolexaEditState()) {
 					lanesView.enabled = false;
