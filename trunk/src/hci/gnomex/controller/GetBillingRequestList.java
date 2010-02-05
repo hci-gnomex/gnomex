@@ -106,6 +106,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Date createDate            = (Date)row[7];
         Date completedDate         = (Date)row[8];
         BillingAccount billingAcct = (BillingAccount)row[9];
+        String labIsExternal       = (String)row[10];
         
         String labName = Lab.formatLabName(labLastName, labFirstName);
         
@@ -130,6 +131,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("codeBillingStatus", BillingStatus.NEW);
         node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
         node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
+        node.setAttribute("isExternal", labIsExternal != null ? labIsExternal : "N");
       
         String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
         String requestNumberBilled = requestNumber + labBillingName;
@@ -245,6 +247,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labName", labName != null ? labName : "");
       node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
       node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
+      node.setAttribute("isExternal", labIsExternal != null ? labIsExternal : "N");
       
       // There can be multiple requests nodes for a given request number when
       // the request's billing items are split among multiple billing 

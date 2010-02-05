@@ -704,6 +704,38 @@
 			}			
 		}			 
 		
+		
+		private function validateAndSave():void {
+			var isExternalApproved:Boolean = false;
+			for each(var request:XML in billingItems) {
+ 				if (request.@isDirty == "Y") { 
+ 					if (request.@isExternal == "Y") {
+	 					for each(var bi:XML in request.BillingItem) {
+	 						if (bi.@codeBillingStatus == 'APPROVED') {
+	 							isExternalApproved = true;
+	 							break;
+	 						}
+ 						}					
+ 					}
+ 				} 
+ 			}
+ 			if (isExternalApproved) {
+ 				Alert.show("External account to be approved.  Has pricing been verified?",
+ 				  "Warning",
+ 				  Alert.YES | Alert.NO,
+ 				  this,
+ 				  onPromptValidateSave);
+ 			} else {
+ 				save();
+ 			}
+		}
+		
+		private function onPromptValidateSave(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				save();
+			} 
+		}
+		
  		private function save():void {  
  			var params:Object = new Object();
  			params.billingItemXMLString = "<SaveList>";
@@ -1219,7 +1251,7 @@
 				
 				      <mx:HBox width="100%" horizontalAlign="right">
 				        <util:DirtyNote id="dirty" />
-				      	<mx:Button id="saveButton" label="Save" click="save()"
+				      	<mx:Button id="saveButton" label="Save" click="validateAndSave()"
 				             	icon="@Embed('../../assets/action_save.gif')">
 				        </mx:Button>        	
 				      </mx:HBox>
