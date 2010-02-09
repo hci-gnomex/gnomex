@@ -359,6 +359,7 @@
 			public var PROPERTY_PRICESHEET4_URL:String                = "pricesheet4_url";
 			public var PROPERTY_UNIVERSITY_USER_AUTHENTICATION:String = "university_user_authentication";  
 			public var PROPERTY_GENERATE_GL_INTERFACE:String          = "generate_general_ledger_interface";
+			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String        = "illumina_barcoding_note";
 			
             public	var fileDownloadUtil:FileDownloadUtil;
 
