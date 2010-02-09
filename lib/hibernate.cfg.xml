@@ -8,7 +8,7 @@
         <property name="jdbc.use_streams_for_binary">true</property>
         <property name="connection.datasource">jdbc/GNOMEX</property>
         
-        <!--  <property name="connection.provider_class">com.opensourceconnections.msjdbcproxy.HibernateProvider</property> -->
+        <property name="connection.provider_class">com.opensourceconnections.msjdbcproxy.HibernateProvider</property>
         <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
        
 
