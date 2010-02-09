@@ -105,7 +105,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Channel #", "left");
     this.addHeaderCell(rowh, "Client");
     this.addHeaderCell(rowh, "Sequence Sample #"    );
-    this.addHeaderCell(rowh, "Sample Barcode"    );
+    this.addHeaderCell(rowh, "Barcode Tag"    );
     this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (actual)");
@@ -200,7 +200,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Flow Cell Final Sample Conc. (pM)"    );
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Sequence Sample #"    );
-    this.addHeaderCell(rowh, "Sample Barcode"    );
+    this.addHeaderCell(rowh, "Barcode Tag"    );
     this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "Organism"    );
     this.addHeaderCell(rowh, "# Cycles (requested)");

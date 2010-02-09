@@ -134,7 +134,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-      this.addHeaderCell(rowh, "Barcode", rowSpan, new Integer(1));
+      this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));
       this.addHeaderCell(rowh, "Core to perform library prep?", rowSpan, new Integer(1));
     } 
     this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
