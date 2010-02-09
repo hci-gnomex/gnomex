@@ -1,4 +1,4 @@
-Configuring GNomEx
+Installing GNomEx_$VERSION
 ------------------------------------------
 
 System Requirements
@@ -16,25 +16,27 @@ To compile GNomEx:
 
 Install Instructions
 --------------------
-1. Download the gnomex open source distribution (gnomex_opensource.zip) on SourceForge.
-   Extract the files to a local directory (/path/to/gnomexinstall)
+1. Download and uncompress the the GNomEx open source distribution (GNomEx_$VERSION.zip) from SourceForge 
+   (http://sourceforge.net/projects/gnomex).
  
-2. Install Java.  Download the SDK (Version 1.6). Make sure JAVA_HOME is set.
+2. Install Java, 1.6+. Make sure to set the JAVA_HOME environment variable.
 
-3. Install Orion application server.
-   a. Download Orion application server and unzip
+3. Install Orion application server 
+   a. Download Orion application server (http://www.orionserver.com/) and unzip
 	 b. Modify Orion configuration
-	   - Copy tools.jar file located in the Java SDK lib directory  to /path/to/orion and /path/to/orion/lib
-	   - Copy all jar files in /path/to/gnomexinstall/orion/lib to /path/to/orion/lib
+	   - Copy the tools.jar file located in the Java SDK lib directory to /path/to/orion 
+	   - Copy all jar files in /path/to/GNomEx_$VERSION/orion/lib to /path/to/orion/lib
 	 c. Login as root
 	 d. Start Orion application server
 	    >cd /path/to/orion
 	    >java -Xms256m -Xms900m -jar orion.jar [-out log/orion_out.log]
 	 		Try to access orion from browser (http://myserver) to make sure 
 	 		Orion Application Server page appears.  You may need to open
-	 		up port 80 to gain access.
+	 		up port 80 to gain access and punch holes through your firewalls.
+	 e. Shut down the server
+	 f. Copy the /path/to/GNomEx_$VERSION/gnomex/dist/gnomex.ear into /path/to/orion/applications/
 	 
-4. Install MySQL database server
+4. Install the MySQL database server 5.XX (http://mysql.com)
    - Create a database user called gnomex and gnomexGuest. Grant all
      privileges on gnomex database to gnomexUser, but only read access 
      on gnomex database to gnomexGuest.
@@ -54,45 +56,28 @@ Install Instructions
       
       mysql> FLUSH PRIVILEGES;  
      
-   - Login into MySQL as gnomex user and run the SQL script 
-     /path/to/gnomexinstall/gnomex/'gnomex_db_ddl.sql' to create the gnomex database.
+   - Login into MySQL as gnomex user and run the SQL scripts
+     /path/to/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql to create the gnomex database and  
+     /path/to/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql to load the dictionaries.
      
-   - Login into MySQL as gnomex user and run the SQL script 
-     /path/to/gnomexinstall/gnomex/'gnomex_db_populate.sql' to load the dictionaries.
-   
-5. Copy /path/to/gnomexinstall/gnomex/dist/gnomex.ear into /path/to/orion/applications.
+     >mysql -u gnomex -p
+     mysql> source ~/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql
+     mysql> source ~/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql
 
-6. Modify the orion configuration by revising the following
-   files in /path/to/orion/config.  (Use the files in /path/to/gnomexinstall/orion/config
-   copy  the necessary entries into each file.) 
-   a. datasources.xml 
-      - Change the password to match your MySQL gnomex user and 
+5. Copy the following files in /path/to/GNomEx_$VERSION/orion/config to 
+   /path/to/orion/config:
+   a. data-sources.xml 
+      - Change the passwords to match your MySQL gnomex user and 
         gnomexGuest user. 
    b. server.xml 
       - Change the <mail-session> smtp host to your mail server.
-      - Add the <web-site path="./secure-web-site.xml" /> if you will be running 
-        gnomex over secure socket layer (SSL).
-      - Add the <application> entries for hciEnv and gnomex
    c. default-web-site.xml 
-      - Add the <web-app> entry for gnomex
-      
-   d. secure-web-site.xml
-      - Add the <web-app> entry from gnomex.  
-      - Add the  <ssl-config> entry.  Once you have a keystore, change the -storepass
-        parameter to match the keystore password.  See detailed instructions
-        for getting SSL configured to run under Orion.)
+   d. secure-web-site.xml 
+             
+6. Start Orion
 
-        NOTE: By default, gnomex must run from a secure website (https:), so this <web-app>
-        entry must be present in secure-web-site.xml.  However; gnomex can
-        be configured to run from a non-secure website (http:).  In this case,
-        leave out the <web-app> entry and <ssl-config> entry and
-        build gnomex to allow for non-secure hosting.  (See build instructions
-        below.)
-         
-7. Start Orion
-
-8. Run GNomEx Flex application from browser window.
-   - From browser window, type in URL:  https://myserver/gnomex/gnomexFlex.jsp
+7. Run GNomEx Flex application from browser window.
+   - From browser window, type in URL:  http://myserver/gnomex/gnomexFlex.jsp
    - The flex application should load and then a login popup window should appear.
    - Enter the user name 'admin' and the password 'admin'.
    - The first thing to do is get rid the the 'admin' user account and add
@@ -117,47 +102,8 @@ Install Instructions
       -	lucene_experiment_index_directory
       -	lucene_analysis_index_directory
       -	lucene_protocol_index_directory	
+      - temp_directory
       
-      
-Configuring Orion application server for SSL
---------------------------------------------
-1. Create a keystore.  Use the JDK or JRE installed on your server.   
-   >keytool -genkey -keyalg "RSA" -keystore /path/to/orion/keystore -storepass 123456 -validity 5060
-
-2. Modify the <ssl-config> entry in security-web-site.xml, setting the storepass to your keystore's
-   password.
-    
-3. Generate a certificate request, specifying your password (-storepass), the file
-   and to store the certificate request (-file) specifying your full 
-   web-server domain name (-alias).
-	 >keytool -certreq -keyalg "RSA"  -file myserver.csr -keystore keystore -storepass 123456 -alias myserver.someplace.somewhere.edu
-	
-4. Purchase a certificate (VeriSign, Thawte, etc) or obtain one from your 
-   institution.  (Use the certificate request (.csr file) file generated in step 3.)
-   
-5. Put the certificate returned (.cer file) into the keystore, specifying your
-   certificate file (-file) and your full web-server domain name (-alias). 
-	 >keytool -keystore keystore -keyalg "RSA" -import -trustcacerts -file myserver.cer -alias myserver.someplace.somewhere.edu
-
-6. Make sure the signing authority (example: VeriSign) that you obtained the 
-   certificate from has it's root certificate installed in the cacerts keystore.
-   To list the root certificates:  
-   >keytool -list -keystore $JAVA_HOME/jre/lib/security/cacerts
-      
-7. If the root certificate for the signing authority is not here,
-   add it.  When you obtained the certificate, there should have been
-   a way to download the institutions's root certificate (.cer) file.
-   To allow the system to "trust" this signing authority, add the 
-   root certificate into cacerts for the jdk you are using. Default cacerts 
-   password is 'changeit', but recommend change to something else.
-	 >keytool -keystore $JAVA_HOME/jre/lib/security/cacerts -keyalg "RSA" -import -file myserver.cer -alias myserver.someplace.somewhere.edu
-   
-8. TODO:  Add note about making root certificate available for download
-   from website. 
-   
-- See detailed instructions and troubleshooting guide at http://www.orionserver.com/docs/ssl.html.
-
-
 
 
 GNomEx Batch Jobs
@@ -174,6 +120,67 @@ command manually do the following
   
   For Unix environments:
   >sh index_gnomex.sh
+  
+        
+      
+Configuring GNomEx and Orion for SSL (https)
+--------------------------------------------
+By default, GNomEx is configured to run from a non-secure (http:) web-site.
+To run GNomEx from a secure web-site (https:), rebuild GNomEx, modify the orion 
+configuration, and set up a server certificate. 
+   
+1. Rebuild GNomEx to enforce that only secure connections are allowed.
+
+   a. Edit the source file /path/to/GNomEx_$VERSION/gnomex/src/hci/gnomex/constants/Constants.java
+      - Set the following constant to false
+        public static final boolean            REQUIRE_SECURE_REMOTE           = false; 
+   b. Recompile GNomEx (see detailed instructions 'Build Instructions').
+
+2. Modify the Orion configuration:
+
+   a. Modify /path/to/orion/config/server.xml
+      - Uncomment <web-site path="./secure-web-site.xml" />  
+
+   b. Modify /path/to/orion/config/secure-web-site.xml  
+      - Uncomment the <web-app> entry from gnomex
+      - Uncomment the <ssl-config> entry
+   
+   
+3. Configure Orion for SSL.  (See detailed instructions and troubleshooting guide 
+   at http://www.orionserver.com/docs/ssl.html.)
+   
+   a. Create a keystore.  Use the JDK or JRE installed on your server.   
+      >keytool -genkey -keyalg "RSA" -keystore /path/to/orion/keystore -storepass 123456 -validity 5060
+
+   b. Modify the <ssl-config> entry in security-web-site.xml, setting the storepass to your keystore's
+      password.
+    
+   c. Generate a certificate request, specifying your password (-storepass), the file
+      and to store the certificate request (-file) specifying your full 
+      web-server domain name (-alias).
+	    >keytool -certreq -keyalg "RSA"  -file myserver.csr -keystore keystore -storepass 123456 -alias myserver.someplace.somewhere.edu
+	
+   d. Purchase a certificate (VeriSign, Thawte, etc) or obtain one from your 
+      institution.  (Use the certificate request (.csr file) file generated in step c.)
+   
+   e. Put the certificate returned (.cer file) into the keystore, specifying your
+      certificate file (-file) and your full web-server domain name (-alias). 
+	    >keytool -keystore keystore -keyalg "RSA" -import -trustcacerts -file myserver.cer -alias myserver.someplace.somewhere.edu
+
+   f.  Make sure the signing authority (example: VeriSign) that you obtained the 
+       certificate from has it's root certificate installed in the cacerts keystore.
+       To list the root certificates:  
+       >keytool -list -keystore $JAVA_HOME/jre/lib/security/cacerts
+      
+   g.  If the root certificate for the signing authority is not here,
+       add it.  When you obtained the certificate, there should have been
+       a way to download the institutions's root certificate (.cer) file.
+       To allow the system to "trust" this signing authority, add the 
+       root certificate into cacerts for the jdk you are using. Default cacerts 
+       password is 'changeit', but recommend change to something else.
+	     >keytool -keystore $JAVA_HOME/jre/lib/security/cacerts -keyalg "RSA" -import -file myserver.cer -alias myserver.someplace.somewhere.edu
+   
+   h. Making root certificate available for download from website. 
    
    
 Build Instructions
@@ -197,13 +204,7 @@ Build Instructions
 2. Modify build.properties
    - Set FLEX_HOME to the directory containing the Flex SDK.
    - Set orion.dir to the directory of orion
-   
-3. If you want to run gnomex from a non-secure website (http:) rather
-   than over SSL (https:), you will need to modify the following
-   constant before building:
-   - Edit the source file gnomex/src/hci/gnomex/constants/Constants.java
-   - Set the following constant to false
-     public static final boolean            REQUIRE_SECURE_REMOTE           = false; 
+
    
 3. Run Ant build on build.xml with target=ALL
    >cd path/to/gnomex_source
@@ -212,7 +213,7 @@ Build Instructions
 4. A new gnomex.ear file will be placed in path/to/orion/applications.  
    Restart orion and gnomex will be deployed.
    
-
-
-
    
+
+
+      
