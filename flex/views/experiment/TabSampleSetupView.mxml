@@ -14,12 +14,14 @@
 	
 		public function getSelectedCodeBioanalyzerChipType():String {
 			var selectedCode:String = '';
-			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-				if (item.@isSelected != null && item.@isSelected == "true") {
-					selectedCode = item.@value;
-					break;
-				}
-			} 
+			if (this.currentState == 'QCSetupBioanalyzerState') {
+				for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+					if (item.@isSelected != null && item.@isSelected == "true") {
+						selectedCode = item.@value;
+						break;
+					}
+				} 
+			}
 			return selectedCode;
 		}
 		public function propagateChipType():void {
@@ -221,12 +223,18 @@
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
 	        	    	
-	        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-	        			if (chipType.@isSelected == "true") {
-	        				isComplete = true;
-	        				break;
-	        			}
-	        		}
+	        	   	// Only need to check if chip type selected if this is 
+	        	   	// a bioanalyzer qc request.
+	        	    if (this.currentState == 'QCSetupBioanalyzerState') {
+		        		for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+		        			if (chipType.@isSelected == "true") {
+		        				isComplete = true;
+		        				break;
+		        			}
+		        		}	        	    	
+	        	    } else {
+	        	    	isComplete = true;
+	        	    }
 	        	}
         	} else {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -316,7 +324,7 @@
 			this.checkSampleSetupCompleteness();
 		}
 		
-		private function pickRadioBarcoding():void {
+		public function pickRadioBarcoding():void {
 			if (this.barcodeRadioGroup.selectedValue != null) {
 				this.barcodeRadioBox.styleName = 'normalBox';				
 			} else {
@@ -326,6 +334,32 @@
 			this.parentDocument.seqSetup1View.pickBarcodeScheme();
 		}
 		
+		private function pickQCApp():void {
+			if (this.radioGroupQCApp.selectedValue != null && this.radioGroupQCApp.selectedValue == "BIOAN") {
+				this.currentState = "QCSetupBioanalyzerState";
+				this.parentDocument.samplesView.chipTypeColumn.visible = true;
+				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = true;
+			} else {
+				this.currentState = "QCSetupState";
+				this.parentDocument.samplesView.chipTypeColumn.visible = false;
+				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
+			}
+			
+			if (this.radioGroupQCApp.selectedValue != null) {
+				this.qcAppBox.styleName = 'normalBox';
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupQCApp.selectedValue);
+				this.parentDocument.applicationName = application.@display;
+			} else {
+				this.qcAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+			}
+			this.sampleTypeCombo.selectedIndex = -1;
+			parentDocument.filteredSampleTypeList.refresh();
+			if (parentDocument.filteredSampleTypeList.length == 2) {
+				this.sampleTypeCombo.selectedIndex = 1;
+			}
+			this.checkSampleSetupCompleteness();
+		}
 	]]>
 </mx:Script>
 
@@ -389,32 +423,12 @@
         	<mx:RemoveChild target="{sampleOrganismContainer}"/>
         	<mx:AddChild  relativeTo="{sampleSetupContainer}">
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
-					<mx:HBox width="100%" horizontalGap="0">
-						<mx:Label text="(4) Select a Bioanalyzer Chip Type." width="340"/>
+					<mx:HBox width="100%" horizontalGap="0" id="hbox4">
 					</mx:HBox>
-					<mx:HBox id="chipTypeBox"  width="100%" styleName="requiredBoxThick" >							
-						<mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
-							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot;)}</mx:dataProvider>
-							<mx:columns>
-							    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
-							        	width="20" 
-							        	editable="true"                        	
-							        	dataField="@isSelected" 
-							        	editorDataField="selected"
-							        	itemRenderer="{views.renderers.CheckBoxIsSelectedChipType.create()}" />
-								<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
-								<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
-								<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
-								<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
-								<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
-								
-							</mx:columns>
-						</mx:DataGrid>
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalAlign="center" paddingTop="10">
+					<mx:HBox width="100%" horizontalAlign="center" paddingTop="10" id="hbox5">
 						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" 
 							horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
-							<mx:Text width="100%" id="qcInstructions" color="#0000ff">									
+							<mx:Text width="100%" id="qcInstructions" styleName="submitNote">									
 								<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
 							</mx:Text>
 						</mx:HBox>
@@ -423,14 +437,24 @@
 				</mx:VBox>
         		
         	</mx:AddChild>
-        	<mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
-        	<mx:SetProperty target="{label8}" name="text" value="(2) Which category best describes your samples?"/>
+        	<mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
+        	<mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
         	<mx:SetProperty target="{label2}" name="text">
-        		<mx:value>(3) Select the nucleic acid extraction method.</mx:value>
+        		<mx:value>(4) Select the nucleic acid extraction method.</mx:value>
         	</mx:SetProperty>
         	<mx:SetProperty target="{label5}" name="width" value="334"/>
         	<mx:SetProperty target="{label2}" name="width" value="334"/>
         	<mx:SetProperty target="{label8}" name="width" value="334"/>
+        	<mx:AddChild relativeTo="{hbox3}" position="before">
+        		<mx:HBox width="100%" horizontalGap="0">
+        		    <mx:Text text="(1) Select a sample quality application." width="334" id="labelQCApplication"/>
+        		    <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="qcAppBox">
+        		        <mx:RadioButtonGroup id="radioGroupQCApp"/>
+        		        <mx:RadioButton label="Bioanalyzer" groupName="radioGroupQCApp" id="radioQCApplicationBioanalyzer" paddingBottom="0" value="BIOAN" click="pickQCApp()" paddingTop="0"/>
+        		        <mx:RadioButton groupName="radioGroupQCApp" id="radioQCApplicationQuBit" label="Qubit picoGreen" paddingTop="0" paddingBottom="0" value="QUBIT"  click="pickQCApp()"/>
+        		    </mx:VBox>
+        		</mx:HBox>
+        	</mx:AddChild>
         	
         	
         </mx:State>
@@ -515,7 +539,7 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="barcodeContainer" width="100%" horizontalGap="0">
-                	<mx:Label text="(6) Does this sequencing request require barcoding?" width="314."  id="label13"/>
+                	<mx:Text text="(6) Should sequencing libraries be constructed with barcode tags for multiplexing capability?" width="314."  id="label13"/>
                 	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="barcodeRadioBox">
                 		<mx:RadioButtonGroup id="barcodeRadioGroup"/>
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require barcoding" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()">
@@ -523,7 +547,10 @@
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()">
                 		</mx:RadioButton>
                 	</mx:VBox>
-                </mx:HBox>
+                	<mx:Text width="100%" id="barcoingNote" styleName="submitNote">									
+                		<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_ILLUMINA_BARCODING_NOTE)}</mx:text>
+                	</mx:Text>
+				</mx:HBox>
             </mx:AddChild>
 
 			
@@ -540,6 +567,32 @@
                 <mx:value>(5) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
             </mx:SetProperty>
             <mx:SetProperty target="{radioYesBarcoding}" name="enabled" value="false"/>
+        </mx:State>
+        <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
+             <mx:AddChild relativeTo="{hbox4}" position="lastChild">
+                  <mx:Label text="(5) Select a Bioanalyzer Chip Type." width="340"/>
+             </mx:AddChild>
+             <mx:AddChild relativeTo="{hbox5}" position="before">
+                  <mx:HBox id="chipTypeBox"  width="100%" styleName="requiredBoxThick" >							
+                       <mx:DataGrid width="100%" height="90" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
+                       	<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot;)}</mx:dataProvider>
+                       	<mx:columns>
+                       	    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
+                       	        	width="20" 
+                       	        	editable="true"                        	
+                       	        	dataField="@isSelected" 
+                       	        	editorDataField="selected"
+                       	        	itemRenderer="{views.renderers.CheckBoxIsSelectedChipType.create()}" />
+                       		<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
+                       		<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
+                       		<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
+                       		<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
+                       		<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
+                       		
+                       	</mx:columns>
+                       </mx:DataGrid>
+                  </mx:HBox>
+             </mx:AddChild>
         </mx:State>
    	
    </mx:states>

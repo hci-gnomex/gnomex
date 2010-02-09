@@ -555,6 +555,17 @@
 				this.seqSetup1View.seqRunTypeValidator.validate();
 				this.seqSetup1View.numberSeqCyclesValidator.validate();
 				
+				// Only show the barcode labeling option if we have
+				// at least one set of barcodes 
+				var barcodes:XMLList = this.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.OligoBarcode');
+				if (barcodes.length() > 0) {
+					this.sampleSetupView.barcodeContainer.visible = true;
+				} else {
+					this.sampleSetupView.radioNoBarcoding.selected = true;
+					this.sampleSetupView.barcodeContainer.visible = false;
+					this.sampleSetupView.pickRadioBarcoding();
+				}
+				
 				this.samplesView.currentState = 'SolexaSamplesState';	
 				this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
 				for each (var sample:Object in samples) {
@@ -1695,7 +1706,8 @@
 			request.@idAppUser = setupView.idAppUser;
 			request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
-			if (currentState == 'QCState') {
+			
+			if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 				request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
 			}
 			
@@ -1712,10 +1724,14 @@
 			if (currentState == 'MicroarrayState') {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeApplication = hybSetupView.applicationCombo.selectedItem.@codeApplication;				
-			}
-			if (this.isSolexaState()) {
+			} else if (this.isSolexaState()) {
 				request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;				
+			} else if (this.isQCState()) {
+				request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;
 			}
+			
+			
+			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
 			
 			request.replace("samples", <samples></samples>); 
