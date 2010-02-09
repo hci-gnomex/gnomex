@@ -558,8 +558,8 @@
 							<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-								    <mx:Label text="Oligo"/>
 								    <mx:Label text="Barcode"/>
+								    <mx:Label text="Tag"/>
 								</mx:VBox>
 							</mx:Component>
 							</mx:headerRenderer>
@@ -616,8 +616,8 @@
 						<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-								    <mx:Label text="Oligo"/>
 								    <mx:Label text="Barcode"/>
+								    <mx:Label text="Tag"/>
 								</mx:VBox>
 							</mx:Component>
 							</mx:headerRenderer>
