@@ -27,6 +27,10 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
+	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication" >
+  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+  	  <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
+	</Dictionary>
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
 	</Dictionary>
@@ -128,10 +132,7 @@
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
 	<Dictionary displayName="Microarray Labeling Reaction Size" className="hci.gnomex.model.LabelingReactionSize" />
-	<Dictionary displayName="Microarray Application (Request defaults)" className="hci.gnomex.model.RequestCategoryApplication" >
-  	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
-  	  <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
-	</Dictionary>
+
 	<Dictionary displayName="Microarray Scan Protocol" className="hci.gnomex.model.ScanProtocol" editable="N" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 	</Dictionary>
