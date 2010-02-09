@@ -284,6 +284,12 @@ TextArea {
 	
 }
 
+.formLinkProtocolButton {
+	textDecoration: underline;
+	color: #0000ff;
+	fontSize: 9;	
+}
+
 .formLinkSmallButton {
 	textDecoration: underline;
 	fontSize: 9;
@@ -418,5 +424,9 @@ Text.welcomeHeader
 	color: #FAFAE2;
 	fontFamily: Arial;
 	fontSize: 12px;
+}
+Text.submitNote
+{
+	color: #0000ff;
 }
 
