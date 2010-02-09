@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -25,6 +26,8 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
@@ -64,6 +67,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
  
       // Find request
       boolean newRequest = false;
@@ -113,7 +117,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Generate xml
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          
+
           
           // Show list of sample characteristic entries
           Element scParentNode = new Element("SampleCharacteristicEntries");
@@ -140,6 +144,55 @@ public class GetRequest extends GNomExCommand implements Serializable {
                     
             scParentNode.addContent(scNode);
           }
+          
+          // Show list of protocols used on this experiment
+          Element protocolsNode = new Element("protocols");
+          requestNode.addContent(protocolsNode);
+          for(Iterator i0 = request.getLabeledSamples().iterator(); i0.hasNext();) {
+            LabeledSample ls = (LabeledSample)i0.next();
+            if (ls.getIdLabelingProtocol() != null) {
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", ls.getIdLabelingProtocol().toString());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.LabelingProtocol");
+              protocolNode.setAttribute("label", dh.getLabelingProtocol(ls.getIdLabelingProtocol()));
+              break;
+            }
+          }
+          for(Iterator i1 = request.getHybridizations().iterator(); i1.hasNext();) {
+            Hybridization hyb = (Hybridization)i1.next();
+            if (hyb.getIdHybProtocol() != null) {
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", hyb.getIdHybProtocol().toString());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.HybProtocol");
+              protocolNode.setAttribute("label", dh.getHybProtocol(hyb.getIdHybProtocol()));
+              break;
+            }
+          }
+          for(Iterator i2 = request.getHybridizations().iterator(); i2.hasNext();) {
+            Hybridization hyb = (Hybridization)i2.next();
+            if (hyb.getIdScanProtocol() != null) {
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", hyb.getIdScanProtocol().toString());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.ScanProtocol");
+              protocolNode.setAttribute("label", dh.getScanProtocol(hyb.getIdScanProtocol()));
+              break;
+            }
+          }
+          for(Iterator i3 = request.getHybridizations().iterator(); i3.hasNext();) {
+            Hybridization hyb = (Hybridization)i3.next();
+            if (hyb.getIdFeatureExtractionProtocol() != null) {
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", hyb.getIdFeatureExtractionProtocol().toString());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.FeatureExtractionProtocol");
+              protocolNode.setAttribute("label", dh.getFeatureExtractionProtocol(hyb.getIdFeatureExtractionProtocol()));
+              break;
+            }
+          }            
+
 
           doc.getRootElement().addContent(requestNode);
         
