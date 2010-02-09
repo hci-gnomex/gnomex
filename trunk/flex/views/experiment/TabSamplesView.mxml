@@ -264,7 +264,8 @@
         			if (!parentDocument.isEditState() &&
 		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
 	        			if (isEntered(sample, "@name") &&
-	        			    isEntered(sample, "@idSampleType") &&
+			        		isEntered(sample, "@concentration") &&
+			        		isEntered(sample, "@idSampleType") &&
 	        			    isEntered(sample, "@idOrganism") &&
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
@@ -302,9 +303,16 @@
 			        	isEntered(sample, "@idSampleType") &&		        		
 			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
 			        	isEntered(sample, "@concentration") &&
-	        			isEntered(sample, "@codeConcentrationUnit") &&
-	        			isEntered(sample, "@codeBioanalyzerChipType")) {
-	        			completeCount++;       				
+	        			isEntered(sample, "@codeConcentrationUnit") ) {
+	        				
+	        			if (!parentDocument.isEditState() &&
+	        			    parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
+	        				if (isEntered(sample, "@codeBioanalyzerChipType")) {
+								completeCount++;       				
+	        				} 
+	        			} else {
+	        				completeCount++;
+	        			}
 	        		}
 	        		 
         		} else {
@@ -528,7 +536,6 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				chipTypeColumn.visible = false; 
-				barcodeColumn.visible = true; 
 				samplePrepMethodCol.visible = true;
 				labelColumn.visible = false;
 				
@@ -538,7 +545,11 @@
 				} else {
 					samplePrepMethodCol.visible = true;
 				}
-        		
+        		if (parentDocument.isEditState()) {
+					barcodeColumn.visible = true;		
+				} else {
+					barcodeColumn.visible = parentDocument.sampleSetupView.barcodeRadioGroup.selectedValue != null && parentDocument.sampleSetupView.barcodeRadioGroup.selectedValue == 'Y' ? true : false;
+				}
 
 			} else if (currentState.indexOf('QCSamples') >= 0) {
         		numberSequencingLanesCol.visible = false;
@@ -549,7 +560,12 @@
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
-				chipTypeColumn.visible = true; 
+				
+				if (parentDocument.isEditState) {
+					chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
+				} else {
+					chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBionanalyzerState' ? true : false;
+				}
 				barcodeColumn.visible = false; 
 				labelColumn.visible = false;
 				
@@ -650,7 +666,7 @@
 	                <mx:DataGridColumn id="barcodeColumn" visible="{!showQCFieldsCheckBox.selected &amp;&amp; parentDocument.isSolexaState() ? false : true}" headerText="Barcode" width="60" dataField="@idOlogiBarcode" 
 	                   editorDataField="value" sortable="false" editable="{parentApplication.hasPermission('canWriteAnyObject')}" rendererIsEditor="false" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode', true)}"                
- 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode', true)}"/>
+ 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequenceDisplay', '@value', '@idOligoBarcode', true)}"/>
 					
 					
 	 		 	  
