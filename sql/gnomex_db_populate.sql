@@ -479,7 +479,9 @@ VALUES ('CGH', 'CGH', 'Y'),
   ('DNASEQ', 'Genomic DNA Sequencing', 'Y'),
   ('TDNASEQ', 'Targeted Genomic DNA Sequencing (capture/release)', 'Y'),
   ('MRNASEQ', 'mRNA Sequencing', 'Y'),
-  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y');
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y'),
+  ('BIOAN', 'Bioanalyzer', 'Y'),
+  ('QUBIT', 'Qubit picoGreen', 'Y');
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
 VALUES (1, 18, 'N'),
@@ -556,7 +558,8 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (38,'billing_core_facility_fund','','Always blank for open source GNomEx', 'Y'),
  (39,'billing_core_facility_org','','Always blank for open source GNomEx', 'Y'),
  (40,'billing_core_facility_activity','','Always blank for open source GNomEx', 'Y'),
- (41,'temp_directory','/temp','The temp directory where temp files are created', 'Y');
+ (41,'temp_directory','/temp','The temp directory where temp files are created', 'Y'),
+ (42,'illumina_barcoding_note','','Illumina sample barcoding instructions', 'N');
 
 
 
@@ -604,7 +607,9 @@ VALUES ('AFFY', 'CHIP'),
   ('AGIL1', 'WTRANSCRP'),
   ('INHOUSE', 'EXP'),
   ('NIMBLE', 'EXP'),
-  ('NIMBLE', 'METH');
+  ('NIMBLE', 'METH'),
+  ('QC', 'BIOAN'),
+  ('QC', 'QUBIT');
 
 
 INSERT INTO `gnomex`.`SampleCharacteristic`(`codeSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
