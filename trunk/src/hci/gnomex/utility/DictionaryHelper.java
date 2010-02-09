@@ -8,9 +8,12 @@ import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Organism;
@@ -22,6 +25,7 @@ import hci.gnomex.model.SamplePrepMethod;
 import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SampleSource;
 import hci.gnomex.model.SampleType;
+import hci.gnomex.model.ScanProtocol;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
@@ -66,6 +70,10 @@ public class DictionaryHelper implements Serializable {
   private Map              propertyMap = new HashMap();
   private Map              submissionInstructionMap = new HashMap();
   private Map              oligoBarcodeMap = new HashMap();
+  private Map              labelingProtocolMap = new HashMap();
+  private Map              hybProtocolMap = new HashMap();
+  private Map              scanProtocolMap = new HashMap();
+  private Map              featureExtractionProtocolMap = new HashMap();
   
   
   
@@ -215,7 +223,26 @@ public class DictionaryHelper implements Serializable {
       OligoBarcode bc = (OligoBarcode)i.next();
       oligoBarcodeMap.put(bc.getIdOligoBarcode(), bc);
     }
-    
+    List labelingProtocols = sess.createQuery("SELECT p from LabelingProtocol as p").list();
+    for(Iterator i = labelingProtocols.iterator(); i.hasNext();) {
+      LabelingProtocol p = (LabelingProtocol)i.next();
+      labelingProtocolMap.put(p.getIdLabelingProtocol(), p);
+    }
+    List hybProtocols = sess.createQuery("SELECT p from HybProtocol as p").list();
+    for(Iterator i = hybProtocols.iterator(); i.hasNext();) {
+      HybProtocol p = (HybProtocol)i.next();
+      hybProtocolMap.put(p.getIdHybProtocol(), p);
+    }
+    List scanProtocols = sess.createQuery("SELECT p from ScanProtocol as p").list();
+    for(Iterator i = scanProtocols.iterator(); i.hasNext();) {
+      ScanProtocol p = (ScanProtocol)i.next();
+      scanProtocolMap.put(p.getIdScanProtocol(), p);
+    }    
+    List featureExtractionProtocols = sess.createQuery("SELECT p from FeatureExtractionProtocol as p").list();
+    for(Iterator i = featureExtractionProtocols.iterator(); i.hasNext();) {
+      FeatureExtractionProtocol p = (FeatureExtractionProtocol)i.next();
+      featureExtractionProtocolMap.put(p.getIdFeatureExtractionProtocol(), p);
+    }    
    }
   
   public void reloadBillingTemplates(Session sess) {
@@ -423,7 +450,39 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-
+  public String getLabelingProtocol(Integer id) {
+    String name = "";
+    if (id != null) {
+      LabelingProtocol lp = (LabelingProtocol)labelingProtocolMap.get(id);
+      return lp.getLabelingProtocol();
+    }
+    return name;
+  }
+  public String getHybProtocol(Integer id) {
+    String name = "";
+    if (id != null) {
+      HybProtocol p = (HybProtocol)hybProtocolMap.get(id);
+      return p.getHybProtocol();
+    }
+    return name;
+  } 
+  public String getScanProtocol(Integer id) {
+    String name = "";
+    if (id != null) {
+      ScanProtocol p = (ScanProtocol)scanProtocolMap.get(id);
+      return p.getScanProtocol();
+    }
+    return name;
+  }  
+  public String getFeatureExtractionProtocol(Integer id) {
+    String name = "";
+    if (id != null) {
+      FeatureExtractionProtocol p = (FeatureExtractionProtocol)featureExtractionProtocolMap.get(id);
+      return p.getFeatureExtractionProtocol();
+    }
+    return name;
+  }  
+  
   public String getBillingStatus(String codeBillingStatus) {
     String billingStatus = "";
     if (codeBillingStatus != null) {
