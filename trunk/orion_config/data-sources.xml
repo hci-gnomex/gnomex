@@ -1,4 +1,6 @@
-
+<?xml version="1.0"?>
+<!DOCTYPE data-sources PUBLIC "Orion data-sources" "http://www.orionserver.com/dtds/data-sources.dtd">
+<data-sources>
 	<!--             -->
 	<!-- GNOMEX      -->
 	<!--             -->
@@ -22,3 +24,4 @@
 		password="gnomex_guest_password_goes_here"
 		url="jdbc:microsoft:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
 		inactivity-timeout="30" />
+</data-sources>

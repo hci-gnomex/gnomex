@@ -1,1 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-site PUBLIC "Orion Web-site" "http://www.orionserver.com/dtds/web-site.dtd">
+<web-site host="[ALL]" port="80" display-name="Default Orion WebSite">
+
+	<default-web-app application="default" name="defaultWebApp" />
+
+	<access-log path="../log/default-web-access.log" />
+
 	<web-app application="gnomex" name="gnomex" root="/gnomex" shared="true" />
+	
+</web-site>

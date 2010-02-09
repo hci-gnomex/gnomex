@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <!DOCTYPE web-site PUBLIC "Orion Web-site" "http://www.orionserver.com/dtds/web-site.dtd">
-    <web-site display-name="Default Orion WebSite" secure="true">
-        <default-web-app application="default" name="defaultWebApp" />
+<web-site display-name="Default Orion WebSite" secure="true">
+	<default-web-app application="default" name="defaultWebApp" />
 
-        <web-app application="gnomex" name="gnomex" root="/gnomex" shared="true" />
+	<web-app application="gnomex" name="gnomex" root="/gnomex" shared="true" />
 
-        <access-log path="../log/default-web-access.log" />
+	<access-log path="../log/default-web-access.log" />
 
-        <ssl-config keystore="../keystore" keystore-password="your_keystore_password_here"/>
-    </web-site>
+	<ssl-config keystore="../keystore" keystore-password="your_keystore_password_here"/>
+</web-site>
 
