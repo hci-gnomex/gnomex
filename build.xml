@@ -59,7 +59,6 @@
 
 
 
-
 	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- Clean                                          -->
@@ -313,14 +312,6 @@
 				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
       	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
 		</replace>
-		<replace file="${opensource.dir}/gnomex/build.properties"
-				     token="c:/orion"
-		         value="/path/to/orion">
-		</replace>
-		<replace file="${opensource.dir}/gnomex/build.properties"
-				     token="c:/flex_sdk"
-		         value="/path/to/flex_sdk">
-		</replace>
 		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
 				     match="lib\.hcienv\.dir=(.*)"
 		         replace="">
@@ -392,6 +383,20 @@
 	      <exclude name="**/Thumbs.db"/>
 	    </fileset>
 	  </copy>
+		
+		<subant target="ear">
+		   <fileset dir="${opensource.dir}/gnomex" includes="build.xml"/>
+		</subant>
+		
+		<replace file="${opensource.dir}/gnomex/build.properties"
+				     token="c:/orion"
+		         value="/path/to/orion">
+		</replace>
+		<replace file="${opensource.dir}/gnomex/build.properties"
+				     token="c:/flex_sdk"
+		         value="/path/to/flex_sdk">
+		</replace>
+
 	  <copy todir="${opensource.dir}/orion">
 	    <fileset dir="${orion.dir}">
 	      <include name="lib/commons*.jar"/>
@@ -443,6 +448,8 @@
 
 		<zip destfile="${opensource.dir}/gnomex_opensource.zip" basedir="${opensource.dir}">
 			<include name="gnomex/**" />
+			<include name="orion/**" />
+			<include name="README.TXT" />
 		</zip>
 	</target>
 
