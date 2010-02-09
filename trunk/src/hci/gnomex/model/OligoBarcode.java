@@ -19,6 +19,11 @@ public class OligoBarcode extends DictionaryEntry implements Serializable {
     return display;
   }
 
+  public String getBarcodeSequenceDisplay() {
+    String display = this.getBarcodeSequence() + (this.getOligoBarcodeScheme() != null ? " (" + this.getOligoBarcodeScheme().getOligoBarcodeScheme() + ")": "");
+    return display;
+  }
+  
   public String getValue() {
     return getIdOligoBarcode().toString();
   }
