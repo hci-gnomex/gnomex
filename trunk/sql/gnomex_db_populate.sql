@@ -609,7 +609,14 @@ VALUES ('AFFY', 'CHIP'),
   ('NIMBLE', 'EXP'),
   ('NIMBLE', 'METH'),
   ('QC', 'BIOAN'),
-  ('QC', 'QUBIT');
+  ('QC', 'QUBIT'),
+  ('SOLEXA', 'CHIPSEQ' ),
+  ('SOLEXA', 'DMRNASEQ'),
+  ('SOLEXA', 'DNASEQ'),
+  ('SOLEXA', 'TDNASEQ'),
+  ('SOLEXA', 'MRNASEQ'),
+  ('SOLEXA', 'SMRNASEQ');
+
 
 
 INSERT INTO `gnomex`.`SampleCharacteristic`(`codeSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
