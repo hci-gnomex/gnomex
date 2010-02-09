@@ -3,6 +3,21 @@
 	width="100%" height="100%" 
 	xmlns:views="views.*"   
 	 >
+   <mx:HTTPService  
+    id="getProtocol" 
+    url="GetProtocol.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetProtocol(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)"
+	method="POST"
+    useProxy="false">
+    <mx:request>
+    	<id>{this.protocolRepeater.currentItem.@idProtocol}</id>
+    	<protocolClassName>{this.protocolRepeater.currentItem.@protocolClassName}</protocolClassName>
+    </mx:request>
+  </mx:HTTPService>
+  	 
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
@@ -10,6 +25,7 @@
 		import mx.controls.Alert;
 		import views.experiment.ExperimentEditView;
 		import hci.flex.controls.DropdownLabel; 
+		import mx.rpc.events.ResultEvent;
 		
 		
 		
@@ -60,9 +76,11 @@
 			if (this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
 				this.analysisButton.enabled = true;
 				this.hasAnalysis.visible = true;
+				this.hasAnalysis.height = 20;
 			} else {
 				this.analysisButton.enabled = false;
 				this.hasAnalysis.visible = false;
+				this.hasAnalysis.height = 0;
 			}
 
 
@@ -325,7 +343,7 @@
 					organismCol.visible = false;
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
-					chipTypeCol.visible = true;
+					chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
 					barcodeCol.visible = false;
 					concentrationUnitCol.visible = true;
 	        		
@@ -386,7 +404,16 @@
         	}
         }
         
-
+    	private function onGetProtocol(event:ResultEvent): void { 
+			if (getProtocol.lastResult.name() != "Protocol") {
+        		mx.controls.Alert.show(getProtocol.lastResult..ACTMESSAGE.@TEXT);
+      	  		return;
+   			}
+   			var protocolWindow:ProtocolWindow = ProtocolWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), ProtocolWindow, false));
+   			PopUpManager.centerPopUp(protocolWindow);
+   			protocolWindow.title = getProtocol.lastResult.name;
+   			protocolWindow.protocolDescription.text = getProtocol.lastResult.description;
+    	}  
 	]]>
 </mx:Script>
 
@@ -411,7 +438,7 @@
 		                  <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
 		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
 		                </mx:HBox>
-						<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="right"
+						<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="right" height="20"
  		        		   enabled="true" disabledIcon="@Embed(source='../../assets/map_disable.png')" id="hasAnalysis" visible="false" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 		        	    </mx:LinkButton>			            
 		        	</mx:VBox>
@@ -419,15 +446,15 @@
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
-			        	       <mx:Text text="{requestCategoryName}" width="120" />
+			        	       <mx:Text text="{requestCategoryName}" width="160" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
 			                <mx:Label text="Experiment Type"  width="102" fontWeight="bold"/>
-			                <mx:Text  text="{experimentCategoryName}" width="120" />
+			                <mx:Text  text="{experimentCategoryName}" width="160" />
 			            </mx:HBox>
 		                <mx:HBox verticalGap="0" horizontalGap="0">
 		                  <mx:Label width="102" text="Completed on" fontWeight="bold"/>
-		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="120" />
+		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="160" />
 		                </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
@@ -448,6 +475,14 @@
 		        	
 		        </mx:HBox>
 		        
+		        <mx:HBox horizontalGap="0"  horizontalAlign="left" verticalAlign="middle" >
+		            <mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="6"/>
+		        	<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+				    	<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
+				    		paddingLeft="1" paddingRight="1"
+				    		click="{getProtocol.send()}"/>
+  					</mx:Repeater>
+		        </mx:HBox>
 	
 				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
 			    <mx:HRule width="100%"/>
