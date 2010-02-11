@@ -50,11 +50,21 @@
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idSamplePrepMethod = this.samplePrepMethodCombo.selectedItem != null ? this.samplePrepMethodCombo.selectedItem.@value : '';
 			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+       	private function propagateSeqLibProtocol():void {
+			for each (var sample:Object in parentDocument.samples) {
+				if (currentState == 'SolexaSetupPreppedState') {
+					sample.@idSeqLibProtocol = this.seqLibProtocolCombo.selectedItem != null ? this.seqLibProtocolCombo.selectedItem.@value : '';
+				} else {
+					sample.@idSeqLibProtocol = '';
+				}
+			}
 			if (currentState == 'SolexaSetupState') {
 				propagateDefaultSeqRunType();
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
+		}		
 		private function propagateDefaultSeqRunType():void {
 			var idSeqRunType:String = this.getDefaultIdSeqRunType();
 			for each (var sample:Object in parentDocument.samples) {
@@ -206,10 +216,11 @@
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
 	        	    this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '' &&
-	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
+	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' && 
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
- 						if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
+ 						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
  							isComplete = true;
  						}	        	    	
 	        	    } else {
@@ -318,10 +329,27 @@
 			
 			this.sampleTypeCombo.selectedIndex = -1;
 			parentDocument.filteredSampleTypeList.refresh();
+			this.samplePrepMethodCombo.selectedItem = null;
 			if (parentDocument.filteredSampleTypeList.length == 2) {
 				this.sampleTypeCombo.selectedIndex = 1;
+				parentDocument.samplePrepMethodList.refresh();
+				selectDefaultSamplePrepMethod();
 			}
+			
+			if (this.parentDocument.isSolexaState()) {
+				parentDocument.seqLibProtocolList.refresh();				
+			}
+			
+			if (this.currentState == "SolexaSetupPreppedState") {
+				this.seqLibProtocolCombo.selectedIndex = -1;
+				if (parentDocument.seqLibProtocolList.length == 2) {
+					this.seqLibProtocolCombo.selectedIndex = 1;
+				}
+				
+			}
+
 			this.checkSampleSetupCompleteness();
+			
 		}
 		
 		public function pickRadioBarcoding():void {
@@ -359,6 +387,53 @@
 				this.sampleTypeCombo.selectedIndex = 1;
 			}
 			this.checkSampleSetupCompleteness();
+		}
+		
+		private function pickSampleType():void {
+				samplePrepMethodCombo.selectedIndex=0;
+				parentDocument.samplePrepMethodList.refresh();
+				selectDefaultSamplePrepMethod();
+				propagateSampleType();
+				parentDocument.samplesView.initializeSamplesGrid();
+				checkSampleSetupCompleteness();
+				this.checkForSampleTypeCompatibility();
+				
+				if (this.currentState == "SolexaSetupState" ||
+				    this.currentState == "SolexaSetupPreppedState") {
+				    selectDefaultSeqRunType();	
+				}
+		}
+		
+		private function pickOrganism():void {
+			parentDocument.samplesView.initializeSamplesGrid();
+			parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;
+			propagateSampleOrganism();
+			checkSampleSetupCompleteness();
+
+			if (this.currentState == 'SolexaSetupState' ||
+			    this.currentState == 'SolexaSetupPreppedState') { 
+				parentDocument.filteredGenomeBuildList.refresh();
+				selectDefaultGenomeBuild();			
+			}
+			
+		}
+		
+		private function pickSamplePrepMethod():void {
+			parentDocument.samplesView.initializeSamplesGrid();
+			propagateSamplePrepMethod();
+			checkSampleSetupCompleteness();
+			
+			if (this.currentState == 'SolexaSetupState' ||
+			    this.currentState == 'SolexaSetupPreppedState') { 
+				parentDocument.filteredSeqRunTypeList.refresh();			    					
+			}
+		}
+		
+		private function pickSeqLibProtocol():void {
+			parentDocument.samplesView.initializeSamplesGrid();
+			propagateSeqLibProtocol();
+			checkSampleSetupCompleteness();
+			parentDocument.filteredSeqRunTypeList.refresh();			
 		}
 	]]>
 </mx:Script>
@@ -399,18 +474,18 @@
 			<mx:HBox width="100%" horizontalGap="0">
 				<mx:Label text="(2) Which category best describes your samples?" width="310" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
-					change="samplePrepMethodCombo.selectedIndex=0;parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();propagateSampleType();parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness();this.checkForSampleTypeCompatibility();" dataProvider="{parentDocument.filteredSampleTypeList}">							
+					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}">							
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentDocument.filteredGenomeBuildList.refresh()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="pickOrganism()">							
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
 				<mx:Label text="(4) Select the nuceic acid extraction method." width="310" id="label2"/>
-				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();" dataProvider="{parentDocument.samplePrepMethodList}">															
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}">															
 				</mx:ComboBox>
 			</mx:HBox>
 			
@@ -467,15 +542,18 @@
 					<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
 					    <mx:HBox id="hbox2" width="100%">
 							<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please prep library" selected="true"
-								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
+								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';seqLibProtocolCombo.selectedIndex = 0;propagateSeqLibProtocol();parentDocument.seqLibProtocolList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}">
 							</mx:RadioButton>									    	
 					    </mx:HBox>
 					    
 						<mx:HBox id="vbox1">
 							<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, library has already been prepped "
-								change="{samplesAlreadyPreppedCheckbox.selected ? currentState = 'SolexaSetupPreppedState' : 'SolexaSetupState';samplePrepMethodCombo.selectedIndex = 0;propagateSamplePrepMethod();parentDocument.samplePrepMethodList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}" click="propagateSeqPrepByCore();selectDefaultSamplePrepMethod()">
+								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';seqLibProtocolCombo.selectedIndex = 0;propagateSeqLibProtocol();parentDocument.seqLibProtocolList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}">
 							</mx:RadioButton>							
-								
+
+							<mx:ComboBox labelField="@display" width="300" id="seqLibProtocolCombo" dataProvider="{parentDocument.seqLibProtocolList}">															
+								<mx:change>{pickSeqLibProtocol()}</mx:change>
+							</mx:ComboBox>								
 						</mx:HBox>				
 					</mx:VBox>
 				</mx:HBox>            	
@@ -487,22 +565,7 @@
             </mx:AddChild>
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
             <mx:SetProperty target="{sampleOrganismCombo}" name="width" value="170"/>
-            <mx:SetEventHandler target="{sampleTypeCombo}" name="change">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.samplePrepMethodList.refresh();propagateSampleType();checkSampleSetupCompleteness();this.checkForSampleTypeCompatibility();parentDocument.samplePrepMethodList.refresh();selectDefaultSamplePrepMethod();selectDefaultSeqRunType()</mx:handler>
-            </mx:SetEventHandler>
-            <mx:SetEventHandler target="{samplePrepMethodCombo}" name="change">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();propagateSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.filteredSeqRunTypeList.refresh();</mx:handler>
-            </mx:SetEventHandler>
             <mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
-            <mx:SetEventHandler target="{sampleOrganismCombo}" name="change">
-                <mx:handler>parentDocument.samplesView.initializeSamplesGrid();parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;propagateSampleOrganism();checkSampleSetupCompleteness();parentDocument.filteredGenomeBuildList.refresh();selectDefaultGenomeBuild()</mx:handler>
-            </mx:SetEventHandler>
-            <mx:RemoveChild target="{samplePrepMethodCombo}"/>
-            <mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{samplePrepMethodCombo}"/>
-            <mx:RemoveChild target="{label2}"/>
-            <mx:RemoveChild target="{samplePrepContainer}"/>
-            <mx:SetProperty target="{samplePrepMethodCombo}" name="width" value="400"/>
-            <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="false"/>
             <mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
             <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
             <mx:SetProperty target="{label7}" name="text">
@@ -552,6 +615,10 @@
                 	</mx:Text>
 				</mx:HBox>
             </mx:AddChild>
+            <mx:RemoveChild target="{samplePrepContainer}"/>
+            <mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
+            <mx:SetProperty target="{label2}" name="text" value="(5) Select the nuceic acid extraction method."/>
+            <mx:SetProperty target="{label2}" name="width" value="314"/>
 
 			
         </mx:State>
@@ -560,9 +627,6 @@
             <mx:SetProperty target="{samplesAlreadyPreppedCheckbox}" name="label">
                 <mx:value>No, library has already been prepped using kit</mx:value>
             </mx:SetProperty>
-            <mx:RemoveChild target="{samplePrepMethodCombo}"/>
-            <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{samplePrepMethodCombo}"/>
-            <mx:SetProperty target="{samplePrepMethodCombo}" name="visible" value="true"/>
             <mx:SetProperty target="{text1}" name="text">
                 <mx:value>(5) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
             </mx:SetProperty>

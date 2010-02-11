@@ -26,6 +26,7 @@ import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SampleSource;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.ScanProtocol;
+import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
@@ -74,6 +75,7 @@ public class DictionaryHelper implements Serializable {
   private Map              hybProtocolMap = new HashMap();
   private Map              scanProtocolMap = new HashMap();
   private Map              featureExtractionProtocolMap = new HashMap();
+  private Map              seqLibProtocolMap = new HashMap();
   
   
   
@@ -243,6 +245,11 @@ public class DictionaryHelper implements Serializable {
       FeatureExtractionProtocol p = (FeatureExtractionProtocol)i.next();
       featureExtractionProtocolMap.put(p.getIdFeatureExtractionProtocol(), p);
     }    
+    List seqLibProtocols = sess.createQuery("SELECT p from SeqLibProtocol as p").list();
+    for(Iterator i = seqLibProtocols.iterator(); i.hasNext();) {
+      SeqLibProtocol p = (SeqLibProtocol)i.next();
+      seqLibProtocolMap.put(p.getIdSeqLibProtocol(), p);
+    }     
    }
   
   public void reloadBillingTemplates(Session sess) {
@@ -482,6 +489,14 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }  
+  public String getSeqLibProtocol(Integer id) {
+    String name = "";
+    if (id != null) {
+      SeqLibProtocol p = (SeqLibProtocol)seqLibProtocolMap.get(id);
+      return p.getSeqLibProtocol();
+    }
+    return name;
+  }   
   
   public String getBillingStatus(String codeBillingStatus) {
     String billingStatus = "";

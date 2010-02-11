@@ -6,6 +6,7 @@ import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.ScanProtocol;
+import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.model.DictionaryEntry;
@@ -123,6 +124,10 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((FeatureExtractionProtocol)protocol).setFeatureExtractionProtocol(protocolName);
             ((FeatureExtractionProtocol)protocol).setIsActive("Y");
             ((FeatureExtractionProtocol)protocol).setCodeRequestCategory(codeRequestCategory);
+          } else if (protocolClassName.equals(SeqLibProtocol.class.getName())) {
+            protocol = new SeqLibProtocol();
+            ((SeqLibProtocol)protocol).setSeqLibProtocol(protocolName);
+            ((SeqLibProtocol)protocol).setIsActive("Y");
           } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
             protocol = new AnalysisProtocol();
             ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);
@@ -175,6 +180,12 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((FeatureExtractionProtocol)protocol).setIsActive(isActive);
             ((FeatureExtractionProtocol)protocol).setUrl(protocolUrl);
             ((FeatureExtractionProtocol)protocol).setCodeRequestCategory(codeRequestCategory);
+          }  else if (protocolClassName.equals(SeqLibProtocol.class.getName())) {
+            protocol =  (DictionaryEntry)sess.load(SeqLibProtocol.class, idProtocol);
+            ((SeqLibProtocol)protocol).setSeqLibProtocol(protocolName);
+            ((SeqLibProtocol)protocol).setDescription(protocolDescription);
+            ((SeqLibProtocol)protocol).setIsActive(isActive);
+            ((SeqLibProtocol)protocol).setUrl(protocolUrl);
           } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
             protocol =  (DictionaryEntry)sess.load(AnalysisProtocol.class, idProtocol);
             ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);

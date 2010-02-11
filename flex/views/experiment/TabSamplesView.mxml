@@ -40,6 +40,7 @@
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" seqPrepByCore = 'N'" +
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+					" idSeqLibProtocol='" + parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value + "'" +				
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
@@ -65,7 +66,8 @@
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
-					" idSamplePrepMethod=''"  +				
+					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
@@ -179,6 +181,7 @@
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
 					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
+					" idSeqLibProtocol='" + sampleToCopy.@idSeqLibProtocol + "'" +				
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
 					" treatment='" + sampleToCopy.@treatment + "'" +		
@@ -267,6 +270,7 @@
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idSampleType") &&
 	        			    isEntered(sample, "@idOrganism") &&
+			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
 	        			    isEntered(sample, "@numberSequencingLanes")) {
@@ -279,6 +283,7 @@
 	        			if (isEntered(sample, "@name") &&
 			        		isEntered(sample, "@idSampleType") &&	        		
 			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
+			        		isEntered(sample, "@idSeqLibProtocol") &&	        		
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idOrganism") &&
 			        		isEntered(sample, "@idSeqRunType") &&
@@ -465,18 +470,6 @@
 			parentDocument.lanes.addItem(emptyNode);
 		}
 		
-
-		public function propagateSamplePrepMethod(idSamplePrepMethod:String):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
-				for each (var sample:Object in parentDocument.samples) {
-					if (parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
-						sample.@idSamplePrepMethod = "";
-					} else if (parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState") {
-						sample.@idSamplePrepMethod = idSamplePrepMethod;
-					}
-				}
-			}
-		}
 		public function propagateOrganism(idOrganism:String):void {
 			if (currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
@@ -520,7 +513,8 @@
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
 				barcodeColumn.visible = false; 
-				samplePrepMethodCol.visible = false;
+				samplePrepMethodCol.visible = true;
+				seqLibProtocolCol.visible = false;
 				preppedByCoreCol.visible = false;
 				numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible =  false;
@@ -531,6 +525,14 @@
         		numberSequencingLanesCol.visible = !parentDocument.isEditState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
+				
+				if (parentDocument.isEditState() ||
+				    parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState") {
+					seqLibProtocolCol.visible = true;
+				} else {
+					seqLibProtocolCol.visible = false;
+				}
+
 				idSeqRunTypeCol.visible = !parentDocument.isEditState(); 
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = false;
@@ -539,12 +541,8 @@
 				samplePrepMethodCol.visible = true;
 				labelColumn.visible = false;
 				
-				if (!parentDocument.isEditState() &&
-				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
-					samplePrepMethodCol.visible = false;
-				} else {
-					samplePrepMethodCol.visible = true;
-				}
+				samplePrepMethodCol.visible = true;
+				
         		if (parentDocument.isEditState()) {
 					barcodeColumn.visible = true;		
 				} else {
@@ -731,16 +729,6 @@
  	                   
 					<mx:DataGridColumn headerText="Description" width="140" dataField="@description"/> 
 
-
-	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
-                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
-	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
-	 				    rendererIsEditor="false" editorDataField="value" 
- 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"                
-   	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}"/>
-					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
- 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
                     <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', true)}"                
@@ -753,6 +741,21 @@
 	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true)}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true)}"/>
+
+
+	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
+                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
+	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
+	 				    rendererIsEditor="false" editorDataField="value" 
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"                
+   	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}"/>
+					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
+ 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
+                    <mx:DataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', true)}"                
+	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true)}"/>
 	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true)}"                

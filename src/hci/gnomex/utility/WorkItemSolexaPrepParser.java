@@ -102,10 +102,10 @@ public class WorkItemSolexaPrepParser implements Serializable {
     } else {
       sample.setSeqPrepGelFragmentSizeTo(null);
     }    
-    if (n.getAttributeValue("idSamplePrepMethod") != null && !n.getAttributeValue("idSamplePrepMethod").equals("")) {
-      sample.setIdSamplePrepMethod(new Integer(n.getAttributeValue("idSamplePrepMethod")));
+    if (n.getAttributeValue("idSeqLibProtocol") != null && !n.getAttributeValue("idSeqLibProtocol").equals("")) {
+      sample.setIdSeqLibProtocol(new Integer(n.getAttributeValue("idSeqLibProtocol")));
     } else {
-      sample.setIdSamplePrepMethod(null);
+      sample.setIdSeqLibProtocol(null);
     }    
     
   }

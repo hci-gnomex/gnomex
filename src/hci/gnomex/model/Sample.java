@@ -33,6 +33,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     idOrganism;
   private Integer     idSampleType;
   private Integer     idSamplePrepMethod;
+  private Integer     idSeqLibProtocol;
   private String      codeBioanalyzerChipType;
   private Integer     idOligoBarcode;
   private Date        qualDate;
@@ -538,6 +539,16 @@ public class Sample extends HibernateDetailObject {
   
   public void setIdOligoBarcode(Integer idOligoBarcode) {
     this.idOligoBarcode = idOligoBarcode;
+  }
+
+  
+  public Integer getIdSeqLibProtocol() {
+    return idSeqLibProtocol;
+  }
+
+  
+  public void setIdSeqLibProtocol(Integer idSeqLibProtocol) {
+    this.idSeqLibProtocol = idSeqLibProtocol;
   }
 
 

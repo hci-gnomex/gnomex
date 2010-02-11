@@ -191,7 +191,18 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolNode.setAttribute("label", dh.getFeatureExtractionProtocol(hyb.getIdFeatureExtractionProtocol()));
               break;
             }
-          }            
+          }          
+          for(Iterator i4 = request.getSamples().iterator(); i4.hasNext();) {
+            Sample s = (Sample)i4.next();
+            if (s.getIdSeqLibProtocol() != null) {
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", s.getIdSeqLibProtocol().toString());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.SeqLibProtocol");
+              protocolNode.setAttribute("label", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
+              break;
+            }
+          }
 
 
           doc.getRootElement().addContent(requestNode);

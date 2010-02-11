@@ -428,6 +428,7 @@
 				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
 			<mx:VBox height="46" top="10" width="100%" right="121" id="vbox1">
+				<mx:visible>{fullProtocol.protocolClassName != 'hci.gnomex.model.SeqLibProtocol'}</mx:visible>
 				<mx:Label text="Kind of Request:" width="100" id="label1"/>
 				<mx:ComboBox
 					id="codeRequestCategory"

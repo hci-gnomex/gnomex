@@ -173,7 +173,7 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    h.extractionBypassed ");
     } else if (this.codeStepNext.equals(Step.SEQ_PREP)) {
       queryBuf.append("      , ");
-      queryBuf.append("    s.idSamplePrepMethod, ");
+      queryBuf.append("    s.idSeqLibProtocol, ");
       queryBuf.append("    s.seqPrepByCore, ");
       queryBuf.append("    s.seqPrepLibConcentration, ");
       queryBuf.append("    s.seqPrepQualCodeBioanalyzerChipType, ");

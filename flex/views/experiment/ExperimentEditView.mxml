@@ -136,6 +136,8 @@
 		[Bindable]
 		public var samplePrepMethodList:XMLListCollection;
 		[Bindable]
+		public var seqLibProtocolList:XMLListCollection;
+		[Bindable]
 		public var sampleSourceList:XMLListCollection;
 		[Bindable]
 		public var filteredSampleTypeList:XMLListCollection;
@@ -189,6 +191,10 @@
 	        samplePrepMethodList.refresh();
 			
 
+	        seqLibProtocolList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol'));
+	        seqLibProtocolList.sort = dictionarySorter;
+	        seqLibProtocolList.refresh();
+
 	        sampleSourceList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleSource'));
 	        sampleSourceList.sort = dictionarySorter;
 	        sampleSourceList.refresh();
@@ -239,6 +245,9 @@
 
 			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
 			samplePrepMethodList.refresh();
+
+			seqLibProtocolList.filterFunction = filterSeqLibProtocol;
+			seqLibProtocolList.refresh();
 			
 			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
 			filteredSeqRunTypeList.refresh();
@@ -631,6 +640,7 @@
 			
 			filteredSampleTypeList.refresh();
 			samplePrepMethodList.refresh();
+			seqLibProtocolList.refresh();
 			
 			
 		}
@@ -766,18 +776,7 @@
         	if (item.@isActive == 'N') {
         		return false;
         	}
-        	
-        	// Exclude "other sample prep method" from solexa requests
-        	// where the core facility will be performing the sample prep
-        	if (isSolexaState()) {
-        		if (sampleSetupView.currentState == "SolexaSetupState") {
-        			if (item.@display.toString().indexOf("Other") > -1) {
-        				return false;
-        			}
-        		}
-        	}
-        	
-        
+
         	var doesMatchRequestCategory:Boolean = false;
         	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
     	   	for each (var xref1:Object in theSamplePrepMethods) {
@@ -801,25 +800,7 @@
         	   	}
         	} 
         	
-        	// If this is a solexa request, additionally filter on sequence run type
-        	// (if specified).
-        	var doesMatchSeqRunType:Boolean = true;
-        	if (isSolexaState()) {
-        		if (seqSetup1View.seqRunTypeCombo.selectedItem != null &&
-        		    seqSetup1View.seqRunTypeCombo.selectedItem.@value != "") {
-        			doesMatchSeqRunType = false;
-	        	   	var matchingSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSeqRunType').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
-    	    	   	for each (var matchingEntry:Object in matchingSamplePrepMethods) {
-        		   		if (matchingEntry.@idSeqRunType.toString() == seqSetup1View.seqRunTypeCombo.selectedItem.@value.toString()) {
-    	   					doesMatchSeqRunType = true;
-	    	   			    break;
-        	   			}
-        	   		}
-        		}
-        		
-        		
-        	}
-        	return doesMatchRequestCategory && doesMatchSampleType && doesMatchSeqRunType;
+        	return doesMatchRequestCategory && doesMatchSampleType;
         }  
         
         private function filterSampleType(item:Object):Boolean {
@@ -860,6 +841,35 @@
 			}
 
         	return doesMatchRequestCategory && doesMatchApplication;
+        }  
+
+        private function filterSeqLibProtocol(item:Object):Boolean {
+        	if (item.@value == "") {
+        		return true;
+        	}
+
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+
+
+			var doesMatchApplication:Boolean = true;
+			if (this.isSolexaState()) {
+				var codeApplication:Object = this.sampleSetupView.radioGroupSeqApp.selectedValue;
+				if (codeApplication != null) {
+					doesMatchApplication = false;
+		        	var theSeqLibProtocols:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocolApplication').DictionaryEntry.(@value != '' && @idSeqLibProtocol == item.@value.toString());
+		    	   	for each (var xref2:Object in theSeqLibProtocols) {
+		    	   		if (xref2.@codeApplication.toString() == codeApplication.toString()) {
+			   				doesMatchApplication = true;
+		    	   		    break;
+		    	   		}
+		    	   	}
+	    	   	}
+			}
+
+        	return doesMatchApplication;
         }  
 
 		private function filterApplication(item:Object):Boolean {
@@ -1083,7 +1093,7 @@
    					sample.@isAlreadyPrepped = 'Y';
    				} else  {
    					sample.@isAlreadyPrepped = 'N';
-   					sample.@idSamplePrepMethod = '';
+   					sample.@idSeqLibProtocol = '';
    				}
 			}
 			
@@ -1716,9 +1726,7 @@
 			if (currentState != 'QCState') {
 				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 			}
-			if (!isSolexaState()) {
-				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;				
-			}
+			request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;				
 			
 
 			if (currentState == 'MicroarrayState') {
@@ -1927,11 +1935,7 @@
 					if (pe.property == "@channel1Count" || pe.property == "@channel2Count" || pe.property == "@laneCount" ) {
 						ignore++;
 					}
-					if (pe.property == "@idSamplePrepMethod") {
-						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-						samplesView.propagateSamplePrepMethod(String(pe.newValue));
-						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-					}else if (pe.property == "@idOrganism") {
+					if (pe.property == "@idOrganism") {
 						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
 						samplesView.propagateOrganism(String(pe.newValue));
 						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			

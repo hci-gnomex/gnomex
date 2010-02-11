@@ -9,6 +9,7 @@ import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.ScanProtocol;
+import hci.gnomex.model.SeqLibProtocol;
 
 import java.io.Serializable;
 
@@ -90,6 +91,17 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           id = sp.getIdScanProtocol().toString();
           protocolName = sp.getScanProtocol();
           codeRequestCategory = sp.getCodeRequestCategory();
+          description = sp.getDescription();
+          url = sp.getUrl();
+          isActive = sp.getIsActive();
+          setPermissions(sp);
+          canRead   = sp.canRead() ? "Y" : "N";
+          canUpdate = sp.canUpdate() ? "Y" : "N";
+          canDelete = sp.canDelete() ? "Y" : "N";
+        } else if (this.protocolClassName.equals(SeqLibProtocol.class.getName())) {
+          SeqLibProtocol sp = (SeqLibProtocol) sess.load(SeqLibProtocol.class,this.idProtocol);
+          id = sp.getIdSeqLibProtocol().toString();
+          protocolName = sp.getSeqLibProtocol();
           description = sp.getDescription();
           url = sp.getUrl();
           isActive = sp.getIsActive();
