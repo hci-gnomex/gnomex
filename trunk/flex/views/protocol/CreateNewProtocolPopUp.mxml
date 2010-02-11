@@ -53,6 +53,8 @@
 				this.title = "Create New "+protocolsView.protocolList.(@protocolClassName==protocolClassName).@label;
 				if (protocolClassName == 'hci.gnomex.model.AnalysisProtocol') {
 					currentState = "AddAnalysisProtocolState";
+				} else if (protocolClassName == 'hci.gnomex.model.SeqLibProtocol') {
+					currentState = "AddSeqLibProtocolState";
 				}
 				
 			}
@@ -106,6 +108,10 @@
 							width="100%">
 							</hci:ComboBox>
 					</mx:AddChild>
+				</mx:State>
+				<mx:State name="AddSeqLibProtocolState">
+						<mx:RemoveChild target="{codeRequestCategory}"/>
+						<mx:RemoveChild target="{label1}"/>
 				</mx:State>
 			</mx:states>
 </mx:TitleWindow>

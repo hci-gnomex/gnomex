@@ -9,6 +9,7 @@ import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.ScanProtocol;
+import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -106,6 +107,22 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         }
       }
 
+      // get the SeqLib Protocols
+      if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.SeqLibProtocol")) {
+        Element seqLibProtocols = new Element("Protocols");
+        seqLibProtocols.setAttribute("label", "Sequence Lib Protocol");
+        seqLibProtocols.setAttribute("protocolClassName", SeqLibProtocol.class.getName());
+        root.addContent(seqLibProtocols);
+        l = sess.createQuery("from SeqLibProtocol").list();
+        if (!l.isEmpty()) {
+          Iterator iter = l.iterator();
+          while (iter.hasNext()) {
+            SeqLibProtocol sp = (SeqLibProtocol) iter.next();
+            addSeqLibProtocolNode(sp, seqLibProtocols);
+          }
+        }
+      }
+      
       // get the Analysis Protocols
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.AnalysisProtocol")) {
         Element analysisProtocols = new Element("Protocols");
@@ -212,6 +229,21 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     Element e = new Element("Protocol");
     e.setAttribute("id", this.getNonNullString(sp.getIdScanProtocol()));
     e.setAttribute("label", this.getNonNullString(sp.getScanProtocol()));
+    e.setAttribute("isActive", this.getNonNullString(sp.getIsActive()));
+    e.setAttribute("protocolClassName", sp.getClass().getName());
+
+    setPermissions(sp);
+    e.setAttribute("canRead",   sp.canRead()   ? "Y" : "N");
+    e.setAttribute("canDelete", sp.canDelete() ? "Y" : "N");
+    e.setAttribute("canUpdate", sp.canUpdate() ? "Y" : "N");
+        
+    parent.addContent(e);
+  }
+  
+  public void addSeqLibProtocolNode(SeqLibProtocol sp, Element parent) {
+    Element e = new Element("Protocol");
+    e.setAttribute("id", this.getNonNullString(sp.getIdSeqLibProtocol()));
+    e.setAttribute("label", this.getNonNullString(sp.getSeqLibProtocol()));
     e.setAttribute("isActive", this.getNonNullString(sp.getIsActive()));
     e.setAttribute("protocolClassName", sp.getClass().getName());
 

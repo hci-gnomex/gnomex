@@ -13,12 +13,13 @@
 				chipTypeConfirmColumn.visible = false; 
 				
 				preppedByCoreCol.visible = true;
+				samplePrepMethodConfirmCol.visible = true;
 				
 				if (!parentDocument.isEditState() &&
 				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
-					samplePrepMethodConfirmCol.visible = false;
+					seqLibProtocolConfirmCol.visible = false;
 				} else {
-					samplePrepMethodConfirmCol.visible = true;
+					seqLibProtocolConfirmCol.visible = true;
 				}
 			} else if (parentDocument.currentState == 'QCState') {
 				concentrationUnitConfirmColumn.visible = true;
@@ -111,6 +112,8 @@
 
 
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
+			            <mx:DataGridColumn headerText="Seq Lib Protocol" id="seqLibProtocolConfirmCol" width="160" 
+	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 			            <mx:DataGridColumn headerText="Sample Prep Method" id="samplePrepMethodConfirmCol" width="160" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
 			            <mx:DataGridColumn headerText="Sample Type"  width="130" 

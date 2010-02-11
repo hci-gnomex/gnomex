@@ -425,6 +425,7 @@
 		<property name="idOrganism" column="idOrganism" type="integer"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
+		<property name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
 		<property name="idOligoBarcode" column="idOligoBarcode" type="integer"/>
 		<property name="qualDate" column="qualDate" type="date"/>
@@ -1029,6 +1030,28 @@
 		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
 		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 	</class>
+	
+	<!-- hci.gnomex.model.SeqLibProtocol -->
+	<class name="hci.gnomex.model.SeqLibProtocol" table="SeqLibProtocol">
+		<id name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="seqLibProtocol" column="seqLibProtocol" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="url" column="url" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>	
+
+	<!-- hci.gnomex.model.SeqLibProtocolApplication -->
+	<class name="hci.gnomex.model.SeqLibProtocolApplication" table="SeqLibProtocolApplication">
+	    <composite-id>
+			  <key-property name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer"/>
+		  	<key-property name="codeApplication" column="codeApplication" type="string"/>
+	   	</composite-id>
+		
+		<many-to-one name="seqLibProtocol"  column="idSeqLibProtocol" class="hci.gnomex.model.SeqLibProtocol" cascade="none" insert="false" update="false" />
+		<many-to-one name="application"  column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
+	</class>	
 
 	<!-- hci.gnomex.model.ScanProtocol -->
 	<class name="hci.gnomex.model.ScanProtocol" table="ScanProtocol">

@@ -1088,6 +1088,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `idOrganism` INT(10) NULL,
   `idSampleSource` INT(10) NULL,
   `idSamplePrepMethod` INT(10) NULL,
+  `idSeqLibProtocol` INT(10) NULL,
   `codeBioanalyzerChipType` VARCHAR(10) NULL,
   `idOligoBarcode` INT(10) NULL,
   `qualDate` DATETIME NULL,
@@ -1123,6 +1124,14 @@ CREATE TABLE `gnomex`.`Sample` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Sample_SampleSource` FOREIGN KEY `FK_Sample_SampleSource` (`idSampleSource`)
     REFERENCES `gnomex`.`SampleSource` (`idSampleSource`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Sample_SamplePrepMethod` FOREIGN KEY `FK_Sample_SamplePrepMethod` (`idSamplePrepMethod`)
+    REFERENCES `gnomex`.`SamplePrepMethod` (`idSamplePrepMethod`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Sample_SeqLibProtocol` FOREIGN KEY `FK_Sample_SeqLibProtocol` (`idSeqLibProtocol`)
+    REFERENCES `gnomex`.`SeqLibProtocol` (`idSeqLibProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Sample_BioanalyzerChipType` FOREIGN KEY `FK_Sample_BioanalyzerChipType` (`seqPrepQualCodeBioanalyzerChipType`)
@@ -1329,6 +1338,17 @@ CREATE TABLE `gnomex`.`ScanProtocol` (
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SeqLibProtocol`;
+CREATE TABLE `gnomex`.`SeqLibProtocol` (
+  `idSeqLibProtocol` INT(10) NOT NULL AUTO_INCREMENT,
+  `seqLibProtocol` VARCHAR(200) NULL,
+  `description` LONGTEXT NULL,
+  `url` VARCHAR(500) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idSeqLibProtocol`)
 )
 ENGINE = INNODB;
 

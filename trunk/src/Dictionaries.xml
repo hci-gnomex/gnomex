@@ -118,6 +118,12 @@
 	<Dictionary displayName="Illumina Oligo Barcode" className="hci.gnomex.model.OligoBarcode"  editable="Y"  >
 			<Filter className="hci.gnomex.model.OligoBarcodeScheme" filterField="idOligoBarcodeScheme"/>
 	</Dictionary>
+	<Dictionary displayName="Illumina Seq Lib Protocol" className="hci.gnomex.model.SeqLibProtocol" editable="Y" >
+	</Dictionary>
+	<Dictionary displayName="Illumina Seq Lib Protocol (Applications)" className="hci.gnomex.model.SeqLibProtocolApplication" editable="Y" >
+			<Filter className="hci.gnomex.model.SeqLibProtocol" filterField="idSeqLibProtocol"/>
+			<Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
+	</Dictionary>
 
 	
 	

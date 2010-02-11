@@ -873,6 +873,14 @@ VALUES (1, 1, 'AGIL'),
   (44, 9, 'AGIL1');
 
 
+INSERT INTO `gnomex`.`SeqLibProtocol`(`idSeqLibProtocol`, `seqLibProtocol`,`description`,`url`, `isActive`)
+  (31, 'Illumina Genomic DNA Sample Prep Kit', 'Illumina Genomic DNA Sample Prep Kit', null, 'Y'),
+  (32, 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', null, 'N'),
+  (33, 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', null, 'N'),
+  (34, 'Illumina ChIP-Seq prep kit', 'Illumina ChIP-Seq prep kit', null, 'Y'),
+  (35, 'Illumina Small RNA Sample Prep Kit', 'Illumina Small RNA Sample Prep Kit', null, 'Y'),
+  (39, 'Illumina mRNA-Seq Sample Prep Kit', 'Illumina mRNA-Seq Sample Prep Kit', null, 'Y');
+
 
 INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`)
 VALUES (1, 'Sequencing / chIP Sequencing', 'N'),

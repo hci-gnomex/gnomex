@@ -264,9 +264,9 @@
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@seqPrepQualCodeBioanalyzerChipType);
         }
-		private function getSamplePrepMethod(item:Object,col:DataGridColumn):String
+		private function getSeqLibProtocol(item:Object,col:DataGridColumn):String
         {
-        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SamplePrepMethod", item.@idSamplePrepMethod);
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);
         }
 		private function getSampleType(item:Object,col:DataGridColumn):String
         {
@@ -308,14 +308,14 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn editable="false" width="15" dataField="@idSampleType"  headerText="Sample Type" labelFunction="getSampleType">
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Libarary kit"  width="45" 
-					dataField="@idSamplePrepMethod" 
+					<mx:DataGridColumn headerText="Seq Libarary kit"  width="45" 
+					dataField="@idSeqLibProtocol" 
 					   editorDataField="value"
 		               editable="true"  
 		               rendererIsEditor="false" 
 		               itemRenderer="mx.controls.Label"		
-		               labelFunction="getSamplePrepMethod"                
-		               itemEditor="{views.renderers.ComboBoxSolexaSamplePrepMethod.create()}"/>		                
+		               labelFunction="getSeqLibProtocol"                
+					   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true)}"/>		                
 				    <mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
 						<mx:headerRenderer > 
 						<mx:Component>
