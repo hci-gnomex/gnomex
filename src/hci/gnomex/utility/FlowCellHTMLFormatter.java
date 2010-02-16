@@ -103,6 +103,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     Element rowh = new Element("TR");
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Channel #", "left");
+    this.addHeaderCell(rowh, "Control");
     this.addHeaderCell(rowh, "Client");
     this.addHeaderCell(rowh, "Sequence Sample #"    );
     this.addHeaderCell(rowh, "Barcode Tag"    );
@@ -121,6 +122,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         Element row = new Element("TR");
         table.addContent(row);
         this.addLeftCell(row, channel.getNumber().toString());
+        this.addCell(row, channel.getIsControl() != null && channel.getIsControl().equals("Y") ? "Y" : "&nbsp;");
 
         this.addCell(row, channel.getSequencingControl() != null ? channel.getSequencingControl().getSequencingControl() : "&nbsp;");
         this.addCell(row, "&nbsp;");
@@ -139,8 +141,10 @@ public class FlowCellHTMLFormatter  extends DetailObject {
           table.addContent(row);
           if (firstLaneInChannel) {
             this.addLeftCell(row, channel.getNumber().toString() );            
+            this.addCell(row, channel.getIsControl() != null && channel.getIsControl().equals("Y") ? "Y" : "&nbsp;");
           } else {
-            this.addLeftNoBorderCell(row, "&nbsp;");                        
+            this.addLeftNoBorderCell(row, "&nbsp;");    
+            this.addNoBorderCell(row, "&nbsp;");
           }
      
           String requester = "&nbsp;";
@@ -197,6 +201,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
     Element rowh = new Element("TR");
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Channel #", "left");
+    this.addHeaderCell(rowh, "Control"    );
     this.addHeaderCell(rowh, "Flow Cell Final Sample Conc. (pM)"    );
     this.addHeaderCell(rowh, "Client"    );
     this.addHeaderCell(rowh, "Sequence Sample #"    );
@@ -217,6 +222,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
         Element row = new Element("TR");
         table.addContent(row);
         this.addLeftCell(row, channel.getNumber().toString());
+        this.addCell(row, channel.getIsControl() != null && channel.getIsControl().equals("Y") ? "Y" : "&nbsp;");
         
         this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay() : "&nbsp;");
         this.addCell(row, "&nbsp;");
@@ -235,9 +241,11 @@ public class FlowCellHTMLFormatter  extends DetailObject {
           table.addContent(row);
           if (firstLaneInChannel) {
             this.addLeftCell(row, channel.getNumber().toString() );            
+            this.addCell(row, channel.getIsControl() != null && channel.getIsControl().equals("Y") ? "Y" : "&nbsp;");
             this.addCell(row, channel.getSampleConcentrationpM() != null ? channel.getSampleConcentrationpMDisplay(): "&nbsp;");
           } else {
-            this.addLeftNoBorderCell(row, "&nbsp;");                        
+            this.addLeftNoBorderCell(row, "&nbsp;");     
+            this.addNoBorderCell(row, "&nbsp;");
             this.addNoBorderCell(row, "&nbsp;");
           }
           
