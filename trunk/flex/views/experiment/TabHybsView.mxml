@@ -399,13 +399,13 @@
     <mx:XMLListCollection id="cy5Samples"/>
     <mx:VBox width="100%" height="100%" verticalGap="0">
 
-  		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2">
-  			  <mx:TextArea styleName="instructionBox" width="840" wordWrap="true" height="72" id="textarea1">
+  		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" width="100%">
+  			  <mx:TextArea styleName="instructionBox" width="840" wordWrap="true" height="64" id="textarea1">
   			  	  <mx:htmlText><![CDATA[Instructions<br>  1.  Pairwise combinations of samples to be hybridized to microarrays are defined on this page. These combinations are designated by dragging<br>       a Cy3 sample to an appropriate cell in the green column and the corresponding Cy5 sample to an adjacent cell in the red column.<br>  2.  After defining the microarray hybrid pairs on this screen, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 		</mx:VBox>
 			   	
-	    <mx:HDividedBox height="100%" width="100%" paddingTop="6">
+	    <mx:HDividedBox height="100%" width="100%" paddingTop="2">
 	        <mx:VBox height="100%" verticalGap="2"   width="135" borderStyle="none" id="vbox1">
 	            <mx:Label text="Cy3 Samples (green)" paddingTop="2" id="label3"/>
 	        	<mx:DataGrid
@@ -732,6 +732,7 @@
     		<mx:SetProperty target="{textarea1}" name="htmlText">
     			<mx:value><![CDATA[Instructions<br>  1.  The order in which samples are hybridized to microarrays is defined in the “Cy3 Sample” column.  This order can be modified if desired <br>       by drag-and-drop of samples to the preferred position.<br>  2.  After accepting the information on this page, click the “Next” button at the bottom of the page to proceed.]]></mx:value>
     		</mx:SetProperty>
+    		<mx:SetProperty target="{textarea1}" name="width" value="800"/>
     	</mx:State>
     	
     </mx:states>
