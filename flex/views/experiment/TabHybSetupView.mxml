@@ -4,7 +4,7 @@
 	<mx:states>
 		<mx:State name="EditState">
 			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can change the selection in order to specify a different<br>  microarray for this experiment request.  The change will be reflected in the next tab.]]></mx:value>
+				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can change the selection in order<br>  to specify a different microarray for this experiment request.  The<br>  change will be reflected in the next tab.]]></mx:value>
 			</mx:SetProperty>
 		</mx:State>
 	</mx:states>
@@ -292,29 +292,29 @@
         lowerThanMinError="This field is required."
         property="selectedIndex"
         minValue="1" />         
-        
+    
+	<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1" right="0" top="0">
+  		  <mx:TextArea styleName="instructionBox" width="400" wordWrap="true" height="80" id="textarea1">
+			<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>       bottom of the page to proceed.]]></mx:htmlText>
+		  </mx:TextArea>
+	</mx:VBox>
 	<mx:VBox width="100%" height="100%" verticalGap="14" paddingTop="2">
-		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1">
-  			  <mx:TextArea styleName="instructionBox" width="570" wordWrap="true" height="48" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
-		</mx:VBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(1) Select an organism." width="300" />
-			<mx:ComboBox labelField="@display" width="300" id="organismCombo">							
+			<mx:Label text="(1) Select an organism." width="250" />
+			<mx:ComboBox labelField="@display" width="250" id="organismCombo">							
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(2) Select the microarray application." width="300" />
-			<mx:ComboBox labelField="@display" width="300" id="applicationCombo">							
+			<mx:Label text="(2) Select the microarray application." width="250" />
+			<mx:ComboBox labelField="@display" width="250" id="applicationCombo">							
 				<mx:dataProvider>{parentDocument.filteredApplicationListForSubmitRequests}</mx:dataProvider>
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(3) Select one of the following." width="300" />
+			<mx:Label text="(3) Select one of the following." width="250" />
 			<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
 			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)">
 				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
@@ -324,7 +324,7 @@
 			</mx:RadioButton>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Text width="300">
+			<mx:Text width="250">
 				<mx:htmlText><![CDATA[(4) Select the microarray slide or slide set <br>to be used  for these hybridizations.]]></mx:htmlText>
 			</mx:Text>
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
@@ -342,7 +342,7 @@
 			</mx:ViewStack>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="numberOfHybsContainer">
-			<mx:Text width="300" >
+			<mx:Text width="250" >
 				<mx:htmlText><![CDATA[(5) How many microarrays will be used for this experiment request?]]></mx:htmlText>
 			</mx:Text>
 			<mx:TextInput width="40" id="numberOfHybs"  
@@ -352,7 +352,7 @@
 			</mx:TextInput>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="slideSourceContainer">
-			<mx:Label text="(6) Where will the microarrays come from?" width="300" />
+			<mx:Label text="(6) Where will the microarrays come from?" width="250" />
 			<mx:VBox verticalGap="1" paddingLeft="2" paddingRight="2"  id="slideUseBox" styleName="requiredBox">
 				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(1);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
 				<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(2);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns();propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>

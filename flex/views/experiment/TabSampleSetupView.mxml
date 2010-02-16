@@ -344,6 +344,7 @@
 				this.seqLibProtocolCombo.selectedIndex = -1;
 				if (parentDocument.seqLibProtocolList.length == 2) {
 					this.seqLibProtocolCombo.selectedIndex = 1;
+					this.propagateSeqLibProtocol();
 				}
 				
 			}
@@ -435,6 +436,20 @@
 			checkSampleSetupCompleteness();
 			parentDocument.filteredSeqRunTypeList.refresh();			
 		}
+		
+		private function pickSeqPrepState():void {
+			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
+				currentState = 'SolexaSetupState';
+			} else {
+				currentState = 'SolexaSetupPreppedState';
+			}
+			this.propagateSeqPrepByCore();
+			seqLibProtocolCombo.selectedIndex = 0;
+			propagateSeqLibProtocol();
+			parentDocument.seqLibProtocolList.refresh();
+			checkSampleSetupCompleteness();
+			parentDocument.samplesView.showHideColumns();
+		}
 	]]>
 </mx:Script>
 
@@ -456,13 +471,10 @@
         property="selectedIndex"
         minValue="1" />
         
+  <mx:Canvas width="100%" height="100%">
+        	
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer">
-			<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2">
-  			  <mx:TextArea styleName="instructionBox" width="570" wordWrap="true" height="48">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
-			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0" id="hbox3">
 				<mx:Label text="(1) How many samples will you be submitting?" width="310"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
@@ -492,6 +504,13 @@
 		</mx:VBox>
 		
 	</mx:VBox>
+			<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" right="0" top="0">
+  			  <mx:TextArea styleName="instructionBox" width="340" wordWrap="true" height="90" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate<br>       dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button<br>       at the bottom of the page to proceed.]]></mx:htmlText>
+			  </mx:TextArea>
+			</mx:VBox>
+	
+  </mx:Canvas>
 
    <mx:states>
         <mx:State name="QCSetupState">
@@ -538,19 +557,19 @@
             <mx:AddChild relativeTo="{sampleOrganismContainer}" position="after">
             
 				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Text text="(5) Do you want the Core Facility to perform library preparation on the samples?" width="314"  id="text1"/>
+					<mx:Text text="(6) Do you want the Core Facility to perform library preparation on the samples?" width="305"  id="text1"/>
 					<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
+                		<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
 					    <mx:HBox id="hbox2" width="100%">
-							<mx:RadioButton id="samplesToBePreppedCheckbox"  groupName="samplePrepGroup"  label="Yes, please prep library" selected="true"
-								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';seqLibProtocolCombo.selectedIndex = 0;propagateSeqLibProtocol();parentDocument.seqLibProtocolList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}">
+							<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true"
+ click="{pickSeqPrepState()}">
 							</mx:RadioButton>									    	
 					    </mx:HBox>
 					    
-						<mx:HBox id="vbox1">
-							<mx:RadioButton id="samplesAlreadyPreppedCheckbox" groupName="samplePrepGroup" label="No, library has already been prepped "
-								change="{samplesToBePreppedCheckbox.selected ? currentState = 'SolexaSetupState' : 'SolexaSetupPreppedState';seqLibProtocolCombo.selectedIndex = 0;propagateSeqLibProtocol();parentDocument.seqLibProtocolList.refresh();parentDocument.filteredSeqRunTypeList.refresh();checkSampleSetupCompleteness();parentDocument.samplesView.showHideColumns()}">
+						<mx:HBox >
+							<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
+ click="{pickSeqPrepState()}">
 							</mx:RadioButton>							
-
 							<mx:ComboBox labelField="@display" width="300" id="seqLibProtocolCombo" dataProvider="{parentDocument.seqLibProtocolList}">															
 								<mx:change>{pickSeqLibProtocol()}</mx:change>
 							</mx:ComboBox>								
@@ -571,12 +590,11 @@
             <mx:SetProperty target="{label7}" name="text">
                 <mx:value>(4) Which organism is the source for these samples?</mx:value>
             </mx:SetProperty>
-            <mx:SetProperty target="{label5}" name="width" value="314"/>
-            <mx:SetProperty target="{label8}" name="width" value="314"/>
-            <mx:SetProperty target="{label7}" name="width" value="314"/>
+            <mx:SetProperty target="{label5}" name="width" value="305"/>
+            <mx:SetProperty target="{label8}" name="width" value="305"/>
             <mx:AddChild relativeTo="{hbox3}" position="before">
                 <mx:HBox width="100%" horizontalGap="0">
-                    <mx:Text text="(1) Select a sequencing application." width="314" id="labelApplication"/>
+                    <mx:Text text="(1) Select a sequencing application." width="305" id="labelApplication"/>
                     <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
                         <mx:RadioButtonGroup id="radioGroupSeqApp"/>
                         <mx:RadioButton label="Genomic DNA sequencing" groupName="radioGroupSeqApp" id="radioIlluminaApplicationGenomicSeq" paddingBottom="0" value="DNASEQ" click="pickSeqApp()" paddingTop="0"/>
@@ -602,7 +620,7 @@
             </mx:AddChild>
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="barcodeContainer" width="100%" horizontalGap="0">
-                	<mx:Text text="(6) Should sequencing libraries be constructed with barcode tags for multiplexing capability?" width="314."  id="label13"/>
+                	<mx:Text text="(7) Should sequencing libraries be constructed with barcode tags for multiplexing capability?" width="305"  id="label13"/>
                 	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="barcodeRadioBox">
                 		<mx:RadioButtonGroup id="barcodeRadioGroup"/>
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require barcoding" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()">
@@ -610,7 +628,7 @@
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()">
                 		</mx:RadioButton>
                 	</mx:VBox>
-                	<mx:Text width="100%" id="barcoingNote" styleName="submitNote">									
+                	<mx:Text width="300" id="barcoingNote" styleName="submitNote" height="40">									
                 		<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_ILLUMINA_BARCODING_NOTE)}</mx:text>
                 	</mx:Text>
 				</mx:HBox>
@@ -618,7 +636,8 @@
             <mx:RemoveChild target="{samplePrepContainer}"/>
             <mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
             <mx:SetProperty target="{label2}" name="text" value="(5) Select the nuceic acid extraction method."/>
-            <mx:SetProperty target="{label2}" name="width" value="314"/>
+            <mx:SetProperty target="{label2}" name="width" value="305"/>
+            <mx:SetProperty target="{label7}" name="width" value="305"/>
 
 			
         </mx:State>
@@ -626,9 +645,6 @@
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
             <mx:SetProperty target="{samplesAlreadyPreppedCheckbox}" name="label">
                 <mx:value>No, library has already been prepped using kit</mx:value>
-            </mx:SetProperty>
-            <mx:SetProperty target="{text1}" name="text">
-                <mx:value>(5) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
             </mx:SetProperty>
             <mx:SetProperty target="{radioYesBarcoding}" name="enabled" value="false"/>
         </mx:State>

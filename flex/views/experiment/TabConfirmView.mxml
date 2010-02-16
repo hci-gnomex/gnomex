@@ -27,12 +27,14 @@
 				chipTypeConfirmColumn.visible = true; 
 				samplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
 			} else {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				samplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
 			}
 			// If this is a QC request, hide the annotation columns 
 			if (parentDocument.currentState == 'QCState') {
@@ -49,7 +51,7 @@
 	]]>
 </mx:Script>
 	<mx:VBox id="confirmHeaderContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
-  		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2">
+  		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" width="100%">
   			  <mx:TextArea styleName="instructionBox" width="770" wordWrap="true" height="80" id="textarea1">
   			  	  <mx:htmlText><![CDATA[Instructions<br>  1.  This page provides a summary about the information collected for your experiment request.  Please confirm that all information<br>       has been correctly enteredon this page. Modifications can be made by clicking the “Back” button at the bottom of the page or by<br>       clicking on the appropriate tab under “Submit Request”.<br>  2.  After reviewing this page, you may approve the work request by clicking the “Submit” button at the bottom of the page.]]></mx:htmlText>
 			  </mx:TextArea>

@@ -916,37 +916,7 @@
     	}
 
         private function filterSeqRunType(item:Object):Boolean {
-        	if (item.@value == "") {
-        		return true;
-        	}
-        	if (isEditState()) {
-        		return true;
-        	}
-        	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
-        	
-        	if (item.@value == "") {
-        		return false;
-        	}
-        	var doesMatch:Boolean = true;
-        	/*
-        	if (sampleSetupView.samplePrepMethodCombo.selectedItem != null && 
-        	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != null  &&
-        	    sampleSetupView.samplePrepMethodCombo.selectedItem.@value != "" && 
-        	    sampleSetupView.samplePrepMethodCombo.selectedItem.@display.toString().indexOf("Other") < 0) {
-        	    doesMatch = false;
-	        	var theSeqRunTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodSeqRunType').DictionaryEntry.(@value != '' && @idSeqRunType == item.@value.toString());
-	    	   	for each (var xref1:Object in theSeqRunTypes) {
-	    	   		if (xref1.@idSamplePrepMethod.toString() == sampleSetupView.samplePrepMethodCombo.selectedItem.@value.toString()) {
-		   				doesMatch = true;
-	    	   		    break;
-	    	   		}
-	    	   	}
-    	   	}
-    	   	*/
-    	   	return doesMatch;
+    	   	return true;
     	}
        
         public function filterSlideProduct(item:Object):Boolean {

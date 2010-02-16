@@ -20,7 +20,6 @@
             <mx:value>(5) Select a project folder for organizing experiment information and data linked to this request.</mx:value>
          </mx:SetProperty>
          <mx:SetProperty target="{text2}" name="width" value="200"/>
-         <mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
          <mx:SetProperty target="{requestTypeBox}" name="width" value="100%"/>
       </mx:State>
    </mx:states>
@@ -406,13 +405,13 @@
         minValue="1" />           
           
 
-        	
-		<mx:VBox width="100%" height="100%" verticalGap="8" paddingTop="2" id="vbox1">
-			<mx:VBox  horizontalAlign="center" paddingLeft="4">
-  			  <mx:TextArea styleName="instructionBox" width="620" wordWrap="true" height="64">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio button options for each line.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will be electronically billed following completion of the work.]]></mx:htmlText>
-			  </mx:TextArea>
-			</mx:VBox>
+		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
+  		  <mx:TextArea styleName="instructionBox" width="302" wordWrap="true" height="120">
+			<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will<br>       be electronically billed following completion<br>       of the work.]]></mx:htmlText>
+		  </mx:TextArea>
+		</mx:VBox>
+     	
+		<mx:VBox width="100%" height="100%" verticalGap="12" paddingTop="2" id="vbox1">
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 				<mx:Label text="(1) Verify your lab group." width="198"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
@@ -427,14 +426,14 @@
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
-						<mx:ComboBox labelField="@accountNameAndNumber" width="700" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+						<mx:ComboBox labelField="@accountNameAndNumber" width="520" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 						</mx:ComboBox>
+						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
+						</mx:Text>
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0">
-						    <mx:Text width="400" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
-						    </mx:Text>
-							<mx:LinkButton label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0"> 
+							<mx:LinkButton label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_PDF_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
 							<mx:LinkButton label="Work authorization (word doc)" styleName="formLinkButton" id="linkbutton2" fontSize="9" paddingLeft="2" paddingTop="0">
@@ -453,7 +452,7 @@
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top">
 				<mx:Label text="(3) Select a service category." width="200" id="label11"/>
-				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="1" paddingBottom="0" width="100%">
+				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="1" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="1" paddingBottom="0" width="100%">
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:Text text="Service" width="200" fontWeight="normal" textDecoration="underline" fontStyle="normal"/>
 					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline"/>

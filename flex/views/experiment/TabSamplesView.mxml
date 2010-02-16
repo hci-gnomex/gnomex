@@ -553,11 +553,13 @@
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
+				
 				
 				if (parentDocument.isEditState) {
 					chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
@@ -571,6 +573,7 @@
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = false;
@@ -612,13 +615,21 @@
 		public function onEdit():void {
 			parentDocument.dirty.setDirty();
 		}
+		
+		private function highlightWhenMissing():Boolean {
+			if (this.parentDocument.isEditState()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
         
 	]]>
 </mx:Script>	
 
-	<mx:VBox width="100%" height="100%">
-	        <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1">
-  			  <mx:TextArea styleName="instructionBox" width="700" wordWrap="true" height="98" id="textarea1">
+	<mx:VBox width="100%" height="100%" verticalGap="2">
+	        <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1" width="100%">
+  			  <mx:TextArea styleName="instructionBox" width="700" wordWrap="true" height="98" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 			</mx:VBox>
@@ -674,6 +685,13 @@
  	                   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
  	                   itemEditor="views.renderers.TextInputSampleNumberSeqLanes"      />          
 
+					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
+ 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
+                    <mx:DataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
+	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', true)}"                
+	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true)}"/>
 
 					<mx:DataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"
 						itemRenderer="{hci.flex.controls.Label.createCustom('@AGE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
@@ -749,13 +767,6 @@
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"                
    	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}"/>
-					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
- 	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
- 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
-                    <mx:DataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
- 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', true)}"                
-	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true)}"/>
 	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true)}"                
@@ -811,6 +822,7 @@
 			<mx:SetProperty target="{textarea1}" name="htmlText">
 				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
 			</mx:SetProperty>
+			<mx:SetProperty target="{textarea1}" name="editable" value="false"/>
 		</mx:State>
 		<mx:State name="SolexaSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>

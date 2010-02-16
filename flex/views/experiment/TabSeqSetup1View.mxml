@@ -4,7 +4,7 @@
 		<mx:State name="BarcodeState">
 			<mx:AddChild relativeTo="{seqRunTypeContainer}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="314"/>
+					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="340"/>
 					<mx:NumericStepper id="numberSamplesPerChannel" minimum="2" value="2" stepSize="1" maximum="{this.maxSamplesPerChannel}">
 						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.propagateBarcode();this.checkSeqSetup1Completeness();</mx:change>
 					</mx:NumericStepper>
@@ -16,6 +16,11 @@
 			</mx:SetProperty>
 			<mx:SetProperty target="{label11}" name="text" value="(4) Do you want the sequence data to be aligned?"/>
 			<mx:SetProperty target="{label12}" name="text" value="(5) Provide any special analysis instructions."/>
+			<mx:SetProperty target="{seqRunTypeCombo}" name="width" value="170"/>
+			<mx:SetProperty target="{label9}" name="width" value="340"/>
+			<mx:SetProperty target="{label10}" name="width" value="340"/>
+			<mx:SetProperty target="{label11}" name="width" value="340"/>
+			<mx:SetProperty target="{label12}" name="width" value="340"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
@@ -203,17 +208,18 @@
         property="selectedIndex"
         minValue="1" />    
 
-	<mx:VBox width="100%" height="100%">
-			<mx:VBox  horizontalAlign="center" paddingLeft="4">
-  			  <mx:TextArea styleName="instructionBox" width="570" wordWrap="true" height="48">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
-			</mx:VBox>
+	<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
+  	  <mx:TextArea styleName="instructionBox" width="400" wordWrap="true" height="74">
+		<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.]]></mx:htmlText>
+	  </mx:TextArea>
+	</mx:VBox>
+			
+	<mx:VBox width="100%" height="100%" verticalGap="12">
 			<mx:HBox id="seqRunTypeContainer" width="100%" horizontalGap="0">
 				<mx:Label text="(1) Select the sequencing run type:" width="314."  id="label9"/>
 				<mx:ComboBox id="seqRunTypeCombo" labelField="@display" 
 					change="parentDocument.samplePrepMethodList.refresh();parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();this.propagateSeqRunType();this.checkSeqSetup1Completeness();" 
-					width="300" 
+					width="170" 
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive != &quot;N&quot;)}">
 				</mx:ComboBox>
 			</mx:HBox>
@@ -223,7 +229,7 @@
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}</mx:dataProvider>
 				</mx:ComboBox>
 			</mx:HBox>
-			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0">
+			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0" paddingTop="12">
 				<mx:Label text="(3) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
 				<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
 					<mx:HBox width="100%" horizontalGap="2">
@@ -236,9 +242,9 @@
 						</mx:HBox>
 				</mx:VBox>
 			</mx:HBox>
-			<mx:HBox id="numberOfCyclesContainer1" width="100%" horizontalGap="0" height="100%">
+			<mx:HBox id="numberOfCyclesContainer1" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
 				<mx:Label text="(4) Provide any special analysis instructions." width="314"  id="label12"/>
-				<mx:TextArea id="analysisInstructions" width="100%" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
+				<mx:TextArea id="analysisInstructions" width="100%" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100"/>
 			</mx:HBox>
 		
 	</mx:VBox>
