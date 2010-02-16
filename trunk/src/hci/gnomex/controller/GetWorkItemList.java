@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItemFilter;
@@ -58,6 +59,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
+       
         Comparator comparator = null;
         if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
             filter.getCodeStepNext().equals(Step.SEQ_QC) ||
@@ -74,6 +76,23 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         } else {
           comparator =  new HybComparator();
         }
+        
+        // Map the default seq lib protocols for a given sample type
+        HashMap<String, Integer> seqLibProtocolMap = new HashMap<String, Integer>();
+        if (filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
+          StringBuffer buf = new StringBuffer();
+          buf.append("SELECT x.codeApplication, x.idSeqLibProtocol ");
+          buf.append(" FROM  SeqLibProtocolApplication x ");
+          List rows = sess.createQuery(buf.toString()).list();
+          if (rows.size() > 0) {
+            for(Iterator i = rows.iterator(); i.hasNext();) {
+              Object[] row = (Object[])i.next();
+              seqLibProtocolMap.put((String)row[0], (Integer)row[1]);
+            }
+          }
+          
+        }
+
         
         TreeMap allRows = new TreeMap(comparator);
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
@@ -311,7 +330,17 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("seqPrepFailed",                     row[20] == null ? "" :  (String)row[20]);
             n.setAttribute("seqPrepBypassed",                   row[21] == null ? "" :  (String)row[21]);
             n.setAttribute("idSampleType",                      row[22] == null ? "" :  ((Integer)row[22]).toString());
-            
+            // Fill in the seq lib protocol with the default specified in dictionary
+            // SampleTypeApplication.
+            String codeApplication = (String)row[23];
+            if (codeApplication != null) {
+              Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
+              if (n.getAttributeValue("seqPrepByCore").equals("Y") && 
+                  n.getAttributeValue("idSeqLibProtocol").equals("") &&
+                  idSeqLibProtocolDefault != null) {
+                n.setAttribute("idSeqLibProtocol", idSeqLibProtocolDefault.toString());
+              }              
+            }
 
             String seqPrepStatus = "";
             if (!n.getAttributeValue("seqPrepDate").equals("")) {
@@ -346,7 +375,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("idOrganism",                   row[15] == null ? "" :  ((Integer)row[15]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[16] == null ? "" :  ((Integer)row[16]).toString());
             n.setAttribute("idOligoBarcode",               row[17] == null ? "" :  ((Integer)row[17]).toString());
-            
+            n.setAttribute("isControl",                    "false");
+          
             
             
             Integer idSample = (Integer)row[8];

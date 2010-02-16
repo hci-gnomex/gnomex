@@ -182,7 +182,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.seqPrepDate, ");
       queryBuf.append("    s.seqPrepFailed, ");
       queryBuf.append("    s.seqPrepBypassed, ");
-      queryBuf.append("    s.idSampleType ");
+      queryBuf.append("    s.idSampleType, ");
+      queryBuf.append("    req.codeApplication ");
     }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.seqPrepStockLibVol, ");
