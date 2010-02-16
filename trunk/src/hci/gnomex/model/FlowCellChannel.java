@@ -30,6 +30,7 @@ public class FlowCellChannel extends HibernateDetailObject {
   private Date              pipelineDate;
   private String            pipelineFailed;
   private Set               sequenceLanes;
+  private String            isControl;
   
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
@@ -245,6 +246,14 @@ public class FlowCellChannel extends HibernateDetailObject {
   
   public void setSequenceLanes(Set sequenceLanes) {
     this.sequenceLanes = sequenceLanes;
+  }
+
+  public String getIsControl() {
+    return isControl;
+  }
+
+  public void setIsControl(String isControl) {
+    this.isControl = isControl;
   }
 
   

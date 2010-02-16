@@ -98,7 +98,17 @@
 
 			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="250" horizontalScrollPolicy="auto">	
 				<mx:columns>
-					<mx:DataGridColumn  headerText="Chan #" dataField="@number" width="35"/>
+					<mx:DataGridColumn  headerText="Chan #" dataField="@number" width="50"/>
+					<mx:DataGridColumn width="50" headerText="Control" >
+	                  <mx:itemRenderer>
+	                    <mx:Component >
+	                        <mx:HBox  horizontalAlign="center" horizontalGap="1" >
+	                          <mx:Image source="{data.@isControl == 'Y' ? parentApplication.iconCheck : ''}">
+	                    	 </mx:Image> 
+	                        </mx:HBox>
+	                    </mx:Component>
+	                  </mx:itemRenderer>
+	                </mx:DataGridColumn> 					
 					<mx:DataGridColumn  dataField="@contentNumbers" width="180" headerText="Seq Sample #"/> 
 					<mx:DataGridColumn  dataField="@sampleConcentrationpMDisplay" width="90" headerText="Final Sample Conc. pm">
                        <mx:headerRenderer > 

@@ -71,8 +71,7 @@
 		import mx.events.CloseEvent;
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
-		import views.renderers.FlowCellSampleConcentrationLabel;
-		import views.renderers.FlowCellSampleConcentrationTextInput;
+		import views.renderers.CheckBoxFlowCellIsControl;
 		
 		private var isValid:Boolean = true;
 		
@@ -393,6 +392,7 @@
 	       	} else if (items[i].name() == "DictionaryEntry") {
 	       		items[i].@sampleConcentrationpM = '';
 	       		var newItem:Object = new XML(XML(items[i]).toXMLString());
+	       		newItem.@isControl = 'true';
 		    	dirtyWorkList.addItemAt(newItem, row); 
 	       	} 
 	       }
@@ -595,13 +595,20 @@
 							<mx:Button id="removeFlowCellButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeAssembleLane();reassignChannelNumbers()">
 								<mx:enabled>{assembleLanesGrid.selectedItem != null ? true : false}</mx:enabled>
 							</mx:Button>
-						</mx:HBox>
+						</mx:HBox> 
 						 
 					</mx:HBox> 
-			<util:DataGridAlternatingGroup  id="assembleLanesGrid"  editable="true" sortableColumns="false" dataProvider="{dirtyWorkList}" width="100%" height="100%" 
-				 dropEnabled="true" dragDrop="onDragDropLane(event)"	>	
+			<util:DataGridAlternatingGroup  id="assembleLanesGrid" sortableColumns="false" dataProvider="{dirtyWorkList}" width="100%" height="100%" 
+				 dropEnabled="true" editable="true" dragDrop="onDragDropLane(event)"	>	 
 				<util:columns>
-				   <mx:DataGridColumn editable="false" headerText="Channel"  dataField="@channelNumberDisplay" width="21" showDataTips="true" />
+			        <mx:DataGridColumn headerText="Control" 
+			        	width="30"        
+			        	editable="false"             	
+			        	dataField="@isControl" 
+			        	editorDataField="selected"
+			        	itemRenderer="views.renderers.CheckBoxFlowCellIsControl" >
+			        </mx:DataGridColumn>
+					<mx:DataGridColumn editable="false" headerText="Chan #"  dataField="@channelNumberDisplay" width="30" showDataTips="true" />
 					<mx:DataGridColumn  editable="false" dataField="@laneNumber" width="45" headerText="Flow Cell Sample #" showDataTips="true" >
 						<mx:headerRenderer > 
 						<mx:Component>
@@ -645,8 +652,8 @@
                      	showDataTips="true"
                      	headerText="Sample conc. (pM)" width="45"
                      	rendererIsEditor="false" 
-                     	itemRenderer="{FlowCellSampleConcentrationLabel.create('@sampleConcentrationpM')}"
-                     	itemEditor="{FlowCellSampleConcentrationTextInput.create('@sampleConcentrationpM')}">
+                     	itemRenderer="{views.renderers.LabelFlowCellSampleConcentration.create('@sampleConcentrationpM')}"
+                     	itemEditor="{views.renderers.TextInputFlowCellSampleConcentration.create('@sampleConcentrationpM')}">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
