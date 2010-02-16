@@ -137,6 +137,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             sess.flush();
 
             channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
+            channel.setIsControl(parser.getIsControl(channelNumber));
             
             List channelContents = parser.getChannelContents(channelNumber);
             for (Iterator i1 = channelContents.iterator(); i1.hasNext();) {
