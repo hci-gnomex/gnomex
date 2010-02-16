@@ -655,12 +655,6 @@ VALUES (1, 'Qiagen RNeasy mini kit', 'Y'),
   (28, 'Ambion mirVana miRNA isolation kit', 'Y'),
   (29, 'Qiagen RNeasy Micro Kit', 'Y'),
   (30, 'Qiagen Genomic-tip', 'Y'),
-  (31, 'Illumina Genomic DNA Sample Prep Kit ', 'Y'),
-  (32, 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', 'N'),
-  (33, 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', 'N'),
-  (34, 'Illumina ChIP-Seq prep kit', 'Y'),
-  (35, 'Illumina Small RNA Sample Prep Kit ', 'Y'),
-  (39, 'Illumina mRNA-Seq Sample Prep Kit', 'Y'),
   (41, 'Qiagen miRNeasy Mini Kit', 'Y');
 
 INSERT INTO `gnomex`.`SamplePrepMethodRequestCategory`(`idSamplePrepMethodRequestCategory`, `idSamplePrepMethod`, `codeRequestCategory`)
@@ -715,12 +709,6 @@ VALUES (1, 1, 'AGIL'),
   (49, 28, 'QC'),
   (50, 29, 'QC'),
   (51, 30, 'QC'),
-  (52, 31, 'SOLEXA'),
-  (53, 32, 'SOLEXA'),
-  (54, 33, 'SOLEXA'),
-  (55, 34, 'SOLEXA'),
-  (56, 35, 'SOLEXA'),
-  (57, 39, 'SOLEXA'),
   (58, 1, 'AGIL1'),
   (59, 2, 'AGIL1'),
   (60, 3, 'AGIL1'),
@@ -737,7 +725,24 @@ VALUES (1, 1, 'AGIL'),
   (71, 27, 'AGIL1'),
   (72, 28, 'AGIL1'),
   (73, 29, 'AGIL1'),
-  (74, 30, 'AGIL1');
+  (74, 30, 'AGIL1'),
+  (75, 1, 'SOLEXA'),
+  (76, 2, 'SOLEXA'),
+  (77, 3, 'SOLEXA'),
+  (78, 4, 'SOLEXA'),
+  (79, 5, 'SOLEXA'),
+  (80, 6, 'SOLEXA'),
+  (81, 20, 'SOLEXA'),
+  (82, 21, 'SOLEXA'),
+  (83, 22, 'SOLEXA'),
+  (84, 23, 'SOLEXA'),
+  (85, 24, 'SOLEXA'),
+  (86, 25, 'SOLEXA'),
+  (87, 26, 'SOLEXA'),
+  (88, 27, 'SOLEXA'),
+  (89, 28, 'SOLEXA'),
+  (90, 29, 'SOLEXA'),
+  (91, 30, 'SOLEXA');
 
 INSERT INTO `gnomex`.`SamplePrepMethodSampleType`(`idSamplePrepMethodSampleType`, `idSampleType`, `idSamplePrepMethod`, `isDefaultForSampleType`, `isActive`)
 VALUES (2, 5, 23, 'N', 'Y'),
@@ -759,29 +764,8 @@ VALUES (2, 5, 23, 'N', 'Y'),
   (27, 4, 22, 'N', 'Y'),
   (28, 3, 22, 'N', 'Y'),
   (29, 8, 22, 'N', 'Y'),
-  (30, 5, 29, NULL, 'Y'),
-  (31, 1, 30, NULL, 'Y'),
-  (32, 7, 34, 'Y', 'Y'),
-  (33, 5, 33, 'N', 'N'),
-  (34, 9, 33, 'N', 'N'),
-  (35, 5, 32, 'N', 'N'),
-  (36, 9, 32, 'N', 'N'),
-  (37, 1, 31, 'Y', 'Y'),
-  (38, 12, 35, 'Y', 'Y'),
-  (39, 5, 39, 'Y', 'Y'),
-  (40, 4, 39, 'Y', 'Y'),
-  (41, 9, 39, 'Y', 'Y');
+  (30, 5, 29, NULL, 'Y');
 
-INSERT INTO `gnomex`.`SamplePrepMethodSeqRunType`(`idSamplePrepMethodSeqRunType`, `idSamplePrepMethod`, `idSeqRunType`)
-VALUES (1, 34, 3),
-  (2, 33, 3),
-  (3, 32, 3),
-  (4, 31, 3),
-  (5, 35, 3),
-  (6, 34, 4),
-  (7, 31, 4),
-  (8, 39, 4),
-  (9, 39, 3);
 
 INSERT INTO `gnomex`.`SampleSource`(`idSampleSource`, `sampleSource`, `isActive`)
 VALUES (1, 'Cell Line', 'Y'),
@@ -874,12 +858,20 @@ VALUES (1, 1, 'AGIL'),
 
 
 INSERT INTO `gnomex`.`SeqLibProtocol`(`idSeqLibProtocol`, `seqLibProtocol`,`description`,`url`, `isActive`)
-  (31, 'Illumina Genomic DNA Sample Prep Kit', 'Illumina Genomic DNA Sample Prep Kit', null, 'Y'),
+VALUES  (31, 'Illumina Genomic DNA Sample Prep Kit', 'Illumina Genomic DNA Sample Prep Kit', null, 'Y'),
   (32, 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', null, 'N'),
   (33, 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', null, 'N'),
   (34, 'Illumina ChIP-Seq prep kit', 'Illumina ChIP-Seq prep kit', null, 'Y'),
   (35, 'Illumina Small RNA Sample Prep Kit', 'Illumina Small RNA Sample Prep Kit', null, 'Y'),
   (39, 'Illumina mRNA-Seq Sample Prep Kit', 'Illumina mRNA-Seq Sample Prep Kit', null, 'Y');
+
+INSERT INTO `gnomex`.`SeqLibProtocolApplication`(`idSeqLibProtocol`, `codeApplication`)
+VALUES (31, 'DNASEQ'),
+  (32, 'MRNASEQ'),
+  (33, 'MRNASEQ'),
+  (34,'CHIPSEQ'),
+  (35, 'SMRNASEQ'),
+  (39, 'MRNASEQ');
 
 
 INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`)
