@@ -577,6 +577,7 @@ CREATE TABLE `gnomex`.`FlowCellChannel` (
   `sampleConcentrationpM` DECIMAL(8, 2) NULL,
   `pipelineDate` DATETIME NULL,
   `pipelineFailed` CHAR(1) NULL,
+  `isControl` CHAR(1) NULL,
   PRIMARY KEY (`idFlowCellChannel`),
   CONSTRAINT `FK_FlowCellChannel_FlowCell` FOREIGN KEY `FK_FlowCellChannel_FlowCell` (`idFlowCell`)
     REFERENCES `gnomex`.`FlowCell` (`idFlowCell`)
@@ -1233,22 +1234,6 @@ CREATE TABLE `gnomex`.`SamplePrepMethodSampleType` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`SamplePrepMethodSeqRunType`;
-CREATE TABLE `gnomex`.`SamplePrepMethodSeqRunType` (
-  `idSamplePrepMethodSeqRunType` INT(10) NOT NULL AUTO_INCREMENT,
-  `idSamplePrepMethod` INT(10) NULL,
-  `idSeqRunType` INT(10) NULL,
-  PRIMARY KEY (`idSamplePrepMethodSeqRunType`),
-  CONSTRAINT `FK_SamplePrepMethodSeqRunType_SeqRunType` FOREIGN KEY `FK_SamplePrepMethodSeqRunType_SeqRunType` (`idSeqRunType`)
-    REFERENCES `gnomex`.`SeqRunType` (`idSeqRunType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SamplePrepMethodFlowCellType_SamplePrepMethod` FOREIGN KEY `FK_SamplePrepMethodFlowCellType_SamplePrepMethod` (`idSamplePrepMethod`)
-    REFERENCES `gnomex`.`SamplePrepMethod` (`idSamplePrepMethod`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`SampleSource`;
 CREATE TABLE `gnomex`.`SampleSource` (
@@ -1351,6 +1336,15 @@ CREATE TABLE `gnomex`.`SeqLibProtocol` (
   PRIMARY KEY (`idSeqLibProtocol`)
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SeqLibProtocolApplication`;
+CREATE TABLE `gnomex`.`SeqLibProtocolApplication` (
+  `idSeqLibProtocol` INT(10) NOT NULL,
+  `codeApplication` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idSeqLibProtocol`, `codeApplication`)
+)
+ENGINE = INNODB;
+
 
 DROP TABLE IF EXISTS `gnomex`.`SeqRunType`;
 CREATE TABLE `gnomex`.`SeqRunType` (
