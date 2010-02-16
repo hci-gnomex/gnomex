@@ -106,10 +106,6 @@
 
 	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
   <Dictionary displayName="Illumina Single vs. Paired end Reads" className="hci.gnomex.model.SeqRunType" />
-	<Dictionary displayName="Illumina Library Prep/Single vs. Paired end Reads" className="hci.gnomex.model.SamplePrepMethodSeqRunType" >
-  	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
-  	  <Filter className="hci.gnomex.model.SeqRunType"         filterField="idSeqRunType"/>
-	</Dictionary>
 	<Dictionary displayName="Illumina Control Library" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
