@@ -223,6 +223,7 @@
 		<property name="sampleConcentrationpM" column="sampleConcentrationpM" type="big_decimal"/>
 		<property name="pipelineDate" column="pipelineDate" type="date"/>
 		<property name="pipelineFailed" column="pipelineFailed" type="string"/>
+        <property name="isControl" column="isControl" type="string"/>		
 	</class>	   
 	 
     <!-- hci.gnomex.model.Hybridization -->
@@ -1007,18 +1008,6 @@
 		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
 		<many-to-one name="sampleType"  column="idSampleType" class="hci.gnomex.model.SampleType" cascade="none" insert="false" update="false" />
 	</class>
-
-	<!-- hci.gnomex.model.SamplePrepMethodSeqRunType -->
-	<class name="hci.gnomex.model.SamplePrepMethodSeqRunType" table="SamplePrepMethodSeqRunType">
-		<id name="idSamplePrepMethodSeqRunType" column="idSamplePrepMethodSeqRunType" type="integer">
-			<generator class="native"/>
-		</id>
-		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
-		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
-		<many-to-one name="samplePrepMethod" column="idSamplePrepMethod"  class="hci.gnomex.model.SamplePrepMethod" cascade="none" insert="false" update="false" />
-		<many-to-one name="seqRunType"  column="idSeqRunType" class="hci.gnomex.model.SeqRunType" cascade="none" insert="false" update="false" />
-	</class>
-
 
 	<!-- hci.gnomex.model.SamplePrepMethodRequestCategory -->
 	<class name="hci.gnomex.model.SamplePrepMethodRequestCategory" table="SamplePrepMethodRequestCategory">
