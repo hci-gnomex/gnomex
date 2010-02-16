@@ -5,10 +5,10 @@ package views.renderers
 	import mx.core.IFactory;
 	import hci.flex.renderers.RendererFactory;
 
-	public class FlowCellSampleConcentrationLabel extends hci.flex.controls.Label
+	public class LabelFlowCellSampleConcentration extends hci.flex.controls.Label
 	{		
 		public static function create(dataField:String):IFactory {
-				return RendererFactory.create(views.renderers.FlowCellSampleConcentrationLabel, 
+				return RendererFactory.create(views.renderers.LabelFlowCellSampleConcentration, 
 				{ _dataField: dataField});			
 				  
 		}			 
