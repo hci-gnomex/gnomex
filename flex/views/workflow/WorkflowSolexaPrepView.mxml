@@ -308,7 +308,7 @@
 					</mx:DataGridColumn>
 					<mx:DataGridColumn editable="false" width="15" dataField="@idSampleType"  headerText="Sample Type" labelFunction="getSampleType">
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Seq Libarary kit"  width="45" 
+					<mx:DataGridColumn headerText="Seq Library Protocol"  width="45" 
 					dataField="@idSeqLibProtocol" 
 					   editorDataField="value"
 		               editable="true"  
