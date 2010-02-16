@@ -4,10 +4,10 @@ package views.renderers
 	import mx.core.IFactory;
 	import hci.flex.controls.TextInput;
 
-	public class FlowCellSampleConcentrationTextInput extends hci.flex.controls.TextInput
+	public class TextInputFlowCellSampleConcentration extends hci.flex.controls.TextInput
 	{
 		public static function create(dataField:String):IFactory {
-				return RendererFactory.create(FlowCellSampleConcentrationTextInput, 
+				return RendererFactory.create(TextInputFlowCellSampleConcentration, 
 				{ dataField: dataField});							  
 		}	
 		
@@ -21,8 +21,15 @@ package views.renderers
           }
           this.setStyle("backgroundColor", data.name() == "WorkItem" && data[dataField] == '' && data['@editable'] == 'true' ? missingRequiredFieldBackground : "0xffffff");
 
-		  if (data['@editable'] == 'true') {
-		  	this.editable = true;
+		  // Set whether field is editable.  (Sequencing control is never editable)
+		  // WorkItems are editable depending on row location.
+		  if (data.name() == 'WorkItem') {
+		  	  // Only first row in channel (for WorkItems) is editable)
+			  if (data['@editable'] == 'true') {
+			  	this.editable = true;
+			  } else {
+		  		this.editable = false;
+		  	}
 		  } else {
 		  	this.editable = false;
 		  }
