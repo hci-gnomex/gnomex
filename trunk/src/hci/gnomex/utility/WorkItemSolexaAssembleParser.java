@@ -22,8 +22,9 @@ import org.jdom.Element;
 public class WorkItemSolexaAssembleParser implements Serializable {
   
   private Document   doc;
-  private TreeMap    channelContentMap = new TreeMap();
-  private TreeMap    channelConcentrationMap = new TreeMap();
+  private TreeMap<String, List<ChannelContent>> channelContentMap = new TreeMap<String, List<ChannelContent>>();
+  private TreeMap<String, String>               channelConcentrationMap = new TreeMap<String, String>();
+  private TreeMap<String, String>               controlMap = new TreeMap<String, String>();
   
   
   public WorkItemSolexaAssembleParser(Document doc) {
@@ -36,12 +37,14 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     Element workItemListNode = this.doc.getRootElement();
     
     
-    for(Iterator i = workItemListNode.getChildren().iterator(); i.hasNext();) {
+    for(Iterator<?> i = workItemListNode.getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
       String channelNumber        = node.getAttributeValue("channelNumber");
       ChannelContent cc = new ChannelContent();
       String sampleConcentration  = node.getAttributeValue("sampleConcentrationpM");
-      
+      String isControl  = node.getAttributeValue("isControl");
+      String isEditable = node.getAttributeValue("editable");
+          
       if (node.getName().equals("WorkItem")) {
         String idSequenceLaneString = node.getAttributeValue("idSequenceLane");
         String idWorkItemString     = node.getAttributeValue("idWorkItem");
@@ -57,15 +60,20 @@ public class WorkItemSolexaAssembleParser implements Serializable {
         cc.setSequenceControl(control);
       }
       
-      List channelContents = (List)channelContentMap.get(channelNumber);
+      List<ChannelContent> channelContents = (List<ChannelContent>)channelContentMap.get(channelNumber);
       if (channelContents == null) {
-        channelContents = new ArrayList();
+        channelContents = new ArrayList<ChannelContent>();
       }
       channelContents.add(cc);
       channelContentMap.put(channelNumber, channelContents);
       
-      if (sampleConcentration != null && !sampleConcentration.equals("")) {
-          channelConcentrationMap.put(channelNumber, sampleConcentration);    	  
+      if (isEditable != null && isEditable.equals("true")) {
+        if (sampleConcentration != null && !sampleConcentration.equals("")) {
+          channelConcentrationMap.put(channelNumber, sampleConcentration);        
+        }
+
+        controlMap.put(channelNumber, isControl != null && isControl.equals("true") ? "Y" : "N");
+        
       }
       
     }
@@ -80,25 +88,25 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   public void resetIsDirty() {
     Element workItemListNode = this.doc.getRootElement();
     
-    for(Iterator i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
+    for(Iterator<?> i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
       Element workItemNode = (Element)i.next();
       workItemNode.setAttribute("isDirty", "N");
     }
   }
 
   
-  public Set getChannelNumbers() {
+  public Set<String> getChannelNumbers() {
     return channelContentMap.keySet();
   }
   
-  public List getChannelContents(String channelNumber) {
-    return (List)channelContentMap.get(channelNumber);
+  public List<ChannelContent> getChannelContents(String channelNumber) {
+    return channelContentMap.get(channelNumber);
   }
 
-  public List getWorkItems(String channelNumber) {
-    List channelContents =  (List)channelContentMap.get(channelNumber);
-    List workItems = new ArrayList();
-    for(Iterator i = channelContents.iterator(); i.hasNext();) {
+  public List<WorkItem> getWorkItems(String channelNumber) {
+    List<ChannelContent> channelContents =  channelContentMap.get(channelNumber);
+    List<WorkItem> workItems = new ArrayList<WorkItem>();
+    for(Iterator<?> i = channelContents.iterator(); i.hasNext();) {
       ChannelContent cc = (ChannelContent)i.next();
       if (cc.getWorkItem() != null) {
         workItems.add(cc.getWorkItem());
@@ -116,11 +124,17 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     }
   }
   
+  public String getIsControl(String channelNumber) {
+    String isControl = this.controlMap.get(channelNumber);
+    return isControl;
+  }
+  
   
   public static class ChannelContent implements Serializable{
     private SequenceLane sequenceLane;
     private SequencingControl sequenceControl;
     private WorkItem workItem;
+    private String isControl;
 
     
     public SequenceLane getSequenceLane() {
@@ -145,6 +159,14 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     
     public void setWorkItem(WorkItem workItem) {
       this.workItem = workItem;
+    }
+
+    public String getIsControl() {
+      return isControl;
+    }
+
+    public void setIsControl(String isControl) {
+      this.isControl = isControl;
     }
   }
 
