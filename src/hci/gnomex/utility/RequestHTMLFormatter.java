@@ -128,16 +128,28 @@ public class RequestHTMLFormatter {
       rowSpan = new Integer(2);
     }
     
+    boolean showSeqLibProtocol = false;
+    for(Iterator i = samples.iterator(); i.hasNext();) {
+    	Sample s = (Sample)i.next();
+    	if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equalsIgnoreCase("N")) {
+    		showSeqLibProtocol = true;
+    		break;
+    	}
+    }
+    
     
     this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), "left");
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
+    this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
       this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));
       this.addHeaderCell(rowh, "Core to perform library prep?", rowSpan, new Integer(1));
+      if (showSeqLibProtocol) {
+          this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
+      }
     } 
-    this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       
       this.addHeaderCell(rowh, "Chip Type",rowSpan, new Integer(1));
@@ -190,11 +202,14 @@ public class RequestHTMLFormatter {
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
+      this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
         this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");
         this.addCell(row, sample.getSeqPrepByCore() != null ? sample.getSeqPrepByCore() : "&nbsp;");
+        if (showSeqLibProtocol) {
+        	this.addCell(row, sample.getIdSeqLibProtocol() != null ? dictionaryHelper.getSeqLibProtocol(sample.getIdSeqLibProtocol()) : "&nbsp;");
+        }
       }
-      this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {        
         this.addCell(row, dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()) == null || dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()).equals("") ? "&nbsp;" : 
                            dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));

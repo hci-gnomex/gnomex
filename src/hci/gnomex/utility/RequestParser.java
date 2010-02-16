@@ -273,7 +273,7 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdOligoBarcode(null);
     }
-    if (n.getAttributeValue("idSeqLibProtocol") != null && !n.getAttributeValue("idSeqLibProtocol").equals("")) {
+    if (n.getAttributeValue("idSeqLibProtocol") != null && !n.getAttributeValue("idSeqLibProtocol").trim().equals("")) {
       sample.setIdSeqLibProtocol(new Integer(n.getAttributeValue("idSeqLibProtocol")));
     } else {
       sample.setIdSeqLibProtocol(null);
