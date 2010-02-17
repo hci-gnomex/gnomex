@@ -2,7 +2,9 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	label="Hyb setup" width="100%" height="100%" enabled="false">
 	<mx:states>
-		<mx:State name="EditState">
+		<mx:State name="SetupState">
+		</mx:State>
+		<mx:State name="EditState" basedOn="SetupState">
 			<mx:SetProperty target="{textarea1}" name="htmlText">
 				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can change the selection in order<br>  to specify a different microarray for this experiment request.  The<br>  change will be reflected in the next tab.]]></mx:value>
 			</mx:SetProperty>
@@ -114,13 +116,13 @@
 					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.request.@idSampleTypeDefault);
 					var sampleTypeName:String = sampleType.@display.toString();
         			mx.controls.Alert.show( 'Sample type ' + sampleTypeName + 
-	        		  ' cannot be used for ' + applicationCombo.selectedItem.@display + 
+	        		  ' cannot be used for ' + parentDocument.applicationName + 
 	        		  ' experiments.  Please change the microarray application.',
 	        		  'Warning');
         			
         		} else {
 	        		this.parentDocument.userWarningsHybSetup += 'Sample type ' + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + applicationCombo.selectedItem.@display + 
+	        		' cannot be used for ' + parentDocument.applicationName + 
 	        		' experiments.  Please change the sample type or microarray application.';
         			
         		}
@@ -166,8 +168,8 @@
 			
 		}
 		private function initializeApplicationName():void {
-			if (this.applicationCombo.selectedItem != null) {
-				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.applicationCombo.selectedItem.@value);
+			if (this.microarrayAppRadioGroup.selectedValue != null && this.microarrayAppRadioGroup.selectedValue != '') {
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.microarrayAppRadioGroup.selectedValue);
 				this.parentDocument.applicationName = application.@display;
 			}			
 		}
@@ -272,6 +274,20 @@
         	this.validNumberOfHybs = true;
         	this.checkHybSetupCompleteness();
         }
+        
+        private function pickMicroarrayApp():void {
+        	if (this.microarrayAppRadioGroup.selectedValue != null && this.microarrayAppRadioGroup.selectedValue != '') {
+        		this.microarrayAppBox.styleName = "normalBox";
+        	} else {
+        		this.microarrayAppBox.styleName = "requiredBox";
+        	}
+        	initializeApplicationName();
+			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+			slideProductCombo.selectedIndex = -1;
+			clearHybSlideDesigns();
+			checkHybSetupCompleteness();
+			checkForSlideProductWarning();
+        }
       
 	]]>
 </mx:Script>
@@ -281,12 +297,7 @@
         source="{this.organismCombo}"
         lowerThanMinError="This field is required."
         property="selectedIndex"
-        minValue="1" /> 
-    <mx:NumberValidator id="applicationValidator"
-        source="{this.applicationCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="1" />         
+        minValue="1" />       
     <mx:NumberValidator id="slideProductValidator"
         source="{this.slideProductCombo}"
         lowerThanMinError="This field is required."
@@ -308,10 +319,16 @@
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(2) Select the microarray application." width="250" />
-			<mx:ComboBox labelField="@display" width="250" id="applicationCombo">							
-				<mx:dataProvider>{parentDocument.filteredApplicationListForSubmitRequests}</mx:dataProvider>
-				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
-			</mx:ComboBox>
+			<mx:VBox  verticalGap="0" id="microarrayAppBox" styleName="requiredBox">
+	            <mx:RadioButtonGroup id="microarrayAppRadioGroup"/>
+				<mx:Repeater id="microarrayAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 
+	    			<mx:RadioButton  label="{microarrayAppRepeater.currentItem.@display}" 
+	    				paddingLeft="0" paddingRight="1"
+	    				value="{microarrayAppRepeater.currentItem.@value}"
+	    	 	    	groupName="microarrayAppRadioGroup"
+	    				click="{pickMicroarrayApp()}" id="radiobutton1"/>
+  				</mx:Repeater>			
+  			</mx:VBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(3) Select one of the following." width="250" />
@@ -334,7 +351,7 @@
 					</mx:ComboBox>
 			    </mx:HBox>
 			    <mx:HBox width="100%" backgroundColor="#ffffff" borderStyle="inset" verticalAlign="middle">
-					<mx:Text width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + applicationCombo.selectedItem.@display + ' slides are listed.  Please contact Brian Dalley about slide stock.'}" color="#0000ff">								
+					<mx:Text width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + parentDocument.applicationName + ' slides are listed.  Please contact Brian Dalley about slide stock.'}" color="#0000ff">								
 					</mx:Text>						    	
 			    </mx:HBox>
 				

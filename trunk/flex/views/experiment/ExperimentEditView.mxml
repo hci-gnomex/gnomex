@@ -146,7 +146,9 @@
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
-		public var filteredApplicationListForSubmitRequests:XMLListCollection;
+		public var filteredMicroarrayAppList:XMLListCollection;
+		[Bindable]
+		public var filteredAppList:XMLListCollection;
 		
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
@@ -214,7 +216,8 @@
         	        	
         	
         	
-        	filteredApplicationListForSubmitRequests = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
+        	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
+        	filteredAppList           = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
         	
 
 			initFilters();
@@ -255,8 +258,11 @@
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			filteredGenomeBuildList.refresh();
 			
-			filteredApplicationListForSubmitRequests.filterFunction = filterApplication;
-			filteredApplicationListForSubmitRequests.refresh();
+			filteredMicroarrayAppList.filterFunction = filterApplication;
+			filteredMicroarrayAppList.refresh();
+
+			filteredAppList.filterFunction = filterApplication;
+			filteredAppList.refresh();
 			
 			filteredSampleTypeList.filterFunction = filterSampleType;
 			filteredSampleTypeList.refresh();
@@ -394,7 +400,7 @@
         	getNewRequest.send();
 			initializeSubmitForm();
         	parentApplication.theViews.selectedIndex = 0;
-        	parentApplication.theViews.visible = false;
+        	
         }
         
 
@@ -450,7 +456,7 @@
 					annotationView.enabled = false;								
 				}
 				if (isSolexaState()) {
-				    seqSetup1View.numberSequencingCyclesCombo.selectedIndex = 0;
+				    seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue = null;
 					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
 					seqSetup1View.analysisInstructions.text = '';
 				}
@@ -462,7 +468,6 @@
 				hybSetupView.slideSourceContainer.visible = true;
 
 				hybSetupView.organismCombo.selectedIndex = -1;
-				hybSetupView.applicationCombo.selectedIndex = -1;
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
 				hybSetupView.isCatalogRadio.selected = true;
@@ -471,7 +476,6 @@
 				hybSetupView.stripSlideSourceCheckbox.selected = false;
 
 				hybSetupView.organismCombo.enabled = true;
-				hybSetupView.applicationCombo.enabled = true;
 				hybSetupView.slideProductCombo.enabled = true;
 				hybSetupView.isCatalogRadio.enabled = true;
 				hybSetupView.isCustomRadio.enabled = true;
@@ -548,7 +552,10 @@
 			this.setupView.requestRadioSolexa.setStyle( "fontWeight",this.setupView.requestRadioSolexa.selected  == true ?  "bold" : "normal");	
 			
 			this.confirmView.barcodeColumn.visible = false;        	
-				
+	
+			filteredMicroarrayAppList.refresh();			
+			filteredAppList.refresh();			
+			
 			if (this.setupView.requestRadioAffy.selected ||
 			    this.setupView.requestRadioAgilent.selected ||
 			    this.setupView.requestRadioQC.selected ||
@@ -561,8 +568,8 @@
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
-				this.seqSetup1View.seqRunTypeValidator.validate();
-				this.seqSetup1View.numberSeqCyclesValidator.validate();
+
+
 				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
@@ -589,27 +596,32 @@
 				if (setupView.requestTypeGroup.selectedValue == "QC") {
 					this.currentState = 'QCState';
 					this.sampleSetupView.currentState = 'QCSetupState';
+
 					this.samplesView.currentState = 'QCSamplesState';				
 					this.samplesView.showHideColumns();						
 					this.samplesView.checkSamplesCompleteness();	
+					
 
 				} else {
 					this.currentState = 'MicroarrayState';
 					this.sampleSetupView.currentState = '';
 					this.sampleSetupView.organismValidator.validate();
+					this.hybSetupView.microarrayAppRepeater.invalidateDisplayList();
+					this.hybSetupView.microarrayAppRepeater.validateNow();
+					
  					
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
-					this.hybSetupView.currentState = "";
+					this.hybSetupView.currentState = "SetupState";
 					this.hybsView.currentState = '';
 					
-					this.hybSetupView.applicationCombo.selectedIndex = 0;
-					filteredApplicationListForSubmitRequests.refresh();
+					this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
 					
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
 					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
 					this.hybSetupView.checkForSlideProductWarning();
 					this.hybSetupView.numberOfHybsValidator.validate();
+
 	
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
@@ -873,9 +885,9 @@
         }  
 
 		private function filterApplication(item:Object):Boolean {
-        	if (item.@value == "") {
-        		return true;
-        	}
+			if (item.@value == "") {
+    	    	return false;
+			} 
         	
         	if (item.@isActive == 'N') {
         		return false;
@@ -954,13 +966,13 @@
         		}
         	}
         	var doesMatchExperimentCategory:Boolean = true;
-        	if (hybSetupView.applicationCombo.selectedItem != null && 
-        	    hybSetupView.applicationCombo.selectedItem.@value != null &&
-        	    hybSetupView.applicationCombo.selectedItem.@value != "") {
+        	if (hybSetupView.currentState == "SetupState" &&
+        	    hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
+        	    hybSetupView.microarrayAppRadioGroup.selectedValue != null != "") {
         		doesMatchExperimentCategory = false;
         		var applicationsForSlideProduct:XMLList  = item.applications.Application;
         		for(var x:Number = 0; x < applicationsForSlideProduct.length(); x++) {
-        			if (applicationsForSlideProduct[x].@codeApplication == hybSetupView.applicationCombo.selectedItem.@value) {
+        			if (applicationsForSlideProduct[x].@codeApplication == hybSetupView.microarrayAppRadioGroup.selectedValue) {
         				doesMatchExperimentCategory = true;
         				break;
         			}
@@ -1285,7 +1297,6 @@
 
 
 				hybSetupView.organismCombo.enabled = canChangeSlide;
-				hybSetupView.applicationCombo.enabled = canChangeSlide;
 				hybSetupView.slideProductCombo.enabled = canChangeSlide;
 				hybSetupView.isCatalogRadio.enabled = canChangeSlide;
 				hybSetupView.isCustomRadio.enabled = canChangeSlide;
@@ -1398,7 +1409,7 @@
 				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', theSlideProduct.@idOrganism);
 
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
-				hybSetupView.applicationCombo.selectedItem = application[0];
+				hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;
 				hybSetupView.checkForSampleTypeCompatibility();
 
 				hybSetupView.initializeSlideProductCombo();
@@ -1486,13 +1497,13 @@
         	}
 
         	} else {
-	        	if (hybSetupView.applicationCombo.selectedItem != null &&
-	        	    hybSetupView.applicationCombo.selectedItem.@value != '' &&
+	        	if (hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
+	        	    hybSetupView.microarrayAppRadioGroup.selectedValue!= '' &&
 	        	    sampleSetupView.sampleTypeCombo.selectedItem != null &&
 	        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != '') {
 	        	    compatible = false;
 					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeApplication')) {
-						if (sampleTypeX.@codeApplication == hybSetupView.applicationCombo.selectedItem.@value &&
+						if (sampleTypeX.@codeApplication == hybSetupView.microarrayAppRadioGroup.selectedValue &&
 						    sampleTypeX.@idSampleType == sampleSetupView.sampleTypeCombo.selectedItem.@value) {
 							compatible = true;
 							break;
@@ -1701,7 +1712,7 @@
 
 			if (currentState == 'MicroarrayState') {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
-				request.@codeApplication = hybSetupView.applicationCombo.selectedItem.@codeApplication;				
+				request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;		
 			} else if (this.isSolexaState()) {
 				request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;				
 			} else if (this.isQCState()) {
@@ -1747,7 +1758,7 @@
 			
 			if (this.isMicroarrayState()) {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
-				request.@codeApplication = hybSetupView.applicationCombo.selectedItem.@codeApplication;
+				request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;
 			} 			
 			
 			request.replace("samples", <samples></samples>); 
