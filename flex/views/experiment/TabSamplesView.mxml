@@ -33,8 +33,8 @@
    					" canChangeNumberSequencingLanes='Y'" + 
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesCombo.selectedItem.@value + "'" +				
-					" idSeqRunType='" + parentDocument.seqSetup1View.seqRunTypeCombo.selectedItem.@value + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingRadioGroup.selectedValue.@value + "'" +				
+					" idSeqRunType='" + parentDocument.seqSetup1View.seqRunTypeRadioGroup.selectedValue + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
@@ -59,8 +59,8 @@
    					" canChangeNumberSequencingCycles='Y'" +
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration=''" +
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesCombo.selectedItem.@value + "'" +
-					" idSeqRunType='" +	parentDocument.seqSetup1View.seqRunTypeCombo.selectedItem.@value + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue + "'" +
+					" idSeqRunType='" +	parentDocument.seqSetup1View.seqRunTypeRadioGroup.selectedValue + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +

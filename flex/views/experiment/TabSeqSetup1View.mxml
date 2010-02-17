@@ -16,7 +16,6 @@
 			</mx:SetProperty>
 			<mx:SetProperty target="{label11}" name="text" value="(4) Do you want the sequence data to be aligned?"/>
 			<mx:SetProperty target="{label12}" name="text" value="(5) Provide any special analysis instructions."/>
-			<mx:SetProperty target="{seqRunTypeCombo}" name="width" value="170"/>
 			<mx:SetProperty target="{label9}" name="width" value="340"/>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:SetProperty target="{label11}" name="width" value="340"/>
@@ -34,9 +33,11 @@
 		
        	public function propagateSeqRunType():void {
 
-			var idSeqRunType:String = ''; 
+			var idSeqRunType:Object = ''; 
 			if (parentDocument.isSolexaState()) {
-	       		idSeqRunType = this.seqRunTypeCombo.selectedItem.@value;
+				if (this.seqRunTypeRadioGroup.selectedValue != null) {
+					idSeqRunType = this.seqRunTypeRadioGroup.selectedValue;					
+				} 
 	       		
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idSeqRunType = idSeqRunType;
@@ -83,10 +84,18 @@
 		}
        	private function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+				if (this.numberSequencingCyclesRadioGroup.selectedValue != null) {
+					sample.@idNumberSequencingCycles = this.numberSequencingCyclesRadioGroup.selectedValue;				
+				} else {
+					sample.@idNumberSequencingCycles = '';
+				}
 			}
 			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idNumberSequencingCycles = this.numberSequencingCyclesCombo.selectedItem.@value;
+				if (this.numberSequencingCyclesRadioGroup.selectedValue != null) {
+					lane.@idNumberSequencingCycles = this.numberSequencingCyclesRadioGroup.selectedValue;
+				} else {
+					lane.@idNumberSequencingCycles = '';
+				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
@@ -107,9 +116,8 @@
         	if (parentDocument.isEditState()) {
         		isComplete = true;
         	}else if (parentDocument.isSolexaState()) {
-	        	if (this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' &&
-	        	    this.seqRunTypeCombo.selectedItem != null && this.seqRunTypeCombo.selectedItem.@value != '' &&
-	        	    this.numberSequencingCyclesCombo.selectedItem != null && this.numberSequencingCyclesCombo.selectedItem.@value != '' ) {
+	        	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '' &&
+	        	    this.seqRunTypeRadioGroup.selectedValue != null && seqRunTypeRadioGroup.selectedValue != '') {
 	        	
 	        		if (this.currentState == 'BarcodeState') {
 						if (this.numberSamplesPerChannel.value > 0 && this.barcodes.length > 0) {
@@ -193,20 +201,37 @@
         	this.initializeBarcodes();
 		    this.propagateBarcode();
         }
+        
+        private function pickSeqRunType():void {
+        	if (this.seqRunTypeRadioGroup.selectedValue != null && this.seqRunTypeRadioGroup.selectedValue != '') {
+        		this.seqRunTypeBox.styleName = "normalBox";
+        	} else {
+        		this.seqRunTypeBox.styleName = "requiredBox";
+        	}
+			parentDocument.samplePrepMethodList.refresh();
+			parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
+			parentDocument.samplesView.initializeSamplesGrid();
+			this.propagateSeqRunType();
+			this.checkSeqSetup1Completeness(); 		        	
+        }
+
+        private function pickNumberSequencingCycles():void {
+        	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
+        		this.numberSequencingCyclesBox.styleName = "normalBox";
+        	} else {
+        		this.numberSequencingCyclesBox.styleName = "requiredBox";
+        	}
+			parentDocument.samplePrepMethodList.refresh();
+			parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
+			parentDocument.samplesView.initializeSamplesGrid();
+			this.propagateNumberSequencingCycles();
+			this.checkSeqSetup1Completeness();
+        }
 
 		
 	]]>
 </mx:Script>   
-   <mx:NumberValidator id="seqRunTypeValidator"
-        source="{this.seqRunTypeCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="1" />   
-    <mx:NumberValidator id="numberSeqCyclesValidator"
-        source="{this.numberSequencingCyclesCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="1" />    
+ 
 
 	<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
   	  <mx:TextArea styleName="instructionBox" width="400" wordWrap="true" height="74">
@@ -217,17 +242,30 @@
 	<mx:VBox width="100%" height="100%" verticalGap="12">
 			<mx:HBox id="seqRunTypeContainer" width="100%" horizontalGap="0">
 				<mx:Label text="(1) Select the sequencing run type:" width="314."  id="label9"/>
-				<mx:ComboBox id="seqRunTypeCombo" labelField="@display" 
-					change="parentDocument.samplePrepMethodList.refresh();parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();this.propagateSeqRunType();this.checkSeqSetup1Completeness();" 
-					width="170" 
-					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive != &quot;N&quot;)}">
-				</mx:ComboBox>
+				<mx:VBox verticalGap="0" styleName="requiredBox" id="seqRunTypeBox">
+				    <mx:RadioButtonGroup id="seqRunTypeRadioGroup"/>
+					<mx:Repeater id="seqRunRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive != &quot;N&quot; &amp;&amp; @value != '')}"> 
+				    	<mx:RadioButton  label="{seqRunRepeater.currentItem.@display}" 
+				    		paddingLeft="1" paddingRight="1"
+				    		value="{seqRunRepeater.currentItem.@value}"
+				    	    groupName="seqRunTypeRadioGroup"
+				    		click="{pickSeqRunType()}"/>
+  					</mx:Repeater>
+				</mx:VBox>
+
 			</mx:HBox>
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
 				<mx:Label text="(2) Select the desired number of sequencing cycles." width="314."  id="label10"/>
-				<mx:ComboBox id="numberSequencingCyclesCombo" labelField="@display" change="parentDocument.samplePrepMethodList.refresh();parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();parentDocument.samplesView.initializeSamplesGrid();this.propagateNumberSequencingCycles();this.checkSeqSetup1Completeness();">
-					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}</mx:dataProvider>
-				</mx:ComboBox>
+				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox">
+				    <mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
+					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive != &quot;N&quot; &amp;&amp; @value != '')}"> 
+				    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
+				    		paddingLeft="0" paddingRight="1"
+				    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
+				    	    groupName="numberSequencingCyclesRadioGroup"
+				    		click="{pickNumberSequencingCycles()}"/>
+  					</mx:Repeater>
+				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0" paddingTop="12">
 				<mx:Label text="(3) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
