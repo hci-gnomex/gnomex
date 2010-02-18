@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+	title="Total Billing by Lab Report" 
+	width="546" height="84" defaultButton="{runButton}">
+ 
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import mx.collections.XMLListCollection;
+
+		[Bindable]
+		public var billingPeriods:XMLListCollection;
+		
+		private function run():void {
+			var url:URLRequest = new URLRequest('ShowBillingTotalByLabReport.gx' +
+						'?startDate=' + billingPeriodStartCombo.selectedItem.@startDate + 
+						'&endDate=' + billingPeriodEndCombo.selectedItem.@endDate );
+			navigateToURL(url, '_blank');	
+			mx.managers.PopUpManager.removePopUp(this);		
+		}				
+		 
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%">
+		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
+			<mx:Label text="For biling periods:  "/>
+			<mx:ComboBox id="billingPeriodStartCombo" 
+				dataProvider="{billingPeriods}"
+				labelField="@display"
+				visible="true"  
+				width="170">
+			</mx:ComboBox>
+			<mx:Label text="through"/>
+			<mx:ComboBox id="billingPeriodEndCombo" 
+				dataProvider="{billingPeriods}"
+				labelField="@display"
+				visible="true"  
+				width="170">
+			</mx:ComboBox>
+		</mx:HBox>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="OK" id="runButton" click="run()" enabled="{billingPeriodEndCombo.selectedItem != null &amp;&amp; billingPeriodEndCombo.selectedItem.@value != '' &amp;&amp; billingPeriodStartCombo.selectedItem != null &amp;&amp; billingPeriodStartCombo.selectedItem.@value != ''}"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

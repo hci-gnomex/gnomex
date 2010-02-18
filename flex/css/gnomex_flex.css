@@ -430,3 +430,17 @@ Text.submitNote
 	color: #0000ff;
 }
 
+.menuBar {
+	borderStyle: solid;
+	borderThickness: 1;
+	backgroundColor: #CAC9BE;
+	cornerRadius: 6;
+	horizontalGap: 0;
+	paddingBottom: 2;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingTop: 2;
+	verticalAlign: middle;
+	dropShadowEnabled: true;
+	dropShadowColor: #77725C;
+}
