@@ -25,6 +25,18 @@ public class RequestCategory extends DictionaryEntry implements Serializable {
   private String   notes;
 
   
+  public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
+    if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(AGILIENT_MICROARRAY_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(NIMBLEGEN_MICROARRAY_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(INHOUSE_MICROARRAY_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(OTHER_MICROARRAY_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+      return true;
+    } else {
+      return false;
+    }
+  }  
   
   public String getDisplay() {
     String display = this.getNonNullString(getRequestCategory());
@@ -94,6 +106,7 @@ public class RequestCategory extends DictionaryEntry implements Serializable {
   public void setNotes(String notes) {
     this.notes = notes;
   }
+
   
   
 

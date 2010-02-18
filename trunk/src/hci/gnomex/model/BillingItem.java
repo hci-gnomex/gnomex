@@ -20,6 +20,7 @@ public class BillingItem extends HibernateDetailObject {
   private String         codeBillingChargeKind;
   private String         codeBillingStatus;
   private Integer        idBillingPeriod;  
+  private BillingPeriod  billingPeriod;
   private Integer        idBillingCategory;
   private Integer        idBillingPrice;
   private Integer        idRequest;
@@ -222,5 +223,15 @@ public class BillingItem extends HibernateDetailObject {
     } else {
       return "100%";
     }
+  }
+
+  
+  public BillingPeriod getBillingPeriod() {
+    return billingPeriod;
+  }
+
+  
+  public void setBillingPeriod(BillingPeriod billingPeriod) {
+    this.billingPeriod = billingPeriod;
   }
 }

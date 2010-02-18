@@ -843,6 +843,13 @@
 				Alert.show("Please select the 'Approved' or 'Approved (External)' folder.")
 			}
 		}
+		
+		public function showBillingSummaryWindow():void {
+			var summaryWindow:BillingTotalByLabView = BillingTotalByLabView(mx.managers.PopUpManager.createPopUp(this, BillingTotalByLabView, true));
+            mx.managers.PopUpManager.centerPopUp(summaryWindow);
+            summaryWindow.setFocus();
+            summaryWindow.billingPeriods = this.billingPeriods; 				
+		}
 		public function showBillingGLInterface():void {
 			if (billingPeriodCombo.selectedItem == null ||
 			    billingPeriodCombo.selectedItem.@value == "") {
@@ -1061,10 +1068,36 @@
  	]]>
  </mx:Script>	
 
-  <mx:VBox width="100%" verticalGap="4" height="100%">
-	    <mx:HBox width="100%" styleName="navBox" horizontalGap="8">
+  <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
 
+	    <mx:VBox width="100%" styleName="navBox" horizontalGap="8" paddingTop="0">
+	                    <mx:HBox styleName="menuBar" width="100%">
+	                                    <mx:LinkButton label="Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
+	                                    <mx:VRule height="20"/>
+	                                    <mx:LinkButton  id="glFileButton" label="Generate GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
+	                                    <mx:VRule height="20"/>
+	                                    <mx:LinkButton label="Monthend Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingMonthendReport()"/>
+	                                    <mx:VRule height="20"/>
+	                                    <mx:LinkButton  id="summaryReportButton" label="Total Billing by Lab Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingSummaryWindow()"/>
+	                                    <mx:VRule height="20"/>
+	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+	                                               click="refresh()" toolTip="Refresh"/>
+	                                    <mx:VRule height="20"/>
+	                                    <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"   paddingLeft="8">
+	                                    	<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0"/>
+	                                    	<mx:TextInput id="requestNumberText" width="60">
+	                                    	</mx:TextInput>			   	
+	                                    	<mx:Button id="lookupButton"  
+	                                    		height="18"
+	                                    		click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
+	                                     </mx:HBox>
+                	
+                	
+                </mx:HBox>
+
+	      <mx:HBox horizontalGap="8">
 		    	<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
+					<mx:Label text="Filter by:     "/>
 					<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" paddingBottom="0"/>
 					<mx:ComboBox id="billingPeriodCombo" 
 						labelField="@display"
@@ -1100,20 +1133,11 @@
 					</mx:VBox>
 			   	
 		    	</mx:HBox> 
-	    	
-				<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
-					<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0"/>
-					<mx:TextInput id="requestNumberText" width="60">
-					</mx:TextInput>			   	
-					<mx:Button id="lookupButton"  
-						height="18"
-						click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
-		    	</mx:HBox>	    
-		    	
-	    </mx:HBox>
+		   </mx:HBox> 	
+	    </mx:VBox>
 
         <mx:HDividedBox height="100%" width="100%">
-        	<mx:TabNavigator height="100%" width="220" paddingTop="2" styleName="navTabNavigator" paddingLeft="4" paddingRight="4">
+        	<mx:TabNavigator height="100%" width="220" paddingTop="2" styleName="navTabNavigator" paddingLeft="4" paddingRight="4" paddingBottom="4">
         		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
@@ -1138,26 +1162,6 @@
   						  <mx:AdvancedDataGridColumn dataField="@label"  dataTipField="@dataTip"/> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
-  				    <mx:ControlBar width="100%" verticalAlign="top" paddingTop="2">
-  				        <mx:VBox verticalGap="0" width="100%">
-  				        <mx:HBox horizontalGap="0" width="100%">
-				 	    <mx:HBox width="100" horizontalAlign="left">
-				 	    <mx:LinkButton label="Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
-				 	    </mx:HBox>
-				 	    <mx:LinkButton label="Summary" textDecoration="underline" icon="@Embed(source='../../assets/date_edit.png')" click="showBillingMonthendReport()"/>
-  				        </mx:HBox>
-  				        <mx:HBox horizontalGap="0" width="100%">
-				 	    <mx:HBox width="100" horizontalAlign="left">
-					 	    <mx:LinkButton  id="glFileButton" label="GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
-  				        </mx:HBox>
-  					 	<mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-				 	            click="refresh()" toolTip="Refresh"/>
-				 	    	
-				 	    </mx:HBox>        
-  				        	
-  				        </mx:VBox>
-				 	            				
-			        </mx:ControlBar>
        			
         		</mx:VBox>
         		
@@ -1176,10 +1180,6 @@
   						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency" width="60" textAlign="right" /> 
   					    </mx:columns>
   					</mx:AdvancedDataGrid>        		    
-  				    <mx:ControlBar width="100%" verticalAlign="top" horizontalAlign="right">
-				 	    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-				 	            click="refresh()" toolTip="Refresh"/>				
-			        </mx:ControlBar>
         		</mx:VBox>
         	</mx:TabNavigator>
 
