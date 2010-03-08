@@ -24,7 +24,7 @@ Install Instructions
 3. Install Orion application server 
    a. Download Orion application server (http://www.orionserver.com/) and unzip
 	 b. Modify Orion configuration
-	   - Copy the tools.jar file located in the Java SDK lib directory to /path/to/orion 
+	   - Copy the tools.jar file located in the Java SDK lib directory (/usr/java/latest/lib/tools.jar) to /path/to/orion 
 	   - Copy all jar files in /path/to/GNomEx_$VERSION/orion/lib to /path/to/orion/lib
 	 c. Login as root
 	 d. Start Orion application server
@@ -82,13 +82,14 @@ Install Instructions
    - Enter the user name 'admin' and the password 'admin'.
    - The first thing to do is get rid the the 'admin' user account and add
      yourself as an admin.  Click and the 'Users and Groups' link.  Click
-     'Add new user' link on bottom left.  Enter your user information,
-     including a login and password.  Save the entry.  Now select the 
-     'admin' user and remove it.
-   - Try logging in again, using your new login and password.
-   - There are a number of configurable properties that you will want to 
+     'New user' link on bottom left.  Enter your user information,
+     including a login and password.  Set the Permission level to Admin. Save 
+     the entry.  
+   - Try logging in again, using your new login and password. Then go back to the 
+     Users And Groups and remove the user named 'admin'.
+   - There are a number of configurable properties that you need to 
      set for your installation.  Click on the upper-right link 'Dictionaries'.
-     Scroll in the left-hand tree to find the node called 'Property'.  Review
+     Scroll in the left-hand tree to find the node called 'Admin - Property'.  Review
      the entries and make sure you modify the following properties to 
      match your environment:
       Required properties - Make sure all of these directories exist.
@@ -110,10 +111,10 @@ GNomEx Batch Jobs
 -------------------------
 GNomEx builds a searchable text index using Apache's Lucene 
 (http://lucene.apache.org/java/docs/).  In order to refresh
-this index with the latest data, a batch job (nightly) must be scheduled.
+this index with the latest data, a batch chron job (nightly) must be scheduled.
 The command to build the index is in the GNomEx ear. To run the
 command manually do the following
-  >cd /path/to/orion/applications/gnomex/gnomex
+  >cd /path/to/orion/applications/gnomex
   
   For Windows environments:
   >index_gnomex.cmd
