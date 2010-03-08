@@ -408,7 +408,7 @@
                 </mx:DataGridColumn>
             </mx:columns>
   	      </mx:DataGrid>
-		  <mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentDesign()" id="editExperimentDesignButton">		  	
+		  <mx:LinkButton  label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentDesign()" id="editExperimentDesignButton">		  	
 		  </mx:LinkButton>			
 		</mx:VBox>
 
@@ -446,7 +446,7 @@
                 </mx:DataGridColumn>
 	        </mx:columns>
   	      </mx:DataGrid>
-		  <mx:LinkButton label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentFactor()" id="editExperimentFactorButton">		  	
+		  <mx:LinkButton  label="New/Edit..." textDecoration="underline" styleName="blueLinkButton" click="editExperimentFactor()" id="editExperimentFactorButton">		  	
 		  </mx:LinkButton>			
 		</mx:VBox>
 

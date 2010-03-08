@@ -192,7 +192,7 @@
 				 parentApplication.navExperimentView.selectedProject.@idAppUser = idAppUser;
 				 parentApplication.navExperimentView.selectedProject.@idLab = this.labCombo.selectedItem.@idLab;
 
-				 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
+				 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.parentApplication.theBody, ProjectDetailWindow, true));
 				 this.projectDetailWindow.projectDetailView.fromSubmitRequestWindow = true;
 				 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 				 this.projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
@@ -212,7 +212,7 @@
 			if (getProjectForEdit.lastResult.name() == "OpenProjectList") {
 				 parentApplication.navExperimentView.selectedProject = getProjectForEdit.lastResult.Project.(@idProject == projectCombo.selectedItem.@idProject);
 
-				 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this, ProjectDetailWindow, true));
+				 this.projectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, ProjectDetailWindow, true));
 				 this.projectDetailWindow.title = "Edit Project";
 				 this.projectDetailWindow.projectDetailView.fromSubmitRequestWindow = true;
 				 this.projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
@@ -433,7 +433,7 @@
 						</mx:Text>
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0">
-							<mx:LinkButton label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
+							<mx:LinkButton  label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_PDF_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
 							<mx:LinkButton label="Work authorization (word doc)" styleName="formLinkButton" id="linkbutton2" fontSize="9" paddingLeft="2" paddingTop="0">
@@ -509,7 +509,7 @@
 					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2" id="hbox2">
 						<mx:ComboBox dataProvider="{parentApplication.filteredProjectListForSubmitRequests}" labelField="@name" width="385" id="projectCombo" change="{checkSetupCompleteness()}">
 						</mx:ComboBox>
-						<mx:LinkButton id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
+						<mx:LinkButton  id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
 							<mx:enabled>{projectCombo.selectedItem != null &amp;&amp; projectCombo.selectedItem.@idProject != &quot;&quot;}</mx:enabled>
 						</mx:LinkButton>
 					</mx:HBox>					

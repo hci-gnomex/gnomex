@@ -13,12 +13,13 @@
 	xmlns:billing="views.billing.*"
 	xmlns:util="views.util.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
-	 paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="2" 
+	 paddingBottom="3" paddingLeft="2" paddingRight="2" paddingTop="2" 
 	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()" >
-	
+
+
+
     <mx:Fade id="fadeOut" duration="100"/>
     <mx:Fade id="fadeIn" duration="100"/>
-   
     	
 	<mx:HTTPService 
     id="createSecurityAdvisor"
@@ -144,6 +145,7 @@
 
 	     
         <mx:Style source="css/gnomex_flex.css" />
+
         
 <mx:Script>
             
@@ -204,6 +206,10 @@
 	        [Embed(source="assets/folder.png")]
 	        public var iconFolder:Class;
 	        
+	        [Bindable]
+	        [Embed(source="assets/page.png")]
+	        public var iconPage:Class;
+
 	        [Bindable]
 	        [Embed(source="assets/flask.png")]
 	        public var iconFlask:Class;  
@@ -289,10 +295,21 @@
 	        [Bindable]
 	        [Embed(source="assets/money.png")]
 	        public var iconBilling:Class; 
+
+	        [Bindable]
+	        [Embed(source="assets/money_disable.png")]
+	        public var iconBillingDisabled:Class; 
+	        
 	        
 	        [Bindable]
 	        [Embed(source="assets/folder_money.png")]
 	        public var iconBillingFolder:Class;
+	        
+	        	        
+	        [Bindable]
+	        [Embed(source="assets/pricesheet.png")]
+	        public var iconPriceSheet:Class;
+
 	        
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]
@@ -880,13 +897,17 @@
 
 		        	    PopUpManager.removePopUp(appProgressBar);
 	    	    	    currentState = "enabledState"
-						checkSecurity();
-		        		callLater(launchStartWindow);
+						callLater(checkSecurityAndLaunchStartWindow);
 	        	    	
 	        	    }
 	        	    	
-	        	}
+	        	} 
 	        	
+	        }
+	        
+	        private function checkSecurityAndLaunchStartWindow():void {
+	        		checkSecurity();
+		        	callLater(launchStartWindow);
 	        }
 	        
 	        private function launchStartWindow():void {
@@ -991,7 +1012,7 @@
         		
         	}
         }
-       
+        
         
         ]]>
     </mx:Script>
@@ -999,23 +1020,33 @@
     
     <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}" sort="{experimentDesignSorter}"/>
     <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}" sort="{experimentFactorSorter}"/>
-	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns"
-	  unique="true"/>
-	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors"
-	  unique="true"/> 
+	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns" unique="true"/>
+	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
 
-	    <mx:VBox id="topArea" width="100%" height="100%" verticalGap="0" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
+	    <mx:VBox id="theBody"  dropShadowEnabled="true"  
+	    	width="100%" height="100%" 
+	    	verticalGap="0" 
+	    	paddingTop="0" paddingLeft="0" 
+	    	paddingRight="0" paddingBottom="0">
 	    
-		   <mx:ApplicationControlBar  width="100%"  id="navBar"
-		   	fillAlphas="[1, 1]" dock="true"  
-		   	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+
+		  <mx:VBox width="100%"  id="navBar" backgroundImage="@Embed(source='assets/navbar.png')" 
+		  	backgroundSize="100%" dropShadowColor="#2C2222" dropShadowEnabled="true" 
+		  	borderStyle="solid" borderColor="#858780" borderThickness="1" 
+		  	cornerRadius="4" verticalGap="0" 
+		  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+		  	 
 		      <mx:VBox width="100%" verticalGap="0"> 
-			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0" backgroundAlpha=".5" styleName="catalogPanel" paddingBottom="5">
-			        <mx:HBox width="100%" height="100%" horizontalAlign="left" horizontalGap="0" paddingBottom="0" paddingTop="2" verticalAlign="middle">
+			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0"  styleName="catalogPanel" 
+			      	paddingBottom="10" id="hbox1" 
+			      	paddingTop="6" 
+			      	paddingLeft="4" paddingRight="4">
+			        <mx:HBox width="100%" height="100%" horizontalAlign="left" 
+			        	horizontalGap="0" paddingBottom="0" paddingTop="2" verticalAlign="middle">
 			          <mx:Image source="assets/hciLogo_hOnly.png"/>
-			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="16" color="#ffffff" fontWeight="bold"/>
-			          <mx:HBox width="100%" height="100%"  horizontalAlign="right" paddingLeft="10" paddingRight="12" horizontalGap="10">
-			            <mx:HBox horizontalAlign="left" verticalAlign="middle" width="100%" paddingLeft="15" paddingRight="6" height="100%">
+			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="17" color="#ffffff" fontWeight="bold"/>
+			          <mx:HBox width="100%" height="100%"  horizontalAlign="right" paddingLeft="10" paddingRight="6" horizontalGap="10">
+			            <mx:HBox horizontalAlign="left" verticalAlign="middle" width="100%" paddingLeft="0" paddingRight="0" height="100%">
 			                <mx:Label id="userName" color="#ffffff"  visible="false"/>
 			            </mx:HBox>
 			            
@@ -1024,53 +1055,62 @@
 			              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
 			              <mx:Button id="lookupButton"  
 			              	fontFamily="Arial"  height="18"
-			              	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+			               	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 			            </mx:HBox>
 			            <mx:Spacer width="10"/>
 			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
 			              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
-			              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
+		 	              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
 			              <mx:Button id="searchButton" height="18" click="theViews.selectedChild=navSearchView;callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search"/>
 			            </mx:HBox>
-			          </mx:HBox>
-			        </mx:HBox>
-			        <mx:HBox horizontalAlign="right" verticalAlign="top" horizontalGap="3">
+			           </mx:HBox> 
+			         </mx:HBox>  
+			        <mx:HBox horizontalAlign="right" verticalAlign="middle" horizontalGap="3" height="27" id="hbox2">
 			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));" visible="false" enabled="false"/>
 			        	<mx:LinkButton label="Pricing" id="pricingButton" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, PriceView, false));" visible="false"/>
-			        	<mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');"/>
-			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));"/>
+			        	<mx:LinkButton label="Help" color="#ffffff" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');"  fontFamily="Verdana"/>
+			        	<mx:LinkButton label="About" color="#ffffff" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));"  fontFamily="Verdana"/>
 			        </mx:HBox>
 			      </mx:HBox>
 			      
-			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" >
-			 			<mx:LinkBar id="linkButtonBar"
-			 				 dataProvider="{theViews}" width="100%"
+			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="2" paddingRight="2" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
+			 			<mx:LinkBar id="linkButtonBar" 
+			 				 dataProvider="{initViews}" width="100%"
 			 			            enabled="false" visible="false"   paddingBottom="0"
 			 			            verticalAlign="middle" 
-			 			            itemClick="onViewSelection()"  horizontalAlign="left" horizontalGap="20">
+			 			            itemClick="onViewSelection()"  horizontalAlign="left" >
 			 			</mx:LinkBar>
 			      </mx:HBox>
 	      	
 		      	
 		      </mx:VBox>
 
+		  </mx:VBox>  
 		      
-		</mx:ApplicationControlBar>
-	    
-	    
 
-        
+	    
+	     
+ 
+             
         
 	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="6" paddingBottom="0" paddingLeft="0" 
-	    	paddingRight="0" horizontalCenter="0">
-          
+	    	height="100%" paddingTop="3" paddingBottom="0" paddingLeft="0" 
+	    	paddingRight="0" horizontalCenter="0" verticalGap="6">
+	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
+				
+    	     
+ 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
+		   
+					<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
+					</util:LaunchView> 
+				</mx:ViewStack>
+		    	     
  				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 		
 					<util:HomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
-					</util:HomeView>
+					</util:HomeView>  
 		
-				    <experiment:ExperimentEditView id="submitRequestView" label="Submit Request" title="Submit Request" 
+				    <experiment:ExperimentEditView id="submitRequestView" label="Submit Request" 
 				    	icon="@Embed('assets/tag_blue_edit.png')"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 		
@@ -1097,9 +1137,15 @@
 			        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 			        </user:NavUsersView>
 			        
-		           <search:NavSearchView id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
+		           <search:NavSearchView    id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0">	
 			        </search:NavSearchView>
-		        </mx:ViewStack>   
+			        
+		        </mx:ViewStack>
+		        
+		           
+	    		
+	    	</mx:ViewStack>
+           
  
         </mx:VBox>
      
@@ -1109,6 +1155,10 @@
 	 
 	 <mx:states>
 	 	<mx:State name="enabledState">
+	 	    <mx:SetProperty target="{linkButtonBarBox}" name="visible" value="true"/>
+	 	    <mx:SetProperty target="{linkButtonBar}" name="visible" value="true"/>
+	 	    <mx:SetProperty target="{linkButtonBar}" name="dataProvider" value="theViews"/>
+	 	    <mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
 	 		<mx:SetProperty target="{theViews}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{linkButtonBar}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{linkButtonBar}" name="enabled" value="true"/>
@@ -1121,12 +1171,15 @@
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{pricingButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{appLabel}" name="text" value="GNomEx"/>
-
-	 		
+	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
 	 		<mx:SetProperty target="{dictionaryButton}" name="enabled" value="true"/>
 	 		<mx:SetProperty target="{dictionaryButton}" name="visible" value="true"/>
+	 		<mx:SetProperty target="{dictionaryButton}" name="styleName" value="linkButton"/>
+	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="1"/>
+	 		<mx:SetStyle target="{dictionaryButton}" name="fontFamily" value="Verdana"/>
+	 		<mx:SetStyle target="{pricingButton}" name="fontFamily" value="Verdana"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>

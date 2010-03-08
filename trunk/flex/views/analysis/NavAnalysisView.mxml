@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	label="Analysis" width="100%" height="100%" 
-	xmlns:views="views.*" xmlns:analysis="views.analysis.*"
+	xmlns:views="views.*" 
+	xmlns:analysis="views.analysis.*"
+	xmlns:util="views.util.*"
 	creationPolicy="all" show="init()"
 	cornerRadius="10"  >
 
@@ -129,6 +131,9 @@
         [Bindable]
         public var selectedIdAnalysisGroup:String;
         
+        public var shortcutToDownloadTab:Boolean = false;
+        public var shortcutToAnalysisListTab:Boolean = false;
+        
         [Bindable]
     	public var rowCountMessage:String = new String();
     	
@@ -155,6 +160,20 @@
 			if (selectedAnalysisNumber == null) {
 	            initializeAnalysis();			
 			}
+			
+			if (this.shortcutToDownloadTab || this.shortcutToAnalysisListTab) {
+   				if (this.currentState == "AdminState") {
+   					this.refreshAnalysis();
+   				}
+   			}
+			        	
+        	if (this.shortcutToDownloadTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.downloadView;
+        	} else if (this.shortcutToAnalysisListTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
+        	}
 		}
 		
 		public function checkSecurity():void {
@@ -192,6 +211,19 @@
         	} else {
         		showDownloads = false;
         	}
+        	
+        	if (this.shortcutToDownloadTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.downloadView;
+        		this.shortcutToDownloadTab = false;
+        		this.browseTree.selectedIndex = 0;
+        	} else if (this.shortcutToAnalysisListTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
+        		this.shortcutToAnalysisListTab = false;
+        		this.browseTree.selectedIndex = 0;
+        	}
+
 
         	callLater(reselectTreeItem);
         	callLater(expandAllNodes); 
@@ -381,8 +413,8 @@
 			}
 			
 			if (browseTree.selectedItem.name() == 'Analysis') {
-				detailView.title = "Analysis " + browseTree.selectedItem.@number;
-				editView.title = "Edit Analysis " + browseTree.selectedItem.@number;
+				detailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
+				editView.titleLabel.text = "Edit Analysis " + browseTree.selectedItem.@number;
 				selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
 				var parms:Object = new Object();
 				parms.idAnalysis = selectedIdAnalysis; 
@@ -395,7 +427,7 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'AnalysisGroup') {
-					browseView.title = browseTree.selectedItem.@label + "\t" + rowCountMessage;
+					browseView.titleLabel.text = browseTree.selectedItem.@label + "\t" + rowCountMessage;
 					selectedIdAnalysisGroup = browseTree.selectedItem.@idAnalysisGroup.toString();
 					if (!browseView.theViews.contains(browseView.analysisGroupView)) {
 						browseView.theViews.addChild(browseView.analysisGroupView);
@@ -403,7 +435,7 @@
 					getAnalysisGroup.send();
 					
 				} else {
-					browseView.title =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;;
+					browseView.titleLabel.text =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;;
 					selectedIdAnalysisGroup = null;
 					if (browseView.theViews.contains(browseView.analysisGroupView)) {
 						browseView.theViews.removeChild(browseView.analysisGroupView);
@@ -554,7 +586,7 @@
 				params.searchPublicProjects = 'N'; 
 				getAnalysisGroupList.send(params);
 				
-			    detailView.title = "Analysis " + selectedAnalysisNumber;
+			    detailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
 			    
 			    
 			}
@@ -756,7 +788,8 @@
 	
 	
 			
-			<mx:Panel label="Analysis" width="235" height="100%" title="Analysis" id="navPanel" >
+			<util:PanelBox label="Analysis" width="250" height="100%" id="navPanel" >
+			    <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
 						<mx:Tree width="100%" height="100%" 
@@ -792,7 +825,7 @@
 						</mx:VBox>
 								
 					</mx:ControlBar>
-			</mx:Panel> 
+			</util:PanelBox> 
 
  
 

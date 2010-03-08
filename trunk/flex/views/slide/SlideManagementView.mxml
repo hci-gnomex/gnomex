@@ -110,6 +110,8 @@
 		
 		
 		[Bindable]
+		private var titleLabelText:String = "";
+		[Bindable]
 		public var slideList:XMLListCollection;
 		
 		[Bindable]
@@ -409,12 +411,12 @@
 					sdIdSlideProduct.text = browseSlides.selectedItem.@idSlideProduct;
 				}
 				isInSlideSet.text = "Y";
-				slideViewPanel.title = "New slide on the "+ setName+ " slide set";
+				titleLabelText = "New slide on the "+ setName+ " slide set";
 				this.currentState = "SlideOfSetState";
 			} else {
 				isInSlideSet.text = "N";
 				sdIsActive.selected = true;
-				slideViewPanel.title = "New slide";
+				titleLabelText = "New slide";
 				this.currentState = "";
 			}
 			sdRemoveArrayCoord.enabled = false;
@@ -434,7 +436,7 @@
 			this.fullSlideProductApplications = null;
 			this.spApplications.refresh();
 			slideViews.selectedChild = slideProductView;
-			slideViewPanel.title = "New Slide Set";
+			titleLabelText = "New Slide Set";
 			spIsActive.selected = true;
 			spRemoveCategory.enabled = false;
 		}
@@ -613,7 +615,7 @@
 			currentState = "";
 			if ((view != null && view == "SlideProduct") || (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct" && fullSlideProduct != null)) {
 				slideViews.selectedChild = slideProductView;
-				slideViewPanel.title = "Slide Set: "+fullSlideProduct.@name;
+				titleLabelText = "Slide Set: "+fullSlideProduct.@name;
 				saveSlideButton.enabled=true;
 				spRemoveCategory.enabled = false;
 				for each(var item:Object in parentApplication.promptedLabList) {
@@ -624,7 +626,7 @@
 				}
 			} else if ((view != null && view == "SlideDesign") || (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideDesign" && fullSlideDesign != null)) {
 				slideViews.selectedChild = slideDesignView;
-				slideViewPanel.title = "Slide: "+fullSlideDesign.@name;
+				titleLabelText = "Slide: "+fullSlideDesign.@name;
 				saveSlideButton.enabled=true;
 				newArrayRow.text = null;
 				newArrayCol.text = null;
@@ -674,13 +676,14 @@
 	<mx:XMLListCollection id="spApplications" source="{fullSlideProductApplications}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0">
-		<mx:Panel width="300" height="100%" layout="absolute" title="Slides" id="slideBrowserPanel">
+		<util:PanelBox width="300" height="100%"  id="slideBrowserPanel">
+		    <mx:Label id="titleLabel" styleName="titleLabel" text="Slides"/>
 		<!-- filtering not finished -->
 		<!--mx:Label x="0" y="0" text="Type slide name here to find in list." fontSize="9" width="292" textAlign="right" height="17" visible="false"/>
 		<mx:TextInput id="slideSearchText" editable="true" 
 		       	      	change="slideList.refresh()" width="100%" toolTip="Type slide name here to find in list" y="16" visible="false"/-->
 			<mx:Label x="6" y="2" text="Search slides:"/>
-			<mx:TextInput id="searchText" backgroundColor="#FFFFFF" change="slideList.refresh();browseSlides.dataProvider=null;browseSlides.dataProvider=slideList;callLater(expandAllNodes)" backgroundAlpha="1.0" right="4" y="0" left="90"/>
+			<mx:TextInput id="searchText" backgroundColor="#FFFFFF" change="slideList.refresh();browseSlides.dataProvider=null;browseSlides.dataProvider=slideList;callLater(expandAllNodes)" backgroundAlpha="1.0" right="4" y="0" left="90" width="100%"/>
 			<mx:Tree left="6" right="4" top="27" bottom="0"
 				id="browseSlides"
 				labelField="@name"
@@ -688,10 +691,10 @@
 				change="onBrowseSlides(event);"
 				click="onBrowseSlides(event);"
 				showRoot="false"
-				dataProvider="{slideList}">
+				dataProvider="{slideList}" width="100%" height="100%">
 			</mx:Tree>
 			
-			<mx:ControlBar>
+			<mx:ControlBar width="100%">
 				<mx:VBox verticalGap="0" width="100%">
 					<mx:LinkButton id="addSlideButton" click="onAddNewSlideDesign()" icon="@Embed('../../assets/image_add.png')" toolTip="Add new slide" label="New slide" enabled="true" disabledIcon="@Embed(source='../../assets/image_add_disable.png')" textDecoration="underline"/>
 					<mx:LinkButton id="addSlideSetButton" click="prepareToAddSlideProduct()" icon="@Embed('../../assets/images_add.png')" toolTip="Add new slide set" label="New slide set"  enabled="true" disabledIcon="@Embed(source='../../assets/images_add_disable.png')" textDecoration="underline"/>			
@@ -701,16 +704,18 @@
 					<mx:LinkButton id="refreshButton" click="callGetSlideList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" label="Refresh" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
 				</mx:VBox>
 			</mx:ControlBar>
-		</mx:Panel>
-		<mx:Panel id="slideViewPanel" width="100%" height="100%" layout="absolute">
-			<mx:ViewStack id="slideViews" right="0" left="0" top="0" bottom="0">
-				<mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+		</util:PanelBox>
+		<util:PanelBox id="slideViewPanel" width="100%" height="100%">
+		    <mx:Label text="{titleLabelText}" styleName="titleLabel"/>
+			<mx:ViewStack id="slideViews"  width="100%" height="100%">
+			  <mx:Canvas id="blankSlide" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 					<mx:Label text="" fontSize="20" color="#A1A1A2" textAlign="right" right="10" top="10" height="31" left="10"/>
-				</mx:Canvas> 
-				<mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
-		<mx:TabNavigator width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		     </mx:Canvas> 
+		     <mx:Canvas id="slideDesignView" width="100%" height="100%" styleName="form">
+  		    
+  		      <mx:TabNavigator width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 					
-			<mx:VBox label="Slide" width="100%" height="100%">
+			  <mx:VBox label="Slide" width="100%" height="100%">
 				<mx:HBox width="100%" horizontalGap="10">
 					<mx:Label text="Slide Name:"/>
 					<mx:TextInput id="sdName" text="{fullSlideDesign.@name}" width="100%" change="dirty.setDirty()"/>
@@ -959,12 +964,12 @@
 				</mx:Canvas>
 				
 			</mx:ViewStack>
-			<mx:ControlBar horizontalAlign="right">
+			<mx:ControlBar horizontalAlign="right" width="100%">
 			    <util:DirtyNote id="dirty"/>
 				<mx:Button id="saveSlideButton" label="Save" click="onSaveSlide();" icon="@Embed(source='../../assets/save.png')" toolTip="Save" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
 			
-		</mx:Panel>
+		</util:PanelBox>
 	</mx:HDividedBox>
 	
 	

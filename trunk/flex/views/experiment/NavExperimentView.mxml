@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	label="Experiments" width="100%" height="100%" 
-	xmlns:views="views.*" xmlns:experiment="views.experiment.*"
+	xmlns:views="views.*" 
+	xmlns:experiment="views.experiment.*"
+	xmlns:util="views.util.*"
 	creationPolicy="all"  show="init()"
 	cornerRadius="10"  >
      
@@ -156,7 +158,9 @@
     	
 
     	private var showDownloads:Boolean = false;
-    
+    	
+    	public var shortcutToDownloadTab:Boolean = false;
+    	public var shortcutToExperimentListTab:Boolean = false;
 
 	 	public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
 	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
@@ -175,6 +179,22 @@
 			if (selectedRequestNumber == null) {
             	initializeExperiments();
    			} 
+   			
+   			if (this.shortcutToDownloadTab || this.shortcutToExperimentListTab) {
+   				if (this.currentState == "AdminState") {
+   					this.lastMonthCheckbox.selected = true;
+   					this.refreshExperiments();
+   				}
+   			}
+   			if (this.shortcutToDownloadTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.downloadView;
+        	} else if (this.shortcutToExperimentListTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
+        	}
+
+
 		}
 		
 		public function checkSecurity():void {
@@ -238,6 +258,16 @@
 			this.treeExpansionStack.selectedIndex = 1;        		
         	
         	callLater(reselectTreeItem);
+        	
+        	if (this.shortcutToDownloadTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.downloadView;
+        		this.shortcutToDownloadTab = false;
+        	} else if (this.shortcutToExperimentListTab) {
+        		this.theViews.selectedChild = this.browseView;
+        		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
+        		this.shortcutToExperimentListTab = false;
+        	}
 		}
 	    
 	    
@@ -437,8 +467,8 @@
 			} 
 			
 			if (browseTree.selectedItem.name() == 'Request') {
-				detailView.title = "Experiment " + browseTree.selectedItem.@requestNumber;
-				editView.title = "Edit Experiment " + browseTree.selectedItem.@requestNumber;
+				detailView.titleLabel.text = "Experiment " + browseTree.selectedItem.@requestNumber;
+				editView.titleLabel.text = "Edit Experiment " + browseTree.selectedItem.@requestNumber;
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;
@@ -451,7 +481,7 @@
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
-					browseView.title = browseTree.selectedItem.@projectName + "\t" + rowCountMessage;
+					browseView.titleLabel.text = browseTree.selectedItem.@projectName + "\t" + rowCountMessage;
 					selectedIdProject = browseTree.selectedItem.@idProject.toString();
 					if (!browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.addChild(browseView.projectDetailView);
@@ -459,7 +489,7 @@
 					getProject.send();
 					
 				} else {
-					browseView.title =  browseTree.selectedItem.@label + "\t" + rowCountMessage;;
+					browseView.titleLabel.text =  browseTree.selectedItem.@label + "\t" + rowCountMessage;;
 					selectedIdProject = null;
 					if (browseView.theViews.contains(browseView.projectDetailView)) {
 						browseView.theViews.removeChild(browseView.projectDetailView);
@@ -612,7 +642,7 @@
 				params.searchPublicProjects = 'N';
 				getProjectRequestList.send(params);
 				
-			    detailView.title = "Experiment " + selectedRequestNumber;
+			    detailView.titleLabel.text = "Experiment " + selectedRequestNumber;
 			    
 			    
 			}
@@ -1035,10 +1065,10 @@
      
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
-  <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="0">
- 
-	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1">
-	    <mx:HBox width="100%" id="hbox4" styleName="navBox">
+  <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
+   <util:PanelBox height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
+	<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox1" >
+	    <mx:HBox width="100%" id="hbox4" > 
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 		    	  <mx:RadioButtonGroup id="experimentRadioGroup"/>
 		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0">
@@ -1079,12 +1109,15 @@
 	    	
 	    </mx:HBox>
 	</mx:HBox>		
+   	
+   </util:PanelBox>
      
 	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
 	
 	   
 			
-			<mx:Panel label="Experiments" width="220" height="100%" title="Experiments" id="navPanel" >
+			<util:PanelBox  width="240" height="100%" id="navPanel" >
+				<mx:Label id="titleLabel" styleName="titleLabel" text="Experiments"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
@@ -1125,15 +1158,15 @@
 						        	<mx:disabledIcon>@Embed(source='../../assets/folder_delete_disable.png')</mx:disabledIcon>
 						        </mx:LinkButton>
 							
-						</mx:VBox>
+			  			</mx:VBox>
 						<mx:VBox verticalGap="0">
 						        <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline"/>
 						</mx:VBox>
 								
-					</mx:ControlBar>
-			</mx:Panel> 
+					</mx:ControlBar> 
+			</util:PanelBox>  
 
-
+ 
  
 	    
  

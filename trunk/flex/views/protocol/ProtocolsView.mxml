@@ -83,7 +83,8 @@
 			import mx.managers.PopUpManager;
 			
 			
-			
+			[Bindable]
+			private var titleLabelText:String = "";
 			
 			[Bindable]
 			public var selectedProtocol:Object;
@@ -212,10 +213,10 @@
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
 					lastSavedProtocolId = null;
-					protocolViews.selectedChild = blankProtocol;
+			 		protocolViews.selectedChild = blankProtocol;
 					this.saveProtocolButton.enabled = false;
 					this.deleteProtocolButton.enabled = false;
-					bodyPanel.title = "Protocol: ";
+					this.titleLabelText = "Protocol: ";
 					callGetProtocolList();
 					dirty.resetDirty();
 				}
@@ -272,7 +273,7 @@
 			public function onBrowseProtocols(event:Event):void {
 				if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.name() == 'Protocol') {
 					selectedIdx = browseProtocols.selectedIndex;
-					bodyPanel.title = protocolList.(@protocolClassName == browseProtocols.selectedItem.@protocolClassName).@label+": " + browseProtocols.selectedItem.@label;
+					this.titleLabelText = protocolList.(@protocolClassName == browseProtocols.selectedItem.@protocolClassName).@label+": " + browseProtocols.selectedItem.@label;
 					var params:Object = new Object();
 					params.id = browseProtocols.selectedItem.@id;
 					params.protocolClassName = browseProtocols.selectedItem.@protocolClassName;
@@ -285,8 +286,8 @@
 					addProtocolButton.enabled =    parentApplication.hasPermission("canWriteDictionaries") || (!parentApplication.isGuestMode() && browseProtocols.selectedItem.@protocolClassName == "hci.gnomex.model.AnalysisProtocol") ? true : false;
 					deleteProtocolButton.enabled = false;
 					saveProtocolButton.enabled = false;
-					bodyPanel.title = "Protocol: ";
-					bodyPanel.titleIcon = null;
+					this.titleLabelText = "Protocol: ";
+					
 					protocolViews.selectedChild = blankProtocol;
 				} else {
 					addProtocolButton.enabled = false;
@@ -363,8 +364,10 @@
 	<mx:XMLListCollection id="protocols" source="{protocolList}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-		<mx:Panel width="220" height="100%" title="Protocols" layout="absolute">
-				<mx:Tree 
+	  <util:PanelBox width="240" height="100%"  >
+		<mx:Label id="titleLabel123" styleName="titleLabel" text="Protocols"/>
+		<mx:Canvas  alpha="1" width="100%" height="100%" >
+				<mx:Tree  
 					id="browseProtocols" 
 					right="0" left="0" bottom="0" top="0"
 					iconFunction="getTreeIcon"
@@ -376,7 +379,8 @@
 					change="onBrowseProtocols(event);"
 					> 
 				</mx:Tree>
-			<mx:ControlBar horizontalAlign="left" verticalAlign="top" x="0" y="924" width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		</mx:Canvas>
+			<mx:ControlBar horizontalAlign="left" width="80%" >
 				<mx:VBox verticalGap="0">
 					<mx:LinkButton id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../../assets/brick_add.png')" toolTip="Add protocol" label="New protocol" enabled="false" disabledIcon="@Embed(source='../../assets/brick_add_disable.png')" textDecoration="underline"/>
 					<mx:LinkButton id="deleteProtocolButton" click="onDelete()" icon="@Embed('../../assets/delete.png')" toolTip="Delete protocol" label="Delete protocol"  enabled="false" textDecoration="underline">
@@ -386,8 +390,13 @@
 				</mx:VBox>
 				<mx:LinkButton label="Refresh" id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
 			</mx:ControlBar>
-		</mx:Panel>
-		<mx:TitleWindow id="bodyPanel" height="100%" dropShadowEnabled="true" width="100%" layout="absolute" paddingTop="0" headerHeight="22">
+	  </util:PanelBox>
+	  <util:PanelBox id="bodyPanel"  
+	  	height="100%" dropShadowEnabled="true" width="100%" >
+		<mx:Label id="titleLabel" styleName="titleLabel" text="{titleLabelText}"/>
+		
+		<mx:Canvas width="100%" height="100%" >
+			
 		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0" creationPolicy="all">
 		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 			<mx:Label text="" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
@@ -456,11 +465,13 @@
 			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{fullProtocol.protocolClassName}" left="0" top="0"/>
 		</mx:Canvas>
 		</mx:ViewStack>
-			<mx:ControlBar width="80%" paddingBottom="4" paddingLeft="4" paddingRight="4" horizontalAlign="right" paddingTop="4" x="0" y="655">
+					</mx:Canvas>
+			<mx:ControlBar width="100%"  horizontalAlign="right">
 			    <util:DirtyNote id="dirty"/>
 				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
-		</mx:TitleWindow>
+
+		</util:PanelBox>
 		
 		
 	</mx:HDividedBox>

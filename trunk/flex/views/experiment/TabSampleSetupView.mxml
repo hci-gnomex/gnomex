@@ -131,7 +131,7 @@
 		
 		public function getDefaultIdSeqRunType():String {
 			var idSeqRunType:String = "";
-			for each(var item:Object in this.parentDocument.seqSetup1View.seqRunTypeCombo.dataProvider) {
+			for each(var item:Object in this.parentDocument.seqSetup1View.seqRunRepeater.dataProvider) {
 				if (item.@display.toUpperCase().indexOf("SINGLE") > -1) {
 					idSeqRunType = item.@value;
 					break;

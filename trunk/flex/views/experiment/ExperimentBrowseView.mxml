@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"   
 	xmlns:experiment="views.experiment.*"  
 	xmlns:util="views.util.*" 
-	verticalGap="0" borderThicknessTop="0">
+	verticalGap="0" >
 	   
-  
+<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/> 
    
    <mx:HTTPService  
     id="getRequest" 
@@ -469,10 +469,10 @@
 	
 </mx:VBox>		     
 		
-	<mx:ControlBar width="100%" >
-		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" horizontalGap="0">
+	<mx:ControlBar width="100%"   height="34">
+		<mx:HBox height="100%" verticalAlign="bottom" width="100%" horizontalAlign="left" horizontalGap="0">
 			<mx:ViewStack  id="buttonStack"  width="100%" >
-	            <mx:HBox horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
+	            <mx:HBox horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%" verticalAlign="bottom">
  					<mx:Button  visible="false"/>
  	            </mx:HBox>
 	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
@@ -520,7 +520,7 @@
 	</mx:ControlBar>
 	
 
-</mx:Panel>
+</util:PanelBox>
 
 
 

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Genome Analyzer Pipeline"  
+<util:PanelBox 
 	xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
 	width="100%" height="100%"  
-	title="Genome Analyzer Pipeline" 
-	borderThicknessTop="2">
+>
+<mx:Label id="titleLabel" styleName="titleLabel" text="Genome Analyzer Pipeline"/>
 	
 	<mx:HTTPService  
     id="getWorkList" 
@@ -228,4 +228,4 @@
 
  </mx:ControlBar>						
 
-</mx:Panel>
+</util:PanelBox>

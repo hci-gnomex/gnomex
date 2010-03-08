@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"   
+	xmlns:views="views.*"  
+	xmlns:util="views.util.*"
+	creationPolicy="all" width="100%" height="100%"  backgroundImage="@Embed(source='../../assets/panelLaunch.png')" backgroundSize="100%">
+  
+
+</mx:VBox>

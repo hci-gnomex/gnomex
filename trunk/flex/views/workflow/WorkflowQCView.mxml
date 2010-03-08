@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Sample Quality"  
+<util:PanelBox label="Sample Quality"  
 	xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
-	width="100%" height="100%" 
-	title="Sample Quality" 
-	borderThicknessTop="2">
+	width="100%" height="100%" > 
+<mx:Label id="titleLabel" styleName="titleLabel" text="Sample Quality"/>
 	
 	<mx:HTTPService 
     id="getWorkListQC" 
@@ -288,4 +287,4 @@
 
  </mx:ControlBar>						
 
-</mx:Panel>
+</util:PanelBox>
