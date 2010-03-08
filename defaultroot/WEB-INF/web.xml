@@ -128,11 +128,13 @@
 			<url-pattern>GetAppUser.gx</url-pattern>
 			<url-pattern>GetBillingItemList.gx</url-pattern>
 			<url-pattern>GetBillingRequestList.gx</url-pattern>
-			<url-pattern>GetBillingTemplateList.gx</url-pattern>
+			<url-pattern>getPricingList.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
+			<url-pattern>MovePriceCategory.gx</url-pattern>
 			<url-pattern>ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>ShowBillingInvoiceForm.gx</url-pattern>
 			<url-pattern>ShowBillingMonthendReport.gx</url-pattern>
+			<url-pattern>ShowBillingTotalByLabReport.gx</url-pattern>
 			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 

@@ -85,23 +85,11 @@
 	</Dictionary>
 	
 
-  <Dictionary displayName="Billing Category" className="hci.gnomex.model.BillingCategory" />
   <Dictionary displayName="Billing Charge Kind" className="hci.gnomex.model.BillingChargeKind" />
   <Dictionary displayName="Billing Period" className="hci.gnomex.model.BillingPeriod" />
-  <Dictionary displayName="Billing Price" className="hci.gnomex.model.BillingPrice" >
-      <Filter className="hci.gnomex.model.BillingCategory" filterField="idBillingCategory"/>
-      <Filter className="hci.gnomex.model.BillingTemplate" filterField="idBillingTemplate"/>
-  </Dictionary>
   <Dictionary displayName="Billing Category for Microarray Analysis" className="hci.gnomex.model.BillingSlideServiceClass" />
   <Dictionary displayName="Billing Category for Microarray Product" className="hci.gnomex.model.BillingSlideProductClass" />
   <Dictionary displayName="Billing Status" className="hci.gnomex.model.BillingStatus" />
-  <Dictionary displayName="Billing Template" className="hci.gnomex.model.BillingTemplate" >
-      <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
-  </Dictionary>
-  <Dictionary displayName="Billing Template Entry" className="hci.gnomex.model.BillingTemplateEntry" >
-      <Filter className="hci.gnomex.model.BillingTemplate" filterField="idBillingTemplate"/>
-      <Filter className="hci.gnomex.model.BillingCategory" filterField="idBillingCategory"/>
-  </Dictionary>
 
 
 	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />

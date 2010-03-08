@@ -2,17 +2,14 @@ package hci.gnomex.utility;
 
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.AnalysisType;
-import hci.gnomex.model.BillingCategory;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.Label;
-import hci.gnomex.model.Application;
 import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.OligoBarcode;
@@ -34,12 +31,10 @@ import hci.gnomex.model.SlideSource;
 import hci.gnomex.model.SubmissionInstruction;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.hibernate.Session;
 
@@ -77,12 +72,7 @@ public class DictionaryHelper implements Serializable {
   private Map              featureExtractionProtocolMap = new HashMap();
   private Map              seqLibProtocolMap = new HashMap();
   
-  
-  
-  private List billingTemplates = null;
-  private Map billingCategoryMap = new TreeMap();
-  private Map billingPriceMap = new TreeMap();
-  
+
   
   public DictionaryHelper() {    
   }
@@ -99,7 +89,6 @@ public class DictionaryHelper implements Serializable {
   public static synchronized DictionaryHelper reload(Session sess) {
     theInstance = new DictionaryHelper();
     theInstance.loadDictionaries(sess);  
-    theInstance.reloadBillingTemplates(sess);
     return theInstance;
     
   }
@@ -252,63 +241,6 @@ public class DictionaryHelper implements Serializable {
     }     
    }
   
-  public void reloadBillingTemplates(Session sess) {
-    billingTemplates = null;
-    billingCategoryMap = new HashMap();
-    billingPriceMap = new HashMap();
-    loadBillingTemplates(sess);
-  }
-  
-  
-  public void loadBillingTemplates(Session sess) {
-    if (billingTemplates == null) {
-      billingTemplates = new ArrayList();
-      StringBuffer buf = new StringBuffer("SELECT t from BillingTemplate t ORDER BY t.description ");
-      List results = sess.createQuery(buf.toString()).list();
-      for(Iterator i = results.iterator(); i.hasNext();) {
-        BillingTemplate bt = (BillingTemplate)i.next();
-        billingTemplates.add(bt);
-        billingCategoryMap.put(bt.getIdBillingTemplate(), new ArrayList());
-      }
-
-      buf = new StringBuffer();
-      buf.append("SELECT t.idBillingTemplate, cat from BillingTemplate t, BillingTemplateEntry x, BillingCategory cat ");
-      buf.append("WHERE  t.idBillingTemplate = x.idBillingTemplate ");
-      buf.append("AND    x.idBillingCategory = cat.idBillingCategory ");
-      buf.append("ORDER BY x.idBillingTemplate, x.sortOrder ");
-      results = sess.createQuery(buf.toString()).list();
-      for (Iterator i = results.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
-        Integer idBillingTemplate = (Integer)row[0];
-        BillingCategory category = (BillingCategory)row[1];
-    
-        List categories = (List)billingCategoryMap.get(idBillingTemplate);
-        if (categories == null) {
-          categories = new ArrayList();
-          billingCategoryMap.put(idBillingTemplate, categories);
-        }
-        categories.add(category);
-    
-        billingPriceMap.put(category.getIdBillingCategory(), new ArrayList());
-      }
-
-      buf = new StringBuffer();
-      buf.append("SELECT bp from BillingPrice bp");
-      results = sess.createQuery(buf.toString()).list();
-      for (Iterator i = results.iterator(); i.hasNext();) {
-        BillingPrice bp = (BillingPrice)i.next();
-    
-        List prices = (List)billingPriceMap.get(bp.getIdBillingCategory());
-        if (prices == null) {
-          prices = new ArrayList();
-          billingPriceMap.put(bp.getIdBillingCategory(), prices);
-        }
-        prices.add(bp);
-      }
-      
-    }
-      
-  }
   
   public String getSampleType(Sample sample) {
     String name = "";
@@ -577,19 +509,7 @@ public class DictionaryHelper implements Serializable {
     return slideProductMap;
   }
   
-  
-  public List getBillingTemplates() {
-    return billingTemplates;
-  }
-  
-  public List getBillingCategories(Integer idBillingTemplate) {    
-    return (List)billingCategoryMap.get(idBillingTemplate);
-  }
 
-  public List getBillingPrices(Integer idBillingCategory) {    
-    return (List)billingPriceMap.get(idBillingCategory);
-  }
-  
   public String getProperty(String name) {
     if (propertyMap != null && propertyMap.containsKey(name)) {
       return (String)propertyMap.get(name);

@@ -21,8 +21,8 @@ public class BillingItem extends HibernateDetailObject {
   private String         codeBillingStatus;
   private Integer        idBillingPeriod;  
   private BillingPeriod  billingPeriod;
-  private Integer        idBillingCategory;
-  private Integer        idBillingPrice;
+  private Integer        idPriceCategory;
+  private Integer        idPrice;
   private Integer        idRequest;
   private Integer        idBillingAccount;
   private BillingAccount billingAccount;
@@ -111,26 +111,6 @@ public class BillingItem extends HibernateDetailObject {
   }
 
   
-  public Integer getIdBillingCategory() {
-    return idBillingCategory;
-  }
-
-  
-  public void setIdBillingCategory(Integer idBillingCategory) {
-    this.idBillingCategory = idBillingCategory;
-  }
-
-  
-  public Integer getIdBillingPrice() {
-    return idBillingPrice;
-  }
-
-  
-  public void setIdBillingPrice(Integer idBillingPrice) {
-    this.idBillingPrice = idBillingPrice;
-  }
-
-  
   public Integer getIdBillingAccount() {
     return idBillingAccount;
   }
@@ -163,6 +143,7 @@ public class BillingItem extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getBillingAccount");
     this.excludeMethodFromXML("getLab");
+    this.excludeMethodFromXML("getBillingPeriod");
   }
 
   
@@ -233,5 +214,25 @@ public class BillingItem extends HibernateDetailObject {
   
   public void setBillingPeriod(BillingPeriod billingPeriod) {
     this.billingPeriod = billingPeriod;
+  }
+
+  
+  public Integer getIdPriceCategory() {
+    return idPriceCategory;
+  }
+
+  
+  public void setIdPriceCategory(Integer idPriceCategory) {
+    this.idPriceCategory = idPriceCategory;
+  }
+
+  
+  public Integer getIdPrice() {
+    return idPrice;
+  }
+
+  
+  public void setIdPrice(Integer idPrice) {
+    this.idPrice = idPrice;
   }
 }

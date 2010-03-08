@@ -58,9 +58,9 @@ public class BillingItemParser implements Serializable {
         billingItem.setCategory(node.getAttributeValue("category"));
         billingItem.setCodeBillingChargeKind(node.getAttributeValue("codeBillingChargeKind"));
         billingItem.setDescription(node.getAttributeValue("description"));
-        billingItem.setIdBillingCategory(!node.getAttributeValue("idBillingCategory").equals("") ? new Integer(node.getAttributeValue("idBillingCategory")) : null);
+        billingItem.setIdPriceCategory(!node.getAttributeValue("idPriceCategory").equals("") ? new Integer(node.getAttributeValue("idPriceCategory")) : null);
         billingItem.setIdBillingPeriod(!node.getAttributeValue("idBillingPeriod").equals("") ? new Integer(node.getAttributeValue("idBillingPeriod")) : null);
-        billingItem.setIdBillingPrice(!node.getAttributeValue("idBillingPrice").equals("") ? new Integer(node.getAttributeValue("idBillingPrice")) : null);
+        billingItem.setIdPrice(!node.getAttributeValue("idPrice").equals("") ? new Integer(node.getAttributeValue("idPrice")) : null);
         billingItem.setIdRequest(!node.getAttributeValue("idRequest").equals("") ? new Integer(node.getAttributeValue("idRequest")) : null);
         billingItem.setIdBillingAccount(!node.getAttributeValue("idBillingAccount").equals("") ? new Integer(node.getAttributeValue("idBillingAccount")) : null);
         billingItem.setIdLab(!node.getAttributeValue("idLab").equals("") ? new Integer(node.getAttributeValue("idLab")) : null);

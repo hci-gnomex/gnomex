@@ -5,7 +5,9 @@ import java.io.Serializable;
 
 
 
-public class RequestCategory extends DictionaryEntry implements Serializable {
+public class RequestCategory extends DictionaryEntry implements Comparable, Serializable {
+
+
   public static final String   AGILIENT_MICROARRAY_REQUEST_CATEGORY = "AGIL";
   public static final String   AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY = "AGIL1";
   public static final String   AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY = "AFFY";
@@ -108,6 +110,15 @@ public class RequestCategory extends DictionaryEntry implements Serializable {
   }
 
   
+  
+  public int compareTo(Object o) {
+    if (o instanceof RequestCategory) {
+      RequestCategory other = (RequestCategory)o;
+      return this.codeRequestCategory.compareTo(other.getCodeRequestCategory());
+    } else {
+      return -1;
+    }
+  }
   
 
 }

@@ -247,20 +247,6 @@ CREATE TABLE `gnomex`.`BillingAccount` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`BillingCategory`;
-CREATE TABLE `gnomex`.`BillingCategory` (
-  `idBillingCategory` INT(10) NOT NULL AUTO_INCREMENT,
-  `description` VARCHAR(500) NOT NULL,
-  `pluginClassName` VARCHAR(500) NULL,
-  `codeBillingChargeKind` VARCHAR(10) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idBillingCategory`),
-  CONSTRAINT `FK_BillingTemplate_BillingChargeKind` FOREIGN KEY `FK_BillingTemplate_BillingChargeKind` (`codeBillingChargeKind`)
-    REFERENCES `gnomex`.`BillingChargeKind` (`codeBillingChargeKind`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`BillingChargeKind`;
 CREATE TABLE `gnomex`.`BillingChargeKind` (
@@ -282,16 +268,16 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `totalPrice` DECIMAL(8, 2) NULL,
   `idBillingPeriod` INT(10) NULL,
   `codeBillingStatus` VARCHAR(10) NULL,
-  `idBillingCategory` INT(10) NULL,
-  `idBillingPrice` INT(10) NULL,
+  `idPriceCategory` INT(10) NULL,
+  `idPrice` INT(10) NULL,
   `idRequest` INT(10) NOT NULL,
   `idBillingAccount` INT(10) NOT NULL,
   `percentagePrice` DECIMAL(3, 2) NOT NULL,
   `notes` VARCHAR(500) NULL,
   `idLab` INT(10) NOT NULL,
   PRIMARY KEY (`idBillingItem`),
-  CONSTRAINT `FK_BillingItem_BillingCategory` FOREIGN KEY `FK_BillingItem_BillingCategory` (`idBillingCategory`)
-    REFERENCES `gnomex`.`BillingCategory` (`idBillingCategory`)
+  CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY `FK_BillingItem_PriceCategory` (`idPriceCategory`)
+    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_BillingItem_BillingChargeKind` FOREIGN KEY `FK_BillingItem_BillingChargeKind` (`codeBillingChargeKind`)
@@ -306,8 +292,8 @@ CREATE TABLE `gnomex`.`BillingItem` (
     REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_BillingPrice` FOREIGN KEY `FK_BillingItem_BillingPrice` (`idBillingPrice`)
-    REFERENCES `gnomex`.`BillingPrice` (`idBillingPrice`)
+  CONSTRAINT `FK_BillingItem_Price` FOREIGN KEY `FK_BillingItem_Price` (`idPrice`)
+    REFERENCES `gnomex`.`Price` (`idPrice`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_BillingItem_Lab` FOREIGN KEY `FK_BillingItem_Lab` (`idLab`)
@@ -333,24 +319,6 @@ CREATE TABLE `gnomex`.`BillingPeriod` (
   `endDate` DATETIME NOT NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idBillingPeriod`)
-)
-ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`BillingPrice`;
-CREATE TABLE `gnomex`.`BillingPrice` (
-  `idBillingPrice` INT(10) NOT NULL AUTO_INCREMENT,
-  `idBillingCategory` INT(10) NULL,
-  `idBillingTemplate` INT(10) NULL,
-  `description` VARCHAR(100) NULL,
-  `filter1` VARCHAR(10) NULL,
-  `filter2` VARCHAR(10) NULL,
-  `unitPrice` DECIMAL(6, 2) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idBillingPrice`),
-  CONSTRAINT `FK_BillingPrice_BillingTemplate` FOREIGN KEY `FK_BillingPrice_BillingTemplate` (`idBillingTemplate`)
-    REFERENCES `gnomex`.`BillingTemplate` (`idBillingTemplate`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -381,36 +349,107 @@ CREATE TABLE `gnomex`.`BillingStatus` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`BillingTemplate`;
-CREATE TABLE `gnomex`.`BillingTemplate` (
-  `idBillingTemplate` INT(10) NOT NULL AUTO_INCREMENT,
-  `description` VARCHAR(100) NULL,
-  `codeRequestCategory` VARCHAR(10) NULL,
+
+
+
+DROP TABLE IF EXISTS `gnomex`.`PriceSheet`;
+CREATE TABLE `gnomex`.`PriceSheet` (
+  `idPriceSheet` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(200) NULL,
+  `description` VARCHAR(500) NULL,
   `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idBillingTemplate`),
-  CONSTRAINT `FK_BillingTemplateCategory_RequestCategory` FOREIGN KEY `FK_BillingTemplateCategory_RequestCategory` (`codeRequestCategory`)
+  PRIMARY KEY (`idPriceSheet`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`PriceSheetRequestCategory`;
+CREATE TABLE `gnomex`.`PriceSheetRequestCategory` (
+  `idPriceSheet` INT(10) NOT NULL,
+  `codeRequestCategory` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idPriceSheet`, `codeRequestCategory`),
+  CONSTRAINT `FK_PriceSheetRequestCategory_RequestCategory` FOREIGN KEY `FK_PriceSheetRequestCategory_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_PriceSheetRequestCategory_PriceSheet` FOREIGN KEY `FK_PriceSheetRequestCategory_PriceSheet` (`idPriceSheet`)
+    REFERENCES `gnomex`.`PriceSheet` (`idPriceSheet`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`BillingTemplateEntry`;
-CREATE TABLE `gnomex`.`BillingTemplateEntry` (
-  `idBillingTemplate` INT(10) NOT NULL,
-  `idBillingCategory` INT(10) NOT NULL,
+DROP TABLE IF EXISTS `gnomex`.`PriceSheetPriceCategory`;
+CREATE TABLE `gnomex`.`PriceSheetPriceCategory` (
+  `idPriceSheet` INT(10) NOT NULL,
+  `idPriceCategory` INT(10) NOT NULL,
   `sortOrder` INT(10) NULL,
-  PRIMARY KEY (`idBillingCategory`, `idBillingTemplate`),
-  CONSTRAINT `FK_BillingTemplateEntry_BillingCategory` FOREIGN KEY `FK_BillingTemplateEntry_BillingCategory` (`idBillingCategory`)
-    REFERENCES `gnomex`.`BillingCategory` (`idBillingCategory`)
+  PRIMARY KEY (`idPriceSheet`, `idPriceCategory`),
+  CONSTRAINT `FK_PriceSheetPriceCategory_PriceSheet` FOREIGN KEY `FK_PriceSheetPriceCategory_PriceSheet` (`idPriceSheet`)
+    REFERENCES `gnomex`.`PriceSheet` (`idPriceSheet`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingTemplateEntry_BillingTemplate` FOREIGN KEY `FK_BillingTemplateEntry_BillingTemplate` (`idBillingTemplate`)
-    REFERENCES `gnomex`.`BillingTemplate` (`idBillingTemplate`)
+  CONSTRAINT `FK_PriceSheetPriceCategory_PriceCategory` FOREIGN KEY `FK_PriceSheetPriceCategory_PriceCategory` (`idPriceCategory`)
+    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`PriceCategory`;
+CREATE TABLE `gnomex`.`PriceCategory` (
+  `idPriceCategory` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(200) NOT NULL,
+  `description` VARCHAR(500) NOT NULL,
+  `codeBillingChargeKind` VARCHAR(10) NULL,
+  `pluginClassName` VARCHAR(500) NULL,
+  `dictionaryClassNameFilter1` VARCHAR(500) NULL,
+  `dictionaryClassNameFilter2` VARCHAR(500) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idPriceCategory`),
+  CONSTRAINT `FK_PriceCategory_BillingChargeKind` FOREIGN KEY `FK_PriceCategory_BillingChargeKind` (`codeBillingChargeKind`)
+    REFERENCES `gnomex`.`BillingChargeKind` (`codeBillingChargeKind`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
+DROP TABLE IF EXISTS `gnomex`.`Price`;
+CREATE TABLE `gnomex`.`Price` (
+  `idPrice` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(200) NULL,
+  `description` VARCHAR(500) NULL,
+  `unitPrice` DECIMAL(6, 2) NULL,
+  `unitPriceExternal` DECIMAL(6, 2) NULL,
+  `idPriceCategory` INT(10) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idPrice`),
+  CONSTRAINT `FK_Price_PriceCategory` FOREIGN KEY `FK_Price_PriceCategory` (`idPriceCategory`)
+    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
+DROP TABLE IF EXISTS `gnomex`.`PriceCriteria`;
+CREATE TABLE `gnomex`.`PriceCriteria` (
+  `idPriceCriteria` INT(10) NOT NULL AUTO_INCREMENT,
+  `filter1` VARCHAR(10) NULL,
+  `filter2` VARCHAR(10) NULL,
+  `idPrice` INT(10) NULL,
+  PRIMARY KEY (`idPriceCriteria`),
+  CONSTRAINT `FK_PriceCriteria_Price` FOREIGN KEY `FK_PriceCriteria_Price` (`idPrice`)
+    REFERENCES `gnomex`.`Price` (`idPrice`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
+
+
+
 
 DROP TABLE IF EXISTS `gnomex`.`BioanalyzerChipType`;
 CREATE TABLE `gnomex`.`BioanalyzerChipType` (
