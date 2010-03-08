@@ -107,6 +107,12 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
                 bi.setPercentagePrice(percentage);
+                if (bi.getQty() == null) {
+                  throw new Exception("Cannot split billing item " + bi.getDescription() + " because qty is blank.");
+                }
+                if (bi.getUnitPrice() == null) {
+                  throw new Exception("Cannot split billing item " + bi.getDescription() + " because unit price is blank.");
+                }
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
                   bi.setTotalPrice(bi.getUnitPrice().multiply(bi.getPercentagePrice().multiply(new BigDecimal(bi.getQty().intValue()))));          
                 }
@@ -135,13 +141,14 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setQty(bi.getQty());
                 billingItem.setUnitPrice(bi.getUnitPrice());
                 billingItem.setPercentagePrice(percentage);
+                billingItem.setNotes(bi.getNotes());
                 if (bi.getQty().intValue() > 0 && bi.getUnitPrice() != null) {
                   billingItem.setTotalPrice(bi.getUnitPrice().multiply(billingItem.getPercentagePrice().multiply(new BigDecimal(billingItem.getQty().intValue()))));          
                 }
                 billingItem.setCodeBillingStatus(BillingStatus.PENDING);
                 billingItem.setIdRequest(parser.getRequest().getIdRequest());
-                billingItem.setIdBillingPrice(bi.getIdBillingPrice());
-                billingItem.setIdBillingCategory(bi.getIdBillingCategory());
+                billingItem.setIdPrice(bi.getIdPrice());
+                billingItem.setIdPriceCategory(bi.getIdPriceCategory());
                 billingItem.setCategory(bi.getCategory());
                 
                 sess.save(billingItem);

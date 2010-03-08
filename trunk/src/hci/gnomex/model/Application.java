@@ -13,6 +13,18 @@ public class Application extends DictionaryEntry implements Serializable, Compar
   public static final String   HYBMAP_MICROARRAY_CATEGORY       = "WTRANSCRP";
   public static final String   MIRNA_MICROARRAY_CATEGORY        = "MIRNA";
   
+  public static final String   BIOANALYZER_QC                   = "BIOAN";
+  public static final String   QUBIT_PICOGREEN_QC               = "QUBIT";
+  public static final String   DNA_GEL_QC                       = "DNAGEL";
+  
+  public static final String   CHIP_SEQ_CATEGORY                 = "CHIPSEQ";
+  public static final String   MRNA_SEQ                          = "MRNASEQ";
+  public static final String   DIRECTIONAL_MRNA_SEQ              = "DMRNASEQ";
+  public static final String   SMALL_MRNA_SEQ                    = "SMRNASEQ";
+  public static final String   GENOMIC_DNA_SEQ                   = "DNASEQ";
+  public static final String   TARGETED_GENOMIC_DNA_SEQ          = "TDNASEQ";
+  
+  
 
   private String codeApplication;
   private String application;

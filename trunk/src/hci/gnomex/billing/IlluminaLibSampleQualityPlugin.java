@@ -1,11 +1,12 @@
 package hci.gnomex.billing;
 
-import hci.gnomex.model.BillingCategory;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingPrice;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.utility.DictionaryHelper;
@@ -21,8 +22,7 @@ import org.hibernate.Session;
 
 
 public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
-
-  public List createBillingItems(Session sess, BillingPeriod billingPeriod, BillingCategory billingCategory, List billingPrices, Request request) {
+  public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
     List billingItems = new ArrayList();
     Map codeChipTypeMap = new HashMap();
     
@@ -54,35 +54,44 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
       Integer qty = (Integer)codeChipTypeMap.get(codeBioanalyzerChipType);
       
       // Find the billing price for the bioanalyzer chip type
-      BillingPrice billingPrice = null;
-      for(Iterator i1 = billingPrices.iterator(); i1.hasNext();) {
-        BillingPrice bp = (BillingPrice)i1.next();
-        if (bp.getFilter1().equals(codeBioanalyzerChipType)) {
-          billingPrice = bp;
-          break;
+      Price price = null;
+      for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
+        Price p = (Price)i1.next();
+        for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+          PriceCriteria criteria = (PriceCriteria)i2.next();
+          if (criteria.getFilter2() != null && criteria.getFilter2().equals(codeBioanalyzerChipType)) {
+            price = p;
+            break;
+          }
+          
         }
           
       }
       
       // Instantiate a BillingItem for the matched billing price
-      if (billingPrice != null) {
+      if (price != null) {
+        BigDecimal theUnitPrice = price.getUnitPrice();
+        if (request.getLab() != null && request.getLab().getIsExternal() != null && request.getLab().getIsExternal().equalsIgnoreCase("Y")) {
+          theUnitPrice = price.getUnitPriceExternal();
+        }
+        
         BillingItem billingItem = new BillingItem();
-        billingItem.setCategory(billingCategory.getDescription());
-        billingItem.setCodeBillingChargeKind(billingCategory.getCodeBillingChargeKind());
+        billingItem.setCategory(priceCategory.getName());
+        billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
         billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
-        billingItem.setDescription(billingPrice.getDescription());
+        billingItem.setDescription(price.getName());
         billingItem.setQty(qty);
-        billingItem.setUnitPrice(billingPrice.getUnitPrice());
+        billingItem.setUnitPrice(theUnitPrice);
         billingItem.setPercentagePrice(new BigDecimal(1));        
-        if (qty.intValue() > 0 && billingPrice.getUnitPrice() != null) {      
-          billingItem.setTotalPrice(billingPrice.getUnitPrice().multiply(new BigDecimal(qty.intValue())));
+        if (qty.intValue() > 0 && theUnitPrice != null) {      
+          billingItem.setTotalPrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));
         }
         billingItem.setCodeBillingStatus(BillingStatus.PENDING);
         billingItem.setIdRequest(request.getIdRequest());
         billingItem.setIdBillingAccount(request.getIdBillingAccount());        
         billingItem.setIdLab(request.getIdLab());
-        billingItem.setIdBillingPrice(billingPrice.getIdBillingPrice());
-        billingItem.setIdBillingCategory(billingPrice.getIdBillingCategory());
+        billingItem.setIdPrice(price.getIdPrice());
+        billingItem.setIdPriceCategory(price.getIdPriceCategory());
         
         
         billingItems.add(billingItem);
@@ -93,6 +102,7 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
     
     return billingItems;
   }
-  
+
+
 
 }

@@ -4,12 +4,14 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.billing.BillingPlugin;
-import hci.gnomex.model.BillingCategory;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BillingTemplate;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceSheet;
+import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -78,9 +80,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           
           List billingItems = new ArrayList();
  
-          // Read (and cache) the billing templates, categories, and prices
           DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-          dh.loadBillingTemplates(sess);
 
           // Get the current billing period
           BillingPeriod billingPeriod = null;
@@ -97,37 +97,43 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           Request request = (Request)sess.get(Request.class, idRequest);
           NumberFormat nf = NumberFormat.getCurrencyInstance();
           
-          // Find the appropriate billing template
-          BillingTemplate billingTemplate = null;
-          for(Iterator i = dh.getBillingTemplates().iterator(); i.hasNext();) {
-            BillingTemplate bt = (BillingTemplate)i.next();
-            
-            if(bt.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
-              billingTemplate = bt;
-              break;
+          // Find the appropriate price sheet
+          PriceSheet priceSheet = null;
+          List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
+          for(Iterator i = priceSheets.iterator(); i.hasNext();) {
+            PriceSheet ps = (PriceSheet)i.next();
+            for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
+              RequestCategory requestCategory = (RequestCategory)i1.next();
+              if(requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
+                priceSheet = ps;
+                break;
+              }
+              
             }
           }
           
-          if (billingTemplate != null) {
+          if (priceSheet != null) {
             
-            List billingCategories = dh.getBillingCategories(billingTemplate.getIdBillingTemplate());
             
-            for(Iterator i1 = billingCategories.iterator(); i1.hasNext();) {
-              BillingCategory billingCategory = (BillingCategory)i1.next();
+            for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
+              PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
+              PriceCategory priceCategory = priceCategoryX.getPriceCategory();
 
-              List billingPrices = dh.getBillingPrices(billingCategory.getIdBillingCategory());
               
               // Instantiate plugin for billing category
               BillingPlugin plugin = null;
-              try {
-                plugin = (BillingPlugin)Class.forName(billingCategory.getPluginClassname()).newInstance();
-              } catch(Exception e) {
-                log.error("Unable to instantiate billing plugin " + billingCategory.getPluginClassname());
+              if (priceCategory.getPluginClassName() != null) {
+                try {
+                  plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
+                } catch(Exception e) {
+                  log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+                }
+                
               }
               
               // Get the billing items
               if (plugin != null) {
-                List billingItemsForCategory = plugin.createBillingItems(sess, billingPeriod, billingCategory, billingPrices, request);
+                List billingItemsForCategory = plugin.constructBillingItems(sess, billingPeriod, priceCategory, request);
                 billingItems.addAll(billingItemsForCategory);                
               }
             }
