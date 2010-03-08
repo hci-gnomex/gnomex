@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:hci="hci.flex.controls.*"
+	layout="vertical" title="{'Price Category ' + priceCategory.@name}" 
+	width="568" height="338" defaultButton="{saveButton}">
+   
+   <mx:HTTPService             
+    id="savePriceCategory" 
+    url="SavePriceCategory.gx"
+    destination="savePriceCategory" 
+    resultFormat="e4x"
+    result="onSavePriceCategory(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to save price category', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService> 
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import mx.collections.XMLListCollection;   
+		
+		[Bindable]
+		private var priceCategory:Object;
+		
+		
+		private var priceSheet:Object;
+		
+		public function init(priceCategory:Object, priceSheet:Object):void {
+			this.priceCategory = priceCategory;
+			this.priceSheet = priceSheet;
+
+			if (priceCategory.@dictionaryClassNameFilter1 != '') {
+				var filter1Dictionary:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1);
+				if (filter1Dictionary != null) {
+					this.dictionaryFilter1Combo.selectedItem = filter1Dictionary[0];
+				}				
+			}		
+	
+			if (priceCategory.@dictionaryClassNameFilter2 != '') {
+				var filter2Dictionary:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter2);
+				if (filter2Dictionary != null) {
+					this.dictionaryFilter2Combo.selectedItem = filter2Dictionary[0];
+				}				
+			}
+	
+			if (priceCategory.@codeBillingChargeKind != '') {
+				var billingChargeKind:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingChargeKind').DictionaryEntry.(@value == priceCategory.@codeBillingChargeKind);
+				if (billingChargeKind != null) {
+					this.chargeKindCombo.selectedItem = billingChargeKind[0];
+				}				
+			} 
+			
+		}
+	    private function save():void {
+	    	var params:Object = new Object();
+	    	params.idPriceCategory = priceCategory.@idPriceCategory;
+	    	params.name = priceCategoryName.text;
+	    	params.description = priceCategoryDescription.text;
+	    	params.idPriceSheet = priceSheet.@idPriceSheet;
+	    	params.isActive = priceCategoryIsActive.selected ? "Y" : "N";
+	    	if (this.dictionaryFilter1Combo.selectedItem != null && this.dictionaryFilter1Combo.selectedItem.@className != '') {
+		    	params.dictionaryClassNameFilter1 = this.dictionaryFilter1Combo.selectedItem.@className;
+	    	}
+	    	if (this.dictionaryFilter2Combo.selectedItem != null && this.dictionaryFilter2Combo.selectedItem.@className != '') {
+		    	params.dictionaryClassNameFilter2 = this.dictionaryFilter2Combo.selectedItem.@className;
+	    	}
+	    	if (this.chargeKindCombo.selectedItem != null && this.chargeKindCombo.selectedItem.@className != '') {
+		    	params.codeBillingChargeKind = this.chargeKindCombo.selectedItem.@value;
+	    	}
+	    	params.pluginClassName = this.pluginClassName.text;
+
+			savePriceCategory.send(params);		
+		}	
+		
+		private function onSavePriceCategory(event:ResultEvent):void {
+			if (savePriceCategory.lastResult.name() == "SUCCESS") {
+				parentApplication.navBillingView.refreshAndSelectPricing("PriceCategory", savePriceCategory.lastResult.@idPriceCategory);  
+				PopUpManager.removePopUp(this);
+			} else {
+				Alert.show("An error occurred while saving the price category."); 
+			}			
+		}			
+		
+	]]>
+</mx:Script>
+<mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10">
+    <mx:HBox width="100%">
+    	<mx:Label text="Name:" width="80"/>
+    	<mx:TextInput id="priceCategoryName" width="100%" text="{priceCategory.@name}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="" width="80"/>
+    	<mx:CheckBox  label="Active" id="priceCategoryIsActive" width="100%"  selected="{priceCategory.@isActive == 'Y' ? true : false}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="Notes:" width="80"/>
+    	<mx:TextArea id="priceCategoryDescription" width="100%" text="{priceCategory.@description}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="Charge Kind:" width="80"/>
+    	<hci:ComboBox id="chargeKindCombo" width="100%" 
+    		 appendBlankRow="false"   selectedIndex="1"
+    	     labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingChargeKind').DictionaryEntry.(@value != '')}"/>
+    </mx:HBox>    
+
+    <mx:VBox width="100%" verticalGap="4">
+    	<mx:Label text="Determine experiment's price using:" />
+    	<mx:HBox width="100%">
+    	    <mx:Spacer width="80">
+    	    </mx:Spacer>
+	    	<hci:ComboBox id="dictionaryFilter1Combo" width="100%"
+	    		appendBlankRow="true" 
+	    		labelField="@displayName" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary}"/>
+    	</mx:HBox>
+    	<mx:HBox width="100%">
+    	    <mx:Spacer width="80">
+    	    </mx:Spacer>
+	    	<hci:ComboBox id="dictionaryFilter2Combo" width="100%"
+	    		appendBlankRow="true" 
+	    		labelField="@displayName" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary}"/>
+    	</mx:HBox>
+    </mx:VBox>
+
+    <mx:HBox width="100%">
+    	<mx:Label text="Plugin Class:" width="80"/>
+    	<mx:TextInput id="pluginClassName" width="100%" text="{priceCategory.@pluginClassName}"/>
+    </mx:HBox>    
+
+</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" icon="@Embed(source='../../assets/action_save.gif')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

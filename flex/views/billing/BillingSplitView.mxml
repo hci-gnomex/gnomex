@@ -114,7 +114,9 @@
  			if (splitBillingAccounts.lastResult.name() == "SUCCESS") {
  				parentApplication.navBillingView.refresh();
  				mx.managers.PopUpManager.removePopUp(this);		
- 			}	
+ 			} else {
+ 				Alert.show(splitBillingAccounts.lastResult.ERROR.@message, "Unable to split billing items");
+ 			}
 		} 
 		
 		private function calculateTotalPercentage():void {
