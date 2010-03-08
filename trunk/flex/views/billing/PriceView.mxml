@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Price ' + price.@name}" 
+	width="536" height="370" defaultButton="{saveButton}">
+   
+   <mx:HTTPService             
+    id="savePrice" 
+    url="SavePrice.gx"
+    destination="savePrice" 
+    resultFormat="e4x"
+    result="onSavePrice(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to save price', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService> 
+
+<mx:Script>
+	<![CDATA[
+		import views.renderers.ComboBox;
+		import hci.flex.controls.DropdownLabel;
+		import hci.flex.controls.Label;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import mx.collections.XMLListCollection;   
+		
+		[Bindable]
+		private var price:Object;
+		
+		[Bindable]
+		private var criteriaList:XMLListCollection;
+		
+		private var priceCategory:Object;
+		
+		public function init(price:Object, priceCategory:Object):void {
+			this.price = price;
+			this.priceCategory = priceCategory;
+			this.criteriaList = new XMLListCollection(price..PriceCriteria);
+
+			var filter1Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1).@displayName;
+			var filter1Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter1);
+			if (filter1Name != null) {
+				this.filter1Col.headerText = filter1Name.toString();
+				this.filter1Col.rendererIsEditor = false;
+				this.filter1Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
+				this.filter1Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
+			} else {
+				this.filter1Col.visible = false;
+			}
+			
+			
+			if (priceCategory.@dictionaryClassNameFilter2 != "") {
+				var filter2Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter2).@displayName;
+				var filter2Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter2);
+				if (filter2Name != null && filter2Name != "") {
+					this.filter2Col.headerText = filter2Name.toString();
+					this.filter2Col.rendererIsEditor = false;
+					this.filter2Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
+					this.filter2Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
+				}
+			} else {
+				this.filter2Col.visible = false;
+			}
+			
+		}
+	    private function save():void {
+	    	var params:Object = new Object();
+	    	params.name = priceName.text;
+	    	params.description = priceDescription.text;
+	    	params.idPrice = price.@idPrice;
+	    	params.unitPrice = unitPrice.text;
+	    	params.unitPriceExternal = unitPriceExternal.text;
+	    	params.idPriceCategory = priceCategory.@idPriceCategory;
+	    	params.isActive = priceIsActive.selected ? "Y" : "N";
+	    	
+	    	params.priceCriteriasXMLString = "<priceCriterias>" + criteriaList.toXMLString() + "</priceCriterias>";
+
+			savePrice.send(params);		
+		}	
+		
+		private function onSavePrice(event:ResultEvent):void {
+			if (savePrice.lastResult.name() == "SUCCESS") {
+				parentApplication.navBillingView.refreshAndSelectPricing("Price", savePrice.lastResult.@idPrice);  
+				PopUpManager.removePopUp(this);
+			} else {
+				Alert.show("An error occurred while saving the price.");
+			}			
+		}			
+		
+		private function addPriceCriteria():void {
+			var newCriteria:XML = new XML("<PriceCriteria " +
+			  "idPriceCriteria='PriceCriteria' " +
+			  "filter1='' " +
+			  "filter2='' " +
+			  "/>");
+			criteriaList.addItem(newCriteria);
+		}
+		
+		private function removePriceCriteria():void {
+			if (this.criteriaGrid.selectedItem != null) {
+				criteriaList.removeItemAt(criteriaList.getItemIndex(criteriaGrid.selectedItem));
+			}
+		}
+		
+	]]>
+</mx:Script>
+<mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+    <mx:HBox width="100%">
+    	<mx:Label text="Name:" width="70"/>
+    	<mx:TextInput id="priceName" width="100%" text="{price.@name}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="" width="70"/>
+    	<mx:CheckBox  label="Active" id="priceIsActive" width="100%"  selected="{price.@isActive == 'Y' ? true : false}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="Notes:" width="70"/>
+    	<mx:TextArea id="priceDescription" width="100%" text="{price.@description}"/>
+    </mx:HBox>
+	<mx:HBox width="100%">
+		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label text="Unit price:" width="70"/>
+			<mx:TextInput id="unitPrice" width="80" text="{price.@unitPrice}" textAlign="right"/>
+		</mx:HBox>
+		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label text="External Unit price:"/>
+			<mx:TextInput id="unitPriceExternal" width="80" text="{price.@unitPriceExternal}" textAlign="right"/>
+		</mx:HBox>
+	</mx:HBox>
+	<mx:VBox width="100%"  verticalGap="0">
+			<mx:Label text="Price applies to:" paddingTop="4"/>
+			<mx:HBox>
+				<mx:LinkButton label="New criteria" id="newCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/criteria_add.png')" click="addPriceCriteria()"/>
+				<mx:LinkButton label="Remove criteria" id="removeCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{criteriaGrid.selectedItem != null}" click="removePriceCriteria()"/>
+						
+			</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:DataGrid id="criteriaGrid" dataProvider="{criteriaList}" width="100%" height="106"  editable="true">
+				<mx:columns>
+					<mx:DataGridColumn id="filter1Col" headerText="filter1"  editorDataField="value" dataField="@filter1"/>
+					<mx:DataGridColumn id="filter2Col" headerText="filter2"  editorDataField="value" dataField="@filter2"/>
+				</mx:columns>
+			</mx:DataGrid>
+
+		</mx:HBox>
+	</mx:VBox>
+</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" icon="@Embed(source='../../assets/action_save.gif')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

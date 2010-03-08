@@ -20,15 +20,85 @@
     </mx:request>
    </mx:HTTPService>
    	 
+
     <mx:HTTPService 
-    id="getBillingTemplateList" 
-    url="GetBillingTemplateList.gx"
+    id="getPricingList" 
+    url="GetPricingList.gx"
     resultFormat="e4x"
-    result="onGetBillingTemplateList(event)"
-    fault="parentApplication.onFailHttpRequest('Unable to get billing prices', event)"
+    result="onGetPricingList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get prices', event)"
     method="POST"
     useProxy="false">
+    <mx:request>
+    	<showInactive>{this.showInactivePricesCheckbox.selected ? "Y" : "N"}</showInactive>
+    </mx:request>
     </mx:HTTPService > 
+
+   <mx:HTTPService                
+    id="getPrice" 
+    url="GetPrice.gx"
+    destination="getPrice" 
+    resultFormat="e4x"
+    result="onGetPrice(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to get price', event)"
+    method="POST"
+    useProxy="false"> 
+   </mx:HTTPService>
+
+   <mx:HTTPService                
+    id="deletePrice" 
+    url="DeletePrice.gx"
+    destination="deletePrice" 
+    resultFormat="e4x"
+    result="onDeletePrice(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to delete price', event)"
+    method="POST"
+    useProxy="false"> 
+   </mx:HTTPService>
+
+  <mx:HTTPService                
+    id="getPriceSheet" 
+    url="GetPriceSheet.gx"
+    destination="getPriceSheet" 
+    resultFormat="e4x"
+    result="onGetPriceSheet(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to get price sheet', event)"
+    method="POST"
+    useProxy="false"> 
+   </mx:HTTPService>
+   
+    <mx:HTTPService                
+    id="deletePriceSheet" 
+    url="DeletePriceSheet.gx"
+    destination="deletePriceSheet" 
+    resultFormat="e4x"
+    result="onDeletePriceSheet(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to delete price sheet', event)"
+    method="POST"
+    useProxy="false"> 
+   </mx:HTTPService>
+
+  <mx:HTTPService                
+    id="getPriceCategory" 
+    url="GetPriceCategory.gx"
+    destination="getPriceCategory" 
+    resultFormat="e4x"
+    result="onGetPriceCategory(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to get price category', event)"
+    method="POST"
+    useProxy="false"> 
+   </mx:HTTPService>
+
+    <mx:HTTPService                
+    id="deletePriceCategory" 
+    url="DeletePriceCategory.gx"
+    destination="deletePriceCategory" 
+    resultFormat="e4x"
+    result="onDeletePriceCategory(event)" 
+    fault="parentApplication.onFailHttpRequest('Failed to delete price category', event)"
+    method="POST"
+    useProxy="false"> 
+   </mx:HTTPService>
     
     <mx:HTTPService 
     id="getBillingRequestList" 
@@ -86,7 +156,18 @@
     useProxy="false">
     </mx:HTTPService >    
     
-
+    <mx:HTTPService 
+    id="movePriceCategory" 
+    url="MovePriceCategory.gx"
+    resultFormat="e4x"
+    destination="movePriceCategory"
+    showBusyCursor="true"
+    result="onMovePriceCategory(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to move price category', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >    
+    
      
 
 <mx:Script>
@@ -124,6 +205,9 @@
         private var billingTemplates:XMLListCollection = new XMLListCollection();
 
         [Bindable]
+        private var pricingList:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
         private var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
 
         [Bindable]
@@ -141,6 +225,12 @@
         [Bindable]
         private var grandTotalPrice:String = "";
         
+        private var requestTabWidth:Number = 220;
+        private var priceTabWidth:Number = 400;
+        
+        private var pricingNodeToSelect:String = null;
+        private var pricingIdToSelect:Object = null;
+        
         private function init():void {
         	initializeData();
         }
@@ -149,8 +239,8 @@
       	{
       		glFileButton.visible = parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N" ? false : true;
       		
-      		getBillingTemplateList.send();
-
+			getPricingList.send();
+			
 			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
         	var billingPeriodSort:Sort = new Sort();
         	billingPeriodSort.compareFunction = this.sortBillingPeriods;	   
@@ -256,8 +346,7 @@
 		
       	  
 		public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Status" ||
-				    item.name() == "BillingTemplate" ){ 
+				if (item.name() == "Status" ){ 
 					return parentApplication.iconProject;
 				}else if (item.name() == "Request") {
 					if (item.@codeRequestCategory == "SOLEXA") {
@@ -273,8 +362,16 @@
 					} else {
 						return parentApplication.iconFlask;
 					}
-				}else if (item.name() == "BillingCategory" ) {
+				}else if (item.name() == "PriceSheet") {
+				    return parentApplication.iconPriceSheet;
+				}else if (item.name() == "PriceCategory" ) {
 					return parentApplication.iconBillingFolder;
+				} else if (item.name() == "Price" ) {
+					if (item.@isActive == "N") {
+						return parentApplication.iconBillingDisabled;
+					} else {
+						return parentApplication.iconBilling;
+					}
 				} else if (item.name() == "Lab") {
 					return parentApplication.iconGroup;
 				} else {
@@ -289,6 +386,12 @@
 				return item.@label;
 			}
 		} 
+		
+		public function refreshAndSelectPricing(nodeName:String, id:Object):void {
+			this.pricingNodeToSelect = nodeName;
+			this.pricingIdToSelect = id;
+			refresh();
+		}
 
 		public function refresh():void {
 			if (dirty.isDirty()) {
@@ -313,7 +416,7 @@
 			
 			var params:Object = new Object();
 			params.action = "refresh";
-			getBillingTemplateList.send(params);
+			getPricingList.send();
 			
 			if (requestNumberText.text != "") {
 				this.refreshBillingItemsByRequestNumber();
@@ -365,14 +468,39 @@
 				}
 			}				
 		}  
-		private function onGetBillingTemplateList(event:ResultEvent):void {
-			if (getBillingTemplateList.lastResult.name() == "BillingTemplateList") {
-				this.billingTemplates = new XMLListCollection(getBillingTemplateList.lastResult.BillingTemplate);
-				this.billingCategoryTree.dataProvider = new HierarchicalData(billingTemplates);
-				this.billingCategoryTree.dataProvider.refresh();   	
+		private function onGetPricingList(event:ResultEvent):void {
+			if (getPricingList.lastResult.name() == "Pricing") {
+				this.pricingList = new XMLListCollection(getPricingList.lastResult.PriceSheet);
+				this.pricingTree.dataProvider = new HierarchicalData(pricingList);
+				this.pricingTree.dataProvider.refresh();   
+				
+				callLater(this.selectPricingTreeItem);	
+
 			} else {
 				Alert.show("An error occurred while getting price sheet.");
 			}			
+		}
+		
+		private function selectPricingTreeItem():void {
+			// Now select the pricing node
+			if (this.pricingNodeToSelect != null && this.pricingIdToSelect != null) {
+				var node:Object = null;
+				if (this.pricingNodeToSelect == 'Price') {
+					node = getPricingList.lastResult..Price.(@idPrice == pricingIdToSelect);
+				} else if (this.pricingNodeToSelect == 'PriceCategory') {
+					node = getPricingList.lastResult..PriceCategory.(@idPriceCategory == pricingIdToSelect);
+				} else if (this.pricingNodeToSelect == 'PriceSheet') {
+					node = getPricingList.lastResult.PriceSheet.(@idPriceSheet == pricingIdToSelect);
+				} 
+				if  (node != null && node is XMLList) {
+					this.pricingTree.selectedItem = node[0];
+					this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 
+				} else {
+					this.pricingTree.selectedItem = node;
+					this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 
+				} 
+			}
+			
 		}
 		private function onGetBillingRequestList(event:ResultEvent):void {
 			if (getBillingRequestList.lastResult.name() == "BillingRequestList") {
@@ -565,15 +693,15 @@
 	       	var items:Array = ds.dataForFormat("treeDataGridItems") as Array;
            
            	var isRequest:Boolean = false;
-           	var isBillingPrice:Boolean = false;
+           	var isPrice:Boolean = false;
            
            	for(var i:int = 0; i < items.length; i++) {
            		var dragItem:Object = items[i];
 	       		if (dragItem.name() == "Request") {
 	       			isRequest = true;
 	       			break;
-	       		} else if (dragItem.name() == "BillingPrice") {
-	       			isBillingPrice = true;
+	       		} else if (dragItem.name() == "Price") {
+	       			isPrice = true;
 	       			break;
 	       		}
            	}
@@ -589,9 +717,9 @@
 			       	return;
 		       }
 		   	}
-		   	if (isBillingPrice) {
-		       if (billingCategoryTree.selectedItem.name() != "BillingPrice" ) {
-		       		Alert.show("Please drag billing price onto billing items grid.");
+		   	if (isPrice) {
+		       if (pricingTree.selectedItem.name() != "Price" ) {
+		       		Alert.show("Please drag price onto billing items grid.");
 			       	event.preventDefault();
 			       	event.target.hideDropFeedback(event);
 			       	DragManager.showFeedback(DragManager.NONE);
@@ -605,7 +733,7 @@
 	        var dropRequestNode:XML = null;
 	        var idBillingAccount:Object = null;
 	        var idLab:Object = null;
-	       	if (isBillingPrice) {
+	       	if (isPrice) {
 		       	var r:int = billingItemGrid.calculateDropIndex(event);
 		       	if (r > 0) { 
 	    	   		r--;
@@ -648,17 +776,17 @@
 	       			params.idRequest = dragNode.@idRequest;
 	       			params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
 	       			this.createBillingItems.send(params);
-	    	   	} else if (dragNode.name() == "BillingPrice") {
+	    	   	} else if (dragNode.name() == "Price") {
        				var newBillingItem:XML = new XML(
        				 "<BillingItem " + 
        				 " codeBillingChargeKind='" + dragNode.@codeBillingChargeKind + "'" +
        			 	 " category='" + dragNode.@category + "'" +
-       			 	 " description='" + dragNode.@description + "'" +
+       			 	 " description='" + dragNode.@name + "'" +
        			 	 " unitPrice='" + dragNode.@unitPrice + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
        			 	 " idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
-       			 	 " idBillingCategory='" +	dragNode.parent().@idBillingCategory + "'" +
-       			 	 " idBillingPrice='" + dragNode.@idBillingPrice + "'" +
+       			 	 " idPriceCategory='" +	dragNode.parent().@idPriceCategory + "'" +
+       			 	 " idPrice='" + dragNode.@idPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
        			 	 " idBillingAccount='" + dropNode.@idBillingAccount + "'" +
        			 	 " idLab='" + dropNode.@idLab + "'" +
@@ -677,6 +805,93 @@
 			onRequestNodeSelected();
 	       
 		}
+		
+		private function onDragDropPricing(event:DragEvent) : void
+		{
+			// For some reason, preventDefault on AdvancedDataGrid
+			// isn't enough to stop the defaut drop operation from
+			// occurring. So I added hidDropFeedback and showFeedback
+			// and that seemed to do the trick.	
+			this.pricingTree.hideDropFeedback(event);
+			event.preventDefault();
+			DragManager.showFeedback(DragManager.NONE);
+
+		   
+			var ds:DragSource = event.dragSource;
+           
+           	// retrieve the data associated with the "items" format. This will be the data that
+	       	// the dragInitiator has copied into the DragSource.
+	       	var items:Array = ds.dataForFormat("treeDataGridItems") as Array;
+           
+           	var isPriceCategory:Boolean = false;
+           	
+           	for(var i:int = 0; i < items.length; i++) {
+           		var dragItem:Object = items[i];
+	       		if (dragItem.name() == "PriceCategory") {
+	       			isPriceCategory = true;
+	       			break;
+	       		} 
+           	}
+            
+		   	// Only allow price categories to be dragged.
+		   	if (!isPriceCategory) {
+		    	return;
+		   	}
+		   	
+	       	// determine where in the grid the drop occurs and select that node by the index; 
+	       	// followed by retrieving the node itself. 
+	        var dropNode:XML = null;
+	        var dropPriceCategoryNode:XML = null;
+	        var dropPriceSheetNode:XML = null;
+	        var dropPosition:String = "after";
+	       	if (isPriceCategory) {
+		       	var r:int = pricingTree.calculateDropIndex(event);
+		       	if (r > 0) { 
+	    	   		r--;
+	       		}
+	       		pricingTree.selectedIndex = r;
+	       		dropNode = pricingTree.selectedItem as XML;
+	       		
+	       		// Don't allow drag operation if nothing no drop node
+	       		// found
+	       		if (dropNode == null) {
+	       			event.preventDefault();
+			       	event.target.hideDropFeedback(event);
+			       	DragManager.showFeedback(DragManager.NONE);
+			       	return;
+	       		}
+	       		
+	       		if (dropNode.name() == "PriceSheet") {
+	       			dropPriceSheetNode = dropNode;
+	       			if (dropPriceSheetNode.childIndex() >= 0) {
+	       				dropPriceCategoryNode = dropPriceSheetNode.children()[0];
+	       				dropPosition = "before";
+	       			} 
+	       		} else if (dropNode.name() == "PriceCategory") {
+	       			dropPriceSheetNode = dropNode.parent();
+	       			dropPriceCategoryNode = dropNode;
+	       		} else if (dropNode.name() == "Price") {
+	       			dropPriceSheetNode = dropNode.parent().parent();
+	       			dropPriceCategoryNode = dropNode.parent();
+	       		} 	      
+	       	}
+	       	
+	       	if (dropPriceCategoryNode != null) {
+	       		if (dropPriceCategoryNode.@idPriceCategory == dragItem.@idPriceCategory) {
+	       			return;
+	       		} 
+	       	}
+	
+			// Move the price category
+			var params:Object = new Object();
+			params.idPriceCategorySource = dragItem.@idPriceCategory;
+			params.idPriceSheetTarget = dropPriceSheetNode.@idPriceSheet;
+			params.idPriceCategoryPosition = dropPriceCategoryNode != null ? dropPriceCategoryNode.@idPriceCategory : "";
+			params.dropPosition = dropPosition;
+			
+			this.movePriceCategory.send(params);
+		}
+
         private function sortBillingPeriods(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
 				return 0;
@@ -883,14 +1098,176 @@
 			}
 		}		
 		
-		private function showPriceEditView():void {
-			if (billingCategoryTree.selectedItem.name() == "BillingPrice") {
-				var editWindow:BillingPriceEditView = BillingPriceEditView(mx.managers.PopUpManager.createPopUp(this, BillingPriceEditView, true));
-            	mx.managers.PopUpManager.centerPopUp(editWindow);
-            	editWindow.setFocus();
-            	editWindow.billingPrice = this.billingCategoryTree.selectedItem; 				
-			}  
-		}  
+		private function showPricingView():void {
+			var params:Object = new Object();
+			if (pricingTree.selectedItem.name() == "Price") {
+				params.idPrice =     this.pricingTree.selectedItem.@idPrice;
+				this.getPrice.send(params);
+			} else if (pricingTree.selectedItem.name() == "PriceSheet") {
+				params.idPriceSheet =     this.pricingTree.selectedItem.@idPriceSheet;
+				this.getPriceSheet.send(params);
+			} else if (pricingTree.selectedItem.name() == "PriceCategory") {
+				params.idPriceCategory =     this.pricingTree.selectedItem.@idPriceCategory;
+				this.getPriceCategory.send(params);
+			}
+		}
+		private function showNewPriceView():void {
+			var priceCategory:Object = getAncestor(XML(pricingTree.selectedItem), "PriceCategory");
+			if (priceCategory == null) {
+				Alert.show("Please select a price category");
+				return;
+			}
+
+			var params:Object = new Object();
+			params.idPrice = "0";
+			this.getPrice.send(params);
+		}
+		private function showNewPriceSheetView():void {
+			var params:Object = new Object();
+			params.idPriceSheet = "0";
+			this.getPriceSheet.send(params);
+		}
+		private function showNewPriceCategoryView():void {
+			var priceSheet:Object = getAncestor(XML(pricingTree.selectedItem), "PriceSheet");
+			if (priceSheet == null) {
+				Alert.show("Please select a price sheet");
+				return;
+			}
+			var params:Object = new Object();
+			params.idPriceCategory = "0";
+			this.getPriceCategory.send(params);
+		}
+
+		
+		private function removePricing():void {
+			if (this.pricingTree.selectedItem != null) {
+				// After the delete operation has finished,
+        		// select either the next sibling, or if no more children,
+        		// the parent node.
+        		var itemToSelect:Object = null;
+        		if (this.pricingTree.selectedItem.childIndex() == 0) {
+	        		itemToSelect = pricingTree.selectedItem.parent();
+        		} else {
+        			var idx:int = pricingTree.selectedItem.childIndex() - 1;
+        			itemToSelect = pricingTree.selectedItem.parent().children()[idx];
+        		}   
+        		
+        		this.pricingNodeToSelect = itemToSelect.name();
+        		this.pricingIdToSelect   = itemToSelect["@id" + this.pricingNodeToSelect];
+				
+				var params:Object = new Object();
+				if (this.pricingTree.selectedItem.name() == "Price") {
+					params.idPrice = this.pricingTree.selectedItem.@idPrice;
+					this.deletePrice.send(params);
+				} else if (this.pricingTree.selectedItem.name() == "PriceCategory") {
+					params.idPriceCategory = this.pricingTree.selectedItem.@idPriceCategory;
+					params.idPriceSheet = this.pricingTree.selectedItem.parent().@idPriceSheet;
+					this.deletePriceCategory.send(params);
+				} else if (this.pricingTree.selectedItem.name() == "PriceSheet") {
+					params.idPriceSheet = this.pricingTree.selectedItem.@idPriceSheet;
+					this.deletePriceSheet.send(params);
+				}
+			}
+		}
+		private function onGetPrice(event:ResultEvent):void {		
+			if (getPrice.lastResult.name() != "PriceList") {
+				Alert.show(getPrice.lastResult..ERROR.@message);
+				return;
+			}	
+			var price:Object = getPrice.lastResult..Price;
+			var priceCategory:Object = getAncestor(XML(pricingTree.selectedItem), "PriceCategory");
+            if (priceCategory != null) {
+	       		var priceWindow:PriceView = PriceView(mx.managers.PopUpManager.createPopUp(this, PriceView, true));
+            	mx.managers.PopUpManager.centerPopUp(priceWindow);
+            	priceWindow.setFocus();
+                priceWindow.init(price, priceCategory);
+                priceWindow.priceName.setFocus();				        	
+            }
+		}
+
+		private function onDeletePrice(event:ResultEvent):void {			
+			if (deletePrice.lastResult.name() == "SUCCESS") {
+				this.refresh();			        	
+            } else {
+            	Alert.show(deletePrice.lastResult..ERROR.@message);
+            }
+		}
+
+		private function onGetPriceSheet(event:ResultEvent):void {			
+			if (getPriceSheet.lastResult.name() != "PriceSheetList") {
+				Alert.show(getPriceSheet.lastResult..ERROR.@message);
+				return;
+			}	
+
+			var priceSheet:Object = getPriceSheet.lastResult..PriceSheet;
+            if (priceSheet != null) {
+	       		var priceSheetWindow:PriceSheetView = PriceSheetView(mx.managers.PopUpManager.createPopUp(this, PriceSheetView, true));
+            	mx.managers.PopUpManager.centerPopUp(priceSheetWindow);
+            	priceSheetWindow.setFocus();
+                priceSheetWindow.init(priceSheet);
+                priceSheetWindow.priceSheetName.setFocus();				        	
+            } else {
+            	Alert.show("Unable to get price sheet");
+            }
+		}
+
+		private function onDeletePriceSheet(event:ResultEvent):void {			
+			if (deletePriceSheet.lastResult.name() == "SUCCESS") {
+				this.refresh();			        	
+            } else {
+            	Alert.show(deletePriceSheet.lastResult..ERROR.@message);
+            }
+		}
+		
+		private function onGetPriceCategory(event:ResultEvent):void {	
+			if (getPriceCategory.lastResult.name() != "PriceCategoryList") {
+				Alert.show(getPriceCategory.lastResult..ERROR.@message);
+				return;
+			}		
+			var priceCategory:Object = getPriceCategory.lastResult..PriceCategory;
+			var priceSheet:Object = getAncestor(XML(pricingTree.selectedItem), "PriceSheet");
+            if (priceSheet != null) {
+	       		var priceCategoryWindow:PriceCategoryView = PriceCategoryView(mx.managers.PopUpManager.createPopUp(this, PriceCategoryView, true));
+            	mx.managers.PopUpManager.centerPopUp(priceCategoryWindow);
+            	priceCategoryWindow.setFocus();
+                priceCategoryWindow.init(priceCategory, priceSheet);
+                priceCategoryWindow.priceCategoryName.setFocus();				        	
+            } else {
+            	Alert.show("Please select the price sheet");
+            }
+		}
+
+		private function onDeletePriceCategory(event:ResultEvent):void {			
+			if (deletePriceCategory.lastResult.name() == "SUCCESS") {
+				this.refresh();			        	
+            } else {
+           		Alert.show(deletePriceCategory.lastResult..ERROR.@message);
+            }
+		}
+
+		private function onMovePriceCategory(event:ResultEvent):void {			
+			if (movePriceCategory.lastResult.name() == "SUCCESS") {
+				this.refresh();			        	
+            } else {
+           		Alert.show(movePriceCategory.lastResult..ERROR.@message);
+            }
+		}
+
+
+        private function getAncestor(item:XML, ancestorName:String):XML {
+        	var ancestor:XML = null;
+        	while( item )
+			{
+				if( item.name() == ancestorName )
+				{
+					ancestor = item;
+					break;
+				}
+				item = item.parent();
+			}
+			return ancestor;
+        }
+
 		
 		private function showSplitAccountsView():void {
 			var requestNode:Object = null;
@@ -1063,15 +1440,28 @@
         	reassignWindow.initializeData();
 
 		}
+		
+		private function onBillingTabChange():void {
+			if (billingTabNavigator.selectedChild == this.priceTab) {
+				this.requestTabWidth = this.billingTabNavigator.width;
+				this.billingTabNavigator.width = this.priceTabWidth;
+			} else {
+				this.priceTabWidth = this.billingTabNavigator.width;
+				this.billingTabNavigator.width = this.requestTabWidth;
+			}
+		}
 
 
  	]]>
  </mx:Script>	
-
+ 
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
-
-	    <mx:VBox width="100%" styleName="navBox" horizontalGap="8" paddingTop="0">
-	                    <mx:HBox styleName="menuBar" width="100%">
+ 
+	    <mx:VBox width="100%" styleName="panelBox" horizontalGap="8" paddingTop="0" verticalGap="2" paddingRight="0" paddingLeft="0">
+	                    <mx:HBox backgroundSize="100%" width="100%" backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" verticalAlign="middle" paddingTop="4" paddingBottom="4">
+	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+	                                               click="refresh()" toolTip="Refresh"/>
+	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton label="Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="glFileButton" label="Generate GL File" textDecoration="underline" icon="@Embed(source='../../assets/feed_disk.png')" click="showBillingGLInterface()"/>
@@ -1080,11 +1470,9 @@
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="summaryReportButton" label="Total Billing by Lab Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingSummaryWindow()"/>
 	                                    <mx:VRule height="20"/>
-	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-	                                               click="refresh()" toolTip="Refresh"/>
-	                                    <mx:VRule height="20"/>
+	                                    <mx:Spacer width="30"/>
 	                                    <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"   paddingLeft="8">
-	                                    	<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0"/>
+	                                    	<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0" styleName="labelSmall"/>
 	                                    	<mx:TextInput id="requestNumberText" width="60">
 	                                    	</mx:TextInput>			   	
 	                                    	<mx:Button id="lookupButton"  
@@ -1095,10 +1483,10 @@
                 	
                 </mx:HBox>
 
-	      <mx:HBox horizontalGap="8">
+	      <mx:HBox horizontalGap="8" verticalAlign="middle">
 		    	<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
-					<mx:Label text="Filter by:     "/>
-					<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" paddingBottom="0"/>
+					<mx:Label text="Filter by:   " paddingLeft="4"/>
+					<mx:Label id="billingPeriodLabel" visible="true" text="Period" paddingBottom="0"/>
 					<mx:ComboBox id="billingPeriodCombo" 
 						labelField="@display"
 						visible="true"  
@@ -1115,29 +1503,33 @@
 					</mx:ComboBox>
 			   </mx:HBox>
 
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="right" paddingRight="0">
-					<mx:Label id="billingAccountLabel" visible="true" text="Billing Account" paddingBottom="0"/>
-					<mx:VBox width="100%" height="100%" verticalGap="0" horizontalGap="0">
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0">
+					<mx:Label id="billingAccountLabel" visible="true" text="Account" paddingBottom="0"/>
+					<mx:HBox width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalAlign="middle">
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
 							 visible="true"  width="400" change="requestNumberText.text = &quot;&quot;;refresh()">
 						</mx:ComboBox>
-						<mx:HBox width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
-							<mx:RadioButton label="Account name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+						<mx:VBox verticalGap="0" paddingBottom="0" paddingTop="0">
+							<mx:RadioButton label="Acct name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
 								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="Account number" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0">
+							<mx:RadioButton label="Acct #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
 								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
 							</mx:RadioButton>
-						</mx:HBox>
-					</mx:VBox>
+							
+						</mx:VBox>
+					</mx:HBox>
 			   	
 		    	</mx:HBox> 
 		   </mx:HBox> 	
 	    </mx:VBox>
 
         <mx:HDividedBox height="100%" width="100%">
-        	<mx:TabNavigator height="100%" width="220" paddingTop="2" styleName="navTabNavigator" paddingLeft="4" paddingRight="4" paddingBottom="4">
+        	<mx:TabNavigator height="100%" width="220" id="billingTabNavigator"
+        		paddingTop="2" styleName="navTabNavigator" 
+        		paddingLeft="4" paddingRight="4" paddingBottom="4"
+ change="{onBillingTabChange()}" dropShadowEnabled="true">
         		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
@@ -1163,38 +1555,48 @@
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
        			
-        		</mx:VBox>
+        		</mx:VBox> 
         		
-        		<mx:VBox label="Prices" height="100%" verticalGap="0" width="100%" color="#000000">
-					<mx:AdvancedDataGrid id="billingCategoryTree" width="100%" height="100%" 
-						showHeaders="false" 
-						displayItemsExpanded="false" 
-						iconFunction="getTreeIcon" 
-						dragEnabled="true" dragMoveEnabled="false" dropEnabled="false" 
-						doubleClick="showPriceEditView()" doubleClickEnabled="true" borderStyle="solid" dropShadowEnabled="true">
+        		<mx:VBox id="priceTab" label="Prices" height="100%" verticalGap="0" width="100%" color="#000000">
+					<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}"/>
+					<mx:AdvancedDataGrid id="pricingTree" width="100%" height="100%" 
+						 showHeaders="true" 
+						 sortExpertMode="true" 
+						 displayItemsExpanded="true" 
+						 iconFunction="getTreeIcon" 
+						 sortableColumns="false"
+						 dropEnabled="true"  
+        				 dragDrop="this.onDragDropPricing(event)"
+						 dragEnabled="true" 
+						 dragMoveEnabled="true" 
+						 doubleClick="showPricingView()" doubleClickEnabled="true"
+						 borderStyle="solid" dropShadowEnabled="true" headerWordWrap="true" 
+						 resizableColumns="true">
     		 	        <mx:dataProvider> 
-  						  <mx:HierarchicalData source="{billingTemplates}"/>
+  						  <mx:HierarchicalData source="{pricingList}"/>
 				        </mx:dataProvider>						  
 				        <mx:columns>
-  						  <mx:AdvancedDataGridColumn dataField="@display" /> 
-  						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency" width="60" textAlign="right" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@display"  headerText="" width="200"/> 
+  						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="50" textAlign="right" /> 
+  						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCurrency"  headerText="External Price" width="50" textAlign="right" /> 
   					    </mx:columns>
-  					</mx:AdvancedDataGrid>        		    
+  					</mx:AdvancedDataGrid>
+  					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0">
+  								<mx:LinkButton label="New price" textDecoration="underline" click="showNewPriceView()"  textAlign="left" icon="@Embed(source='../../assets/money_add.png')"/>
+  								<mx:LinkButton label="New category" textDecoration="underline" click="showNewPriceCategoryView()" textAlign="left" >
+  									<mx:icon>@Embed(source='../../assets/folder_money_add.png')</mx:icon>
+  								</mx:LinkButton>
+  								<mx:LinkButton label="New sheet" textDecoration="underline" click="showNewPriceSheetView()" textAlign="left" icon="@Embed(source='../../assets/pricesheet_add.png')">
+  								</mx:LinkButton>
+  								<mx:LinkButton  enabled="{this.pricingTree.selectedItem != null}" label="Remove" textDecoration="underline" click="removePricing()" textAlign="left" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')"/>
+  					    	
+  					</mx:ControlBar>        		    
         		</mx:VBox>
         	</mx:TabNavigator>
-
+ 
 			        	
-        	<mx:Panel width="100%" height="100%" verticalGap="0" title="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}">
-        		<mx:HBox width="100%">
-        			<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()"/>
-        			<mx:LinkButton  label="Reassign account" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
-        				<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
-        			</mx:LinkButton> 
-        			<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
-        			<mx:Spacer width="100%"/>
-        			 
-        		</mx:HBox>
-        		
+        	<util:PanelBox width="100%" height="100%">
+        		<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
         		<mx:AdvancedDataGrid width="100%" height="100%"  
         			displayItemsExpanded="true"  
         			editable="true" 
@@ -1222,7 +1624,7 @@
         			      editorDataField="value"  
         				  rendererIsEditor="false"   
 						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
-						  itemEditor="{hci.flex.controls.ComboBox.getFactory(billingPeriods, '@display', '@value', '@idBillingPeriod', true)}"/>                 
+						  itemEditor="{views.renderers.ComboBoxBillingPeriod.create(billingPeriods, '@display', '@value', '@idBillingPeriod', null, true)}"/>                 
         				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="6" wordWrap="false"
         				  editorDataField="text"
         				  rendererIsEditor="false"
@@ -1232,7 +1634,7 @@
         				  rendererIsEditor="false"
 						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
 						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="Billing Category" dataField="@category" editable="false" width="12" wordWrap="true"/>
+        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"/> 
@@ -1250,6 +1652,15 @@
 				<mx:ControlBar width="100%">
 				
 				      <mx:HBox width="100%" horizontalAlign="right">
+				        <mx:HBox width="100%">
+				        	<mx:LinkButton  label="Reassign account" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
+				        		<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request') || (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request') ? true : false}</mx:enabled>
+				        	</mx:LinkButton> 
+				        	<mx:LinkButton  label="Split accounts" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true"/>
+				        	<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove biling item"  textDecoration="underline" click="removeBillingItem()" enabled="{billingItemGrid.selectedItem != null}"/>
+				        	<mx:Spacer width="100%"/>
+				        	 
+				        </mx:HBox>
 				        <util:DirtyNote id="dirty" />
 				      	<mx:Button id="saveButton" label="Save" click="validateAndSave()"
 				             	icon="@Embed('../../assets/action_save.gif')">
@@ -1257,7 +1668,7 @@
 				      </mx:HBox>
 				 </mx:ControlBar>
 
-        	</mx:Panel>
+        	</util:PanelBox>
         </mx:HDividedBox>
   </mx:VBox>
   
