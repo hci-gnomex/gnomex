@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" >
+<util:PanelBox  
+	xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
+	height="100%"  paddingTop="6"
+	xmlns:views="views.*" 
+	xmlns:util="views.util.*">
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
@@ -150,6 +154,7 @@
 	]]>
 </mx:Script>
 
+<mx:Label id="titleLabel" styleName="titleLabel"/>
 <mx:VBox width="100%" height="100%"  styleName="form"  paddingLeft="4" paddingRight="4" paddingBottom="4">
 	
 		
@@ -307,4 +312,4 @@
 </mx:ControlBar>
 
 	
-</mx:Panel>
+</util:PanelBox>

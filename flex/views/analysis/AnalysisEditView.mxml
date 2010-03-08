@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"     
+<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml"     
     xmlns:views="views.*" 
     xmlns:util="views.util.*" 
     xmlns:analysis="views.analysis.*"
-    close="{onCloseWindow()}"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
-	title="Edit Analysis" 
+
 	width="100%" height="100%" 
-	headerHeight="22" paddingBottom="2" paddingLeft="1" paddingRight="1">
+	>
 
   <mx:HTTPService  
     id="getExperimentPickList" 
@@ -769,7 +768,7 @@
 			protocolEditor = views.protocol.ProtocolsView(PopUpManager.createPopUp(parentApplication.mainArea, views.protocol.ProtocolsView, true));
 			protocolEditor.width = 800;
 			protocolEditor.height = 500;
-			protocolEditor.bodyPanel.showCloseButton = true;
+			//protocolEditor.bodyPanel.showCloseButton = true;
 			protocolEditor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
 			protocolEditor.initializeData('hci.gnomex.model.AnalysisProtocol');
 			PopUpManager.centerPopUp(protocolEditor);
@@ -802,6 +801,7 @@
 <mx:XMLListCollection  id="hybs"           />
 <mx:XMLListCollection  id="lanes"         />
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFile}"/>
+ <mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
 	<mx:HBox width="100%"  horizontalGap="5"  verticalAlign="top" horizontalAlign="left">
 		<mx:VBox verticalGap="4" width="100%">
 		                <mx:HBox horizontalGap="0" width="100%">
@@ -1049,4 +1049,4 @@
     </mx:HBox>
 		
 
-</mx:TitleWindow>
+</util:PanelBox>

@@ -237,7 +237,7 @@
        			for each(col in parentDocument.samplesView.samplesGrid.columns) {
 					if (col.dataField == ("@" + annotation.@codeSampleCharacteristic)) {
 						exists = true;
-						break;
+						break;               
 					}    				 
        			}
        			if (!exists) {

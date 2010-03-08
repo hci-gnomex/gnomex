@@ -1,49 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel 
-	xmlns:mx="http://www.adobe.com/2006/mxml" width="216" height="68"  
+<util:PanelBox     
+	xmlns:mx="http://www.adobe.com/2006/mxml" width="252" height="88"  
 	label="horizontal" horizontalAlign="center" verticalAlign="middle"  
-	styleName="appProgressWindow" borderStyle="solid" cornerRadius="3" 
-	modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7">
-	 <mx:states>
+	xmlns:util="views.util.*"
+	 borderStyle="solid" cornerRadius="4" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="2"> 
+	 <mx:VBox styleName="form" width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1" dropShadowEnabled="false">
+		 <mx:Label text="Initializing GNomEx" color="#000000" id="label1" fontFamily="Verdana" fontSize="11" fontWeight="normal"/>	 	
+	 </mx:VBox>
+	 <util:states>      
 	 	 <mx:State name="StartupState">
-	 	 	 <mx:RemoveChild target="{label1}"/>
-	 	 	 <mx:AddChild position="lastChild">
-	 	 	 	 <mx:Label text="Getting security settings..." color="#4D4343" id="label2"/>
-	 	 	 </mx:AddChild>
-	 	 	 <mx:AddChild relativeTo="{label2}" position="before">
-	 	 	 	 <mx:Label text="Welcome to GNomEx" color="#FFFFFF" id="label3"/>
-	 	 	 </mx:AddChild>
-	 	 	 <mx:SetStyle name="verticalAlign" value="top"/>
-	 	 	 <mx:SetStyle name="paddingTop" value="10"/>
+	 	 	 <mx:SetProperty target="{label1}" name="text">
+	 	 	 	 <mx:value>Getting security settings...</mx:value>
+	 	 	 </mx:SetProperty>
 	 	 </mx:State>
 	 	 <mx:State name="LoadingState">
 	 	 	 <mx:RemoveChild target="{label1}"/>
-	 	 	 <mx:AddChild position="lastChild">
+	 	 	 <mx:AddChild relativeTo="{vbox1}" position="lastChild">
 	 	 	 	 <mx:ProgressBar id="bar"  
 	 	 	 	 	   styleName="appProgressBar"
 	 	 	 	        minimum="0" 
-	 	 	 	        visible="true"
-	 	 	 	        maximum="100"
+	 	 	 	        visible="true"         
+	 	 	 	        maximum="100" 
 	 	 	 	        fontWeight="normal"  
 	 	 	 	   	labelPlacement="top" 
 	 	 	 	   	textAlign="left" 
 	 	 	 	        direction="right" mode="manual" width="100%" 
-	 	 	 	        height="100%" label="Loading application settings..." />
+	 	 	 	         label="Loading application settings..." fontSize="11"/>
 	 	 	 </mx:AddChild>
+	 	 	 <mx:SetStyle target="{vbox1}" name="paddingBottom" value="10"/>
 	 	 </mx:State>
 	 	 <mx:State name="AuthenticationFailedState" basedOn="StartupState">
-	 	 	 <mx:RemoveChild target="{label3}"/>
-	 	 	 <mx:SetProperty target="{label2}" name="text">
+	 	 	 <mx:SetProperty target="{label1}" name="text">
 	 	 	 	 <mx:value>Unable to authenticate to GNomEx.</mx:value>
 	 	 	 </mx:SetProperty>
-	 	 	 <mx:AddChild position="lastChild">
-	 	 	 	 <mx:Label text="Please try logging in again." color="#4D4343"/>
+	 	 	 <mx:SetStyle name="verticalAlign" value="middle"/>
+	 	 	 <mx:AddChild relativeTo="{vbox1}" position="lastChild">
+	 	 	 	 <mx:Label text="Please try logging in again." fontSize="11"/>
 	 	 	 </mx:AddChild>
-	 	 	 <mx:SetStyle name="verticalGap" value="0"/>
-	 	 	 <mx:SetStyle name="paddingTop" value="14"/>
-	 	 	 <mx:SetStyle target="{label2}" name="color" value="#4D4343"/>
 	 	 </mx:State>
-	 </mx:states>
-	 <mx:Label text="Welcome to GNomEx" color="#FFFFFF" id="label1"/>
+	 </util:states>
 
-</mx:Panel>
+</util:PanelBox>

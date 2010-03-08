@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml"  
+<util:PanelBox  xmlns:mx="http://www.adobe.com/2006/mxml"  
      xmlns:util="views.util.*" 
 	 height="100%" width="100%" label="Group Detail" 
-	  title="{parentDocument.fullLab.@name}">
+	 >
+<mx:Label id="titleLabel" styleName="titleLabel" text="{parentDocument.fullLab.@name}" />
 	  
   <mx:HTTPService   
     id="saveGroup" 
@@ -419,4 +420,4 @@
 		</mx:ControlBar>
 	    
   
-</mx:Panel>
+</util:PanelBox>

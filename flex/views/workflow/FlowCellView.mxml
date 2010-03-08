@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" 
+<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	title="Illumina Flow Cells"
 	xmlns:util="views.util.*">
+<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Flow Cells"/>
 	 
    <mx:HTTPService  
     id="getFlowCellList" 
@@ -152,4 +151,4 @@
 				 toolTip="Refresh worklist"/>
 	    </mx:HBox>
 	</mx:ControlBar>	
-</mx:Panel>
+</util:PanelBox>

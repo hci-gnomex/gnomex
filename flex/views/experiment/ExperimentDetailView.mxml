@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<util:PanelBox  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:views="views.*"   
-	 >
+	xmlns:views="views.*"  
+	xmlns:util="views.util.*" >
+<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
    <mx:HTTPService  
     id="getProtocol" 
     url="GetProtocol.gx"
@@ -737,7 +738,7 @@
     </mx:HBox>
 </mx:ControlBar>
 
-<mx:states>
+<util:states>
 	<mx:State name="MicroarrayState">		 
 	</mx:State>
 	<mx:State name="QCState">		
@@ -804,6 +805,6 @@
 			<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
 		</mx:AddChild>
 	</mx:State>
-</mx:states>
+</util:states>
 	
-</mx:Panel>
+</util:PanelBox>

@@ -6,8 +6,10 @@
 		</mx:State>
 		<mx:State name="EditState" basedOn="SetupState">
 			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can change the selection in order<br>  to specify a different microarray for this experiment request.  The<br>  change will be reflected in the next tab.]]></mx:value>
+				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can<br>  change the selection in orderto specify a<br>  different microarray for this experiment<br>  request.The change will be reflected<br>  in the next tab.]]></mx:value>
 			</mx:SetProperty>
+			<mx:SetProperty target="{textarea1}"  name="width" value="250"/>
+			<mx:SetProperty target="{textarea1}"  name="height" value="100"/>
 		</mx:State>
 	</mx:states>
 <mx:Script> 

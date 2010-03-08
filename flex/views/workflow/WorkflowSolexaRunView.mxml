@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel label="Solexa Sequencing"  
+<util:PanelBox  
 	xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*" 
 	width="100%" height="100%" 
-	title="Illumina Sequencing Run" 
-	borderThicknessTop="2">
+>
+
+
+<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Sequencing Run"/>
 	
 	<mx:HTTPService 
     id="getWorkList" 
@@ -299,4 +301,4 @@
 
  </mx:ControlBar>						
 
-</mx:Panel>
+</util:PanelBox>

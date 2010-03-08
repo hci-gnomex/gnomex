@@ -87,7 +87,8 @@ AdvancedDataGrid {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
 
-}
+} 
+
 
 Panel {
    borderThicknessLeft: 4;
@@ -104,6 +105,7 @@ Panel {
    borderAlpha: 1;
    dropShadowEnabled: true;
 }
+
 .panelControlBar {
 	roundedBottomCorners: false;
 }
@@ -188,12 +190,40 @@ ApplicationControlBar {
 }
 
 
+
+
 LinkBar {
-	    disabledColor: #FFFFFF; 
-	    rollOverColor: #FFFFFF; 
-	    selectionColor: #FFFFFF;
-	    useHandCursor: true;
+	disabledColor: #FFFFFF; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	fontWeight: normal;
+	fontStyle: normal;
+	textRollOverColor: #000000;
+	textSelectedColor: #000000;
+	color: #000000;
+	backgroundAlpha: 1;
+	horizontalGap: 4;
+	separatorColor: #C3C2B7;
+	linkButtonStyleName: "normalLinkButton";
+	fontSize: 11;
 	     
+}
+
+
+
+LinkButton
+{
+   fontWeight: normal;	
+}
+
+.normalLinkButton
+{
+   fontWeight: normal;	
+}
+.boldLinkButton
+{
+   fontWeight: bold;	
 }
 
 
@@ -229,7 +259,22 @@ TextArea {
 		backgroundColor: #E4E0E0;
 }
 
+.panelBox {
+	backgroundImage: Embed('../assets/panel1.png');
+	backgroundSize: "100%";
+	paddingTop: 4;
+	paddingBottom: 2;
+	paddingLeft: 4;
+	paddingRight: 4;
+	verticalGap: 4;
+	borderColor: #5F696F;
+	borderStyle: solid;
+	cornerRadius: 6;
+	dropShadowColor: #020000;
+	dropShadowEnabled: true;
+}
 
+	
 
 
 .form {
@@ -269,13 +314,15 @@ TextArea {
 }
 
 .navLinkBar {
-	disabledColor: #0F24E6; 
+	disabledColor: #FFFFFF; 
 	rollOverColor: #FFFFFF; 
 	selectionColor: #FFFFFF;
 	useHandCursor: true;
 	color: #000000;
 	fontWeight: normal;
 	textDecoration: underline;
+	fontSize: 10;
+	linkButtonStyleName: "normalLinkButton";
 }
 
 .formLinkButton {
@@ -299,32 +346,49 @@ TextArea {
 	fontSize: 9;
 }
 .navTabNavigator {
-	 backgroundAlpha:            1.0;
-	 backgroundColor: #C3C2B7;
-	 borderColor: #C3C2B7;
-	 borderStyle: solid;
-	 color: #74878B;
-	 tabStyleName: navTabHeader;
-	 firstTabStyleName: navTabHeader;
-	 middleTabStyleName: navTabHeader;
-	 lastTabStyleName: navTabHeader;
+	
+	backgroundAlpha:            1.0;
+	backgroundColor: #BFC1AF;
+	color: #74878B;
+
+	tabStyleName: navTabHeader;
+	firstTabStyleName: navTabHeader;
+	middleTabStyleName: navTabHeader;
+	lastTabStyleName: navTabHeader;
+
+	borderColor: #5F696F;
+	borderStyle: solid;
+	cornerRadius: 6;
+    paddingTop: 0; 
+    paddingBottom: 4;
+    dropShadowEnabled: true;
+	backgroundSize: auto;
 	 
 }
 
+.panelTabBody {
+	backgroundColor: #BFC1AF;
+}
+
+
 .navTabHeader {
-	fill-colors: #81817f, #b9b8ad;
-	color: #5D5252;
-	backgroundColor: #97b8d2;
-	fillAlphas:  1, 1;
+	backgroundImage: Embed('../assets/filterBar.png');
+	backgroundSize: "100%";
+	color: #000000;
+	fillAlphas:  .5, .5;
  	fontWeight: 		normal;
- 	
+ 	borderColor: #5F696F;
+	borderStyle: solid;
+	cornerRadius: 6;	
 
 }
 
 .navTabHeaderTextSelected {
 	color: #FFFFFF;
 	errorColor: #FFFFFF;
+	fontWeight: bold;
 }
+
 
 
 
@@ -365,8 +429,8 @@ TextArea {
 
 
 .appProgressBar {
-    barColor: #F5F4DB;
-    trackColors: #A3BBCD, #A3BBCD;
+    barColor: #5379A9;
+    trackColors: #ffffff, #ffffff;
     paddingTop: 14;
 	trackHeight: 4;
 	verticalGap: 0;
@@ -409,26 +473,30 @@ VBox.instructionBox
 
 Text.welcome
 {
-	color: #2E2E2E;
+	color: #000000;
 	fontFamily: Arial;
-	fontSize: 12px;
+	fontSize: 13;
 }
 Text.welcomeTitle
 {
-	color: #FAFAE2;
+	color: #000000;
 	fontFamily: Arial;
-	fontSize: 16px;
+	fontSize: 15;
+	fontWeight: bold;
 }
 Text.welcomeHeader
 {
-	color: #FAFAE2;
+	color: #000000;
 	fontFamily: Arial;
-	fontSize: 12px;
+	fontSize: 13;
+	fontWeight: normal;
+	leading: 0;
 }
 Text.submitNote
 {
 	color: #0000ff;
 }
+
 
 .menuBar {
 	borderStyle: solid;
@@ -443,4 +511,24 @@ Text.submitNote
 	verticalAlign: middle;
 	dropShadowEnabled: true;
 	dropShadowColor: #77725C;
+}
+Label.titleLabel
+{
+	color: #000000;
+}
+.tabNavigatorFirstTab
+{
+	fillAlphas: 1.0, 1.0;
+	fillColors: #7F6060, #581212, #6699A4, #2B1010;
+}
+Button.dashboardButton
+{
+	fillAlphas: 1.0, 1.0;
+	fillColors: #F9FAF7, #BEC0B7;
+	fontFamily: Arial;
+	fontSize: 11;
+	fontWeight: bold;
+	width: 210;
+	height: 120;
+	labelPlacement: "bottom";
 }

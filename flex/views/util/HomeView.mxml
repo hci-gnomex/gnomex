@@ -1,59 +1,124 @@
-<?xml version="1.0" encoding="utf-8"?>
-<mx:VBox  xmlns:mx="http://www.adobe.com/2006/mxml"   creationPolicy="all" width="100%" height="100%"  verticalAlign="middle" horizontalAlign="center" >
+<?xml version="1.0" encoding="utf-8"?> 
+	<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml"   
+	xmlns:views="views.*"   
+	xmlns:util="views.util.*"  
+	creationPolicy="all" width="100%" height="100%"  
+	verticalAlign="top" horizontalAlign="center" 
+	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	 paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="0" paddingTop="6">
 <mx:Script>
 	<![CDATA[
+	  import views.util.PanelBox;
+	  
 			public function checkDirty():void {
 			}
 			
 			public function init():void {
 			}
+			
+			private function submitRequest():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
+			}
+			private function showExperiments():void {
+				this.parentApplication.navExperimentView.shortcutToExperimentListTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navExperimentView;
+			}
+			private function showExperimentDownloads():void {
+				this.parentApplication.navExperimentView.shortcutToDownloadTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navExperimentView;
+			}
+			private function showAnalysis():void {
+				this.parentApplication.navAnalysisView.shortcutToAnalysisListTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navAnalysisView;
+			}
+			private function showAnalysisDownloads():void {
+				this.parentApplication.navAnalysisView.shortcutToDownloadTab = true;
+				this.parentApplication.theViews.selectedChild = this.parentApplication.navAnalysisView;
+			} 
+			private function showProtocols():void {
+				this.parentApplication.theViews.selectedChild = this.parentApplication.protocolsView;
+			}			       
 
 	]]>
 </mx:Script>
-	    <mx:ApplicationControlBar  width="604" height="406" horizontalAlign="center" dropShadowEnabled="true" dropShadowColor="#7D7474" fillAlphas="[0.81, 0.54]"  fillColors="[#548DB8, #B9D3E7]" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
-		  <mx:VBox width="100%" height="100%" verticalGap="0"  paddingBottom="10" paddingLeft="20" paddingRight="10" paddingTop="10"  >
-	        <mx:Text text="GNomEx" styleName="welcomeTitle"  width="100%" textAlign="center" fontWeight="bold" paddingBottom="0"/>
-	        <mx:Text  styleName="welcomeHeader" width="100%" textAlign="center" paddingTop="0">
+  <mx:HBox verticalGap="0"  styleName="form"   verticalAlign="middle" horizontalAlign="center" paddingTop="10" paddingRight="10" paddingLeft="10" paddingBottom="10" width="100%" height="100%" horizontalGap="40">
+    <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center">
+      <mx:HBox>
+        <mx:Button label="Submit  Request"  click="submitRequest()" 
+        		icon="@Embed(source='../../assets/account.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        <mx:Button label="Materials &amp; Methods (Protocols)"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+      </mx:HBox>
+      <mx:HBox>
+        <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        <mx:Button label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/folder_go.png')"   styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+      </mx:HBox>
+      <mx:HBox >
+        <mx:Button label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        <mx:Button label="Download Analysis Data Files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/folder_go.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+
+      </mx:HBox>
+    </mx:VBox>
+    <mx:VBox horizontalAlign="left" verticalAlign="middle" verticalGap="0" height="100%" width="390">
+	        <mx:Label id="titleLabel" styleName="titleLabel" text="GNomEx" fontWeight="bold" fontSize="14" paddingTop="4" textAlign="center" width="100%"/>
+	        <mx:Text  styleName="welcomeHeader" textAlign="center" paddingTop="0" color="#020000" fontWeight="bold" paddingBottom="5" fontSize="12" width="100%">
 	            <mx:htmlText><![CDATA[<u>G</u>e<u>nom</u>ic <u>Ex</u>periment Data Repository and Core LIMS]]></mx:htmlText>
 	        </mx:Text>
-	        <mx:Text styleName="welcome" width="100%" paddingTop="20" paddingBottom="10" 
-	        	text="Functionality descriptions for the GNomEx tabs that are located at the top of this page are found below: "/>
-	        <mx:Text width="100%"  
-	        	text="1.  Submit Request" styleName="welcome">
+	        <mx:Text styleName="welcome" paddingTop="20" paddingBottom="10" 
+>
+	        	<mx:htmlText><![CDATA[Functionality descriptions for the GNomEx tabs that are located<br>at the top of this page are found below: ]]></mx:htmlText>
 	        </mx:Text>
-	        <mx:Text width="100%" 
-	        	text="      A.    Submit new work requests for Microarray, Next generation sequencing or quality control services" styleName="welcome">
+	        <mx:HBox width="100%">
+		        <mx:Image source="assets/account.png"/>
+		        <mx:Text  
+		        	text="Submit Request" styleName="welcome">
+	    	    </mx:Text>
+	        	
+	        </mx:HBox>
+	        <mx:Text 
+	        	styleName="welcome">
+	        	<mx:htmlText><![CDATA[      -    Submit new work requests for Microarray, Next generation<br>           sequencing or quality control services]]></mx:htmlText>
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="2.   Experiments" styleName="welcome" paddingTop="10">
+	        <mx:HBox width="100%" verticalAlign="middle" paddingTop="10">
+		        <mx:Image source="assets/flask.png"/>
+		        <mx:Text  
+		        	text="Experiments" styleName="welcome">
+	    	    </mx:Text>
+	        	
+	        </mx:HBox>
+	        <mx:Text  
+	        	text="      -     Download data" styleName="welcome">
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      A.     Download data" styleName="welcome">
+	        <mx:Text  
+	        	text="      -     View experiment progress" styleName="welcome">
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      B.     View experiment progress" styleName="welcome">
+	        <mx:Text  
+	        	text="      -     Review project description and design parameters" styleName="welcome">
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      C.     Review project description and design parameters" styleName="welcome">
+	        <mx:Text  
+	        	text="      -     Review experiment and sample annotations" styleName="welcome">
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      D.     Review experiment and sample annotations" styleName="welcome">
+	        <mx:HBox width="100%" paddingTop="10">
+		        <mx:Image source="assets/map.png"/>
+		        <mx:Text   
+		        	text="Analysis" styleName="welcome" >
+	    	    </mx:Text>
+	        </mx:HBox>
+	        <mx:Text  
+	        	text="      -    View analysis description" styleName="welcome">
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="3.   Analysis" styleName="welcome" paddingTop="10">
+	        <mx:Text  
+	        	text="      -    Download analyzed data files" styleName="welcome">
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      A.    View analysis description" styleName="welcome">
+	        <mx:HBox width="100%" paddingTop="10">
+		        <mx:Image source="assets/bricks.png"/>
+		        <mx:Text  
+		        	text="Protocols" styleName="welcome">
+	    	    </mx:Text>
+	        </mx:HBox>
+	        <mx:Text  
+	        	styleName="welcome">
+	        	<mx:htmlText><![CDATA[      -    View a description of the protocols used during<br>            experiment processing]]></mx:htmlText>
 	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      B.    Download analyzed data files" styleName="welcome">
-	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="4.   Protocols" styleName="welcome" paddingTop="10">
-	        </mx:Text>
-	        <mx:Text width="100%"  
-	        	text="      A.    View a description of the protocols used during experiment processing" styleName="welcome">
-	        </mx:Text>
-		  </mx:VBox>
-	    </mx:ApplicationControlBar>
-	</mx:VBox>
+   	
+   </mx:VBox>
+  </mx:HBox>
+</util:PanelBox>

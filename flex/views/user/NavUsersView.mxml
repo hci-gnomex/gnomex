@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:UsersView="UsersView.*" label="Users And Groups" 
-	width="100%" height="100%" xmlns:views="views.*" xmlns:user="views.user.*" 
+	width="100%" height="100%" 
+	xmlns:views="views.*" 
+	xmlns:user="views.user.*" 
+	xmlns:util="views.util.*" 
 	creationPolicy="all" show="init()"
 	cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
@@ -424,9 +427,9 @@
 		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%">
 		        
 	
-		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000">
+		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
-			          <mx:HBox width="100%">
+			          <mx:HBox width="100%" paddingTop="4">
 			       	      <mx:Label text="Search users:"/>
 			       	      <mx:TextInput id="userSearchText" editable="true" 
 			       	      	change="appUsers.refresh()" width="100%" toolTip="type user name here to find in list" backgroundColor="#FFFFFF"/>			          	
@@ -442,7 +445,7 @@
 					    </mx:columns>
 		      	     </mx:DataGrid>
 		      	   </mx:VBox>
-	              	
+	                	
 				<mx:ControlBar width="100%" verticalAlign="top">
 				<mx:VBox verticalGap="0" width="100%">
 		    	      <mx:LinkButton id="addUserButton" click="prepareToAddUser()" icon="@Embed('../../assets/user_add.png')" toolTip="Add user" label="New user" disabledSkin="@Embed(source='../../assets/user_add_disable.png')" textDecoration="underline"/>
@@ -461,9 +464,9 @@
 		      
 		      <mx:Canvas id="groupsView" label="Groups" width="100%" height="100%"  color="#000405">
 		      
-		        <mx:VBox height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
-			    	  <mx:HBox width="100%">
+			    	  <mx:HBox width="100%" paddingTop="4">
 			       	      <mx:Label text="Search groups:"/>
 			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
 			          </mx:HBox>
@@ -511,12 +514,12 @@
 	
 	    
     <mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
-            <mx:Panel id="userEmptyView" title="Users"/>
+            <util:PanelBox id="userEmptyView" />
             
 		    <user:UserDetailView id="userDetailView" height="100%">	
 	        </user:UserDetailView>
 	        
-	        <mx:Panel id="groupEmptyView" title="Groups"/>
+	        <util:PanelBox id="groupEmptyView" />
             
 		    <user:GroupDetailView id="groupDetailView" height="100%">	
 	        </user:GroupDetailView>

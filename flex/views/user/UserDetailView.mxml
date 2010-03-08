@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"  
+<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml"  
 	 xmlns:views="views.*" 
 	 xmlns:util="views.util.*" 
 	 height="100%" width="100%" 
 	 label="User Detail"  
-	 title="{'User ' + parentDocument.fullUser.@displayName}">
+	 >
+<mx:Label id="titleLabel" styleName="titleLabel" text="{'User ' + parentDocument.fullUser.@displayName}"/>
 
     <mx:HTTPService 
     id="getAppUser" 
@@ -226,7 +227,7 @@
 	  </mx:HBox>	
 	</mx:ControlBar>
   
-  <mx:states> 
+  <util:states> 
 
   	
   	<mx:State name="externalUserState">
@@ -248,5 +249,5 @@
   	</mx:AddChild>
   	<mx:RemoveChild target="{unidContainer}"/>
   	</mx:State>
-  </mx:states>
-</mx:Panel>
+  </util:states>
+</util:PanelBox>
