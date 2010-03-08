@@ -297,7 +297,11 @@
 					     token="$VERSION"
 	      	     value="${gnomex_version}">
 		</replace>
-			
+
+		<!-- Use UNIX eol convention for README_INSTALL.txt file -->
+		<fixcrlf srcdir="${opensource.dir}" includes="README_INSTALL.txt"
+		         eol="lf" eof="remove" />		
+
 		<!-- Copy gnomex source, leaving out hci installation specific files -->
 	  <copy todir="${opensource.dir}/gnomex">
 	  	 <fileset dir="${basedir}">
