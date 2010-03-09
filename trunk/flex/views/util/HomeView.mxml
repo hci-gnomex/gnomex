@@ -45,15 +45,15 @@
       <mx:HBox>
         <mx:Button label="Submit  Request"  click="submitRequest()" 
         		icon="@Embed(source='../../assets/account.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
-        <mx:Button label="Materials &amp; Methods (Protocols)"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        <mx:Button label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
       </mx:HBox>
       <mx:HBox>
         <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
-        <mx:Button label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/folder_go.png')"   styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        <mx:Button label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/icon_download.gif')"   styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
       </mx:HBox>
       <mx:HBox >
         <mx:Button label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
-        <mx:Button label="Download Analysis Data Files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/folder_go.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        <mx:Button label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
 
       </mx:HBox>
     </mx:VBox>
@@ -85,7 +85,7 @@
 	        	
 	        </mx:HBox>
 	        <mx:Text  
-	        	text="      -     Download data" styleName="welcome">
+	        	text="      -     Download experiment results" styleName="welcome">
 	        </mx:Text>
 	        <mx:Text  
 	        	text="      -     View experiment progress" styleName="welcome">
@@ -111,7 +111,7 @@
 	        <mx:HBox width="100%" paddingTop="10">
 		        <mx:Image source="assets/bricks.png"/>
 		        <mx:Text  
-		        	text="Protocols" styleName="welcome">
+		        	text="Materials &amp; Methods" styleName="welcome">
 	    	    </mx:Text>
 	        </mx:HBox>
 	        <mx:Text  
