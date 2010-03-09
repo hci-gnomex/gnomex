@@ -363,6 +363,9 @@ public class RequestDownloadFilter extends DetailObject {
       queryBuf.append(RequestCategory.OTHER_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("', ");
       queryBuf.append("'");
+      queryBuf.append(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY);
+      queryBuf.append("', ");
+      queryBuf.append("'");
       queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("') ");
 
