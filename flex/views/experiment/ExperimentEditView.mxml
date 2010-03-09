@@ -488,6 +488,7 @@
 				confirmView.enabled = false;
 				if (confirmButtonStack != null) {
 					confirmButtonStack.selectedIndex = 0;
+					cancelButton.label = "Cancel";
 				}
 			}
 			
@@ -1828,6 +1829,9 @@
 				submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
 
 				confirmButtonStack.selectedIndex = 2;
+
+				this.cancelButton.label = "Close";
+
  				nextButton.enabled = false;
 				backButton.enabled = false;
 				
@@ -1856,6 +1860,8 @@
 				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
 				Alert.show(message, "Request Submitted", 0, this, onNotifySubmitRequest);
 				
+
+				
 			} else {
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -1865,6 +1871,10 @@
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
 				showPrintableRequestForm();
+				// Just close the window when the request has been submitted
+				// and show the submitted experiment in the Experiments view.
+				parentApplication.showExperiment(this.submittedRequestNumber);
+
 			} else {
 				
 			}
@@ -2085,24 +2095,24 @@
 	
  	   <mx:ControlBar width="100%">
  		<mx:ViewStack id="buttonStack" width="100%">
-	 	    <mx:HBox width="100%" >
+	 	    <mx:HBox width="100%"  verticalAlign="middle">
 				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.png')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
 				<mx:Button id="nextButton"  label="Next" enabled="false" click="nextTab()" icon="@Embed(source='../../assets/arrow_right.png')" labelPlacement="left" fontWeight="normal">
 					<mx:disabledIcon>@Embed(source='../../assets/arrow_right_disabled.png')</mx:disabledIcon>
 				</mx:Button>
 				<mx:ViewStack id="confirmButtonStack" width="100%">
-							<mx:HBox  height="22" horizontalScrollPolicy="off" width="100%"   verticalAlign="middle">
+							<mx:HBox  height="26" horizontalScrollPolicy="off" width="100%"   verticalAlign="middle">
 							  <mx:ViewStack id="userWarningStack" width="100%">
 							      <mx:HBox width="100%">
 							      </mx:HBox>
-								  <mx:HBox id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}">
-										<mx:Label  text="{userWarningsSamples}" width="100%" color="#D00E0E" />
+								  <mx:HBox  id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}" backgroundAlpha="{userWarningsSamples == '' ? 0 : 1}" backgroundColor="#FFFFFF"  borderColor="#000000" borderStyle="{userWarningsSamples == '' ? 'none' : 'solid'}" >
+										<mx:Label  text="{userWarningsSamples}" width="100%" styleName="warningLabel"/>
 								  </mx:HBox>							  	
-								  <mx:HBox id="userWarningsBoxSampleSetup" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}">
-										<mx:Label  text="{userWarningsSampleSetup}" width="100%" color="#D00E0E"/>
+								  <mx:HBox id="userWarningsBoxSampleSetup"  width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}" backgroundAlpha="{userWarningsSampleSetup == '' ? 0 : 1}" backgroundColor="#FFFFFF" borderColor="#000000" borderStyle="{userWarningsSampleSetup == '' ? 'none' : 'solid'}">
+										<mx:Label  text="{userWarningsSampleSetup}" width="100%" styleName="warningLabel" />
 								  </mx:HBox>
-								  <mx:HBox id="userWarningsBoxHybSetup" width="100%" horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}">
-										<mx:Label  text="{userWarningsHybSetup}" width="100%" color="#D00E0E" />
+								  <mx:HBox id="userWarningsBoxHybSetup"  horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}"  backgroundAlpha="{userWarningsHybSetup == '' ? 0 : 1}" backgroundColor="#FFFFFF"  borderColor="#000000" borderStyle="{userWarningsHybSetup == '' ? 'none' : 'solid'}">
+										<mx:Label  text="{userWarningsHybSetup}" width="100%" styleName="warningLabel"/>
 								  </mx:HBox>
 							  </mx:ViewStack>
 							</mx:HBox>
@@ -2115,7 +2125,7 @@
 					    	
 				</mx:ViewStack>
 				<mx:HBox horizontalAlign="right">
-					<mx:Button label="Cancel" id="cancelButton0" click="promptToCancelRequest()"/>
+					<mx:Button label="Cancel" id="cancelButton" click="promptToCancelRequest()"/>
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%" horizontalAlign="right">
