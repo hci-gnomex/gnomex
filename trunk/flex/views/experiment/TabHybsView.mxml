@@ -477,7 +477,7 @@
 					dropEnabled="true" 
 					dragDrop="onDragDrop(event)" 
 					itemFocusOut="checkHybsCompleteness()"  
-					width="100%"
+					width="100%" sortableColumns="false"
 					horizontalScrollPolicy="auto">
 					<util:columns>
 					    <mx:DataGridColumn id="hybRowNumberCol" editable="false" visible="{currentState == 'HybsState'}" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getHybsGridRowNumber"/>

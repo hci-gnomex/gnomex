@@ -644,7 +644,7 @@
 					
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" 
 				allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" 
-				horizontalScrollPolicy="auto" >
+				horizontalScrollPolicy="auto" sortableColumns="false" >
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
