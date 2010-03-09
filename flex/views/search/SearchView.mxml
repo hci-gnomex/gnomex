@@ -175,6 +175,8 @@
         	parentDocument.onViewSwitch();
         	parentDocument.setResultsCount();
         	
+        	this.parentDocument.simpleSearchText = null;
+        	
         	// Expansion takes forever... comment out for now.
         	//callLater(parentDocument.expandAllNodes);
         }
