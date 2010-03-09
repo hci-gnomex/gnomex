@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 	title="Total Billing by Lab Report" 
-	width="546" height="84" defaultButton="{runButton}">
+	width="546" height="114" defaultButton="{runButton}">
  
 
 <mx:Script>
@@ -26,7 +26,7 @@
 	]]>
 </mx:Script>
 
-	<mx:HBox width="100%">
+	<mx:HBox width="100%" paddingTop="2" paddingBottom="2">
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
 			<mx:Label text="For biling periods:  "/>
 			<mx:ComboBox id="billingPeriodStartCombo" 
