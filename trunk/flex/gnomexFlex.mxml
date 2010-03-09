@@ -385,7 +385,12 @@
 			private var currentProgressInterval:uint = 0;
 			
 			private function lookupExperiment():void {
-				showExperiment(requestNumber.text);
+				if (requestNumber.text.indexOf("A") == 0) {
+					this.showAnalysisForNumber(requestNumber.text);				
+				} else {
+					showExperiment(requestNumber.text);
+					
+				}
 			}
 			
 			public function showExperiment(requestNumber:String):void {
@@ -516,20 +521,15 @@
 
             private function search():void {
             	theViews.visible = true;
+            	navSearchView.simpleSearchText = this.searchText.text;
             	theViews.selectedChild = navSearchView;
- 				navSearchView.searchViews.selectedChild = navSearchView.searchResultsGridView;
             	
-            	callLater(navSearchView.searchView.clearForm);
-            	
-            	var params:Object = new Object();
-            	params.text = searchText.text;
-            	
-            	CursorManager.setBusyCursor();
-            	navSearchView.searchView.searchGNomEx.send(params);
-            	CursorManager.removeBusyCursor();
-            	
-            	
+            	// We are already on this tab, so force init().
+            	if (this.navSearchView.searchView != null) {
+            		this.navSearchView.init();
+            	}
             }
+            
             
             private function onViewSelection():void {
             	
@@ -1051,7 +1051,7 @@
 			            </mx:HBox>
 			            
 			            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}">
-			              <mx:Label text="Lookup Experiment by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false"/>
+			              <mx:Label text="Lookup Experiment or Analysis by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false"/>
 			              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
 			              <mx:Button id="lookupButton"  
 			              	fontFamily="Arial"  height="18"
@@ -1128,7 +1128,7 @@
 		            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
 		            </billing:NavBillingView> 
 		          
-			        <protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
+			        <protocol:ProtocolsView id="protocolsView" label="Materials &amp; Methods" icon="@Embed('assets/bricks.png')">
 			        </protocol:ProtocolsView>
 		
 			        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
