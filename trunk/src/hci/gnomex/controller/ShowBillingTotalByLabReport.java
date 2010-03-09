@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
@@ -84,6 +85,8 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     if (secAdvisor == null) {
       this.addInvalidField("secAdvisor", "A security advisor must be created before this command can be executed.");
     }
+    percentFormat.setMinimumFractionDigits(2);
+    percentFormat.setMaximumFractionDigits(2);
   }
 
   public Command execute() throws RollBackCommandException {
@@ -137,22 +140,24 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
             
             Set columns = new TreeSet();
             columns.add(makeReportColumn("Lab", 1));
-            columns.add(makeReportColumn("Illumina", 2));
-            columns.add(makeReportColumn("%", 3));
-            columns.add(makeReportColumn("", 4));
-            columns.add(makeReportColumn("Microarray", 5));
-            columns.add(makeReportColumn("%", 6));
-            columns.add(makeReportColumn("", 7));
-            columns.add(makeReportColumn("Sample Quality", 8));
-            columns.add(makeReportColumn("%", 9));
-            columns.add(makeReportColumn("", 10));
-            columns.add(makeReportColumn("Total", 11));
-            columns.add(makeReportColumn("%", 12));
+            columns.add(makeReportColumn("CCSG Member", 2));
+            columns.add(makeReportColumn("Illumina", 3));
+            columns.add(makeReportColumn("%", 4));
+            columns.add(makeReportColumn("", 5));
+            columns.add(makeReportColumn("Microarray", 6));
+            columns.add(makeReportColumn("%", 7));
+            columns.add(makeReportColumn("", 8));
+            columns.add(makeReportColumn("Sample Quality", 9));
+            columns.add(makeReportColumn("%", 10));
+            columns.add(makeReportColumn("", 11));
+            columns.add(makeReportColumn("Total", 12));
+            columns.add(makeReportColumn("%", 13));
             
             tray.setColumns(columns);
             
             for(Iterator i = labMap.keySet().iterator(); i.hasNext();) {
               String key = (String)i.next();
+              Lab lab = (Lab)labMap.get(key);
               
               BigDecimal totalPriceIllumina        = (BigDecimal)solexaMap.get(key);      
               BigDecimal totalPriceAgilent         = (BigDecimal)agilent2ColorMap.get(key);      
@@ -173,13 +178,14 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               total = total.add(totalMicroarray != null ? totalMicroarray : new BigDecimal(0));
               total = total.add(totalPriceQC != null ? totalPriceQC : new BigDecimal(0));
 
-              BigDecimal illuminaPercent = totalPriceIllumina != null ? totalPriceIllumina.divide(grandTotalIllumina, 3, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-              BigDecimal microarrayPercent = totalMicroarray != null ? totalMicroarray.divide(grandTotalMicroarray, 3, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-              BigDecimal qcPercent = totalPriceQC != null ? totalPriceQC.divide(grandTotalQC, 3, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-              BigDecimal totalPercent = total != null ? total.divide(grandTotal, 3, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal illuminaPercent = totalPriceIllumina != null ? totalPriceIllumina.divide(grandTotalIllumina, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal microarrayPercent = totalMicroarray != null ? totalMicroarray.divide(grandTotalMicroarray, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal qcPercent = totalPriceQC != null ? totalPriceQC.divide(grandTotalQC, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal totalPercent = total != null ? total.divide(grandTotal, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
 
 
               values.add(key);
+              values.add(lab.getIsCcsgMember() != null && lab.getIsCcsgMember().equals("Y") ? "X" : "");
               values.add(totalPriceIllumina != null ? currencyFormat.format(totalPriceIllumina) : "");
               values.add(illuminaPercent.compareTo(zero) > 0 ? percentFormat.format(illuminaPercent) : "");
               values.add("");
@@ -211,6 +217,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
             values.add("");
             values.add("");
             values.add("");
+            values.add("");
 
             reportRow.setValues(values);
             tray.addRow(reportRow);
@@ -219,6 +226,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
             values  = new ArrayList();
 
             values.add("Grand Total");
+            values.add("");
             values.add(grandTotalIllumina != null ? currencyFormat.format(grandTotalIllumina) : "");
             values.add("");
             values.add("");
@@ -281,7 +289,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   
   private void getBillingItems(Session sess, String codeRequestCategory, Map labMap, Map map) throws Exception {
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT lab.lastName, lab.firstName, req.codeRequestCategory, bi.totalPrice ");
+    buf.append("SELECT lab, req.codeRequestCategory, bi.totalPrice ");
     buf.append("FROM   Request req ");
     buf.append("JOIN   req.billingItems bi ");
     buf.append("JOIN   bi.lab as lab ");
@@ -302,10 +310,11 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
-      String labLastName         = (String)row[0];
-      String labFirstName        = row[1] != null ? (String)row[1] : "";
-      String codeRequestCategory = (String)row[2];
-      BigDecimal totalPrice      = row[3] != null ? (BigDecimal)row[3] : new BigDecimal(0);
+      Lab    lab                 = (Lab)row[0];
+      String labLastName         = lab.getLastName() != null ? lab.getLastName() : "";
+      String labFirstName        = lab.getFirstName() != null ? lab.getFirstName() : "";
+      String codeRequestCategory = (String)row[1];
+      BigDecimal totalPrice      = row[2] != null ? (BigDecimal)row[2] : new BigDecimal(0);
       
       String key = labLastName;
       if (!labFirstName.equals("")) {
@@ -320,7 +329,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       }
       map.put(key, total);
       
-      labMap.put(key, key);
+      labMap.put(key, lab);
       
       if (totalPrice != null) {
         grandTotal = grandTotal.add(totalPrice);
