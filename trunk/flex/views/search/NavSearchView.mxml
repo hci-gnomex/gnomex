@@ -8,11 +8,13 @@
 	label="Advanced Search"  defaultButton="{searchButton}"
 	creationPolicy="all" show="init()" 
 	width="100%" height="100%" icon="@Embed('../../assets/magnifier.png')">
-	
+
+    
 	<mx:Script>
     <![CDATA[ 
     	import mx.managers.CursorManager;
     	import hci.flex.controls.DropdownLabel;
+    	import mx.rpc.events.ResultEvent;
     	
     	[Bindable] 
     	private var experimentHitLabel:String = "Experiments";
@@ -24,14 +26,27 @@
         [Bindable]
         private var rowCountMessage:String = new String();
         
+        [Bindable]
+        public var simpleSearchText:String = null;
+        
 		public function checkDirty():void {
 		}
 		
-		private function init():void {
+		public function init():void {
 			this.searchView.checkSecurity();
 			this.searchView.initializeData();
+			
+			if (simpleSearchText != null) {
+				performSimpleSearch(simpleSearchText);
+			}
 		}
 		
+		public function performSimpleSearch(searchText:String): void {
+			var params:Object = new Object();
+			params.text1 = searchText;        	
+        	this.searchView.searchGNomEx.send(params);
+        }
+
 		        
         private function getGridRowNumber(item:Object,col:int):String
         {
@@ -246,9 +261,9 @@
 	
 
 	<mx:ViewStack  id="searchViews" width="100%" height="100%" 
-			 creationPolicy="all"  styleName="formTabBody" cornerRadius="0">
+			 creationPolicy="all"  styleName="formTabBody" cornerRadius="0" selectedIndex="0">
 	
-		<search:SearchView id="searchView" label="New search" width="100%" height="100%" >
+		<search:SearchView id="searchView" label="New search" width="100%" height="100%"  >
 		</search:SearchView>
 		
 		<mx:VBox id="searchResultsGridView"  label="Results"   enabled = "false" width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="4">
