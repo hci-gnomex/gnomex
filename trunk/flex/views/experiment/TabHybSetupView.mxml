@@ -127,10 +127,10 @@
 	        		' cannot be used for ' + parentDocument.applicationName + 
 	        		' experiments.  Please change the sample type or microarray application.';
         			
-        		}
+        		} 
 
         		this.slideProductCombo.selectedIndex = 0;
-        	}
+        	} 
         }
 
         public function checkForSlideProductWarning():void {
@@ -352,8 +352,8 @@
 						<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
 					</mx:ComboBox>
 			    </mx:HBox>
-			    <mx:HBox width="100%" backgroundColor="#ffffff" borderStyle="inset" verticalAlign="middle">
-					<mx:Text width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + parentDocument.applicationName + ' slides are listed.  Please contact Brian Dalley about slide stock.'}" color="#0000ff">								
+			    <mx:HBox width="100%"  borderStyle="none" verticalAlign="middle">
+					<mx:Text  styleName="warningLabelMinor" width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + parentDocument.applicationName + ' slides are listed.  Please contact Brian Dalley about slide stock.'}">								
 					</mx:Text>						    	
 			    </mx:HBox>
 				

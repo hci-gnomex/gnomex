@@ -187,7 +187,7 @@
         		}
 
         		
-        	}
+        	} 
         }
 
 
@@ -604,7 +604,7 @@
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()">
                 		</mx:RadioButton>
                 	</mx:VBox>
-                	<mx:Text width="300" id="barcoingNote" styleName="submitNote" height="40">									
+                	<mx:Text width="300" id="barcoingNote" styleName="submitNote" height="40" paddingLeft="4">									
                 		<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_ILLUMINA_BARCODING_NOTE)}</mx:text>
                 	</mx:Text>
 				</mx:HBox>

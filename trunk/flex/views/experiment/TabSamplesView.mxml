@@ -259,7 +259,7 @@
         }		
         
         public function checkSamplesCompleteness():void {
-        	parentDocument.userWarningsSamples = "";
+          	parentDocument.userWarningsSamples = "";
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
         		if (currentState.indexOf('SolexaSamples') >= 0) {
@@ -678,16 +678,50 @@
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequenceDisplay', '@value', '@idOligoBarcode', true)}"/>
 					
 					
-	 		 	  
-	 				<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="128" editorDataField="text" dataField="@numberSequencingLanes" 
+	 		 	    
+	 				<mx:DataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" editorDataField="text" dataField="@numberSequencingLanes" 
 						editable="false"
 						rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
- 	                   itemEditor="views.renderers.TextInputSampleNumberSeqLanes"      />          
+ 	                   itemEditor="views.renderers.TextInputSampleNumberSeqLanes"      >
+ 	                     <mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								    <mx:Label text="# Lanes to"/> 
+								    <mx:Label text="Sequence?"/>
+								</mx:VBox> 
+							</mx:Component>
+						 </mx:headerRenderer>
 
-					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"
+ 	                </mx:DataGridColumn>          
+	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
+                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
+	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="70" dataField="@idNumberSequencingCycles" 
+	 				    rendererIsEditor="false" editorDataField="value" 
+ 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"                
+   	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}">
+						 <mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								    <mx:Label text="# Seq"/>
+								    <mx:Label text="Cycles"/>
+								</mx:VBox> 
+							</mx:Component>
+						 </mx:headerRenderer>
+					</mx:DataGridColumn>
+
+					<mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="60"  dataField="@seqPrepByCore"
  	                   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
- 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      />          
+ 	                   itemEditor="views.renderers.TextInputSeqPrepByCore"      >
+ 	                   	<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								    <mx:Label text="Core to"/>
+								    <mx:Label text="prep lib?"/>
+								</mx:VBox> 
+							</mx:Component>
+						</mx:headerRenderer>
+ 	                </mx:DataGridColumn>          
                     <mx:DataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', true)}"                
@@ -761,12 +795,6 @@
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true)}"/>
 
 
-	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
-                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
-	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="84" dataField="@idNumberSequencingCycles" 
-	 				    rendererIsEditor="false" editorDataField="value" 
- 	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"                
-   	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}"/>
 	                <mx:DataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true)}"                
