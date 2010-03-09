@@ -1582,12 +1582,12 @@
   					    </mx:columns>
   					</mx:AdvancedDataGrid>
   					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0">
-  								<mx:LinkButton label="New price" textDecoration="underline" click="showNewPriceView()"  textAlign="left" icon="@Embed(source='../../assets/money_add.png')"/>
+  								<mx:LinkButton label="New sheet" textDecoration="underline" click="showNewPriceSheetView()" textAlign="left" icon="@Embed(source='../../assets/pricesheet_add.png')">
+  								</mx:LinkButton>
   								<mx:LinkButton label="New category" textDecoration="underline" click="showNewPriceCategoryView()" textAlign="left" >
   									<mx:icon>@Embed(source='../../assets/folder_money_add.png')</mx:icon>
   								</mx:LinkButton>
-  								<mx:LinkButton label="New sheet" textDecoration="underline" click="showNewPriceSheetView()" textAlign="left" icon="@Embed(source='../../assets/pricesheet_add.png')">
-  								</mx:LinkButton>
+  								<mx:LinkButton label="New price" textDecoration="underline" click="showNewPriceView()"  textAlign="left" icon="@Embed(source='../../assets/money_add.png')"/>
   								<mx:LinkButton  enabled="{this.pricingTree.selectedItem != null}" label="Remove" textDecoration="underline" click="removePricing()" textAlign="left" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')"/>
   					    	
   					</mx:ControlBar>        		    
