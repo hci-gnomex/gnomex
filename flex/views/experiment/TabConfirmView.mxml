@@ -80,7 +80,9 @@
 			
 			<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesConfirmContainer">
 				<mx:Label text="{parentDocument.samples.length + ' Samples'}" id="label1"/>
-				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="auto" height="100%">
+				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 
+					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="auto" height="100%"
+					sortableColumns="false">
 					<mx:columns>
 					    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
@@ -130,7 +132,10 @@
 			
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
 				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}"/>
-				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" editable="false" dataProvider="{parentDocument.hybs}"  backgroundAlpha="0" borderStyle="solid" >
+				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" 
+					editable="false" dataProvider="{parentDocument.hybs}"  
+					backgroundAlpha="0" borderStyle="solid" 
+					sortableColumns="false">
 					<mx:columns>
 					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="70" labelFunction="parentDocument.getHybsGridRowNumber"/>
 					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>

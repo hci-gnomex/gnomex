@@ -1873,7 +1873,10 @@
 				showPrintableRequestForm();
 				// Just close the window when the request has been submitted
 				// and show the submitted experiment in the Experiments view.
-				parentApplication.showExperiment(this.submittedRequestNumber);
+				var theRequestNumber:String = this.submittedRequestNumber;
+				getNewRequest.send();  
+				initializeSubmitForm();
+				parentApplication.showExperiment(theRequestNumber);
 
 			} else {
 				
