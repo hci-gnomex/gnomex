@@ -429,7 +429,7 @@ TextArea {
 
 
 .appProgressBar {
-    barColor: #5379A9;
+    barColor: #1CC7E6;
     trackColors: #ffffff, #ffffff;
     paddingTop: 14;
 	trackHeight: 4;
@@ -532,3 +532,14 @@ Button.dashboardButton
 	height: 120;
 	labelPlacement: "bottom";
 }
+.warningLabel
+{
+	color: #17871C;
+	fontWeight: bold;
+}
+.warningLabelMinor
+{
+	color: #17871C;
+	fontWeight: normal;
+}
+
