@@ -93,7 +93,7 @@
 	    
 	           <workflow:WorkflowHybView label="Hybridization" id="workflowHybView" icon="@Embed('../../assets/basket_put.png')"/>
 	
-	           <workflow:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="@Embed('../../assets/color_swatch.png')"/>
+	           <workflow:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="{parentApplication.iconExperiment}"/>
                
                <mx:Canvas id="blankMicroarray" label=""> 
                </mx:Canvas>
@@ -110,7 +110,7 @@
 			   
 			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowSolexaAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
 			   
-			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="@Embed('../../assets/solexa.png')"/> 	           
+			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="{parentApplication.iconSolexa}"/> 	           
 
 			   <workflow:WorkflowSolexaPipelineView label="GA Pipeline" id="workflowSolexaPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
 			    
