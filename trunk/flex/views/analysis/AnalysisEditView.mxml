@@ -791,6 +791,17 @@
             parentDocument.detailView.setupForm();
 		}
 		
+		private function showHTMLUploadForm():void {
+			var url:URLRequest = new URLRequest('uploadAnalysisFile_plupload.jsp?analysisNumber=' + this.analysis.@number + '&analysisName=' + this.analysis.@name);
+			navigateToURL(url, '_blank');			
+		}
+		
+		private function refreshAnalysis():void {
+			// refresh analysis
+			var parms:Object = new Object();
+			parms.idAnalysis = analysis.@idAnalysis;
+			getAnalysis.send(parms);			
+		}
 
 	]]>
 </mx:Script>
@@ -1003,7 +1014,12 @@
 		</mx:Canvas>
 		<mx:VDividedBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 			<mx:VBox width="100%" height="100%" verticalGap="2">
-				<mx:Label text="Files to upload" fontWeight="bold"/>
+			    <mx:HBox width="100%">
+					<mx:Label text="Files to upload" fontWeight="bold"/>
+					<mx:Spacer width="100%">
+					</mx:Spacer>
+					<mx:LinkButton label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+			    </mx:HBox>
 	            <mx:HBox  width="100%">
 	                <mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
 	                <mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
@@ -1012,6 +1028,7 @@
 	                    <mx:VRule height="20"/>
 	                    <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
 	                </mx:HBox>
+
 	            </mx:HBox>
 				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
 				</mx:DataGrid>				
@@ -1039,6 +1056,7 @@
 	        <mx:LinkButton label="Downloads" click="parentApplication.navAnalysisView.detailView.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 	        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
         	</mx:LinkButton>
+	        <mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()"/>
         </mx:HBox>
         <util:DirtyNote id="dirty"/>
         <mx:Button label="Upload files" id="uploadButton" click="initializeFileUploadParameters()" enabled="false" visible="true"/>
