@@ -203,7 +203,7 @@ LinkBar {
 	textSelectedColor: #000000;
 	color: #000000;
 	backgroundAlpha: 1;
-	horizontalGap: 4;
+	horizontalGap: 8;
 	separatorColor: #C3C2B7;
 	linkButtonStyleName: "normalLinkButton";
 	fontSize: 11;
@@ -541,5 +541,14 @@ Button.dashboardButton
 {
 	color: #17871C;
 	fontWeight: normal;
+}
+.navLinkButtonSmall
+{
+	color: #ffffff;
+	textAlign: right;
+	textDecoration: underline;
+	paddingLeft: 1;
+	paddingRight: 1;
+	
 }
 
