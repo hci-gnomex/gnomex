@@ -13,12 +13,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.hibernate.Session;
 
 import com.oreilly.servlet.multipart.FilePart;
@@ -29,6 +33,7 @@ import com.oreilly.servlet.multipart.Part;
 public class UploadAnalysisFileServlet extends HttpServlet {
   
   private Integer idAnalysis = null;
+  private String  analysisNumber = null;
   private String  directoryName = "";
   
   private Analysis analysis;
@@ -93,12 +98,24 @@ public class UploadAnalysisFileServlet extends HttpServlet {
             idAnalysis = new Integer((String)value);
             break;
           }
+          if (name.equals("analysisNumber")) {
+            analysisNumber = (String)value;
+            break;
+          }
         }
       }
       
       if (idAnalysis != null) {
         
         analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
+      } else if (analysisNumber != null) {
+        List analysisList = sess.createQuery("SELECT a from Analysis a WHERE a.number = '" + analysisNumber + "'").list();
+        if (analysisList.size() == 1) {
+          analysis = (Analysis)analysisList.get(0);
+        }
+      }
+      
+      if (analysis != null) {
         if (secAdvisor.canUpdate(analysis)) {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
@@ -166,6 +183,44 @@ public class UploadAnalysisFileServlet extends HttpServlet {
         throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
         
       }
+      
+      if (analysisNumber != null) {
+        String baseURL = "";
+        StringBuffer fullPath = req.getRequestURL();
+        String extraPath = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
+        int pos = fullPath.lastIndexOf(extraPath);
+        if (pos > 0) {
+          baseURL = fullPath.substring(0, pos);
+        }
+
+      
+        org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
+        org.dom4j.io.HTMLWriter writer = null;
+        res.setContentType("text/html");
+        
+        Document doc = DocumentHelper.createDocument();
+        Element root = doc.addElement("HTML");
+        Element head = root.addElement("HEAD");
+        Element link = head.addElement("link");
+        link.addAttribute("rel", "stylesheet");
+        link.addAttribute("type", "text/css");
+        link.addAttribute("href", baseURL + "/css/message.css");
+        Element body = root.addElement("BODY");
+        Element h3 = body.addElement("H3");
+        h3.addCDATA("Upload analysis file");
+        body.addCDATA(analysis.getNumber());
+        body.addElement("BR");
+        body.addCDATA(analysis.getName());
+        body.addElement("BR");
+        body.addElement("BR");
+        body.addCDATA("File " + fileName + " successfully uploaded.");
+        writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);            
+        writer.write(doc);
+        writer.flush();
+        writer.close(); 
+               
+      }
+
       
       
     } catch (Exception e) {
