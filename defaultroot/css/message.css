@@ -1,3 +1,11 @@
+  BODY {
+
+      font-family:  Trebuchet MS;
+      font-size: 10pt;
+      padding-top: 0;
+      padding-right: 8;
+      padding-bottom: 0;
+  }
 
   H3 {
 
@@ -9,4 +17,13 @@
   }
 
 
+  H4 {
+
+      font-family:  Arial;
+      font-size: 10pt;
+      padding-top: 0;
+      padding-right: 2;
+      padding-left: 4;
+      padding-bottom: 0;
+  }
 
