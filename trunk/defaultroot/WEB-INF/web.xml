@@ -121,6 +121,8 @@
 			<url-pattern>CreateSecurityAdvisor.gx</url-pattern>
 			<url-pattern>go_reconnect.jsp</url-pattern>
 			<url-pattern>go.jsp</url-pattern>
+			<url-pattern>uploadAnalysisFile.jsp</url-pattern>
+			<url-pattern>uploadAnalysisFile_plupload.jsp</url-pattern>
 			<url-pattern>launcher_reconnect.jsp</url-pattern>
 			<url-pattern>launch.jsp</url-pattern>
 			<url-pattern>Delete*.gx</url-pattern>
