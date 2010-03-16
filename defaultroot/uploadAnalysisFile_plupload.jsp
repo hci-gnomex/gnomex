@@ -129,8 +129,11 @@ $(function() {
 <!-- <script type="text/javascript"  src="http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"></script> -->
 </head>
 <body>
+<form enctype="multipart/form-data"  method="post" action="UploadAnalysisFileServlet.gx">
+<input type="hidden"  name="analysisNumber" value="<%=request.getParameter("analysisNumber")%>">
 <h4>Upload files to Analysis <%=request.getParameter("analysisNumber")%> - <%=request.getParameter("analysisName")%></h4>
 <div id="html4_uploader" style="width: 650px; height: 330px;">Your browser doesn't have HTML 4 support.</div>
+</form>
 <p class="warning">
 When finished uploading, press 'Refresh' link in GNomEx Analysis Detail to see complete list of files.
 </form>
