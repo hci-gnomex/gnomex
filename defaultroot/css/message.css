@@ -26,4 +26,12 @@
       padding-left: 4;
       padding-bottom: 0;
   }
+  
+  P.warning {
+      font-size: 9pt;
+  }
+  
+  p.credit {
+      font-size: 8pt;
+  }
 

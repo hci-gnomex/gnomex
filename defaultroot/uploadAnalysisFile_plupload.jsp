@@ -129,22 +129,12 @@ $(function() {
 <!-- <script type="text/javascript"  src="http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"></script> -->
 </head>
 <body>
-<h3>Upload Analysis File(s) to <%=request.getParameter("analysisNumber")%>&nbsp;(<%=request.getParameter("analysisName")%>)</h3>
-<form enctype="multipart/form-data"  method="post" action="UploadAnalysisFileServlet.gx">
-	<input type="hidden"  name="analysisNumber" value="<%=request.getParameter("analysisNumber")%>">
-	<p>
-
-	<div style="float: left; margin-right: 20px">
-		
-		
-		<div id="html4_uploader" style="width: 450px; height: 330px;">You browser doesn't have HTML 4 support.</div>
-	</div>
-
-	<br style="clear: both" />
+<h4>Upload files to Analysis <%=request.getParameter("analysisNumber")%> - <%=request.getParameter("analysisName")%></h4>
+<div id="html4_uploader" style="width: 650px; height: 330px;">Your browser doesn't have HTML 4 support.</div>
+<p class="warning">
 When finished uploading, press 'Refresh' link in GNomEx Analysis Detail to see complete list of files.
 </form>
-<br>
-<br>
+<p class="credit">
 This upload widget was provided by <a href="http://www.plupload.com/">Plupload</a>
 </body>
 </html>
