@@ -57,6 +57,8 @@
 	     private function onGetAppUser(event:ResultEvent):void {
           parentApplication.navUsersView.fullUser = getAppUser.lastResult.AppUser.(@idAppUser = savedIdAppUser);
           parentApplication.navUsersView.userDetailView.isActive.selected =  parentApplication.navUsersView.fullUser.@isActive == 'Y' ? true : false;
+		  var itemToSelect:XML = new XML("<AppUser id='" + savedIdAppUser + "'/>");
+          parentApplication.navUsersView.itemToSelect = itemToSelect;
           parentApplication.navUsersView.refreshAppUserList();
           parentApplication.navUsersView.checkSecurity();
           parentApplication.navUsersView.userSearchText.text = parentApplication.navUsersView.fullUser.@lastName;
