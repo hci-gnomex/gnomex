@@ -60,6 +60,10 @@
 		
 	     private function onGetLab(event:ResultEvent):void {
           parentApplication.navUsersView.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
+          
+          var itemToSelect:XML = new XML("<Lab id='" + savedIdLab + "'/>");
+          parentApplication.navUsersView.itemToSelect = itemToSelect;
+
           parentApplication.navUsersView.refreshGroupList();
           parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
         }

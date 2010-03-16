@@ -128,6 +128,8 @@
           [Bindable]
 		  private var groupsToManage:XMLListCollection;
 		  
+		  public var itemToSelect:Object = null;
+		  
 		  
 		  private function init():void {
 			  checkSecurity();
@@ -374,11 +376,36 @@
               
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
-            } else if (call.marker == "doneGetLabList") {
+              if (itemToSelect != null) {
+	              var item:Object = getAppUserList.lastResult.AppUser.(@idAppUser == itemToSelect.@id);
+    	          if (item !== null && item is XMLList) {
+					this.usersGrid.selectedItem = item[0];     
+					userRowSelected(null);       
+            	  } else if (item != null) {
+            	  	this.usersGrid.selectedItem = item;
+					userRowSelected(null);          	
+            	  }
+              }
+             } else if (call.marker == "doneGetLabList") {
+             	if (itemToSelect != null) {
+	              var labItem:Object = getLabList.lastResult.Lab.(@idLab == itemToSelect.@id);
+    	          if (labItem !== null && labItem is XMLList) {
+					this.labsGrid.selectedItem = labItem[0];     
+					this.labRowSelected();          	
+            	  } else if (item != null) {
+            	  	this.labsGrid.selectedItem = labItem;
+					labRowSelected();          	
+            	  }
+              	}
+
             } if (call.marker == "doneGetLab") {
             	fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
             	groupDetailView.dirty.resetDirty(); 
+            	
+
             } 
+            
+            itemToSelect = null;
 
           }
           
