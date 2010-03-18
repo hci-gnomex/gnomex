@@ -635,7 +635,7 @@
 				sdRemoveArrayCoord.enabled = false;
 				for each(var labItem:Object in parentApplication.promptedLabList) {
 					if (labItem.@idLab == fullSlideDesign.SlideProduct.@idLab) {
-						this.sdIdLab.selectedItem = item;
+						this.sdIdLab.selectedItem = labItem;
 						break;
 					}
 				}
