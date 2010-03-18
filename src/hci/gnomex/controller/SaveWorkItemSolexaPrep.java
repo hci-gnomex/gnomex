@@ -75,7 +75,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
     try {
       appURL = this.getLaunchAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      log.warn("Cannot get launch app URL in SaveWorkItemSolexaPrep", e);
     }
     
     serverName = request.getServerName();
@@ -103,12 +103,14 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                 (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
 
                 // Calculate the molarity, desired vol of lib stock, and desired vol of EB
-                double averageFragmentSize = (sample.getSeqPrepGelFragmentSizeFrom().doubleValue() + sample.getSeqPrepGelFragmentSizeTo().doubleValue()) / 2;
-                double molarity = MolarityCalculator.calculateConcentrationInnM(sample.getSeqPrepLibConcentration().doubleValue(), averageFragmentSize);
-                double soluteVol = MolarityCalculator.calculateDilutionVol(molarity, 10, 100);
-                double solventVol = 100 - soluteVol;
-                sample.setSeqPrepStockLibVol(new BigDecimal(soluteVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));
-                sample.setSeqPrepStockEBVol(new BigDecimal(solventVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));
+                if (sample.getSeqPrepGelFragmentSizeFrom() != null && sample.getSeqPrepGelFragmentSizeTo() != null) {
+                   double averageFragmentSize = (sample.getSeqPrepGelFragmentSizeFrom().doubleValue() + sample.getSeqPrepGelFragmentSizeTo().doubleValue()) / 2;
+                   double molarity = MolarityCalculator.calculateConcentrationInnM(sample.getSeqPrepLibConcentration().doubleValue(), averageFragmentSize);
+                   double soluteVol = MolarityCalculator.calculateDilutionVol(molarity, 10, 100);
+                   double solventVol = 100 - soluteVol;
+                   sample.setSeqPrepStockLibVol(new BigDecimal(soluteVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));
+                   sample.setSeqPrepStockEBVol(new BigDecimal(solventVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));                   
+                }
               
                 // Create a work item
                 WorkItem wi = new WorkItem();
