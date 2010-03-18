@@ -138,10 +138,16 @@
 
 			<manifest>
 			  <attribute name="class-path" value="log4j.jar"/>
+					<section name="gnomex">
+	  	      <attribute name="Built-By" value="${user.name}"/>
+  	  	    <attribute name="Implementation-Version" value="${gnomex_version}"/>
+					</section>
     		</manifest>
 
             <metainf dir="${metainf.dir}/jar" includes="*.xml" />
         </jar>
+		
+
 	</target>
 
 
@@ -291,7 +297,7 @@
 		<!-- Delete zip file -->
 		<delete file="${opensource.dir}/../${opensource.name}.zip"/>
 		
-		<!-- Copy README_INSTALL.txt and stick in actual version numbe into document -->				
+		<!-- Copy README_INSTALL.txt and stick in actual version number into document -->				
 		<copy todir="${opensource.dir}" file="${basedir}/README_INSTALL.txt"/>
 		<replace file="${opensource.dir}/README_INSTALL.txt"
 					     token="$VERSION"
@@ -300,6 +306,13 @@
 
 		<!-- Use UNIX eol convention for README_INSTALL.txt file -->
 		<fixcrlf srcdir="${opensource.dir}" includes="README_INSTALL.txt"
+		         eol="lf" eof="remove" />		
+
+		<!-- Copy LICENSE.txt  -->				
+		<copy todir="${opensource.dir}" file="${basedir}/LICENSE.txt"/>
+
+		<!-- Use UNIX eol convention for LICENCE.txt file -->
+		<fixcrlf srcdir="${opensource.dir}" includes="LICENSE.txt"
 		         eol="lf" eof="remove" />		
 
 		<!-- Copy gnomex source, leaving out hci installation specific files -->
@@ -391,11 +404,10 @@
 		         value="MySQLDialect">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
-		
+
 		<!-- Copy jar files normally in hciEnv directly to gnomex/lib -->
 	  <copy todir="${opensource.dir}/gnomex/lib">
 	    <fileset dir="${hcienv.dir}/lib">
-	      <include name="altio_cod.jar"/>
 	      <include name="antlr-2.7.6rc1.jar"/>
 	      <include name="asm.jar"/>
 	      <include name="asm-attrs.jar"/>
@@ -410,6 +422,19 @@
 	      <exclude name="**/Thumbs.db"/>
 	    </fileset>
 	  </copy>
+
+		<!-- Create a special lite version of altio_cod.jar from hciEnv/lib,
+		     omitting util classes (CODPanel, CODWindow) -->
+		<unzip src="${hcienv.dir}/lib/altio_cod.jar"
+		       dest="${opensource.dir}/gnomex/dist/altio_cod_lite">
+		    <patternset>
+  	        <include name="**/META-INF/*.*"/>
+		        <include name="**/*.class"/>
+		        <exclude name="**/util/*.class"/>
+		    </patternset>
+		</unzip>
+	  <jar destfile="${opensource.dir}/gnomex/lib/altio_cod_lite.jar" basedir="${opensource.dir}/gnomex/dist/altio_cod_lite"/>
+	  <delete dir="${opensource.dir}/gnomex/dist/altio_cod_lite"/>
 		
 		<!-- Copy flex files normally in hciFlex2 directly to gnomex/flex -->
 	  <copy todir="${opensource.dir}/gnomex/flex">

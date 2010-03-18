@@ -1,21 +1,24 @@
 package hci.gnomex.controller;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.gnomex.security.InvalidSecurityAdvisorException;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
+
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import hci.gnomex.model.Lab;
-import hci.gnomex.security.*;
-import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.*;
-import hci.framework.model.DetailObject;
-
-import org.hibernate.*;
-import org.hibernate.type.*;
-import org.jdom.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -83,6 +86,13 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       Session sess = HibernateSession.currentSession(this.getUsername());
       
       secAdvisor = SecurityAdvisor.create(sess, this.getUsername());
+
+      // Get gnomex version
+      String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+      JarFile jarfile = new JarFile( filename );
+      Manifest manifest = jarfile.getManifest();
+      Attributes value = (Attributes)manifest.getEntries().get("gnomex");
+      secAdvisor.setVersion(value.getValue("Implementation-Version"));
 
       // Output the security advisor information
       Document doc = secAdvisor.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL);

@@ -379,6 +379,10 @@
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
 			
+			[Bindable]
+			public var version:String = "";
+			
+			
 			private function lookupExperiment():void {
 				if (requestNumber.text.indexOf("A") == 0) {
 					this.showAnalysisForNumber(requestNumber.text);				
@@ -742,7 +746,7 @@
 			    this.showProgress(10);
 			    
 			    userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
-			    
+			    version = createSecurityAdvisor.lastResult.@version;
 			    		
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
@@ -771,6 +775,7 @@
             		return;	
             	}
             	userName.text = "(guest)";
+			    version = getSecurityAdvisorForGuest.lastResult.@version;
 			    
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
