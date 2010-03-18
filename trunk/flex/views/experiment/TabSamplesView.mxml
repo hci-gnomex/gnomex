@@ -30,10 +30,10 @@
 				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
 				    " canChangeSamplePrepMethod='Y'" +
-   					" canChangeNumberSequencingLanes='Y'" + 
+   					" canChangeNumberSequencingLanes='Y'" +  
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingRadioGroup.selectedValue.@value + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue + "'" +				
 					" idSeqRunType='" + parentDocument.seqSetup1View.seqRunTypeRadioGroup.selectedValue + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
@@ -56,7 +56,7 @@
 				    " canChangeSampleConcentration='Y'" +
 				    " canChangeSampleSource='Y'" +
 				    " canChangeSamplePrepMethod='Y'" +
-   					" canChangeNumberSequencingCycles='Y'" +
+   					" canChangeNumberSequencingCycles='Y'" + 
 					" canChangeNumberSequencingLanes='Y'" + 
 					" concentration=''" +
 					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue + "'" +
