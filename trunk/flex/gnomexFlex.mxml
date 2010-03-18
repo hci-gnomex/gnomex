@@ -852,7 +852,10 @@
 	        	filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
 	        	filteredSlideProductList.addItemAt(emptyNode, 0);
 	        	
-	        	filteredSlideProductListForSubmitRequests = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
+		        filteredSlideProductListForSubmitRequests = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
+	        	if (this.submitRequestView != null) {
+	        		filteredSlideProductListForSubmitRequests.filterFunction = this.submitRequestView.filterSlideProduct;
+	        	}
 
 	        	showProgress(10);
 

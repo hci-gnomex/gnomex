@@ -993,6 +993,7 @@
         		}
         	}
         	
+        	trace('filtering ' + doesMatchRequestCategoryVendor + ' ' + doesMatchOrganism + ' ' + doesMatchExperimentCategory + ' ' + doesMatchGroup);
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
 		
