@@ -3,6 +3,9 @@ package hci.gnomex.controller;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -110,6 +113,13 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
       // Output the security advisor information
       Document doc = secAdvisor.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL);
       
+      // Set gnomex version
+      String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+      JarFile jarfile = new JarFile( filename );
+      Manifest manifest = jarfile.getManifest();
+      Attributes value = (Attributes)manifest.getEntries().get("gnomex");
+      secAdvisor.setVersion(value.getValue("Implementation-Version"));
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 

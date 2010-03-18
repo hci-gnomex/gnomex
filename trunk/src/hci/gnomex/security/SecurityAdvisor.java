@@ -65,6 +65,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private boolean                     isGuest = false;
   private boolean                     isUniversityUser = true;
   
+  // version info
+  private String                       version;
+  
   // Global permission map
   private Map                          globalPermissionMap = new HashMap();
   
@@ -1560,6 +1563,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     } else {
       HibernateSession.closeSession();
     }
+  }
+
+  
+  public String getVersion() {
+    return version;
+  }
+
+  
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   

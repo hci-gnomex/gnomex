@@ -4,7 +4,7 @@
 	xmlns:views="views.*"
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
-	title="GNomEx 3.0" 
+	title="{'GNomEx ' + parentApplication.version }" 
 	backgroundColor="#ffffff" fontSize="12">
 	<mx:VBox width="100%" verticalGap="20" height="100%" fontSize="10" paddingTop="8" paddingLeft="8">
 		
