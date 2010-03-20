@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
     xmlns:views="*.views"
+    xmlns:fx="*.views.renderers"
 	label="Sample View" width="100%" height="100%"  enabled="false">
 <mx:Script>
 	<![CDATA[
@@ -644,7 +645,7 @@
 					
 			<mx:DataGrid width="100%" height="100%" id="samplesGrid"  editable="true" dataProvider="{parentDocument.samples}" 
 				allowMultipleSelection="true" itemFocusOut="checkSamplesCompleteness()" 
-				horizontalScrollPolicy="auto" sortableColumns="false" >
+				horizontalScrollPolicy="auto" sortableColumns="false"  selectionColor="#DDF3FB">
 				<mx:columns>
   			        <mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 					<mx:DataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
@@ -653,17 +654,11 @@
  	                   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
  	                   itemEditor="views.renderers.TextInputSampleName"      />           
 
-					<mx:DataGridColumn id="labelColumn" headerText="Label"  editable="false"
-	 		 			itemRenderer="views.renderers.LabelRadioGroup" width="48">
-	 		 			 <mx:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    	<mx:Label text="Label"/>
-							    	<mx:Label text="G   R"/>
-								</mx:VBox>
-							</mx:Component>
-							</mx:headerRenderer>
-	 		 	    </mx:DataGridColumn>
+
+
+	               <mx:DataGridColumn id="labelColumn" dataField="@label" width="92" headerText="Label" rendererIsEditor="true" 
+					      itemRenderer="views.renderers.RadioButtonGroupSampleLabel">
+				    </mx:DataGridColumn>
 
 	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
