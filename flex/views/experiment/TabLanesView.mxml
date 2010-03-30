@@ -27,13 +27,16 @@
 			}
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" analysisInstructions='" + template.@analysisInstructions + "'" + 
 					" idSeqRunType='" + template.@idSeqRunType + "'" +			
 					" idNumberSequencingCycles='" + template.@idNumberSequencingCycles + "'" +			
 					" idGenomeBuildAlignTo='" + template.@idGenomeBuildAlignTo + "'" +		
 					" canChangeSampleDesignations='Y'"	+
 				" idSample='0'" +
 				"/>");
+				
+			// The instructions might have a single quote, so set the instructions
+			// this way instead of in the XML constructor.	
+			emptyNode.@analysisInstructions = template.@analysisInstructions;
 			
 			parentDocument.lanes.addItem(emptyNode);
 		}
@@ -45,7 +48,6 @@
 					
 					var emptyNode:XML = new XML("<SequenceLane " +
     			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" analysisInstructions='" + laneToCopy.@analysisInstructions + "'" + 
 					" idSample='" + laneToCopy.@idSample + "'" +
 					" idSeqRunType='" + laneToCopy.@idSeqRunType + "'" +			
 					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
@@ -53,6 +55,10 @@
 					" canChangeSampleDesignations='Y'"		+
 					"/>");
 			
+					// The instructions might have a single quote, so set the instructions
+					// this way instead of in the XML constructor.	
+					emptyNode.@analysisInstructions = laneToCopy.@analysisInstructions;
+					
 					parentDocument.lanes.addItem(emptyNode);
 					
 				}
