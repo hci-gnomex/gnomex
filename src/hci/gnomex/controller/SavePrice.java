@@ -90,6 +90,7 @@ public class SavePrice extends GNomExCommand implements Serializable {
           
           initializePrice(price);
         }
+        sess.flush();
 
 
         //
@@ -107,6 +108,7 @@ public class SavePrice extends GNomExCommand implements Serializable {
             
           }
         }
+        sess.flush();
         
         // Remove price criteria no longer in the criteria list
         List criteriaToRemove = new ArrayList();
@@ -125,7 +127,6 @@ public class SavePrice extends GNomExCommand implements Serializable {
           }
           for(Iterator i = criteriaToRemove.iterator(); i.hasNext();) {
             PriceCriteria c = (PriceCriteria)i.next();
-            price.getPriceCriterias().remove(c);
             sess.delete(c);
           }
         }
