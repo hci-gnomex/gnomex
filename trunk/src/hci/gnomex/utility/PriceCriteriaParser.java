@@ -28,12 +28,14 @@ public class PriceCriteriaParser extends DetailObject implements Serializable {
     Element root = this.doc.getRootElement();
     
     
+    int count = 0;
     for(Iterator i = root.getChildren("PriceCriteria").iterator(); i.hasNext();) {
       Element node = (Element)i.next();
       
       String idPriceCriteriaString = node.getAttributeValue("idPriceCriteria");
       PriceCriteria priceCriteria = null;
       if (idPriceCriteriaString.startsWith("PriceCriteria")) {
+        idPriceCriteriaString += count++;
         priceCriteria = new PriceCriteria();
       } else {
         priceCriteria = (PriceCriteria)sess.load(PriceCriteria.class, new Integer(idPriceCriteriaString));
