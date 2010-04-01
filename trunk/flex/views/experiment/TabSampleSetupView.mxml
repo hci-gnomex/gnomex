@@ -326,17 +326,26 @@
 				parentDocument.seqLibProtocolList.refresh();				
 			}
 			
-			if (this.currentState == "SolexaSetupPreppedState") {
-				this.seqLibProtocolCombo.selectedIndex = -1;
-				if (parentDocument.seqLibProtocolList.length == 2) {
-					this.seqLibProtocolCombo.selectedIndex = 1;
-					this.propagateSeqLibProtocol();
-				}
-				
-			}
-
+			this.pickDefaultSeqLibProtocol();
+			
 			this.checkSampleSetupCompleteness();
 			
+		}
+		
+		private function pickDefaultSeqLibProtocol():void {
+			if (this.currentState == "SolexaSetupPreppedState") {
+				this.seqLibProtocolCombo.visible = true;
+			} else if (this.currentState == "SolexaSetupState") {
+				this.seqLibProtocolCombo.visible = false;
+			} else {
+				return;
+			}
+			
+			this.seqLibProtocolCombo.selectedIndex = -1;
+			if (parentDocument.seqLibProtocolList.length == 2) {
+				this.seqLibProtocolCombo.selectedIndex = 1;
+				this.propagateSeqLibProtocol();
+			}			
 		}
 		
 		public function pickRadioBarcoding():void {
@@ -415,8 +424,11 @@
 			parentDocument.samplesView.initializeSamplesGrid();
 			propagateSeqLibProtocol();
 			checkSampleSetupCompleteness();
-			parentDocument.filteredSeqRunTypeList.refresh();			
+			parentDocument.filteredSeqRunTypeList.refresh();	
+			
+			
 		}
+		
 		
 		private function pickSeqPrepState():void {
 			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
@@ -425,11 +437,12 @@
 				currentState = 'SolexaSetupPreppedState';
 			}
 			this.propagateSeqPrepByCore();
-			seqLibProtocolCombo.selectedIndex = 0;
+			pickDefaultSeqLibProtocol();
 			propagateSeqLibProtocol();
 			parentDocument.seqLibProtocolList.refresh();
 			checkSampleSetupCompleteness();
 			parentDocument.samplesView.showHideColumns();
+			this.seqLibProtocolCombo.visible = samplesAlreadyPreppedCheckbox.selected; 
 		}
 	]]>
 </mx:Script>
@@ -477,7 +490,7 @@
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
-				<mx:Label text="(4) Select the nuceic acid extraction method." width="310" id="label2"/>
+				<mx:Label text="(4) Select the nucleic acid extraction method." width="310" id="label2"/>
 				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}">															
 				</mx:ComboBox>
 			</mx:HBox>
@@ -557,7 +570,7 @@
 							<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
  click="{pickSeqPrepState()}">
 							</mx:RadioButton>							
-							<mx:ComboBox labelField="@display" width="300" id="seqLibProtocolCombo" dataProvider="{parentDocument.seqLibProtocolList}">															
+							<mx:ComboBox labelField="@display" width="300" id="seqLibProtocolCombo" dataProvider="{parentDocument.seqLibProtocolList}" visible="false">															
 								<mx:change>{pickSeqLibProtocol()}</mx:change>
 							</mx:ComboBox>								
 						</mx:HBox>				
@@ -582,11 +595,11 @@
             <mx:AddChild relativeTo="{hbox3}" position="before">
                 <mx:HBox width="100%" horizontalGap="0">
                     <mx:Text text="(1) Select a sequencing application." width="305" id="labelApplication"/>
-                    <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
-                        <mx:RadioButtonGroup id="radioGroupSeqApp"/>
+                    <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+                        <mx:RadioButtonGroup id="radioGroupSeqApp"/> 
 						<mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 
 				    		<mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
-				    			paddingLeft="1" paddingRight="1"
+				    			paddingLeft="1" paddingRight="1" paddingBottom="0"
 				    			value="{seqAppRepeater.currentItem.@value}"
 				    	 	    groupName="radioGroupSeqApp"
 				    			click="{pickSeqApp()}"/>
@@ -611,7 +624,7 @@
             </mx:AddChild>
             <mx:RemoveChild target="{samplePrepContainer}"/>
             <mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
-            <mx:SetProperty target="{label2}" name="text" value="(5) Select the nuceic acid extraction method."/>
+            <mx:SetProperty target="{label2}" name="text" value="(5) Select the nucleic acid extraction method."/>
             <mx:SetProperty target="{label2}" name="width" value="305"/>
             <mx:SetProperty target="{label7}" name="width" value="305"/>
 
@@ -623,6 +636,7 @@
                 <mx:value>No, library has already been prepped using kit</mx:value>
             </mx:SetProperty>
             <mx:SetProperty target="{radioYesBarcoding}" name="enabled" value="false"/>
+            <mx:SetProperty target="{label2}" name="text" value="(5) Select the nucleic acid extraction method."/>
         </mx:State>
         <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
              <mx:AddChild relativeTo="{hbox4}" position="lastChild">
