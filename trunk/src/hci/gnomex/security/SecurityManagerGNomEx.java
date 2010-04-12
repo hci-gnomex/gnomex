@@ -3,18 +3,20 @@ package hci.gnomex.security;
 import hci.gnomex.constants.Constants;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
-import java.util.Properties;
 
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.orionsupport.security.SimpleUserManager;
 
@@ -28,6 +30,13 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
 
   public SecurityManagerGNomEx() {
     super();
+
+    try {
+      loadProperties();      
+    } catch (Exception e) {
+      System.err.println("hci.gnomex.security.SecurityManagerGNomEx ERROR - Cannot load connection properties. " + e.toString());
+    }
+    
   }
   
 
@@ -89,13 +98,6 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
 
   private boolean checkCredentials(String uid, String password) {
 
-    try {
-      loadProperties();      
-    } catch (Exception e) {
-      System.err.println("hci.gnomex.security.SecurityManagerGNomEx ERROR - Cannot load connection properties. " + e.toString());
-      return false;
-    }
-    
     if (this.isAuthenticatedGNomExUser(uid, password)) {
       return true;
     } else {
@@ -108,8 +110,13 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
       File dataSourcesFile = new File(Constants.DATA_SOURCES);
       if(dataSourcesFile.exists()) {
         SAXBuilder builder = new SAXBuilder();
-          org.jdom.Document doc = builder.build(dataSourcesFile);
-          this.getGNomExConnectionProperties(doc);
+        
+        // Just in case the orion site is down, we don't want 
+        // to fail because the dtd is unreachable
+        builder.setEntityResolver(new DummyEntityRes());
+        
+        org.jdom.Document doc = builder.build(dataSourcesFile);
+        this.getGNomExConnectionProperties(doc);
         
       } else {
         throw new Exception("SecurityManagerGNomEx loadProperties failed.  Cannot find data sources file called " + Constants.DATA_SOURCES);
@@ -168,5 +175,17 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
       System.err.println("FATAL: Unable to initialize Security Manager");
     }
   }
+  
+  // Bypassed dtd validation when reading data sources.
+  public class DummyEntityRes implements EntityResolver
+  {
+      public InputSource resolveEntity(String publicId, String systemId)
+              throws SAXException, IOException
+      {
+          return new InputSource(new StringReader(" "));
+      }
+
+  }
+
   
 }
