@@ -657,7 +657,7 @@
 
 
 	               <mx:DataGridColumn id="labelColumn" dataField="@label" width="92" headerText="Label" rendererIsEditor="true" 
-					      itemRenderer="views.renderers.RadioButtonGroupSampleLabel">
+					      itemRenderer="views.renderers.CheckBoxSampleLabel">
 				    </mx:DataGridColumn>
 
 	 				<mx:DataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" editorDataField="text"  rendererIsEditor="false"
