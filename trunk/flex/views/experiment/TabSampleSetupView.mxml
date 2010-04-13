@@ -597,7 +597,7 @@
                     <mx:Text text="(1) Select a sequencing application." width="305" id="labelApplication"/>
                     <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
                         <mx:RadioButtonGroup id="radioGroupSeqApp"/> 
-						<mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 
+						<mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
 				    		<mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
 				    			paddingLeft="1" paddingRight="1" paddingBottom="0"
 				    			value="{seqAppRepeater.currentItem.@value}"

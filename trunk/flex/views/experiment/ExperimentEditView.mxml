@@ -169,12 +169,17 @@
 		public var userWarningsHybSetup:String = "";
 		
 		public var concentrationValidator:NumberValidator = new NumberValidator();
+		
+		private var isInitialized:Boolean = false;
 
 		private function init():void {
-			this.initializeData();
-            this.checkSecurity();
-            this.setupDataListeners();
-            
+			if (!isInitialized) {
+				this.initializeData();
+        	    this.checkSecurity();
+            	this.setupDataListeners();
+    			isInitialized = true;
+			}
+	        
             if (parentApplication.theViews.selectedChild == this) {
             	this.setupSubmitForm();
             }
@@ -257,10 +262,10 @@
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			filteredGenomeBuildList.refresh();
 			
-			filteredMicroarrayAppList.filterFunction = filterApplication;
+			filteredMicroarrayAppList.filterFunction = filterMicroarrayApplication;
 			filteredMicroarrayAppList.refresh();
 
-			filteredAppList.filterFunction = filterApplication;
+			filteredAppList.filterFunction = filterSolexaApplication;
 			filteredAppList.refresh();
 			
 			filteredSampleTypeList.filterFunction = filterSampleType;
@@ -553,8 +558,6 @@
 			
 			this.confirmView.barcodeColumn.visible = false;        	
 	
-			filteredMicroarrayAppList.refresh();			
-			filteredAppList.refresh();			
 			
 			if (this.setupView.requestRadioAffy.selected ||
 			    this.setupView.requestRadioAgilent.selected ||
@@ -570,6 +573,8 @@
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 
 
+				filteredAppList.filterFunction = filterSolexaApplication;
+				filteredAppList.refresh();		 
 				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
@@ -603,19 +608,18 @@
 					
 
 				} else {
+								
 					this.currentState = 'MicroarrayState';
 					this.sampleSetupView.currentState = '';
 					this.sampleSetupView.organismValidator.validate();
-					this.hybSetupView.microarrayAppRepeater.invalidateDisplayList();
-					this.hybSetupView.microarrayAppRepeater.validateNow();
 					
  					
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.samplesView.showHideColumns();						
 					this.hybSetupView.currentState = "SetupState";
 					this.hybsView.currentState = '';
-					
-					this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
+
+
 					
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
 					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
@@ -640,6 +644,15 @@
 							s.@label = 'cy3';
 						}
 					}
+					
+										
+					filteredMicroarrayAppList.filterFunction = filterMicroarrayApplication;
+					filteredMicroarrayAppList.refresh();
+					this.hybSetupView.microarrayAppRepeater.invalidateDisplayList();
+					this.hybSetupView.microarrayAppRepeater.validateNow();
+					
+					this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
+
 	
 					this.samplesView.checkSamplesCompleteness();	
 					
@@ -884,7 +897,8 @@
         	return doesMatchApplication;
         }  
 
-		private function filterApplication(item:Object):Boolean {
+		private function filterSolexaApplication(item:Object):Boolean {
+			var codeRequestCategory:String = "SOLEXA";
 			if (item.@value == "") {
     	    	return false;
 			} 
@@ -895,7 +909,32 @@
         	var doesMatchRequestCategory:Boolean = false;
         	var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
     	   	for each (var xref:Object in theApplications) {
-    	   		if (xref.@codeRequestCategory.toString() == getRequestCategory().@codeRequestCategory.toString()) {
+    	   		if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
+	   				doesMatchRequestCategory = true;
+    	   		    break;
+    	   		}
+    	   	}
+        	
+        	
+        	return doesMatchRequestCategory;
+        }  
+
+		private function filterMicroarrayApplication(item:Object):Boolean {
+			var codeRequestCategory:Object = this.setupView.requestTypeGroup.selectedValue;
+			if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA") {
+				codeRequestCategory = "AGIL";
+			}
+			if (item.@value == "") {
+    	    	return false;
+			} 
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	var doesMatchRequestCategory:Boolean = false;
+        	var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
+    	   	for each (var xref:Object in theApplications) {
+    	   		if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
 	   				doesMatchRequestCategory = true;
     	   		    break;
     	   		}
@@ -993,7 +1032,6 @@
         		}
         	}
         	
-        	trace('filtering ' + doesMatchRequestCategoryVendor + ' ' + doesMatchOrganism + ' ' + doesMatchExperimentCategory + ' ' + doesMatchGroup);
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
 		
