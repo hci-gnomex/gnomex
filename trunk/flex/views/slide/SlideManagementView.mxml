@@ -657,7 +657,6 @@
 		
 		private function filterSlideList(item:Object):Boolean {
 			if (item.@name.toString().match(new RegExp(searchText.text + ".*", "i")) != null) {
-				trace(item.@name);
 				return true;
 			} else {
 				return false;
