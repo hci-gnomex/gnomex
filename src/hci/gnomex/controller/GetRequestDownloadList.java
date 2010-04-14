@@ -418,8 +418,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       
       
-      String[] tokens1 = key1.split("-");
-      String[] tokens2 = key2.split("-");
+      String[] tokens1 = key1.split("-", 4);
+      String[] tokens2 = key2.split("-", 4);
       
       String yr1           = tokens1[0];
       String date1         = tokens1[1];
