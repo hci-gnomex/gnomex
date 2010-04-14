@@ -265,7 +265,7 @@
 			filteredMicroarrayAppList.filterFunction = filterMicroarrayApplication;
 			filteredMicroarrayAppList.refresh();
 
-			filteredAppList.filterFunction = filterSolexaApplication;
+			filteredAppList.filterFunction = filterApplication;
 			filteredAppList.refresh();
 			
 			filteredSampleTypeList.filterFunction = filterSampleType;
@@ -460,6 +460,8 @@
 					annotationView.enabled = false;								
 				}
 				if (isSolexaState()) {
+					seqSetupView.enabled = false;
+					seqSetup1View.enabled = false;
 				    seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue = null;
 					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
 					seqSetup1View.analysisInstructions.text = '';
@@ -573,7 +575,7 @@
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 
 
-				filteredAppList.filterFunction = filterSolexaApplication;
+				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		 
 				
 				// Only show the barcode labeling option if we have
@@ -605,6 +607,12 @@
 					this.samplesView.currentState = 'QCSamplesState';				
 					this.samplesView.showHideColumns();						
 					this.samplesView.checkSamplesCompleteness();	
+					
+					filteredAppList.filterFunction = filterApplication;
+					filteredAppList.refresh();
+					this.sampleSetupView.qcAppRepeater.invalidateDisplayList();
+					this.sampleSetupView.qcAppRepeater..validateNow();
+					
 					
 
 				} else {
@@ -852,7 +860,7 @@
 			// by the selected application
 			var doesMatchApplication:Boolean = true;
 			if (this.isSolexaState()) {
-				var codeApplication:Object = this.sampleSetupView.radioGroupSeqApp.selectedValue;
+				var codeApplication:Object = this.seqSetupView.radioGroupSeqApp.selectedValue;
 				if (codeApplication != null) {
 					doesMatchApplication = false;
 		        	var theSampleTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeApplication').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
@@ -881,7 +889,7 @@
 
 			var doesMatchApplication:Boolean = true;
 			if (this.isSolexaState()) {
-				var codeApplication:Object = this.sampleSetupView.radioGroupSeqApp.selectedValue;
+				var codeApplication:Object = this.seqSetupView.radioGroupSeqApp.selectedValue;
 				if (codeApplication != null) {
 					doesMatchApplication = false;
 		        	var theSeqLibProtocols:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocolApplication').DictionaryEntry.(@value != '' && @idSeqLibProtocol == item.@value.toString());
@@ -894,11 +902,11 @@
 	    	   	}
 			}
 
-        	return doesMatchApplication;
+        	return doesMatchApplication; 
         }  
 
-		private function filterSolexaApplication(item:Object):Boolean {
-			var codeRequestCategory:String = "SOLEXA";
+		private function filterApplication(item:Object):Boolean {
+			var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
 			if (item.@value == "") {
     	    	return false;
 			} 
@@ -1753,7 +1761,7 @@
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;		
 			} else if (this.isSolexaState()) {
-				request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;				
+				request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
 			} else if (this.isQCState()) {
 				request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;
 			}
@@ -1882,6 +1890,7 @@
 				samplesView.enabled = false;
 				
 				if (this.isSolexaState()) {
+					this.seqSetupView.enabled = false;
 					this.seqSetup1View.enabled = false;
 				}
 
@@ -2098,7 +2107,7 @@
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
 
-
+ 
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
   	<mx:Label id="titleLabel" styleName="titleLabel" text="Submit Request"/>
@@ -2111,6 +2120,9 @@
 			paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 		    <experiment:TabSetupView id="setupView">		    	
 		    </experiment:TabSetupView>
+
+		    <experiment:TabSeqSetupView id="seqSetupView" enabled="false">		    	
+		    </experiment:TabSeqSetupView>
 		    
 		    <experiment:TabSampleSetupView id="sampleSetupView">		    	
 		    </experiment:TabSampleSetupView>
@@ -2257,9 +2269,11 @@
     				
     			</mx:HBox>
     		</mx:AddChild>
+    		<mx:RemoveChild target="{seqSetupView}"/>
     		<mx:RemoveChild target="{seqSetup1View}"/>
     	</mx:State>
         <mx:State name="MicroarrayState">
+    		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
         <mx:State name="QCState">
@@ -2267,6 +2281,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+    		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
         <mx:State name="SolexaBaseState">
@@ -2310,6 +2325,7 @@
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>
+            <mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{hybSetupView}"/>
