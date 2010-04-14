@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Seq application" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:util="views.util.*" 
+	 width="100%" height="100%" >
+<mx:Script>
+	<![CDATA[
+		import mx.events.ListEvent;
+		import views.renderers.CheckBoxIsSelectedChipType;
+	
+		private var validNumberOfSamples:Boolean = true;
+		private var validConcentration:Boolean = true;
+
+	
+
+      	public function checkSeqAppSetupCompleteness():Boolean {
+        	var isComplete:Boolean = false;
+        	if (parentDocument.isEditState()) {
+        		isComplete = true;
+        	} else if (parentDocument.isSolexaState()) {
+	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
+	        	    isComplete = true;
+	        	 }
+        	
+        	} 
+
+        	
+        	parentDocument.sampleSetupView.enabled = isComplete; 
+        	
+    		parentDocument.enableNextButtons();
+
+        	callLater(postSeqAppSetupCompleteness, [isComplete]);
+        	
+    		return isComplete;
+    	    	
+        }
+        
+        private function postSeqAppSetupCompleteness(isComplete:Boolean):void {
+	    		
+	    	if (!isComplete) {
+	        	if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
+		        	parentDocument.sampleSetupView.enabled = false;
+	        	} 
+	        	parentDocument.confirmView.enabled = false;
+    		} else {
+	    		parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+    		}
+        	
+        }
+        
+
+
+		private function pickSeqApp():void {
+			if (this.radioGroupSeqApp.selectedValue != null) {
+				this.seqAppBox.styleName = 'normalBox';
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+				this.parentDocument.applicationName = application.@display;
+			} else {
+				this.seqAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+			}
+			
+			this.checkSeqAppSetupCompleteness();
+			this.parentDocument.sampleSetupView.pickSeqApp();
+		}
+			
+		
+	]]>
+</mx:Script>
+
+
+  <mx:Canvas width="100%" height="100%">
+        	
+	<mx:VBox width="100%" height="100%" verticalGap="2">
+		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" enabled="false">
+		</mx:VBox>
+		
+	</mx:VBox>
+			<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" right="0" top="0">
+  			  <mx:TextArea styleName="instructionBox" width="340" wordWrap="true" height="90" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate<br>       dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button<br>       at the bottom of the page to proceed.]]></mx:htmlText>
+			  </mx:TextArea>
+			</mx:VBox>
+	
+  </mx:Canvas>
+
+   <mx:HBox width="100%" horizontalGap="0">
+       <mx:Text text="Select a sequencing application." width="305" id="labelApplication"/>
+       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+           <mx:RadioButtonGroup id="radioGroupSeqApp"/> 
+       <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
+         		<mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
+         			paddingLeft="1" paddingRight="1" paddingBottom="0"
+         			value="{seqAppRepeater.currentItem.@value}"
+         			    groupName="radioGroupSeqApp"
+         			click="{pickSeqApp()}"/>
+       </mx:Repeater>
+       </mx:VBox>
+   </mx:HBox>
+   	 
+
+	
+</mx:Canvas>
