@@ -266,7 +266,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           if (idSlideDesign != null) {
             n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
           } else if (isSolexaRequest){
-            n.setAttribute("results", "mapped sequencing reads" +
+            n.setAttribute("results", "sequencing reads" +
             		"");
           } else {
             n.setAttribute("results", "");
