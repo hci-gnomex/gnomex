@@ -12,7 +12,7 @@
 
 
 
-     <mx:HTTPService 
+    <mx:HTTPService 
     id="getAppUserList" 
     url="GetAppUserList.gx"
     showBusyCursor="true"
@@ -95,7 +95,20 @@
             <idLab>{selectedLab.@idLab}</idLab>
     </mx:request>
     </mx:HTTPService >
-
+    
+   <mx:HTTPService 
+    id="generateUserAccountEmail" 
+    url="GenerateUserAccountEmail.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGenerateUserAccountEmail(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to generate user account email', event)"
+    destination="generateUserAccountEmail"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
 
     <mx:XMLListCollection id="appUsers" source="{getAppUserList.lastResult..AppUser}" filterFunction="filterUser"/>
     <mx:XMLListCollection id="labs" source="{getLabList.lastResult..Lab}" filterFunction="filterLab"/>
@@ -409,6 +422,8 @@
 
           }
           
+          
+          
           private function onDeleteLab(event:ResultEvent):void {          	
           	if (deleteLab.lastResult.name() == "SUCCESS") {          		
 			  parentApplication.getLabList.send();
@@ -437,7 +452,30 @@
           	//checkDirty();
           }
 
-           
+          public function promptToVerifyUserAccounts():void {
+          
+          	Alert.show("GNomEx will send an email to all groups to verify the active user accounts." +
+				            "\n\nDo you wish to continue?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToVerifyUserAccounts);
+				
+		  }
+			
+		  private function onPromptToVerifyUserAccounts(event:CloseEvent):void {
+	            if (event.detail==Alert.YES) {
+	            	generateUserAccountEmail.send();
+	            }
+	      }
+         
+         private function onGenerateUserAccountEmail(event:ResultEvent):void {
+			if (generateUserAccountEmail.lastResult.name() == "SUCCESS") {          		
+			  Alert.show("Emails to " + generateUserAccountEmail.lastResult.@emailCount + " group(s) have been sent.");         
+            } else {
+            	Alert.show("Generate user account email failed. " + generateUserAccountEmail.lastResult..ACTMESSAGE.@TEXT);
+            }         
+         }
+         
          
         ]]>
     </mx:Script>
@@ -447,7 +485,7 @@
 
  <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
-    <mx:ViewStack id="navStack" width="250" height="100%">
+    <mx:ViewStack id="navStack" width="260" height="100%">
 
  		    <mx:TabNavigator id="navBar" height="100%" width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D">
 		      <mx:change>onTabChange()</mx:change>
@@ -513,6 +551,7 @@
 		    		    </mx:VBox>
 						<mx:VBox verticalGap="0">
 		    		      	<mx:LinkButton id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list" textDecoration="underline" label="Refresh"/>
+		    		      	<mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Verify all users"/>
 		    		    </mx:VBox>
 					</mx:ControlBar>
 	
