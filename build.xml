@@ -448,6 +448,15 @@
 	    </fileset>
 	  </copy>
 		
+		
+    <!-- Set the default security manager in orion-application.xml to SecurityManagerGNomEx -->
+    <replaceregexp  file="${opensource.dir}/gnomex/META-INF/ear/orion-application.xml"
+					       match="&lt;user-manager\s+class=&quot;(.*)hci.gnomex.security.SecurityManager&quot;(.*)&gt;"
+                 replace="&lt;user-manager class=&quot;hci.gnomex.security.SecurityManagerGNomEx&quot;&gt;"
+			           byline="true">
+    </replaceregexp>
+
+		
 		<!-- All files have been customized for open source.  Now call the target to build the gnomex ear for open source -->
 		<subant target="ear">
 		   <fileset dir="${opensource.dir}/gnomex" includes="build.xml"/>
@@ -544,7 +553,7 @@
 						         replace="&lt;\!\-\-    &lt;web-site\1path=&quot;\1secure-web-site.xml&quot;\1&gt;    \-\-&gt;"
 					           byline="true">
 		</replaceregexp>
-				
+
 		
 		<!-- Create the zip file -->
 		<zip destfile="${opensource.dir}/../${opensource.name}.zip" basedir="${opensource.dir}/..">
