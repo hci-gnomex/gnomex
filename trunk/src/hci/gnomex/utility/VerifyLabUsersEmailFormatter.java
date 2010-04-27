@@ -41,7 +41,7 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
     this.dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     introNote.append("The following list shows active accounts for the GNomEx microarray and next generation sequencing database.<br>");
-    introNote.append("<b>After review of this list, please inform us of individuals that no longer work in your lab group so that their accounts can be inactivated.</b><br>");
+    introNote.append("<b>After review of this list, please inform us of individuals that no longer work in your lab group so that<br>their accounts can be inactivated.</b><br>");
   }
   
 
@@ -82,7 +82,7 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
     head.addContent(style);
     
     Element title = new Element("TITLE");
-    title.addContent("GNomEx User Accounts");
+    title.addContent("GNomEx User Accounts for " + labName + " Lab");
     head.addContent(title);
     
     Element body = new Element("BODY");
@@ -99,21 +99,21 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
     StringBuffer emailBody = new StringBuffer();
     
     if (!managers.isEmpty()) {
-      emailBody.append("<br><u>" + labName + " Lab Managers" + "</u><br>");;
+      emailBody.append("<br><u>" + "Lab Manager Accounts" + "</u><br>");;
       for (String manager : (Set<String>)managers.keySet()) {
         emailBody.append(" " + manager + "<br>");
       }
     }
 
     if (!members.isEmpty()) {
-      emailBody.append("<br><u>" + labName + " Lab Members" + "</u><br>");;
+      emailBody.append("<br><u>" +  "Lab Member Accounts" + "</u><br>");;
       for (String member : (Set<String>)members.keySet()) {
         emailBody.append(" " + member + "<br>");            
       }
     }
 
     if (!collaborators.isEmpty()) {
-      emailBody.append("<br><u>" + labName + " Lab Collaborators" + "</u><br>");;
+      emailBody.append("<br><u>" + "Lab Collaborators Accounts" + "</u><br>");;
       for (String collab : (Set<String>)collaborators.keySet()) {
         emailBody.append(" " + collab + "<br>");            
       }

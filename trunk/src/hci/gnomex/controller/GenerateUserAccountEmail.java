@@ -136,8 +136,8 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
         String emailBody = emailFormatter.format();
         
         
-        
-        this.sendEmail(sess, dh, sendTo, null, emailBody);
+        String subject = "GNomEx user accounts for " + labName + (labName.contains("Lab") || labName.contains("lab") ? "" : " Lab");
+        this.sendEmail(sess, dh, sendTo, null, emailBody, subject);
       }
       
     
@@ -180,9 +180,8 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     return this;
   }
   
-  private void sendEmail(Session sess, DictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody) throws NamingException, MessagingException {
+  private void sendEmail(Session sess, DictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject) throws NamingException, MessagingException {
     
-    String subject = "GNomEx user accounts";
    
     boolean send = false;
     if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
