@@ -274,6 +274,7 @@
 		<property name="contactPhone" column="contactPhone" type="string"/>
 		<property name="contactEmail" column="contactEmail" type="string"/>
 		<property name="isCcsgMember" column="isCCSGMember" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
     <set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>

@@ -19,6 +19,7 @@ public class Lab extends HibernateDetailObject {
   private String  contactEmail;
   private String  contactPhone;
   private String  isCcsgMember;
+  private String  isActive;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -117,6 +118,9 @@ public class Lab extends HibernateDetailObject {
     }
     if (name.length() > 0) {
       name += " Lab";      
+    }
+    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
+      name += " (inactive)";
     }
     return name;
   }
@@ -284,5 +288,15 @@ public class Lab extends HibernateDetailObject {
   
   public void setProjects(Set projects) {
     this.projects = projects;
+  }
+
+  
+  public String getIsActive() {
+    return isActive;
+  }
+
+  
+  public void setIsActive(String isActive) {
+    this.isActive = isActive;
   }
 }
