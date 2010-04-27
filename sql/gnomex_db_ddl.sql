@@ -759,6 +759,7 @@ CREATE TABLE `gnomex`.`Lab` (
   `firstName` VARCHAR(200) NULL,
   `lastName` VARCHAR(200) NULL,
   `isExternal` VARCHAR(1) NULL,
+  `isActive` VARCHAR(1) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)
