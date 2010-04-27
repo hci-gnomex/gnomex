@@ -220,6 +220,9 @@ public class AppUser extends HibernateDetailObject implements Serializable {
       }
       name += firstName;
     }
+    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
+      name += " (inactive)";
+    }
     return name;
   }
   
