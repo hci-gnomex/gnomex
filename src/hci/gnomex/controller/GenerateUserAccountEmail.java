@@ -13,6 +13,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.VerifyLabUsersEmailFormatter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -87,10 +88,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
         }
         
         
-        StringBuffer emailBody = new StringBuffer();
         
-        emailBody.append("The following list shows active accounts for the GNomEx microarray and next generation sequencing application.  ");
-        emailBody.append("After review of this list, please inform us of individuals that no longer work in your lab group so that their accounts can be inactivated.\n");
         
         TreeMap<String, String> managers = new TreeMap<String, String>();
         for(Iterator i1 = l.getManagers().iterator(); i1.hasNext();) {
@@ -133,35 +131,9 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
           continue;
         }
         
-        if (!managers.isEmpty()) {
-          emailBody.append("\n" + labName + " Lab Managers" + "\n");;
-          for (String manager : (Set<String>)managers.keySet()) {
-            emailBody.append(" " + manager + "\n");
-          }
-        }
-
-        if (!members.isEmpty()) {
-          emailBody.append("\n" + labName + " Lab Members" + "\n");;
-          for (String member : (Set<String>)members.keySet()) {
-            emailBody.append(" " + member + "\n");            
-          }
-        }
-
-        if (!collaborators.isEmpty()) {
-          emailBody.append("\n" + labName + " Lab Collaborators" + "\n");;
-          for (String collab : (Set<String>)collaborators.keySet()) {
-            emailBody.append(" " + collab + "\n");            
-          }
-          
-        }
-
-          
-        emailBody.append("\n");
-        emailBody.append("Thanks,");
-        emailBody.append("\n");
-        emailBody.append(dh.getProperty(Property.CONTACT_NAME_CORE_FACILITY));
-        emailBody.append("\n");
-        emailBody.append(dh.getProperty(Property.CORE_FACILITY_NAME));
+        // Format email body
+        VerifyLabUsersEmailFormatter emailFormatter = new VerifyLabUsersEmailFormatter(sess, labName, managers, members, collaborators);
+        String emailBody = emailFormatter.format();
         
         
         
@@ -177,24 +149,24 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       }
     
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
+      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
+      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
+      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
+      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
+      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
@@ -208,7 +180,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     return this;
   }
   
-  private void sendEmail(Session sess, DictionaryHelper dictionaryHelper, String sendTo, String ccTo, StringBuffer emailBody) throws NamingException, MessagingException {
+  private void sendEmail(Session sess, DictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody) throws NamingException, MessagingException {
     
     String subject = "GNomEx user accounts";
    
@@ -227,8 +199,8 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
           ccTo,
           dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
-          emailBody.toString(),
-          false);
+          emailBody,
+          true);
       emailCount++;
     }
     
