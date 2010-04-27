@@ -84,7 +84,11 @@
 					var params:Object = new Object();
 					params.idAppUser = savedIdAppUser;
 		 			dirty.resetDirty();
-				} else {
+		 			
+		 			var itemToSelect:XML = new XML("<AppUser id='" + savedIdAppUser + "'/>");
+	          		parentApplication.navUsersView.itemToSelect = itemToSelect;
+    	      		parentApplication.navUsersView.refreshAppUserList();
+				} else { 
 					Alert.show("An error occurred while saving the user record.");
 				}
 
@@ -95,6 +99,9 @@
             private function onGetAppUser(event:ResultEvent):void {
               parentDocument.fullUser = getAppUser.lastResult.AppUser.(@idAppUser = savedIdAppUser);
               this.isActive.selected =  parentDocument.fullUser.@isActive == 'Y' ? true : false;
+              
+              
+
             }
             
             private function onUserAccountChange():void {

@@ -392,10 +392,12 @@
               if (itemToSelect != null) {
 	              var item:Object = getAppUserList.lastResult.AppUser.(@idAppUser == itemToSelect.@id);
     	          if (item !== null && item is XMLList) {
-					this.usersGrid.selectedItem = item[0];     
+					this.usersGrid.selectedItem = item[0]; 
+					this.usersGrid.scrollToIndex(this.usersGrid.selectedIndex);    
 					userRowSelected(null);       
             	  } else if (item != null) {
             	  	this.usersGrid.selectedItem = item;
+					this.usersGrid.scrollToIndex(this.usersGrid.selectedIndex);    
 					userRowSelected(null);          	
             	  }
               }
@@ -404,6 +406,7 @@
 	              var labItem:Object = getLabList.lastResult.Lab.(@idLab == itemToSelect.@id);
     	          if (labItem !== null && labItem is XMLList) {
 					this.labsGrid.selectedItem = labItem[0];     
+					this.labsGrid.scrollToIndex(this.labsGrid.selectedIndex);
 					this.labRowSelected();          	
             	  } else if (item != null) {
             	  	this.labsGrid.selectedItem = labItem;

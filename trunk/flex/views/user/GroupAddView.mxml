@@ -36,6 +36,10 @@
 			params.idLab = 0;
 			params.lastName  = lastName.text;
 			params.firstName = firstName.text;
+			params.isActive = "Y";
+			params.isCcsgMember = "N";
+			params.isExternal = "N";
+			
 			params.accountsXMLString = "<billingAccounts/>";
 			params.membersXMLString = "<members/>";
 			params.collaboratorsXMLString = "<collaborators/>";
