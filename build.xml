@@ -291,11 +291,8 @@
 		<echo>+  Releasing open source                               +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		<!-- Delete opensource directory -->
-		<delete dir="${opensource.dir}"/>
-		
-		<!-- Delete zip file -->
-		<delete file="${opensource.dir}/../${opensource.name}.zip"/>
+		<!-- Delete all files in opensource directory -->
+		<delete dir="${opensource.base.dir}"/>
 		
 		<!-- Copy README_INSTALL.txt and stick in actual version number into document -->				
 		<copy todir="${opensource.dir}" file="${basedir}/README_INSTALL.txt"/>
@@ -323,6 +320,7 @@
 		    	<include name="*.sql"/>
 		    	<include name="*.sh"/>
 		    	<include name="*.cmd"/>
+	        <include name="doc/**"/>
 		      <include name="flex/**"/>
 		      <include name="src/**"/>
 		      <include name="lib/**"/>
