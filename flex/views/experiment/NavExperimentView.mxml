@@ -412,6 +412,7 @@
 	    	if (idx != -1) {
 	    		// Select the tree item
 	    		browseTree.selectedIndex = idx;
+	    		browseTree.scrollToIndex(browseTree.selectedIndex);
 	    	} else {
 	    		// Otherwise, just select first lab
 	    		browseTree.selectedIndex = 0;
@@ -726,7 +727,22 @@
 			params.idProject = selectedExperiment.@idProject;
 			params.showSamples = "N";
 			params.showCategory = "N";
-			params.searchPublicProjects = 'N';
+			
+			// For normal users, make sure we scope to the
+			// correct level to show the experiment just looked up.
+			if (currentState == null || currentState == "") {
+				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {		
+					// If this experiment is not in user's lab, search
+					// other lab's public experiments.
+					params.publicExperimentsInOtherGroups = "Y";
+					this.publicExperimentsOtherGroupsCheckbox.selected = true;
+				} else if (parentApplication.getIdAppUser() != selectedExperiment.@idAppUser) {
+					// If this experiment is not owned by user, include
+					// all lab's experiments, not just user's experiments.
+					params.showMyLabsAlways = "Y";
+					this.myLabsExperimentsCheckbox.selected = true;
+				}
+			} 
 			getProjectRequestList.send(params);
 		}
 		
