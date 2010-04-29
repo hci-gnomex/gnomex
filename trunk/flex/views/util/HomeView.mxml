@@ -4,7 +4,31 @@
 	xmlns:util="views.util.*"  
 	creationPolicy="all" width="100%" height="100%"  
 	verticalAlign="top" horizontalAlign="center" 
+	show="init()"
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	 paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="0" paddingTop="6">
+		<util:states>
+			<mx:State name="GuestState">
+				<mx:RemoveChild target="{hbox2}"/>
+				<mx:AddChild relativeTo="{hbox3}" position="before" target="{hbox2}"/>
+				<mx:RemoveChild target="{hbox4}"/>
+				<mx:AddChild relativeTo="{hbox3}" position="before" target="{hbox4}"/>
+				<mx:RemoveChild target="{button1}"/>
+				<mx:SetStyle target="{vbox1}" name="horizontalAlign" value="left"/>
+				<mx:AddChild relativeTo="{hbox3}" position="lastChild">
+					<mx:Button label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+				</mx:AddChild>
+				<mx:RemoveChild target="{text1}"/>
+				<mx:RemoveChild target="{hbox1}"/>
+			</mx:State>
+			<mx:State name="AdminState">
+				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
+			</mx:State>
+			<mx:State name="UserNonSubmitterState">
+				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
+				<mx:SetStyle target="{button1}" name="disabledIcon" value="@Embed(source='../../assets/account_disable.png')"/>
+				<mx:SetProperty target="{text2}" name="text" value="Submit Request (allowed by lab members)"/>
+			</mx:State>
+		</util:states>
 <mx:Script>
 	<![CDATA[
 	  import views.util.PanelBox;
@@ -13,6 +37,19 @@
 			}
 			
 			public function init():void {
+				checkSecurity();
+			}
+			
+			public function checkSecurity():void {
+				if (parentApplication.currentState == "GuestState") {
+					this.currentState = "GuestState";
+				} else if (parentApplication.currentState == "AdminState") {
+					this.currentState = "AdminState";
+				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
+					currentState = "UserNonSubmitterState";
+				} else {
+					currentState = "";
+				}
 			}
 			
 			private function submitRequest():void {
@@ -36,22 +73,26 @@
 			} 
 			private function showProtocols():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.protocolsView;
-			}			       
+			}	
+			
+			private function showAdvancedSearch():void {
+				this.parentApplication.showAdvancedSearch();
+			}					       
 
 	]]>
 </mx:Script>
   <mx:HBox verticalGap="0"  styleName="form"   verticalAlign="middle" horizontalAlign="center" paddingTop="10" paddingRight="10" paddingLeft="10" paddingBottom="10" width="100%" height="100%" horizontalGap="40">
-    <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center">
-      <mx:HBox>
+    <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1">
+      <mx:HBox id="hbox3">
         <mx:Button label="Submit  Request"  click="submitRequest()" 
-        		icon="@Embed(source='../../assets/account.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+        		icon="@Embed(source='../../assets/account.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom" id="button1"/>
         <mx:Button label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
       </mx:HBox>
-      <mx:HBox>
-        <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
+      <mx:HBox id="hbox2">
+        <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" width="210" height="120" labelPlacement="bottom" id="button2"/>
         <mx:Button label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/icon_download.gif')"   styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
       </mx:HBox>
-      <mx:HBox >
+      <mx:HBox  id="hbox4">
         <mx:Button label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
         <mx:Button label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" styleName="dashboardButton" width="210" height="120" labelPlacement="bottom"/>
 
@@ -66,15 +107,15 @@
 >
 	        	<mx:htmlText><![CDATA[Functionality descriptions for the GNomEx tabs that are located<br>at the top of this page are found below: ]]></mx:htmlText>
 	        </mx:Text>
-	        <mx:HBox width="100%">
-		        <mx:Image source="assets/account.png"/>
+	        <mx:HBox width="100%" id="hbox1">
+		        <mx:Image source="assets/account.png" id="image1"/>
 		        <mx:Text  
-		        	text="Submit Request" styleName="welcome">
+		        	text="Submit Request" styleName="welcome" id="text2">
 	    	    </mx:Text>
 	        	
 	        </mx:HBox>
 	        <mx:Text 
-	        	styleName="welcome">
+	        	styleName="welcome" id="text1">
 	        	<mx:htmlText><![CDATA[      -    Submit new work requests for Microarray, Next generation<br>           sequencing or quality control services]]></mx:htmlText>
 	        </mx:Text>
 	        <mx:HBox width="100%" verticalAlign="middle" paddingTop="10">
