@@ -719,6 +719,16 @@
             		return false;
             	}
             }
+            
+            public function isMyLab(idLab:int):Boolean {
+            	var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
+            	if (theLab != null && theLab.@isMyLab == 'Y') {
+            		return true;
+            	} else {
+            		return false;
+            	}
+            	
+            }
               
             private function checkSecurity():void {
 				if (this.isGuestMode()) {
