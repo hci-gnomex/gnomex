@@ -388,8 +388,8 @@
 	
 </mx:VBox>		     
 		
-	<mx:ControlBar width="100%" >
-		<mx:HBox height="100%" verticalAlign="middle" width="100%" horizontalAlign="left" horizontalGap="0">
+	<mx:ControlBar width="100%">
+		<mx:HBox height="100%" verticalAlign="bottom" width="100%" horizontalAlign="left" horizontalGap="0">
 			<mx:ViewStack  id="buttonStack"  width="100%" >
 	            <mx:HBox horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
  					<mx:Button  visible="false"/>
