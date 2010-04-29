@@ -147,6 +147,8 @@
 	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
 	 	public static const millisecondsPerMonth:Number = 1000 * 60 * 60 * 24 * 30;
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
+	 	
+	 	public var isInitialized:Boolean = false;
 
 		public function checkDirty():void {
 		}
@@ -165,6 +167,8 @@
    				if (this.currentState == "AdminState") {
    					this.refreshAnalysis();
    				}
+   			} else {
+   				this.refreshAnalysisForLookup();
    			}
 			        	
         	if (this.shortcutToDownloadTab) {
@@ -174,6 +178,25 @@
         		this.theViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         	}
+        	
+        	isInitialized = true;
+		}
+		
+		public function refreshAnalysisForLookup():void  {
+			var parms:Object = new Object();
+			if (parentApplication.isGuestMode()) {
+				parms.searchPublicProjects = "Y";
+				this.getAnalysisGroupList.send(parms);				
+			} else {
+				// If this is a normal user performing a lookup,
+				// then check to 'show public analysis' incase
+				// analysis is not from the user's lab.
+				if (this.currentState == "" || this.currentState == null) {
+					this.searchPublicProjectsCheckbox.selected = true;
+				}
+				parms.analysisNumber = this.selectedAnalysisNumber;
+				this.getAnalysis.send(parms);
+			}			
 		}
 		
 		public function checkSecurity():void {
@@ -583,7 +606,7 @@
 				params.idLab = selectedAnalysis.@idLab;
 				params.showSamples = "N";
 				params.showCategory = "N";
-				params.searchPublicProjects = 'N'; 
+				params.searchPublicProjects = this.searchPublicProjectsCheckbox ? "Y" : "N"; 
 				getAnalysisGroupList.send(params);
 				
 			    detailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;

@@ -166,6 +166,8 @@
 	 	public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
 	 	public static const millisecondsPerMonth:Number = 1000 * 60 * 60 * 24 * 30;
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
+	 	
+	 	public var isInitialized:Boolean = false;
 
 		public function checkDirty():void {
 		}
@@ -177,6 +179,7 @@
 			// Experiments link in top nav bar. (Bypass
 			// if looking up experiment based on its number.)
 			if (selectedRequestNumber == null) {
+				
             	initializeExperiments();
    			} 
    			
@@ -185,6 +188,14 @@
    					this.lastMonthCheckbox.selected = true;
    					this.refreshExperiments();
    				}
+   			} else {
+   				if (this.selectedRequestNumber != null) {
+   					if (parentApplication.launchExperimentDownloads()) {
+   					    refreshExperimentForLookupDownload();
+   					} else {
+						refreshExperimentsForLookup();
+   					}
+   				} 
    			}
    			if (this.shortcutToDownloadTab) {
         		this.theViews.selectedChild = this.browseView;
@@ -194,7 +205,22 @@
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         	}
 
+			isInitialized = true;
 
+		}
+		
+		public function refreshExperimentsForLookup():void {
+			if (this.selectedRequestNumber != null) {
+				var params:Object = new Object();
+				params.requestNumber = selectedRequestNumber;
+				getRequestFromNav.send(params);
+			}
+		}
+		
+		public function refreshExperimentForLookupDownload():void {
+			var parms:Object = new Object();
+			parms.requestNumber = selectedRequestNumber;
+			this.getRequestForDownload.send(parms);
 		}
 		
 		public function checkSecurity():void {
@@ -675,7 +701,7 @@
 			params.showCategory = "N";
 			var call:Object = getProjectRequestList.send(params);
 			call.marker = "showDownloads";
-		    theViews.visible = true;
+ 		    theViews.visible = true;
 		}
 		
 		private function onGetRequestFromNav(event:ResultEvent):void {
@@ -847,7 +873,7 @@
 				params.idProject = selectedExperiment.@idProject;
 				params.showSamples = "N";
 				params.showCategory = "N";
-				params.searchPublicProjects = 'N';
+				params.searchPublicProjects = parentApplication.isGuestMode() ? 'Y' : 'N';
 				getProjectRequestList.send(params);
 				
 			} else {

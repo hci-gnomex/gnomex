@@ -14,7 +14,7 @@
 	xmlns:util="views.util.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
 	 paddingBottom="3" paddingLeft="2" paddingRight="2" paddingTop="2" 
-	 shadowDirection="0" backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()" >
+	 backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()">
 
 
 
@@ -389,7 +389,7 @@
 				} else {
 					showExperiment(requestNumber.text);
 					
-				}
+				} 
 			}
 			
 			public function showExperiment(requestNumber:String):void {
@@ -398,21 +398,20 @@
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 
-				
-    			var params:Object = new Object();
-				if (this.isGuestMode()) {
-					params.showSamples = "N";
-					params.showCategory = "N";
-					params.searchPublicProjects = 'Y';
-					navExperimentView.getProjectRequestList.send(params);			
-				} else {
-					params.requestNumber = requestNumber;
-					navExperimentView.getRequestFromNav.send(params);
+    			// We have to make sure that the first time a lookup
+				// occurs after lauch, we refresh the experiment
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navExperimentView.isInitialized) {
+					navExperimentView.refreshExperimentsForLookup();					
 				}
+				
 
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
+				
+	        					
 				
 				// Reset the experiment search components.
 				callLater(navExperimentView.resetSearchComponents);
@@ -443,10 +442,15 @@
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 
+				
+    			// We have to make sure that the first time a lookup
+				// occurs after lauch, we refresh the experiment
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navExperimentView.isInitialized) {
+					navExperimentView.refreshExperimentForLookupDownload();					
+				}
 
-				var parms:Object = new Object();
-				parms.requestNumber = requestNumber;
-				navExperimentView.getRequestForDownload.send(parms);
 
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
@@ -499,13 +503,12 @@
 
 				
 
-				var parms:Object = new Object();
-				if (this.isGuestMode()) {
-					parms.searchPublicProjects = "Y";
-					navAnalysisView.getAnalysisGroupList.send(parms);				
-				} else {
-					parms.analysisNumber = analysisNumber;
-					navAnalysisView.getAnalysis.send(parms);
+				// We have to make sure that the first time a lookup
+				// occurs after lauch, we refresh the analysis
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navAnalysisView.isInitialized) {
+					navAnalysisView.refreshAnalysisForLookup();
 				}
 
 				this.stateStack.selectedChild = theViews;
@@ -908,8 +911,7 @@
 						appProgressBar.bar.setProgress(100, 100);
 
 		        	    PopUpManager.removePopUp(appProgressBar);
-	    	    	    currentState = "enabledState"
-						callLater(checkSecurityAndLaunchStartWindow);
+	    	    	    currentState = "enabledState"; 
 	        	    	
 	        	    }
 	        	    	
@@ -918,33 +920,19 @@
 	        }
 	        
 	        private function checkSecurityAndLaunchStartWindow():void {
+	        	if (this.currentState == "enabledState") {
 	        		checkSecurity();
-		        	callLater(launchStartWindow);
+		        	launchStartWindow();	        		
+	        	}
 	        }
 	        
 	        private function launchStartWindow():void {
 	        	if (launchExperimentDownloads()) {
-
-   					this.stateStack.selectedChild = theViews;
-					theViews.visible = true;
-					theViews.selectedChild = navExperimentView;
-
-
 	        		this.showExperimentDownload(getLaunchRequestNumber());
 	        	} else if (launchExperimentDetail()) {
-	        		
-	        		
-   					this.stateStack.selectedChild = theViews;
-					theViews.visible = true;
-					theViews.selectedChild = navExperimentView;
- 
 	        		this.showExperiment(getLaunchRequestNumber());
 	        	} else if (launchAnalysisDetail()) {
-   					this.stateStack.selectedChild = theViews;
-					theViews.visible = true;
-					theViews.selectedChild = navAnalysisView;
-
-	        		this.showAnalysisForNumber(getLaunchAnalysisNumber());
+   					this.showAnalysisForNumber(getLaunchAnalysisNumber());
 	        	} 
 	        	 
 	        }
@@ -1122,7 +1110,7 @@
 					</util:LaunchView> 
 				</mx:ViewStack>
 		    	     
- 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
+ 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
 		
 					<util:HomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:HomeView>  
