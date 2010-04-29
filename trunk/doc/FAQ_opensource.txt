@@ -1,0 +1,24 @@
+Open Source GNomEx FAQ
+
+
+Q: What development environment would you recommend to make changes to the GNomEx software?
+
+A: If you plan on making significant changes to the user interface, I would suggest 
+   purchasing Flex Builder 3, which costs ~ $250.  This is an Eclipse based development 
+   environment for building Flex applications.  It will allow you to design the Flex 
+   screens in an interactive drag-and-drop environment. Adobe just introduced Flash Builder 4, 
+   so it looks like they no longer offer trial downloads or purchases of Flex Builder 3.  
+   However, it looks like Flex Builder 3 can be purchased from various third parties 
+   such as Amazon.
+
+   In the coming months, I will most likely port GNomEx to the Flex 4.  At this time, 
+   I have not investigated the migration effort to port from Flex 3 to Flex 4.  
+   I suspect it will be trivial, but I hesitate to suggest Flash Builder 4 until I 
+   know for certain that the migration will not be burdensome.
+
+   If you are making very small changes to the software, you might be able to manage 
+   with a good text editor, the Java SDK, the open source Flex SDK, and Ant.  
+   (See README_INSTALL.txt for notes on how to build GNomEx.)  Another option is to 
+   use Eclipse (http://www.eclipse.org/) as your development environment, 
+   which offers a robust Java IDE for modifying, building, and debugging the code, 
+   only without the ability to design and debug the Flex application interactively.
