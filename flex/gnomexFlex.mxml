@@ -538,6 +538,10 @@
             	}
             }
             
+            public function showAdvancedSearch():void {
+            	this.stateStack.selectedChild = this.navSearchView;
+            }
+            
             
             private function onViewSelection():void {
             	
@@ -932,6 +936,9 @@
 	        private function checkSecurityAndLaunchStartWindow():void {
 	        	if (this.currentState == "enabledState") {
 	        		checkSecurity();
+	        		if (this.homeView != null) {
+	        			this.homeView.init();
+	        		}
 		        	launchStartWindow();	        		
 	        	}
 	        }
@@ -1074,7 +1081,7 @@
 			              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
 		 	              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
 			              <mx:Button id="searchButton" height="18" click="callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30"/>
-			              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{this.stateStack.selectedChild = this.navSearchView}" >
+			              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showAdvancedSearch()}" >
 			              </mx:LinkButton>
 			            </mx:HBox>
 			           </mx:HBox> 
