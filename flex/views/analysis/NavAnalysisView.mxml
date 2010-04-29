@@ -168,7 +168,9 @@
    					this.refreshAnalysis();
    				}
    			} else {
-   				this.refreshAnalysisForLookup();
+   				if (selectedAnalysisNumber != null) {
+	   				this.refreshAnalysisForLookup();
+   				}
    			}
 			        	
         	if (this.shortcutToDownloadTab) {
