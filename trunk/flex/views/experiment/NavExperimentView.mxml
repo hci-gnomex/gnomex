@@ -728,6 +728,9 @@
 			params.showSamples = "N";
 			params.showCategory = "N";
 			
+			// Need this workaround to prevent type #1009 error.
+			this.browseTree.setFocus();
+			
 			// For normal users, make sure we scope to the
 			// correct level to show the experiment just looked up.
 			if (currentState == null || currentState == "") {
