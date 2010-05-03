@@ -274,7 +274,7 @@ public class SequenceLane extends HibernateDetailObject {
     } else if (getSample().getSeqPrepDate() != null) {
       return "Sample prepped by core, ready to place on flow cell";
     } else if (getSample().getQualDate() != null) {
-      return "Sample QC'd bycCore, ready for sample lib prep by core";
+      return "Sample QC'd by core, ready for sample lib prep by core";
     } else {
       return "Ready for Sample QC";
     }
