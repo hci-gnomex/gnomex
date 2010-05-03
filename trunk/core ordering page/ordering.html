@@ -104,6 +104,28 @@ margin-top: 5px;
 }
 
 
+
+#container {
+	overflow: hidden;
+	clear: both;
+  width: 700px ;
+  margin-left: auto ;
+  margin-right: auto ;
+
+}
+
+#col1 {
+	float: left;
+	width: 45%;
+  padding-bottom: 8px;
+}
+#col2 {
+	float: right;
+	width: 45%;
+	padding-bottom: 8px;
+
+}
+
 </style>
 </HEAD>
 <BODY>
@@ -119,19 +141,18 @@ and annotate experimental requests, workflow tracking of experimental processes,
 of experiment results and associated analysis, 
 and electronic invoicing and billing capabilities. 
 </P>
-<CENTER><A class="big" HREF="https://hci-as1.hci.utah.edu/gnomex"
-target="new"><IMG SRC="images/launch.png" ></A></CENTER>
 
-<ul class="nobullet" >
-<li><A href="#services">Core Facility Services and Pricing</a></li>
-<li><A href="#sysreq">GNomEx System Requirements</a></li>
-<li><A href="#login">Logging in to GNomEx</a></li>
-<li><A href="#submit">Submitting an Experiment Request</a></li>
-<li><A href="#track">Checking the Status of Requests</a></li>
-<li><A href="#fetch">Downloading Results and Data Files</a></li>
-<li><A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm" target="gnomex_userguide">GNomEx User Guide</a></li>
-<li><A href="#contact">Contact Us</a></li>
-</ul>
+<div id="container">
+<CENTER><A class="big" HREF="https://hci-as1.hci.utah.edu/gnomex" target="new"><IMG SRC="images/launch.png" ></A></CENTER>
+<br>
+<div id="col1"><A href="#services">Core Facility Services and Pricing</a></div><div id="col2"><A href="http://bioserver.hci.utah.edu/BioInfo/index.php/Genome_Analyzer_Sequencing_Queue" target="nextgen_queue">Next gen Seqencing Queue</a></div>
+<div id="col1"><A href="#sysreq">GNomEx System Requirements</a></div><div id="col2"><A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm" target="gnomex_userguide">GNomEx User Guide</a></div>
+<div id="col1"><A href="#login">Logging in to GNomEx</a></div><div id="col2">&nbsp;</div>
+<div id="col1"><A href="#submit">Submitting an Experiment Request</a></div><div id="col2">&nbsp;</div>
+<div id="col1"><A href="#track">Checking the Status of Requests</a></div><div id="col2">&nbsp;</div>
+<div id="col1"><A href="#fetch">Downloading Results and Data Files</a></div><div id="col2">&nbsp;</div>
+<div id="col1"><A href="#contact">Contact Us</a></div><div id="col2">&nbsp;</div>
+</div>
 <br>
 
 
@@ -264,7 +285,7 @@ and Genomic Analysis Core facility.</B></em>
 <hr>
 <a name="track"><h3>Checking the Status of Requests</h3></a>
 <P>
-To check the status of pending requests, click
+To check To check the status of pending requests, click
 on the "Experiments" link (from the navigation bar). 
 <br>
 <IMG SRC="images/track_link_small.PNG">
