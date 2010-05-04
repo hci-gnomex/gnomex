@@ -1,0 +1,64 @@
+GNomEx Release Notes
+
+4.6.6 
+-------------------------
+- Organize sequencing applications by theme
+- Add sample lib prep conditions 
+ 
+
+4.6.5 (Apr 28, 2010)
+------------------------
+- Format email to verify lab's user accounts with HTML instead of plain text.
+- Add isActive to lab.  Show (inactive) verbiage in list of users.
+- Fix refresh after save of user and group.
+- Fix Type #1090 error caused due to mis-timed event-handling when looking up by experiment or analysis
+- Fix scoping when looking up analysis or experiment not in user's lab.
+- Show different states on home view for admin, non-submitting user (no lab assigned) or guest.
+- Show padding for download button on analysis detail.
+
+
+4.6.4 (Apr 25, 2010)
+------------------------
+ - Auto-email group contact to verify active user accounts.
+ 
+
+4.6.2 (Apr 12, 2010)
+-------------------------
+- Fix cy3 and cy5 radio buttons so that renderer works with scrolling.  Switched to using checkboxes.
+- Fixed problem with seq app and microarray app radio button repeaters that were not refreshing after first submit request.
+- Fixed load properties in gnomex security manager to only occur in init.  Used entitity resolver so that if orion site is down, datasources.xml will still be parsed.
+- Patch (Apr 13, 2010)
+  - Fix problem where qc submit request was showing seq app radion buttons
+  - moved seq app radio buttons to its own tab
+- Patch (Apr 14, 2010)
+  - Fix download list for illumina requests so that multiple GAII folders (with dashes) an appear
+  - Seq app radio button on sep tab now.
+ 
+
+4.6.1 (Mar 30, 2010)
+-------------------------
+- Fixed bug that was preventing price criteria from being deleted.  Also fixed bug that was preventing multiple criteria from being saved in one shot.
+- Fixed bug that was preventing lanes from being added or copied when template had analysis instructions with a single quote.
+
+
+4.6.3 (Mar 29, 2010)
+-------------------------
+- New radio group renderer for cy3 and cy5 labels on samples tab to fix bug that shows up when more than one page worth of samples.
+- Fix Illumina seq prep by core = n invalid ref problem
+- Fix filter problem on slide dropdown when new slide added
+ 
+
+4.5.3.1 (Mar 15, 2010)
+-------------------------
+- Fixed analysis upload servlet bug
+- Introduced plupload widget for HTML uploader.
+- Select user after adding new one.
+- Patches
+  - Fix Illumina lib prep (radio not selected) causing null ref on # seq cycles radio group. (patched swf Mar 17,2010)
+
+
+4.5.3  (Mar 12, 2010)
+-------------------------
+- New HTML uploader to workaround +1 GB Flex upload problem encountered.
+
+
