@@ -515,24 +515,30 @@ INSERT INTO `gnomex`.`LabelingReactionSize`(`codeLabelingReactionSize`, `labelin
 VALUES ('STD', 'Standard', 'Y', 1),
   ('LRG', 'Large', 'Y', 2);
 
-INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`)
-VALUES ('CGH', 'CGH', 'Y'),
-  ('CHIP', 'ChiP-on-chip', 'Y'),
-  ('EXON', 'Exon', 'Y'),
-  ('EXP', 'Gene Expression', 'Y'),
-  ('METH', 'DNA Methylation', 'Y'),
-  ('MIRNA', 'miRNA', 'Y'),
-  ('SNP', 'SNP', 'Y'),
-  ('WTRANSCRP', 'HybMap', 'Y'),
-  ('CHIPSEQ', 'ChIP-Seq', 'Y'),
-  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y'),
-  ('DNASEQ', 'Genomic DNA Sequencing', 'Y'),
-  ('TDNASEQ', 'Targeted Genomic DNA Sequencing (capture/release)', 'Y'),
-  ('MRNASEQ', 'mRNA Sequencing', 'Y'),
-  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y'),
-  ('BIOAN', 'Bioanalyzer', 'Y'),
-  ('QUBIT', 'Qubit picoGreen', 'Y'),
-  ('DNAGEL', 'DNA Gel', 'Y');
+INSERT INTO `gnomex`.`ApplicationTheme`(`idApplicationTheme`, `applicationTheme`, `isActive`)
+VALUES (1, 'DNA Sequencing', 'Y'),
+  (2, 'RNA Sequencing', 'Y'),
+  (3, 'Microarray', 'Y'),
+  (4, 'Sample Quality', 'Y');
+
+INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`)
+VALUES ('CGH', 'CGH', 'Y', 3),
+  ('CHIP', 'ChiP-on-chip', 'Y', 3),
+  ('EXON', 'Exon', 'Y', 3),
+  ('EXP', 'Gene Expression', 'Y', 3),
+  ('METH', 'DNA Methylation', 'Y', 3),
+  ('MIRNA', 'miRNA', 'Y', 3),
+  ('SNP', 'SNP', 'Y', 3),
+  ('WTRANSCRP', 'HybMap', 'Y', 3),
+  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2),
+  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1),
+  ('TDNASEQ', 'Targeted Genomic DNA Sequencing (capture/release)', 'Y', 1),
+  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2),
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2),
+  ('BIOAN', 'Bioanalyzer', 'Y', 4),
+  ('QUBIT', 'Qubit picoGreen', 'Y', 4),
+  ('DNAGEL', 'DNA Gel', 'Y', 4);
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
 VALUES (1, 18, 'N'),

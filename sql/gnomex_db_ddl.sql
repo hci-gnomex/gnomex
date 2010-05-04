@@ -171,6 +171,15 @@ CREATE TABLE `gnomex`.`AnalysisType` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`ApplicationTheme`;
+CREATE TABLE `gnomex`.`ApplicationTheme` (
+  `idApplicationTheme` INT(10) NOT NULL AUTO_INCREMENT,
+  `applicationTheme` VARCHAR(200) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idApplicationTheme`)
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`AppUser`;
 CREATE TABLE `gnomex`.`AppUser` (
   `idAppUser` INT(10) NOT NULL AUTO_INCREMENT,
@@ -892,7 +901,12 @@ CREATE TABLE `gnomex`.`Application` (
   `codeApplication` VARCHAR(10) NOT NULL,
   `application` VARCHAR(50) NULL,
   `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`codeApplication`)
+  `idApplicationTheme` INT(10) NULL,
+  PRIMARY KEY (`codeApplication`),
+  CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
+    REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 

@@ -571,6 +571,16 @@
 		</id>
 		<property name="application" column="application" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="idApplicationTheme" column="idApplicationTheme" type="integer"/>
+	</class>
+
+  <!-- hci.gnomex.model.ApplicationTheme -->
+	<class name="hci.gnomex.model.ApplicationTheme" table="ApplicationTheme">
+		<id name="idApplicationTheme" column="idApplicationTheme" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="applicationTheme" column="applicationTheme" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
 	</class>
 
   <!-- hci.gnomex.model.AppUserLite -->

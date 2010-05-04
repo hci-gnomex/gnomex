@@ -1,11 +1,12 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+
 import java.io.Serializable;
 
 
 
-public class Application extends DictionaryEntry implements Serializable, Comparable {
+public class Application extends DictionaryEntry implements Serializable {
   public static final String   EXPRESSION_MICROARRAY_CATEGORY   = "EXP";
   public static final String   CGH_MICROARRAY_CATEGORY          = "CGH";
   public static final String   CHIP_ON_CHIP_MICROARRAY_CATEGORY = "CHIP";
@@ -26,9 +27,11 @@ public class Application extends DictionaryEntry implements Serializable, Compar
   
   
 
-  private String codeApplication;
-  private String application;
-  private String isActive;
+  private String  codeApplication;
+  private String  application;
+  private String  isActive;
+  private Integer idApplicationTheme;
+
   
   public String getDisplay() {
     String display = this.getNonNullString(getApplication());
@@ -49,14 +52,6 @@ public class Application extends DictionaryEntry implements Serializable, Compar
     this.isActive = isActive;
   }
   
-  public int compareTo(Object other) {
-    if (other instanceof Application) {
-      return this.getCodeApplication().compareTo(((Application)other).getCodeApplication());
-    } else {
-      return 1;
-    }
-  }
-
   
   public String getCodeApplication() {
     return codeApplication;
@@ -76,5 +71,25 @@ public class Application extends DictionaryEntry implements Serializable, Compar
   public void setApplication(String application) {
     this.application = application;
   }
+
+  
+  public Integer getIdApplicationTheme() {
+    return idApplicationTheme;
+  }
+
+  
+  public void setIdApplicationTheme(Integer idApplicationTheme) {
+    this.idApplicationTheme = idApplicationTheme;
+  }
+
+  public int compareTo(Object other) {
+    if (other instanceof Application) {
+      return this.getCodeApplication().compareTo(((Application)other).getCodeApplication());
+    } else {
+      return 1;
+    }
+  }
+
+  
 
 }

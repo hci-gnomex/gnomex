@@ -2,16 +2,70 @@
 <mx:Canvas label="Seq application" 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
-	 width="100%" height="100%" >
+	 width="100%" height="100%" show="init()" >
 <mx:Script>
 	<![CDATA[
+		import mx.controls.Spacer;
+		import mx.collections.XMLListCollection;
+		import mx.controls.RadioButton;
 		import mx.events.ListEvent;
 		import views.renderers.CheckBoxIsSelectedChipType;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 
+		public function init():void {
+			seqAppBox.removeAllChildren();
+			
+			// Map the apps by theme
+			var themeMap:Array= new Array();
+			for each(var item:Object in parentDocument.filteredAppList) {
+				var theKey:Object = item.@idApplicationTheme;
+				var apps:XMLListCollection = themeMap[theKey];
+				if (apps == null) {
+					apps = new XMLListCollection();
+					themeMap[theKey] = apps;
+				}
+				apps.addItem(item);
+			}
+			
+			// Organize the sequencing appliction radio buttons by theme.  
+			for (var key:Object in themeMap) {
+				var theApps:XMLListCollection = themeMap[key];
+				
+				if (seqAppBox.getChildren().length > 0) {
+					var spacer:Spacer = new Spacer();
+					spacer.height = 20;
+					seqAppBox.addChild(spacer);
+				}
+				
+				
+				var header:mx.controls.Label = new mx.controls.Label();
+				header.text = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.ApplicationTheme", key);
+				if (header.text != "" && header.text != null) {
+					seqAppBox.addChild(header);
+				}
+				
+				for each(var app:Object in theApps) {
+					var rb:RadioButton = new RadioButton();
+					rb.value = app.@value;
+					rb.label = app.@application;
+					rb.group = radioGroupSeqApp;
+					rb.setStyle("paddingLeft", 10);
+					rb.addEventListener("click", onSeqAppRadioClick);
+					seqAppBox.addChild(rb);
+				}
+
+			}
+			
+			
+		}
+		
+		private function onSeqAppRadioClick(event:Object):void {
+			pickSeqApp();
+		}
 	
+	 
 
       	public function checkSeqAppSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
@@ -86,15 +140,11 @@
 
    <mx:HBox width="100%" horizontalGap="0">
        <mx:Text text="Select a sequencing application." width="305" id="labelApplication"/>
+       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+       </mx:RadioButtonGroup>
        <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
-           <mx:RadioButtonGroup id="radioGroupSeqApp"/> 
-       <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
-         		<mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
-         			paddingLeft="1" paddingRight="1" paddingBottom="0"
-         			value="{seqAppRepeater.currentItem.@value}"
-         			    groupName="radioGroupSeqApp"
-         			click="{pickSeqApp()}"/>
-       </mx:Repeater>
+
+
        </mx:VBox>
    </mx:HBox>
    	 
