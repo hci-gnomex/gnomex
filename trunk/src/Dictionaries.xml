@@ -23,13 +23,17 @@
       <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
 
-	<Dictionary displayName="Application" className="hci.gnomex.model.Application" />
-	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
-			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
+	<Dictionary displayName="Application Theme" className="hci.gnomex.model.ApplicationTheme" >
+	</Dictionary>
+	<Dictionary displayName="Application" className="hci.gnomex.model.Application" >
+			<Filter className="hci.gnomex.model.ApplicationTheme" filterField="idApplicationTheme"/>
 	</Dictionary>
 	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
+	</Dictionary>
+	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
+			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
