@@ -108,23 +108,30 @@ margin-top: 5px;
 #container {
 	overflow: hidden;
 	clear: both;
-  width: 700px ;
-  margin-left: auto ;
-  margin-right: auto ;
+  width: 100% ;
+  margin-left: 10px ;
+  margin-right: 10px ;
 
 }
 
 #col1 {
 	float: left;
-	width: 45%;
-  padding-bottom: 8px;
+	margin-left: 20px;
+	width: 300;
+	line-height: 180%;
+	
 }
 #col2 {
 	float: right;
-	width: 45%;
-	padding-bottom: 8px;
+	margin-right: 20px;
+	width: 300;
+	line-height: 180%;
 
 }
+#footer {
+    clear: both;
+}
+
 
 </style>
 </HEAD>
@@ -140,22 +147,25 @@ management of client and lab group information, ability for researchers to elect
 and annotate experimental requests, workflow tracking of experimental processes, organization and distribution 
 of experiment results and associated analysis, 
 and electronic invoicing and billing capabilities. 
-</P>
 
-<div id="container">
 <CENTER><A class="big" HREF="https://hci-as1.hci.utah.edu/gnomex" target="new"><IMG SRC="images/launch.png" ></A></CENTER>
-<br>
-<div id="col1"><A href="#services">Core Facility Services and Pricing</a></div><div id="col2"><A href="http://bioserver.hci.utah.edu/BioInfo/index.php/Genome_Analyzer_Sequencing_Queue" target="nextgen_queue">Next gen Seqencing Queue</a></div>
-<div id="col1"><A href="#sysreq">GNomEx System Requirements</a></div><div id="col2"><A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm" target="gnomex_userguide">GNomEx User Guide</a></div>
-<div id="col1"><A href="#login">Logging in to GNomEx</a></div><div id="col2">&nbsp;</div>
-<div id="col1"><A href="#submit">Submitting an Experiment Request</a></div><div id="col2">&nbsp;</div>
-<div id="col1"><A href="#track">Checking the Status of Requests</a></div><div id="col2">&nbsp;</div>
-<div id="col1"><A href="#fetch">Downloading Results and Data Files</a></div><div id="col2">&nbsp;</div>
-<div id="col1"><A href="#contact">Contact Us</a></div><div id="col2">&nbsp;</div>
+
+<div id="col1">
+<A href="#services">Core Facility Services and Pricing</a><br>
+<A href="#sysreq">GNomEx System Requirements</a><br>
+<A href="#login">Logging in to GNomEx</a><br>
+<A href="#submit">Submitting an Experiment Request</a><br>
+<A href="#track">Checking the Status of Requests</a><br>
+<A href="#fetch">Downloading Results and Data Files</a><br>
+<A href="#contact">Contact Us</a><br>
 </div>
-<br>
 
+<div id="col2">
+<A href="http://bioserver.hci.utah.edu/BioInfo/index.php/Genome_Analyzer_Sequencing_Queue" target="nextgen_queue">Illumina Genome Analyzer Sequencing Queue</a><br>
+<A href="http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm" target="gnomex_userguide">GNomEx User Guide</a><br>
+</div>
 
+<div id="footer">&nbsp;</div>
 
 <hr>
 <a name="services"><h2>Core Facility Services and Pricing</h2></a>
@@ -255,7 +265,7 @@ To submit an experiment request, click on the "Submit Request" link from the nav
 Verify your lab and pick the account to be billed. Then choose the kind of request and select a project or create a new project.  
 (Projects provide a way to organize your microarray experiments.) Click on the "Next" button to continue to the next window.
 <br>
-<IMG SRC="images/submit1_small.PNG" >
+<IMG SRC="images/submit1_small.PNG"  >
 <br>
 The subsequent tabs allow you to fill out sample and hybridization information (microarray requests). 
 <ul><li><b>Sample Setup</b> - prompts you for sample information. 
