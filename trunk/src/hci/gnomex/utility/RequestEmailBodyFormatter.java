@@ -4,12 +4,15 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.SeqLibTreatment;
 import hci.framework.model.DetailObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -160,9 +163,16 @@ public class RequestEmailBodyFormatter extends DetailObject{
       center1.addContent(hApp);              
     }
     
-    Element h2 = new Element("H4");
-    h2.addContent(formatDate(request.getCreateDate()));
-    center1.addContent(h2);
+    String seqLibTreatments = ""; 
+    if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      int count = 0;
+      for(Iterator i = request.getSeqLibTreatments().iterator(); i.hasNext();) {
+        SeqLibTreatment t = (SeqLibTreatment)i.next();
+        Element hTreatment = new Element("H4");
+        hTreatment.addContent(t.getSeqLibTreatment());
+        center1.addContent(hTreatment);                  
+      }
+    }
     
     return center1;
   }

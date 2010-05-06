@@ -24,6 +24,7 @@ import hci.gnomex.model.SampleSource;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.ScanProtocol;
 import hci.gnomex.model.SeqLibProtocol;
+import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
@@ -31,6 +32,7 @@ import hci.gnomex.model.SlideSource;
 import hci.gnomex.model.SubmissionInstruction;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -71,6 +73,8 @@ public class DictionaryHelper implements Serializable {
   private Map              scanProtocolMap = new HashMap();
   private Map              featureExtractionProtocolMap = new HashMap();
   private Map              seqLibProtocolMap = new HashMap();
+  private List             seqLibTreatmentList = new ArrayList();
+  private Map              seqLibTreatmentMap = new HashMap();
   
 
   
@@ -238,7 +242,13 @@ public class DictionaryHelper implements Serializable {
     for(Iterator i = seqLibProtocols.iterator(); i.hasNext();) {
       SeqLibProtocol p = (SeqLibProtocol)i.next();
       seqLibProtocolMap.put(p.getIdSeqLibProtocol(), p);
-    }     
+    }
+    List seqLibTreatments = sess.createQuery("SELECT p from SeqLibTreatment as p").list();
+    for(Iterator i = seqLibTreatments.iterator(); i.hasNext();) {
+      SeqLibTreatment t = (SeqLibTreatment)i.next();
+      seqLibTreatmentMap.put(t.getIdSeqLibTreatment(), t);
+      seqLibTreatmentList.add(t);
+    }      
    }
   
   
@@ -429,6 +439,16 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }   
+  public SeqLibTreatment getSeqLibTreatment(Integer id) {
+    if (id != null) {
+      SeqLibTreatment t = (SeqLibTreatment)seqLibTreatmentMap.get(id);
+      return t;
+    }
+    return null;
+  }   
+  public List getSeqLibTreatments() {
+    return seqLibTreatmentList;
+  }
   
   public String getBillingStatus(String codeBillingStatus) {
     String billingStatus = "";

@@ -112,6 +112,8 @@
 			<Filter className="hci.gnomex.model.SeqLibProtocol" filterField="idSeqLibProtocol"/>
 			<Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
 	</Dictionary>
+	<Dictionary displayName="Illumina Seq Lib Treatment" className="hci.gnomex.model.SeqLibTreatment" editable="Y" >
+	</Dictionary>
 
 	
 	

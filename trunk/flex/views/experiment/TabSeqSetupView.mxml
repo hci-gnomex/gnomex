@@ -3,6 +3,14 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
 	 width="100%" height="100%" show="init()" >
+	<mx:states>
+		<mx:State name="EditState">
+			<mx:RemoveChild target="{hbox1}"/>
+			<mx:SetProperty name="enabled" value="true"/>
+			<mx:SetProperty target="{seqLibTreatmentBox}" name="styleName"/>
+			<mx:RemoveChild target="{textarea1}"/>
+		</mx:State>
+	</mx:states>
 <mx:Script>
 	<![CDATA[
 		import mx.controls.Spacer;
@@ -10,12 +18,26 @@
 		import mx.controls.RadioButton;
 		import mx.events.ListEvent;
 		import views.renderers.CheckBoxIsSelectedChipType;
+		import hci.flex.controls.CheckBox;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
+		
+
+
 
 		public function init():void {
-			seqAppBox.removeAllChildren();
+			checkSecurity();
+			
+			// We don't show seq apps on edit window
+			if (this.currentState == "EditState") {
+				return;
+			}
+			
+			// Only initialize once.
+			if (this.seqAppBox.getChildren().length > 0) {
+				return;
+			}
 			
 			// Map the apps by theme
 			var themeMap:Array= new Array();
@@ -61,6 +83,22 @@
 			
 		}
 		
+		public function checkSecurity():void {
+			if (this.currentState == "EditState") {
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					this.seqLibTreatmentGrid.enabled = true;	
+					this.seqLibCheckboxCol.editable = true;
+				} else {
+					this.seqLibTreatmentGrid.enabled = false;
+					this.seqLibCheckboxCol.editable = false;
+				}				
+			} else {
+				this.seqLibTreatmentGrid.enabled = true;
+				this.seqLibCheckboxCol.editable = true;
+
+			}
+		}
+		
 		private function onSeqAppRadioClick(event:Object):void {
 			pickSeqApp();
 		}
@@ -73,13 +111,14 @@
         		isComplete = true;
         	} else if (parentDocument.isSolexaState()) {
 	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
-	        	    isComplete = true;
+	        		isComplete = true;
 	        	 }
-        	
         	} 
 
         	
-        	parentDocument.sampleSetupView.enabled = isComplete; 
+        	if (this.currentState != "EditState") {
+	        	parentDocument.sampleSetupView.enabled = isComplete; 
+        	}
         	
     		parentDocument.enableNextButtons();
 
@@ -97,7 +136,9 @@
 	        	} 
 	        	parentDocument.confirmView.enabled = false;
     		} else {
-	    		parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+    			if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
+		    		parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+		    	}
     		}
         	
         }
@@ -108,7 +149,11 @@
 			if (this.radioGroupSeqApp.selectedValue != null) {
 				this.seqAppBox.styleName = 'normalBox';
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
-				this.parentDocument.applicationName = application.@display;
+				if (application != null && application is XMLList) {
+					this.parentDocument.applicationName = application[0].@display;
+				} else if (application != null && application is XML) {
+					this.parentDocument.applicationName = application.@display;
+				}
 			} else {
 				this.seqAppBox.styleName = 'requiredBox';
 				this.parentDocument.applicationName = '';
@@ -117,37 +162,102 @@
 			this.checkSeqAppSetupCompleteness();
 			this.parentDocument.sampleSetupView.pickSeqApp();
 		}
-			
 		
+	   	public function selectSeqLibTreatment(event:ListEvent):void {
+	   		if (event == null || event.columnIndex == 0) {
+	   			return;
+	   		}
+	   		if (seqLibTreatmentGrid == null || seqLibTreatmentGrid.selectedItem == null) {
+	   			return;
+	   		}
+	   		if (seqLibTreatmentGrid.selectedItem.@isSelected == "true") {
+				seqLibTreatmentGrid.selectedItem.@isSelected = "false";
+						
+			} else {
+				seqLibTreatmentGrid.selectedItem.@isSelected = "true";
+			}
+			
+			var count:int = 0;
+			parentDocument.seqLibTreatmentsDisplay = "";
+			for each (var item:Object in seqLibTreatments) {
+				if (item.@isSelected == "true") {
+					this.seqLibTreatmentBox.styleName = 'normalBox';
+					if (count > 0) {
+					   parentDocument.seqLibTreatmentsDisplay += ", ";
+					}
+					parentDocument.seqLibTreatmentsDisplay += item.@display;
+					count++;
+				} 
+			}
+			
+			/* Don't make seq lib treatment required for now.
+			if (count > 0) {
+				this.seqLibTreatmentBox.styleName = 'normalBox';
+			} else {
+				this.seqLibTreatmentBox.styleName = 'requiredBox';
+			}
+			*/ 
+			
+			this.seqLibTreatmentBox.styleName = 'normalBox';
+
+			
+			this.checkSeqAppSetupCompleteness();
+		}			
+			
 	]]>
 </mx:Script>
 
-
+  <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
   <mx:Canvas width="100%" height="100%">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2">
-		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" enabled="false">
+   		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="20" id="sampleSetupContainer" enabled="true">
+		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
+		       <mx:Text text="Select a sequencing application." width="200" id="labelApplication"/>
+		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+		       </mx:RadioButtonGroup>
+		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+		       </mx:VBox>
+		   </mx:HBox>
+		   	 
+		   <mx:HBox width="100%" horizontalGap="0" height="100%">
+		       <mx:Text text="Identify all conditions/instructions that apply to these samples." width="200" id="labelSeqLibTreatment"/>
+		       <mx:VBox height="100%"  width="550" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqLibTreatmentBox">
+		           <mx:DataGrid id="seqLibTreatmentGrid"   
+		           	  dataProvider="{seqLibTreatments}" 
+		           	  width="100%" height="100%"
+		           	  itemClick="selectSeqLibTreatment(event)"  
+		           	  showHeaders="false" verticalGridLines="false"  alternatingItemColors="[#ffffff, #ffffff]" borderStyle="none">
+		             <mx:columns>
+			           	  <mx:DataGridColumn headerText=" "  
+			           	  	id="seqLibCheckboxCol"
+			            	width="20" 
+			            	editable="true"                        	
+			            	dataField="@isSelected" 
+			            	editorDataField="selected" sortable="false"
+			            	itemRenderer="views.renderers.CheckBoxIsSelectedSeqLibTreatment">
+					      </mx:DataGridColumn>
+					      
+					      <mx:DataGridColumn headerText="" dataField="@seqLibTreatment">		      	
+				          </mx:DataGridColumn>
+		             	
+		             </mx:columns>
+		           </mx:DataGrid>
+		       </mx:VBox>
+		   </mx:HBox>
+
+
 		</mx:VBox>
 		
 	</mx:VBox>
-			<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" right="0" top="0">
-  			  <mx:TextArea styleName="instructionBox" width="340" wordWrap="true" height="90" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate<br>       dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button<br>       at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
-			</mx:VBox>
+	    <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" right="0" top="0">
+  		    <mx:TextArea styleName="instructionBox" width="340" wordWrap="true" height="90" id="textarea1">
+			  <mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate<br>       dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button<br>       at the bottom of the page to proceed.]]></mx:htmlText>
+			</mx:TextArea>
+	</mx:VBox>
 	
   </mx:Canvas>
 
-   <mx:HBox width="100%" horizontalGap="0">
-       <mx:Text text="Select a sequencing application." width="305" id="labelApplication"/>
-       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
-       </mx:RadioButtonGroup>
-       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
-
-
-       </mx:VBox>
-   </mx:HBox>
-   	 
 
 	
 </mx:Canvas>

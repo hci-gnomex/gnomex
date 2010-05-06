@@ -33,6 +33,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.SeqLibTreatment;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
@@ -103,6 +104,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Hibernate.initialize(request.getSamples());
           Hibernate.initialize(request.getHybridizations());
           Hibernate.initialize(request.getAnalysisExperimentItems());
+          Hibernate.initialize(request.getSeqLibTreatments());
+          
           
           if (!newRequest) {
             this.getSecAdvisor().flagPermissions(request);            
@@ -141,9 +144,34 @@ public class GetRequest extends GNomExCommand implements Serializable {
             scNode.setAttribute("sampleCharacteristic", sc.getSampleCharacteristic());
             scNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             scNode.setAttribute("isSelected", entry != null ? "true" : "false");
-                    
+                
             scParentNode.addContent(scNode);
+            
           }
+          
+          // Show list of seq lib treatments
+          Element stParentNode = new Element("SeqLibTreatmentEntries");
+          requestNode.addContent(stParentNode);
+          for(Iterator i1 = dh.getSeqLibTreatments().iterator(); i1.hasNext();) {
+            SeqLibTreatment st = (SeqLibTreatment)i1.next();
+            
+            if (st.getIsActive() != null && st.getIsActive().equalsIgnoreCase("N")) {
+              continue;
+            }
+
+            Element stNode = (Element)st.toXMLDocument(null).getRootElement().clone();
+            stParentNode.addContent(stNode);
+            
+            boolean isSelected = false;
+            for(Iterator i2 = request.getSeqLibTreatments().iterator(); i2.hasNext();) {
+              SeqLibTreatment theSeqLibTreatment = (SeqLibTreatment)i2.next();
+              if (theSeqLibTreatment.getIdSeqLibTreatment().equals(st.getIdSeqLibTreatment())) {
+                isSelected = true;
+                break;
+              } 
+            }
+            stNode.setAttribute("isSelected", isSelected ? "true" : "false");
+          }          
           
           // Show list of protocols used on this experiment
           Element protocolsNode = new Element("protocols");

@@ -12,6 +12,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
 import hci.gnomex.model.SlideDesign;
@@ -41,6 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.mail.MessagingException;
@@ -304,6 +307,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }          
         }
         
+        DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+        // Set the seq lib treatments
+        Set seqLibTreatments = new TreeSet();
+        for(Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
+          String key = (String)i.next();
+          Integer idSeqLibTreatment = Integer.parseInt(key);
+          SeqLibTreatment slt = dictionaryHelper.getSeqLibTreatment(idSeqLibTreatment);
+          seqLibTreatments.add(slt);
+        }
+        this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
         
         
         sess.save(requestParser.getRequest());
@@ -312,7 +325,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
           sess.refresh(requestParser.getRequest());
-          DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
           this.createResultDirectories(requestParser.getRequest(), 
               dictionaryHelper.getProperty(Property.QC_DIRECTORY), 
               dictionaryHelper.getMicroarrayDirectoryForWriting(serverName));
