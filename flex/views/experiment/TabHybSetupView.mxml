@@ -6,7 +6,7 @@
 		</mx:State>
 		<mx:State name="EditState" basedOn="SetupState">
 			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can<br>  change the selection in orderto specify a<br>  different microarray for this experiment<br>  request.The change will be reflected<br>  in the next tab.]]></mx:value>
+				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can<br>  change the selection in order to specify a<br>  different microarray for this experiment<br>  request.  The change will be reflected<br>  in the next tab.]]></mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{textarea1}"  name="width" value="250"/>
 			<mx:SetProperty target="{textarea1}"  name="height" value="100"/>
@@ -172,7 +172,11 @@
 		private function initializeApplicationName():void {
 			if (this.microarrayAppRadioGroup.selectedValue != null && this.microarrayAppRadioGroup.selectedValue != '') {
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.microarrayAppRadioGroup.selectedValue);
-				this.parentDocument.applicationName = application.@display;
+				if (application != null && application is XMLList) {
+					this.parentDocument.applicationName = application[0].@display;
+				} else if (application != null && application is XML) {
+					this.parentDocument.applicationName = application.@display;
+				}
 			}			
 		}
 		public function assignSlideNumbers():void {
@@ -321,7 +325,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(2) Select the microarray application." width="250" />
-			<mx:VBox  verticalGap="0" id="microarrayAppBox" styleName="requiredBox">
+			<mx:VBox  verticalGap="0" id="microarrayAppBox" styleName="{currentState == 'EditState' ? 'normalBox' : 'requiredBox'}">
 	            <mx:RadioButtonGroup id="microarrayAppRadioGroup"/>
 				<mx:Repeater id="microarrayAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 
 	    			<mx:RadioButton  label="{microarrayAppRepeater.currentItem.@display}" 
