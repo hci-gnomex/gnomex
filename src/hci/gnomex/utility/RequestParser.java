@@ -35,6 +35,7 @@ public class RequestParser implements Serializable {
   private List            sampleIds = new ArrayList();
   private Map             sampleMap = new HashMap();
   private Map             characteristicsToApplyMap = new TreeMap();
+  private Map             seqLibTreatmentMap = new HashMap();
   private Map             sampleAnnotationMap = new HashMap();
   private boolean        showTreatments = false;
   private Map             sampleTreatmentMap = new HashMap();
@@ -194,6 +195,11 @@ public class RequestParser implements Serializable {
       if (scNode.getAttributeValue("isSelected").equals("true")) {
         this.characteristicsToApplyMap.put(scNode.getAttributeValue("codeSampleCharacteristic"), null);        
       }
+    }
+    
+    for (Iterator i1 = n.getChild("SeqLibTreatmentEntries").getChildren("SeqLibTreatment").iterator(); i1.hasNext();) {
+      Element sltNode = (Element)i1.next();
+      this.seqLibTreatmentMap.put(sltNode.getAttributeValue("value"), null);        
     }
     
     // Figure out if the user intended to save sample treatments
@@ -733,6 +739,10 @@ public class RequestParser implements Serializable {
   
   public Map getSampleTreatmentMap() {
     return sampleTreatmentMap;
+  }
+  
+  public Map getSeqLibTreatmentMap() {
+    return seqLibTreatmentMap;
   }
   
   

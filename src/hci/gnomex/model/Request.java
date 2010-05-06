@@ -50,6 +50,7 @@ public class Request extends HibernateDetailObject {
   private Set            sequenceLanes = new TreeSet();
   private Set            analysisExperimentItems = new TreeSet();
   private Set            billingItems = new TreeSet();  
+  private Set            seqLibTreatments = new TreeSet();
     
   
   
@@ -601,6 +602,18 @@ public class Request extends HibernateDetailObject {
   
   public void setBillingAccount(BillingAccount billingAccount) {
     this.billingAccount = billingAccount;
+  }
+
+
+  
+  public Set getSeqLibTreatments() {
+    return seqLibTreatments;
+  }
+
+
+  
+  public void setSeqLibTreatments(Set seqLibTreatments) {
+    this.seqLibTreatments = seqLibTreatments;
   }
 
  

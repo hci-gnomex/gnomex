@@ -36,6 +36,8 @@
 		[Bindable]
 		private var experimentCategoryName:String;
 		[Bindable]
+		private var seqLibTreatments:String;
+		[Bindable]
 		private var billingAccountName:String;
 		[Bindable]
 		private var visibilityName:String;
@@ -76,12 +78,8 @@
 			
 			if (this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
 				this.analysisButton.enabled = true;
-				this.hasAnalysis.visible = true;
-				this.hasAnalysis.height = 20;
 			} else {
 				this.analysisButton.enabled = false;
-				this.hasAnalysis.visible = false;
-				this.hasAnalysis.height = 0;
 			}
 
 
@@ -90,6 +88,7 @@
 
 			getRequestCategoryName();
 			getExperimentCategoryName();
+			getSeqLibTreatments();
 			getBillingAccountName();
 			getVisibilityName();
 			callLater(showHideColumns);
@@ -159,11 +158,19 @@
 
 		private function getRequestCategoryName():void {
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
-			requestCategoryName = requestCategory.@display.toString();
+			if (requestCategory is XMLList) {
+				requestCategoryName = requestCategory[0].@display.toString();				
+			} else {
+				requestCategoryName = requestCategory.@display.toString();		
+			}
 		}
 		private function getExperimentCategoryName():void {
 			var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
-			experimentCategoryName = experimentCategory.@display.toString();
+			if (experimentCategory is XMLList) {
+				experimentCategoryName  = experimentCategory[0].@display.toString();
+			} else {
+				experimentCategoryName = experimentCategory.@display.toString();
+			}
 		}
 		private function getBillingAccountName():void {
 			var billingAccount:Object = null;
@@ -180,9 +187,22 @@
 				billingAccountName = billingAccount.@accountName;
 			}
 		}
+		private function getSeqLibTreatments():void {
+			seqLibTreatments = "";
+			for each(var item:Object in this.selectedExperiment.seqLibTreatments.SeqLibTreatment) {
+				if (seqLibTreatments.length > 0) {
+					seqLibTreatments += ", ";
+				}
+				seqLibTreatments += item.@display;
+			}
+		}
 		private function getVisibilityName():void {
 			var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment.@codeVisibility);
-			visibilityName = visibility.@display.toString();
+			if (visibility is XMLList) {
+				visibilityName = visibility[0].@display.toString();			
+			} else {
+				visibilityName = visibility.@display.toString();
+			}
 		}
 		
 		public function showDownloads():void {
@@ -427,36 +447,37 @@
 		    <mx:VBox height="100%"  width="100%" verticalGap="0">
 		        <mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
 		        	<mx:VBox verticalGap="0">
-			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
-			        	   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
-			        	 </mx:HBox>
-			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                   <mx:Label text="Group"  width="85" fontWeight="bold"/>
-			                   <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
-			               </mx:HBox>
-		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
-		                  <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
-		                </mx:HBox>
-						<mx:LinkButton icon="@Embed(source='../../assets/map.png')" label="Linked to analysis" labelPlacement="right" height="20"
- 		        		   enabled="true" disabledIcon="@Embed(source='../../assets/map_disable.png')" id="hasAnalysis" visible="false" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
-		        	    </mx:LinkButton>			            
-		        	</mx:VBox>
-		        	<mx:VBox verticalGap="0">
 			        	
 			        	 <mx:HBox verticalGap="0" horizontalGap="0">
 			        	       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
 			        	       <mx:Text text="{requestCategoryName}" width="160" />
 			        	   </mx:HBox>
 			            <mx:HBox verticalGap="0" horizontalGap="0">
-			                <mx:Label text="Experiment Type"  width="102" fontWeight="bold"/>
+			                <mx:Label text="Application"  width="102" fontWeight="bold"/>
 			                <mx:Text  text="{experimentCategoryName}" width="160" />
 			            </mx:HBox>
-		                <mx:HBox verticalGap="0" horizontalGap="0">
-		                  <mx:Label width="102" text="Completed on" fontWeight="bold"/>
-		                  <mx:Text  text="{this.selectedExperiment.@completedDate}" width="160" />
-		                </mx:HBox>
+			             <mx:HBox verticalGap="0" horizontalGap="0">
+			                <mx:Spacer width="102"/>
+			                <mx:Text text="{seqLibTreatments}"  width="160" />
+			             </mx:HBox>
+		        	</mx:VBox>
+		        	<mx:VBox verticalGap="0">
+		        		 <mx:HBox verticalGap="0" horizontalGap="0">
+		        		   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
+		        		   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
+		        		 </mx:HBox>
+		        	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+		        	           <mx:Label text="Group"  width="85" fontWeight="bold"/>
+		        	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
+		        	       </mx:HBox>
+		        	       <mx:HBox verticalGap="0" horizontalGap="0">
+		        	         <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
+		        	         <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
+		        	       </mx:HBox>
+		                  <mx:HBox verticalGap="0" horizontalGap="0">
+		                    <mx:Label width="85" text="Completed on" fontWeight="bold"/>
+		                    <mx:Text  text="{this.selectedExperiment.@completedDate}" width="130" />
+		                  </mx:HBox>
 		        	</mx:VBox>
 		        	<mx:VBox width="100%" verticalGap="0">
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">

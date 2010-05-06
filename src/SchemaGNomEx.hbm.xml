@@ -412,6 +412,10 @@
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.BillingItem" />
 		</set>		
+	  <set name="seqLibTreatments" table="RequestSeqLibTreatment" lazy="true" cascade="delete">
+			<key column="idRequest"/>
+			<many-to-many column="idSeqLibTreatment" class="hci.gnomex.model.SeqLibTreatment"/>
+		</set>
 	</class>
 	
 	<!-- hci.gnomex.model.Sample -->
@@ -468,7 +472,7 @@
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.LabeledSample" />
 		</set>
-	</class>
+  </class>
 	
 	<!-- hci.gnomex.model.SampleCharacteristicEntry -->
 	<class name="hci.gnomex.model.SampleCharacteristicEntry" table="SampleCharacteristicEntry">
@@ -1040,6 +1044,16 @@
 		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 		
 	</class>
+
+  <!-- hci.gnomex.model.SeqLibTreatment -->
+	<class name="hci.gnomex.model.SeqLibTreatment" table="SeqLibTreatment">
+		<id name="idSeqLibTreatment" column="idSeqLibTreatment" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="seqLibTreatment" column="seqLibTreatment" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
 	
 	<!-- hci.gnomex.model.SamplePrepMethod -->
 	<class name="hci.gnomex.model.SamplePrepMethod" table="SamplePrepMethod">

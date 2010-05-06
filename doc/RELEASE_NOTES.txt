@@ -3,7 +3,10 @@ GNomEx Release Notes
 4.6.6 
 -------------------------
 - Organize sequencing applications by theme
-- Add sample lib prep conditions 
+- Add sample lib prep conditions/treatments 
+- Fix bug that was causing request category name, application name to double, triple
+- Fix bug that was causing required border (yellow) to appear around microarray dropdown on microarray edit screen
+- Fix typo in instruction box on microarray edit screen, hyb setup tab
  
 
 4.6.5 (Apr 28, 2010)
@@ -28,7 +31,7 @@ GNomEx Release Notes
 - Fixed problem with seq app and microarray app radio button repeaters that were not refreshing after first submit request.
 - Fixed load properties in gnomex security manager to only occur in init.  Used entitity resolver so that if orion site is down, datasources.xml will still be parsed.
 - Patch (Apr 13, 2010)
-  - Fix problem where qc submit request was showing seq app radion buttons
+  - Fix problem where qc submit request was showing seq app radio buttons
   - moved seq app radio buttons to its own tab
 - Patch (Apr 14, 2010)
   - Fix download list for illumina requests so that multiple GAII folders (with dashes) an appear

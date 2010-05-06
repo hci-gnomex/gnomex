@@ -11,6 +11,7 @@ import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SubmissionInstruction;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -160,16 +161,29 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             Element h2 = new Element("H2");
             h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
             center1.addContent(h2);
+            
+      
 
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
               Element hApp = new Element("H4");
               hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
-              center1.addContent(hApp);              
+              center1.addContent(hApp);
+
+              if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+                
+                for(Iterator i = request.getSeqLibTreatments().iterator(); i.hasNext();) {
+                  SeqLibTreatment t = (SeqLibTreatment)i.next();
+                  Element hTreatment = new Element("H4");
+                  hTreatment.addContent(t.getSeqLibTreatment());
+                  center1.addContent(hTreatment);                  
+                
+                }
+              }
+
             }
+            maindiv.addContent(new Element("BR"));
             
-            Element h4 = new Element("H4");
-            h4.addContent(this.formatDate(request.getCreateDate()));
-            center1.addContent(h4);
+            
             
             
             

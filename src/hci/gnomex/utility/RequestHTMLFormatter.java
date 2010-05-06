@@ -93,14 +93,15 @@ public class RequestHTMLFormatter {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
     table.addContent(makeRow("Request #",    request.getNumber(), 
-                              "Requester", userName));
+                              "Requester",   userName));
+    
+    table.addContent(makeRow("Date",        request.formatDate(request.getCreateDate()),
+                             "Lab",         labName));
 
     table.addContent(makeRow("Account",     accountName, 
-          "Lab",        labName));      
+        "Phone",        phone));      
 
     table.addContent(makeRow("", accountNumber,
-        "Phone",        phone));      
-    table.addContent(makeRow("", "",
         "Email",        email));
 
     
