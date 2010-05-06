@@ -649,10 +649,7 @@ VALUES ('AFFY', 'CHIP'),
   ('AGIL', 'CGH'),
   ('AGIL', 'CHIP'),
   ('AGIL', 'EXP'),
-  ('AGIL1', 'CGH'),
-  ('AGIL1', 'CHIP'),
   ('AGIL1', 'EXP'),
-  ('AGIL1', 'METH'),
   ('AGIL1', 'MIRNA'),
   ('AGIL1', 'WTRANSCRP'),
   ('INHOUSE', 'EXP'),
@@ -923,6 +920,10 @@ VALUES (31, 'DNASEQ'),
   (35, 'SMRNASEQ'),
   (39, 'MRNASEQ');
 
+INSERT INTO `gnomex`.`SeqLibTreatment`(`idSeqLibTreatment`, `seqLibTreatment`, `isActive`)
+VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
+  (2, 'Bisulfite treatment', 'Y'),
+  (3, 'DSN (Duplex-specific nuclease) treatment of library', 'Y');
 
 INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`)
 VALUES (1, 'Sequencing / chIP Sequencing', 'N'),
