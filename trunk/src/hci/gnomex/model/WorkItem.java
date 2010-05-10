@@ -20,6 +20,7 @@ public class WorkItem extends HibernateDetailObject {
   private Hybridization   hybridization;
   private SequenceLane    sequenceLane;
   private FlowCellChannel flowCellChannel;
+  private String          status;
   
  
   public String getCodeStepNext() {
@@ -118,5 +119,15 @@ public class WorkItem extends HibernateDetailObject {
   
   public void setFlowCellChannel(FlowCellChannel flowCellChannel) {
     this.flowCellChannel = flowCellChannel;
+  }
+
+  
+  public String getStatus() {
+    return status;
+  }
+
+  
+  public void setStatus(String status) {
+    this.status = status;
   }
 }

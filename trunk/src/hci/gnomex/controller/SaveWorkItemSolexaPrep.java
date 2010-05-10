@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
@@ -19,6 +20,7 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -95,30 +97,39 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             WorkItem workItem = (WorkItem)i.next();
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
             
-            
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
             
             // If Solexa sample prep is done or bypassed for this sample, create work items for Solexa stock prep
             // for the sample
             if (sample.getSeqPrepDate() != null || 
                 (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
-
-                // Calculate the molarity, desired vol of lib stock, and desired vol of EB
-                if (sample.getSeqPrepGelFragmentSizeFrom() != null && sample.getSeqPrepGelFragmentSizeTo() != null) {
-                   double averageFragmentSize = (sample.getSeqPrepGelFragmentSizeFrom().doubleValue() + sample.getSeqPrepGelFragmentSizeTo().doubleValue()) / 2;
-                   double molarity = MolarityCalculator.calculateConcentrationInnM(sample.getSeqPrepLibConcentration().doubleValue(), averageFragmentSize);
-                   double soluteVol = MolarityCalculator.calculateDilutionVol(molarity, 10, 100);
-                   double solventVol = 100 - soluteVol;
-                   sample.setSeqPrepStockLibVol(new BigDecimal(soluteVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));
-                   sample.setSeqPrepStockEBVol(new BigDecimal(solventVol).setScale(1, BigDecimal.ROUND_HALF_DOWN));                   
+                
+                Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
+                
+                // Create a cluster gen work item for every unprocessed seq lane of the sample.
+                for(Iterator i1 = request.getSequenceLanes().iterator(); i1.hasNext();) {
+                  SequenceLane lane = (SequenceLane)i1.next();
+                  
+                  if (lane.getIdSample().equals(sample.getIdSample()) && lane.getIdFlowCellChannel() == null) {
+                    
+                    // Make sure this lane isn't already queued up on the cluster gen workflow
+                    List otherWorkItems = (List)sess.createQuery("SELECT wi from WorkItem wi where wi.codeStepNext = '" + Step.SEQ_CLUSTER_GEN + "' and wi.idSequenceLane = " + lane.getIdSequenceLane());
+                    if (otherWorkItems.size() == 0) {
+                      WorkItem wi = new WorkItem();
+                      wi.setIdRequest(sample.getIdRequest());
+                      wi.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
+                      wi.setSequenceLane(lane);
+                      wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+                      sess.save(wi);                      
+                    }
+                    
+                  }
                 }
-              
-                // Create a work item
-                WorkItem wi = new WorkItem();
-                wi.setIdRequest(sample.getIdRequest());
-                wi.setCodeStepNext(Step.SEQ_FLOWCELL_STOCK);
-                wi.setSample(sample);
-                wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-                sess.save(wi);
                 
                 
             }

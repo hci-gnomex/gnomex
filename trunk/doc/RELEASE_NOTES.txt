@@ -7,6 +7,7 @@ GNomEx Release Notes
 - Fix bug that was causing request category name, application name to double, triple
 - Fix bug that was causing required border (yellow) to appear around microarray dropdown on microarray edit screen
 - Fix typo in instruction box on microarray edit screen, hyb setup tab
+- Add 'On hold' status to work item; persist status on work item 
  
 
 4.6.5 (Apr 28, 2010)

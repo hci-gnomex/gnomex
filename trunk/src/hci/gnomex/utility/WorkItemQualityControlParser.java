@@ -43,6 +43,13 @@ public class WorkItemQualityControlParser implements Serializable {
       Sample sample = (Sample)sess.load(Sample.class, new Integer(idSampleString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
+      if (workItemNode.getAttributeValue("qualStatus") != null && !workItemNode.getAttributeValue("qualStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("qualStatus"));
+      } else {
+        workItem.setStatus(null);
+      }
+
+      
       this.initializeSample(workItemNode, sample);
       
       sampleMap.put(workItem.getIdWorkItem(), sample);
@@ -77,6 +84,7 @@ public class WorkItemQualityControlParser implements Serializable {
       sample.setQualFailed("N");
       sample.setQualBypassed("N");
     }
+    
     
     
     if (n.getAttributeValue("qual260nmTo280nmRatio") != null && !n.getAttributeValue("qual260nmTo280nmRatio").equals("")) {

@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Step;
@@ -74,6 +75,13 @@ public class SaveWorkItemLabeling extends GNomExCommand implements Serializable 
           for(Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem)i.next();
             LabeledSample labeledSample = (LabeledSample)parser.getLabeledSample(workItem.getIdWorkItem());
+            
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
             
             // If labeling is done (or bypassed) for this labeled sample, create work items for HYB.
             if (labeledSample.getLabelingDate() != null || 

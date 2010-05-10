@@ -1158,7 +1158,6 @@ VALUES ('COMPLETE', 'Complete', 'Y'),
   ('SEQPREP', 'Illumina Library Prep', 'Y'),
   ('SEQQC', 'Illumina Quality Control', 'Y'),
   ('SEQRUN', 'Illumina Sequencing Run', 'Y'),
-  ('SEQSTOCK', 'Illumina Flow Cell Stock', 'Y'),
   ('STOP', 'Stop/Failed', 'Y');
 
 

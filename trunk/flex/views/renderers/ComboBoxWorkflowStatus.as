@@ -1,13 +1,9 @@
 package views.renderers
 {
-	import mx.collections.IList;
-	import mx.collections.XMLListCollection;
-	import mx.controls.DataGrid;
-	import mx.events.CollectionEvent;
-	import mx.events.ListEvent;
-	import mx.core.IFactory;
 	import hci.flex.renderers.RendererFactory;
-	import mx.binding.utils.BindingUtils;
+	
+	import mx.collections.XMLListCollection;
+	import mx.core.IFactory;
 
 
 	public class ComboBoxWorkflowStatus extends views.renderers.ComboBox
@@ -16,6 +12,7 @@ package views.renderers
 		public var _showCompleted:Boolean  = true;
 		public var _showTerminated:Boolean = true;
 		public var _showBypassed:Boolean   = true;
+		public var _showOnHold:Boolean     = true;
 		
 		private var statusDictionary:XML =    
 	 			<statusDictionary>
@@ -24,19 +21,23 @@ package views.renderers
                     <dictionary value="Completed"  display="Complete" />
                     <dictionary value="Terminated" display="Terminate" />
                     <dictionary value="Bypassed"   display="Bypass" />
+                    <dictionary value="On Hold"   display="On Hold" />
                 </statusDictionary>;
 		
 		public static function create(dataField:String,
 									  showInProgress:Boolean=false,
 						 			  showCompleted:Boolean=true,
 						 			  showTerminated:Boolean=true,
-						 			  showBypassed:Boolean=true):IFactory {
+						 			  showBypassed:Boolean=true,
+						 			  showOnHold:Boolean=true
+						 			  ):IFactory {
 				return RendererFactory.create(ComboBoxWorkflowStatus, 
 				{ dataField: dataField,
 				  _showInProgress: showInProgress,
 				  _showCompleted: showCompleted,
 				  _showTerminated: showTerminated,
 				  _showBypassed: showBypassed,  
+				  _showOnHold: showOnHold,
 				  updateData: true,
 				  canChangeByAdminOnly: true});			
 				  
@@ -80,6 +81,14 @@ package views.renderers
 			if (!_showTerminated) {
 				for each(status in dp) {
 					if (status.@value == "Terminated") {
+						dp.removeItemAt(dp.getItemIndex(status));
+					}
+				}
+			}	
+			
+			if (!_showOnHold) {
+				for each(status in dp) {
+					if (status.@value == "On Hold") {
 						dp.removeItemAt(dp.getItemIndex(status));
 					}
 				}

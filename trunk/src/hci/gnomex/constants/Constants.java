@@ -34,6 +34,7 @@ public class Constants {
   public static final  String             STATUS_COMPLETED                = "Completed";
   public static final  String             STATUS_TERMINATED               = "Terminated";
   public static final  String             STATUS_BYPASSED                 = "Bypassed";
+  public static final  String             STATUS_ON_HOLD                  = "On Hold";
   
   
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");

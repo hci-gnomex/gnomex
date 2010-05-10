@@ -44,6 +44,14 @@ public class WorkItemSolexaPipelineParser implements Serializable {
       FlowCellChannel channel = (FlowCellChannel)sess.load(FlowCellChannel.class, new Integer(idFlowCellChannelString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
+      if (workItemNode.getAttributeValue("pipelineStatus") != null && !workItemNode.getAttributeValue("pipelineStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("pipelineStatus"));
+      } if (workItemNode.getAttributeValue("assembleStatus") != null && !workItemNode.getAttributeValue("assembleStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("assembleStatus"));
+      } else {
+        workItem.setStatus(null);
+      }
+      
       this.initializeFlowCellChannel(sess, workItemNode, channel);
       
       flowCellChannelMap.put(workItem.getIdWorkItem(), channel);

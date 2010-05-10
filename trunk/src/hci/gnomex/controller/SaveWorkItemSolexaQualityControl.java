@@ -100,6 +100,13 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
             WorkItem workItem = (WorkItem)i.next();
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
             
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
+            
             // If QC is done or bypassed for this sample, create work items for Solexa Sequencing Prep.
             if (sample.getQualDate() != null || 
                 (sample.getQualBypassed() != null && sample.getQualBypassed().equalsIgnoreCase("Y"))) {

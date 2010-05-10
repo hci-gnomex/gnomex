@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
@@ -92,6 +93,12 @@ public class SaveWorkItemSolexaStock extends GNomExCommand implements Serializab
             WorkItem workItem = (WorkItem)i.next();
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
             
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
             
             // If Solexa sample stock prep is done or bypassed for this sample, create work items for each sequence lane of
             // sample for work item (Solexa assemble flow cell).
