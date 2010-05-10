@@ -22,3 +22,40 @@ A: If you plan on making significant changes to the user interface, I would sugg
    use Eclipse (http://www.eclipse.org/) as your development environment, 
    which offers a robust Java IDE for modifying, building, and debugging the code, 
    only without the ability to design and debug the Flex application interactively.
+   
+   
+Q: How to I make files available for download in GNomEx?
+ 
+A: To be able to download data files from GNomEx, you will need to set the 
+   following properties to point GNomEx to a file directory on your server (or mounted on your server) that is read accessible to the account your are running the Orion application server under.  
+
+   experiment_directory  - The path to the root experiment directory.  GNomEx assumes that 
+   this directory contains subdirectories for each year; the year subdirectory contains subdirectories for each request number.  Here’s an example:
+
+   /home/gnomex/experiments
+     2009
+     2010
+      6445R
+           Your next-gen sequencing read files go here or in subdirectories here.  
+           You will need to copy/move your data files here to make them 
+           available for download.
+      6446R
+  
+   flowcell_directory – The path to the root flowcell quality report directory.   
+   GNomEx assumes that this directory contains subdirectories for each year; the year 
+   subdirectoriy contains subdirectories for each flow cell number:  Here’s an example
+
+   /home/gnomex/flowcellqc
+    2009
+    2010
+        FC10
+            You flowcell quality report goes here….
+
+You can set the flowcell_directory and experiment_directory in GNomEx by clicking 
+on the dictionaries link (right corner of nav bar).  Click on the folder called 
+‘Properties’, then set each property.  (Remember to press the ‘Save’  button.)
+
+When you select the experiment, then click the ‘Download’ link at the bottom, 
+you should see the experiment downloads folder.  Check the folder and then click 
+on ‘Explore files’.  This will display all of the files sitting in the experiment directory ready for download.  
+ 
