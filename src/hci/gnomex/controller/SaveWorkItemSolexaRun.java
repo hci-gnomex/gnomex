@@ -98,6 +98,13 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
           for (Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem) i.next();
             FlowCellChannel channel = (FlowCellChannel) parser.getFlowCellChannel(workItem.getIdWorkItem());
+            
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
 
             // If first cycle failed or last cycle is done or failed, delete the work item
             // and create a new work list item for the data pipeline

@@ -34,8 +34,6 @@
         		workflowSolexaQCView.getWorkList.send();
         	} else if (solexaViews.selectedChild == workflowSolexaPrepView) {
         		workflowSolexaPrepView.getWorkList.send();
-        	} else if (solexaViews.selectedChild == workflowSolexaStockView) {
-        		workflowSolexaStockView.getWorkList.send();
         	} else if (solexaViews.selectedChild == workflowSolexaAssembleView) {
         		workflowSolexaAssembleView.initializeData();
         		workflowSolexaAssembleView.getWorkList.send();
@@ -104,10 +102,7 @@
 			   <workflow:WorkflowSolexaQCView label="Sample Quality" id="workflowSolexaQCView" icon="@Embed('../../assets/chart_curve.png')"/> 	           
 			   
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/chart_line.png')"/>
-			   
-			   <workflow:WorkflowSolexaStockView id="workflowSolexaStockView" label="Flow Cell Stock" icon="@Embed('../../assets/flask.png')">			   	
-			   </workflow:WorkflowSolexaStockView>           
-			   
+
 			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowSolexaAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
 			   
 			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="{parentApplication.iconSolexa}"/> 	           

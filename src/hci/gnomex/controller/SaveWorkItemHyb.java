@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Step;
@@ -78,6 +79,13 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
           for (Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem) i.next();
             Hybridization hyb = (Hybridization) parser.getHyb(workItem.getIdWorkItem());
+            
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
 
             // If hyb is done (or bypassed), create work items for extraction.
             if (hyb.getHybDate() != null ||

@@ -101,6 +101,13 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
             WorkItem workItem = (WorkItem) i.next();
             FlowCellChannel channel = (FlowCellChannel) parser.getFlowCellChannel(workItem.getIdWorkItem());
 
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
+            
             // If pipeline is done or has failed, delete the work item.
             if (channel.getPipelineDate() != null ||
                 (channel.getPipelineFailed() != null && channel.getPipelineFailed().equals("Y"))) {

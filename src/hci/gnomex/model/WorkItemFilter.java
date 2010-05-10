@@ -106,7 +106,7 @@ public class WorkItemFilter extends DetailObject {
     queryBuf.append("        req.idRequest, req.number, ");
     queryBuf.append("        req.createDate, req.codeRequestCategory, ");
     queryBuf.append("        req.idAppUser, req.idLab, ");
-    queryBuf.append("        wi.idWorkItem, wi.codeStepNext, ");
+    queryBuf.append("        wi.idWorkItem, wi.codeStepNext, wi.status, ");
     if (level == this.HYB_LEVEL) {
       queryBuf.append("      0, '',                ");     
       queryBuf.append("      h.idHybridization, h.number, "); 

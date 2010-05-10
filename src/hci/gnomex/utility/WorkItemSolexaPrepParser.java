@@ -43,6 +43,13 @@ public class WorkItemSolexaPrepParser implements Serializable {
       Sample sample = (Sample)sess.load(Sample.class, new Integer(idSampleString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
+      
+      if (workItemNode.getAttributeValue("seqPrepStatus") != null && !workItemNode.getAttributeValue("seqPrepStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("seqPrepStatus"));
+      } else {
+        workItem.setStatus(null);
+      }
+      
       this.initializeSample(workItemNode, sample);
       
       sampleMap.put(workItem.getIdWorkItem(), sample);

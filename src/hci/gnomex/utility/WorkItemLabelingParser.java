@@ -43,6 +43,12 @@ public class WorkItemLabelingParser implements Serializable {
       LabeledSample labeledSample = (LabeledSample)sess.load(LabeledSample.class, new Integer(idLabeledSampleString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
+      if (workItemNode.getAttributeValue("labelingStatus") != null && !workItemNode.getAttributeValue("labelingStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("labelingStatus"));
+      } else {
+        workItem.setStatus(null);
+      }
+      
       this.initializeLabeledSample(workItemNode, labeledSample);
       
       labeledSampleMap.put(workItem.getIdWorkItem(), labeledSample);

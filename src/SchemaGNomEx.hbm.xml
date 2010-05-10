@@ -533,6 +533,7 @@
 		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" update="false" insert="false"/>
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="createDate" column="createDate" type="date"/>
+		<property name="status" column="status" type="string"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none"/>
 		<many-to-one name="labeledSample" column="idLabeledSample" class="hci.gnomex.model.LabeledSample" cascade="none"/>
 		<many-to-one name="hybridization" column="idHybridization" class="hci.gnomex.model.Hybridization" cascade="none"/>

@@ -48,6 +48,13 @@ public class WorkItemHybParser implements Serializable {
       Hybridization hybridization = (Hybridization)sess.load(Hybridization.class, new Integer(idLabeledSampleString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
+      if (workItemNode.getAttributeValue("hybStatus") != null && !workItemNode.getAttributeValue("hybStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("hybStatus"));
+      } else if (workItemNode.getAttributeValue("extractionStatus") != null && !workItemNode.getAttributeValue("extractionStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("extractionStatus"));
+      } else {
+        workItem.setStatus(null);
+      }
       
       this.initializeHybridization(sess, workItemNode, hybridization);
       

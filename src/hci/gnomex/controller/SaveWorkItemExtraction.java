@@ -96,6 +96,13 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
           for (Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem) i.next();
             Hybridization hyb = (Hybridization) parser.getHyb(workItem.getIdWorkItem());
+            
+            // No further processing required for On Hold or In Progress work items
+            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+              continue;
+            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
+              continue;
+            }
 
             // If extraction is done or bypassed or failed, delete the work item
             if (hyb.getExtractionDate() != null ||

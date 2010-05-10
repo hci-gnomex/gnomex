@@ -1131,6 +1131,22 @@ CREATE TABLE `gnomex`.`RequestHybridization` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`RequestSeqLibTreatment`;
+CREATE TABLE `gnomex`.`RequestSeqLibTreatment` (
+  `idRequest` INT(10) NOT NULL,
+  `idSeqLibTreatment` INT(10) NOT NULL,
+  PRIMARY KEY (`idRequest`, `idSeqLibTreatment`),
+  CONSTRAINT `FK_RequestSeqLibTreatment_SeqLibTreatment` FOREIGN KEY `FK_RequestSeqLibTreatment_SeqLibTreatment` (`idSeqLibTreatment`)
+    REFERENCES `gnomex`.`SeqLibTreatment` (`idSeqLibTreatment`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestSeqLibTreatment_Request` FOREIGN KEY `FK_RequestSeqLibTreatment_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`Sample`;
 CREATE TABLE `gnomex`.`Sample` (
   `idSample` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1388,6 +1404,15 @@ CREATE TABLE `gnomex`.`SeqLibProtocol` (
   `url` VARCHAR(500) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idSeqLibProtocol`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SeqLibTreatment`;
+CREATE TABLE `gnomex`.`SeqLibTreatment` (
+  `idSeqLibTreatment` INT(10) NOT NULL AUTO_INCREMENT,
+  `seqLibTreatment` VARCHAR(200) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idSeqLibTreatment`)
 )
 ENGINE = INNODB;
 
@@ -1700,6 +1725,7 @@ CREATE TABLE `gnomex`.`WorkItem` (
   `createDate` DATETIME NULL,
   `idSequenceLane` INT(10) NULL,
   `idFlowCellChannel` INT(10) NULL,
+  `status` VARCHAR(50) NULL,
   PRIMARY KEY (`idWorkItem`),
   CONSTRAINT `FK_WorkItem_Sample` FOREIGN KEY `FK_WorkItem_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
