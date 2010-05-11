@@ -108,6 +108,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           Object[] row = (Object[]) i1.next();
           
           String requestNumber    = (String) row[1];
+          String status           = (String) row[8];
           String sampleNumber     = (String) row[10];
           String itemNumber       = (String) row[12];
           
@@ -134,7 +135,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
-          } else {
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN)) {
+            // Sort the 'On hold' items so they are at the bottom of the list
+            // for cluster gen
+            key = (status != null && !status.equals("") ? status : " ") + "," + requestNumber + "," + itemNumber;
+          }else {
             key = requestNumber + "," + itemNumber;
           }
           
@@ -449,9 +454,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               firstCycleStatus = Constants.STATUS_TERMINATED;
             } else if (n.getAttributeValue("firstCycleStartDate") != "") {
               firstCycleStatus = Constants.STATUS_IN_PROGRESS;
-            } else {
-              firstCycleStatus = row[8] == null ? "" :  (String)row[8];
-            }
+            } 
             
             
             n.setAttribute("firstCycleStatus", firstCycleStatus);
@@ -461,7 +464,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               lastCycleStatus = Constants.STATUS_COMPLETED;
             } else if (n.getAttributeValue("lastCycleFailed").equals("Y")) {
               lastCycleStatus = Constants.STATUS_TERMINATED;
-            }   
+            }  else {
+              lastCycleStatus = row[8] == null ? "" :  (String)row[8];
+            }
             n.setAttribute("lastCycleStatus", lastCycleStatus);
           
          
@@ -624,11 +629,13 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
       
       
-      String reqNumber1    = tokens1[0];
-      String itemNumber1 = tokens1[1];
+      String status1       = tokens1[0];
+      String reqNumber1    = tokens1[1];
+      String itemNumber1   = tokens1[2];
       
-      String reqNumber2    = tokens2[0];
-      String itemNumber2 = tokens2[1];
+      String status2       = tokens2[0];
+      String reqNumber2    = tokens2[1];
+      String itemNumber2   = tokens2[2];
 
      
       
@@ -662,14 +669,18 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }
 
 
-      if (reqNumber1.equals(reqNumber2)) {
-        if (sampleNumber1.equals(sampleNumber2)) {
-          return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+      if (status1.equals(status2)) {
+        if (reqNumber1.equals(reqNumber2)) {
+          if (sampleNumber1.equals(sampleNumber2)) {
+            return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+          } else {
+            return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
+          }              
         } else {
-          return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
-        }              
+          return reqNumber1.compareTo(reqNumber2);
+        }        
       } else {
-        return reqNumber1.compareTo(reqNumber2);
+        return status1.compareTo(status2);
       }
     }
   }  
