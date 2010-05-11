@@ -8,7 +8,7 @@ package views.renderers
 
 	public class ComboBoxWorkflowStatus extends views.renderers.ComboBox
 	{
-		public var _showInProgress:Boolean = false;
+		public var _showInProgress:Boolean = true;
 		public var _showCompleted:Boolean  = true;
 		public var _showTerminated:Boolean = true;
 		public var _showBypassed:Boolean   = true;
@@ -19,13 +19,72 @@ package views.renderers
                     <dictionary value="" display="" />
                     <dictionary value="In Progress"  display="In Progress" />
                     <dictionary value="Completed"  display="Complete" />
+                    <dictionary value="On Hold"   display="On Hold" />
                     <dictionary value="Terminated" display="Terminate" />
                     <dictionary value="Bypassed"   display="Bypass" />
-                    <dictionary value="On Hold"   display="On Hold" />
                 </statusDictionary>;
 		
+		
+		
+        override protected function initializationComplete():void
+        {   
+        	super.initializationComplete();
+        	setDataProvider();
+        }
+    
+	    protected function setDataProvider():void {
+			var statusList:XMLListCollection = new XMLListCollection(statusDictionary.dictionary);
+			
+			var status:Object;
+			if (!_showInProgress) {
+				for each(status in statusList) {
+					if (status.@value == "In Progress") {
+						statusList.removeItemAt(statusList.getItemIndex(status));
+						break;
+					}
+				}
+			}
+
+			if (!_showBypassed) {
+				for each(status in statusList) {
+					if (status.@value == "Bypassed") {
+						statusList.removeItemAt(statusList.getItemIndex(status));
+						break;
+					}
+				}
+			}
+
+			if (!_showCompleted) {
+				for each(status in statusList) {
+					if (status.@value == "Completed") {
+						statusList.removeItemAt(statusList.getItemIndex(status));
+						break;
+					}
+				}
+			}	
+						
+			if (!_showTerminated) {
+				for each(status in statusList) {
+					if (status.@value == "Terminated") {
+						statusList.removeItemAt(statusList.getItemIndex(status));
+						break;
+					}
+				}
+			}	
+			
+			if (!_showOnHold) {
+				for each(status in statusList) {
+					if (status.@value == "On Hold") {
+						statusList.removeItemAt(statusList.getItemIndex(status));
+						break;
+					}
+				}
+			}			
+			
+			dataProvider = statusList.copy();
+        }
 		public static function create(dataField:String,
-									  showInProgress:Boolean=false,
+									  showInProgress:Boolean=true,
 						 			  showCompleted:Boolean=true,
 						 			  showTerminated:Boolean=true,
 						 			  showBypassed:Boolean=true,
@@ -43,56 +102,8 @@ package views.renderers
 				  
 		}	
 		
-        override protected function initializationComplete():void
-        {   
-        	super.initializationComplete();
-        	setDataProvider();
-        }
-    
-	    protected function setDataProvider():void {
-			dataProvider = new XMLListCollection(statusDictionary.dictionary);
+		
 			
-			var dp:XMLListCollection = XMLListCollection(dataProvider);
-			var status:Object;
-			if (!_showInProgress) {
-				for each(status in dp) {
-					if (status.@value == "In Progress") {
-						dp.removeItemAt(dp.getItemIndex(status));
-					}
-				}
-			}
-
-			if (!_showBypassed) {
-				for each(status in dp) {
-					if (status.@value == "Bypassed") {
-						dp.removeItemAt(dp.getItemIndex(status));
-					}
-				}
-			}
-
-			if (!_showCompleted) {
-				for each(status in dp) {
-					if (status.@value == "Completed") {
-						dp.removeItemAt(dp.getItemIndex(status));
-					}
-				}
-			}	
-						
-			if (!_showTerminated) {
-				for each(status in dp) {
-					if (status.@value == "Terminated") {
-						dp.removeItemAt(dp.getItemIndex(status));
-					}
-				}
-			}	
-			
-			if (!_showOnHold) {
-				for each(status in dp) {
-					if (status.@value == "On Hold") {
-						dp.removeItemAt(dp.getItemIndex(status));
-					}
-				}
-			}				
-        }
 	}
 }
+
