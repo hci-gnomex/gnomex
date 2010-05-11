@@ -21,59 +21,84 @@ import org.jdom.Element;
 
 public class WorkItemSolexaAssembleParser implements Serializable {
   
-  private Document   doc;
+  private Document   docFlowCellChannels;
+  private Document   docDirtyWorkItem;
   private TreeMap<String, List<ChannelContent>> channelContentMap = new TreeMap<String, List<ChannelContent>>();
   private TreeMap<String, String>               channelConcentrationMap = new TreeMap<String, String>();
   private TreeMap<String, String>               controlMap = new TreeMap<String, String>();
+  private ArrayList<WorkItem>                   dirtyWorkItemList = new ArrayList<WorkItem>();
   
   
-  public WorkItemSolexaAssembleParser(Document doc) {
-    this.doc = doc;
+  public WorkItemSolexaAssembleParser(Document docFlowCellChannels, Document docDirtyWorkItem) {
+    this.docFlowCellChannels = docFlowCellChannels;
+    this.docDirtyWorkItem = docDirtyWorkItem;
  
   }
   
   public void parse(Session sess) throws Exception{
     
-    Element workItemListNode = this.doc.getRootElement();
-    
-    
-    for(Iterator<?> i = workItemListNode.getChildren().iterator(); i.hasNext();) {
-      Element node = (Element)i.next();
-      String channelNumber        = node.getAttributeValue("channelNumber");
-      ChannelContent cc = new ChannelContent();
-      String sampleConcentration  = node.getAttributeValue("sampleConcentrationpM");
-      String isControl  = node.getAttributeValue("isControl");
-      String isEditable = node.getAttributeValue("editable");
+    // Parse the contents for flow cell channels
+    if (docFlowCellChannels != null) {
+      Element workItemListNode = this.docFlowCellChannels.getRootElement();
+      
+      for(Iterator<?> i = workItemListNode.getChildren().iterator(); i.hasNext();) {
+        Element node = (Element)i.next();
+        String channelNumber        = node.getAttributeValue("channelNumber");
+        ChannelContent cc = new ChannelContent();
+        String sampleConcentration  = node.getAttributeValue("sampleConcentrationpM");
+        String isControl  = node.getAttributeValue("isControl");
+        String isEditable = node.getAttributeValue("editable");
+            
+        if (node.getName().equals("WorkItem")) {
+          String idSequenceLaneString = node.getAttributeValue("idSequenceLane");
+          String idWorkItemString     = node.getAttributeValue("idWorkItem");
           
-      if (node.getName().equals("WorkItem")) {
-        String idSequenceLaneString = node.getAttributeValue("idSequenceLane");
-        String idWorkItemString     = node.getAttributeValue("idWorkItem");
-        
-        SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(idSequenceLaneString));
-        WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
-        
-        cc.setSequenceLane(lane);
-        cc.setWorkItem(workItem);
-      } else {
-        String idSequencingControlString = node.getAttributeValue("idSequencingControl");
-        SequencingControl control = (SequencingControl)sess.load(SequencingControl.class, new Integer(idSequencingControlString));
-        cc.setSequenceControl(control);
-      }
-      
-      List<ChannelContent> channelContents = (List<ChannelContent>)channelContentMap.get(channelNumber);
-      if (channelContents == null) {
-        channelContents = new ArrayList<ChannelContent>();
-      }
-      channelContents.add(cc);
-      channelContentMap.put(channelNumber, channelContents);
-      
-      if (isEditable != null && isEditable.equals("true")) {
-        if (sampleConcentration != null && !sampleConcentration.equals("")) {
-          channelConcentrationMap.put(channelNumber, sampleConcentration);        
+          SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(idSequenceLaneString));
+          WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
+          
+          cc.setSequenceLane(lane);
+          cc.setWorkItem(workItem);
+        } else {
+          String idSequencingControlString = node.getAttributeValue("idSequencingControl");
+          SequencingControl control = (SequencingControl)sess.load(SequencingControl.class, new Integer(idSequencingControlString));
+          cc.setSequenceControl(control);
         }
-
-        controlMap.put(channelNumber, isControl != null && isControl.equals("true") ? "Y" : "N");
         
+        List<ChannelContent> channelContents = (List<ChannelContent>)channelContentMap.get(channelNumber);
+        if (channelContents == null) {
+          channelContents = new ArrayList<ChannelContent>();
+        }
+        channelContents.add(cc);
+        channelContentMap.put(channelNumber, channelContents);
+        
+        if (isEditable != null && isEditable.equals("true")) {
+          if (sampleConcentration != null && !sampleConcentration.equals("")) {
+            channelConcentrationMap.put(channelNumber, sampleConcentration);        
+          }
+
+          controlMap.put(channelNumber, isControl != null && isControl.equals("true") ? "Y" : "N");
+          
+        }
+        
+      }
+      
+    }
+    
+    // Parse the work items that have a changed status
+    // Parse the contents for flow cell channels
+    if (docDirtyWorkItem != null) {
+      Element dirtyWorkItemListNode = this.docDirtyWorkItem.getRootElement();
+      
+      for(Iterator<?> i = dirtyWorkItemListNode.getChildren().iterator(); i.hasNext();) {
+        Element node = (Element)i.next();
+        String idWorkItemString     = node.getAttributeValue("idWorkItem");
+        WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
+        if (node.getAttributeValue("assembleStatus") != null && !node.getAttributeValue("assembleStatus").equals("")) {
+          workItem.setStatus(node.getAttributeValue("assembleStatus"));
+        } else {
+          workItem.setStatus(null);
+        }
+        dirtyWorkItemList.add(workItem);
       }
       
     }
@@ -83,15 +108,29 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   
 
 
+  public List<WorkItem> getDirtyWorkItemList() {
+    return dirtyWorkItemList;
+  }
+
+  
   
   
   public void resetIsDirty() {
-    Element workItemListNode = this.doc.getRootElement();
-    
-    for(Iterator<?> i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
-      Element workItemNode = (Element)i.next();
-      workItemNode.setAttribute("isDirty", "N");
+    if (docFlowCellChannels != null) {
+      Element workItemListNode = this.docFlowCellChannels.getRootElement();      
+      for(Iterator<?> i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
+        Element workItemNode = (Element)i.next();
+        workItemNode.setAttribute("isDirty", "N");
+      }
     }
+    if (this.docDirtyWorkItem != null) {
+      Element workItemListNode = this.docDirtyWorkItem.getRootElement();      
+      for(Iterator<?> i = workItemListNode.getChildren("WorkItem").iterator(); i.hasNext();) {
+        Element workItemNode = (Element)i.next();
+        workItemNode.setAttribute("isDirty", "N");
+      }
+    }
+    
   }
 
   
