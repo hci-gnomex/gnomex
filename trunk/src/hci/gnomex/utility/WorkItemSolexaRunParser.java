@@ -44,8 +44,8 @@ public class WorkItemSolexaRunParser implements Serializable {
       FlowCellChannel channel = (FlowCellChannel)sess.load(FlowCellChannel.class, new Integer(idFlowCellChannelString));
       WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
       
-      if (workItemNode.getAttributeValue("firstCycleStatus") != null && !workItemNode.getAttributeValue("firstCycleStatus").equals("")) {
-        workItem.setStatus(workItemNode.getAttributeValue("firstCycleStatus"));
+      if (workItemNode.getAttributeValue("lastCycleStatus") != null && !workItemNode.getAttributeValue("lastCycleStatus").equals("")) {
+        workItem.setStatus(workItemNode.getAttributeValue("lastCycleStatus"));
       } else {
         workItem.setStatus(null);
       }
