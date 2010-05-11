@@ -47,9 +47,12 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   
   private String                       flowCellBarcode;
   private String                       flowCellDateStr;
-  private String                       workItemXMLString;
+  private String                       workItemXMLString = null;
   private Document                     workItemDoc;
+  private String                       dirtyWorkItemXMLString = null;
+  private Document                     dirtyWorkItemDoc;
   private WorkItemSolexaAssembleParser parser;
+
   
   private String                       appURL;
   
@@ -75,11 +78,31 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
       try {
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
-        parser = new WorkItemSolexaAssembleParser(workItemDoc);
       } catch (JDOMException je ) {
         log.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
+    }
+    
+    
+    if (request.getParameter("dirtyWorkItemXMLString") != null && !request.getParameter("dirtyWorkItemXMLString").equals("")) {
+      dirtyWorkItemXMLString = "<WorkItemList>" + request.getParameter("dirtyWorkItemXMLString") + "</WorkItemList>";
+      StringReader dirtyReader = new StringReader(dirtyWorkItemXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        dirtyWorkItemDoc = sax.build(dirtyReader);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse dirtyWorkItemXMLString", je );
+        this.addInvalidField( "DirtyWorkItemXMLString", "Invalid work item xml");
+      }
+
+    }
+    
+    try {
+      parser = new WorkItemSolexaAssembleParser(workItemDoc, dirtyWorkItemDoc);      
+    } catch (Exception e) {
+      log.error( "Error occurred in WorkItemSolexaAssemberParser", e );
+      this.addInvalidField( "ParserError", "Error occurred in WorkItemSolexaAssemberParser");      
     }
     
     try {
@@ -93,137 +116,157 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   }
 
   public Command execute() throws RollBackCommandException {
+    Session sess = null;
+    DictionaryHelper dh;
+    FlowCell flowCell = null;
     
-    if (workItemXMLString != null) {
+    if (workItemXMLString != null || this.dirtyWorkItemXMLString != null) {
       try {
-        Session sess = HibernateSession.currentSession(this.getUsername());
-        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-       
+        sess = HibernateSession.currentSession(this.getUsername());
+        dh = DictionaryHelper.getInstance(sess);
+        parser.parse(sess);
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
-          parser.parse(sess);
           
-          // Create a flow cell
-          FlowCell flowCell = new FlowCell();
-          flowCell.setBarcode(flowCellBarcode);
-          sess.save(flowCell);
-          sess.flush();
-          
-          flowCell.setNumber("FC" + flowCell.getIdFlowCell());
-          
-          
-          java.sql.Date flowCellDate = null;
-          if (flowCellDateStr != null) {
-            flowCellDate = this.parseDate(flowCellDateStr);
-          } else {
-            flowCellDate = new java.sql.Date(System.currentTimeMillis());
-          }
-          flowCell.setCreateDate(flowCellDate);
-          
-          TreeSet channels = new TreeSet(new FlowCellChannelComparator());
-          int laneNumber = 1;
-          HashMap requestNumbers = new HashMap();
-          HashMap idOrganisms = new HashMap();
-          int maxCycles = 0;
-          Integer idNumberSequencingCycles = null;
-          for(Iterator i = parser.getChannelNumbers().iterator(); i.hasNext();) {
-            String channelNumber = (String)i.next();
+          // Create flow cell
+          if (this.workItemXMLString != null) {
             
-            
-            FlowCellChannel channel = new FlowCellChannel();
-            channel.setNumber(new Integer(laneNumber));
-            channel.setIdFlowCell(flowCell.getIdFlowCell());
-            sess.save(channel);
-            sess.flush();
-
-            channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
-            channel.setIsControl(parser.getIsControl(channelNumber));
-            
-            List channelContents = parser.getChannelContents(channelNumber);
-            for (Iterator i1 = channelContents.iterator(); i1.hasNext();) {
-              WorkItemSolexaAssembleParser.ChannelContent content = (WorkItemSolexaAssembleParser.ChannelContent)i1.next();
-              
-              if (content.getSequenceLane() != null) {
-                SequenceLane lane = content.getSequenceLane();
-
-                lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());                
-                flowCell.setIdSeqRunType(lane.getIdSeqRunType());
-                
-                Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
-                if (idNumberSequencingCycles == null ||
-                    seqCycles.intValue() > maxCycles ) {
-                  idNumberSequencingCycles = lane.getIdNumberSequencingCycles();
-                  maxCycles = seqCycles.intValue();
-                }
-
-                WorkItem workItem = content.getWorkItem();
-
-                // Keep track of request numbers, organisms on flow cells
-                requestNumbers.put(workItem.getRequest().getNumber(), null);
-                idOrganisms.put(lane.getSample().getIdOrganism(), null);
-                
-                
-                // Delete  work item
-                sess.delete(workItem);
-              } else if (content.getSequenceControl() != null) {
-                channel.setIdSequencingControl(content.getSequenceControl().getIdSequencingControl());              
-              }
-            }
-            
-            
-            // Create a work item for each channel
-            WorkItem wi = new WorkItem();
-            wi.setFlowCellChannel(channel);
-            wi.setCodeStepNext(Step.SEQ_RUN);
-            wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-            sess.save(wi);
-
+            // Create a flow cell
+            flowCell = new FlowCell();
+            flowCell.setBarcode(flowCellBarcode);
+            sess.save(flowCell);
             sess.flush();
             
+            flowCell.setNumber("FC" + flowCell.getIdFlowCell());
             
-            channels.add(channel);
-
             
-            laneNumber++;
-                        
-          }
-          flowCell.setIdNumberSequencingCycles(idNumberSequencingCycles);
-          flowCell.setFlowCellChannels(channels);
-          
-          String notes = "";
-          for(Iterator i = requestNumbers.keySet().iterator(); i.hasNext();) {
-            notes += i.next();
-            if (i.hasNext()) {
-              notes += ", ";
+            java.sql.Date flowCellDate = null;
+            if (flowCellDateStr != null) {
+              flowCellDate = this.parseDate(flowCellDateStr);
             } else {
-              notes += " ";
+              flowCellDate = new java.sql.Date(System.currentTimeMillis());
             }
-          }
-          if (idOrganisms.size() > 0) {
-            notes += "(";
-            for(Iterator i = idOrganisms.keySet().iterator(); i.hasNext();) {
-              notes += dh.getOrganism((Integer)i.next());
-              if (i.hasNext()) {
-                notes += "/";
+            flowCell.setCreateDate(flowCellDate);
+            
+            TreeSet channels = new TreeSet(new FlowCellChannelComparator());
+            int laneNumber = 1;
+            HashMap requestNumbers = new HashMap();
+            HashMap idOrganisms = new HashMap();
+            int maxCycles = 0;
+            Integer idNumberSequencingCycles = null;
+            for(Iterator i = parser.getChannelNumbers().iterator(); i.hasNext();) {
+              String channelNumber = (String)i.next();
+              
+              
+              FlowCellChannel channel = new FlowCellChannel();
+              channel.setNumber(new Integer(laneNumber));
+              channel.setIdFlowCell(flowCell.getIdFlowCell());
+              sess.save(channel);
+              sess.flush();
+
+              channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
+              channel.setIsControl(parser.getIsControl(channelNumber));
+              
+              List channelContents = parser.getChannelContents(channelNumber);
+              for (Iterator i1 = channelContents.iterator(); i1.hasNext();) {
+                WorkItemSolexaAssembleParser.ChannelContent content = (WorkItemSolexaAssembleParser.ChannelContent)i1.next();
+                
+                if (content.getSequenceLane() != null) {
+                  SequenceLane lane = content.getSequenceLane();
+
+                  lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());                
+                  flowCell.setIdSeqRunType(lane.getIdSeqRunType());
+                  
+                  Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
+                  if (idNumberSequencingCycles == null ||
+                      seqCycles.intValue() > maxCycles ) {
+                    idNumberSequencingCycles = lane.getIdNumberSequencingCycles();
+                    maxCycles = seqCycles.intValue();
+                  }
+
+                  WorkItem workItem = content.getWorkItem();
+
+                  // Keep track of request numbers, organisms on flow cells
+                  requestNumbers.put(workItem.getRequest().getNumber(), null);
+                  idOrganisms.put(lane.getSample().getIdOrganism(), null);
+                  
+                  
+                  // Delete  work item
+                  sess.delete(workItem);
+                } else if (content.getSequenceControl() != null) {
+                  channel.setIdSequencingControl(content.getSequenceControl().getIdSequencingControl());              
+                }
               }
-            }           
-            notes += ")";
+              
+              
+              // Create a work item for each channel
+              WorkItem wi = new WorkItem();
+              wi.setFlowCellChannel(channel);
+              wi.setCodeStepNext(Step.SEQ_RUN);
+              wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+              sess.save(wi);
+
+              sess.flush();
+              
+              
+              channels.add(channel);
+
+              
+              laneNumber++;
+                          
+            }
+            flowCell.setIdNumberSequencingCycles(idNumberSequencingCycles);
+            flowCell.setFlowCellChannels(channels);
+            
+            String notes = "";
+            for(Iterator i = requestNumbers.keySet().iterator(); i.hasNext();) {
+              notes += i.next();
+              if (i.hasNext()) {
+                notes += ", ";
+              } else {
+                notes += " ";
+              }
+            }
+            if (idOrganisms.size() > 0) {
+              notes += "(";
+              for(Iterator i = idOrganisms.keySet().iterator(); i.hasNext();) {
+                notes += dh.getOrganism((Integer)i.next());
+                if (i.hasNext()) {
+                  notes += "/";
+                }
+              }           
+              notes += ")";
+            }
+            if (!notes.equals("")) {
+              flowCell.setNotes(notes);
+            }
+            
+            sess.save(flowCell);
+            
+            
+            sess.flush();
+            
+            this.createFlowCellDirectory(flowCell, dh.getFlowCellDirectory(serverName));
+            
+            
           }
-          if (!notes.equals("")) {
-            flowCell.setNotes(notes);
+          
+          if (this.dirtyWorkItemXMLString != null) {
+            for(Iterator i = this.parser.getDirtyWorkItemList().iterator(); i.hasNext();) {
+              WorkItem wi = (WorkItem)i.next();
+              sess.save(wi);
+            }
+            sess.flush();
           }
-          
-          sess.save(flowCell);
-          
-          
-          sess.flush();
-          
-          this.createFlowCellDirectory(flowCell, dh.getFlowCellDirectory(serverName));
-          
+
           parser.resetIsDirty();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
-          this.xmlResult = "<SUCCESS flowCellNumber='" + flowCell.getNumber() + "'/>";
+          if (flowCell != null) {
+            this.xmlResult = "<SUCCESS flowCellNumber='" + flowCell.getNumber() + "'/>";            
+          } else {
+            this.xmlResult = "<SUCCESS/>";            
+          }
           
           setResponsePage(this.SUCCESS_JSP);          
         } else {

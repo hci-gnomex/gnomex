@@ -62,7 +62,8 @@
     </mx:HTTPService >    
 
     <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
-    <mx:XMLListCollection id="dirtyWorkList" />
+    <mx:XMLListCollection id="dirtyChannelWorkList" />
+    <mx:XMLListCollection id="dirtyStatusWorkList" />
     <mx:XMLListCollection id="nextWorkList" source="{getNextWorkList.lastResult.WorkItem}"/>
     
 <mx:Script>
@@ -107,7 +108,7 @@
 			}
 		}
 		private function refreshWorkList():void {
-			dirtyWorkList.removeAll();
+			dirtyChannelWorkList.removeAll();
         	dirty.resetDirty();
         	getWorkList.send();
         	getNextWorkList.send();
@@ -115,7 +116,7 @@
 
     	private function getAssembleLaneRowNumber(item:Object,col:int):String
     	{
-       		var x:int = dirtyWorkList.getItemIndex(item) + 1;
+       		var x:int = dirtyChannelWorkList.getItemIndex(item) + 1;
        		return String(x);
     	} 
     	private function getPendingLaneRowNumber(item:Object,col:int):String
@@ -126,57 +127,78 @@
     	
     	private function save():void {
     		// Prevent save if max flow cell channels exceeded.
-    		if (dirtyWorkList.length > 0) {
-	    		var lastWorkItem:Object = dirtyWorkList.getItemAt(dirtyWorkList.length - 1);
+    		if (dirtyChannelWorkList.length > 0) {
+	    		var lastWorkItem:Object = dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1);
 	    		if (lastWorkItem.@channelNumber > 8) {
 					Alert.show("Max 8 flow cell channels loaded.  Please remove extra lanes");
 					return;				
 				}	    			
     		}
-    		// Prevent save if flow cell barcode is not entered
-    		if (this.flowCellBarcode.text == "") {
-    			this.flowCellBarcode.setFocus();
-    			Alert.show("Please enter the flow cell barcode");
-    			return;
+    		// Prevent save if flow cell barcode is not entered, but items
+    		// have been dragged over to flowcell
+    		if (dirtyChannelWorkList.length > 0) {
+	    		if (this.flowCellBarcode.text == "") {
+    				this.flowCellBarcode.setFocus();
+    				Alert.show("Please enter the flow cell barcode");
+    				return;
+    			}
     		}
-    		// Prevent save if flow cell date is not entered
-    		if (this.flowCellDate.text == "") {
-    			this.flowCellDate.setFocus();
-    			Alert.show("Please enter the cluster gen date");
-    			return;
+    		// Prevent save if flow cell date is not entered, but
+    		// items have been draddged over to flowcell
+    		if (dirtyChannelWorkList.length > 0) {
+	    		if (this.flowCellDate.text == "") {
+    				this.flowCellDate.setFocus();
+    				Alert.show("Please enter the cluster gen date");
+    				return;
+    			}    			
     		}
     		
     		// Prevent save if sample concentration not entered on all
     		// flow cell channels (other than sequencing control).
-	       	for each (var item:Object in dirtyWorkList) {
-	       		if (item.name() == "WorkItem") {
-	       			if (item.@channelNumberDisplay != '' && item.@sampleConcentrationpM == '') {
-	       				Alert.show("Please enter sample concentration for highlighted flow cell channels");
-	       				return;
-	       			}
-	       		}
-	       	}
+    		if (dirtyChannelWorkList.length > 0) {
+		       	for each (var item:Object in dirtyChannelWorkList) {
+		       		if (item.name() == "WorkItem") {
+		       			if (item.@channelNumberDisplay != '' && item.@sampleConcentrationpM == '') {
+		       				Alert.show("Please enter sample concentration for highlighted flow cell channels");
+		       				return;
+		       			}
+		       		}
+		       	}
+    		}
 	       	
     		
     		warningMessage = "";
     		isValid = true;
-    		validateNumberOfLanes();
-    		validateSequencingControl();
-    		validateSeqRunType();
-    		validateOrganism();
-	    	validateNumberSequencingCycles();
+    		if (dirtyChannelWorkList.length > 0) {
+	    		validateNumberOfLanes();
+    			validateSequencingControl();
+    			validateSeqRunType();
+    			validateOrganism();
+	    		validateNumberSequencingCycles();
+    		}
     		if (isValid) {
-    			saveWorkItems();
+	    		saveWorkItems();				    
     		} else {
     			promptForWarning();
     		}
     	}
     	
     	private function saveWorkItems():void {
+    		var dirtyStatusWorkItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
+    		if ( this.dirtyChannelWorkList.length == 0 && dirtyStatusWorkItems.length == 0) {
+    			Alert.show("No changes have been made.");
+    			return;
+    		}
+    		
     		var params:Object = new Object();
     		params.flowCellBarcode = this.flowCellBarcode.text;
     		params.flowCellDate = this.flowCellDate.text;
-    		params.workItemXMLString = dirtyWorkList.toXMLString();
+    		params.workItemXMLString = dirtyChannelWorkList.toXMLString();
+    		
+    		// These are the work items still on the cluster
+    		// gen work list that have a new status 
+    		params.dirtyWorkItemXMLString = dirtyStatusWorkItems.toXMLString();     	
+    		
         	saveWorkItem.send(params);
     	}	
 
@@ -195,11 +217,13 @@
 
         private function onSaveWorkItem(event:ResultEvent):void {
         	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
-        		Alert.show("Flow Cell " + saveWorkItem.lastResult.@flowCellNumber + " has been created.");
+        		if (saveWorkItem.lastResult.hasOwnProperty("@flowCellNumber") && saveWorkItem.lastResult.@flowCellNumber != "") {
+	        		Alert.show("Flow Cell " + saveWorkItem.lastResult.@flowCellNumber + " has been created.");    			
+        		}
         		dirty.resetDirty();
         		this.getWorkList.send();
         		this.getNextWorkList.send();
-        		dirtyWorkList.removeAll();
+        		dirtyChannelWorkList.removeAll();
         		this.flowCellBarcode.text = "";
 
         	} else {
@@ -214,7 +238,7 @@
         	}        	
         }     
     	private function validateNumberOfLanes():void {
-    		if (dirtyWorkList.length < 8) {
+    		if (dirtyChannelWorkList.length < 8) {
     			warningMessage = "Not all 8 channels are populated.\n\n";
     			isValid = false;
     		}
@@ -225,7 +249,7 @@
     		var item:Object;
     		var controlCount:int = 0;
 	       // Make sure at least one sequencing control specified
-	       for each (theItem in dirtyWorkList) {
+	       for each (theItem in dirtyChannelWorkList) {
 	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
 	       			controlCount++;
 	       		}
@@ -240,11 +264,11 @@
     		var item:Object;
     		var invalidCount:int = 0;
 	       //Warn if different flow cell type 
-	       for each (theItem in dirtyWorkList) {
+	       for each (theItem in dirtyChannelWorkList) {
 	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
 	       			continue;
 	       		}
-	       		for each (item in dirtyWorkList) {
+	       		for each (item in dirtyChannelWorkList) {
 	       			if (item.hasOwnProperty("@idSequencingControl")) {
 	       				continue;
 	       			}
@@ -267,11 +291,11 @@
     		var item:Object;
     		var invalidCount:int = 0;
 	       //Warn if different organism or number of seq cycles
-	       for each (theItem in dirtyWorkList) {
+	       for each (theItem in dirtyChannelWorkList) {
 	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
 	       			continue;
 	       		}
-	       		for each (item in dirtyWorkList) {
+	       		for each (item in dirtyChannelWorkList) {
 	       			if (item.hasOwnProperty("@idSequencingControl")) {
 	       				continue;
 	       			}
@@ -294,11 +318,11 @@
     		var theItem:Object;
     		var item:Object;
     		var invalidCount:int = 0;
-	       for each (theItem in dirtyWorkList) {
+	       for each (theItem in dirtyChannelWorkList) {
 	       		if (theItem.hasOwnProperty("@idSequencingControl")) {
 	       			continue;
 	       		}
-	       		for each (item in dirtyWorkList) {
+	       		for each (item in dirtyChannelWorkList) {
 	       			if (item.hasOwnProperty("@idSequencingControl")) {
 	       			continue;
 	       			}
@@ -324,32 +348,32 @@
     		}
 
     		var item:Object = this.assembleLanesGrid.selectedItem;
-    		var prevItem:Object  = dirtyWorkList.getItemAt(pos - 1);
+    		var prevItem:Object  = dirtyChannelWorkList.getItemAt(pos - 1);
     		
-    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));
-    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(prevItem));
+    		dirtyChannelWorkList.removeItemAt(dirtyChannelWorkList.getItemIndex(item));
+    		dirtyChannelWorkList.removeItemAt(dirtyChannelWorkList.getItemIndex(prevItem));
     		
     		pos--;
-    		dirtyWorkList.addItemAt(item, pos);
-    		dirtyWorkList.addItemAt(prevItem, pos + 1);
+    		dirtyChannelWorkList.addItemAt(item, pos);
+    		dirtyChannelWorkList.addItemAt(prevItem, pos + 1);
     		
     		assembleLanesGrid.selectedItem = item;
     		
     	}
     	private function moveAssembleLaneDown():void {
     		var pos:int = this.assembleLanesGrid.selectedIndex;
-    		if (pos == (dirtyWorkList.length - 1)) {
+    		if (pos == (dirtyChannelWorkList.length - 1)) {
     			return;
     		}
 
     		var item:Object = this.assembleLanesGrid.selectedItem;
-    		var nextItem:Object  = dirtyWorkList.getItemAt(pos + 1);
+    		var nextItem:Object  = dirtyChannelWorkList.getItemAt(pos + 1);
     		
-    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));
-    		dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(nextItem));
+    		dirtyChannelWorkList.removeItemAt(dirtyChannelWorkList.getItemIndex(item));
+    		dirtyChannelWorkList.removeItemAt(dirtyChannelWorkList.getItemIndex(nextItem));
     		
-    		dirtyWorkList.addItemAt(nextItem, pos);
-    		dirtyWorkList.addItemAt(item, pos + 1);
+    		dirtyChannelWorkList.addItemAt(nextItem, pos);
+    		dirtyChannelWorkList.addItemAt(item, pos + 1);
     		
     		assembleLanesGrid.selectedItem = item; 
     	}   	
@@ -371,7 +395,14 @@
 	       		if (dragItem.name() == "DictionaryEntry") {
 	       			continue;
     	   		}
-	       		for each (var item:Object in dirtyWorkList) {
+    	   		if (dragItem.@assembleStatus == "On Hold") {
+       				Alert.show("Warning - " + dragItem.@laneNumber + "  is 'On Hold'.  Please change the status first.");
+       				event.preventDefault();
+		       		event.target.hideDropFeedback(event);
+		       		DragManager.showFeedback(DragManager.NONE);
+       				return;
+       			}
+	       		for each (var item:Object in dirtyChannelWorkList) {
 	       			if (item.name() == "WorkItem") {	       				
 		       			if (dragItem.@idSeqRunType != item.@idSeqRunType) {
 		       				Alert.show("Warning - Incompatible sequence run type.");
@@ -379,7 +410,7 @@
 				       		event.target.hideDropFeedback(event);
 				       		DragManager.showFeedback(DragManager.NONE);
 							return;	       	  	
-		       			}
+		       			} 
 		       		}
 	       		}
 	       }
@@ -392,13 +423,13 @@
 	       for(var i:Number=0; i < items.length; i++) {
 	       	if (items[i].name() == "WorkItem") {
 	       		items[i].@sampleConcentrationpM = '';
-		    	dirtyWorkList.addItemAt(items[i], row);
+		    	dirtyChannelWorkList.addItemAt(items[i], row);
 		    	workList.removeItemAt(workList.getItemIndex(items[i]));	       			
 	       	} else if (items[i].name() == "DictionaryEntry") {
 	       		items[i].@sampleConcentrationpM = '';
 	       		var newItem:Object = new XML(XML(items[i]).toXMLString());
 	       		newItem.@isControl = 'true';
-		    	dirtyWorkList.addItemAt(newItem, row); 
+		    	dirtyChannelWorkList.addItemAt(newItem, row); 
 	       	} 
 	       }
 	       
@@ -407,8 +438,8 @@
 	       
 	           	
     		// Warn if flow cell channels exceeded.
-    		if (dirtyWorkList.length > 0) {
-	    		var lastWorkItem:Object = dirtyWorkList.getItemAt(dirtyWorkList.length - 1);
+    		if (dirtyChannelWorkList.length > 0) {
+	    		var lastWorkItem:Object = dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1);
 	    		if (lastWorkItem.@channelNumber > 8) {
 					Alert.show("Max 8 flow cell channels loaded.  Please remove extra lanes");			
 				}	    			
@@ -425,7 +456,7 @@
 			var channelNumber:int = 0;
 			var prevBarcodes:XMLListCollection = new XMLListCollection();
 			var altColor:Boolean = true;
-			for each(var wi:Object in dirtyWorkList) {
+			for each(var wi:Object in dirtyChannelWorkList) {
 				var nextChannel:Boolean = true;
 				if (wi.hasOwnProperty('@idOligoBarcode') && wi.@idOligoBarcode != null && wi.@idOligoBarcode != '') {
 					if (prevBarcodes.length > 0) {
@@ -460,7 +491,7 @@
 		public function removeAssembleLane():void {
 			var item:Object = this.assembleLanesGrid.selectedItem;
 		   	workList.addItem(item);
-		    dirtyWorkList.removeItemAt(dirtyWorkList.getItemIndex(item));	       			
+		    dirtyChannelWorkList.removeItemAt(dirtyChannelWorkList.getItemIndex(item));	       			
 	 	}
 		public function removePendingLane():void {
 			var item:Object = this.pendingLanesGrid.selectedItem;
@@ -522,7 +553,7 @@
 	]]>
 </mx:Script>    	
 	<mx:HDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-	    <mx:VDividedBox width="40%" height="100%"  >
+	    <mx:VDividedBox width="50%" height="100%"  >
 			<mx:VBox width="100%" height="74"   verticalGap="0">	
 			
 				<mx:HBox width="100%" verticalAlign="bottom" paddingBottom="1">
@@ -544,9 +575,13 @@
 						</mx:Button>						
 					</mx:HBox>
 			    </mx:HBox>
-				<util:DataGridAlternatingGroup id="pendingLanesGrid" width="100%" height="100%" dataProvider="{workList}" dragEnabled="true" allowMultipleSelection="true">
+				<util:DataGridAlternatingGroup id="pendingLanesGrid" width="100%" height="100%" 
+					dataProvider="{workList}" 
+					dragEnabled="true" 
+					editable="true"
+					allowMultipleSelection="true">
 					<util:columns>
-						<mx:DataGridColumn  dataField="@laneNumber"             headerText="Flow Cell Sample #" width="50">
+						<mx:DataGridColumn  dataField="@laneNumber" editable="false" headerText="Flow Cell Sample #" width="40">
 							<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
@@ -556,7 +591,7 @@
 							</mx:Component>
 							</mx:headerRenderer>
 	  					</mx:DataGridColumn>	
-	  					<mx:DataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"   width="30" labelFunction="lookupOligoBarcode">
+	  					<mx:DataGridColumn  dataField="@idOligoBarcode" editable="false" headerText="Sample Barcode"   width="28" labelFunction="lookupOligoBarcode">
 							<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
@@ -566,9 +601,26 @@
 							</mx:Component>
 							</mx:headerRenderer>
 						</mx:DataGridColumn>	
-						<mx:DataGridColumn  dataField="@idSeqRunType"             headerText="Seq Type"   width="50" labelFunction="lookupSeqRunType"/>
-	                    <mx:DataGridColumn  dataField="@idOrganism"               headerText="Organism"   width="35"  labelFunction="lookupOrganism"/>
-						<mx:DataGridColumn  dataField="@idNumberSequencingCycles" headerText="# Cycles"   width="35"  labelFunction="lookupNumberSequencingCycles"/>
+						<mx:DataGridColumn  dataField="@idSeqRunType" editable="false" headerText="Paired/Single"   width="35" labelFunction="lookupSeqRunType">
+							<mx:headerRenderer > 
+							  <mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Single/"/>
+								    <mx:Label text="Paired"/>
+								</mx:VBox>
+							  </mx:Component>
+							</mx:headerRenderer>                     
+						
+						</mx:DataGridColumn>
+	                    <mx:DataGridColumn  dataField="@idOrganism"   editable="false" headerText="Organism"   width="35"  labelFunction="lookupOrganism"/>
+						<mx:DataGridColumn  dataField="@idNumberSequencingCycles"  editable="false" headerText="# Cycles"   width="32"  labelFunction="lookupNumberSequencingCycles"/>
+						<mx:DataGridColumn headerText="Status"  width="39" dataField="@assembleStatus" 
+	                	    editorDataField="value" 
+	                	    editable="true"
+	                        rendererIsEditor="false" 
+	                        itemRenderer="mx.controls.Label"  
+ 	                        itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@assembleStatus', false, false, false, false, true)}">
+					</mx:DataGridColumn>
 					</util:columns>				
 				</util:DataGridAlternatingGroup>		
 			</mx:VBox> 
@@ -582,7 +634,7 @@
 	        <mx:Image source="assets/arrow_right.png"/>
 	    	 
 	    </mx:VBox>
-		<mx:VBox width="60%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
+		<mx:VBox width="50%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
 			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4" height="100%">
 					<mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
 					<mx:HBox width="100%" horizontalGap="2">
@@ -600,7 +652,7 @@
 						</mx:HBox> 
 						 
 					</mx:HBox> 
-			<util:DataGridAlternatingGroup  id="assembleLanesGrid" sortableColumns="false" dataProvider="{dirtyWorkList}" width="100%" height="100%" 
+			<util:DataGridAlternatingGroup  id="assembleLanesGrid" sortableColumns="false" dataProvider="{dirtyChannelWorkList}" width="100%" height="100%" 
 				 dropEnabled="true" editable="true" dragDrop="onDragDropLane(event)"	>	 
 				<util:columns>
 			        <mx:DataGridColumn headerText="Control" 
@@ -621,7 +673,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>	
-					<mx:DataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"  editable="false" width="30" labelFunction="lookupOligoBarcode">
+					<mx:DataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"  editable="false" width="25" labelFunction="lookupOligoBarcode">
 						<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
@@ -631,10 +683,19 @@
 							</mx:Component>
 							</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn  editable="false"  dataField="@idSeqRunType" headerText="Seq Run Type" width="65" 
+					<mx:DataGridColumn  editable="false"  dataField="@idSeqRunType" headerText="Paired/Single" width="25" 
 					 showDataTips="true" 
-                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}"/>                 											
-					<mx:DataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="40"  
+                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}">
+						<mx:headerRenderer > 
+						  <mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="Single/"/>
+							    <mx:Label text="Paired"/>
+							</mx:VBox>
+						  </mx:Component>
+						</mx:headerRenderer>                     
+                    </mx:DataGridColumn>                 											
+					<mx:DataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="35"  
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
 					<mx:DataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="32" 
