@@ -46,7 +46,7 @@ public class WorkItemSolexaPipelineParser implements Serializable {
       
       if (workItemNode.getAttributeValue("pipelineStatus") != null && !workItemNode.getAttributeValue("pipelineStatus").equals("")) {
         workItem.setStatus(workItemNode.getAttributeValue("pipelineStatus"));
-      } if (workItemNode.getAttributeValue("assembleStatus") != null && !workItemNode.getAttributeValue("assembleStatus").equals("")) {
+      } else if (workItemNode.getAttributeValue("assembleStatus") != null && !workItemNode.getAttributeValue("assembleStatus").equals("")) {
         workItem.setStatus(workItemNode.getAttributeValue("assembleStatus"));
       } else {
         workItem.setStatus(null);
