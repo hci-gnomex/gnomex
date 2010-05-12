@@ -68,28 +68,8 @@
         [Bindable]
         private var requestNumbers:ArrayCollection;
         
-        public var samplePrepMethods:XMLListCollection;
         
         private function init():void {
-        	samplePrepMethods = new XMLListCollection();
-
-        	var de:Object;
-        	// Filter to only show Illumina seq prep methods
-        	for each(de in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod')) {
-        		
-	        	var doesMatchRequestCategory:Boolean = false;
-    			var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == de.@value.toString());
-	   			for each (var xref1:Object in theSamplePrepMethods) {
-	   				if (xref1.@codeRequestCategory.toString() == "SOLEXA") {
-   						doesMatchRequestCategory = true;
-	   		    		break;
-	   				}
-	   			}
-	   			if (doesMatchRequestCategory || de.@value == '') {
-	   				samplePrepMethods.addItem(de);
-	   			}				
-        		
-        	}
         }
         
         private function refreshWorkList():void {
@@ -297,6 +277,7 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
+	                
 					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@idAppUser" labelFunction="lookupUserName"/>
 					<mx:DataGridColumn editable="false" width="9" dataField="@seqPrepByCore">
 						<mx:headerRenderer > 
@@ -308,7 +289,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn editable="false" width="15" dataField="@idSampleType"  headerText="Sample Type" labelFunction="getSampleType">
+					<mx:DataGridColumn editable="false" width="15" dataField="@idSampleType"  
+						headerText="Sample Type" labelFunction="getSampleType">
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Seq Library Protocol"  width="45" 
 					dataField="@idSeqLibProtocol" 
@@ -364,12 +346,12 @@
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
 
-	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
+                <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
  	                   itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>			                
-
+	
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			
