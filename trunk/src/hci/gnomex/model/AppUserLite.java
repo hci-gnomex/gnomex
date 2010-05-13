@@ -25,7 +25,7 @@ public class AppUserLite extends DictionaryEntry implements Serializable {
          (firstName == null || firstName.trim().equals(""))) {
       return "";
     } else {
-      return lastName.trim() + ", " + firstName.trim();
+      return (lastName != null ? lastName.trim() : "") + (firstName != null ? ", " + firstName.trim() : "");
       
     }
   }
