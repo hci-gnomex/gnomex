@@ -1111,7 +1111,15 @@ DROP TABLE IF EXISTS `gnomex`.`RequestCategoryApplication`;
 CREATE TABLE `gnomex`.`RequestCategoryApplication` (
   `codeRequestCategory` VARCHAR(10) NOT NULL,
   `codeApplication` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`codeRequestCategory`, `codeApplication`)
+  PRIMARY KEY (`codeRequestCategory`, `codeApplication`),
+  CONSTRAINT `FK_RequestCategoryApplication_RequestCategory` FOREIGN KEY `FK_RequestCategoryApplication_RequestCategory` (`codeRequestCategory`)
+    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategoryApplication_Application` FOREIGN KEY `FK_RequestCategoryApplication_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
