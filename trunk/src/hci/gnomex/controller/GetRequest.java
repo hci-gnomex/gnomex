@@ -34,6 +34,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
 import hci.gnomex.model.SeqLibTreatment;
+import hci.gnomex.model.SequenceLane;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
@@ -116,7 +117,19 @@ public class GetRequest extends GNomExCommand implements Serializable {
           List sampleCharacteristics = sess.createQuery(queryBuf.toString()).list();
 
 
-        
+          // Set number of seq lanes per sample
+          for(Iterator i5 = request.getSamples().iterator(); i5.hasNext();) {
+            Sample s = (Sample)i5.next();
+            int seqLaneCount = 0;
+            for(Iterator i6 = request.getSequenceLanes().iterator(); i6.hasNext();) {
+              SequenceLane seqLane = (SequenceLane)i6.next();
+              if (seqLane.getIdSample().equals(s.getIdSample())) {
+                seqLaneCount++;
+              }
+            }
+            s.setSequenceLaneCount(seqLaneCount);
+          }
+          
           // Generate xml
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
@@ -231,6 +244,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
               break;
             }
           }
+          
+
 
 
           doc.getRootElement().addContent(requestNode);

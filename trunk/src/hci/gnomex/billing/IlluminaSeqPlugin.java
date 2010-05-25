@@ -22,7 +22,7 @@ import org.hibernate.Session;
 
 public class IlluminaSeqPlugin implements BillingPlugin {
   public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
-    List billingItems = new ArrayList();
+    List billingItems = new ArrayList<BillingItem>();
     Map seqLaneMap = new HashMap();
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     

@@ -29,7 +29,7 @@ public class SampleQualityPlugin implements BillingPlugin {
   private static final String           DNA_GEL    = "DNAGEL";
 
   public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
-    List billingItems = new ArrayList();
+    List billingItems = new ArrayList<BillingItem>();
     Map codeChipTypeMap = new HashMap();
     
     // Count up number of samples for each codeBioanalyzerChipType

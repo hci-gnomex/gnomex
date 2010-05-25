@@ -64,6 +64,8 @@ public class Sample extends HibernateDetailObject {
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
+  
+  private int         sequenceLaneCount; // a non-persistent variable used for XML
 
 
   public String getDescription() {
@@ -346,6 +348,19 @@ public class Sample extends HibernateDetailObject {
       return "";
     }
   }
+  
+  public String getQualStatusAbbreviated() {
+    if (qualDate != null) {
+      return "Done";
+    } else if (this.getQualFailed() != null && this.getQualFailed().equals("Y")) {
+      return "Failed";
+    } else if (this.getQualBypassed() != null && this.getQualBypassed().equals("Y")) {
+      return "Bypassed";
+    } else {
+      return "";
+    }
+  }
+
 
 
   
@@ -550,6 +565,17 @@ public class Sample extends HibernateDetailObject {
   public void setIdSeqLibProtocol(Integer idSeqLibProtocol) {
     this.idSeqLibProtocol = idSeqLibProtocol;
   }
+
+  
+  public int getSequenceLaneCount() {
+    return sequenceLaneCount;
+  }
+
+  
+  public void setSequenceLaneCount(int sequenceLaneCount) {
+    this.sequenceLaneCount = sequenceLaneCount;
+  }
+
 
 
 

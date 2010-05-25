@@ -1,5 +1,15 @@
 GNomEx Release Notes
 
+4.6.7
+-------------------------
+- Ability to add services to an experiment request (amend request)
+- Add filter in last 3 months experiment filter
+- Include application in  experiment tree label for advanced search, amend request  
+- Dictionary editor - maintain selection when dictionary entry added, edited, removed
+- Maintain the last selection on billing period combo on Billing screen
+- Fixed some compile warnings related to parameterized collections.
+- Add lastModifyDate to request (experiment)
+
 4.6.6 
 -------------------------
 - Organize sequencing applications by theme

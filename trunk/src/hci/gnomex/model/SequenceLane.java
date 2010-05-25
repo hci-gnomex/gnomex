@@ -279,7 +279,35 @@ public class SequenceLane extends HibernateDetailObject {
       return "Ready for Sample QC";
     }
   }
-  
+
+  public String getWorkflowStatusAbbreviated() {
+    if (getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {
+      return "Done";
+    } else if (getPipelineStatus().equals(Constants.STATUS_TERMINATED)) {
+      return "Done";
+    } if (getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
+      return "Done";
+    } else if (getLastCycleStatus().equals(Constants.STATUS_TERMINATED)) {
+      return "Failed";
+    } else if (getFirstCycleStatus().equals(Constants.STATUS_TERMINATED)) {
+      return "Failed";
+    } else if (getFlowCellChannelFirstCycleDate() != null) {
+      return  "In Progress";
+    } else if (this.getFlowCellChannelStartDate() != null) {
+      return  "In Progress";
+    } else if (getFlowCellChannel() != null) {
+      return "Ready";
+    } else if (getSample().getSeqPrepByCore() != null && !getSample().getSeqPrepByCore().equals("Y")) {
+      return "Ready";
+    } else if (getSample().getSeqPrepDate() != null) {
+      return "Ready";
+    } else if (getSample().getQualDate() != null) {
+      return "";
+    } else {
+      return "";
+    }
+  }
+
   public String getSampleNumber() {
     if (sample != null) {
       return sample.getNumber();

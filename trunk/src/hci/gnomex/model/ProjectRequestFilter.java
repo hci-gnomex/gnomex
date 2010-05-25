@@ -37,6 +37,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                showCategory = "Y";
   private String                lastWeek  = "N";
   private String                lastMonth = "N";
+  private String                lastThreeMonths = "N";
   private String                lastYear  = "N";
   private String                isMicroarray = "N";
   private String                isSolexa = "N";
@@ -58,6 +59,7 @@ public class ProjectRequestFilter extends DetailObject {
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
+        (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
         (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
         (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
@@ -338,6 +340,18 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(lastMonth));
+      queryBuf.append("'");
+    }
+    // Search for requests submitted in last 3 months
+    if (lastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" req.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month));
       queryBuf.append("'");
     }
     // Search for requests submitted in last year
@@ -760,6 +774,18 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setIsBioanalyzer(String isBioanalyzer) {
     this.isBioanalyzer = isBioanalyzer;
+  }
+
+
+  
+  public String getLastThreeMonths() {
+    return lastThreeMonths;
+  }
+
+
+  
+  public void setLastThreeMonths(String lastThreeMonths) {
+    this.lastThreeMonths = lastThreeMonths;
   }
 
 

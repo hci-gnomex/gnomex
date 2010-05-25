@@ -78,7 +78,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
           
-          List billingItems = new ArrayList();
+          List billingItems = new ArrayList<BillingItem>();
  
           DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 

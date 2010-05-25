@@ -1059,6 +1059,7 @@ CREATE TABLE `gnomex`.`Request` (
   `completedDate` DATETIME NULL,
   `isArrayINFORequest` CHAR(1) NULL,
   `codeVisibility` VARCHAR(10) NOT NULL,
+  `lastModifyDate` DATETIME NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)

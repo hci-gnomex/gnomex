@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -9,6 +10,7 @@ import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +47,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private String               listKind = "ProjectRequestList";
   private String               showMyLabsAlways = "N";
   
+  
   public void validate() {
   }
   
@@ -62,7 +65,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       listKind = request.getParameter("listKind");
     }
     
-    List experimentDesignCodes = new ArrayList();
+    List experimentDesignCodes = new ArrayList<String>();
     if (request.getParameter("experimentDesignConcatCodes") != null && !request.getParameter("experimentDesignConcatCodes").equals("")) {
       String[] codes = request.getParameter("experimentDesignConcatCodes").split(":");
       for (int i = 0; i < codes.length; i++) {
@@ -72,7 +75,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       filter.setExperimentDesignCodes(experimentDesignCodes);
     }
     
-    List experimentFactorCodes = new ArrayList();
+    List experimentFactorCodes = new ArrayList<String>();
     if (request.getParameter("experimentFactorConcatCodes") != null && !request.getParameter("experimentFactorConcatCodes").equals("")) {
       String[] codes = request.getParameter("experimentFactorConcatCodes").split(":");
       for (int i = 0; i < codes.length; i++) {
@@ -92,6 +95,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     try {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       HashMap myLabMap = new HashMap();
       if (showMyLabsAlways.equals("Y")) {
@@ -159,26 +164,26 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
-            addRequestNode(row, analysisNames);          
+            addRequestNode(row, analysisNames, dictionaryHelper);          
             addSampleNode(row);            
           }
         } else if (idProject.intValue() != prevIdProject.intValue()) {
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
-            addRequestNode(row, analysisNames);          
+            addRequestNode(row, analysisNames, dictionaryHelper);          
             addSampleNode(row);
           }
         } else if (!codeRequestCategory.equals(prevCodeRequestCategory) ||
                     !codeApplication.equals(prevCodeApplication)) {
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
-            addRequestNode(row, analysisNames);          
+            addRequestNode(row, analysisNames, dictionaryHelper);          
             addSampleNode(row);
           }
         } else if (idRequest.intValue() != prevIdRequest.intValue()) {
           if (idRequest.intValue() != -2) {
-            addRequestNode(row, analysisNames);          
+            addRequestNode(row, analysisNames, dictionaryHelper);          
             addSampleNode(row);
           }
         } else {
@@ -284,14 +289,14 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       requestCatNode = new Element("RequestCategory");
       requestCatNode.setAttribute("idProject",              row[0] == null ? ""     : ((Integer)row[0]).toString());
       requestCatNode.setAttribute("codeRequestCategory",    row[15] == null ? ""    : (String)row[15]);
-      requestCatNode.setAttribute("codeApplication", row[16] == null ? ""    : (String)row[16]);
+      requestCatNode.setAttribute("codeApplication",        row[16] == null ? ""    : (String)row[16]);
       requestCatNode.setAttribute("label",                  row[16] == null ? ""    : (String)row[16]);
       projectNode.addContent(requestCatNode);
       
     }
   }
   
-  private void addRequestNode(Object[] row, StringBuffer analysisNames) {
+  private void addRequestNode(Object[] row, StringBuffer analysisNames, DictionaryHelper dictionaryHelper) {
     String labName = Lab.formatLabName((String)row[17], (String)row[18]);
     String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
 
@@ -301,6 +306,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);
     requestNode.setAttribute("requestCreateDate",      row[6] == null ? ""  : this.formatDate((java.sql.Date)row[6], this.DATE_OUTPUT_ALTIO));
     requestNode.setAttribute("requestCreateDateDisplay", row[6] == null ? ""  : this.formatDate((java.sql.Date)row[6], this.DATE_OUTPUT_SQL));
+    requestNode.setAttribute("requestCreateDateDisplayMedium", row[6] == null ? ""  : DateFormat.getDateInstance(DateFormat.MEDIUM).format((java.sql.Date)row[6]));
     requestNode.setAttribute("createDate",             row[6] == null ? ""  : this.formatDate((java.sql.Date)row[6], this.DATE_OUTPUT_SLASH));
     requestNode.setAttribute("idSlideProduct",         row[9] == null ? ""  : ((Integer)row[9]).toString());
     requestNode.setAttribute("idLab",                  row[12] == null ? "" : ((Integer)row[12]).toString());
@@ -324,19 +330,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       requestNode.setAttribute("requestPublicNote", "");
     }
     
-    if (requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      StringBuffer displayName = new StringBuffer();
-      displayName.append(requestNode.getAttributeValue("requestNumber"));
-      displayName.append(" - ");
-      displayName.append(requestNode.getAttributeValue("ownerFirstName"));
-      displayName.append(" ");
-      displayName.append(requestNode.getAttributeValue("ownerLastName"));
-      displayName.append(" ");
-      displayName.append(requestNode.getAttributeValue("requestCreateDate"));      
-
-      requestNode.setAttribute("displayName", displayName.toString());
-      requestNode.setAttribute("label",       displayName.toString());
-    } else {
+    if (RequestCategory.isMicroarrayRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));
       displayName.append(" - ");
@@ -346,7 +340,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       displayName.append(" ");
       displayName.append(requestNode.getAttributeValue("ownerLastName"));
       displayName.append(" ");
-      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplay"));      
+      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));      
       
       requestNode.setAttribute("displayName", displayName.toString());
       requestNode.setAttribute("label",       displayName.toString());
@@ -354,6 +348,23 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       Integer idLab = (Integer)row[12];
       Integer idAppUser = (Integer)row[14];
       requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
+    } else {
+      StringBuffer displayName = new StringBuffer();
+      displayName.append(requestNode.getAttributeValue("requestNumber"));
+      if (requestNode.getAttributeValue("codeApplication") != null && !requestNode.getAttributeValue("codeApplication").equals("")) {
+        displayName.append(" - ");
+        displayName.append(dictionaryHelper.getApplication(requestNode.getAttributeValue("codeApplication")));                
+      }
+      displayName.append(" - ");
+      displayName.append(requestNode.getAttributeValue("ownerFirstName"));
+      displayName.append(" ");
+      displayName.append(requestNode.getAttributeValue("ownerLastName"));
+      displayName.append(" ");
+      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));      
+
+      requestNode.setAttribute("displayName", displayName.toString());
+      requestNode.setAttribute("label",       displayName.toString());
+      
     }
     
     if (filter.getShowCategory().equals("Y")) {

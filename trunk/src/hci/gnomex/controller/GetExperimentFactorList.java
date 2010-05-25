@@ -53,7 +53,7 @@ public class GetExperimentFactorList extends GNomExCommand implements Serializab
     
     
     //  Now get all used experiment factors
-    List usedFactors = new ArrayList();
+    List usedFactors = new ArrayList<ExperimentFactor>();
     if (usedCodes.size() > 0) {
       queryBuf = new StringBuffer();
       queryBuf.append("SELECT ef from ExperimentFactor as ef ");

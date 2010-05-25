@@ -54,10 +54,12 @@
 		}
        	private function propagateSeqLibProtocol():void {
 			for each (var sample:Object in parentDocument.samples) {
-				if (currentState == 'SolexaSetupPreppedState') {
+				if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState') {
 					sample.@idSeqLibProtocol = this.seqLibProtocolCombo.selectedItem != null ? this.seqLibProtocolCombo.selectedItem.@value : '';
+					sample.@seqPrepByCore = "N";
 				} else {
 					sample.@idSeqLibProtocol = '';
+					sample.@seqPrepByCore = "Y";
 				}
 			}
 			if (currentState == 'SolexaSetupState') {
@@ -71,9 +73,11 @@
 				sample.@idSeqRunType = idSeqRunType;
 			}			
 		}
-       	private function propagateSampleOrganism():void {
+       	public function propagateSampleOrganism():void {
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+				if (sampleOrganismCombo.selectedItem != null) {
+					sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
@@ -188,16 +192,44 @@
 
         		
         	} 
-        }
+        } 
 
 
 
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
+        	if (parentDocument == null) {
+        		return isComplete;
+        	}
+        	
+        	
         	parentDocument.userWarningsSampleSetup = "";
         	if (parentDocument.isEditState()) {
         		isComplete = true;
-        	}else if (parentDocument.isSolexaState()) {
+        	} else if (currentState == 'MicroarrayAmendState') {
+	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
+		        	isComplete = true;
+	        	 }
+        	
+        	} else if (parentDocument.isSolexaAmendState()) {
+	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
+	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' && 
+	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
+	        	    	
+	        	    if (currentState == 'SolexaAmendPreppedState') {
+ 						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
+ 							isComplete = true;
+ 						}	        	    	
+	        	    } else {
+		        	    isComplete = true;
+	        	    }
+	        	    
+	        	 }
+        	
+        	} else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
@@ -325,9 +357,9 @@
 		}
 		
 		private function pickDefaultSeqLibProtocol():void {
-			if (this.currentState == "SolexaSetupPreppedState") {
+			if (this.currentState == "SolexaSetupPreppedState" || this.currentState == 'SolexaAmendPreppedState') {
 				this.seqLibProtocolCombo.visible = true;
-			} else if (this.currentState == "SolexaSetupState") {
+			} else if (this.currentState == "SolexaSetupState" || this.currentState == "SolexaAmendState") {
 				this.seqLibProtocolCombo.visible = false;
 			} else {
 				return;
@@ -394,7 +426,9 @@
 			checkSampleSetupCompleteness();
 
 			if (this.currentState == 'SolexaSetupState' ||
-			    this.currentState == 'SolexaSetupPreppedState') { 
+			    this.currentState == 'SolexaSetupPreppedState' ||
+			    this.currentState == 'SolexaAmendState' ||
+			    this.currentState == 'SolexaAmendPreppedState') { 
 				parentDocument.filteredGenomeBuildList.refresh();
 				selectDefaultGenomeBuild();			
 			}
@@ -407,7 +441,9 @@
 			checkSampleSetupCompleteness();
 			
 			if (this.currentState == 'SolexaSetupState' ||
-			    this.currentState == 'SolexaSetupPreppedState') { 
+			    this.currentState == 'SolexaSetupPreppedState' ||
+			    this.currentState == 'SolexaAmendState' ||
+			    this.currentState == 'SolexaAmendPreppedState') { 
 				parentDocument.filteredSeqRunTypeList.refresh();			    					
 			}
 		}
@@ -424,9 +460,17 @@
 		
 		private function pickSeqPrepState():void {
 			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
-				currentState = 'SolexaSetupState';
+				if (parentDocument.isAmendState()) {
+					currentState = 'SolexaAmendState';
+				} else {
+					currentState = 'SolexaSetupState';
+				}
 			} else {
-				currentState = 'SolexaSetupPreppedState';
+				if (parentDocument.isAmendState()) {
+					currentState = 'SolexaAmendPreppedState';				
+				} else {
+					currentState = 'SolexaSetupPreppedState';
+				}
 			}
 			this.propagateSeqPrepByCore();
 			pickDefaultSeqLibProtocol();
@@ -469,7 +513,7 @@
 					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0">
+			<mx:HBox width="100%" horizontalGap="0" id="hbox6">
 				<mx:Label text="(2) Which category best describes your samples?" width="310" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
 					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}">							
@@ -633,6 +677,42 @@
                        </mx:DataGrid>
                   </mx:HBox>
              </mx:AddChild>
+        </mx:State>
+        <mx:State name="MicroarrayAmendState">
+             <mx:SetProperty target="{label7}" name="text">
+                  <mx:value>(2) Which organism is the source for these samples?</mx:value>
+             </mx:SetProperty>
+             <mx:RemoveChild target="{hbox3}"/>
+             <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
+        </mx:State>
+        <mx:State name="SolexaAmendState" basedOn="SolexaSetupState">
+             <mx:RemoveChild target="{hbox3}"/>
+             <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label7}" name="text">
+                  <mx:value>(2) Which organism is the source for these samples?</mx:value>
+             </mx:SetProperty>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
+             <mx:SetProperty target="{text1}" name="text">
+                  <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
+             </mx:SetProperty>
+             <mx:SetProperty target="{label13}" name="text">
+                  <mx:value>(5) Should sequencing libraries be constructed with barcode tags for multiplexing capability?</mx:value>
+             </mx:SetProperty>
+        </mx:State>
+        <mx:State name="SolexaAmendPreppedState" basedOn="SolexaSetupPreppedState">
+             <mx:RemoveChild target="{hbox3}"/>
+             <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label7}" name="text">
+                  <mx:value>(2) Which organism is the source for these samples?</mx:value>
+             </mx:SetProperty>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
+             <mx:SetProperty target="{text1}" name="text">
+                  <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
+             </mx:SetProperty>
+             <mx:SetProperty target="{label13}" name="text">
+                  <mx:value>(5) Should sequencing libraries be constructed with barcode tags for multiplexing capability?</mx:value>
+             </mx:SetProperty>
         </mx:State>
    	
    </mx:states>

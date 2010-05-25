@@ -9,6 +9,7 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -706,15 +707,7 @@ public class BuildSearchIndex extends DetailObject {
       labRequest = Lab.formatLabName(labLastNameRequest, labFirstNameRequest);
       
       requestDisplayName = new StringBuffer();
-      if (codeRequestCategory != null && codeRequestCategory.equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-        requestDisplayName.append(requestNumber);
-        requestDisplayName.append(" - ");
-        requestDisplayName.append(requestOwnerFirstName);
-        requestDisplayName.append(" ");
-        requestDisplayName.append(requestOwnerLastName);
-        requestDisplayName.append(" ");
-        requestDisplayName.append(this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));      
-      } else {
+      if (codeRequestCategory != null && RequestCategory.isMicroarrayRequestCategory(codeRequestCategory)) {
         requestDisplayName.append(requestNumber);
         requestDisplayName.append(" - ");
         requestDisplayName.append(slideProduct);      
@@ -723,7 +716,19 @@ public class BuildSearchIndex extends DetailObject {
         requestDisplayName.append(" ");
         requestDisplayName.append(requestOwnerLastName);
         requestDisplayName.append(" ");
-        requestDisplayName.append(this.formatDate(requestCreateDate, this.DATE_OUTPUT_SQL));      
+        requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));      
+      } else {
+        requestDisplayName.append(requestNumber);
+        if (codeApplication != null && !codeApplication.equals("")) {
+          requestDisplayName.append(" - ");
+          requestDisplayName.append(this.dh.getApplication(codeApplication));                
+        }
+        requestDisplayName.append(" - ");
+        requestDisplayName.append(requestOwnerFirstName);
+        requestDisplayName.append(" ");
+        requestDisplayName.append(requestOwnerLastName);
+        requestDisplayName.append(" ");
+        requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));      
       }
       
     }

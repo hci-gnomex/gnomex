@@ -41,6 +41,7 @@ public class Request extends HibernateDetailObject {
   private String         codeBioanalyzerChipType;
   private String         notes;
   private Date           completedDate;
+  private Date           lastModifyDate;
   private String         isArrayINFORequest;
   private String         codeVisibility;
   private Set            samples = new TreeSet();
@@ -603,7 +604,22 @@ public class Request extends HibernateDetailObject {
   public void setBillingAccount(BillingAccount billingAccount) {
     this.billingAccount = billingAccount;
   }
+  
+  public String getBillingAccountName() {
+    if (this.billingAccount != null) {
+      return this.billingAccount.getAccountName();
+    } else {
+      return "";
+    }
+  }
 
+  public String getBillingAccountNumber() {
+    if (this.billingAccount != null) {
+      return this.billingAccount.getAccountNumber();
+    } else {
+      return "";
+    }
+  }
 
   
   public Set getSeqLibTreatments() {
@@ -614,6 +630,18 @@ public class Request extends HibernateDetailObject {
   
   public void setSeqLibTreatments(Set seqLibTreatments) {
     this.seqLibTreatments = seqLibTreatments;
+  }
+
+
+  
+  public Date getLastModifyDate() {
+    return lastModifyDate;
+  }
+
+
+  
+  public void setLastModifyDate(Date lastModifyDate) {
+    this.lastModifyDate = lastModifyDate;
   }
 
  

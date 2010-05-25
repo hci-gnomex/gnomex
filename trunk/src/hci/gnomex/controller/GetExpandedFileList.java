@@ -70,7 +70,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
-    List requestNumbers = new ArrayList();
+    List requestNumbers = new ArrayList<String>();
     getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
    
     //  For each request number
@@ -241,7 +241,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       
       List directoryKeys = (List)requestMap.get(requestNumber);
       if (directoryKeys == null) {
-        directoryKeys = new ArrayList();
+        directoryKeys = new ArrayList<String>();
       }
       directoryKeys.add(directoryKey);
       

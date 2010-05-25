@@ -65,16 +65,16 @@
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.setupView.labCombo.selectedItem.@name}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Project" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.setupView.projectCombo.selectedItem.@name}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}"/>
-					<mx:Text text="{parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}"/>
 				</mx:VBox>
 			</mx:HBox>
 			<mx:Text text="{parentDocument.seqLibTreatmentsDisplay}" id="seqLibTreatments"/>

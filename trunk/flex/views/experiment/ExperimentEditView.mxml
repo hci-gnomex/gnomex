@@ -41,6 +41,21 @@
 
 
    <mx:HTTPService  
+    id="getRequestToAmend" 
+    url="GetRequest.gx"
+    destination="getRequest"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetRequestToAmend(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get request to amend', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+   		<idRequest>{browseTree.selectedItem.@idRequest}</idRequest>    	
+    </mx:request>
+  </mx:HTTPService>
+
+   <mx:HTTPService  
     id="getRequest" 
     url="GetRequest.gx"
     destination="getRequest"
@@ -86,6 +101,20 @@
     fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
     method="POST"
     useProxy="false">
+   </mx:HTTPService>
+   
+  <mx:HTTPService  
+    id="getCandidateProjectRequestList" 
+    url="GetProjectRequestList.gx"
+    destination="getCandidateProjectRequestList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetCandidateProjectRequestList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get experiments to amend', event)"
+    method="POST" 
+    useProxy="false">
+    <mx:request>
+    </mx:request>
    </mx:HTTPService>
 
   
@@ -135,6 +164,9 @@
 		[Bindable]
 		public var request:Object;
 		
+		
+		private var existingLanes:XMLList = null;
+		
 		[Bindable]
 		public var samplePrepMethodList:XMLListCollection;
 		[Bindable]
@@ -151,7 +183,12 @@
 		public var filteredMicroarrayAppList:XMLListCollection;
 		[Bindable]
 		public var filteredAppList:XMLListCollection;
-		
+		[Bindable]
+		public var filteredSlideProductList:XMLListCollection;
+		[Bindable]
+		public var filteredProjectList:XMLListCollection;
+
+
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
 
@@ -176,22 +213,41 @@
 		private var isInitialized:Boolean = false;
 
 		private function init():void {
+			
+			// Set the base state
+			if (this.id == "amendRequestView") {
+				this.currentState = 'AmendState';
+				this.nextButton.enabled = false;
+			} else if (this.id == "editView") {
+				this.currentState = "EditState";
+			}else {
+				this.currentState = "";
+			}
+			
+	 		// If this is the first time this instance
+	 		// has been shown, perform 1-time-only
+	 		// initialization
 			if (!isInitialized) {
 				this.initializeData();
         	    this.checkSecurity();
             	this.setupDataListeners();
     			isInitialized = true;
 			}
-	        
-            if (parentApplication.theViews.selectedChild == this) {
-            	this.setupSubmitForm();
-            }
+			
+			
+	        // Clear out the form
+	        if (parentApplication.theViews.selectedChild == this) {
+    	    	this.setupSubmitForm();
+        	} else if (this.id == "editView" && request != null) {
+        		this.setupTheEditForm();
+        	} 
+
 		}
 
 		public function checkDirty():void {
 		}
 				
-		public function initializeData():void {
+		private function initializeData():void {
 
 			samplePrepMethodList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod'));
         	var dictionarySorter:Sort = new Sort();
@@ -225,7 +281,12 @@
         	
         	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
         	filteredAppList           = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
-        	
+
+			filteredSlideProductList = new XMLListCollection(parentApplication.getSlideProductList.lastResult.SlideProduct);
+	        filteredSlideProductList.filterFunction = filterSlideProduct;
+	        
+	        filteredProjectList = new XMLListCollection(parentApplication.getProjectList.lastResult.Project);
+	        filteredProjectList.filterFunction = filterProject;
 
 			initFilters();
 
@@ -246,11 +307,11 @@
 		}
 		
 		private function initFilters():void {
-	        parentApplication.filteredProjectListForSubmitRequests.filterFunction = this.filterProject;
-	        parentApplication.filteredProjectListForSubmitRequests.refresh();
+	        this.filteredProjectList.filterFunction = this.filterProject;
+	        this.filteredProjectList.refresh();
 			
-			parentApplication.filteredSlideProductListForSubmitRequests.filterFunction = filterSlideProduct;
-			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+			filteredSlideProductList.filterFunction = filterSlideProduct;
+			filteredSlideProductList.refresh();
 			
 
 			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
@@ -278,8 +339,8 @@
 		public function isSolexaState():Boolean {
 			if (currentState == 'SolexaBaseState' ||
 				currentState == 'SolexaEditState' ||
-			    currentState == 'SolexaSetupState' ||
-			    currentState == 'SolexaSetupPreppedState') {
+			    currentState == 'SolexaBaseAmendState' ||
+			    currentState == 'SolexaLaneAmendState') {
 				return true;    	
 			} else {
 				return false;
@@ -298,7 +359,8 @@
 				
 		public function isMicroarrayState():Boolean {
 			if (currentState == 'MicroarrayState' ||
-				currentState == 'MicroarrayEditState') {
+				currentState == 'MicroarrayEditState' ||
+				currentState == 'MicroarrayAmendState') {
 				return true;    	
 			} else {
 				return false;
@@ -422,21 +484,36 @@
 		public function setupSubmitForm():void {
 			getNewRequest.send();
 			buttonStack.selectedIndex = 0;
-			initializeSubmitForm();			
+				
 		}
 		
 		
 		public function initializeSubmitForm():void {	
 
-			if (setupView == null) {
-				return;
+			if (isAmendState() ){
+				if (amendSetupView == null) {
+					return;
+				}
+				if (!this.contains(amendSetupView)) {
+					return;
+				}
+				
+			} else {
+				if (setupView == null) {
+					return;
+				}
+				if (!this.contains(setupView)) {
+					return;
+				}
 			}
 			
-			if (!this.contains(setupView)) {
-				return;
+			if (this.isAmendState()) {
+				theTab.selectedChild = amendSetupView;
+			} else {
+				setupView.enabled = true;
+				theTab.selectedChild = setupView;
+				
 			}
-			setupView.enabled = true;
-			theTab.selectedChild = setupView;
 			
 			requestToClone = null;
 			submittedIdRequest = null;
@@ -512,6 +589,8 @@
 			
 		}
 		
+
+
 		
 		private function nextTab():void {
 			theTab.selectedIndex++;
@@ -584,6 +663,7 @@
 			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
+				this.samplesView.currentState = 'SolexaSamplesState';
 
 
 				filteredAppList.filterFunction = filterApplication;
@@ -641,7 +721,7 @@
 
 					
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
-					parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+					this.filteredSlideProductList.refresh();
 					this.hybSetupView.checkForSlideProductWarning();
 					this.hybSetupView.numberOfHybsValidator.validate();
 
@@ -784,6 +864,15 @@
 
 		public function filterProject(item:Object):Boolean {
 			var keep:Boolean = false;
+			
+			if (this.isAmendState()) {
+				return false;
+			}
+			
+			if (this.theTab == null || !this.theTab.contains(setupView)) {
+				return false;
+			}
+			
 			if (item.@idProject == '') {
 				keep = true;
 			} else if (setupView.labCombo.selectedItem != null) {
@@ -799,9 +888,25 @@
 			samplePrepMethodList.refresh();
 		}
 		
-		public function getRequestCategory():Object {
+		private function getAmendRequestType():String {
+			if (this.radioAmendQCToAffy.selected) {
+				return "AFFY";
+			} else if (this.radioAmendQCToAgilent1Color.selected) {
+				return "AGIL1";
+			} else if (this.radioAmendQCToAgilent.selected) {
+				return "AGIL";
+			} else if (this.radioAmendAddSeqLanes.selected || this.radioAmendQCToSeq) {
+				return "SOLEXA"
+			} else {
+				return "";
+			}
+		}
+		
+		public function getRequestCategory():Object {			
 			var requestCategory:Object = null;
-			if (!isEditState()) {
+			if (this.isAmendState()) {
+				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', getAmendRequestType());				
+			} else if (!isEditState()) {
 				requestCategory = setupView.getRequestCategory();
         	} else {
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
@@ -820,11 +925,13 @@
         	if (item.@isActive == 'N') {
         		return false;
         	}
+        	
+        	var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory.toString();
 
         	var doesMatchRequestCategory:Boolean = false;
         	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethodRequestCategory').DictionaryEntry.(@value != '' && @idSamplePrepMethod == item.@value.toString());
     	   	for each (var xref1:Object in theSamplePrepMethods) {
-    	   		if (xref1.@codeRequestCategory.toString() == setupView.requestTypeGroup.selectedValue) {
+    	   		if (xref1.@codeRequestCategory.toString() == codeRequestCategory) {
 	   				doesMatchRequestCategory = true;
     	   		    break;
     	   		}
@@ -856,7 +963,8 @@
         	if (item.@isActive == 'N') {
         		return false;
         	}
-
+        	
+        	
         	var doesMatchRequestCategory:Boolean = false;
         	var requestCategory:Object = this.getRequestCategory();
         	var theSamplePrepMethods:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
@@ -939,7 +1047,8 @@
         }  
 
 		private function filterMicroarrayApplication(item:Object):Boolean {
-			var codeRequestCategory:Object = this.setupView.requestTypeGroup.selectedValue;
+			var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
+
 			if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA") {
 				codeRequestCategory = "AGIL";
 			}
@@ -975,12 +1084,21 @@
         		return false;
         	}
         	var doesMatch:Boolean = false;
-        	if (sampleSetupView.sampleOrganismCombo.selectedItem != null && 
-        	    sampleSetupView.sampleOrganismCombo.selectedItem.@value != null  &&
-        	    sampleSetupView.sampleOrganismCombo.selectedItem.@value != "") {
-        	    if (item.@idOrganism.toString() == sampleSetupView.sampleOrganismCombo.selectedItem.@value.toString()) {
-        	    	doesMatch = true;
-        	    }
+        	if (currentState == "SolexaLaneAmendState") {
+        		if (request != null && request.hasOwnProperty("@idOrganismSampleDefault")) {
+		        	if (item.@idOrganism.toString() == request.@idOrganismSampleDefault.toString()) {
+		        	    doesMatch = true;
+	    	    	}
+        		}
+        	} else {
+	        	if (sampleSetupView.sampleOrganismCombo.selectedItem != null && 
+	        	    sampleSetupView.sampleOrganismCombo.selectedItem.@value != null  &&
+	        	    sampleSetupView.sampleOrganismCombo.selectedItem.@value != "") {
+	        	    if (item.@idOrganism.toString() == sampleSetupView.sampleOrganismCombo.selectedItem.@value.toString()) {
+	        	    	doesMatch = true;
+	        	    }
+	        	}
+        		
         	}
     	   	return doesMatch;
     	}
@@ -998,9 +1116,13 @@
         		return false;	
         	}
         	
+        	if (this.theTab == null || !this.theTab.contains(hybSetupView)) {
+        		return false;
+        	}
+        	
 			var doesMatchRequestCategoryVendor:Boolean = true;
         	if (!isEditState()) {
-				var requestCategory:Object = setupView.getRequestCategory();
+				var requestCategory:Object = getRequestCategory();
         		doesMatchRequestCategoryVendor = false;
         		if (item.@idVendor == requestCategory.@idVendor) {
         			doesMatchRequestCategoryVendor = true;
@@ -1036,14 +1158,25 @@
         			}
         		}
         	}
+        	
         	var doesMatchGroup:Boolean = true;
-        	if (setupView.labCombo.selectedItem != null && setupView.labCombo.selectedItem.@idLab != "" && hybSetupView.isCustomRadio.selected) {
-        		if (item.@isCustom == "Y" && item.@idLab == setupView.labCombo.selectedItem.@idLab) {
+        	var idLab:Object = null;
+        	if (this.isAmendState() || this.isEditState()) {
+        		if  (request != null && request.hasOwnProperty("@idLab")) {
+	        		idLab = request.@idLab;    			
+        		}
+        	} else {
+        		if (setupView.labCombo.selectedItem != null) {
+        			idLab = setupView.labCombo.selectedItem.@idLab;
+        		}
+        	}
+        	if (idLab != null && idLab != "" && hybSetupView.isCustomRadio.selected) {
+        		if (item.@isCustom == "Y" && item.@idLab == idLab) {
         			doesMatchGroup = true;
         		} else {
         			doesMatchGroup = false;
         		}
-        	} else if (setupView.labCombo.selectedItem != null && setupView.labCombo.selectedItem.@idLab != "" && hybSetupView.isCatalogRadio.selected) {
+        	} else if (idLab != null && idLab != "" && hybSetupView.isCatalogRadio.selected) {
         		if (item.@isCustom != "Y") {
         			doesMatchGroup = true;
         		} else {
@@ -1063,6 +1196,7 @@
 		}
 		
 		private function onGetRequestToClone(event:ResultEvent):void {
+			existingLanes = null;
 			
 			var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
 			if (!isMicroarrayState()) {
@@ -1264,9 +1398,13 @@
 				}
 			}
 		}
-
+		
 		public function setupEditForm(theRequest:Object):void {
 			request = theRequest;
+			setupTheEditForm();
+		}
+
+		public function setupTheEditForm():void {
 			currentState = '';
 			samplesView.currentState = '';
 
@@ -1302,7 +1440,6 @@
 			}
 
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				samplesView.currentState
 				samplesView.addSampleButton.visible = true;
 				samplesView.copySampleButton.visible = true;
 				samplesView.deleteSampleButton.visible = true;
@@ -1377,7 +1514,7 @@
 			this.getBillingAccountName();
 			this.getExperimentCategoryName();
 			
-			callLater(postSetupEditForm);
+			postSetupEditForm();
 
 		}
 		
@@ -1392,6 +1529,8 @@
 				hybSetupView.checkHybSetupCompleteness();
 				hybsView.checkHybsCompleteness();
 			}
+			
+			
 			this.dirty.resetDirty();
 		}
 		
@@ -1412,12 +1551,15 @@
 		
 		
 		private function onGetNewRequest(event:ResultEvent):void {
+			existingLanes = null;
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
 				this.annotationView.addNonStandardSampleColumns();
 			} 
+			
+			initializeSubmitForm();		
 
 		}
 		
@@ -1458,7 +1600,9 @@
 
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
-				sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);
+				if (theTab.contains(sampleSetupView)) {
+					sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);					
+				}
 			}
 			
 			if (isMicroarrayState()) {
@@ -1479,7 +1623,9 @@
 				
 			}			
 			
-			if (theTab.contains(setupView)) {
+			if (this.isAmendState() && theTab.contains(amendSetupView)) {
+				theTab.selectedChild = this.amendSetupView;
+			} else if (theTab.contains(setupView)) {
 				theTab.selectedChild = this.setupView;			
 			} else {
 				theTab.selectedChild = this.samplesView;
@@ -1543,18 +1689,17 @@
         	}
         	
         	if (isEditState()) {
-        		if (request.@codeApplication!= '' &&
-	        	    request.@idSampleTypeDefault != '') {
-    	    	    compatible = false;
+        		if (request.@codeApplication!= '' && 
+        		    request.@idSampleTypeDefault != '') {
+    	    		compatible = false;
 					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeApplication')) {
 						if (sampleTypeX.@codeApplication == request.@codeApplication &&
 					    	sampleTypeX.@idSampleType == request.@idSampleTypeDefault) {
 							compatible = true;
 							break;
-					}
-				}        		    	
-        	}
-
+						}
+					}    
+        		}
         	} else {
 	        	if (hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
 	        	    hybSetupView.microarrayAppRadioGroup.selectedValue!= '' &&
@@ -1619,50 +1764,53 @@
 				errorMessage += '\n\n';					
 			}
 
-			// All samples must be used on at least one hyb
-			var allSamplesUsed:Boolean = true;
-			var unusedSampleList:String = '';
-			var unusedSampleCount:int = 0;
-			var target:String = "";
-			if (!isQCState()) {
-				for each(var sample:Object in samples) {
-					var useCount:int = 0;
-					if (isSolexaState()) {
-						useCount = getLaneCount(sample);
-						target = "sequence lane";
-					} else if (isMicroarrayState()) {
-						useCount = getChannelCount(sample);
-						target = "hybridization";
-					}
-					
-					if (useCount == 0) {
-						allSamplesUsed = false;
-						if (unusedSampleList != '') {
-							unusedSampleList += ', ';							
+			// For new requests, all samples must be used on at least one hyb or seq lane
+			if (!isAmendState()) {
+				var allSamplesUsed:Boolean = true;
+				var unusedSampleList:String = '';
+				var unusedSampleCount:int = 0;
+				var target:String = "";
+				if (!isQCState()) {
+					for each(var sample:Object in samples) {
+						var useCount:int = 0;
+						if (isSolexaState()) {
+							useCount = getLaneCount(sample);
+							target = "sequence lane";
+						} else if (isMicroarrayState()) {
+							useCount = getChannelCount(sample);
+							target = "hybridization";
 						}
-						unusedSampleList += sample.@name;
-						unusedSampleCount++;
 						
-					}
-				}
-				if (unusedSampleCount > 0) {
-					if (unusedSampleCount == 1) {
-						errorMessage += 'The sample ' + unusedSampleList + 
-						' is not used on any ' + target + 's.  ';
-						if (!isEditState()) {
-							errorMessage += 'The request cannot be submitted until the unused sample is removed from the list or assigned to a ' + target + '.  ';	
+						if (useCount == 0) {
+							allSamplesUsed = false;
+							if (unusedSampleList != '') {
+								unusedSampleList += ', ';							
+							}
+							unusedSampleList += sample.@name;
+							unusedSampleCount++;
+							
 						}
-						errorMessage += '\n\n';					
-					} else {
-						errorMessage += 'The samples  (' + unusedSampleList + 
-						')  are not used on any ' + target + 's.  ';
-						if (!isEditState()) {
-							errorMessage += 	'The request cannot be submitted until the unused samples are removed from the list or assigned to ' + target + 's.  ';
-						}
-						errorMessage += '\n\n';					
 					}
-				}
-			}	
+					if (unusedSampleCount > 0) {
+						if (unusedSampleCount == 1) {
+							errorMessage += 'The sample ' + unusedSampleList + 
+							' is not used on any ' + target + 's.  ';
+							if (!isEditState()) {
+								errorMessage += 'The request cannot be submitted until the unused sample is removed from the list or assigned to a ' + target + '.  ';	
+							}
+							errorMessage += '\n\n';					
+						} else {
+							errorMessage += 'The samples  (' + unusedSampleList + 
+							')  are not used on any ' + target + 's.  ';
+							if (!isEditState()) {
+								errorMessage += 	'The request cannot be submitted until the unused samples are removed from the list or assigned to ' + target + 's.  ';
+							}
+							errorMessage += '\n\n';					
+						}
+					}
+				}	
+				
+			}
 			
 			// Warn if some of the arrays (on a multi-array slide) are not used.	
 			if (isMicroarrayState()) {
@@ -1749,31 +1897,38 @@
 		
 		
 		
-		private function submitRequest():void {
+		private function submitRequest():void { 
 		 	
-			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
-			request.@idLab = setupView.labCombo.selectedItem.@idLab;
-			request.@idAppUser = setupView.idAppUser;
-			request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
-			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
+			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			
-			if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
-				request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
+			if (!this.isAmendState()) {
+				request.@idLab = setupView.labCombo.selectedItem.@idLab;
+				request.@idAppUser = setupView.idAppUser;
+				request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
+				request.@idProject = setupView.projectCombo.selectedItem.@idProject;
+				if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
+					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
+				}
+				
 			}
 			
-			request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
-			
-			if (currentState != 'QCState') {
-				request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
+			if (theTab.contains(sampleSetupView)) {
+				request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;
+				request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
+				
+				if (currentState != 'QCState') {
+					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
+				}						
 			}
-			request.@idSamplePrepMethodDefault = sampleSetupView.samplePrepMethodCombo.selectedItem.@value;				
 			
 
-			if (currentState == 'MicroarrayState') {
+			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayAmendState') {
 				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 				request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;		
 			} else if (this.isSolexaState()) {
-				request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+				if (theTab.contains(sampleSetupView)) {
+					request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+				}
 			} else if (this.isQCState()) {
 				request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;
 			}
@@ -1787,7 +1942,7 @@
 				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
-			if (currentState == 'MicroarrayState') {
+			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayAmendState') {
 				for each(var hyb:Object in hybs) {
 					if (requestCategory.@numberOfChannels != "2") {
 						hyb.@idSampleChannel2 = "0";
@@ -1797,12 +1952,29 @@
 			} else {
 				request.@idSlideProduct = '';
 			}
+
+
+
+			// Add back the existing lanes if we are adding lanes
+			// to an existing experiment request
 			request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 
+			if (this.currentState == "SolexaLaneAmendState") {
+				// If for some reason, we don't have any existing lanes/
+				// there is a problem with the state of the data.  Just
+				// bail because we don't want the back-end command
+				// to delete the existing lanes.
+				if (existingLanes == null || existingLanes.length == 0) {
+					Alert.show("Inconsistent state.  No existing lanes present on experiment.  Aborting submit.");
+					return;
+				}
+				for each(var l:Object in existingLanes) { 
+					request.sequenceLanes.appendChild(l);
+				}
+			}
 			if (isSolexaState()) {
 				for each(var lane:Object in lanes) {
 					request.sequenceLanes.appendChild(lane);
 				}
-			
 			}			
 			request.replace("SeqLibTreatmentEntries", <SeqLibTreatmentEntries></SeqLibTreatmentEntries>); 
 			if (isSolexaState()) {
@@ -1812,10 +1984,19 @@
 					}
 				}
 			}			
+			
+			// We need special field that tells us the way the
+			// request is being amended
+			if (this.isAmendState()) {
+				request.@amendState = currentState.toString();
+			}
 
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
-			params.idProject = setupView.projectCombo.selectedItem.@idProject;
+			
+			if (!isAmendState()) {
+				params.idProject = setupView.projectCombo.selectedItem.@idProject;				
+			}
 			saveNewRequest.send(params);			
 			
 		}
@@ -1911,16 +2092,24 @@
  				nextButton.enabled = false;
 				backButton.enabled = false;
 				
-				setupView.enabled = false;
-				sampleSetupView.enabled = false;
+				if (theTab.contains(setupView)) {
+					setupView.enabled = false;				
+				}
+				if (theTab.contains(sampleSetupView)) {
+					sampleSetupView.enabled = false;				
+				}
 				if (theTab.contains(annotationView)) {
 					annotationView.enabled = false;
 				}
 				samplesView.enabled = false;
 				
 				if (this.isSolexaState()) {
-					this.seqSetupView.enabled = false;
-					this.seqSetup1View.enabled = false;
+					if (theTab.contains(seqSetupView)) {
+						this.seqSetupView.enabled = false;					
+					}
+					if (theTab.contains(seqSetup1View)) {
+						this.seqSetup1View.enabled = false;
+					}
 				}
 
 				if (this.isSolexaEditState()) {
@@ -2120,7 +2309,392 @@
 			}			
 
 		}
+		
+		private function setAmendState():void {
+			if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != "") {
+				if (this.radioGroupAmendType.selectedValue == "ADDSEQLANES" ) {
+					this.currentState = "SolexaLaneAmendState";
+				} else if (this.radioGroupAmendType.selectedValue == "QCTOSEQ") {
+					this.currentState = "SolexaBaseAmendState";
+				} else if (this.radioAmendQCToAffy.selected || this.radioAmendQCToAgilent.selected || this.radioAmendQCToAgilent1Color.selected) {
+					this.currentState = "MicroarrayAmendState"; 
+				}
+			}
+		
+		}
+		
+		private function getCandidateAmendExperiments():void {
+			browseTree.selectedItem = null;
+			checkAmendSetupCompleteness();
+			
+			if (this.radioGroupAmendType.selectedValue != null && 
+			    this.radioGroupAmendType.selectedValue != "" &&
+			    this.labCombo.selectedIndex > 0) {
+			    	
+				var params:Object = new Object();
+				params.idLab = labCombo.selectedItem.@idLab;
+				params.showSamples = "N";
+				params.showCategory = "N";
+				params.searchPublicProjects = 'N';
+				params.publicExperimentsInOtherGroups = 'N';
+				params.isBioanalyzer = this.radioAmendQCToAgilent.selected || this.radioAmendQCToAgilent1Color.selected ||this.radioAmendQCToAffy.selected || this.radioAmendQCToSeq ? "Y" : "N";
+				params.isSolexa = this.radioAmendAddSeqLanes.selected ? "Y" : "N";
+				
+				if (lastWeekCheckbox.selected) { 
+					params.lastWeek = 'Y'; 
+				} else if (lastMonthCheckbox.selected) {
+					params.lastMonth = 'Y';
+				} else if (lastThreeMonthsCheckbox.selected) {
+					params.lastThreeMonths = 'Y';
+				} else if (lastYearCheckbox.selected) {
+					params.lastYear = 'Y';
+				}
 
+				// For normal users, scope to only show user's own experiments.
+				// Lab managers can amend anyone's experiment.  (Admins are
+				// considered manager on all labs, so they can also
+				// amend any experiment.				
+				if (labCombo.selectedItem.@canManage != "Y") {
+					params.idAppUser = parentApplication.getIdAppUser();				
+				}					
+				
+				this.getCandidateProjectRequestList.send(params);
+				
+			}
+		}
+		
+		private function onGetCandidateProjectRequestList(event:ResultEvent): void {
+        	if (this.getCandidateProjectRequestList.lastResult.name() != "ProjectRequestList") {
+        		Alert.show(getCandidateProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
+        		this.browseTree.visible = false;
+        		return;
+        	}
+        	  
+        	if (getCandidateProjectRequestList.lastResult.Lab.length() == 0) {
+        		this.browseTree.visible = false;
+        		var dateRange:String = null;
+        		if (this.lastWeekCheckbox.selected) {
+        			dateRange = " submitted in the last week were";
+        		} else if (this.lastMonthCheckbox.selected) {
+        			dateRange = " submitted in the last month were";
+        		} else if (this.lastThreeMonthsCheckbox.selected) {
+        			dateRange = " submitted in the last 3 months were";
+        		} else if (this.lastYearCheckbox.selected) {
+        			dateRange = " submitted in the last year were";
+        		}
+        		if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC") == 0) {
+        			Alert.show("No Sample Quality experiments" + dateRange + " found.");
+        		} else {
+        			Alert.show("No Illumina Sequencing experiments" + dateRange + " found.");
+        		}
+        	} else {
+        		this.browseTree.visible = true;
+	        	callLater(expandTree);
+        	}
+	    }	
+	    	
+		private function expandTree():void {
+			
+        	browseTree.expandItem(getCandidateProjectRequestList.lastResult, true);
+  			for each(var project:Object in getCandidateProjectRequestList.lastResult..Project) {
+  				browseTree.expandItem(project, true);
+  			}
+  			for each(var lab:Object in getCandidateProjectRequestList.lastResult..Lab) {
+  				browseTree.expandItem(lab, true);
+  			}
+  			browseTree.selectedIndex = 0;
+  			browseTree.validateNow();
+  			browseTreeContainer.validateNow();
+		}        		    
+
+		public function getTreeIcon(item:Object):Class {
+				if (item.name() == "Lab") {
+					return parentApplication.iconGroup;
+				} else if (item.name() == "Project") {
+					return parentApplication.iconProject;
+				} else if (item.name() == "RequestCategory") {
+					return parentApplication.iconCategory;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
+					return parentApplication.iconQC;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
+					return parentApplication.iconSolexa;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
+					return parentApplication.iconMicroarrayAffy;
+				}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
+					return parentApplication.iconMicroarray;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
+					return parentApplication.iconMicroarraySingleColor;
+				} else {
+					return parentApplication.iconProject;
+				}
+		}
+
+		public function getTreeLabel(item:Object):String {
+				if (item.name() == "Request") {
+					return item.@displayName;
+				} else {
+					return item.@label;
+				}
+		}
+		
+		private function toggleDateCheckboxes(checkBoxNumber:int):void {
+			if (checkBoxNumber == 1) {
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+			} else if (checkBoxNumber == 2) {
+				this.lastWeekCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+			} else if (checkBoxNumber == 3) {
+				this.lastWeekCheckbox.selected  = false;
+				this.lastMonthCheckbox.selected = false; 
+				this.lastYearCheckbox.selected  = false;
+			}  else if (checkBoxNumber == 4) {
+				this.lastWeekCheckbox.selected  = false;
+				this.lastMonthCheckbox.selected = false; 
+				this.lastThreeMonthsCheckbox.selected = false;
+			}   
+		} 	
+		
+		public function isAmendState():Boolean {
+			if (currentState == "AmendState" ||
+			    currentState == "MicroarrayAmendState" ||
+			    currentState == "SolexaBaseAmendState" ||
+			    currentState == "SolexaLaneAmendState") {
+				return true;    	
+			} else {
+				return false;
+			}
+		}	
+		
+		public function isSolexaAmendState():Boolean {
+			if (currentState == "SolexaBaseAmendState" ||
+			    currentState == "SolexaLaneAmendState") {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		public function isMicroarayAmendState():Boolean {
+			if (currentState == "MicroarrayAmendState") {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		private function checkAmendSetupCompleteness():void {
+			var isComplete:Boolean = false;
+			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
+				
+				if (this.getAmendRequestType() != null && this.getAmendRequestType() != "") {
+					isComplete = true;
+				}
+			}
+			
+			if (isComplete) {
+				this.getRequestToAmend.send();
+			}
+			
+
+			if (currentState == "SolexaBaseAmendState") {
+	    		seqSetupView.enabled = isComplete;
+        	} else if (currentState == "SolexaLaneAmendState") {
+        		this.seqSetup1View.enabled = isComplete;
+        	} else if (currentState == "MicroarrayAmendState" ) {
+	    		sampleSetupView.enabled = isComplete;
+    			if (theTab.contains(this.annotationView)) {
+        			annotationView.enabled = isComplete;
+       			}        			
+    		}
+    		
+    		enableNextButtons();
+    		
+    		
+    		callLater(postAmendSetupCompleteness, [isComplete]);
+    		
+    		
+        }
+        
+        private function postAmendSetupCompleteness(isComplete:Boolean):void {
+    		if (!isComplete) {
+    			if (currentState == "SolexaBaseAmendState") {
+    				this.seqSetupView.enabled = false;
+    			} else if (currentState == "SolexaLaneAmendState") {
+    				this.seqSetup1View.enabled = false;
+    			} else if (currentState == "MicroarrayAmendState") {
+    				this.sampleSetupView.enabled = false;
+    			}
+	    		this.samplesView.enabled = false;
+	        	if (this.theTab.contains(this.hybSetupView)) {
+		        	this.hybSetupView.enabled = false;
+	        	} 
+	        	if (this.theTab.contains(this.hybsView)) {
+		        	this.hybsView.enabled = false;
+	        	} 
+	        	this.confirmView.enabled = false;
+    		} else {
+    			if (currentState == "SolexaBaseAmendState") {
+    				this.seqSetupView.checkSeqAppSetupCompleteness();
+    			} else if (currentState == "SolexaLaneAmendState") {
+    				this.seqSetup1View.checkSeqSetup1Completeness();
+    			} else if (currentState == "MicroarrayAmendState") {
+    				this.sampleSetupView.checkSampleSetupCompleteness();
+    			}
+    			this.samplesView.checkSamplesCompleteness();
+    			this.hybSetupView.checkHybSetupCompleteness();
+    			this.hybsView.checkHybsCompleteness();
+    		}
+        	
+        }
+	
+		private function onGetRequestToAmend(event:ResultEvent):void {
+			
+			var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest);
+			existingLanes = request.sequenceLanes.SequenceLane;
+			setupAmendForm(request);
+		}
+
+		public function setupAmendForm(theRequest:Object):void {
+			request = theRequest;
+			samplesView.currentState = '';
+
+
+			var requestCategory:Object = getRequestCategory();
+			requestCategoryName = requestCategory.@display.toString();
+
+			
+			var prevSelectedTab:Container = theTab.selectedChild;			
+				
+			this.annotationView.currentState = 'EditState';		
+
+			if (this.isSolexaAmendState()) {
+				if (this.currentState != "SolexaLaneAmendState") {
+					this.sampleSetupView.currentState = "SolexaAmendState";
+				} 
+				this.samplesView.currentState = "SolexaSamplesState";
+			} else if (this.isMicroarayAmendState()) {				
+				this.sampleSetupView.currentState = "MicroarrayAmendState";
+				this.hybSetupView.currentState = "SetupState";
+			}
+			
+			
+			callLater(postSetupAmendForm);
+
+		}
+		
+		private function postSetupAmendForm():void {
+			// Set the codeRequestCategory
+			request.@codeRequestCategory = this.getAmendRequestType();
+			
+			this.samplesView.showHideColumns();
+			
+			if (isSolexaAmendState()) {
+				this.filteredGenomeBuildList.refresh();
+				
+				// Get rid of the existing lanes.  User will specify
+				// additional lanes
+				lanes.removeAll();
+				
+				// Propagate the entries on seq setup1 that
+				// may have been selected from prev amend request
+				this.seqSetup1View.propagateSeqRunType();
+				this.seqSetup1View.propagateNumberSequencingCycles();
+				this.seqSetup1View.propagateGenomeBuild();
+				this.seqSetup1View.propagateAnalysisInstructions();
+
+				
+			}
+			
+			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
+				// We are converting a QC request to a microarray or illumina
+				// sequencing request.
+				
+				// Set the default sample type on the request based on the first sample listed
+				var idSampleTypeDefault:String = request.samples.Sample[0].@idSampleType.toString();
+				request.@idSampleTypeDefault = idSampleTypeDefault;
+			} 
+			
+			// Default the samples and sample setup for QC->SEQ 
+			if (currentState == "SolexaBaseAmendState") {
+   			   // Initialize @seqPrepByCore to 'Y'
+				for each(var s:Object in request.samples.Sample) {
+					s.@seqPrepByCore = "Y";
+				}
+
+				// Default the sample type and nucleic acid extraction
+				// dropdowns on sample setup
+				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
+				
+				// Reset the organism on the sample if it was previously selected
+				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
+				sampleSetupView.propagateSampleOrganism();
+			}
+			
+			
+			if (currentState == "MicroarrayAmendState") {
+				// Get rid of the hybs from previous amend
+				hybs.removeAll();
+
+				// Filter the slide product list
+				this.filteredSlideProductList.refresh();
+				
+				
+				
+				// Filter the microarray app list
+				this.filteredMicroarrayAppList.refresh();
+				
+				// Default the sample type and nucleic acid extraction
+				// dropdowns on sample setup
+				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.samplePrepMethodCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod', request.@idSamplePrepMethodDefault);
+
+				// Reset the organism on the sample if it was previously selected
+				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
+				sampleSetupView.propagateSampleOrganism();
+
+				// Hide/Show the channel 2 sample column
+				var requestCategory:Object = this.getRequestCategory();
+				if (requestCategory.@numberOfChannels == "2") {
+					this.samplesView.currentState = 'MicroarraySamplesState';
+					this.hybsView.currentState = "";
+					hybsView.channel2SampleColumn.visible = true;
+					samplesView.labelColumn.visible = true;
+					confirmView.channel2SampleConfirmColumn.visible = true;
+				} else {
+					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
+					this.hybsView.currentState = "HybsOneColorState";
+					hybsView.channel2SampleColumn.visible = false;
+					samplesView.labelColumn.visible = false;
+					confirmView.channel2SampleConfirmColumn.visible = false;
+					for each (var s1:Object in samples) {
+						s1.@label = 'cy3';
+					}
+				}
+				
+				
+				// Reset the hyb setup view
+				hybSetupView.organismCombo.selectedIndex = -1;
+				hybSetupView.slideProductCombo.selectedIndex = -1;
+				hybSetupView.numberOfHybs.text = '';
+				hybSetupView.isCatalogRadio.selected = true;
+				hybSetupView.coreSlideSourceCheckbox.selected = false;
+			 	hybSetupView.clientSlideSourceCheckbox.selected = false;
+				hybSetupView.stripSlideSourceCheckbox.selected = false;
+
+				hybSetupView.organismCombo.enabled = true;
+				hybSetupView.slideProductCombo.enabled = true;
+				hybSetupView.isCatalogRadio.enabled = true;
+				hybSetupView.isCustomRadio.enabled = true;
+
+
+			}
+			
+			
+			this.dirty.resetDirty();
+		}
 
 
 		]]>
@@ -2137,7 +2711,7 @@
 
 
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
-
+	
  
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
@@ -2149,6 +2723,7 @@
 			creationPolicy="all"
 			height="100%" paddingLeft="8" 
 			paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
+			
 		    <experiment:TabSetupView id="setupView">		    	
 		    </experiment:TabSetupView>
 
@@ -2306,7 +2881,26 @@
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
+        <mx:State name="MicroarrayAmendState" basedOn="AmendState">
+    		<mx:RemoveChild target="{seqSetupView}"/>
+            <mx:RemoveChild target="{seqSetup1View}"/>
+            <mx:SetStyle target="{hbox3}" name="paddingLeft" value="60"/>
+            <mx:SetProperty target="{radioAmendQCToAgilent}" name="enabled" value="true"/>
+            <mx:SetProperty target="{text1}" name="enabled" value="true"/>
+            <mx:SetProperty target="{radioAmendQCToAgilent1Color}" name="enabled" value="true"/>
+            <mx:SetProperty target="{text2}" name="enabled" value="true"/>
+            <mx:SetProperty target="{text3}" name="enabled" value="true"/>
+            <mx:SetProperty target="{radioAmendQCToAffy}" name="enabled" value="true"/>
+        </mx:State>
         <mx:State name="QCState">
+            <mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{annotationView}"/>
+            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+    		<mx:RemoveChild target="{seqSetupView}"/>
+            <mx:RemoveChild target="{seqSetup1View}"/>
+        </mx:State>
+        <mx:State name="QCAmendState" basedOn="AmendState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
@@ -2320,7 +2914,7 @@
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
             <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
 				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
-						<mx:Label text="{lanes.length + ' Sequencing Lanes'}"/>
+						<mx:Label id="laneGridLabel" text="{lanes.length + ' Sequencing Lanes'}" paddingTop="4"/>
 						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  paddingTop="5" editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
 						<mx:columns>
 						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
@@ -2338,6 +2932,30 @@
 				</mx:VBox>	
             </mx:AddChild>
          </mx:State>
+        <mx:State name="SolexaBaseAmendState" basedOn="AmendState">
+        	<mx:RemoveChild target="{hybSetupView}"/>
+            <mx:RemoveChild target="{hybsView}"/>
+            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+            <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
+				<mx:VBox  id="lanesAmendConfirmContainer"  verticalGap="0"  paddingTop="4" width="100%" height="100%">
+						<mx:Label id="laneGridLabel1" text="{lanes.length + ' Sequencing Lanes'}"/>
+						<mx:DataGrid width="100%" height="100%" id="lanesAmendConfirmGrid"  paddingTop="5" editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:columns>
+						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
+						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
+				            <mx:DataGridColumn  width="200" id="seqRunTypeAmendCol" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
+				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesAmendCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
+				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
+	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
+							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
+						</mx:columns>
+					</mx:DataGrid>
+					
+				</mx:VBox>	
+            </mx:AddChild>
+        </mx:State>
         <mx:State name="QCEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>
             <mx:RemoveChild target="{annotationView}"/>
@@ -2368,6 +2986,104 @@
             	</experiment:TabLanesView>
             </mx:AddChild>
          </mx:State>
+        <mx:State name="BaseSubmitState">
+        </mx:State>
+        <mx:State name="AmendState">
+            <mx:AddChild relativeTo="{seqSetupView}" position="before">
+                <mx:VBox id="amendSetupView" label="Add services" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
+                	<mx:RadioButtonGroup id="radioGroupAmendType"/>
+                	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
+                		<mx:Label text="(1) Verify your lab group." width="155"/>
+                		<mx:ComboBox  id="labCombo" dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+                			selectedIndex="-1" labelField="@name" 
+                			width="340"
+                			change="{this.getCandidateAmendExperiments()}">
+                		</mx:ComboBox>
+                	</mx:HBox>
+                	<mx:HBox width="100%" horizontalGap="8">
+                		<mx:Text text="(2) Select the additional services to be performed." width="155"/>
+                		<mx:VBox width="100%" height="100%" verticalGap="10">
+                		    <mx:HBox id="microarrayAmendBox" width="100%" horizontalGap="0">
+	                			<mx:Text text="Did Sample Quality, now want this experiment performed..." width="210"/>
+	                			<mx:VBox id="requestTypeBox" horizontalGap="0" verticalGap="2" paddingLeft="0" paddingTop="0" paddingRight="0" paddingBottom="0" width="100%">
+	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
+	                				    <mx:Image source="{parentApplication.iconMicroarray}"/>						    	
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="170" enabled="true"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%" enabled="true" id="text1"/>
+	                				</mx:HBox>
+	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
+	                				    <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="170" enabled="true"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%" enabled="true" id="text2"/>
+	                				</mx:HBox>
+	                				<mx:HBox width="100%" horizontalGap="4">
+	                				    <mx:Image source="{parentApplication.iconMicroarrayAffy}" />						    	
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="170" enabled="true"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%" enabled="true" id="text3"/>
+	                				</mx:HBox>
+	                				<mx:HBox id="seqAmendBox"  width="100%"  horizontalGap="4">
+	                					<mx:Image source="assets/DNA_diag.png"/>
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="170">
+	                						<mx:label>Illumina Sequencing</mx:label>
+	                					</mx:RadioButton>
+	                					<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%" enabled="true" id="text0"/>
+	                				</mx:HBox>
+	                			</mx:VBox>
+                		    </mx:HBox>
+                		    <mx:HBox id="seqLaneAmendBox" width="100%" horizontalGap="0">
+        	        			<mx:Label text="Did Illumina sequencing, now want.." width="210"/>
+        	        			<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
+        	        				<mx:Image source="assets/DNA_diag.png"/>
+        	        				<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes">
+        	        					<mx:label>Additional Sequencing Lanes</mx:label>
+        	        				</mx:RadioButton>
+        	        			</mx:HBox>
+                		    </mx:HBox>
+                		</mx:VBox>
+                	</mx:HBox>
+                	<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox2">
+                		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="8">
+                			<mx:Text text="(3) Pick the experiment to be amended:" id="label1" width="155"/>
+                			<mx:HBox horizontalGap="4" height="100%" verticalAlign="middle" verticalGap="0"  horizontalAlign="right"  paddingLeft="0" paddingRight="0"  id="hbox3">
+		    					<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+		    						<mx:click>toggleDateCheckboxes(1);getCandidateAmendExperiments();</mx:click>
+		    					</mx:CheckBox>
+		    					<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+		    						<mx:click>toggleDateCheckboxes(2);getCandidateAmendExperiments();</mx:click>
+		    					</mx:CheckBox>
+		    					<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"  selected="true">
+		    						<mx:click>toggleDateCheckboxes(3);getCandidateAmendExperiments();</mx:click>
+		    					</mx:CheckBox>
+		    					<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"   >
+		    						<mx:click>toggleDateCheckboxes(4);getCandidateAmendExperiments();</mx:click>
+		    					</mx:CheckBox>
+		    				</mx:HBox> 
+
+                		</mx:HBox>
+                		<mx:VBox width="100%" height="100%" id="browseTreeContainer" verticalGap="0">
+                			<mx:Tree width="100%" height="100%" id="browseTree"
+                				 itemClick="{this.checkAmendSetupCompleteness()}" 
+                				dataProvider="{getCandidateProjectRequestList.lastResult}"
+                			showRoot="false" 
+                			borderStyle="solid"
+                			labelField="@label"
+                			labelFunction="getTreeLabel" 
+                			iconFunction="getTreeIcon" 
+                			backgroundAlpha="1" dropShadowEnabled="true">
+                			</mx:Tree>
+                		</mx:VBox>
+                	</mx:VBox>
+                	
+                </mx:VBox>
+            </mx:AddChild>
+            <mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>
+            <mx:RemoveChild target="{setupView}"/>
+            <mx:SetProperty target="{titleLabel}" name="text" value="Add services to existing experiment "/>
+        </mx:State>
+        <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
+            <mx:RemoveChild target="{sampleSetupView}"/>
+            <mx:RemoveChild target="{seqSetupView}"/>
+        </mx:State>
     </util:states>
     
 
