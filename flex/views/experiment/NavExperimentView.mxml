@@ -831,6 +831,8 @@
 				params.lastWeek = 'Y'; 
 			} else if (lastMonthCheckbox.selected) {
 				params.lastMonth = 'Y';
+			} else if (lastThreeMonthsCheckbox.selected) {
+				params.lastThreeMonths = 'Y';
 			} else if (lastYearCheckbox.selected) {
 				params.lastYear = 'Y';
 			}
@@ -1072,15 +1074,23 @@
 	private function toggleDateCheckboxes(checkBoxNumber:int):void {
 		if (checkBoxNumber == 1) {
 			this.lastMonthCheckbox.selected = false;
+			this.lastThreeMonthsCheckbox.selected = false;
 			this.lastYearCheckbox.selected  = false;
 		} else if (checkBoxNumber == 2) {
 			this.lastWeekCheckbox.selected = false;
+			this.lastThreeMonthsCheckbox.selected = false;
 			this.lastYearCheckbox.selected  = false;
 		} else if (checkBoxNumber == 3) {
 			this.lastWeekCheckbox.selected  = false;
 			this.lastMonthCheckbox.selected = false; 
+			this.lastYearCheckbox.selected  = false;
+		}  else if (checkBoxNumber == 4) {
+			this.lastWeekCheckbox.selected  = false;
+			this.lastMonthCheckbox.selected = false; 
+			this.lastThreeMonthsCheckbox.selected = false;
 		}   
-	}   
+	} 		 
+	
 	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
 		if (checkBoxNumber == 1) {
 			this.publicExperimentsOtherGroupsCheckbox.selected = false;
@@ -1147,8 +1157,11 @@
 		    		<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
 		    			<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
-		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"  >
+					<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
 		    			<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>		    		
+		    		<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="0" horizontalGap="0"  >
+		    			<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 		    	</mx:HBox> 
 	    	

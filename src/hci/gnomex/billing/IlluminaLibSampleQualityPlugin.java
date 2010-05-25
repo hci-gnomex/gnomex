@@ -23,7 +23,7 @@ import org.hibernate.Session;
 
 public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
   public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
-    List billingItems = new ArrayList();
+    List billingItems = new ArrayList<BillingItem>();
     Map codeChipTypeMap = new HashMap();
     
     // Count up number of samples for each codeBioanalyzerChipType

@@ -141,6 +141,17 @@ public class LabeledSample extends HibernateDetailObject {
     }
   }
 
+  public String getLabelingStatusAbbreviated() {
+    if (labelingDate != null) {
+      return "Done";
+    } else if (this.getLabelingFailed() != null && this.getLabelingFailed().equals("Y")) {
+      return "Failed";
+    } else if (this.getLabelingBypassed() != null && this.getLabelingBypassed().equals("Y")) {
+      return "Bypassed";
+    } else {
+      return "";
+    }
+  }
   
   public String getLabelingBypassed() {
     return labelingBypassed;

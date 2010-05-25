@@ -43,6 +43,11 @@ public class RequestParser implements Serializable {
   private List            hybInfos = new ArrayList();
   private List            sequenceLaneInfos = new ArrayList();
   private boolean        saveReuseOfSlides = false;
+  private String          amendState = "";
+  
+  public static final String   AMEND_QC_TO_MICROARRAY = "MicroarrayAmendState";
+  public static final String   AMEND_QC_TO_SEQ        = "SolexaBaseAmendState";
+  public static final String   AMEND_ADD_SEQ_LANES    = "SolexaLaneAmendState";
   
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
@@ -129,6 +134,14 @@ public class RequestParser implements Serializable {
         request = (Request)sess.load(Request.class, idRequest);
         saveReuseOfSlides = true;
         
+        // Reset the complete date
+        // a QC request to a microarray or sequencing request
+        if (this.isQCAmendRequest()) {
+          request.setCompletedDate(null);
+  
+        }
+        request.setLastModifyDate(new java.sql.Date(System.currentTimeMillis()));
+        
         // Only some users have permissions to set the visibility on the request
         if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
           if (n.getAttributeValue("codeVisibility") == null || n.getAttributeValue("codeVisibility").equals("")) {
@@ -144,7 +157,10 @@ public class RequestParser implements Serializable {
   
   private void initializeRequest(Element n, Request request) throws Exception {
     
-    
+    if (n.getAttributeValue("amendState") != null && !n.getAttributeValue("amendState").equals("")) {
+      amendState = n.getAttributeValue("amendState");      
+    }
+   
     
     otherCharacteristicLabel = this.unEscape(n.getAttributeValue(SampleCharacteristicEntry.OTHER_LABEL));
     
@@ -1351,6 +1367,13 @@ public class RequestParser implements Serializable {
     return isNewRequest;
   }
 
+  public boolean isAmendRequest() {
+    return amendState != null && !amendState.equals("");
+  }
+  
+  public boolean isQCAmendRequest() {
+    return amendState.equals(AMEND_QC_TO_MICROARRAY) || amendState.equals(AMEND_QC_TO_SEQ);
+  }
   
   public boolean isSaveReuseOfSlides() {
     return saveReuseOfSlides;
@@ -1398,6 +1421,16 @@ public class RequestParser implements Serializable {
   
   public void setSequenceLaneInfos(List sequenceLaneInfos) {
     this.sequenceLaneInfos = sequenceLaneInfos;
+  }
+
+  
+  public String getAmendState() {
+    return amendState;
+  }
+
+  
+  public void setAmendState(String amendState) {
+    this.amendState = amendState;
   }
 
   

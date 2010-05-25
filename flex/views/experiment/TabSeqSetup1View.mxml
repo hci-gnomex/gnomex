@@ -64,16 +64,20 @@
 			} 
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
-       	private function propagateGenomeBuild():void {
+       	public function propagateGenomeBuild():void {
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+				if (this.genomeBuildCombo.selectedItem != null) {
+					sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+				}
 			} 
 			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+				if (this.genomeBuildCombo.selectedItem != null) {
+					lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;
+				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
-       	private function propagateAnalysisInstructions():void {
+       	public function propagateAnalysisInstructions():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@analysisInstructions = this.analysisInstructions.text;
 			}
@@ -82,7 +86,7 @@
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
-       	private function propagateNumberSequencingCycles():void {
+       	public function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.numberSequencingCyclesRadioGroup.selectedValue != null) {
 					sample.@idNumberSequencingCycles = this.numberSequencingCyclesRadioGroup.selectedValue;				
@@ -209,8 +213,10 @@
         		this.seqRunTypeBox.styleName = "requiredBox";
         	}
 			parentDocument.samplePrepMethodList.refresh();
-			parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
-			parentDocument.samplesView.initializeSamplesGrid();
+			if (!parentDocument.isAmendState()) {
+				parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 			this.propagateSeqRunType();
 			this.checkSeqSetup1Completeness(); 		        	
         }
@@ -222,9 +228,11 @@
         		this.numberSequencingCyclesBox.styleName = "requiredBox";
         	}
 			parentDocument.samplePrepMethodList.refresh();
-			parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
-			parentDocument.samplesView.initializeSamplesGrid();
-			this.propagateNumberSequencingCycles();
+			if (!parentDocument.isAmendState()) {
+				parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+   		    this.propagateNumberSequencingCycles();				
 			this.checkSeqSetup1Completeness();
         }
 

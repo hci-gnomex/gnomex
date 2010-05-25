@@ -384,6 +384,7 @@
 		<property name="completedDate" column="completedDate" type="date"/>
 		<property name="isArrayINFORequest" column="isArrayINFORequest" type="string"/>
 		<property name="codeVisibility" column="codeVisibility" type="string"/>
+		<property name="lastModifyDate" column="lastModifyDate" type="date"/>
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />

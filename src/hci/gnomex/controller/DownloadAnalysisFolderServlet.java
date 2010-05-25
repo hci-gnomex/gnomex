@@ -258,7 +258,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
             
             List fileNames = (List)fileNameMap.get(analysisNumber);
             if (fileNames == null) {
-              fileNames = new ArrayList();
+              fileNames = new ArrayList<String>();
               fileNameMap.put(analysisNumber, fileNames);
             }
             fileNames.add(fileName);

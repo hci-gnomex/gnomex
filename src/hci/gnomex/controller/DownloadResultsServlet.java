@@ -322,7 +322,7 @@ public class DownloadResultsServlet extends HttpServlet {
             
             List fileDescriptors = (List)fileDescriptorMap.get(requestNumber);
             if (fileDescriptors == null) {
-              fileDescriptors = new ArrayList();
+              fileDescriptors = new ArrayList<FileDescriptor>();
               fileDescriptorMap.put(requestNumber, fileDescriptors);
             }
             

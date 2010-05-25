@@ -163,7 +163,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             
             List infoList = (List)relatedFlowCellInfoMap.get(idSample);
             if (infoList == null) {
-              infoList = new ArrayList();
+              infoList = new ArrayList<RelatedFlowCellInfo>();
             }
             infoList.add(new RelatedFlowCellInfo(clustersPerTile, sampleConcentrationpM, seqLaneNumber, idSequenceLane));
             

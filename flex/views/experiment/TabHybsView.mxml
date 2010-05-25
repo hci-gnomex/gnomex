@@ -126,9 +126,9 @@
         	}
         	
         	if (parentDocument.hybSetupView.numberOfHybs.text == null || 
-        	parentDocument.hybSetupView.numberOfHybs.text == "0" || 
-        	parentDocument.hybSetupView.numberOfHybs.text == '' ||
-        	!parentDocument.hybSetupView.validNumberOfHybs) {
+        	    parentDocument.hybSetupView.numberOfHybs.text == "0" || 
+        	    parentDocument.hybSetupView.numberOfHybs.text == '' ||
+        	    !parentDocument.hybSetupView.validNumberOfHybs) {
         		return;
         	}
         	if (parentDocument.hybSetupView.slideProductCombo.selectedItem == null || parentDocument.hybSetupView.slideProductCombo.selectedItem.@value == '') {
@@ -155,7 +155,7 @@
        
  		
 		private function propagateHybChannel1Samples():void {
-			var requestCategory:Object = parentDocument.setupView.getRequestCategory();
+			var requestCategory:Object = parentDocument.getRequestCategory();
 			if (requestCategory.@numberOfChannels == "1") {
 				var count:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
@@ -176,9 +176,9 @@
         	if (parentDocument == null) {
         		return;
         	}
-        	if (parentDocument.request != null && parentDocument.request.codeRequestCategory == "QC") {
+        	if (parentDocument.isEditState()) {
         		return;
-        	}else if (parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
+        	} else if (!parentDocument.isAmendState() && parentDocument.setupView.requestTypeGroup.selectedValue == "QC") {
         		return;
         	}
         	
@@ -195,7 +195,7 @@
 	        		parentDocument.confirmView.enabled = true;
         		}
         		
-        	} else if (parentDocument.request.@idRequest != '0') {
+        	} else if (parentDocument.isEditState()) {
         		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
  		       		parentDocument.confirmView.enabled = true;        			
         		}

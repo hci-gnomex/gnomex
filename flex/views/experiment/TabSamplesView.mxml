@@ -22,7 +22,8 @@
 		public function addSample():void {
 			var emptyNode:XML = null;
 			if (parentDocument.isSolexaState()) {
-				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState') {
+				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
+				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
 					emptyNode = new XML("<Sample " +
 				    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
 				    " name='' description='' " +
@@ -78,7 +79,7 @@
 				
 				
 			}
-			else if ((currentState.indexOf('QCSamples') >= 0)) {
+			else if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
 				emptyNode = new XML("<Sample " +
 			    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
 			    " name='' description='' " +
@@ -263,10 +264,23 @@
           	parentDocument.userWarningsSamples = "";
         	var completeCount:int = 0;
         	for each(var sample:Object in parentDocument.samples) {
-        		if (currentState.indexOf('SolexaSamples') >= 0) {
+        		if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
         			
-        			if (!parentDocument.isEditState() &&
-		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
+        			if (parentDocument.currentState == 'SolexaLaneAmendState') {
+	        			if (isEntered(sample, "@name") &&
+			        		isEntered(sample, "@concentration") &&
+			        		isEntered(sample, "@idSampleType") &&
+	        			    isEntered(sample, "@idOrganism") &&
+			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
+	        			    isEntered(sample, "@idSeqRunType") &&
+	        			    isEntered(sample, "@idNumberSequencingCycles") &&
+	        			    isEntered(sample, "@numberSequencingLanes")) {
+			        		
+		        			completeCount++;
+		        		}
+		        	} else if (!parentDocument.isEditState() &&
+		        		 parentDocument.sampleSetupView.currentState == "SolexaSetupState" || 
+		        		 parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
 	        			if (isEntered(sample, "@name") &&
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idSampleType") &&
@@ -304,7 +318,7 @@
 		        		 
 		        	}
 			   	
-		        } else if (currentState.indexOf('QCSamples') >= 0){
+		        } else if (currentState != null && currentState.indexOf('QCSamples') >= 0){
 	        		if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
 			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
@@ -345,7 +359,7 @@
         	var isComplete:Boolean = false;
         	if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
         		isComplete = true;
-        	} else if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
+        	} else if (parentDocument.isEditState()) {
         		isComplete = true;
         	}
         	
@@ -368,7 +382,7 @@
         	// If this is a Solexa request and the sample setup is complete,
         	// create the sequencing lanes based on the number of lanes 
         	// entered for each sample.
-        	if (isComplete && currentState =='SolexaSamplesState') {
+        	if (isComplete && currentState != null && currentState =='SolexaSamplesState') {
         		var isValidNumberSeqLanes:Boolean = true;
         		for each (var s:Object in parentDocument.samples) {
     				if (s.@numberSequencingLanes > 100) {
@@ -450,7 +464,7 @@
 	    			parentDocument.hybSetupView.checkHybSetupCompleteness();
 	    			this.refreshHybsGrid();    				
     			} 
-    			if (parentDocument.isSolexaState() && !parentDocument.isEditState()) {
+    			if (parentDocument.isSolexaState() && !parentDocument.isEditState() && !parentDocument.isAmendState()) {
     				this.refreshLanesGrid();
     			}
     		}
@@ -472,35 +486,40 @@
 		}
 		
 		public function propagateOrganism(idOrganism:String):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
+			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idOrganism = idOrganism;
 				}
 			}
 		}
 		public function propagateSeqRunType(idSeqRunType:String):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
+			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idSeqRunType = idSeqRunType;
 				}
 			}
 		}
 		public function propagateNumberSequencingCycles(theSample:Object):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
+			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
 					lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
 				}
 			}
 		}		
  		public function propagateSolexaLibraryType(idSolexaLibraryType:String):void {
-			if (currentState.indexOf('SolexaSamples') >= 0) {
+			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idSolexaLibraryType = idSolexaLibraryType;
 				}
 			}
 		}       
         public function showHideColumns():void {
-        	sampleNumberCol.visible = parentDocument.isEditState();
+        	buttonsContainer.visible = !parentDocument.isAmendState();
+        	
+        	existingNumberSequencingLanesCol.visible = false;
+        	additionalNumberSequencingLanesCol.visible = false;
+        	
+        	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
         	sampleRowNumberCol.visible = !parentDocument.isEditState();
         	this.showQCFieldsCheckBox.visible = parentDocument.isEditState();
         	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0;
@@ -522,13 +541,22 @@
 				preppedByCoreCol.visible =  false;
 				idSeqRunTypeCol.visible =  false;
 
-        	} else if (currentState.indexOf('SolexaSamples') >= 0 ) {
-        		numberSequencingLanesCol.visible = !parentDocument.isEditState();
+        	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
+        		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState();
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
 				
+				if (parentDocument.currentState == "SolexaLaneAmendState") {
+					additionalNumberSequencingLanesCol.visible = true;
+					existingNumberSequencingLanesCol.visible = true;
+				} else if (parentDocument.currentState == "SolexaBaseAmendState") {
+					numberSequencingLanesCol.visible = true;
+					numberSequencingLanesCol.editable = true;
+				}
+				
 				if (parentDocument.isEditState() ||
-				    parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState") {
+				    parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
+				    parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
 					seqLibProtocolCol.visible = true;
 				} else {
 					seqLibProtocolCol.visible = false;
@@ -550,7 +578,7 @@
 					barcodeColumn.visible = parentDocument.sampleSetupView.barcodeRadioGroup.selectedValue != null && parentDocument.sampleSetupView.barcodeRadioGroup.selectedValue == 'Y' ? true : false;
 				}
 
-			} else if (currentState.indexOf('QCSamples') >= 0) {
+			} else if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
@@ -590,7 +618,7 @@
 			}
 			
 			// If this is a QC request, hide the annotation columns 
-			if (currentState.indexOf('QCSamples') >= 0) {
+			if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -609,8 +637,8 @@
 	        }
 		}
 		private function refreshLanesGrid():void {
- 		    parentDocument.lanesConfirmGrid.invalidateList();
- 		    parentDocument.lanesConfirmGrid.invalidateDisplayList();
+			parentDocument.lanesConfirmGrid.invalidateList();
+ 			parentDocument.lanesConfirmGrid.invalidateDisplayList();
 		}
 		
 		public function onEdit():void {
@@ -637,7 +665,7 @@
 			<mx:Spacer width="8"/>
 			<mx:HBox id="buttonsContainer">
 				<mx:Label id="samplesTitle" text="Samples:" height="100%" paddingTop="2"/>
-				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+				<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
@@ -683,12 +711,44 @@
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								    <mx:Label text="# Lanes to"/> 
-								    <mx:Label text="Sequence?"/>
+								    <mx:Label text="Sequence"/>
 								</mx:VBox> 
 							</mx:Component>
 						 </mx:headerRenderer>
-
- 	                </mx:DataGridColumn>          
+ 	                </mx:DataGridColumn>  
+ 	                
+ 	                <mx:DataGridColumn id="existingNumberSequencingLanesCol" 
+ 	                	headerText="# Lanes to Sequence" width="72" 
+ 	                	dataField="@sequenceLaneCount" 
+						editable="false">
+ 	                     <mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								    <mx:Label text="Existing"/> 
+								    <mx:Label text="# Lanes"/> 
+								</mx:VBox> 
+							</mx:Component>
+						 </mx:headerRenderer>
+ 	                </mx:DataGridColumn> 
+ 	                
+ 	                <mx:DataGridColumn id="additionalNumberSequencingLanesCol" 
+ 	                	headerText="# Lanes to Sequence" width="72" 
+ 	                	editorDataField="text" dataField="@numberSequencingLanes" 
+						editable="true"
+						rendererIsEditor="false"
+ 	                   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
+ 	                   itemEditor="views.renderers.TextInputSampleNumberSeqLanes"      >
+ 	                     <mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								    <mx:Label text="Additional"/> 
+								    <mx:Label text="# Lanes to"/> 
+								    <mx:Label text="Sequence"/>
+								</mx:VBox> 
+							</mx:Component>
+						 </mx:headerRenderer>
+ 	                </mx:DataGridColumn> 
+ 	                        
 	 				<mx:DataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
                         itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>                 											
 	 				<mx:DataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="70" dataField="@idNumberSequencingCycles" 

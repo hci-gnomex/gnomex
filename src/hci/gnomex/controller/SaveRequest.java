@@ -155,6 +155,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // save request
         saveRequest(requestParser.getRequest(), sess);
         
+
+        
         // save samples
         int sampleCount = 1;
         for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
@@ -165,28 +167,46 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
 
           // if this is a new request, create QC work items for each sample
-          if ((requestParser.isNewRequest()  || isNewSample)) {
+          if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
             if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-              
-              // For Solexa samples to be prepped by core, place on Solexa QC worklist.
-              // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
-              // will be recorded.
-              if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
-                workItem.setCodeStepNext(Step.SEQ_QC);
-              } else {
+
+              if (requestParser.isQCAmendRequest() && !isNewSample) {
+                // QC->Solexa request....
+                // Place samples on Seq Prep worklist.
                 workItem.setCodeStepNext(Step.SEQ_PREP);
-                sample.setQualBypassed("Y");
-                sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
-              }
+                if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
+                  sample.setQualBypassed( "Y");
+                  sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));                  
+                }
+              } else {
+                // New request....
+                // For Solexa samples to be prepped by core, place on Solexa QC worklist.
+                // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
+                // will be recorded.
+                if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
+                  workItem.setCodeStepNext(Step.SEQ_QC);
+                } else {
+                  workItem.setCodeStepNext(Step.SEQ_PREP);
+                  sample.setQualBypassed("Y");
+                  sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
+                }                
+              } 
               
             } else {
-                workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);
+                if (requestParser.isNewRequest() || isNewSample) {
+                  // New Microarray request or new Sample Quality request...
+                  // Place samples on QC work list
+                  workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);                  
+                }
             }
-            workItem.setSample(sample);
-            workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-            sess.save(workItem);
+            if (workItem.getCodeStepNext() != null) {
+              workItem.setSample(sample);
+              workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+              sess.save(workItem);
+              
+            }
           }
           
           sampleCount++;
@@ -213,6 +233,37 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
         }
         
+        // Create Hyb work items if QC->Microarray request
+        if (requestParser.getAmendState().equals(RequestParser.AMEND_QC_TO_MICROARRAY)) {
+          for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+            String idSampleString = (String)i.next();
+            boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+            Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+
+            if (!isNewSample) {
+              StringBuffer buf = new StringBuffer();
+              buf.append("SELECT  ls ");
+              buf.append(" from LabeledSample ls ");
+              buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
+
+
+              List labeledSamples = sess.createQuery(buf.toString()).list();
+              for(Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
+                LabeledSample ls = (LabeledSample)i1.next();
+
+                WorkItem wi = new WorkItem();
+                wi.setIdRequest(sample.getIdRequest());
+                wi.setCodeStepNext(Step.LABELING_STEP);
+                wi.setLabeledSample(ls);
+                wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+
+                sess.save(wi);
+              }
+              
+            }
+          }
+        }
+        
         // save sequence lanes
         HashMap sampleToLaneMap = new HashMap();
         HashMap existingLanesSaved = new HashMap();
@@ -235,12 +286,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             String idSampleString = (String)i.next();
             List lanes = (List)sampleToLaneMap.get(idSampleString);
             
-            int sampleSeqCount = 0;
+            int lastSampleSeqCount = 0;
+            
+            
+            // Figure out next number to assign for a 
+            for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
+              RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
+              boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+              if (!isNewLane) {
+                SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+                String[] tokens = lane.getNumber().split("_");
+                if  (tokens.length == 2) {
+                  Integer lastSeqLaneNumber = Integer.valueOf(tokens[1]);
+                  if (lastSeqLaneNumber.intValue() > lastSampleSeqCount) {
+                    lastSampleSeqCount = lastSeqLaneNumber.intValue();
+                  }
+                }
+                
+              }
+            }
+
             
             for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
               RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
               boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-              SequenceLane lane = saveSequenceLane(laneInfo, sess, sampleSeqCount);
+              SequenceLane lane = saveSequenceLane(laneInfo, sess, lastSampleSeqCount);
               
               if (!isNewLane) {
                 existingLanesSaved.put(lane.getIdSequenceLane(), lane);
@@ -256,55 +326,60 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 sess.save(workItem);
               }
 
-              
-              sampleSeqCount++;              
+
+              if (isNewLane) {
+                lastSampleSeqCount++;                              
+              }
             }
           }
           
           
         }
         
-        // Delete sequence lanes
-        for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
-          SequenceLane lane = (SequenceLane)i.next();
-          if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
-            boolean canDeleteLane = true;
-            
-            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-              this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
-              canDelete = false;
-            }
-            
-            StringBuffer buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
-            List analysis = sess.createQuery(buf.toString()).list();
-            if (analysis != null && analysis.size() > 0) {
-              canDelete = false;
-              this.addInvalidField("deleteLaneError1", "Cannot delete lane " + 
-                  lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
+        // Delete sequence lanes (edit request only)
+        if (!requestParser.isAmendRequest()) {
+            for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
+            SequenceLane lane = (SequenceLane)i.next();
+            if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
+              boolean canDeleteLane = true;
               
-            }
-            if (lane.getFlowCellChannel() != null) {
-              canDelete = false;
-              this.addInvalidField("deleteLaneError2", "Cannot delete lane " + 
-                  lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
-            }
-            if (lane.getFlowCellChannel() != null) {
-              buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
-              List workItems = sess.createQuery(buf.toString()).list();
-              if (workItems != null && workItems.size() > 0) {
+              if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+                this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
                 canDelete = false;
-                this.addInvalidField("deleteLaneError3", "Cannot delete lane " + 
-                    lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
               }
               
-            }
-            
-            if (canDeleteLane) {              
-              sess.delete(lane);
-            }
-            
-            
-          }          
+              StringBuffer buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
+              List analysis = sess.createQuery(buf.toString()).list();
+              if (analysis != null && analysis.size() > 0) {
+                canDelete = false;
+                this.addInvalidField("deleteLaneError1", "Cannot delete lane " + 
+                    lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
+                
+              }
+              if (lane.getFlowCellChannel() != null) {
+                canDelete = false;
+                this.addInvalidField("deleteLaneError2", "Cannot delete lane " + 
+                    lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
+              }
+              if (lane.getFlowCellChannel() != null) {
+                buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
+                List workItems = sess.createQuery(buf.toString()).list();
+                if (workItems != null && workItems.size() > 0) {
+                  canDelete = false;
+                  this.addInvalidField("deleteLaneError3", "Cannot delete lane " + 
+                      lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
+                }
+                
+              }
+              
+              if (canDeleteLane) {              
+                sess.delete(lane);
+              }
+              
+              
+            }          
+          }
+          
         }
         
         DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -813,7 +888,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.flush();
   }
   
-  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int sampleSeqCount) throws Exception {
+  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int lastSampleSeqCount) throws Exception {
 
     
     SequenceLane sequenceLane = null;
@@ -847,7 +922,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       Sample theSample = (Sample)sess.get(Sample.class, sequenceLane.getIdSample());
       
       String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", "F");
-      sequenceLane.setNumber(flowCellNumber + "_" + (sampleSeqCount + 1));
+      sequenceLane.setNumber(flowCellNumber + "_" + (lastSampleSeqCount + 1));
       sess.save(sequenceLane);
       sess.flush();
       

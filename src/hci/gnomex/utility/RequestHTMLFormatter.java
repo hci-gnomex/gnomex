@@ -130,11 +130,14 @@ public class RequestHTMLFormatter {
     }
     
     boolean showSeqLibProtocol = false;
+    boolean showBarcodeTag = false;
     for(Iterator i = samples.iterator(); i.hasNext();) {
     	Sample s = (Sample)i.next();
     	if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equalsIgnoreCase("N")) {
     		showSeqLibProtocol = true;
-    		break;
+    	}
+    	if (s.getIdOligoBarcode() != null) {
+    	  showBarcodeTag = true;
     	}
     }
     
@@ -145,8 +148,9 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-      this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));
-      this.addHeaderCell(rowh, "Core to perform library prep?", rowSpan, new Integer(1));
+      if (showBarcodeTag) {
+        this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));        
+      }
       if (showSeqLibProtocol) {
           this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
       }
@@ -156,17 +160,17 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Chip Type",rowSpan, new Integer(1));
     }
     if (includeMicroarrayCoreNotes ) {
-      this.addHeaderCell(rowh, "Quality", new Integer(1), new Integer(4),
+      this.addHeaderCell(rowh, "----------Quality-----------", new Integer(1), new Integer(4),
          "colgroup");
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-        this.addHeaderCell(rowh, "Lib Prep", new Integer(1), new Integer(2), "colgroup");        
+        this.addHeaderCell(rowh, "---Lib Prep---", new Integer(1), new Integer(2), "colgroup");        
       }
       
       rowh = new Element("TR");
       table.addContent(rowh);
       this.addHeaderCell(rowh, "Conc. ng/uL");
-      this.addHeaderCell(rowh, "260/230");
-      this.addHeaderCell(rowh, "QC method");
+      this.addHeaderCell(rowh, "260/ 230");
+      this.addHeaderCell(rowh, "QC meth");
       if (dnaSamples) {
         this.addHeaderCell(rowh, "Frag size");
       } else {
@@ -175,8 +179,8 @@ public class RequestHTMLFormatter {
       
       
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-        this.addHeaderCell(rowh, "Starting template quantity");
-        this.addHeaderCell(rowh, "Gel size range");
+        this.addHeaderCell(rowh, "Start templ. qty");
+        this.addHeaderCell(rowh, "Gel size rng");
       }
         
 
@@ -197,7 +201,17 @@ public class RequestHTMLFormatter {
           concentration += " " + sample.getCodeConcentrationUnit();
         }
       }
+ 
       
+      String qualFragmentSizeRange = "&nbsp;";
+      if (sample.getQualFragmentSizeFrom() != null && !sample.getQualFragmentSizeFrom().equals("")) {
+        qualFragmentSizeRange = sample.getQualFragmentSizeFrom() + "-";
+      }
+      if (sample.getQualFragmentSizeTo() != null && !sample.getQualFragmentSizeTo().equals("")) {
+        qualFragmentSizeRange += sample.getQualFragmentSizeTo();
+      } else {
+        qualFragmentSizeRange += "&nbsp;";
+      }
       
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
@@ -205,8 +219,9 @@ public class RequestHTMLFormatter {
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-        this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");
-        this.addCell(row, sample.getSeqPrepByCore() != null ? sample.getSeqPrepByCore() : "&nbsp;");
+        if (showBarcodeTag) {
+          this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");          
+        }
         if (showSeqLibProtocol) {
         	this.addCell(row, sample.getIdSeqLibProtocol() != null ? dictionaryHelper.getSeqLibProtocol(sample.getIdSeqLibProtocol()) : "&nbsp;");
         }
@@ -216,15 +231,29 @@ public class RequestHTMLFormatter {
                            dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()));
       }
       if (includeMicroarrayCoreNotes) {
-          this.addSmallEmptyCell(row);
-          this.addSmallEmptyCell(row);              
-          this.addSmallEmptyCell(row);              
-          this.addSmallEmptyCell(row);              
+          this.addCell(row, sample.getQualCalcConcentration() == null ? "&nbsp;"      : sample.getQualCalcConcentration().toString());
+          this.addCell(row, sample.getQual260nmTo230nmRatio() == null ? "&nbsp;"      : sample.getQual260nmTo230nmRatio().toString());
+                
+          this.addEmptyCell(row);
+          
+          if (dnaSamples) {
+            this.addCell(row, qualFragmentSizeRange);        
+            
+          } else {
+            this.addCell(row, sample.getQualRINNumber() == null ? "&nbsp;"              : sample.getQualRINNumber().toString());        
+            
+          }
+                      
       }
       if (includeMicroarrayCoreNotes ) {
         if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-          this.addSmallEmptyCell(row);              
-          this.addSmallEmptyCell(row);                        
+          if (sample.getSeqPrepByCore() == null || sample.getSeqPrepByCore().equals("N")) {
+            this.addCell(row, "prepped by lab");              
+            this.addCell(row, "prepped by lab");                          
+          } else {
+            this.addSmallEmptyCell(row);
+            this.addSmallEmptyCell(row);
+          }
         }
       }
     }
@@ -261,7 +290,7 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);    
     this.addHeaderCell(rowh, "Conc. ng/uL");
     this.addHeaderCell(rowh, "260/230");
-    this.addHeaderCell(rowh, "QC method");
+    this.addHeaderCell(rowh, "QC meth");
     if (this.dnaSamples) {
       this.addHeaderCell(rowh, "Size range");      
     } else {
@@ -320,19 +349,15 @@ public class RequestHTMLFormatter {
     return table;
   }
   
-  public Element makeLabeledSampleTable(Set labeledSamples) {
-    Element table = new Element("TABLE");
-    table.setAttribute("CLASS", "outer");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
+  public Element makeLabeledSampleTable(Element container, Set labeledSamples) {
 
-    Element row = new Element("TR");
-    table.addContent(row);
-    
-    Element cell = new Element("TD");
-    cell.setAttribute("CLASS", "outer");      
-    cell.addContent(makeLabelSampleTable(labeledSamples, "Cy3"));
-    row.addContent(cell);
+
+    Element col1 = new Element("DIV");
+    col1.setAttribute("id", "col1");
+    container.addContent(col1);
+
+    col1.addContent(makeLabelSampleTable(labeledSamples, "Cy3"));
+
     
     // Do we have some Cy5 samples?
     boolean hasCy5Samples = false;
@@ -347,14 +372,18 @@ public class RequestHTMLFormatter {
     
     // Only show Cy5 labeled sample table if we have some.
     if (hasCy5Samples) {
-      cell = new Element("TD");
-      cell.setAttribute("CLASS", "outer");      
-      cell.addContent(makeLabelSampleTable(labeledSamples, "Cy5"));
-      row.addContent(cell);
-      
+      Element col2 = new Element("DIV");
+      col2.setAttribute("id", "col2");
+      container.addContent(col2);
+
+      col2.addContent(makeLabelSampleTable(labeledSamples, "Cy5"));
     }
     
-    return table;
+    Element ftr = new Element("DIV");
+    ftr.setAttribute("id", "footer");
+    container.addContent(ftr);
+    
+    return container;
   }
   
   public Element makeLabelSampleTable(Set labeledSamples, String label) {
@@ -362,9 +391,7 @@ public class RequestHTMLFormatter {
     
     Element table = new Element("TABLE");
     table.setAttribute("CLASS", "gridHalf");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
- 
+    
     Element caption = new Element("CAPTION");
     caption.addContent(label + " Samples");
     table.addContent(caption);
@@ -387,6 +414,7 @@ public class RequestHTMLFormatter {
         Sample sample = labeledSample.getSample();
         
         Element row = new Element("TR");
+        row.setAttribute("CLASS", "forcedRowHeight");
         table.addContent(row);
 
         
@@ -492,8 +520,9 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
     this.addHeaderCell(rowh, "Sample name"    );
+    this.addHeaderCell(rowh, "Status"    );
     this.addHeaderCell(rowh, "Seq Run Type");
-    this.addHeaderCell(rowh, "# Sequencing Cycles");
+    this.addHeaderCell(rowh, "# Seq Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
 
@@ -512,9 +541,10 @@ public class RequestHTMLFormatter {
 
       this.addLeftCell(row, lane.getNumber());
       this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-      this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-      this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
-      this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
+      this.addCell(row, lane.getWorkflowStatusAbbreviated().equals("") ? "&nbsp;" : lane.getWorkflowStatusAbbreviated());
+      this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+      this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+      this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
       this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
     }
     
@@ -539,7 +569,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "#", "left");
     this.addHeaderCell(rowh, "Sample name"    );
     this.addHeaderCell(rowh, "Seq Run Type");
-    this.addHeaderCell(rowh, "# Sequencing Cycles");
+    this.addHeaderCell(rowh, "# Seq Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
 
@@ -560,8 +590,8 @@ public class RequestHTMLFormatter {
           SequenceLane lane = (SequenceLane)i1.next();
 
           this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-          this.addCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-          this.addCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+          this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+          this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
           this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
           this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
           
@@ -570,13 +600,13 @@ public class RequestHTMLFormatter {
       } else if (channel.getSequencingControl() != null) {
         SequencingControl control = channel.getSequencingControl();
         this.addCell(row, control.getDisplay());        
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
+        this.addSmallCell(row, "&nbsp;");
+        this.addSmallCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
       } else {
         this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
-        this.addCell(row, "&nbsp;");
+        this.addSmallCell(row, "&nbsp;");
+        this.addSmallCell(row, "&nbsp;");
         this.addCell(row, "&nbsp;");
       }
       
@@ -632,6 +662,15 @@ public class RequestHTMLFormatter {
       cell.addContent(value);
       row.addContent(cell);
   }
+  
+  
+  private void addSmallCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "gridSmall");      
+    cell.addContent(value);
+    row.addContent(cell);
+}
+
   
   private void addHighlightedCell(Element row, String value) {
     Element cell = new Element("TD");

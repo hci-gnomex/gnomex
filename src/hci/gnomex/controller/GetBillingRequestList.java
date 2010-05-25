@@ -139,7 +139,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         // Hash the status node.
         List statusList = (List)requestToStatusMap.get(requestNumberBilled);
         if (statusList == null) {
-          statusList = new ArrayList();
+          statusList = new ArrayList<String>();
           requestToStatusMap.put(requestNumberBilled, statusList);
         }
         statusList.add(BillingStatus.PENDING);
@@ -205,7 +205,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       
       List statusList = (List)requestToStatusMap.get(requestNumberBilled);
       if (statusList == null) {
-        statusList = new ArrayList();
+        statusList = new ArrayList<String>();
         requestToStatusMap.put(requestNumberBilled, statusList);
       }
       statusList.add(codeBillingStatus);

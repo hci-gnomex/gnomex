@@ -238,24 +238,13 @@
 			 //var parms:Object = new Object();
 			 //parms.idRequest = this.selectedExperiment.@idRequest;
 			 //parentDocument.getRequest.send(parms);
- 
- 			/*
-			 var editWindow:ExperimentEditView = ExperimentEditView(PopUpManager.createPopUp(this.parentApplication.topArea, ExperimentEditView, true));
-			 editWindow.width= 1000;
-			 editWindow.height= 500;
-			 editWindow.showCloseButton = true;
-			 editWindow.title = "Edit Experiment " + this.selectedExperiment.@number;
-			 PopUpManager.centerPopUp(editWindow);		
-             editWindow.setupEditForm(this.selectedExperiment);
-           	 editWindow.initializeData();
-           	 callLater(editWindow.setupDataListeners); 
-           	 */
            	 
+           	 //parentDocument.editView.setupEditForm(this.selectedExperiment);
+           	 parentDocument.editView.request = this.selectedExperiment;
            	 parentDocument.theViews.selectedChild = parentDocument.editView;
-           	 parentDocument.editView.removeDataListeners();
-           	 parentDocument.editView.setupEditForm(this.selectedExperiment);
-           	 parentDocument.editView.initializeData();
-           	 callLater(parentDocument.editView.setupDataListeners);
+           	 //parentDocument.editView.removeDataListeners();
+           	 //parentDocument.editView.initializeData();
+           	 //callLater(parentDocument.editView.setupDataListeners);
 		}
 		
 		public function refreshSavedExperiment(idRequest:Object):void {

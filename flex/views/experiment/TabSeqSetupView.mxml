@@ -109,14 +109,13 @@
         	var isComplete:Boolean = false;
         	if (parentDocument.isEditState()) {
         		isComplete = true;
-        	} else if (parentDocument.isSolexaState()) {
+        	} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState()) {
 	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
 	        		isComplete = true;
 	        	 }
         	} 
 
-        	
-        	if (this.currentState != "EditState") {
+			if (this.currentState != "EditState") {
 	        	parentDocument.sampleSetupView.enabled = isComplete; 
         	}
         	
@@ -133,7 +132,7 @@
 	    	if (!isComplete) {
 	        	if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
 		        	parentDocument.sampleSetupView.enabled = false;
-	        	} 
+	        	}
 	        	parentDocument.confirmView.enabled = false;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
@@ -160,7 +159,9 @@
 			}
 			
 			this.checkSeqAppSetupCompleteness();
-			this.parentDocument.sampleSetupView.pickSeqApp();
+			if (!this.parentDocument.isAmendState()) {
+				this.parentDocument.sampleSetupView.pickSeqApp();
+			}
 		}
 		
 	   	public function selectSeqLibTreatment(event:ListEvent):void {

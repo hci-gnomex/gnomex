@@ -66,7 +66,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
     
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
-    List analysisNumbers = new ArrayList();
+    List analysisNumbers = new ArrayList<String>();
     getFileNamesToDownload(baseDir, keysString, analysisNumbers, analysisMap, directoryMap);
    
     //  For each request number
@@ -203,7 +203,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       
       List directoryKeys = (List)analysisMap.get(analysisNumber);
       if (directoryKeys == null) {
-        directoryKeys = new ArrayList();
+        directoryKeys = new ArrayList<String>();
       }
       directoryKeys.add(directoryKey);
       

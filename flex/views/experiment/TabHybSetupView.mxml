@@ -84,7 +84,7 @@
         	    	
         		isComplete = true;
         	    	
-        	} else if (parentDocument.request.@idRequest != '0') {
+        	} else if (parentDocument.isEditState()) {
         		isComplete = true;
         	} else {
         		isComplete = false;
@@ -140,12 +140,12 @@
         		slideProductStack.selectedIndex = 0;
         	}
         }  
-        
+         
         public function initializeSlideProductCombo():void {
         	if (parentDocument == null) {
         		return;
         	}
-			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+        	parentDocument.filteredSlideProductList.refresh();
 
 			slideProductCombo.selectedIndex = -1;
 			for each(var slideProduct:Object in slideProductCombo.dataProvider) {
@@ -288,7 +288,7 @@
         		this.microarrayAppBox.styleName = "requiredBox";
         	}
         	initializeApplicationName();
-			parentApplication.filteredSlideProductListForSubmitRequests.refresh();
+			parentDocument.filteredSlideProductList.refresh();
 			slideProductCombo.selectedIndex = -1;
 			clearHybSlideDesigns();
 			checkHybSetupCompleteness();
@@ -319,7 +319,7 @@
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(1) Select an organism." width="250" />
 			<mx:ComboBox labelField="@display" width="250" id="organismCombo">							
-				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
+				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:HBox>
@@ -339,11 +339,11 @@
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(3) Select one of the following." width="250" />
 			<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
-			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)">
-				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
+			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)">
+				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
-			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)" paddingLeft="12">
-				<mx:change>parentApplication.filteredSlideProductListForSubmitRequests.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
+			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)" paddingLeft="12">
+				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
@@ -353,7 +353,7 @@
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 			    <mx:HBox>
 					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();arrayCoordinates = null;parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness();initializeApplicationName()}" >							
-						<mx:dataProvider>{parentApplication.filteredSlideProductListForSubmitRequests}</mx:dataProvider>
+						<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
 					</mx:ComboBox>
 			    </mx:HBox>
 			    <mx:HBox width="100%"  borderStyle="none" verticalAlign="middle">

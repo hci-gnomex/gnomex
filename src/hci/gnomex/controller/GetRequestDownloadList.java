@@ -56,7 +56,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
     String idRequestStringList = request.getParameter("idRequestStringList");
     if (idRequestStringList != null&& !idRequestStringList.equals("")) {
-      List idRequests = new ArrayList();
+      List idRequests = new ArrayList<Integer>();
       String[] keys = idRequestStringList.split(":");
       for (int i = 0; i < keys.length; i++) {
         String idRequest = keys[i];
@@ -164,7 +164,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         
         List flowCellFolders = (List)flowCellMap.get(requestNumber);
         if (flowCellFolders == null) {
-          flowCellFolders = new ArrayList();
+          flowCellFolders = new ArrayList<FlowCellFolder>();
         }
         flowCellFolders.add(new FlowCellFolder(requestNumber, flowCellNumber, createDate));
         
@@ -393,7 +393,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   
   private List getRequestDownloadFolders(String requestNumber, String createYear) {
 
-    List folders = new ArrayList();
+    List folders = new ArrayList<String>();
     String directoryName = baseDir + createYear + "/" + requestNumber;
     File fd = new File(directoryName);
 

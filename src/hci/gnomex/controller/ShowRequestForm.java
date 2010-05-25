@@ -141,33 +141,39 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             //Element center = new Element("CENTER");
             //body.addContent(center);
             
-            
+            Element col1 = new Element("DIV");
+            col1.setAttribute("id", "printLinkCol");
+            maindiv.addContent(col1);
+
             // 'Print this page' link
             Element printLink = new Element("A");
             printLink.setAttribute("HREF", "javascript:window.print()");
             printLink.addContent("Print page");
-            Element printTable = new Element("TABLE");   
-            Element row = new Element("TR");
-            Element cell = new Element("TD");
-            cell.setAttribute("ALIGN", "RIGHT");
-            printTable.addContent(row);
-            row.addContent(cell);
-            cell.addContent(printLink);
-            maindiv.addContent(printTable);
-
-            Element center1 = new Element("CENTER");
-            maindiv.addContent(center1);
+            col1.addContent(printLink);
+            
+            Element col2 = new Element("DIV");
+            col2.setAttribute("id", "lastModifyCol");            
+            maindiv.addContent(col2);
+            String lastMod = request.getLastModifyDate() != null ? this.formatDate(request.getLastModifyDate()) : this.formatDate(request.getCreateDate());
+            col2.addContent("Modified on " + lastMod); 
+            
+            Element ftr = new Element("DIV");
+            ftr.setAttribute("id", "footer");            
+            maindiv.addContent(ftr);
+            
+           
 
             Element h2 = new Element("H2");
+            h2.addContent(makeRequestCategoryImage());
             h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
-            center1.addContent(h2);
+            maindiv.addContent(h2);
             
       
 
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
               Element hApp = new Element("H4");
               hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
-              center1.addContent(hApp);
+              maindiv.addContent(hApp);
 
               if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
                 
@@ -175,35 +181,36 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                   SeqLibTreatment t = (SeqLibTreatment)i.next();
                   Element hTreatment = new Element("H4");
                   hTreatment.addContent(t.getSeqLibTreatment());
-                  center1.addContent(hTreatment);                  
+                  maindiv.addContent(hTreatment);                  
                 
                 }
               }
 
             }
+            
+            
             maindiv.addContent(new Element("BR"));
-            
-            
-            
-            
-            
-            
             maindiv.addContent(formatter.makeRequestTable());
 
             maindiv.addContent(formatter.makeSampleTable(request.getSamples()));
             
-            maindiv.addContent(new Element("BR"));
-
+            
             if (!request.getHybridizations().isEmpty()) {
+
+              makePageBreak(maindiv);
+              
               TreeSet labeledSamples = new TreeSet(new LabeledSampleNumberComparator());
               labeledSamples.addAll(request.getLabeledSamples());
-              maindiv.addContent(formatter.makeLabeledSampleTable(labeledSamples));
+              formatter.makeLabeledSampleTable(maindiv, labeledSamples);
               
-              maindiv.addContent(new Element("BR"));
+              makePageBreak(maindiv);
+
               maindiv.addContent(formatter.makeHybTable(request.getHybridizations()));          
             }
 
             if (!request.getSequenceLanes().isEmpty()) {
+              makePageBreak(maindiv);
+              
               maindiv.addContent(formatter.makeSequenceLaneTable(request.getSequenceLanes()));          
             }
             
@@ -212,13 +219,9 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             String instructions = this.getInstructions();
             if (instructions != null) {
               maindiv.addContent(new Element("BR"));
-              maindiv.addContent(new Element("BR"));
-              maindiv.addContent(new Element("HR"));
-
-              Element pb = new Element("P");
-              pb.setAttribute("CLASS", "break");
-              maindiv.addContent(pb);
-              maindiv.addContent(new Element("BR"));
+              makePageBreak(maindiv);
+              
+              
               maindiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
               // Convert degree and micro symbols to html escape codes
               instructions = instructions.replaceAll("\\xB0", "&#176;");
@@ -280,6 +283,35 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     return this;
   }
   
+  private void makePageBreak(Element maindiv) {
+    Element pb = new Element("P");
+    pb.setAttribute("CLASS", "break");
+    maindiv.addContent(pb);
+    maindiv.addContent(new Element("BR"));
+  }
+  
+  private Element makeRequestCategoryImage() {
+    Element img = new Element("img");
+    
+    String imageName = "";
+    if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY)) {
+      imageName = "microarray_small.png";
+    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) {
+      imageName = "microarray_small_single_color.png";
+    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+      imageName = "microarray_chip.png";
+    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+      imageName = "chart_line.png";
+    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      imageName = "DNA_diag.png";
+    } else {
+      imageName = "flask.png";
+    }
+    
+    img.setAttribute("src", "images/" + imageName);
+    
+    return img;
+  }
 
   /**
    *  The callback method called after the loadCommand, and execute methods,
