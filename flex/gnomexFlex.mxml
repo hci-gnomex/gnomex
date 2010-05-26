@@ -1036,8 +1036,8 @@
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"> 
 			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0"  styleName="catalogPanel" 
-			      	paddingBottom="10" id="hbox1" 
-			      	paddingTop="6" 
+			      	paddingBottom="4" id="hbox1" 
+			      	paddingTop="4" 
 			      	paddingLeft="4" paddingRight="4">
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" 
 			        	horizontalGap="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
@@ -1111,11 +1111,11 @@
 					</util:HomeView>  
 		
 				    <experiment:ExperimentEditView id="submitRequestView" label="New Experiment" 
-				    	icon="@Embed('assets/tag_blue_edit.png')"  width="100%" height="100%">
+				    	icon="@Embed('assets/flask_add.png')"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 
 				    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Experiment" 
-				    	icon="@Embed('assets/tag_blue_edit.png')"  width="100%" height="100%">
+				    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 		            		
 			        <experiment:NavExperimentView id = "navExperimentView" width="100%" height="100%" 
@@ -1138,7 +1138,7 @@
 			        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
 			        </slide:SlideManagementView>
 			        
-			        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')" width="100%" height="100%" backgroundAlpha="1.0">	
+			        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users &amp; Groups" width="100%" height="100%" backgroundAlpha="1.0">	
 			        </user:NavUsersView>
 			        
 			        
@@ -1184,6 +1184,13 @@
 	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="1"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
+	 		<mx:SetProperty target="{amendRequestView}" name="label" value="Add services"/>
+	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Arial"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="12"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
