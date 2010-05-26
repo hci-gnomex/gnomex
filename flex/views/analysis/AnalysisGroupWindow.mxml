@@ -40,6 +40,12 @@
 		}
 
         public function save():void {
+        	if(labCombo.selectedItem == null) {
+        		Alert.show("Please select a lab for this group.");
+        	}
+        	if(analysisGroupDetailView.analysisName.text.length == 0) {
+        		Alert.show("Please enter a group name.");
+        	}
 			var params:Object = new Object();
 			params.name = analysisGroupDetailView.analysisName.text;
 			params.description = analysisGroupDetailView.description.text; 
