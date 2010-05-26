@@ -113,6 +113,8 @@
 		[Bindable]
 		public var selectedExperiment:Object; 
 		
+		private var execValidateAndSaveAnalysis:Boolean = false;
+		
 		private var multiFileUpload:MultiFileUpload;
         private var UPLOAD_SERVLET_URL:String = "UploadAnalysisFileServlet.gx";
         
@@ -206,6 +208,9 @@
 			if (getAnalysisUploadURL.lastResult.name() == "UploadAnalysisURL") {
 				var url:String = getAnalysisUploadURL.lastResult.@url;
 				initializeFileUploadControl(url);
+				if(execValidateAndSaveAnalysis) {
+					validateAndSaveAnalysis();
+				}
 			}
 		}
 		
@@ -403,7 +408,7 @@
         public function cancelAnalysis():void {
         }     
         
-        private function validateAndSaveAnalysis():void {
+        public function validateAndSaveAnalysis():void {
         	initializeFileUploadParameters();
         	
         	// Check for required fields
@@ -463,6 +468,13 @@
 			 	var parms:Object = new Object();
 			 	parms.idAnalysis = analysis.@idAnalysis;
 			 	getAnalysis.send(parms);
+			 	
+			 	if(execValidateAndSaveAnalysis) {
+			 		execValidateAndSaveAnalysis = false; 
+			 		parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+			 		parentApplication.navAnalysisView.refreshAnalysis();
+			 	}
+
 			 	
 			 	parentApplication.navAnalysisView.showEditView = true;
 				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
@@ -801,6 +813,10 @@
 			var parms:Object = new Object();
 			parms.idAnalysis = analysis.@idAnalysis;
 			getAnalysis.send(parms);			
+		}
+		
+		public function setExecValidateAndSaveAnalysis():void {
+			execValidateAndSaveAnalysis = true;
 		}
 
 	]]>

@@ -98,6 +98,11 @@
  
 	   <mx:Script> 
         <![CDATA[
+    	import mx.charts.chartClasses.StackedSeries;
+    	import mx.controls.treeClasses.TreeListData;
+    	import mx.controls.treeClasses.TreeItemRenderer;
+    	import mx.core.UITextField;
+    	import mx.controls.TextArea;
         import mx.controls.Alert;
         import mx.managers.DragManager;
         import mx.core.DragSource;
@@ -112,8 +117,11 @@
         
         public var selectedIdAnalysis:Object;
         public var selectedAnalysisNumber:Object;
+
         
         public var showEditView:Boolean = false;
+        public var addAnalysisGroup:XML = null;
+        public var removeIdAnalysisGroup:String = null;
         
         [Bindable]
         public var selectedAnalysis:Object;
@@ -133,6 +141,8 @@
         
         public var shortcutToDownloadTab:Boolean = false;
         public var shortcutToAnalysisListTab:Boolean = false;
+        
+        public var noOnBrowseTreeCall:Boolean = false;
         
         [Bindable]
     	public var rowCountMessage:String = new String();
@@ -369,6 +379,11 @@
 	    	
 	    	if (idx != -1) {
 	    		browseTree.selectedIndex = idx;
+	    	}
+	    	
+	    	if(noOnBrowseTreeCall) {
+	    		noOnBrowseTreeCall = false;
+	    		return;
 	    	}
 	    	
 	    	onBrowseTree();
@@ -619,7 +634,26 @@
 			if (showEditView) {
 				editView.setupEditForm(this.selectedAnalysis);
 				theViews.selectedChild = editView;
-				showEditView = false;		
+				showEditView = false;
+				
+				
+				if(addAnalysisGroup != null) {
+					if(removeIdAnalysisGroup != null) {
+						var item:Object;
+						var i:int = 0;	
+						for each(item in editView.analysisGroups) {
+							if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
+								editView.analysisGroups.removeItemAt(i);
+								break;						
+							}
+							i++;
+						}					
+						
+					}
+					editView.analysisGroups.addItem(addAnalysisGroup);
+					editView.setExecValidateAndSaveAnalysis();
+					addAnalysisGroup = null;
+				}		
 			} else {
 			    theViews.selectedChild = detailView;				
 				detailView.setupForm();
@@ -799,8 +833,73 @@
 	    	}
 	    }
 	    
+	    private function browseTreeDrop(e:DragEvent):void {
+	    	e.preventDefault();
+	    	browseTree.hideDropFeedback(e);
+	    	var obj:Object = e.dragSource.dataForFormat("treeItems");
+	    	var dragParent:XML = XML(obj.parent);
+	    	var data:XML = obj[0];
+	    	var nodeName:String = String(data.name());
+	    	if(nodeName != "Analysis") {
+	    		Alert.show("Sorry, you may only copy/move analysis items.", "", 4, browseTree);
+	    		return;
+	    	}
+	    	var illegalDrop:Boolean = true;
+	    	var dropData : Object = browseTree.mx_internal::_dropData as Object;
+	    	if(dropData.parent != null && dropData.parent is XML ) {
+	    		var parentXML:XML = XML(dropData.parent);
+	    		if(String(parentXML.name())== "Lab") {
+	    			// If dropped within Lab then use first AnalysisGroup
+	    			var item:Object;
+	    			for each(item in parentXML.AnalysisGroup) {
+	    				parentXML = XML(item);
+	    				break;
+	    			}
+	    		}
+	    		if(String(parentXML.name()) == "AnalysisGroup") {
+	    			for each(var analysis:Object in parentXML.Analysis) {
+	    				if(data.@idAnalysis == analysis.@idAnalysis) {
+	    					Alert.show("Error: the analysis already exists within this folder.", "", 4, browseTree);	 
+	    					return;   						
+	    				}
+	    			}
+	    			illegalDrop = false;
+	    			parentXML.appendChild(data);
+	    			browseTree.selectedItem = data;
+	    			showEditView = true;
+	    			if(e.ctrlKey) {
+	    				// Don't remove dragged item if we're copying
+	    				removeIdAnalysisGroup = null;
+	    			}
+	    			addAnalysisGroup = new XML("<AnalysisGroup " +
+			    	" idAnalysisGroup='" + parentXML.@idAnalysisGroup + "'" +
+			    	" name='"            + parentXML.@name + "'" + "/>");
+	    			onBrowseTree();
+	    		}   		
+	    		
+	    	}
+	    	if(illegalDrop) {
+	    		Alert.show("Please drop the analysis item within an analysis folder.", "", 4, browseTree);
+	    	}
 
-		
+	    	
+	    	
+
+	    }
+	    
+	   	private function browseTreeMouseDown(e:MouseEvent):void {
+	   		var i:int = 1;
+	   		var t:Tree = Tree(e.currentTarget);
+	    	if(String(t.selectedItem.name()) == "Analysis") {
+	    		var parentXML:XML = XML(t.getParentItem(t.selectedItem));
+	    		removeIdAnalysisGroup = parentXML.@idAnalysisGroup;
+	    	} else {
+	    		removeIdAnalysisGroup = null;
+	    	}
+	   		
+	   	}
+
+	    	    		
        ]]>
     </mx:Script>
    	  <mx:ArrayCollection id="analysisNumbers"  sort="{requestNumberSorter}"/>
@@ -824,7 +923,11 @@
 							borderStyle="solid"
 							labelField="@label"
 							labelFunction="getTreeLabel"
-							iconFunction="getTreeIcon" backgroundAlpha="1"></mx:Tree>
+							iconFunction="getTreeIcon" 
+							backgroundAlpha="1"
+							dragDrop="browseTreeDrop(event);" mouseDown="browseTreeMouseDown(event);" 
+							dragEnabled="true" 
+							dropEnabled="true"></mx:Tree>
 						<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
 						
 					</mx:VBox>
