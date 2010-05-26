@@ -49,6 +49,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
   private Document                     workItemDoc;
   private WorkItemQualityControlParser parser;
   
+  private String                       launchAppURL;
   private String                       appURL;
   
   private String                       serverName;
@@ -78,7 +79,8 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     }
     
     try {
-      appURL = this.getLaunchAppURL(request);      
+      launchAppURL = this.getLaunchAppURL(request);    
+      appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
     }
@@ -197,7 +199,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
     emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " in progress";
     introNote.append("Request " + request.getNumber() + " is in progress.  ");
     introNote.append("The " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + " has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
@@ -218,7 +220,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     }
     
     if (send) {
-      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
+      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
       
       
       MailUtil.send(request.getAppUser().getEmail(), 

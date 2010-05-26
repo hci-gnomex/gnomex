@@ -81,7 +81,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       this.addInvalidField("idRequest", "idRequest is required");
     }
     try {
-      this.appURL = this.getAppURL(request);      
+      this.appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Unable to obtain gnomex app url", e);
     }
@@ -164,7 +164,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
            
 
             Element h2 = new Element("H2");
-            h2.addContent(makeRequestCategoryImage());
+            h2.addContent(formatter.makeRequestCategoryImage(null));
             h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
             maindiv.addContent(h2);
             
@@ -290,28 +290,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     maindiv.addContent(new Element("BR"));
   }
   
-  private Element makeRequestCategoryImage() {
-    Element img = new Element("img");
-    
-    String imageName = "";
-    if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY)) {
-      imageName = "microarray_small.png";
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) {
-      imageName = "microarray_small_single_color.png";
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-      imageName = "microarray_chip.png";
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-      imageName = "chart_line.png";
-    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-      imageName = "DNA_diag.png";
-    } else {
-      imageName = "flask.png";
-    }
-    
-    img.setAttribute("src", "images/" + imageName);
-    
-    return img;
-  }
+
 
   /**
    *  The callback method called after the loadCommand, and execute methods,

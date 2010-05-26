@@ -133,7 +133,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
               
               // Get the billing items
               if (plugin != null) {
-                List billingItemsForCategory = plugin.constructBillingItems(sess, billingPeriod, priceCategory, request);
+                List billingItemsForCategory = plugin.constructBillingItems(sess, null, billingPeriod, priceCategory, request, request.getSamples(), request.getLabeledSamples(), request.getHybridizations(), request.getSequenceLanes());
                 billingItems.addAll(billingItemsForCategory);                
               }
             }

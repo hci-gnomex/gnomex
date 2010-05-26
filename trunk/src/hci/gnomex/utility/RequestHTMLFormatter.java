@@ -59,11 +59,35 @@ public class RequestHTMLFormatter {
    Element table = new Element("TABLE");   
    Element row = new Element("TR");
    Element cell = new Element("TD");
+   cell.setAttribute("CLASS", "noborder");
    cell.addContent(note);
    row.addContent(cell);
    table.addContent(row);
    
    return table;
+ }
+ 
+ public Element makeRequestCategoryImage(String appURL) {
+   Element img = new Element("img");
+   
+   String imageName = "";
+   if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY)) {
+     imageName = "microarray_small.png";
+   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) {
+     imageName = "microarray_small_single_color.png";
+   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
+     imageName = "microarray_chip.png";
+   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+     imageName = "chart_line.png";
+   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+     imageName = "DNA_diag.png";
+   } else {
+     imageName = "flask.png";
+   }
+   
+   img.setAttribute("src", (appURL != null ? appURL + "/images/" : "images/") + imageName);
+   
+   return img;
  }
 
  public Element makeRequestTable() {

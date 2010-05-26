@@ -3,28 +3,39 @@ package hci.gnomex.billing;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Session;
 
 
 public class MicroarrayPlugin implements BillingPlugin {
-  public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
+  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) {
+    
     List billingItems = new ArrayList<BillingItem>();
+    
+    if (hybs == null || hybs.size() == 0) {
+      return billingItems;
+    }
     
     
     
     // Total number arrays
-    int qty = request.getHybridizations().size();
+    int qty = hybs.size();
     // If this is a multi-array slide, qty must be in same interval
     if (request.getSlideProduct() != null &&
         request.getSlideProduct().getArraysPerSlide() != null && request.getSlideProduct().getArraysPerSlide().intValue() > 1) {
