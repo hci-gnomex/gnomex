@@ -49,6 +49,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
   private Document                     workItemDoc;
   private WorkItemQualityControlParser parser;
   
+  private String                       launchAppURL;
   private String                       appURL;
   
   private String                       serverName;
@@ -78,7 +79,8 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     }
     
     try {
-      appURL = this.getLaunchAppURL(request);      
+      launchAppURL = this.getLaunchAppURL(request);     
+      appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
     }
@@ -217,7 +219,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
     if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";
       introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
@@ -241,7 +243,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     }
     
     if (send) {
-      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
+      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
       
       
       MailUtil.send(request.getAppUser().getEmail(), 

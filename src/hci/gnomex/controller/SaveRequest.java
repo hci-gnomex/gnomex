@@ -1,11 +1,17 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceSheet;
+import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -24,6 +30,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
+import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
@@ -36,7 +43,9 @@ import hci.framework.control.RollBackCommandException;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -71,6 +80,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Document         requestDoc;
   private RequestParser    requestParser;
   
+  private String           launchAppURL;
   private String           appURL;
   private String           serverName;
 
@@ -80,7 +90,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private TreeSet          hybs = new TreeSet(new HybNumberComparator());
   private TreeSet          samples = new TreeSet(new SampleNumberComparator());
   private TreeSet          sequenceLanes = new TreeSet(new SequenceLaneNumberComparator());
-  
+
+  private TreeSet          hybsAdded = new TreeSet(new HybNumberComparator());
+  private TreeSet          samplesAdded = new TreeSet(new SampleNumberComparator());
+  private TreeSet          labeledSamplesAdded = new TreeSet(new LabeledSampleComparator());
+  private TreeSet          sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
+
 
   private Map              channel1SampleMap = new HashMap();
   private Map              channel2SampleMap = new HashMap();
@@ -119,7 +134,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     try {
-      appURL = this.getLaunchAppURL(request);      
+      launchAppURL = this.getLaunchAppURL(request);      
+      appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
     }
@@ -131,6 +147,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       requestParser.parse(sess);
       
@@ -382,7 +399,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
         }
         
-        DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
         // Set the seq lib treatments
         Set seqLibTreatments = new TreeSet();
         for(Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
@@ -394,12 +410,26 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
         
         
+        
+        
+        
+        
         sess.save(requestParser.getRequest());
         sess.flush();
+        
+        // Create the billing items
+        sess.refresh(requestParser.getRequest());
+        // We need to include the samples even though they were not added
+        // b/c we need to perform lib prep on them.
+        if (requestParser.getAmendState().equals(RequestParser.AMEND_QC_TO_SEQ)) {
+          samplesAdded.addAll(requestParser.getRequest().getSamples());
+        }
+        this.createBillingItems(sess, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
+        sess.flush();
+        
 
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
-          sess.refresh(requestParser.getRequest());
           this.createResultDirectories(requestParser.getRequest(), 
               dictionaryHelper.getProperty(Property.QC_DIRECTORY), 
               dictionaryHelper.getMicroarrayDirectoryForWriting(serverName));
@@ -532,6 +562,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     idSampleMap.put(idSampleString, sample.getIdSample());
     samples.add(sample);
+    
+    if (isNewSample) {
+      samplesAdded.add(sample);
+    }
   }
 
   
@@ -596,6 +630,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         idLabeledSampleChannel1 = labeledSampleChannel1.getIdLabeledSample();
         
         channel1SampleMap.put(idSampleChannel1Real, idLabeledSampleChannel1);
+
+        labeledSamplesAdded.add(labeledSampleChannel1);
       }
       hyb.setIdLabeledSampleChannel1(idLabeledSampleChannel1);
       
@@ -618,6 +654,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           idLabeledSampleChannel2 = labeledSampleChannel2.getIdLabeledSample();
           
           channel2SampleMap.put(idSampleChannel2Real, idLabeledSampleChannel2);          
+
+          labeledSamplesAdded.add(labeledSampleChannel2);
         }   
         hyb.setIdLabeledSampleChannel2(idLabeledSampleChannel2);
       }
@@ -880,6 +918,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       hybs.add(hyb);
       
+      hybsAdded.add(hyb);
+      
     }
     
     
@@ -927,6 +967,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sess.flush();
       
       sequenceLanes.add(sequenceLane);
+      sequenceLanesAdded.add(sequenceLane);
     }
   
     // Update workflow fields (for flow cell channel)
@@ -964,18 +1005,86 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   
+  private void createBillingItems(Session sess, DictionaryHelper dh, Set<Sample> samples, 
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) throws Exception {
+    
+    List billingItems = new ArrayList<BillingItem>();
+    
+
+
+    // Get the current billing period
+    BillingPeriod billingPeriod = billingPeriod = dh.getCurrentBillingPeriod();
+    if (billingPeriod == null) {
+      throw new RollBackCommandException("Cannot find current billing period to create billing items for added services");
+    }
+
+
+    
+    // Find the appropriate price sheet
+    PriceSheet priceSheet = null;
+    List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
+    for(Iterator i = priceSheets.iterator(); i.hasNext();) {
+      PriceSheet ps = (PriceSheet)i.next();
+      for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
+        RequestCategory requestCategory = (RequestCategory)i1.next();
+        if(requestCategory.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())) {
+          priceSheet = ps;
+          break;
+        }
+        
+      }
+    }
+    
+    if (priceSheet == null) {
+      throw new RollBackCommandException("Cannot find price seeht to create billing items for added services");
+    }
+    
+     
+      
+    for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
+      PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
+      PriceCategory priceCategory = priceCategoryX.getPriceCategory();
+
+
+      // Instantiate plugin for billing category
+      BillingPlugin plugin = null;
+      if (priceCategory.getPluginClassName() != null) {
+        try {
+          plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
+        } catch(Exception e) {
+          log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+        }
+
+      }
+
+      // Get the billing items
+      if (plugin != null) {
+        List billingItemsForCategory = plugin.constructBillingItems(sess, requestParser.getAmendState(), billingPeriod, priceCategory, requestParser.getRequest(), samples, labeledSamples, hybs, lanes);
+        billingItems.addAll(billingItemsForCategory);                
+      }
+    }
+    
+   
+    for(Iterator i = billingItems.iterator(); i.hasNext();) {
+      BillingItem bi = (BillingItem)i.next();
+      sess.save(bi);
+    }
+        
+  }
+  
+  
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     
     StringBuffer introNote = new StringBuffer();
-    String trackRequestURL = appURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
     introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
         ".  You will receive email notification when the experiment is complete.");
     introNote.append("<br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, requestParser.getRequest(), samples, hybs, sequenceLanes, introNote.toString());
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, requestParser.getRequest(), samples, hybs, sequenceLanes, introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;
@@ -1041,7 +1150,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
  
   
-  
+  public class LabeledSampleComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      LabeledSample ls1 = (LabeledSample)o1;
+      LabeledSample ls2 = (LabeledSample)o2;
+      
+
+      return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
+      
+    }
+  }
   
 
 }

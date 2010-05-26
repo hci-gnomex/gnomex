@@ -3,26 +3,37 @@ package hci.gnomex.billing;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
+import hci.gnomex.model.SequenceLane;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Session;
 
 
 public class MicroarrayAnalysisPlugin implements BillingPlugin {
-  public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
+  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) {
+
     List billingItems = new ArrayList<BillingItem>();
+    
+    if (hybs == null || hybs.size() == 0) {
+      return billingItems;
+    }
     
     
     // Total number of hybs
-    int qty = request.getHybridizations().size();
+    int qty = hybs.size();
 
     
     // Now find the price

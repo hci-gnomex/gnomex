@@ -28,6 +28,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
   private Set              hybs;
   private Set              lanes;
   private String           introNote;
+  private String           appURL;
   
   private AppUser          appUser;
   private BillingAccount   billingAccount;
@@ -35,12 +36,13 @@ public class RequestEmailBodyFormatter extends DetailObject{
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public RequestEmailBodyFormatter(Session sess, DictionaryHelper dictionaryHelper, Request request, Set samples, Set hybs, Set lanes, String introNote) {
+  public RequestEmailBodyFormatter(Session sess, String appURL, DictionaryHelper dictionaryHelper, Request request, Set samples, Set hybs, Set lanes, String introNote) {
     this.request = request;
     this.samples = samples;
     this.hybs = hybs;
     this.lanes = lanes;
     this.introNote = introNote;
+    this.appURL = appURL;
     
     
     this.dictionaryHelper = dictionaryHelper;
@@ -144,15 +146,17 @@ public class RequestEmailBodyFormatter extends DetailObject{
     Element hLine = new Element("HR");
     hLine.setAttribute("WIDTH", "640");
     centera.addContent(hLine);
+    centera.addContent(new Element("BR"));
     body.addContent(centera);
 
     
     Element center = new Element("CENTER");
     body.addContent(center);
     
-    Element h3 = new Element("H2");
-    h3.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
-    center.addContent(h3);
+    Element h2 = new Element("H2");
+    h2.addContent(formatter.makeRequestCategoryImage(appURL));
+    h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
+    center.addContent(h2);
     
     Element center1 = new Element("CENTER");
     body.addContent(center1);

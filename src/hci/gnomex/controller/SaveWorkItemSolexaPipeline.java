@@ -50,6 +50,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
   
   private DictionaryHelper             dictionaryHelper;
   
+  private String                       launchAppURL;
   private String                       appURL;
   
   private String                       serverName;
@@ -80,7 +81,8 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     }
     
     try {
-      appURL = this.getLaunchAppURL(request);      
+      launchAppURL = this.getLaunchAppURL(request);      
+      appURL = this.getAppURL(request);      
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
     }
@@ -204,7 +206,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
-    String downloadRequestURL = appURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
 
     String finishedLaneText = "";
     int finishedLaneCount = 0;
@@ -232,7 +234,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
         
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";

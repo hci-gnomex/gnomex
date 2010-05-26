@@ -5,13 +5,17 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.RequestParser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -19,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Session;
 
@@ -28,22 +33,34 @@ public class SampleQualityPlugin implements BillingPlugin {
   private static final String           PICO_GREEN = "PICOGREEN";
   private static final String           DNA_GEL    = "DNAGEL";
 
-  public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request) {
+  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) {
+    
+    
     List billingItems = new ArrayList<BillingItem>();
     Map codeChipTypeMap = new HashMap();
+
+    if (samples == null || samples.size() == 0) {
+      return billingItems;
+    }
     
+    // If we changed a QC request -> Solexa request, ignore any billing for sample quality because
+    // we have already performed it.
+    if (amendState != null && amendState.equals(RequestParser.AMEND_QC_TO_SEQ)) {
+      return billingItems;
+    }
+
     // Count up number of samples for each codeBioanalyzerChipType
-    for(Iterator i = request.getSamples().iterator(); i.hasNext();) {
+    for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
+      
       
       String filter1 = Application.BIOANALYZER_QC;
       String filter2 = null;
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-        if (!sample.getSeqPrepByCore().equals("Y")) {
-          continue;
-        }
+       
         
         if (request.getCodeApplication().equals(Application.CHIP_SEQ_CATEGORY)) {
           filter1 = Application.QUBIT_PICOGREEN_QC;
