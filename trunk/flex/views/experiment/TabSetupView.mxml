@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Request setup" width="100%" height="100%" xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
+<mx:Canvas label="Experiment setup" width="100%" height="100%" xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
    <mx:states>
       <mx:State name="AdminState">
          <mx:AddChild relativeTo="{accountBox}" position="before">
@@ -439,7 +439,7 @@
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
-						<mx:ComboBox labelField="@accountNameAndNumber" width="520" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+						<mx:ComboBox labelField="@accountNameAndNumber" width="490" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 						</mx:ComboBox>
 						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">

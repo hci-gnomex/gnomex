@@ -219,7 +219,8 @@ LinkButton
 
 .normalLinkButton
 {
-   fontWeight: normal;	
+   fontWeight: normal;
+	textIndent: 0;	
 }
 .boldLinkButton
 {
@@ -526,8 +527,7 @@ Button.dashboardButton
 	fillAlphas: 1.0, 1.0;
 	fillColors: #F9FAF7, #BEC0B7;
 	fontFamily: Arial;
-	fontSize: 11;
-	fontWeight: bold;
+	fontSize: 12;
 	width: 210;
 	height: 120;
 	labelPlacement: "bottom";

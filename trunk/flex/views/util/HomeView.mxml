@@ -88,15 +88,15 @@
 				this.parentApplication.showAdvancedSearch();
 			}					       
 
-	]]>
+	]]> 
 </mx:Script>
   <mx:HBox verticalGap="0"  styleName="form"   verticalAlign="middle" horizontalAlign="center" paddingTop="10" paddingRight="10" paddingLeft="10" paddingBottom="10" width="100%" height="100%" horizontalGap="40">
     <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1">
       <mx:HBox id="hbox3">
         <mx:Button label="New Experiment"  click="submitRequest()" 
-        		icon="@Embed(source='../../assets/account.png')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom" id="button1"/>
+        		icon="@Embed(source='../../assets/flask_add.png')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom" id="button1"/>
         <mx:Button label="Add services to Experiment"  click="amendRequest()" 
-        		icon="@Embed(source='../../assets/account.png')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom" id="amendButton"/>
+        		icon="@Embed(source='../../assets/flask_edit.png')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom" id="amendButton"/>
       </mx:HBox>
       <mx:HBox id="hbox2">
         <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" width="210" height="100" labelPlacement="bottom" id="button2"/>
@@ -107,8 +107,8 @@
         <mx:Button label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom"/>
       </mx:HBox>
       <mx:HBox  id="hbox5">
-        <mx:Button label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom"/>
-		<mx:Button label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" fontWeight="bold" fontSize="11" fontFamily="Arial" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom"/>
+        <mx:Button label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom"/>
+		<mx:Button label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" styleName="dashboardButton" width="210" height="100" labelPlacement="bottom"/>
       </mx:HBox>
     </mx:VBox>
     <mx:VBox horizontalAlign="left" verticalAlign="middle" verticalGap="0" height="100%" width="390">
@@ -116,14 +116,14 @@
 	        <mx:Text  styleName="welcomeHeader" textAlign="center" paddingTop="0" color="#020000" fontWeight="bold" paddingBottom="5" fontSize="12" width="100%">
 	            <mx:htmlText><![CDATA[<u>G</u>e<u>nom</u>ic <u>Ex</u>periment Data Repository and Core LIMS]]></mx:htmlText>
 	        </mx:Text>
-	        <mx:Text styleName="welcome" paddingTop="20" paddingBottom="10" 
+	        <mx:Text styleName="welcome" paddingTop="0" paddingBottom="10" 
 >
 	        	<mx:htmlText><![CDATA[Functionality descriptions for the GNomEx tabs that are located<br>at the top of this page are found below: ]]></mx:htmlText>
 	        </mx:Text>
 	        <mx:HBox width="100%" id="hbox1">
-		        <mx:Image source="assets/account.png" id="image1"/>
+		        <mx:Image source="assets/flask_add.png" id="image1"/>
 		        <mx:Text  
-		        	text="New Experiment, Add servies to Experiment&#xa;" styleName="welcome" id="text2">
+		        	text="New Experiment, Add services to Experiment&#xa;" styleName="welcome" id="text2">
 	    	    </mx:Text>
 	        	
 	        </mx:HBox>
