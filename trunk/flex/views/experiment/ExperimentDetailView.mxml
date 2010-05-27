@@ -210,10 +210,21 @@
 		}
 
 	  	public function promptToDeleteExperiment():void {
-			Alert.show("Delete experiment " + this.selectedExperiment.@number + "?", 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDeleteExperiment);
+	  		var billingItems:XMLList = this.selectedExperiment.billingItems.BillingItem;
+	  		if ( billingItems.length() > 0) {
+				Alert.show("Delete experiment " + this.selectedExperiment.@number + 
+				            "?\n\nWARNING:  This will also delete "  +
+				            billingItems.length() + " billing item(s) associated with this experiment.\n\n", 
+							"Confirm", 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteExperiment);
+	  			
+	  		} else {
+				Alert.show("Delete experiment " + this.selectedExperiment.@number + "?", 
+							"Confirm", 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteExperiment);
+	  		}
 			
 	  	}
 		
@@ -482,6 +493,10 @@
 			                <mx:Label text="Visibility"  width="55" fontWeight="bold"/>
 			                <mx:Text text="{visibilityName}" width="100%" />
 			            </mx:HBox>
+		                  <mx:HBox verticalGap="0" horizontalGap="0">
+		                    <mx:Label width="55" text="Modified" fontWeight="bold"/>
+		                    <mx:Text  text="{this.selectedExperiment.@lastModifyDate}" width="130" />
+		                  </mx:HBox>
 		        	</mx:VBox>
 		        	
 		        </mx:HBox>

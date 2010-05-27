@@ -409,7 +409,7 @@
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.AnalysisExperimentItem" />
 		</set>
-	  <set name="billingItems" table="BillingItem" lazy="true" cascade="delete" order-by="idBillingItem">
+	  <set name="billingItems" table="BillingItem" lazy="true" cascade="none" order-by="idBillingItem">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.BillingItem" />
 		</set>		
