@@ -9,6 +9,10 @@ GNomEx Release Notes
 - Maintain the last selection on billing period combo on Billing screen
 - Fixed some compile warnings related to parameterized collections.
 - Add lastModifyDate to request (experiment)
+- Billing items are now created automatically when new request is submitted or services are added to an existing request.
+- Drag-n-drop analysis to analysis group(s).
+- Make printable experiment form more print-friendly.
+
 
 4.6.6 
 -------------------------
@@ -20,6 +24,7 @@ GNomEx Release Notes
 - Add 'On Hold', 'In Progress' status to work item; persist status on work item 
 - Get rid of Flow Cell Stock work list
 - Show status on Illumina cluster gen work list
+- Add revision number to end of request number when services are added (example 7425R -> 7425R1 -> 7425R2).
  
 
 4.6.5 (Apr 28, 2010)

@@ -263,6 +263,7 @@ public class DownloadResultsServlet extends HttpServlet {
       String createYear = tokens[0];
       String createDate = tokens[1];
       String requestNumber = tokens[2];
+      String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       String resultDirectory = tokens[3];
       String flowCellIndicator = "";
       if (tokens.length > 4) {
@@ -275,7 +276,7 @@ public class DownloadResultsServlet extends HttpServlet {
         directoryName = baseDirFlowCell + createYear + "/" + resultDirectory;
         theBaseDir = baseDirFlowCell;
       } else {
-        directoryName = baseDir + createYear + "/" + requestNumber + "/" + resultDirectory;
+        directoryName = baseDir + createYear + "/" + requestNumberBase + "/" + resultDirectory;
         theBaseDir = baseDir;
       }
       
