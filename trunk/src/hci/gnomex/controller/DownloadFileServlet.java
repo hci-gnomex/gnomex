@@ -153,7 +153,8 @@ public class DownloadFileServlet extends HttpServlet {
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
-            if (!requestNumber.equalsIgnoreCase(fd.getMainFolderName(dh))) {
+            String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
+            if (!requestNumberBase.equalsIgnoreCase(fd.getMainFolderName(dh))) {
               boolean isAuthorizedDirectory = false;
               // If this is a flow cell, make sure that that a sequence lane on this request has this flow cell
               for(Iterator i2 = request.getSequenceLanes().iterator(); i2.hasNext();) {

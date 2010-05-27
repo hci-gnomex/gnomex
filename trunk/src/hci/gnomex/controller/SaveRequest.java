@@ -96,6 +96,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private TreeSet          labeledSamplesAdded = new TreeSet(new LabeledSampleComparator());
   private TreeSet          sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
 
+  private TreeSet          sequenceLanesDeleted= new TreeSet(new SequenceLaneNumberComparator());
+
 
   private Map              channel1SampleMap = new HashMap();
   private Map              channel2SampleMap = new HashMap();
@@ -389,8 +391,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 
               }
               
-              if (canDeleteLane) {              
+              if (canDeleteLane) {
+                sequenceLanesDeleted.add(lane);
                 sess.delete(lane);
+                
               }
               
               
@@ -416,6 +420,33 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         sess.save(requestParser.getRequest());
         sess.flush();
+        
+        // Bump up the revision number on the request if services have been added
+        // or services have been removed
+        if (!requestParser.isNewRequest() &&
+             (requestParser.isAmendRequest() ||
+              !samplesAdded.isEmpty() ||
+              !labeledSamplesAdded.isEmpty() ||
+              !hybsAdded.isEmpty() ||
+              !sequenceLanesAdded.isEmpty() ||
+              !sequenceLanesDeleted.isEmpty())) {
+          String originalRequestNumber = requestParser.getRequest().getNumber();
+          int revNumber = 1;
+          // If services are being added to the request,
+          // add a revision number to the end of the request
+          String[] tokens = requestParser.getRequest().getNumber().split("R");
+          if (tokens.length > 1) {
+            if (tokens[1] != null && !tokens[1].equals("")) {
+              Integer oldRevNumber = Integer.valueOf(tokens[1]);
+              revNumber = oldRevNumber.intValue() + 1;
+            }        
+            originalRequestNumber = tokens[0] + "R";
+          } 
+          requestParser.getRequest().setNumber(originalRequestNumber + revNumber);
+          sess.flush();
+        }
+        
+        
         
         // Create the billing items
         sess.refresh(requestParser.getRequest());
@@ -494,7 +525,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       request.setNumber(request.getIdRequest().toString() + "R");
       request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
       sess.save(request);
-    }
+    } 
     
     sess.flush();  
   }

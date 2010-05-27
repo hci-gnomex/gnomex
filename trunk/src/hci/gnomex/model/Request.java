@@ -645,5 +645,14 @@ public class Request extends HibernateDetailObject {
   }
 
  
+  public static String getBaseRequestNumber(String requestNumber) {
+    // Strip off revision number after "R"
+    String[] tokens = requestNumber.split("R");
+    if (tokens.length > 1) {
+      return tokens[0] + "R";
+    } else {
+      return requestNumber;
+    }
+  }
   
 }
