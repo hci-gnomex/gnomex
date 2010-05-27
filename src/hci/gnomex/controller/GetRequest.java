@@ -106,7 +106,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Hibernate.initialize(request.getHybridizations());
           Hibernate.initialize(request.getAnalysisExperimentItems());
           Hibernate.initialize(request.getSeqLibTreatments());
-          
+          Hibernate.initialize(request.getBillingItems());
           
           if (!newRequest) {
             this.getSecAdvisor().flagPermissions(request);            

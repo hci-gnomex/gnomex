@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Request;
@@ -84,6 +85,13 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         }
         sess.flush();
         
+        // Delete billing items
+        for(Iterator i = req.getBillingItems().iterator(); i.hasNext();) {
+          BillingItem bi = (BillingItem)i.next();
+          sess.delete(bi);
+        }
+        sess.flush(); 
+       
         
         //
         // Delete Request

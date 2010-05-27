@@ -25,6 +25,7 @@ GNomEx Release Notes
 - Get rid of Flow Cell Stock work list
 - Show status on Illumina cluster gen work list
 - Add revision number to end of request number when services are added (example 7425R -> 7425R1 -> 7425R2).
+- Delete billing items associated with request when request is deleted (warn first).
  
 
 4.6.5 (Apr 28, 2010)

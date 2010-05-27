@@ -2813,8 +2813,8 @@
     <util:states>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
-    			<mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
-    				<mx:VBox verticalGap="2">
+    			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="4" paddingRight="4">
+    				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
     					       <mx:Text text="{requestCategoryName}" width="180" />
@@ -2832,11 +2832,15 @@
     					   <mx:Text text="{this.request.@createDate}" width="180"/>
     					 </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
+    					   <mx:Label text="Modified on"  width="102" fontWeight="bold"/>
+    					   <mx:Text text="{this.request.@lastModifyDate}" width="180"/>
+    					 </mx:HBox>
+    					 <mx:HBox verticalGap="0" horizontalGap="0">
     					   <mx:Label width="102" text="Completed on" fontWeight="bold"/>
     					   <mx:Text  text="{this.request.@completedDate}" width="180" />
     					 </mx:HBox>
-    				</mx:VBox> 
-     				<mx:VBox verticalGap="2" maxWidth="700" width="100%">
+    				</mx:VBox>  
+     				<mx:VBox verticalGap="7" maxWidth="700" width="100%">
     				    
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
     				           <mx:Label text="Group"  width="55" fontWeight="bold"/>
