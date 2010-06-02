@@ -185,8 +185,8 @@
 
 			
 
-			
 			labCombo.selectedItem              = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
+			expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 			analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
 			analysisProtocolCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
 			organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', analysis.@idOrganism);
@@ -360,6 +360,7 @@
 			}
 		}
 		private function onGetExperimentPickList(event:ResultEvent): void {
+			getExperimentPickList.showBusyCursor = false;
 			callLater(expandAllNodes);
   		}
   		
@@ -818,6 +819,14 @@
 		public function setExecValidateAndSaveAnalysis():void {
 			execValidateAndSaveAnalysis = true;
 		}
+		
+		private function expLabComboChange():void {
+			if(expLabCombo.selectedItem.@idLab != getExperimentPickList.request.idLab) {
+				getExperimentPickList.request.idLab = expLabCombo.selectedItem.@idLab;
+				getExperimentPickList.showBusyCursor = true;
+				getExperimentPickList.send();
+			}
+		}
 
 	]]>
 </mx:Script>
@@ -947,6 +956,12 @@
 				<mx:VBox width="230" height="100%">
 					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sequence lanes onto grid">						
 					</mx:Text>
+					<mx:ComboBox 
+						id="expLabCombo" 
+						change="expLabComboChange();"
+						width="228" 
+						labelField="@name"
+						dataProvider="{parentApplication.manageLabList}"></mx:ComboBox>
 					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
 						showRoot="false" 
 						dataTipFunction="getExperimentTreeLabel"
