@@ -12,9 +12,19 @@ GNomEx Release Notes
 - Billing items are now created automatically when new request is submitted or services are added to an existing request.
 - Drag-n-drop analysis to analysis group(s).
 - Make printable experiment form more print-friendly.
+- Add revision number to end of request number when services are added (example 7425R -> 7425R1 -> 7425R2).
+- Delete billing items associated with request when request is deleted (warn first).
+- Fix bug that was causing non-existent experiment lookup to interfere with subsequence experiment browses
+- Add ability to add, delete samples on edit request window
+- Show sample, hyb, or seq lane number in billing notes to correspond to qty
+- Handle added lanes, hybs, samples in billing plug-ins.
+- Just warn if samples on experiment not used on hybs or seq lanes.
+- Show warning about adjusting billing when services deleted on edit window.
+- Add ability to link other lab's experiments to analysis.
+- Ignore inactive price categories when creating billing items 
 
 
-4.6.6 
+4.6.6 (May 13, 2010)
 -------------------------
 - Organize sequencing applications by theme
 - Add sample lib prep conditions/treatments 
@@ -24,9 +34,7 @@ GNomEx Release Notes
 - Add 'On Hold', 'In Progress' status to work item; persist status on work item 
 - Get rid of Flow Cell Stock work list
 - Show status on Illumina cluster gen work list
-- Add revision number to end of request number when services are added (example 7425R -> 7425R1 -> 7425R2).
-- Delete billing items associated with request when request is deleted (warn first).
- 
+
 
 4.6.5 (Apr 28, 2010)
 ------------------------
