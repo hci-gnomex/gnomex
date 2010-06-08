@@ -45,9 +45,7 @@ public class RequestParser implements Serializable {
   private boolean        saveReuseOfSlides = false;
   private String          amendState = "";
   
-  public static final String   AMEND_QC_TO_MICROARRAY = "MicroarrayAmendState";
-  public static final String   AMEND_QC_TO_SEQ        = "SolexaBaseAmendState";
-  public static final String   AMEND_ADD_SEQ_LANES    = "SolexaLaneAmendState";
+
   
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
@@ -1372,7 +1370,7 @@ public class RequestParser implements Serializable {
   }
   
   public boolean isQCAmendRequest() {
-    return amendState.equals(AMEND_QC_TO_MICROARRAY) || amendState.equals(AMEND_QC_TO_SEQ);
+    return amendState.equals(Constants.AMEND_QC_TO_MICROARRAY) || amendState.equals(Constants.AMEND_QC_TO_SEQ);
   }
   
   public boolean isSaveReuseOfSlides() {
