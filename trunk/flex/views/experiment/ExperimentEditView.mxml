@@ -6,7 +6,7 @@
     xmlns:experiment="views.experiment.*"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	width="100%" height="100%"  
-	creationPolicy="all" show="init()">
+	creationPolicy="all" show="init()" >
 
     
    <mx:HTTPService  
@@ -243,6 +243,7 @@
         	} 
 
 		}
+
 
 		public function checkDirty():void {
 		}
@@ -1764,7 +1765,9 @@
 				errorMessage += '\n\n';					
 			}
 
-			// For new requests, all samples must be used on at least one hyb or seq lane
+			// If this is a new request or the request is being changed on
+			// the edit screen, warn if all samples are not used on at least 
+			// one hyb or seq lane
 			if (!isAmendState()) {
 				var allSamplesUsed:Boolean = true;
 				var unusedSampleList:String = '';
@@ -1793,19 +1796,13 @@
 					}
 					if (unusedSampleCount > 0) {
 						if (unusedSampleCount == 1) {
-							errorMessage += 'The sample ' + unusedSampleList + 
+							warningMessage += 'The sample ' + unusedSampleList + 
 							' is not used on any ' + target + 's.  ';
-							if (!isEditState()) {
-								errorMessage += 'The request cannot be submitted until the unused sample is removed from the list or assigned to a ' + target + '.  ';	
-							}
-							errorMessage += '\n\n';					
+							warningMessage += '\n\n';					
 						} else {
-							errorMessage += 'The samples  (' + unusedSampleList + 
+							warningMessage += 'The samples  (' + unusedSampleList + 
 							')  are not used on any ' + target + 's.  ';
-							if (!isEditState()) {
-								errorMessage += 	'The request cannot be submitted until the unused samples are removed from the list or assigned to ' + target + 's.  ';
-							}
-							errorMessage += '\n\n';					
+							warningMessage += '\n\n';					
 						}
 					}
 				}	
@@ -2123,8 +2120,16 @@
 					}					
 				} 
 
-				var message:String = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
-				Alert.show(message, "Request Submitted", 0, this, onNotifySubmitRequest);
+				var message:String = "";
+				var title:String = ""; 
+				if (this.isAmendState()) {
+					message = 'Request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
+					title = "Services added to Request";			
+				} else {
+					message = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
+					title = "Request Submitted";			
+				}
+				Alert.show(message, title, 0, this, onNotifySubmitRequest);
 				
 
 				
@@ -2153,6 +2158,35 @@
 		private function onSaveExistingRequest(event:ResultEvent):void {
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 				dirty.resetDirty();
+				
+				// Warn if billing should be adjusted to take into account
+				// delete hybs or lanes
+				if (saveExistingRequest.lastResult.@deleteSampleCount > 0 ||
+				    saveExistingRequest.lastResult.@deleteHybCount > 0 || 
+				    saveExistingRequest.lastResult.@deleteLaneCount > 0) {
+					if (parentApplication.hasPermission("canWriteAnyObject")) {
+						
+						var deleteTarget:String = "";
+						if (saveExistingRequest.lastResult.@deleteSampleCount > 0) {
+							deleteTarget += "Samples";
+						} 
+						if (saveExistingRequest.lastResult.@deleteHybCount > 0) {
+							if (deleteTarget.length > 0) {
+								deleteTarget += " and ";								
+							}
+							deleteTarget += "Hybs";
+						} 
+						if (saveExistingRequest.lastResult.@deleteLaneCount > 0) {
+							if (deleteTarget.length > 0) {
+								deleteTarget += " and ";								
+							}
+							deleteTarget += "Sequence Lanes";
+						} 
+					
+						Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
+						"Warning");				
+					}
+				}
 
 			 	var parms:Object = new Object();
 			 	parms.idRequest = request.@idRequest;
@@ -2167,12 +2201,12 @@
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
 
 			parentApplication.navExperimentView.showEditView = true;	
+			parentApplication.navExperimentView.refreshExperiments();
 		    parentApplication.navExperimentView.detailView.refreshSavedExperiment(request.@idRequest); 
-
 		}
 
 		private function showPrintableRequestForm():void {
-			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest);
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
 			navigateToURL(url, '_blank');	
 		}
 		
@@ -2314,14 +2348,18 @@
 			if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != "") {
 				if (this.radioGroupAmendType.selectedValue == "ADDSEQLANES" ) {
 					this.currentState = "SolexaLaneAmendState";
+					setAmendTitle();
 				} else if (this.radioGroupAmendType.selectedValue == "QCTOSEQ") {
 					this.currentState = "SolexaBaseAmendState";
+					setAmendTitle();
 				} else if (this.radioAmendQCToAffy.selected || this.radioAmendQCToAgilent.selected || this.radioAmendQCToAgilent1Color.selected) {
 					this.currentState = "MicroarrayAmendState"; 
+					setAmendTitle();
 				}
 			}
-		
 		}
+		
+		
 		
 		private function getCandidateAmendExperiments():void {
 			browseTree.selectedItem = null;
@@ -2405,6 +2443,7 @@
   			browseTree.selectedIndex = 0;
   			browseTree.validateNow();
   			browseTreeContainer.validateNow();
+  			this.setAmendTitle();
 		}        		    
 
 		public function getTreeIcon(item:Object):Class {
@@ -2555,11 +2594,25 @@
 			existingLanes = request.sequenceLanes.SequenceLane;
 			setupAmendForm(request);
 		}
+		
+		private function setAmendTitle():void {
+			if (this.currentState == "SolexaBaseAmendState" ) {
+				this.titleLabel.text = "Adding Illumina sequencing services to Sample Quality Experiment ";		
+			} else if (this.currentState == "MicroarrayAmendState") {
+				this.titleLabel.text = "Adding Microarray services to Sample Quality Experiment ";	
+			} else if (this.currentState == "SolexaLaneAmendState") {
+				this.titleLabel.text = "Adding Illumina sequencing lanes to Experiment ";			
+			}
+			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
+				this.titleLabel.text += this.browseTree.selectedItem.@requestNumber;
+			}			
+		}
 
 		public function setupAmendForm(theRequest:Object):void {
 			request = theRequest;
 			samplesView.currentState = '';
-
+			
+			setAmendTitle();
 
 			var requestCategory:Object = getRequestCategory();
 			requestCategoryName = requestCategory.@display.toString();
@@ -2715,7 +2768,7 @@
  
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
-  	<mx:Label id="titleLabel" styleName="titleLabel" text="New Experiment"/>
+  	<mx:Label id="titleLabel" styleName="titleLabel" text="New Experiment Request"/>
 
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
