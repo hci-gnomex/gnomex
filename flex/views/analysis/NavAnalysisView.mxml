@@ -890,7 +890,7 @@
 	   	private function browseTreeMouseDown(e:MouseEvent):void {
 	   		var i:int = 1;
 	   		var t:Tree = Tree(e.currentTarget);
-	    	if(String(t.selectedItem.name()) == "Analysis") {
+	    	if(t.selectedItem!= null && String(t.selectedItem.name()) == "Analysis") {
 	    		var parentXML:XML = XML(t.getParentItem(t.selectedItem));
 	    		removeIdAnalysisGroup = parentXML.@idAnalysisGroup;
 	    	} else {
