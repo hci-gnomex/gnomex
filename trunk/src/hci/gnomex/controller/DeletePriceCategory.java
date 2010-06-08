@@ -78,13 +78,27 @@ public class DeletePriceCategory extends GNomExCommand implements Serializable {
           break;
         }
       }
-    
+      
+      // Determine if this category is already referenced on any billing items
+      boolean existingBillingItems = false;
+      buf = new StringBuffer();
+      buf.append("SELECT bi from BillingItem bi ");
+      buf.append("WHERE  bi.idPriceCategory = " + priceCategory.getIdPriceCategory().toString());
+      List billingItems = sess.createQuery(buf.toString()).list();
+      if (billingItems.size() > 0) {
+        existingBillingItems = true;
+      }
+      
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
         
         //
         // Initialize the prices.  We don't want to orphan them unintentionally.
         //
         Hibernate.initialize(priceCategory.getPrices());
+        for (Iterator i = priceCategory.getPrices().iterator(); i.hasNext();) {
+          Price price = (Price)i.next();
+          Hibernate.initialize(price.getPriceCriterias());
+        }
         
         if (this.isValid()) {
           
@@ -102,12 +116,19 @@ public class DeletePriceCategory extends GNomExCommand implements Serializable {
           sess.flush();
           
           // Only delete the price category if
-          // it doesn't belong to other price sheets.
+          // it doesn't belong to other price sheets
+          // and there are not any billing items
+          // associated with the price category.
           if (!otherPriceSheets) {
             
-            // Delete the price category
-            sess.delete(priceCategory);
-          }
+            // Delete the price category if
+            // no fk violations will occur.
+            if (!existingBillingItems) {
+              sess.delete(priceCategory);              
+            } else {
+              priceCategory.setIsActive("N");
+            }
+          } 
           
           
           sess.flush();
