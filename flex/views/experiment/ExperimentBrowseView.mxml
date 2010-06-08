@@ -420,7 +420,7 @@
 			            <mx:DataGridColumn   minWidth="28" width="28" headerText="#"  sortCompareFunction="sortRequestNumber">
 			                <mx:itemRenderer>
 			                    <mx:Component >
-			                        <mx:HBox  horizontalGap="0"  >
+			                        <mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
 			                          <mx:Image id="experimentImage"  
 			                          	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}" >
 			                    	 </mx:Image> 
