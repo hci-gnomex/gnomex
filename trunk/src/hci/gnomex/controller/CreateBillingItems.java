@@ -118,6 +118,11 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
               PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
               PriceCategory priceCategory = priceCategoryX.getPriceCategory();
+              
+              // Ignore inactive price categories
+              if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
+                continue;
+              }
 
               
               // Instantiate plugin for billing category
