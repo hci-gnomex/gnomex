@@ -522,13 +522,13 @@ Label.titleLabel
 	fillAlphas: 1.0, 1.0;
 	fillColors: #7F6060, #581212, #6699A4, #2B1010;
 }
-Button.dashboardButton
+.dashboardButton
 {
 	fillAlphas: 1.0, 1.0;
 	fillColors: #F9FAF7, #BEC0B7;
 	fontFamily: Arial;
 	fontSize: 12;
-	width: 210;
+	width: 300;
 	height: 120;
 	labelPlacement: "bottom";
 }
