@@ -31,6 +31,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
 
     List billingItems = new ArrayList<BillingItem>();
     Map seqLaneMap = new HashMap();
+    Map seqLaneNoteMap = new HashMap();
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
     if (lanes == null || lanes.size() == 0) {
@@ -44,12 +45,24 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       
       String key = seqLane.getIdNumberSequencingCycles() + "-" + seqLane.getIdSeqRunType();
       
+      // Determine the qty 
       Integer seqLaneCount = (Integer)seqLaneMap.get(key);
       if (seqLaneCount == null) {
         seqLaneCount = new Integer(0);
       }
       seqLaneCount = new Integer(seqLaneCount.intValue() + 1);
       seqLaneMap.put(key, seqLaneCount);
+      
+      // Show the seq lane numbers in the notes for the billing item
+      String notes = (String)seqLaneNoteMap.get(key);
+      if (notes == null) {
+        notes = "";
+      }
+      if (notes.length() > 0) {
+        notes += ",";
+      } 
+      notes += seqLane.getNumber();
+      seqLaneNoteMap.put(key, notes);
     }
     
     
@@ -61,6 +74,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       String idSeqRunType             = tokens[1];
       
       Integer qty = (Integer)seqLaneMap.get(key);
+      String notes = (String)seqLaneNoteMap.get(key);
       
       // Find the billing price 
       Price price = null;
@@ -103,6 +117,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         billingItem.setIdLab(request.getIdLab());
         billingItem.setIdPrice(price.getIdPrice());
         billingItem.setIdPriceCategory(price.getIdPriceCategory());
+        billingItem.setNotes(notes);
         
         
         billingItems.add(billingItem);

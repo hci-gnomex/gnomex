@@ -32,6 +32,7 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
     
     List billingItems = new ArrayList<BillingItem>();
     Map codeChipTypeMap = new HashMap();
+    Map codeChipTypeNoteMap = new HashMap();
     
     if (samples == null || samples.size() == 0) {
       return billingItems;
@@ -56,6 +57,18 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
       }
       sampleCount = new Integer(sampleCount.intValue() + 1);
       codeChipTypeMap.put(codeChipType, sampleCount);
+      
+      // Store the notes associated with this billing item
+      // Show the sample numbers in the billing note
+      String notes = (String)codeChipTypeNoteMap.get(codeChipType);
+      if (notes == null) {
+        notes = "";
+      }
+      if (notes.length() > 0) {
+        notes += ",";
+      }
+      notes += sample.getNumber();
+      codeChipTypeNoteMap.put(codeChipType, notes);
     }
     
     
@@ -63,6 +76,7 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
     for(Iterator i = codeChipTypeMap.keySet().iterator(); i.hasNext();) {
       String  codeBioanalyzerChipType = (String)i.next();
       Integer qty = (Integer)codeChipTypeMap.get(codeBioanalyzerChipType);
+      String notes = (String)codeChipTypeNoteMap.get(codeBioanalyzerChipType);
       
       // Find the billing price for the bioanalyzer chip type
       Price price = null;
@@ -103,6 +117,7 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
         billingItem.setIdLab(request.getIdLab());
         billingItem.setIdPrice(price.getIdPrice());
         billingItem.setIdPriceCategory(price.getIdPriceCategory());
+        billingItem.setNotes(notes);
         
         
         billingItems.add(billingItem);

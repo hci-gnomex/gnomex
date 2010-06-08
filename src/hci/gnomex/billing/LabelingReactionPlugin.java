@@ -13,6 +13,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class LabelingReactionPlugin implements BillingPlugin {
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) {
     
     List billingItems = new ArrayList<BillingItem>();
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
     if (labeledSamples == null || labeledSamples.size() == 0) {
       return billingItems;
@@ -45,6 +47,17 @@ public class LabelingReactionPlugin implements BillingPlugin {
       }
       
       qty += numberReactions.intValue();
+    }
+    
+    // Show the labeled sample numbers in the note
+    String notes = "";
+    for(Iterator i = labeledSamples.iterator(); i.hasNext();) {
+      LabeledSample ls = (LabeledSample)i.next();
+      
+      if (notes.length() > 0) {
+        notes += ",";
+      }
+      notes += dh.getLabel(ls.getIdLabel()) + "-" + ls.getSample().getNumber();
     }
     
     Integer idBillingSlideServiceClass = request.getSlideProduct().getIdBillingSlideServiceClass();
@@ -110,6 +123,7 @@ public class LabelingReactionPlugin implements BillingPlugin {
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
+      billingItem.setNotes(notes);
      
 
       billingItems.add(billingItem);

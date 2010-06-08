@@ -34,6 +34,16 @@ public class MicroarrayAnalysisPlugin implements BillingPlugin {
     
     // Total number of hybs
     int qty = hybs.size();
+    
+    // Show the hyb numbers in the billing note
+    String notes = "";
+    for(Iterator i = hybs.iterator(); i.hasNext();) {
+        Hybridization hyb = (Hybridization)i.next();
+        if (notes.length() > 0) {
+          notes += ",";
+        }
+        notes += hyb.getNumber();
+    }
 
     
     // Now find the price
@@ -77,6 +87,7 @@ public class MicroarrayAnalysisPlugin implements BillingPlugin {
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
+      billingItem.setNotes(notes);
       
 
       billingItems.add(billingItem);
