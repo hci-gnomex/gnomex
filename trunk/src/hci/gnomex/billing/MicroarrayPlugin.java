@@ -32,6 +32,27 @@ public class MicroarrayPlugin implements BillingPlugin {
       return billingItems;
     }
     
+
+    
+    // If we are adding hybs to the request, find out if we already have
+    // the correct qty in billing.  We only want to create a billing
+    // item if the new hybs have bumped the qty beyond the current interval.
+    // example - 
+    //  1. orginal request had 3 hybs on 4 array slide, so billing
+    //     item with qty of 4 created.
+    //  2. 1 hyb added.  Rather than creating another billing item
+    //     with qty of 4 we should just bypass because billing
+    //     for 4-array slide already covered.
+    int totalQtyBilled = 0;
+    for(Iterator i = request.getBillingItems().iterator(); i.hasNext();) {
+      BillingItem bi = (BillingItem)i.next();
+      if (bi.getIdPriceCategory().equals(priceCategory.getIdPriceCategory())) {
+        totalQtyBilled += bi.getQty().intValue();
+      }
+    }
+    if (totalQtyBilled >= request.getHybridizations().size()) {
+      return billingItems;
+    }
     
     
     // Total number arrays
@@ -49,6 +70,18 @@ public class MicroarrayPlugin implements BillingPlugin {
         } 
       } 
     }
+    
+    
+    // Show the hyb numbers in the billing note
+    String note = "";
+    for(Iterator i = hybs.iterator(); i.hasNext();) {
+        Hybridization hyb = (Hybridization)i.next();
+        if (note.length() > 0) {
+          note += ",";
+        }
+        note += hyb.getNumber();
+    }
+
 
     
     // Now find the price
@@ -96,7 +129,7 @@ public class MicroarrayPlugin implements BillingPlugin {
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(price.getIdPriceCategory());
-      
+      billingItem.setNotes(note);
 
       billingItems.add(billingItem);
 

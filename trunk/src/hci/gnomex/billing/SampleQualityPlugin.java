@@ -1,5 +1,6 @@
 package hci.gnomex.billing;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -39,6 +40,7 @@ public class SampleQualityPlugin implements BillingPlugin {
     
     List billingItems = new ArrayList<BillingItem>();
     Map codeChipTypeMap = new HashMap();
+    Map codeChipTypeNoteMap = new HashMap();
 
     if (samples == null || samples.size() == 0) {
       return billingItems;
@@ -46,15 +48,16 @@ public class SampleQualityPlugin implements BillingPlugin {
     
     // If we changed a QC request -> Solexa request, ignore any billing for sample quality because
     // we have already performed it.
-    if (amendState != null && amendState.equals(RequestParser.AMEND_QC_TO_SEQ)) {
+    if (amendState != null && amendState.equals(Constants.AMEND_QC_TO_SEQ)) {
       return billingItems;
     }
+    
 
     // Count up number of samples for each codeBioanalyzerChipType
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       
-      
+
       String filter1 = Application.BIOANALYZER_QC;
       String filter2 = null;
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -102,7 +105,8 @@ public class SampleQualityPlugin implements BillingPlugin {
         }
       }        
       
- 
+
+      // Store the qty associated with this billing item.
       String key = filter1 + "-" + filter2;
       Integer sampleCount = (Integer)codeChipTypeMap.get(key);
       if (sampleCount == null) {
@@ -110,6 +114,18 @@ public class SampleQualityPlugin implements BillingPlugin {
       }
       sampleCount = new Integer(sampleCount.intValue() + 1);
       codeChipTypeMap.put(key, sampleCount);
+
+      // Store the notes associated with this billing item
+      // Show the sample numbers in the billing note
+      String notes = (String)codeChipTypeNoteMap.get(key);
+      if (notes == null) {
+        notes = "";
+      }
+      if (notes.length() > 0) {
+        notes += ",";
+      }
+      notes += sample.getNumber();
+      codeChipTypeNoteMap.put(key, notes);
     
     }
     
@@ -121,6 +137,7 @@ public class SampleQualityPlugin implements BillingPlugin {
       String  filter2 = tokens[1];
       
       Integer qty = (Integer)codeChipTypeMap.get(key);
+      String notes = (String)codeChipTypeNoteMap.get(key);
       
       // Find the price for kind of sample quality
       Price price = null;
@@ -171,6 +188,7 @@ public class SampleQualityPlugin implements BillingPlugin {
         billingItem.setIdPrice(price.getIdPrice());
         billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
         billingItem.setCategory(priceCategory.getName());
+        billingItem.setNotes(notes);
         
         billingItems.add(billingItem);
         

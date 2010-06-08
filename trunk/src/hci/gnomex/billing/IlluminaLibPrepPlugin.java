@@ -39,6 +39,18 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
     // Generate the billing item.  Find the price using the
     // criteria of the illumina application.
     Integer qty = samples.size();
+    
+    // Show the sample numbers in the notes
+    String notes = "";
+    for(Iterator i = samples.iterator(); i.hasNext();) {
+      Sample s = (Sample)i.next();
+      
+      if (notes.length() > 0) {
+        notes += ",";
+      }
+      notes += s.getNumber();
+      
+    }
 
     // Find the price
     Price price = null;
@@ -77,6 +89,7 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
       billingItem.setIdLab(request.getIdLab());
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(price.getIdPriceCategory());
+      billingItem.setNotes(notes);
 
 
       billingItems.add(billingItem);
