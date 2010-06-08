@@ -127,30 +127,61 @@
 			}
 		}
 		
-
+ 
         
 		
 		private function deleteSample():void {
 			parentDocument.dirty.setDirty();
 			if (samplesGrid.selectedItems.length > 0) {
-				for each(var sample:Object in samplesGrid.selectedItems) {					
-					if (sample.@idSample.indexOf("Sample") < 0) {
-						Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
-						continue;
+				for each(var sample:Object in samplesGrid.selectedItems) {
+					var isValid:Boolean = true;
+					// Only administrators can delete samples
+					if (!parentApplication.hasPermission("canWriteAnyObject")) {
+						if (sample.@idSample.indexOf("Sample") < 0) {
+							Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
+							isValid = false;
+							continue;
+						}
 					}		
-		
-					for each(var hyb:Object in parentDocument.hybs) {
-						if (hyb.@idSampleChannel1 == sample.@idSample) {
-							hyb.@idSampleChannel1 = '0';
+					
+					if (isValid) {
+					
+						for each(var hyb:Object in parentDocument.hybs) {
+							if (hyb.@idSampleChannel1 == sample.@idSample) {
+								if (sample.@idSample.indexOf("Sample") >= 0) {
+									hyb.@idSampleChannel1 = '0';								
+								} else {
+									Alert.show("Please remove hyb(s) for sample " + sample.@name + " before attempting to delete sample.");
+									isValid = false;
+									break;
+								}
+							}
+							if (hyb.@idSampleChannel2 == sample.@idSample) {
+								if (sample.@idSample.indexOf("Sample") >= 0) {
+									hyb.@idSampleChannel2 = '0';
+								} else {
+									Alert.show("Please remove hyb(s) for sample " + sample.@name + " before attempting to delete sample.");
+									isValid = false;
+									break;
+								}
+							}
 						}
-						if (hyb.@idSampleChannel2 == sample.@idSample) {
-							hyb.@idSampleChannel2 = '0';
+						for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
+							if (sample.@idSample.indexOf("Sample") >= 0) {
+								parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
+							} else {
+								Alert.show("Please remove sequence lanes for sample " + sample.@name + " before attempting to delete sample.");
+								isValid = false;
+								break;
+							}
 						}
+						}
+					
+					if (isValid) {
+						parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+					} else {
+						break;
 					}
-					for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
-						parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
-					}
-					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 					
 				}
 			}
