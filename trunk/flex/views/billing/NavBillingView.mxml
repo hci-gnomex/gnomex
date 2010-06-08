@@ -222,6 +222,8 @@
         
         private var lastSelectedItem:Object = null;
         
+        private var lastSelectedBillingPeriod = null;
+        
         [Bindable]
         private var grandTotalPrice:String = "";
         
@@ -248,27 +250,42 @@
         	billingPeriods.refresh();
         	billingPeriodCombo.dataProvider = billingPeriods;   
  
-			var currentBillingPeriod:Object = null;
-			for each( var de:Object in billingPeriods) {
-				if (de.@value != "" && de.@isCurrentPeriod == "Y") {
-					billingItemsDisplayed = new XMLListCollection();
-					dirty.resetDirty();
-					this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+ 			var params:Object = new Object();
+ 			if(this.lastSelectedBillingPeriod == null) {
+	 			var currentBillingPeriod:Object = null;
+				for each( var de:Object in billingPeriods) {
+					if (de.@value != "" && de.@isCurrentPeriod == "Y") {
+						billingItemsDisplayed = new XMLListCollection();
+						dirty.resetDirty();
+						this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+		
+						currentBillingPeriod = de;
+			        	billingPeriodCombo.selectedItem = currentBillingPeriod;
+			        	
+			        	params.idBillingPeriod = currentBillingPeriod.@value;
+			        	getBillingRequestList.send(params);
+			        	getBillingItemList.send(params);
+						break;
+					}
+				} 				
+ 			} else {
+				billingItemsDisplayed = new XMLListCollection();
+				dirty.resetDirty();
+				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 	
-					currentBillingPeriod = de;
-		        	billingPeriodCombo.selectedItem = currentBillingPeriod;
-		        	var params:Object = new Object();
-		        	params.idBillingPeriod = currentBillingPeriod.@value;
-		        	getBillingRequestList.send(params);
-		        	getBillingItemList.send(params);
-					break;
-				}
-			} 
+
+	        	billingPeriodCombo.selectedItem = lastSelectedBillingPeriod;
+	        	
+	        	params.idBillingPeriod = lastSelectedBillingPeriod.@value;
+	        	getBillingRequestList.send(params);
+	        	getBillingItemList.send(params);
+ 			}
+
         	
         	
         	currencyFormatter.currencySymbol = "$";
         	currencyFormatter.precision = 2;
-        	currencyFormatter.useThousandsSeparator;
+        	currencyFormatter.useThousandsSeparator;        	
       	}		
 		public function checkDirty():void {      
 		}
@@ -1490,7 +1507,7 @@
 					<mx:ComboBox id="billingPeriodCombo" 
 						labelField="@display"
 						visible="true"  
-						width="100" change="requestNumberText.text = &quot;&quot;;refresh()">
+						width="100" change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()">
 					</mx:ComboBox>			   	
 		    	</mx:HBox>  
 
