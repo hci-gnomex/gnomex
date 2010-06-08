@@ -452,7 +452,7 @@
 		<property name="seqPrepDate" column="seqPrepDate" type="date"/>
 		<property name="seqPrepFailed" column="seqPrepFailed" type="string"/>
 		<property name="seqPrepBypassed" column="seqPrepBypassed" type="string"/>
-		<property name="seqPrepLibConcentration" column="seqPrepLibConcentration" type="integer"/>
+		<property name="seqPrepLibConcentration" column="seqPrepLibConcentration" type="big_decimal"/>
 		<property name="seqPrepQualCodeBioanalyzerChipType" column="seqPrepQualCodeBioanalyzerChipType" type="string"/>
 		<property name="seqPrepGelFragmentSizeFrom" column="seqPrepGelFragmentSizeFrom" type="integer"/>
 		<property name="seqPrepGelFragmentSizeTo" column="seqPrepGelFragmentSizeTo" type="integer"/>

@@ -87,7 +87,7 @@ public class WorkItemSolexaPrepParser implements Serializable {
     
     
     if (n.getAttributeValue("seqPrepLibConcentration") != null && !n.getAttributeValue("seqPrepLibConcentration").equals("")) {
-      sample.setSeqPrepLibConcentration(new Integer(n.getAttributeValue("seqPrepLibConcentration")));
+      sample.setSeqPrepLibConcentration(new BigDecimal(n.getAttributeValue("seqPrepLibConcentration")));
     } else {
       sample.setSeqPrepLibConcentration(null);
     }    

@@ -338,7 +338,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP)) {
             n.setAttribute("idSeqLibProtocol",                  row[14] == null ? "" :  ((Integer)row[14]).toString());
             n.setAttribute("seqPrepByCore",                     row[15] == null ? "" :  (String)row[15]);
-            n.setAttribute("seqPrepLibConcentration",           row[16] == null ? "" :  ((Integer)row[16]).toString());
+            n.setAttribute("seqPrepLibConcentration",           row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
             n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[17] == null ? "" :  (String)row[17]);
             n.setAttribute("seqPrepGelFragmentSizeFrom",        row[18] == null ? "" :  ((Integer)row[18]).toString());
             n.setAttribute("seqPrepGelFragmentSizeTo",          row[19] == null ? "" :  ((Integer)row[19]).toString());

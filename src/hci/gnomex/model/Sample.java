@@ -52,7 +52,7 @@ public class Sample extends HibernateDetailObject {
   private Date        seqPrepDate;
   private String      seqPrepFailed;
   private String      seqPrepBypassed;
-  private Integer     seqPrepLibConcentration;
+  private BigDecimal  seqPrepLibConcentration;
   private String      seqPrepQualCodeBioanalyzerChipType;
   private Integer     seqPrepGelFragmentSizeFrom;
   private Integer     seqPrepGelFragmentSizeTo;
@@ -456,12 +456,12 @@ public class Sample extends HibernateDetailObject {
   }
 
   
-  public Integer getSeqPrepLibConcentration() {
+  public BigDecimal getSeqPrepLibConcentration() {
     return seqPrepLibConcentration;
   }
 
   
-  public void setSeqPrepLibConcentration(Integer seqPrepLibConcentration) {
+  public void setSeqPrepLibConcentration(BigDecimal seqPrepLibConcentration) {
     this.seqPrepLibConcentration = seqPrepLibConcentration;
   }
 
