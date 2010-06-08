@@ -1114,7 +1114,7 @@
 				    	icon="@Embed('assets/flask_add.png')"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 
-				    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Experiment" 
+				    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to existing Experiment" 
 				    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 		            		
@@ -1184,13 +1184,15 @@
 	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="1"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
-	 		<mx:SetProperty target="{amendRequestView}" name="label" value="Add services"/>
+	 		<mx:SetProperty target="{amendRequestView}" name="label" value="Add services" /> 
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
+	 		<mx:SetProperty target="{submitRequestView}" name="label" value="New Experiment"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Arial"/>
-	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="12"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Verdana"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="11"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
@@ -1202,6 +1204,14 @@
 	 		<mx:RemoveChild target="{navBillingView}"/>
 	 		<mx:RemoveChild target="{slideManagementView}"/>
 	 		<mx:RemoveChild target="{navWorkflowView}"/>
+	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Verdana"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="11"/>
+	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
+
 	 	</mx:State>
 	 	<mx:State name="UserNonSubmitterState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
