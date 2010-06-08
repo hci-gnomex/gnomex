@@ -65,11 +65,13 @@
         
 		private function deleteHyb():void {
 			if (hybsGrid.selectedItems.length > 0) {
-				for each(var hyb:Object in hybsGrid.selectedItems) {					
-					if (hyb.@idHybridization.indexOf("Hyb") < 0) {
-						Alert.show("Existing hyb " + hyb.@number + " cannot be deleted from the experiment.");
-						continue;
-					}		
+				for each(var hyb:Object in hybsGrid.selectedItems) {	
+					if (!parentApplication.hasPermission("canWriteAnyObject")) {
+						if (hyb.@idHybridization.indexOf("Hyb") < 0) {
+							Alert.show("Existing hyb " + hyb.@number + " cannot be deleted from the experiment.");
+							continue;
+						}		
+					}				
 					parentDocument.hybs.removeItemAt(parentDocument.hybs.getItemIndex(hyb));
 				}
 			}
