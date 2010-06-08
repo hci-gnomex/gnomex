@@ -85,8 +85,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       filter.setExperimentFactorCodes(experimentFactorCodes);
     }
     
-    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
-      this.addInvalidField("requiredCriteria", "Please enter at least one search criterion");
+    if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
+      this.addInvalidField("requiredCriteria", "Please specify an additional search filter.");
     }
   }
 
