@@ -120,7 +120,7 @@
         	var vr:ValidationResultEvent  = null;
 		    
 		    nv.domain = "integer";
-		    nv.precision = 0;
+		    nv.precision = 1;
         	for each (item in dirtyItems) {
 		    	nv.required = item.@seqPrepStatus == 'Completed' ? true : false;
 		    	vr = nv.validate(item.@seqPrepLibConcentration);
