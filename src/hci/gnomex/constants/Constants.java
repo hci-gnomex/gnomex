@@ -36,6 +36,10 @@ public class Constants {
   public static final  String             STATUS_BYPASSED                 = "Bypassed";
   public static final  String             STATUS_ON_HOLD                  = "On Hold";
   
+  public static final String              AMEND_QC_TO_MICROARRAY          = "MicroarrayAmendState";
+  public static final String              AMEND_QC_TO_SEQ                 = "SolexaBaseAmendState";
+  public static final String              AMEND_ADD_SEQ_LANES             = "SolexaLaneAmendState";
+  
   
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");
 
