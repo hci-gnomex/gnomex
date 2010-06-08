@@ -639,12 +639,20 @@
 		  
 		private function onGetRequest(event:ResultEvent):void {
 			if (getRequest.lastResult.name() == "SUCCESS") {
-				Alert.show("Experiment not found");
+				if (selectedRequestNumber != null) {
+					Alert.show("Experiment " + selectedRequestNumber + " not found");					
+				} else {
+					Alert.show("Experiment " + selectedIdRequest + " not found.");
+				}
 				parentApplication.theViews.selectedIndex = 0;
+				selectedRequestNumber = null;
+				selectedIdRequest = null;
         		return;
         	}
 			if (getRequest.lastResult.name() != "OpenRequestList") {
         		Alert.show(getRequest.lastResult..ACTMESSAGE.@TEXT);
+        		selectedRequestNumber = null;
+				selectedIdRequest = null;
         		return;
         	}
         	
@@ -707,7 +715,13 @@
 		
 		private function onGetRequestFromNav(event:ResultEvent):void {
 			if (getRequestFromNav.lastResult.name() == "SUCCESS") {
-				Alert.show("Experiment not found");
+				if (selectedRequestNumber != null) {
+					Alert.show("Experiment " + selectedRequestNumber + " not found.");
+				} else {
+					Alert.show("Experiment " + selectedIdRequest + " not found.");
+				}
+				selectedIdRequest = null;
+				selectedRequestNumber = null;
 				parentApplication.theViews.selectedIndex = 0;
         		return;
         	}
