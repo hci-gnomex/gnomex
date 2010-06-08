@@ -63,7 +63,8 @@ p.break {
     font-size: 10pt;
 	float: right;
 	margin-right: 0px;
-	width: 100;
+	margin-bottom: 0px;
+	width: 70;
 	line-height: 180%;
     font-size: 9pt;
 }
@@ -126,7 +127,7 @@ caption
 
 
 td.label {
-  font-size: 10pt;
+  font-size: 9pt;
   border: none;
   font-weight: bold;
   color: #8B7765;
