@@ -37,6 +37,7 @@ import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
+import hci.gnomex.utility.RequestParser.HybInfo;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -84,6 +85,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private String           appURL;
   private String           serverName;
 
+  private String           originalRequestNumber;
+
   private Integer          idProject;
   private Map              labelMap = new HashMap();
   private Map              idSampleMap = new HashMap();
@@ -96,7 +99,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private TreeSet          labeledSamplesAdded = new TreeSet(new LabeledSampleComparator());
   private TreeSet          sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
 
+  private TreeSet          samplesDeleted = new TreeSet(new SampleNumberComparator());
   private TreeSet          sequenceLanesDeleted= new TreeSet(new SequenceLaneNumberComparator());
+  private TreeSet          hybsDeleted = new TreeSet(new HybNumberComparator());
 
 
   private Map              channel1SampleMap = new HashMap();
@@ -174,6 +179,34 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // save request
         saveRequest(requestParser.getRequest(), sess);
         
+        // Figure out which samples will be deleted
+        if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+          
+          for(Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();)
+          {
+            Sample sample = (Sample)i.next();
+            boolean found = false;
+            for(Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
+              String idSampleString = (String)i1.next();
+              if (idSampleString != null && !idSampleString.equals("") && !idSampleString.startsWith("Sample")) {
+                if (Integer.valueOf(idSampleString).equals(sample.getIdSample())) {              
+                  found = true;
+                  break;
+                }
+              }
+            }
+            if (!found) {
+              this.samplesDeleted.add(sample);
+            }
+          }
+        }
+        
+        // Only admins should be deleting samples
+        if (this.samplesDeleted.size() > 0) {
+          if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+            throw new RollBackCommandException("Insufficient permission to delete samples.");
+          }
+        }
 
         
         // save samples
@@ -230,8 +263,59 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
           sampleCount++;
         }
+        requestParser.getRequest().setSamples(samples);
+        
+        // If we are editting a request, figure out which hybs will be deleted
+        if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+          
+          for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
+          {
+            Hybridization hyb = (Hybridization)i.next();
+            boolean found = false;
+            for(Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
+              HybInfo hybInfo = (HybInfo)i1.next();
+              if (hybInfo.getIdHybridization() != null && !hybInfo.getIdHybridization().equals("") && !hybInfo.getIdHybridization().startsWith("Hyb")) {
+                if (Integer.valueOf(hybInfo.getIdHybridization()).equals(hyb.getIdHybridization())) {
+                  found = true;
+                  break;
+                }
+              }
+            }
+            if (!found) {
+              this.hybsDeleted.add(hyb);
+            }
+          }
+        }
+        // Only admins should be deleting hybs
+        if (this.hybsDeleted.size() > 0) {
+          if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+            throw new RollBackCommandException("Insufficient permission to delete hybs.");
+          }
+        }
+        
+        // Initialize sample channel 1 and 1 map if we are editting a request.
+        // This will allow us to keep track of brand new labeled samples
+        // vs. existing labeled samples when hybs are added to a request.
+        if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+          
+          for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
+          {
+            Hybridization hyb = (Hybridization)i.next();
+            if (hyb.getIdLabeledSampleChannel1() != null) {
+              this.channel1SampleMap.put(hyb.getIdSampleChannel1(), hyb.getIdLabeledSampleChannel1());              
+            }
+            if (hyb.getIdLabeledSampleChannel2() != null) {
+              this.channel2SampleMap.put(hyb.getIdSampleChannel2(), hyb.getIdLabeledSampleChannel2());              
+            }
+          }
+        }
+        
+
     
         // save hybs
+        if (!requestParser.isNewRequest()) {
+          requestParser.getRequest().getHybridizations().size();
+        }
         if (!requestParser.getHybInfos().isEmpty()) {
           int hybCount = 1;
           int newHybCount = 0;
@@ -251,9 +335,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             
           }
         }
+
         
         // Create Hyb work items if QC->Microarray request
-        if (requestParser.getAmendState().equals(RequestParser.AMEND_QC_TO_MICROARRAY)) {
+        if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
           for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
             String idSampleString = (String)i.next();
             boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
@@ -430,7 +515,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               !hybsAdded.isEmpty() ||
               !sequenceLanesAdded.isEmpty() ||
               !sequenceLanesDeleted.isEmpty())) {
-          String originalRequestNumber = requestParser.getRequest().getNumber();
+          originalRequestNumber = requestParser.getRequest().getNumber();
           int revNumber = 1;
           // If services are being added to the request,
           // add a revision number to the end of the request
@@ -452,7 +537,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.refresh(requestParser.getRequest());
         // We need to include the samples even though they were not added
         // b/c we need to perform lib prep on them.
-        if (requestParser.getAmendState().equals(RequestParser.AMEND_QC_TO_SEQ)) {
+        if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
           samplesAdded.addAll(requestParser.getRequest().getSamples());
         }
         this.createBillingItems(sess, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
@@ -468,17 +553,22 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         
-      
+       
 
-        this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber()  + "\"/>";
+        this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + 
+             "\" requestNumber=\"" + requestParser.getRequest().getNumber()  +
+             "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
+             "\" deleteHybCount=\"" + this.hybsDeleted.size() +
+             "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +             
+             "\"/>";
         
-        if (requestParser.isNewRequest()) {
+        if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
           sess.refresh(requestParser.getRequest());
           if (requestParser.getRequest().getAppUser() != null
               && requestParser.getRequest().getAppUser().getEmail() != null
               && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
             try {
-              sendConfirmationEmail(sess, requestParser.getRequest());
+              sendConfirmationEmail(sess);
             } catch (Exception e) {
               log.error("Unable to send confirmation email notifying submitter that request "
                   + requestParser.getRequest().getNumber()
@@ -526,6 +616,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
       sess.save(request);
     } 
+    
+    originalRequestNumber = request.getNumber();
     
     sess.flush();  
   }
@@ -1076,6 +1168,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
       PriceCategory priceCategory = priceCategoryX.getPriceCategory();
 
+      // Ignore inactive price categories
+      if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
+        continue;
+      }
 
       // Instantiate plugin for billing category
       BillingPlugin plugin = null;
@@ -1104,32 +1200,38 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   
-  private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-    introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
-        ".  You will receive email notification when the experiment is complete.");
-    introNote.append("<br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+    if (requestParser.isNewRequest()) {
+      introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+      ".  You will receive email notification when the experiment is complete.");   
+    } else {
+      introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+      ".  You will receive email notification when the experiment is complete.");   
+      
+    }
+    introNote.append("<br><br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, requestParser.getRequest(), samples, hybs, sequenceLanes, introNote.toString());
-    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), samples, hybs, sequenceLanes, introNote.toString());
+    String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;
     if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }
     }
     
     if (send) {
-      MailUtil.send(request.getAppUser().getEmail(), 
+      MailUtil.send(requestParser.getRequest().getAppUser().getEmail(), 
           null,
           dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
