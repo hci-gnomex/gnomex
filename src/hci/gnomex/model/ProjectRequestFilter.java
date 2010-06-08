@@ -50,8 +50,9 @@ public class ProjectRequestFilter extends DetailObject {
   private boolean              addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
-  public boolean hasCriteria() {
-
+  public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
+    boolean hasLimitingCriteria = false;
+    
     if ((idRequest != null) ||
         idLab != null ||
         idProject != null ||
@@ -59,11 +60,6 @@ public class ProjectRequestFilter extends DetailObject {
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
-        (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
-        (lastYear != null && lastYear.equalsIgnoreCase("Y")) ||
-        (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
-        (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
-        (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y")) ||
         (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
         (codeApplication != null && !codeApplication.equals("")) ||
         idSlideProduct != null ||
@@ -74,9 +70,32 @@ public class ProjectRequestFilter extends DetailObject {
         (projectDescriptionText4 != null && !projectDescriptionText4.equals("")) ||
         (experimentDesignCodes != null && experimentDesignCodes.size() > 0) ||
         (experimentFactorCodes != null && experimentFactorCodes.size() > 0)) {
-      return true;
+      hasLimitingCriteria = true;
+    } else if (
+        // If we apply a broad date criteria and a broad experiment category
+        // criteria, consider it limiting enough
+        (
+         (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
+         (lastYear != null && lastYear.equalsIgnoreCase("Y"))
+        ) &&
+        (
+         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
+         (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
+         (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y"))
+        )) {
+     hasLimitingCriteria = true;
+    }
+    
+
+    
+    // Require limiting criteria for admins since they are not scoped by labs 
+    // automatically
+    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      return hasLimitingCriteria;
     } else {
-      return false;
+      // Non-admins are always scoped by either lab, own experiments,
+      // so no need to require any additional filtering.
+      return true;
     }
   }
     
