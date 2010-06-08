@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.FlowCellChannel;
@@ -15,8 +16,13 @@ import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.SlideSource;
 import hci.framework.model.DetailObject;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -116,17 +122,17 @@ public class RequestHTMLFormatter {
     
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
-    table.addContent(makeRow("Request #",    request.getNumber(), 
-                              "Requester",   userName));
-    
-    table.addContent(makeRow("Date",        request.formatDate(request.getCreateDate()),
+    table.addContent(makeRow("Requester",   userName,
                              "Lab",         labName));
+    
+    table.addContent(makeRow("Date", request.formatDate(request.getCreateDate()),
+                             "Phone",        phone));
 
     table.addContent(makeRow("Account",     accountName, 
-        "Phone",        phone));      
+                    "Email",        email));      
 
     table.addContent(makeRow("", accountNumber,
-        "Email",        email));
+                     (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
 
     
     
@@ -529,17 +535,66 @@ public class RequestHTMLFormatter {
   }
   
   
-  public Element makeSequenceLaneTable(Set lanes) {
+  public void addSequenceLaneTable(Element parentNode, Set lanes, String amendState) {
+
+    // Group lanes by create Date
+    TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator());
+    for(Iterator i = lanes.iterator(); i.hasNext();) {
+      SequenceLane lane = (SequenceLane)i.next();
+      List<SequenceLane> theLanes = laneDateMap.get(lane.getCreateDate());
+      if (theLanes == null) {
+        theLanes = new ArrayList<SequenceLane>();
+        laneDateMap.put(lane.getCreateDate(), theLanes);
+      }
+      theLanes.add(lane);
+    }
+    
+    //Now show a lane table for each create date, most recent date first
+    int sectionCount = 0;
+    for(Iterator i = laneDateMap.keySet().iterator(); i.hasNext();) {
+      Date createDate = (Date)i.next();
+      List<SequenceLane> theLanes = laneDateMap.get(createDate);
+
+      String caption = "Sequence Lanes";
+      if (laneDateMap.size() > 1 || 
+          (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES))) {
+        if (sectionCount == 0) {
+          caption = "Most recent Sequence Lanes added on " + request.formatDate(createDate);
+        } else {
+          caption = "Sequence Lanes added on " + request.formatDate(createDate);
+        }
+      }
+
+      
+      parentNode.addContent(makeSequenceLaneTable(caption, theLanes));
+      
+      // If the user just added lanes from the 'Add services' window,
+      // just show the lanes just added, not all of the existing lanes.
+      if (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES)) {
+        break;
+      }
+      
+      if (i.hasNext()) {
+        makePageBreak(parentNode);        
+      }
+      sectionCount++;
+    }
+    
+    
+  }
+    
+    
+  private Element makeSequenceLaneTable(String caption, List lanes) {
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
     table.setAttribute("CELLPADDING", "0");
     table.setAttribute("CELLSPACING", "0");
- 
-    Element caption = new Element("CAPTION");
-    caption.addContent("Sequence Lanes");
-    table.addContent(caption);
-    
-    
+
+    Element cap = new Element("CAPTION");
+    cap.addContent(caption);
+    table.addContent(cap);
+
+
     Element rowh = new Element("TR");
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
@@ -550,17 +605,15 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
 
- 
-    
-    
-    
-    
+
+
+    // How show all remaining lanes
     for(Iterator i = lanes.iterator(); i.hasNext();) {
       SequenceLane lane = (SequenceLane)i.next();
-      
+
       Element row = new Element("TR");
       table.addContent(row);
-      
+
 
 
       this.addLeftCell(row, lane.getNumber());
@@ -571,23 +624,23 @@ public class RequestHTMLFormatter {
       this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
       this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
     }
-    
+
     return table;
   }
-  
-  
-  
+
+
+
   public Element makeChannelTable(Set flowCellChannels) {
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
     table.setAttribute("CELLPADDING", "0");
     table.setAttribute("CELLSPACING", "0");
- 
+
     Element caption = new Element("CAPTION");
     caption.addContent("Sequence Lanes");
     table.addContent(caption);
-    
-    
+
+
     Element rowh = new Element("TR");
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
@@ -786,6 +839,12 @@ public class RequestHTMLFormatter {
     }
   }
 
+  public static void makePageBreak(Element maindiv) {
+    Element pb = new Element("P");
+    pb.setAttribute("CLASS", "break");
+    maindiv.addContent(pb);
+    maindiv.addContent(new Element("BR"));
+  }
 
 
 }

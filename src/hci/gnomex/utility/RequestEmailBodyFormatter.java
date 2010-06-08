@@ -30,19 +30,22 @@ public class RequestEmailBodyFormatter extends DetailObject{
   private String           introNote;
   private String           appURL;
   
+  private String           amendState;
+  
   private AppUser          appUser;
   private BillingAccount   billingAccount;
   private DictionaryHelper dictionaryHelper;
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public RequestEmailBodyFormatter(Session sess, String appURL, DictionaryHelper dictionaryHelper, Request request, Set samples, Set hybs, Set lanes, String introNote) {
+  public RequestEmailBodyFormatter(Session sess, String appURL, DictionaryHelper dictionaryHelper, Request request, String amendState, Set samples, Set hybs, Set lanes, String introNote) {
     this.request = request;
     this.samples = samples;
     this.hybs = hybs;
     this.lanes = lanes;
     this.introNote = introNote;
     this.appURL = appURL;
+    this.amendState = amendState;
     
     
     this.dictionaryHelper = dictionaryHelper;
@@ -81,7 +84,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     }
     
     if (!lanes.isEmpty()) {
-      center1.addContent(formatter.makeSequenceLaneTable(lanes));          
+      formatter.addSequenceLaneTable(center1, lanes, amendState);          
     }
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -155,6 +158,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     Element h2 = new Element("H2");
     h2.addContent(formatter.makeRequestCategoryImage(appURL));
+    h2.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
     h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
     center.addContent(h2);
     

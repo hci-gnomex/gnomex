@@ -58,6 +58,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
   private Integer          idRequest;
   private Request          request;
   
+  private String           amendState = "";
+  
   private String           appURL = "";
   
   private AppUser          appUser;
@@ -79,6 +81,9 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       idRequest = new Integer(request.getParameter("idRequest"));
     } else {
       this.addInvalidField("idRequest", "idRequest is required");
+    }
+    if (request.getParameter("amendState") != null && !request.getParameter("amendState").equals("")) {
+      amendState = request.getParameter("amendState");
     }
     try {
       this.appURL = this.getAppURL(request);
@@ -151,11 +156,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             printLink.addContent("Print page");
             col1.addContent(printLink);
             
-            Element col2 = new Element("DIV");
-            col2.setAttribute("id", "lastModifyCol");            
-            maindiv.addContent(col2);
-            String lastMod = request.getLastModifyDate() != null ? this.formatDate(request.getLastModifyDate()) : this.formatDate(request.getCreateDate());
-            col2.addContent("Modified on " + lastMod); 
             
             Element ftr = new Element("DIV");
             ftr.setAttribute("id", "footer");            
@@ -165,6 +165,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
             Element h2 = new Element("H2");
             h2.addContent(formatter.makeRequestCategoryImage(null));
+            h2.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
             h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
             maindiv.addContent(h2);
             
@@ -197,21 +198,21 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             if (!request.getHybridizations().isEmpty()) {
 
-              makePageBreak(maindiv);
+              formatter.makePageBreak(maindiv);
               
               TreeSet labeledSamples = new TreeSet(new LabeledSampleNumberComparator());
               labeledSamples.addAll(request.getLabeledSamples());
               formatter.makeLabeledSampleTable(maindiv, labeledSamples);
               
-              makePageBreak(maindiv);
+              formatter.makePageBreak(maindiv);
 
               maindiv.addContent(formatter.makeHybTable(request.getHybridizations()));          
             }
 
             if (!request.getSequenceLanes().isEmpty()) {
-              makePageBreak(maindiv);
+              formatter.makePageBreak(maindiv);
               
-              maindiv.addContent(formatter.makeSequenceLaneTable(request.getSequenceLanes()));          
+              formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);          
             }
             
             
@@ -219,7 +220,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             String instructions = this.getInstructions();
             if (instructions != null) {
               maindiv.addContent(new Element("BR"));
-              makePageBreak(maindiv);
+              formatter.makePageBreak(maindiv);
               
               
               maindiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
@@ -283,12 +284,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void makePageBreak(Element maindiv) {
-    Element pb = new Element("P");
-    pb.setAttribute("CLASS", "break");
-    maindiv.addContent(pb);
-    maindiv.addContent(new Element("BR"));
-  }
   
 
 
