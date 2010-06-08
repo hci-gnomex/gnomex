@@ -220,7 +220,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     }
     
     if (send) {
-      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, request, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
+      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
       
       
       MailUtil.send(request.getAppUser().getEmail(), 
