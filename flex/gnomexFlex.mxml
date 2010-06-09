@@ -351,8 +351,10 @@
 			private var properties:Object;
 
 	        public var PROPERTY_WORKAUTH_INSTRUCTIONS:String          = "workauth_instructions";
-	        public var PROPERTY_WORKAUTH_PDF_URL:String               = "workauth_pdf_url";
-	        public var PROPERTY_WORKAUTH_DOC_URL:String               = "workauth_doc_url";
+	        public var PROPERTY_WORKAUTH1_URL:String                  = "workauth1_url";
+	        public var PROPERTY_WORKAUTH1_NAME:String                 = "workauth1_name";
+	        public var PROPERTY_WORKAUTH2_URL:String                  = "workauth2_url";
+	        public var PROPERTY_WORKAUTH2_NAME:String                 = "workauth2_name";
 	        public var PROPERTY_QC_INSTRUCTIONS:String                = "qc_instructions";
 			public var PROPERTY_CORE_FACILITY_NAME:String             = "core_facility_name";
 	        public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String     = "contact_name_core_facility";

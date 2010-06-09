@@ -446,11 +446,11 @@
 						</mx:Text>
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0">
-							<mx:LinkButton  label="Work authorization (pdf)"  styleName="formLinkButton" id="linkbutton1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
-								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_PDF_URL)), '_blank');</mx:click>
+							<mx:LinkButton  label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
+								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
-							<mx:LinkButton label="Work authorization (word doc)" styleName="formLinkButton" id="linkbutton2" fontSize="9" paddingLeft="2" paddingTop="0">
-								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_DOC_URL)), '_blank');</mx:click>
+							<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_NAME)}" styleName="formLinkButton" id="workAuthLink2" fontSize="9" paddingLeft="2" paddingTop="0">
+								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_URL)), '_blank');</mx:click>
 							</mx:LinkButton>
 						</mx:HBox>
 					</mx:VBox>
