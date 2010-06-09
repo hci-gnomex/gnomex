@@ -129,7 +129,11 @@ public class MicroarrayPlugin implements BillingPlugin {
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(price.getIdPriceCategory());
-      billingItem.setNotes(note);
+
+      // Hold off on saving the notes.  Need to reserve note field
+      // for complete date, etc at this time.
+      //billingItem.setNotes(notes);
+
 
       billingItems.add(billingItem);
 
