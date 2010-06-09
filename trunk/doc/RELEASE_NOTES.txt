@@ -1,6 +1,6 @@
 GNomEx Release Notes
 
-4.6.7
+4.7
 -------------------------
 - Ability to add services to an experiment request (amend request)
 - Add filter in last 3 months experiment filter
