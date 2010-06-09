@@ -116,6 +116,21 @@
     <mx:request>
     </mx:request>
    </mx:HTTPService>
+   
+   <mx:HTTPService  
+    id="getLabForAddingServices" 
+    url="GetLab.gx"
+    destination="getLabForAddingServices"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLabForAddingServices(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{this.labCombo.selectedItem.@idLab}</idLab>
+    </mx:request>
+   </mx:HTTPService>
 
   
 	<mx:Script>
@@ -188,6 +203,9 @@
 		[Bindable]
 		public var filteredProjectList:XMLListCollection;
 
+        [Bindable]
+        private var appUsers:XMLListCollection;
+        private var appUserSort:Sort;
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
@@ -231,6 +249,7 @@
 				this.initializeData();
         	    this.checkSecurity();
             	this.setupDataListeners();
+
     			isInitialized = true;
 			}
 			
@@ -419,7 +438,15 @@
 		
 		
 		public function checkSecurity():void {
-			setupView.checkSecurity();			
+			setupView.checkSecurity();	
+			
+			// Select the first lab unless this user is an admin
+			if (parentApplication.currentState != "AdminState") {
+            	if (labCombo.dataProvider.length > 1) {
+					labCombo.selectedIndex = 1;
+					this.getLabForAddingServices.send();
+				}
+			}		
 		}
 		
 		public function isRequestPending():Boolean {
@@ -1898,7 +1925,18 @@
 		 	
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			
-			if (!this.isAmendState()) {
+			if (this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
+				// If a non-admin user is converting a QC request
+				// to a microarray or sequencing request, make the user the 
+				//  submitter of
+				// the request, as he/she may be amending a request
+				// originally submitted by someone else.
+				if (parentApplication.currentState != "AdminState") {
+					request.@idAppUser = parentApplication.getIdAppUser();				
+				}
+			} else if (!this.isAmendState()) {
+				// If we are submitting a new request, grab the lab, billing, project
+				// from the setup tab
 				request.@idLab = setupView.labCombo.selectedItem.@idLab;
 				request.@idAppUser = setupView.idAppUser;
 				request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
@@ -1906,7 +1944,6 @@
 				if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
 				}
-				
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
@@ -2392,12 +2429,15 @@
 				// Lab managers can amend anyone's experiment.  (Admins are
 				// considered manager on all labs, so they can also
 				// amend any experiment.				
-				if (labCombo.selectedItem.@canManage != "Y") {
-					params.idAppUser = parentApplication.getIdAppUser();				
+				if (appUserCombo.selectedItem != null && appUserCombo.selectedItem.@idAppUser != '') {
+					params.idAppUser = appUserCombo.selectedItem.@idAppUser;				
 				}					
 				
 				this.getCandidateProjectRequestList.send(params);
 				
+			} else {
+				browseTree.visible = false;
+				this.checkAmendSetupCompleteness();
 			}
 		}
 		
@@ -2410,20 +2450,25 @@
         	  
         	if (getCandidateProjectRequestList.lastResult.Lab.length() == 0) {
         		this.browseTree.visible = false;
-        		var dateRange:String = null;
+        		var filter:String = "";
+        		if (this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@idAppUser != "") {
+        			filter = "submitted by '" + appUserCombo.selectedItem.@displayName + "' for the " + labCombo.selectedItem.@name + " ";;
+        		} else if (this.lastMonthCheckbox.selected || this.lastThreeMonthsCheckbox || this.lastWeekCheckbox || this.lastYearCheckbox.selected) {
+        			filter = "submitted for the " + labCombo.selectedItem.@name + " ";
+        		}
         		if (this.lastWeekCheckbox.selected) {
-        			dateRange = " submitted in the last week were";
+        			filter += "in the last week were ";
         		} else if (this.lastMonthCheckbox.selected) {
-        			dateRange = " submitted in the last month were";
+        			filter += "in the last month were ";
         		} else if (this.lastThreeMonthsCheckbox.selected) {
-        			dateRange = " submitted in the last 3 months were";
+        			filter += "in the last 3 months were ";
         		} else if (this.lastYearCheckbox.selected) {
-        			dateRange = " submitted in the last year were";
+        			filter += "in the last year were ";
         		}
         		if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC") == 0) {
-        			Alert.show("No Sample Quality experiments" + dateRange + " found.");
+        			Alert.show("No Sample Quality experiments " + filter + "found.");
         		} else {
-        			Alert.show("No Illumina Sequencing experiments" + dateRange + " found.");
+        			Alert.show("No Illumina Sequencing experiments " + filter + "found.");
         		}
         	} else {
         		this.browseTree.visible = true;
@@ -2748,6 +2793,58 @@
 			
 			this.dirty.resetDirty();
 		}
+		
+				
+		
+		private function onGetLabForAddingServices(event:ResultEvent):void {			
+			var lab:Object = getLabForAddingServices.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			appUsers = new XMLListCollection(lab.members.AppUser);
+			for each (var mgr:Object in lab.managers.AppUser) {
+				if (!appUsers.contains(mgr)) {
+					appUsers.addItem(mgr);				
+				}
+			}
+			appUsers.addItemAt(emptyNode, 0);
+			
+			appUserSort = new Sort();
+	        appUserSort.compareFunction = this.sortAppUsers;
+	        appUsers.sort = appUserSort;
+	        appUsers.refresh();
+	        
+	        if (this.currentState == "AdminState") {
+		        this.appUserCombo.selectedIndex = 0;
+	        } else {
+	        	for each(var u:Object in appUsers) {
+	        		if (u.@idAppUser == parentApplication.getIdAppUser()) {
+			        	this.appUserCombo.selectedItem = u;
+	    				break;    			
+	        		}
+	        	}
+	        }
+	        this.getCandidateAmendExperiments();
+		}
+        private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var display1:String = obj1.@displayName;
+				var display2:String = obj2.@displayName;
+				
+				if (display1 < display2) {
+					return -1;
+				} else if (display1 > display2) {
+					return 1;
+				} else {
+					return 0;
+				}
+				
+			}
+		}			
 
 
 		]]>
@@ -3050,58 +3147,64 @@
                 <mx:VBox id="amendSetupView" label="Add services" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
                 	<mx:RadioButtonGroup id="radioGroupAmendType"/>
                 	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
-                		<mx:Label text="(1) Verify your lab group." width="155"/>
+                		<mx:Label text="(1) Verify your lab group." width="190"/>
                 		<mx:ComboBox  id="labCombo" dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
                 			selectedIndex="-1" labelField="@name" 
                 			width="340"
-                			change="{this.getCandidateAmendExperiments()}">
+                			change="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}">
                 		</mx:ComboBox>
                 	</mx:HBox>
+                	<mx:HBox id="appUserContainer" width="100%" horizontalGap="8">
+                	       <mx:Text width="190">
+                	              <mx:text>(2) Verify the lab group member who submitted the Request.</mx:text>
+                	       </mx:Text>
+                			<mx:ComboBox dataProvider="{appUsers}" 
+                				selectedIndex="-1" labelField="@displayName" 
+                			  		id="appUserCombo" width="340" change="getCandidateAmendExperiments()">
+                			</mx:ComboBox>
+                	</mx:HBox>
                 	<mx:HBox width="100%" horizontalGap="8">
-                		<mx:Text text="(2) Select the additional services to be performed." width="155"/>
-                		<mx:VBox width="100%" height="100%" verticalGap="10">
+                		<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="190"/>
+                		<mx:VBox width="100%" height="100%" verticalGap="1">
                 		    <mx:HBox id="microarrayAmendBox" width="100%" horizontalGap="0">
-	                			<mx:Text text="Did Sample Quality, now want this experiment performed..." width="210"/>
 	                			<mx:VBox id="requestTypeBox" horizontalGap="0" verticalGap="2" paddingLeft="0" paddingTop="0" paddingRight="0" paddingBottom="0" width="100%">
 	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
 	                				    <mx:Image source="{parentApplication.iconMicroarray}"/>						    	
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="170" enabled="true"/>							
-	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%" enabled="true" id="text1"/>
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="200" enabled="true"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%" enabled="true" id="text1" fontSize="9"/>
 	                				</mx:HBox>
 	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
 	                				    <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="170" enabled="true"/>							
-	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%" enabled="true" id="text2"/>
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="200" enabled="true"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%" enabled="true" id="text2" fontSize="9"/>
 	                				</mx:HBox>
-	                				<mx:HBox width="100%" horizontalGap="4">
+	                				<mx:HBox width="100%" horizontalGap="4" verticalAlign="middle">
 	                				    <mx:Image source="{parentApplication.iconMicroarrayAffy}" />						    	
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="170" enabled="true"/>							
-	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%" enabled="true" id="text3"/>
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="200" enabled="true"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%" enabled="true" id="text3" fontSize="9"/>
 	                				</mx:HBox>
-	                				<mx:HBox id="seqAmendBox"  width="100%"  horizontalGap="4">
+	                				<mx:HBox id="seqAmendBox"  width="100%"  horizontalGap="4" verticalAlign="middle" paddingTop="0">
 	                					<mx:Image source="assets/DNA_diag.png"/>
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="170">
-	                						<mx:label>Illumina Sequencing</mx:label>
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="200">
+	                						<mx:label>Illumina GAIIx Sequencing</mx:label>
 	                					</mx:RadioButton>
-	                					<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%" enabled="true" id="text0"/>
+	                					<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%" enabled="true" id="text0" fontSize="9"/>
+	                				</mx:HBox>
+	                				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
+	                					<mx:Image source="assets/DNA_diag.png"/>
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes" width="100%">
+	                						<mx:label>Illumina GAIIx Sequencing, adding Sequence lanes only.</mx:label>
+	                					</mx:RadioButton>
 	                				</mx:HBox>
 	                			</mx:VBox>
-                		    </mx:HBox>
-                		    <mx:HBox id="seqLaneAmendBox" width="100%" horizontalGap="0">
-        	        			<mx:Label text="Did Illumina sequencing, now want.." width="210"/>
-        	        			<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
-        	        				<mx:Image source="assets/DNA_diag.png"/>
-        	        				<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes">
-        	        					<mx:label>Additional Sequencing Lanes</mx:label>
-        	        				</mx:RadioButton>
-        	        			</mx:HBox>
                 		    </mx:HBox>
                 		</mx:VBox>
                 	</mx:HBox>
                 	<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox2">
                 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="8">
-                			<mx:Text text="(3) Pick the experiment to be amended:" id="label1" width="155"/>
+                			<mx:Text text="(4) Select the existing request." id="label1" width="190"/>
                 			<mx:HBox horizontalGap="4" height="100%" verticalAlign="middle" verticalGap="0"  horizontalAlign="right"  paddingLeft="0" paddingRight="0"  id="hbox3">
+		    					<mx:Label text="Submitted"/>
 		    					<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
 		    						<mx:click>toggleDateCheckboxes(1);getCandidateAmendExperiments();</mx:click>
 		    					</mx:CheckBox>
