@@ -586,8 +586,8 @@ VALUES (1, 'Human', NULL, 'HUMAN', NULL, 'Y', NULL),
 INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES 
  (1,'workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
  (2,'qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),
- (3,'workauth_pdf_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
- (4,'workauth_doc_url','doc/blank_microarray_core_work_authorization_form.doc','The URL to the work authoriztion document (word doc).', 'N'),
+ (3,'workauth1_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
+ (4,'workauth1_name','Work authorization (internal customers)','The name of the link', 'N'),
  (5,'contact_name_software_bugs','Bionformatics Core','Software org or contact', 'N'),
  (6,'contact_email_software_bugs','first.last@location.edu','Email address for reporting software bugs', 'N'),
  (7,'contact_name_core_facility','','Core facility\'s contact name', 'N'),
@@ -618,7 +618,9 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (39,'billing_core_facility_org','','Always blank for open source GNomEx', 'Y'),
  (40,'billing_core_facility_activity','','Always blank for open source GNomEx', 'Y'),
  (41,'temp_directory','/temp','The temp directory where temp files are created', 'Y'),
- (42,'illumina_barcoding_note','','Illumina sample barcoding instructions', 'N');
+ (42,'illumina_barcoding_note','','Illumina sample barcoding instructions', 'N'),
+ (43,'workauth2_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to an alternalte work authorization document.', 'N'),
+ (44,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N');
 
 
 
