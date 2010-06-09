@@ -16,13 +16,15 @@ GNomEx Release Notes
 - Delete billing items associated with request when request is deleted (warn first).
 - Fix bug that was causing non-existent experiment lookup to interfere with subsequence experiment browses
 - Add ability to add, delete samples on edit request window
-- Show sample, hyb, or seq lane number in billing notes to correspond to qty
+- Document sample, hyb, or seq lane number to correspond to qty (not stored in db yet, waiting for future release to free up notes field.)
 - Handle added lanes, hybs, samples in billing plug-ins.
 - Just warn if samples on experiment not used on hybs or seq lanes.
 - Show warning about adjusting billing when services deleted on edit window.
 - Add ability to link other lab's experiments to analysis.
 - Ignore inactive price categories when creating billing items 
-
+- Require lab to be selected for admins on Experiment browse if broad criteria or no other criteria provided.
+- Altered Lib conc. to support 1 decimal (Illumina workflow Lib Prep)
+- Generalize work auth links using properties workauth1_url, workauth1_name, workauth2_url, workauth2_name
 
 4.6.6 (May 13, 2010)
 -------------------------
