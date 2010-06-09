@@ -188,7 +188,11 @@ public class SampleQualityPlugin implements BillingPlugin {
         billingItem.setIdPrice(price.getIdPrice());
         billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
         billingItem.setCategory(priceCategory.getName());
-        billingItem.setNotes(notes);
+
+        // Hold off on saving the notes.  Need to reserve note field
+        // for complete date, etc at this time.
+        //billingItem.setNotes(notes);
+
         
         billingItems.add(billingItem);
         

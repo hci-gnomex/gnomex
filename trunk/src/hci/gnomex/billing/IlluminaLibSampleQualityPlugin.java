@@ -117,8 +117,11 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
         billingItem.setIdLab(request.getIdLab());
         billingItem.setIdPrice(price.getIdPrice());
         billingItem.setIdPriceCategory(price.getIdPriceCategory());
-        billingItem.setNotes(notes);
         
+        // Hold off on saving the notes.  Need to reserve note field
+        // for complete date, etc at this time.
+        //billingItem.setNotes(notes);
+
         
         billingItems.add(billingItem);
         

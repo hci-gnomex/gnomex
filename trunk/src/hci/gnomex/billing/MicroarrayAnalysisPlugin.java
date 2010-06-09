@@ -87,7 +87,11 @@ public class MicroarrayAnalysisPlugin implements BillingPlugin {
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
       billingItem.setIdPrice(price.getIdPrice());
       billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
-      billingItem.setNotes(notes);
+
+      // Hold off on saving the notes.  Need to reserve note field
+      // for complete date, etc at this time.
+      //billingItem.setNotes(notes);
+
       
 
       billingItems.add(billingItem);
