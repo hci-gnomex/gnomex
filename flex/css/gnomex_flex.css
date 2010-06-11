@@ -467,7 +467,7 @@ TextArea {
 {
 	fontFamily: "Arial Narrow";
 }
-VBox.instructionBox
+.instructionBox
 {
 	backgroundColor: #FFFEC3;
 }
@@ -525,7 +525,7 @@ Label.titleLabel
 .dashboardButton
 {
 	fillAlphas: 1.0, 1.0;
-	fillColors: #F9FAF7, #BEC0B7;
+	fillColors: #Ffffff, #dadfc9;
 	fontFamily: Arial;
 	fontSize: 12;
 	width: 300;
@@ -550,5 +550,12 @@ Label.titleLabel
 	paddingLeft: 1;
 	paddingRight: 1;
 	
+}
+.dragAndDropHint
+{
+	backgroundColor: #FFFEC3;
+	fontStyle: italic;
+	fontWeight: normal;
+	textDecoration: underline;
 }
 
