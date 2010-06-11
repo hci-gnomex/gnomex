@@ -90,25 +90,25 @@
 
 	]]> 
 </mx:Script>
-  <mx:HBox verticalGap="0"  styleName="form"   verticalAlign="middle" horizontalAlign="center" paddingTop="10" paddingRight="10" paddingLeft="10" paddingBottom="10" width="100%" height="100%" horizontalGap="25" id="hbox6">
-    <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1">
-      <mx:HBox id="hbox3">
+  <mx:HBox verticalGap="0"  styleName="form"   verticalAlign="middle" horizontalAlign="center" paddingTop="10" paddingRight="10" paddingLeft="10" paddingBottom="10" width="100%" height="100%" horizontalGap="40" id="hbox6">
+    <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1" verticalGap="20">
+      <mx:HBox id="hbox3" horizontalGap="20">
         <mx:Button label="New Experiment"  click="submitRequest()"  
-        		icon="@Embed(source='../../assets/flask_add.png')"  styleName="dashboardButton" id="button1" width="242" height="100"/>
+        		icon="@Embed(source='../../assets/flask_add.png')"  styleName="dashboardButton" id="button1" width="242" height="80"/>
         <mx:Button label="Add services to existing Experiment"  click="amendRequest()" 
-        		icon="@Embed(source='../../assets/flask_edit.png')"  styleName="dashboardButton" id="amendButton" width="242" height="100"/>
+        		icon="@Embed(source='../../assets/flask_edit.png')"  styleName="dashboardButton" id="amendButton" width="242" height="80"/>
       </mx:HBox>
-      <mx:HBox id="hbox2">
-        <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" id="button2" width="242" height="100"/>
-        <mx:Button label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/icon_download.gif')"   styleName="dashboardButton"  id="button3" width="242" height="100"/>
+      <mx:HBox id="hbox2" horizontalGap="20">
+        <mx:Button label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" id="button2" width="242" height="80"/>
+        <mx:Button label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/icon_download.gif')"   styleName="dashboardButton"  id="button3" width="242" height="80"/>
       </mx:HBox>
-      <mx:HBox  id="hbox4">
-        <mx:Button label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton"  id="button4" width="242" height="100"/>
-        <mx:Button label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" styleName="dashboardButton"  id="button5" width="242" height="100"/>
+      <mx:HBox  id="hbox4" horizontalGap="20">
+        <mx:Button label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton"  id="button4" width="242" height="80"/>
+        <mx:Button label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" styleName="dashboardButton"  id="button5" width="242" height="80"/>
       </mx:HBox>
-      <mx:HBox  id="hbox5">
-        <mx:Button label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" styleName="dashboardButton"  id="button6" width="242" height="100"/>
-		<mx:Button label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" styleName="dashboardButton"  id="button7" width="242" height="100"/>
+      <mx:HBox  id="hbox5" horizontalGap="20">
+        <mx:Button label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" styleName="dashboardButton"  id="button6" width="242" height="80"/>
+		<mx:Button label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" styleName="dashboardButton"  id="button7" width="242" height="80"  />
       </mx:HBox>
     </mx:VBox>
     <mx:VBox horizontalAlign="left" verticalAlign="middle" verticalGap="0" height="100%" width="390">
