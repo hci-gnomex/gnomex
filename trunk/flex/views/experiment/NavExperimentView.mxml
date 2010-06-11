@@ -1188,19 +1188,27 @@
 	
 	   
 			
-			<util:PanelBox  width="240" height="100%" id="navPanel" >
+			<util:PanelBox  width="260" height="100%" id="navPanel" >
 				<mx:Label id="titleLabel" styleName="titleLabel" text="Experiments"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
-					    <mx:ViewStack id="treeExpansionStack" width="100%">
-					        <mx:HBox width="100%" horizontalAlign="right">
-								<mx:LinkButton   label="Expand projects" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" textAlign="left"/>
-					        </mx:HBox>
-					        <mx:HBox width="100%" horizontalAlign="right">
-								<mx:LinkButton  label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseProjectNodes()}" textDecoration="underline" textAlign="left"/>					    	
-					        </mx:HBox>
-					    </mx:ViewStack>
+					    <mx:HBox horizontalGap="0">
+						    <mx:ViewStack id="treeExpansionStack" width="100%">
+						        <mx:HBox width="124" horizontalAlign="leftt">
+									<mx:LinkButton   label="Expand projects" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" />
+						        </mx:HBox>
+						        <mx:HBox width="100%" horizontalAlign="left">
+									<mx:LinkButton  label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseProjectNodes()}" textDecoration="underline" />					    	
+						        </mx:HBox>
+						    </mx:ViewStack>
+						   	<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
+								<mx:LinkButton label="Drag-and-drop hint" 
+								click="{Alert.show('Drag-and-drop experiment to move to another project.')}">
+								</mx:LinkButton>
+							</mx:VBox>
+					    </mx:HBox>
+						
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 

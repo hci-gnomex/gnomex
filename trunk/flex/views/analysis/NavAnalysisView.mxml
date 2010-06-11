@@ -912,11 +912,11 @@
 	
 	
 			
-			<util:PanelBox label="Analysis" width="250" height="100%" id="navPanel" >
+			<util:PanelBox label="Analysis" width="278" height="100%" id="navPanel" >
 			    <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
-						<mx:TextArea width="100%" text="Drag/drop=move. Ctl-drag/drop=copy." height="17" textAlign="center" backgroundAlpha="0.0"/>
+
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getAnalysisGroupList.lastResult}" 
 							showRoot="false" 
@@ -929,7 +929,14 @@
 							dragDrop="browseTreeDrop(event);" mouseDown="browseTreeMouseDown(event);" 
 							dragEnabled="true" 
 							dropEnabled="true"></mx:Tree>
-						<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
+					    <mx:HBox width="100%" horizontalGap="8">
+							<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
+							<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
+								<mx:LinkButton label="Drag-and-drop hint" 
+									click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}">
+								</mx:LinkButton>
+							</mx:VBox>					    	
+					    </mx:HBox>
 						
 					</mx:VBox>
 

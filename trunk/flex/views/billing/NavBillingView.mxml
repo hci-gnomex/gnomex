@@ -847,7 +847,13 @@
 	       		if (dragItem.name() == "PriceCategory") {
 	       			isPriceCategory = true;
 	       			break;
-	       		} 
+	       		} else if (dragItem.name() == "Price") {
+	       			Alert.show("Drag-and-drop not allowed for Prices.");
+	       			return;
+	       		} else if (dragItem.name() == "PriceSheet") {
+	       			Alert.show("Drag-and-drop not allowed for Price Sheets");
+	       			return;
+	       		}
            	}
             
 		   	// Only allow price categories to be dragged.
@@ -1264,6 +1270,7 @@
 
 		private function onMovePriceCategory(event:ResultEvent):void {			
 			if (movePriceCategory.lastResult.name() == "SUCCESS") {
+				Alert.show(movePriceCategory.lastResult.@message);
 				this.refresh();			        	
             } else {
            		Alert.show(movePriceCategory.lastResult..ERROR.@message);
@@ -1575,7 +1582,15 @@
         		</mx:VBox> 
         		
         		<mx:VBox id="priceTab" label="Prices" height="100%" verticalGap="0" width="100%" color="#000000">
-					<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}"/>
+					<mx:HBox width="100%">
+						<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}"/>
+						<mx:Spacer width="100%"/>
+						<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
+							<mx:LinkButton label="Drag-and-drop hint" 
+								click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet.')}">
+							</mx:LinkButton>
+						</mx:VBox>
+					</mx:HBox>
 					<mx:AdvancedDataGrid id="pricingTree" width="100%" height="100%" 
 						 showHeaders="true" 
 						 sortExpertMode="true" 
