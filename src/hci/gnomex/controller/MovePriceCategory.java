@@ -85,7 +85,7 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
         
         
         PriceCategory priceCategory = (PriceCategory)sess.load(PriceCategory.class, idPriceCategorySource);
-          
+        String message = "";  
       
 
         if (idPriceSheetTarget != null) {
@@ -119,7 +119,8 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
             } else {
               x.setSortOrder(Integer.valueOf(maxSortOrder.intValue() + 1));
             }
-            priceCategories.add(x);            
+            priceCategories.add(x);
+            message = "Category " + priceCategory.getName() + " attached to Price Sheet " + priceSheet.getName() + ".";
           } else {
             // If the price category was already part of the price sheet,
             // just reassign the sort order based on the position.
@@ -158,6 +159,7 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
                 x.setSortOrder(Integer.valueOf(sortOrder));
                 sortOrder++;
               }
+              message = "Category " + priceCategory.getName() + " repositioned in Price Sheet " + priceSheet.getName() + ".";
               
             }
             
@@ -168,7 +170,8 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
  
         sess.flush();
         
-        this.xmlResult = "<SUCCESS idPriceCategory=\"" + priceCategory.getIdPriceCategory() + "\"/>";
+        this.xmlResult = "<SUCCESS idPriceCategory=\"" + priceCategory.getIdPriceCategory() + "\"" + 
+                                   " message=\"" + message + "\"" + "/>";
       
         setResponsePage(this.SUCCESS_JSP);
       } else {
