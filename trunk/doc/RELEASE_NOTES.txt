@@ -25,6 +25,9 @@ GNomEx Release Notes
 - Require lab to be selected for admins on Experiment browse if broad criteria or no other criteria provided.
 - Altered Lib conc. to support 1 decimal (Illumina workflow Lib Prep)
 - Generalize work auth links using properties workauth1_url, workauth1_name, workauth2_url, workauth2_name
+- Default printing of request form does not include instructions.  Additional link provided for 'Print all' so that instructions can be printed with request form.
+- Price sheet drag-n-drop only works for price categories, so warn user if attempted on prices or price sheets. Also, provide informative message when price category attached to another price sheet or repositioned.
+- Add drag-and-drop hint link to Analysis, Experiments, and Billing Price Sheet
 
 4.6.6 (May 13, 2010)
 -------------------------
