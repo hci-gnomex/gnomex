@@ -1,0 +1,13 @@
+@media print {
+   body {
+      font-family: arial,Helvetica,sans-serif;
+      font-size: 9pt;
+      width: 600;
+      text-align: left;
+      margin-left: 1;
+   }
+   
+   a {
+   	  display: none;
+   }
+}

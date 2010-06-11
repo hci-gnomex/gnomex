@@ -131,7 +131,30 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             link.setAttribute("rel", "stylesheet");
             link.setAttribute("type", "text/css");
             link.setAttribute("href", Constants.REQUEST_FORM_CSS);
+            link.setAttribute("title", "standard");
             head.addContent(link);
+
+            Element linkPrint = new Element("link");
+            linkPrint.setAttribute("rel", "stylesheet");
+            linkPrint.setAttribute("type", "text/css");
+            linkPrint.setAttribute("href", Constants.REQUEST_FORM_PRINT_CSS);
+            linkPrint.setAttribute("title", "print");
+            head.addContent(linkPrint);
+
+            Element linkPrintInstr = new Element("link");
+            linkPrintInstr.setAttribute("rel", "alternate stylesheet");
+            linkPrintInstr.setAttribute("type", "text/css");
+            linkPrintInstr.setAttribute("href", Constants.REQUEST_FORM_PRINT_INSTRUCTIONS_CSS);
+            linkPrintInstr.setAttribute("title", "printAll");
+            head.addContent(linkPrintInstr);
+            
+            
+            // We need the </script> ending element and standard
+            // XML won't do this.  So we work around the problem
+            // by just injecting the <SCRIPT> tag as string
+            // the document produces a string.
+            head.addContent("JAVASCRIPT_GOES_HERE");
+            	
             
             Element title = new Element("TITLE");
             title.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber());
@@ -140,21 +163,36 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             Element body = new Element("BODY");
             root.addContent(body);
 
-            Element maindiv = new Element("DIV");
-            maindiv.setAttribute("id", "container");
-            body.addContent(maindiv);
-            //Element center = new Element("CENTER");
-            //body.addContent(center);
+            Element outerDiv = new Element("DIV");
+            outerDiv.setAttribute("id", "container");
+            body.addContent(outerDiv);
             
-            Element col1 = new Element("DIV");
-            col1.setAttribute("id", "printLinkCol");
-            maindiv.addContent(col1);
+            Element maindiv = new Element("DIV");
+            maindiv.setAttribute("id", "containerForm");
+            outerDiv.addContent(maindiv);
 
-            // 'Print this page' link
+            
+            // Print links
+            Element printColRight = new Element("DIV");
+            printColRight.setAttribute("id", "printLinkColRight");
+            maindiv.addContent(printColRight);
+            
             Element printLink = new Element("A");
-            printLink.setAttribute("HREF", "javascript:window.print()");
-            printLink.addContent("Print page");
-            col1.addContent(printLink);
+            printLink.setAttribute("HREF", "javascript:setActiveStyleSheet('standard','print');window.print()");
+            printLink.addContent("Print form");
+            printColRight.addContent(printLink);
+            
+
+            Element printColLeft = new Element("DIV");
+            printColLeft.setAttribute("id", "printLinkColLeft");
+            maindiv.addContent(printColLeft);
+            
+
+            Element printWithInstructionsLink = new Element("A");
+            printWithInstructionsLink.setAttribute("HREF", "javascript:setActiveStyleSheet('standard','printAll');window.print()");
+            printWithInstructionsLink.addContent("Print all (with instructions)");
+            printColLeft.addContent(printWithInstructionsLink);
+
             
             
             Element ftr = new Element("DIV");
@@ -219,11 +257,16 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                        
             String instructions = this.getInstructions();
             if (instructions != null) {
-              maindiv.addContent(new Element("BR"));
-              formatter.makePageBreak(maindiv);
               
+
+              Element instructDiv = new Element("DIV");
+              instructDiv.setAttribute("id", "containerInstruction");
+              outerDiv.addContent(instructDiv);
+
+              instructDiv.addContent(new Element("BR"));
+              formatter.makePageBreak(instructDiv);
               
-              maindiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
+              instructDiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
               // Convert degree and micro symbols to html escape codes
               instructions = instructions.replaceAll("\\xB0", "&#176;");
               instructions = instructions.replaceAll("\\xB5", "&#181;");              
@@ -237,6 +280,9 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             // Add the submission instructions to the end of the request
             // form.
             this.xmlResult = this.xmlResult.replaceAll("SUBMISSION_INSTRUCTIONS_GO_HERE", instructions);
+            
+            // Injust the <script> for java script handling of alternate style sheets
+            this.xmlResult = this.xmlResult.replaceAll("JAVASCRIPT_GOES_HERE", "<script type=\"text/javascript\" src=\"styleswitcher.js\"></script>");
 
           } else {
             this.addInvalidField("Insufficient Permission", "Insufficient permission to access this request");      
