@@ -1,18 +1,4 @@
 
-
-@media print {
-   body {
-      font-family: arial,Helvetica,sans-serif;
-      font-size: 9pt;
-      width: 600;
-      text-align: left;
-      margin-left: 1;
-   }
-   
-   a {
-   	  display: none;
-   }
-}
 @media screen {
    body {
       font-family: arial,Helvetica,sans-serif;
@@ -51,23 +37,26 @@ p.break {
 	text-align:left;  
  }
  
-#lastModifyCol {
-    font-size: 10pt;
+#printLinkColLeft {
 	float: left;
 	margin-left: 0px;
-	width: 170;
+	margin-bottom: 15px;
+	width: 190;
 	line-height: 180%;
-	font-style: italic;
+	font-style: normal;
+	font-size: 9pt;
 }
-#printLinkCol  { 
-    font-size: 10pt;
+ 
+#printLinkColRight {
+	margin-bottom: 15px;
 	float: right;
-	margin-right: 0px;
-	margin-bottom: 0px;
-	width: 70;
+	margin-left: 0px;
+	width: 90;
 	line-height: 180%;
-    font-size: 9pt;
+	font-style: normal;
+	font-size: 9pt;
 }
+
 
 #col1 {
 	float: left;
@@ -84,6 +73,21 @@ p.break {
 
 #footer {
     clear: both;
+}
+
+#containerForm{
+	font-size: 11pt;
+	width:600;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
+}
+#containerInstruction{
+	font-size: 11pt;
+	width:600;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
 }
 
 H2 {
