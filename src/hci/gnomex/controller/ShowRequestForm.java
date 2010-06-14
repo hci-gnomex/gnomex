@@ -134,6 +134,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             link.setAttribute("title", "standard");
             head.addContent(link);
 
+
             Element linkPrint = new Element("link");
             linkPrint.setAttribute("rel", "stylesheet");
             linkPrint.setAttribute("type", "text/css");
@@ -141,13 +142,13 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             linkPrint.setAttribute("title", "print");
             head.addContent(linkPrint);
 
+            
             Element linkPrintInstr = new Element("link");
-            linkPrintInstr.setAttribute("rel", "alternate stylesheet");
+            linkPrintInstr.setAttribute("rel", "stylesheet");
             linkPrintInstr.setAttribute("type", "text/css");
             linkPrintInstr.setAttribute("href", Constants.REQUEST_FORM_PRINT_INSTRUCTIONS_CSS);
             linkPrintInstr.setAttribute("title", "printAll");
-            head.addContent(linkPrintInstr);
-            
+            head.addContent(linkPrintInstr);            
             
             // We need the </script> ending element and standard
             // XML won't do this.  So we work around the problem
@@ -178,18 +179,16 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             maindiv.addContent(printColRight);
             
             Element printLink = new Element("A");
-            printLink.setAttribute("HREF", "javascript:setActiveStyleSheet('standard','print');window.print()");
-            printLink.addContent("Print form");
+            printLink.setAttribute("HREF", "javascript:setPrintStyleSheet('print');window.print()");
+            printLink.addContent("Print");
             printColRight.addContent(printLink);
             
 
             Element printColLeft = new Element("DIV");
             printColLeft.setAttribute("id", "printLinkColLeft");
             maindiv.addContent(printColLeft);
-            
-
             Element printWithInstructionsLink = new Element("A");
-            printWithInstructionsLink.setAttribute("HREF", "javascript:setActiveStyleSheet('standard','printAll');window.print()");
+            printWithInstructionsLink.setAttribute("HREF", "javascript:setPrintStyleSheet('printAll');window.print()");
             printWithInstructionsLink.addContent("Print all (with instructions)");
             printColLeft.addContent(printWithInstructionsLink);
 
@@ -282,7 +281,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             this.xmlResult = this.xmlResult.replaceAll("SUBMISSION_INSTRUCTIONS_GO_HERE", instructions);
             
             // Injust the <script> for java script handling of alternate style sheets
-            this.xmlResult = this.xmlResult.replaceAll("JAVASCRIPT_GOES_HERE", "<script type=\"text/javascript\" src=\"styleswitcher.js\"></script>");
+            this.xmlResult = this.xmlResult.replaceAll("JAVASCRIPT_GOES_HERE", "<script type=\"text/javascript\" src=\"switchPrintStyleSheet.js\"></script>");
 
           } else {
             this.addInvalidField("Insufficient Permission", "Insufficient permission to access this request");      
