@@ -222,7 +222,7 @@
         
         private var lastSelectedItem:Object = null;
         
-        private var lastSelectedBillingPeriod = null;
+        private var lastSelectedBillingPeriod:Object = null;
         
         [Bindable]
         private var grandTotalPrice:String = "";
