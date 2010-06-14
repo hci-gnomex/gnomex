@@ -1,6 +1,7 @@
+/* Exclude instructions for default printing and with 'Print' link clicked */
 @media print {
    body {
-      font-family: arial,Helvetica,sans-serif;
+      font-family: Arial,Helvetica;
       font-size: 9pt;
       width: 600;
       text-align: left;
