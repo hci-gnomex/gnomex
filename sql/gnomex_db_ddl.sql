@@ -1188,7 +1188,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `seqPrepBypassed` CHAR(1) NULL,
   `qualFragmentSizeFrom` INT(10) NULL,
   `qualFragmentSizeTo` INT(10) NULL,
-  `seqPrepLibConcentration` INT(10) NULL,
+  `seqPrepLibConcentration` DECIMAL(8, 1) NULL,
   `seqPrepQualCodeBioanalyzerChipType` VARCHAR(10) NULL,
   `seqPrepGelFragmentSizeFrom` INT(10) NULL,
   `seqPrepGelFragmentSizeTo` INT(10) NULL,
