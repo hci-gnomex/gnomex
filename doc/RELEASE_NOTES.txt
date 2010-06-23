@@ -1,6 +1,13 @@
 GNomEx Release Notes
 
 
+4.7.1
+------------------------
+- Add total PO debit and credit rows to Billing GL Interface and change journal entry name to 'MICROARRAY'
+- Billing 'approved' link now jumps to 'Approved (external)' rather than 'Approved'.
+- On experiments page, don't include request category and application in sort.  Sort be request number (descending) instead.
+
+
 4.7 patch (June 22, 2010)
 ------------------------
 - Fix bug that was causing null reference on lab combo when non-admin user submitting a request
