@@ -300,7 +300,9 @@
 	        	this.billingAccountCombo.selectedIndex = 0;	        	
 	        } 
 	        
-	        parentDocument.filteredProjectList.refresh();
+	        if (parentDocument != null && !parentDocument.isAmendState()) {
+		        parentDocument.filteredProjectList.refresh();	        	
+	        }
 
 
 		}

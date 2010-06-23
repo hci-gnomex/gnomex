@@ -302,7 +302,7 @@
 			        		isEntered(sample, "@concentration") &&
 			        		isEntered(sample, "@idSampleType") &&
 	        			    isEntered(sample, "@idOrganism") &&
-			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
+			        		//isEntered(sample, "@idSamplePrepMethod") &&	don't require b/c old requests won't have this filled in        		
 	        			    isEntered(sample, "@idSeqRunType") &&
 	        			    isEntered(sample, "@idNumberSequencingCycles") &&
 	        			    isEntered(sample, "@numberSequencingLanes")) {

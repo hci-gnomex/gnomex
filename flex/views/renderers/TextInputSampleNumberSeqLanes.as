@@ -32,11 +32,7 @@ package views.renderers
           g.drawRect(0,0,unscaledWidth,unscaledHeight);
           g.endFill();
           
-          if (data.@canChangeNumberSequencingLanes == "Y" || parentApplication.hasPermission("canWriteAnyObject")) {
-	       	this.editable = true;
-	      } else {
-	       	this.editable = false;
-	      }
+
 
 	    }
 	}
