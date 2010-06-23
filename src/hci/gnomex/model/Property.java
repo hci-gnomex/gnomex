@@ -30,9 +30,11 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        FLOWCELL_TEST_DIRECTORY             = "flowcell_test_directory";
   public static final String        BILLING_CORE_FACILITY_BUSINESS_UNIT = "billing_core_facility_business_unit"; 
   public static final String        BILLING_CORE_FACILITY_ACCOUNT       = "billing_core_facility_account";
+  public static final String        BILLING_CORE_FACILITY_PO_ACCOUNT    = "billing_core_facility_po_account";
   public static final String        BILLING_CORE_FACILITY_FUND          = "billing_core_facility_fund";
   public static final String        BILLING_CORE_FACILITY_ORG           = "billing_core_facility_org";
   public static final String        BILLING_CORE_FACILITY_ACTIVITY      = "billing_core_facility_activity";
+  public static final String        BILLING_PO_ACCOUNT                  = "billing_po_account";
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
   
   

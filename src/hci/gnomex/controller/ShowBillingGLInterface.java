@@ -60,8 +60,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   private String                   accountDescription = "";
   
   private static final String    JOURNAL_ID = "SE090";
+  private static final String    JOURNAL_LINE_REF = "MICROARRAY";
   private String                   journalEntry;
-
+  
   
  
   public void validate() {
@@ -315,8 +316,35 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                   expectedGrandTotalPrice + ".");
             }
             
-            // Show the microarray credit for the total billing
-            this.addMicroarrayCreditTotal(billingPeriod, dh);            
+            // Show the microarray credit for the total billing (internal customers)
+            this.addMicroarrayTotal(billingPeriod, dh, Property.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
+            
+            // Get the total price for all external PO billing items
+            buf = new StringBuffer();
+            buf.append("SELECT sum(bi.totalPrice) ");
+            buf.append("FROM   Request req ");
+            buf.append("JOIN   req.billingItems bi ");
+            buf.append("JOIN   bi.lab as lab ");
+            buf.append("JOIN   bi.billingAccount as ba ");
+            buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_EXTERNAL + "' ");
+            buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+            results = sess.createQuery(buf.toString()).list();
+            if (results.size() > 0) {
+              BigDecimal totalPriceExternalPO = (BigDecimal)results.get(0);
+              if (totalPriceExternalPO != null) {
+                
+                // Show the microarray debit for the total billing (customers billed from POs)
+                this.addMicroarrayTotal(billingPeriod, dh, Property.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
+                
+                // Show the microarray credit for the total billing (customers billed from POs)
+                this.addMicroarrayTotal(billingPeriod, dh, Property.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
+              }
+
+              
+
+            }
+ 
+
           }
           
         } else {
@@ -394,7 +422,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue("USD", 3)); // transaction currency code
     values.add(getFixedWidthValueRightJustify(amt, 16)); // transaction monetary amount
     values.add(getFixedWidthEmptyValue(16)); //statistics amount (blank)
-    values.add(getFixedWidthValue(journalEntry, 10)); //journal line ref
+    values.add(getFixedWidthValue(this.JOURNAL_LINE_REF, 10)); //journal line ref
     values.add(getFixedWidthValue(description, 30)); //journal line description
     values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
     values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
@@ -408,22 +436,24 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     
   }
   
-  private void addMicroarrayCreditTotal(BillingPeriod billingPeriod, DictionaryHelper dh) {
+  private void addMicroarrayTotal(BillingPeriod billingPeriod, DictionaryHelper dh, String account, BigDecimal totalAmt, boolean isCredit) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
     
-    String amt = this.currencyFormat.format(this.totalPrice);
+    String amt = this.currencyFormat.format(totalAmt);
     amt = amt.replaceAll("\\.", "");
     amt = amt.replaceAll(",", "");
     amt = amt.replaceAll("\\$", "");
-    amt = "-" + amt;
+    if (isCredit) {
+      amt = "-" + amt;      
+    }
    
     
     values.add(getFixedWidthValue("L", 1)); // record type
     values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_BUSINESS_UNIT), 5));  // business unit
     values.add(getFixedWidthEmptyValue(6)); // journal line number (blank)
-    values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_ACCOUNT), 6)); // account
+    values.add(getFixedWidthValue(dh.getProperty(account), 6)); // account
     values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_FUND), 5)); // fund
     values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_ORG), 10)); // dept id
     values.add(getFixedWidthValue(dh.getProperty(Property.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
@@ -435,7 +465,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue("USD", 3)); // transaction currency code
     values.add(getFixedWidthValueRightJustify(amt, 16)); // transaction monetary amount
     values.add(getFixedWidthEmptyValue(16)); //statistics amount (blank)
-    values.add(getFixedWidthValue(journalEntry, 10)); //journal line ref
+    values.add(getFixedWidthValue(JOURNAL_LINE_REF, 10)); //journal line ref
     values.add(getFixedWidthValue("HCI Microarray " + billingPeriod.getBillingPeriod(), 30)); //journal line description
     values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
     values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
