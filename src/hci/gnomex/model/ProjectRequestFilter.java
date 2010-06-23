@@ -150,7 +150,11 @@ public class ProjectRequestFilter extends DetailObject {
       addSlideProductCriteria();
     }
     
-    queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.codeRequestCategory, req.codeApplication, req.createDate desc, req.idRequest desc, sample.number asc");
+    if (this.showCategory.equals("Y")) {
+      queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.codeRequestCategory, req.codeApplication, req.createDate desc, req.idRequest desc, sample.number asc");
+    } else {
+      queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.createDate desc, req.idRequest desc, sample.number asc");
+    }
   
   }
   
