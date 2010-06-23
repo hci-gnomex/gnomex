@@ -565,6 +565,31 @@
 				}
 			}
 		}
+		private function jumpToApproved():void {
+			// First try to jump to 'Approved (External)'
+			var found:Boolean = false;
+			for each(var item:XML in requests) {
+				if (item.@label == 'Approved (External)') {
+					this.requestTree.selectedItem = item;
+					this.requestTree.firstVisibleItem = item;
+					this.onRequestNodeSelected();
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+			for each(var item1:XML in requests) {
+				if (item1.@label == 'Approved') {
+					this.requestTree.selectedItem = item1;
+					this.requestTree.firstVisibleItem = item1;
+					this.onRequestNodeSelected();
+					found = true;
+					break;
+				}
+			}
+				
+			}
+		}
 		
 		private function reselectRequestTree():void {
 			if (lastSelectedItem != null) {
@@ -621,16 +646,21 @@
  			if (this.requestTree.selectedItem == null) {
  				return;
  			}
+ 			gatherDisplayInfo(this.requestTree.selectedItem);
+ 		}
+ 		
+ 		private function gatherDisplayInfo(selectedItem:Object):void {
+
 			billingItemsDisplayed = new XMLListCollection();
 			
 			var totalPrice:Number = new Number(0);
 			var request:XML = null;
 			var lab:XML = null;
 			var item:Object = null;
- 			if (this.requestTree.selectedItem.name() == "Status" && 
- 			    this.requestTree.selectedItem.@status == 'PENDING') {
+ 			if (selectedItem.name() == "Status" && 
+ 			    selectedItem.@status == 'PENDING') {
  				this.billingItemsDisplayed = new XMLListCollection();
- 				for each(request in this.requestTree.selectedItem..Request) {
+ 				for each(request in selectedItem..Request) {
  					for each(item in billingItems) {
 	 					if (item.@requestNumber == request.@requestNumber &&
 		 					item.@idBillingAccount == request.@idBillingAccount) {
@@ -640,9 +670,9 @@
  					}  
  					
  				}
- 			} else if (this.requestTree.selectedItem.name() == "Status") {
+ 			} else if (selectedItem.name() == "Status") {
  				this.billingItemsDisplayed = new XMLListCollection();
- 				for each(lab in this.requestTree.selectedItem..Lab) {
+ 				for each(lab in selectedItem..Lab) {
 	 				for each(request in lab.Request) {
 	 					for each(item in billingItems) {
 		 					if (item.@requestNumber == request.@requestNumber &&
@@ -654,9 +684,9 @@
 	 					
  					}
  				}
- 			}  else if (this.requestTree.selectedItem.name() == "Lab") {
+ 			}  else if (selectedItem.name() == "Lab") {
  				this.billingItemsDisplayed = new XMLListCollection();
- 				lab = XML(this.requestTree.selectedItem); 
+ 				lab = XML(selectedItem); 
  				for each(request in lab.Request) {
  					for each(item in billingItems) {
 	 					if (item.@requestNumber == request.@requestNumber &&
@@ -666,10 +696,10 @@
  						}
  					}  
  				}
- 			} else if (this.requestTree.selectedItem.name() == "Request") {
+ 			} else if (selectedItem.name() == "Request") {
  				for each(item in billingItems) { 
- 					if (item.@requestNumber == requestTree.selectedItem.@requestNumber &&
- 					    item.@idBillingAccount == requestTree.selectedItem.@idBillingAccount) {
+ 					if (item.@requestNumber == selectedItem.@requestNumber &&
+ 					    item.@idBillingAccount == selectedItem.@idBillingAccount) {
 	 					billingItemsDisplayed.addItem(item);
 						totalPrice = sumTotalPrice(totalPrice, item);
  					}
@@ -1095,30 +1125,29 @@
 				return;    	
 			} 
 			
-			if (requestTree.selectedItem.name() != "Status") {
-				Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
+			// Gather up grand total for approved node.  We do this as a
+			// double-check to make sure the journal entries match to
+			// what we see in the interface.
+			var approvedNode:Object = null;
+			for each(var item:Object in requests) {
+				if (item.@label == "Approved") {
+					approvedNode = item;
+					break;
+				}
+			}
+			if (approvedNode == null) {
+				Alert.show("Unable to generate GL interface.  Cannot find approved folder.")
 				return;
 			}
-			 
-			if (this.requestTree.selectedItem != null) { 
-				var statusNode:Object = this.requestTree.selectedItem; 
-				if (statusNode != null && 
-				    (statusNode.@status == "APPROVED" )) {
-				    	 
-            		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
-            		mx.managers.PopUpManager.centerPopUp(runWindow);
-            		runWindow.setFocus();
-            		runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
-            		runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
-            		runWindow.grandTotalPrice = this.grandTotalPrice;
-					
-				} else {
-					Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
-				}
-				
-			} else {
-				Alert.show("For the GL Interface, the 'Approved' folder must be selected.")
-			}
+			this.gatherDisplayInfo(approvedNode);
+
+			// Show popup window for generating gl interface			
+    		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
+    		mx.managers.PopUpManager.centerPopUp(runWindow);
+    		runWindow.setFocus();
+    		runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
+    		runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
+    		runWindow.grandTotalPrice = this.grandTotalPrice;
 		}		
 		
 		private function showPricingView():void {
@@ -1558,7 +1587,7 @@
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
 						<mx:LinkButton label="Completed" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Completed&quot;)" id="jumpCompleted"/>
-						<mx:LinkButton label="Approved" textDecoration="underline" paddingRight="0"  styleName="formLinkSmallButton" click="jumpTo(&quot;Approved&quot;)" id="jumpApproved"/>
+						<mx:LinkButton label="Approved" textDecoration="underline" paddingRight="0"  styleName="formLinkSmallButton" click="jumpToApproved()" id="jumpApproved"/>
         				
         			</mx:HBox>
         		    
