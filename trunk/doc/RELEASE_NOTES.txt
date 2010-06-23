@@ -1,5 +1,13 @@
 GNomEx Release Notes
 
+
+4.7 patch (June 22, 2010)
+------------------------
+- Fix bug that was causing null reference on lab combo when non-admin user submitting a request
+- Fixed bug that was causing # of additional sequencing lanes on 'add services' to be non-editable for non-admin users
+- Don't require sample prep method to be filled in when adding lanes since old requests won't have this filled in
+- Fix null ref in sample setup for onGetLab parentDocument.filteredProjectList.refresh()
+
 4.7 (June 20, 2010)
 -------------------------
 - Ability to add services to an experiment request (amend request)

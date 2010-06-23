@@ -441,12 +441,15 @@
 			setupView.checkSecurity();	
 			
 			// Select the first lab unless this user is an admin
-			if (parentApplication.currentState != "AdminState") {
-            	if (labCombo.dataProvider.length > 1) {
-					labCombo.selectedIndex = 1;
-					this.getLabForAddingServices.send();
-				}
-			}		
+			if (this.isAmendState()) {
+				if (parentApplication.currentState != "AdminState") {
+	            	if (labCombo.dataProvider.length > 1) {
+						labCombo.selectedIndex = 1;
+						this.getLabForAddingServices.send();
+					}
+				}		
+				
+			}
 		}
 		
 		public function isRequestPending():Boolean {
