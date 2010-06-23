@@ -174,7 +174,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
             addRequestNode(row, analysisNames, dictionaryHelper);          
             addSampleNode(row);
           }
-        } else if (!codeRequestCategory.equals(prevCodeRequestCategory) ||
+        } else if (filter.getShowCategory().equals("Y") &&
+                    !codeRequestCategory.equals(prevCodeRequestCategory) ||
                     !codeApplication.equals(prevCodeApplication)) {
           if (idRequest.intValue() != -2) {
             addRequestCategoryNode(row);
