@@ -916,6 +916,7 @@ CREATE TABLE `gnomex`.`NumberSequencingCycles` (
   `numberSequencingCycles` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   `sortOrder` INT(10) NULL,
+  `notes` VARCHAR(500) NULL,
   PRIMARY KEY (`idNumberSequencingCycles`)
 )
 ENGINE = INNODB;

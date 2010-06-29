@@ -1,7 +1,7 @@
 GNomEx Release Notes
 
 
-4.7.1
+4.7.1 (June 29, 2010)
 ------------------------
 - Add total PO debit and credit rows to Billing GL Interface and change journal entry name to 'MICROARRAY'
 - Billing 'approved' link now jumps to 'Approved (external)' rather than 'Approved'.
@@ -11,6 +11,7 @@ GNomEx Release Notes
 - Filter number sequencing cycles by request category (GAIIx vs HiSeq 2000)
 - Order radio buttons (ascending sort) for number seq cycles 
 - Order radio buttons for single vs. paired ends
+- Add notes to number sequencing cycles
 
 
 4.7 patch (June 22, 2010)

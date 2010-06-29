@@ -266,13 +266,17 @@
 				<mx:Label text="(2) Select the desired number of sequencing cycles." width="314."  id="label10"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox">
 				    <mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
-					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentDocument.filteredNumberSequencingCycleList}"> 
-				    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
-				    		paddingLeft="0" paddingRight="1"
-				    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
-				    	    groupName="numberSequencingCyclesRadioGroup"
-				    		click="{pickNumberSequencingCycles()}"/>
-  					</mx:Repeater>
+						<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentDocument.filteredNumberSequencingCycleList}"> 
+						    <mx:HBox verticalAlign="middle">
+						    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
+						    		paddingLeft="0" paddingRight="1"
+						    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
+						    	    groupName="numberSequencingCyclesRadioGroup"
+					    			click="{pickNumberSequencingCycles()}" width="50"/>
+					    		<mx:Text  text="{numberSequencingCyclesRepeater.currentItem.@notes}"  fontSize="9"/>
+				    </mx:HBox>
+	  					</mx:Repeater>
+				    	
 				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0" paddingTop="12">

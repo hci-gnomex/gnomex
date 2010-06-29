@@ -9,6 +9,7 @@ public class NumberSequencingCycles extends DictionaryEntry implements Serializa
   private Integer  idNumberSequencingCycles;
   private Integer  numberSequencingCycles;
   private String   isActive;
+  private String   notes;
   
   public String getDisplay() {
     String display = this.getNonNullString(getNumberSequencingCycles().toString());
@@ -48,6 +49,16 @@ public class NumberSequencingCycles extends DictionaryEntry implements Serializa
   
   public void setNumberSequencingCycles(Integer numberSequencingCycles) {
     this.numberSequencingCycles = numberSequencingCycles;
+  }
+
+  
+  public String getNotes() {
+    return notes;
+  }
+
+  
+  public void setNotes(String notes) {
+    this.notes = notes;
   }
 
 }

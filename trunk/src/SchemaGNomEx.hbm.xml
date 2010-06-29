@@ -813,6 +813,7 @@
 		</id>
 		<property name="numberSequencingCycles" column="numberSequencingCycles" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="notes" column="notes" type="string"/>
 	</class>
 
 	<!-- hci.gnomex.model.NumberSequencingCyclesAllowed -->
