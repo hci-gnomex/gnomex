@@ -398,8 +398,7 @@
 		                <mx:itemRenderer>
 		                    <mx:Component >
 		                        <mx:HBox  horizontalGap="0" >
-				                   <mx:Image   id="experimentImage"  
-                                       source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}">
+				                   <mx:Image   id="experimentImage" source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}">
                                    </mx:Image>    		                           
                                    <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
 		                           </mx:Label>
