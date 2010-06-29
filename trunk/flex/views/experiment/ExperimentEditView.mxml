@@ -3317,7 +3317,7 @@
 	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
 	                				    <mx:Image 						    	
 	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? parentApplication.iconMicroarray : parentApplication.iconMicroarrayDisabled}"/>							
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="207" 							
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="310" 							
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? true : false}"/>							
 	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%"  id="text1" fontSize="9"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? true : false}"/>							
@@ -3325,7 +3325,7 @@
 	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
 	                				    <mx:Image					    	
 	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconMicroarraySingleColorDisabled}"/>							
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="207" 							
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="310" 							
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? true : false}"/>							
 	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%" id="text2" fontSize="9"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? true : false}"/>							
@@ -3333,7 +3333,7 @@
 	                				<mx:HBox width="100%" horizontalGap="4" verticalAlign="middle">
 	                				    <mx:Image 						    	
 	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? parentApplication.iconMicroarrayAffy : parentApplication.iconMicroarrayAffyDisabled}"/>							
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="207"							
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="310"							
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? true : false}"/>							
 	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%"  id="text3" fontSize="9"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? true : false}"/>							
@@ -3341,7 +3341,7 @@
 	                				<mx:HBox id="seqAmendBox"  width="100%"  horizontalGap="4" verticalAlign="middle" paddingTop="0">
 	                					<mx:Image 
 	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? parentApplication.iconSolexa : parentApplication.iconSolexaDisabled}"/>							
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="207"
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="310"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}">							
 	                						<mx:label>Illumina GAIIx Sequencing</mx:label>
 	                					</mx:RadioButton>
@@ -3351,15 +3351,15 @@
 	                				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
 	                					<mx:Image 
 	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? parentApplication.iconSolexa : parentApplication.iconSolexaDisabled}"/>							
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes" width="100%"
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes" width="310"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}">							
-	                						<mx:label>Illumina GAIIx Sequencing, adding Sequence lanes only.</mx:label>
+	                						<mx:label>Illumina GAIIx, adding Sequence lanes only.</mx:label>
 	                					</mx:RadioButton>
 	                				</mx:HBox>
 	                				<mx:HBox id="hiSeqAmendBox"  width="100%"  horizontalGap="4" verticalAlign="middle" paddingTop="0">
 	                					<mx:Image 
 	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? parentApplication.iconHiSeq : parentApplication.iconHiSeqDisabled}"/>							
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOHISEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToHiSeq" width="207"
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOHISEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToHiSeq" width="310"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}">							
 	                						<mx:label>Illumina HiSeq 2000 Sequencing</mx:label>
 	                					</mx:RadioButton>
@@ -3369,9 +3369,9 @@
 	                				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
 	                					<mx:Image 
 	                					   source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? parentApplication.iconHiSeq : parentApplication.iconHiSeqDisabled}"/>							
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDHISEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddHiSeqLanes" width="100%"
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDHISEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddHiSeqLanes" width="310"
    							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}">							
-	                						<mx:label>Illumina HiSeq 2000 Sequencing, adding Sequence lanes only.</mx:label>
+	                						<mx:label>Illumina HiSeq 2000, adding Sequence lanes only.</mx:label>
 	                					</mx:RadioButton>
 	                				</mx:HBox>
 	                			</mx:VBox>
