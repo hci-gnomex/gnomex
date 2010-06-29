@@ -154,7 +154,13 @@ public class ExperimentPickListFilter extends DetailObject {
 
   private void addLaneCriteria() {
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory = 'SOLEXA'");
+    queryBuf.append(" req.codeRequestCategory in (");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("', ");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("') ");
 
     //TODO - need to filter by lane complete date
   }

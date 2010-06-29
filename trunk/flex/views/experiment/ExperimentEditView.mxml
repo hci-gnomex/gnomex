@@ -195,6 +195,8 @@
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
+		public var filteredNumberSequencingCycleList:XMLListCollection;
+		[Bindable]
 		public var filteredMicroarrayAppList:XMLListCollection;
 		[Bindable]
 		public var filteredAppList:XMLListCollection;
@@ -209,6 +211,8 @@
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
+		private var numberSequencingCyclesSorter:Sort;
+		private var seqRunTypeSorter:Sort;
 
 		
 		[Bindable]
@@ -232,20 +236,23 @@
 
 		private function init():void {
 			
-			// Set the base state
-			if (this.id == "amendRequestView") {
-				this.currentState = 'AmendState';
-				this.nextButton.enabled = false;
-			} else if (this.id == "editView") {
-				this.currentState = "EditState";
-			}else {
-				this.currentState = "";
-			}
 			
 	 		// If this is the first time this instance
 	 		// has been shown, perform 1-time-only
 	 		// initialization
 			if (!isInitialized) {
+
+				// Set the base state
+				if (this.id == "amendRequestView") {
+					this.currentState = 'AmendState';
+					this.nextButton.enabled = false;
+				} else if (this.id == "editView") {
+					this.currentState = "EditState";
+				}else {
+					this.currentState = "";
+				}
+
+
 				this.initializeData();
         	    this.checkSecurity();
             	this.setupDataListeners();
@@ -293,15 +300,28 @@
 			
         	
 	        filteredSeqRunTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqRunType'));
+        	seqRunTypeSorter = new Sort();
+        	seqRunTypeSorter.compareFunction = this.sortSeqRunType;	   
+        	filteredSeqRunTypeList.sort = seqRunTypeSorter;     	
+        	filteredSeqRunTypeList.refresh();
         	
         	
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild'));
         	        	
         	
-        	
-        	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
-        	filteredAppList           = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
+        	filteredNumberSequencingCycleList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCycles'));
+        	numberSequencingCyclesSorter = new Sort();
+        	numberSequencingCyclesSorter.compareFunction = this.sortNumberSequencingCycles;	   
+        	filteredNumberSequencingCycleList.sort = numberSequencingCyclesSorter;     	
 
+        	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
+        	// We use this technique xml.copy() to prevent duplication of applications 
+        	// that somehow happens when we add services, then submit request or vice versa
+        	filteredAppList           = new XMLListCollection();
+        	for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
+        		filteredAppList.addItem(i.copy());
+        	}
+        
 			filteredSlideProductList = new XMLListCollection(parentApplication.getSlideProductList.lastResult.SlideProduct);
 	        filteredSlideProductList.filterFunction = filterSlideProduct;
 	        
@@ -351,9 +371,17 @@
 
 			filteredAppList.filterFunction = filterApplication;
 			filteredAppList.refresh();
+
 			
 			filteredSampleTypeList.filterFunction = filterSampleType;
 			filteredSampleTypeList.refresh();
+			
+			filteredNumberSequencingCycleList.filterFunction = filterNumberSequencingCycles;
+			filteredNumberSequencingCycleList.refresh();
+			
+			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
+			filteredSeqRunTypeList.refresh();
+
 		}
 		
 		public function isSolexaState():Boolean {
@@ -678,6 +706,7 @@
 			this.setupView.requestRadioAgilent.setStyle("fontWeight",this.setupView.requestRadioAgilent.selected == true ?  "bold" : "normal");	
 			this.setupView.requestRadioQC.setStyle(     "fontWeight",this.setupView.requestRadioQC.selected      == true ?  "bold" : "normal");	
 			this.setupView.requestRadioSolexa.setStyle( "fontWeight",this.setupView.requestRadioSolexa.selected  == true ?  "bold" : "normal");	
+			this.setupView.requestRadioHiSeq.setStyle( "fontWeight",this.setupView.requestRadioHiSeq.selected  == true ?  "bold" : "normal");	
 			
 			this.confirmView.barcodeColumn.visible = false;        	
 	
@@ -685,20 +714,25 @@
 			if (this.setupView.requestRadioAffy.selected ||
 			    this.setupView.requestRadioAgilent.selected ||
 			    this.setupView.requestRadioQC.selected ||
-			    this.setupView.requestRadioSolexa.selected) {
+			    this.setupView.requestRadioSolexa.selected ||
+			    this.setupView.requestRadioHiSeq.selected) {
 				this.setupView.requestTypeBox.styleName = "normalBox";
 			} else {
 				this.setupView.requestTypeBox.styleName = "requiredBox";
 			}
 
-			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA') {
+			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA' || 
+			    setupView.requestTypeGroup.selectedValue == 'HISEQ') {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 				this.samplesView.currentState = 'SolexaSamplesState';
 
 
 				filteredAppList.filterFunction = filterApplication;
-				filteredAppList.refresh();		 
+				filteredAppList.refresh();		
+
+				filteredNumberSequencingCycleList.filterFunction = filterNumberSequencingCycles;
+				filteredNumberSequencingCycleList.refresh(); 
 				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
@@ -926,8 +960,10 @@
 				return "AGIL1";
 			} else if (this.radioAmendQCToAgilent.selected) {
 				return "AGIL";
-			} else if (this.radioAmendAddSeqLanes.selected || this.radioAmendQCToSeq) {
+			} else if (this.radioAmendAddSeqLanes.selected || this.radioAmendQCToSeq.selected) {
 				return "SOLEXA"
+			} else if (this.radioAmendAddHiSeqLanes.selected || this.radioAmendQCToHiSeq.selected) {
+				return "HISEQ"
 			} else {
 				return "";
 			}
@@ -1080,7 +1116,7 @@
 		private function filterMicroarrayApplication(item:Object):Boolean {
 			var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
 
-			if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA") {
+			if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA" || codeRequestCategory == 'HISEQ') {
 				codeRequestCategory = "AGIL";
 			}
 			if (item.@value == "") {
@@ -1135,9 +1171,45 @@
     	}
 
         private function filterSeqRunType(item:Object):Boolean {
-    	   	return true;
+    	   	var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
+			if (item.@value == "") {
+    	    	return false;
+			} 
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	return true;
     	}
        
+        private function filterNumberSequencingCycles(item:Object):Boolean {
+			if (isEditState()) {
+        		return true;
+        	}
+
+			if (item.@value == "") {
+    	    	return false;
+			} 
+        	
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	        	
+			var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
+			
+        	var doesMatch:Boolean = false;
+        	var theCycles:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry.(@value != '' && @idNumberSequencingCycles == item.@value.toString());
+    	   	for each (var xref:Object in theCycles) {
+    	   		if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
+	    	   		doesMatch = true;
+	    	   		break;
+    	   		}
+    	   	}
+        	
+        	
+        	return doesMatch;
+        }  
+
         public function filterSlideProduct(item:Object):Boolean {
         	if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
         		return true;
@@ -1483,7 +1555,7 @@
 			}
 			
 
-			if (request.@codeRequestCategory == 'SOLEXA') {
+			if (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ') {
 				currentState = 'SolexaEditState';
 				this.annotationView.currentState = 'EditState';			
 				if (parentApplication.hasPermission("canWriteAnyObject")) { 
@@ -2351,7 +2423,62 @@
 				}
 			}			
 		}			
+
+        private function sortNumberSequencingCycles(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:int = obj1.@numberSequencingCycles;
+				var order2:int = obj2.@numberSequencingCycles;
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		}			
 		
+		// Sort seq run type by sortOrder field
+        private function sortSeqRunType(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:int = obj1.@sortOrder;
+				var order2:int = obj2.@sortOrder;
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		}			
+
 		private function showViewWindow():void {
 		     parentDocument.theViews.selectedChild = parentDocument.detailView;
            	 parentDocument.detailView.setupForm(this.request);
@@ -2386,10 +2513,12 @@
 		
 		private function setAmendState():void {
 			if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != "") {
-				if (this.radioGroupAmendType.selectedValue == "ADDSEQLANES" ) {
+				if (this.radioGroupAmendType.selectedValue == "ADDSEQLANES" || this.radioGroupAmendType.selectedValue == "ADDHISEQLANES" ) {
 					this.currentState = "SolexaLaneAmendState";
 					setAmendTitle();
-				} else if (this.radioGroupAmendType.selectedValue == "QCTOSEQ") {
+				} else if (this.radioGroupAmendType.selectedValue == "QCTOSEQ" || this.radioGroupAmendType.selectedValue == "QCTOHISEQ") {
+					this.filteredAppList.refresh();
+
 					this.currentState = "SolexaBaseAmendState";
 					setAmendTitle();
 				} else if (this.radioAmendQCToAffy.selected || this.radioAmendQCToAgilent.selected || this.radioAmendQCToAgilent1Color.selected) {
@@ -2416,7 +2545,12 @@
 				params.searchPublicProjects = 'N';
 				params.publicExperimentsInOtherGroups = 'N';
 				params.isBioanalyzer = this.radioAmendQCToAgilent.selected || this.radioAmendQCToAgilent1Color.selected ||this.radioAmendQCToAffy.selected || this.radioAmendQCToSeq ? "Y" : "N";
-				params.isSolexa = this.radioAmendAddSeqLanes.selected ? "Y" : "N";
+				params.isSolexa = this.radioAmendAddSeqLanes.selected || this.radioAmendAddHiSeqLanes.selected ? "Y" : "N";
+				
+				// Limit by the kind of illumina request if we are adding lanes
+				if (this.radioAmendAddSeqLanes.selected || this.radioAmendAddHiSeqLanes.selected) {
+					params.codeRequestCategory = this.getAmendRequestType();
+				}
 				
 				if (lastWeekCheckbox.selected) { 
 					params.lastWeek = 'Y'; 
@@ -2503,8 +2637,10 @@
 					return parentApplication.iconCategory;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
 					return parentApplication.iconQC;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA" ) {
 					return parentApplication.iconSolexa;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ" ) {
+					return parentApplication.iconHiSeq;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
 					return parentApplication.iconMicroarrayAffy;
 				}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
@@ -2629,6 +2765,8 @@
     			} else if (currentState == "MicroarrayAmendState") {
     				this.sampleSetupView.checkSampleSetupCompleteness();
     			}
+    			
+    			
     			this.samplesView.checkSamplesCompleteness();
     			this.hybSetupView.checkHybSetupCompleteness();
     			this.hybsView.checkHybsCompleteness();
@@ -2644,6 +2782,7 @@
 		}
 		
 		private function setAmendTitle():void {
+			this.titleLabel.text = "";
 			if (this.currentState == "SolexaBaseAmendState" ) {
 				this.titleLabel.text = "Adding Illumina sequencing services to Sample Quality Experiment ";		
 			} else if (this.currentState == "MicroarrayAmendState") {
@@ -2693,6 +2832,8 @@
 			
 			if (isSolexaAmendState()) {
 				this.filteredGenomeBuildList.refresh();
+				this.filteredNumberSequencingCycleList.refresh();
+			
 				
 				// Get rid of the existing lanes.  User will specify
 				// additional lanes
@@ -2711,7 +2852,9 @@
 			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
 				// We are converting a QC request to a microarray or illumina
 				// sequencing request.
-				
+				this.filteredSampleTypeList.refresh();
+				this.samplePrepMethodList.refresh();
+			
 				// Set the default sample type on the request based on the first sample listed
 				var idSampleTypeDefault:String = request.samples.Sample[0].@idSampleType.toString();
 				request.@idSampleTypeDefault = idSampleTypeDefault;
@@ -3150,7 +3293,7 @@
                 <mx:VBox id="amendSetupView" label="Add services" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
                 	<mx:RadioButtonGroup id="radioGroupAmendType"/>
                 	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
-                		<mx:Label text="(1) Verify your lab group." width="190"/>
+                		<mx:Label text="(1) Verify your lab group." width="187"/>
                 		<mx:ComboBox  id="labCombo" dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
                 			selectedIndex="-1" labelField="@name" 
                 			width="340"
@@ -3158,7 +3301,7 @@
                 		</mx:ComboBox>
                 	</mx:HBox>
                 	<mx:HBox id="appUserContainer" width="100%" horizontalGap="8">
-                	       <mx:Text width="190">
+                	       <mx:Text width="187">
                 	              <mx:text>(2) Verify the lab group member who submitted the Request.</mx:text>
                 	       </mx:Text>
                 			<mx:ComboBox dataProvider="{appUsers}" 
@@ -3167,36 +3310,68 @@
                 			</mx:ComboBox>
                 	</mx:HBox>
                 	<mx:HBox width="100%" horizontalGap="8">
-                		<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="190"/>
+                		<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="187"/>
                 		<mx:VBox width="100%" height="100%" verticalGap="1">
                 		    <mx:HBox id="microarrayAmendBox" width="100%" horizontalGap="0">
 	                			<mx:VBox id="requestTypeBox" horizontalGap="0" verticalGap="2" paddingLeft="0" paddingTop="0" paddingRight="0" paddingBottom="0" width="100%">
 	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
-	                				    <mx:Image source="{parentApplication.iconMicroarray}"/>						    	
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="200" enabled="true"/>							
-	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%" enabled="true" id="text1" fontSize="9"/>
+	                				    <mx:Image 						    	
+	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? parentApplication.iconMicroarray : parentApplication.iconMicroarrayDisabled}"/>							
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 2-color Microarray" value="AGIL"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent" width="207" 							
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? true : false}"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%"  id="text1" fontSize="9"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? true : false}"/>							
 	                				</mx:HBox>
 	                				<mx:HBox verticalGap="2" width="100%" verticalAlign="middle" horizontalGap="4">
-	                				    <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="200" enabled="true"/>							
-	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%" enabled="true" id="text2" fontSize="9"/>
+	                				    <mx:Image					    	
+	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconMicroarraySingleColorDisabled}"/>							
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Agilent 1-color Microarray" value="AGIL1"  click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAgilent1Color" width="207" 							
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? true : false}"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%" id="text2" fontSize="9"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? true : false}"/>							
 	                				</mx:HBox>
 	                				<mx:HBox width="100%" horizontalGap="4" verticalAlign="middle">
-	                				    <mx:Image source="{parentApplication.iconMicroarrayAffy}" />						    	
-	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="200" enabled="true"/>							
-	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%" enabled="true" id="text3" fontSize="9"/>
+	                				    <mx:Image 						    	
+	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? parentApplication.iconMicroarrayAffy : parentApplication.iconMicroarrayAffyDisabled}"/>							
+	                				    <mx:RadioButton groupName="radioGroupAmendType" label="Affymetrix Microarray" value="AFFY" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToAffy" width="207"							
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? true : false}"/>							
+	                				    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%"  id="text3" fontSize="9"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? true : false}"/>							
 	                				</mx:HBox>
 	                				<mx:HBox id="seqAmendBox"  width="100%"  horizontalGap="4" verticalAlign="middle" paddingTop="0">
-	                					<mx:Image source="assets/DNA_diag.png"/>
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="200">
+	                					<mx:Image 
+	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? parentApplication.iconSolexa : parentApplication.iconSolexaDisabled}"/>							
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOSEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToSeq" width="207"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}">							
 	                						<mx:label>Illumina GAIIx Sequencing</mx:label>
 	                					</mx:RadioButton>
-	                					<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%" enabled="true" id="text0" fontSize="9"/>
+	                					<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%" id="text0" fontSize="9"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}"/>							
 	                				</mx:HBox>
 	                				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
-	                					<mx:Image source="assets/DNA_diag.png"/>
-	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes" width="100%">
+	                					<mx:Image 
+	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? parentApplication.iconSolexa : parentApplication.iconSolexaDisabled}"/>							
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDSEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddSeqLanes" width="100%"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}">							
 	                						<mx:label>Illumina GAIIx Sequencing, adding Sequence lanes only.</mx:label>
+	                					</mx:RadioButton>
+	                				</mx:HBox>
+	                				<mx:HBox id="hiSeqAmendBox"  width="100%"  horizontalGap="4" verticalAlign="middle" paddingTop="0">
+	                					<mx:Image 
+	                					source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? parentApplication.iconHiSeq : parentApplication.iconHiSeqDisabled}"/>							
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="QCTOHISEQ" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendQCToHiSeq" width="207"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}">							
+	                						<mx:label>Illumina HiSeq 2000 Sequencing</mx:label>
+	                					</mx:RadioButton>
+	                					<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@notes}" width="100%"  fontSize="9"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}"/>							
+	                				</mx:HBox>
+	                				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4">
+	                					<mx:Image 
+	                					   source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? parentApplication.iconHiSeq : parentApplication.iconHiSeqDisabled}"/>							
+	                					<mx:RadioButton groupName="radioGroupAmendType" value="ADDHISEQLANES" click="{setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()}" id="radioAmendAddHiSeqLanes" width="100%"
+   							              enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}">							
+	                						<mx:label>Illumina HiSeq 2000 Sequencing, adding Sequence lanes only.</mx:label>
 	                					</mx:RadioButton>
 	                				</mx:HBox>
 	                			</mx:VBox>
@@ -3205,7 +3380,7 @@
                 	</mx:HBox>
                 	<mx:VBox width="100%" height="100%" verticalGap="0" id="vbox2">
                 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="8">
-                			<mx:Text text="(4) Select the existing request." id="label1" width="190"/>
+                			<mx:Text text="(4) Select the existing request." id="label1" width="187"/>
                 			<mx:HBox horizontalGap="4" height="100%" verticalAlign="middle" verticalGap="0"  horizontalAlign="right"  paddingLeft="0" paddingRight="0"  id="hbox3">
 		    					<mx:Label text="Submitted"/>
 		    					<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >

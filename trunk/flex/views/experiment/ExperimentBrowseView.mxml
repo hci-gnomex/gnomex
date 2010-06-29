@@ -364,6 +364,9 @@
 			case 'SOLEXA': 
 				theIcon = parentApplication.iconSolexa; 
 				break; 
+            case 'HISEQ': 
+				theIcon = parentApplication.iconHiSeq; 
+				break; 				
 			default: 
 				theIcon = parentApplication.iconExperiment;	
 		}
@@ -422,7 +425,7 @@
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
 			                          <mx:Image id="experimentImage"  
-			                          	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}" >
+			                          	source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}" >
 			                    	 </mx:Image> 
 			                           <mx:Label id="requestNumber" text="{data.@requestNumber}">
 			                           </mx:Label>

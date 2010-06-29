@@ -97,6 +97,10 @@
 
 
 	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
+	<Dictionary displayName="Illumina Number of Sequencing Cycles Allowed" className="hci.gnomex.model.NumberSequencingCyclesAllowed" >
+			<Filter className="hci.gnomex.model.NumberSequencingCycles" filterField="idNumberSequencingCycles"/>
+			<Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
+	</Dictionary>
   <Dictionary displayName="Illumina Single vs. Paired end Reads" className="hci.gnomex.model.SeqRunType" />
 	<Dictionary displayName="Illumina Control Library" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>

@@ -220,15 +220,28 @@
 	        [Bindable]
 	        [Embed(source="assets/microarray_small.png")]
 	        public var iconMicroarray:Class; 
+	        
+	        	
+	        [Bindable]
+	        [Embed(source="assets/microarray_small_disable.png")]
+	        public var iconMicroarrayDisabled:Class; 
 
 	        [Bindable]
 	        [Embed(source="assets/microarray_small_single_color.png")]
 	        public var iconMicroarraySingleColor:Class; 
 
 	        [Bindable]
+	        [Embed(source="assets/microarray_small_single_color_disable.png")]
+	        public var iconMicroarraySingleColorDisabled:Class; 
+
+	        [Bindable]
 	        [Embed(source="assets/microarray_chip.png")]
 	        public var iconMicroarrayAffy:Class; 
 	        
+	        [Bindable]
+	        [Embed(source="assets/microarray_chip_disable.png")]
+	        public var iconMicroarrayAffyDisabled:Class; 
+	        	        
 	        [Bindable]
 	        [Embed(source="assets/flask.png")]
 	        public var iconMicroarrayOther:Class; 
@@ -240,6 +253,10 @@
 	        [Bindable]
 	        [Embed(source="assets/chart_line.png")]
 	        public var iconQC:Class;
+	        
+	        	        [Bindable]
+	        [Embed(source="assets/chart_line_disable.png")]
+	        public var iconQCDisabled:Class;
 	        
 	       	[Bindable]
 	        [Embed(source="assets/bullet_orange.png")]
@@ -256,6 +273,19 @@
 	        [Bindable]
 	        [Embed(source="assets/DNA_diag.png")]
 	        public var iconSolexa:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/DNA_diag_disable.png")]
+	        public var iconSolexaDisabled:Class;
+	        
+	        
+	        [Bindable]
+	        [Embed(source="assets/DNA_diag_lightening.png")]
+	        public var iconHiSeq:Class;
+
+	        [Bindable]
+	        [Embed(source="assets/DNA_diag_lightening_disable.png")]
+	        public var iconHiSeqDisabled:Class;
 	        
 	        [Bindable]
 	        [Embed(source="assets/sitemap.png")]

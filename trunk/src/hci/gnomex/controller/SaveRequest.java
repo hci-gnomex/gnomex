@@ -1159,7 +1159,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     if (priceSheet == null) {
-      throw new RollBackCommandException("Cannot find price seeht to create billing items for added services");
+      throw new RollBackCommandException("Cannot find price sheet to create billing items for added services");
     }
     
      

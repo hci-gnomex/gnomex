@@ -109,7 +109,7 @@
         	var isComplete:Boolean = false;
         	if (parentDocument.isEditState()) {
         		isComplete = true;
-        	} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState()) {
+        	} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
 	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
 	        		isComplete = true;
 	        	 }

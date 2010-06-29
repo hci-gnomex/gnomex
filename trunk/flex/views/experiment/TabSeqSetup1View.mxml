@@ -252,7 +252,7 @@
 				<mx:Label text="(1) Select the sequencing run type:" width="314."  id="label9"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="seqRunTypeBox">
 				    <mx:RadioButtonGroup id="seqRunTypeRadioGroup"/>
-					<mx:Repeater id="seqRunRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive != &quot;N&quot; &amp;&amp; @value != '')}"> 
+					<mx:Repeater id="seqRunRepeater" dataProvider="{parentDocument.filteredSeqRunTypeList}"> 
 				    	<mx:RadioButton  label="{seqRunRepeater.currentItem.@display}" 
 				    		paddingLeft="1" paddingRight="1"
 				    		value="{seqRunRepeater.currentItem.@value}"
@@ -266,7 +266,7 @@
 				<mx:Label text="(2) Select the desired number of sequencing cycles." width="314."  id="label10"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox">
 				    <mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
-					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive != &quot;N&quot; &amp;&amp; @value != '')}"> 
+					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentDocument.filteredNumberSequencingCycleList}"> 
 				    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
 				    		paddingLeft="0" paddingRight="1"
 				    		value="{numberSequencingCyclesRepeater.currentItem.@value}"

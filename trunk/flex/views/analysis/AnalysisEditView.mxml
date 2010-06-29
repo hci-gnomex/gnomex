@@ -507,8 +507,12 @@
 					return parentApplication.iconMicroarrayAffy;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
 					return parentApplication.iconMicroarray;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
+					return parentApplication.iconMicroarraySingleColor;
 				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
 					return parentApplication.iconSolexa;
+				} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ") {
+					return parentApplication.iconHiSeq;
 				} else if (item.name() == "Request" ) {
 					return parentApplication.iconFlask;
 				} else {

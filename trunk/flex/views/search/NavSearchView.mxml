@@ -144,6 +144,9 @@
 				           item.@codeRequestCategory == "SOLEXA") {
 					return parentApplication.iconSolexa;
 				} else if (item.name() == "RequestNode" &&
+				           item.@codeRequestCategory == "HISEQ") {
+					return parentApplication.iconHiSeq;
+				} else if (item.name() == "RequestNode" &&
 				           item.@codeRequestCategory == "AFFY") {
 					return parentApplication.iconMicroarrayAffy;
 				} else if (item.name() == "RequestNode" &&

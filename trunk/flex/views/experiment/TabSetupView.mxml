@@ -21,6 +21,7 @@
          </mx:SetProperty>
          <mx:SetProperty target="{text2}" name="width" value="200"/>
          <mx:SetProperty target="{requestTypeBox}" name="width" value="100%"/>
+         <mx:SetProperty target="{text3}" name="width" value="230"/>
       </mx:State>
    </mx:states>
    
@@ -426,7 +427,7 @@
 		  </mx:TextArea>
 		</mx:VBox>
      	
-		<mx:VBox width="100%" height="100%" verticalGap="20" paddingTop="2" id="vbox1" enabled="true">
+		<mx:VBox width="100%" height="100%" verticalGap="15" paddingTop="2" id="vbox1" enabled="true">
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 				<mx:Label text="(1) Verify your lab group." width="198"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
@@ -469,44 +470,71 @@
 				<mx:Label text="(3) Select a service category." width="200" id="label11"/>
 				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="1" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="100%">
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
-					    <mx:Text text="Service" width="200" fontWeight="normal" textDecoration="underline" fontStyle="normal"/>
+					    <mx:Text text="Service" width="200" fontWeight="normal" textDecoration="underline" fontStyle="normal" id="text3"/>
 					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
-					     <mx:Image source="{parentApplication.iconMicroarray}"/>						    	
+					     <mx:Image 						    	
+                            source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? parentApplication.iconMicroarray : parentApplication.iconMicroarrayDisabled}"/>							
 					    </mx:HBox>
 					    <mx:RadioButtonGroup id="requestTypeGroup" />
-					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 2-color Microarray " value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="176"/>							
-					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%"/>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 2-color Microarray " value="AGIL" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilent" width="206"							
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? true : false}"/>							
+					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@notes}" width="100%"
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL').@isActive == 'Y' ? true : false}"/>							
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
-					     <mx:Image source="{parentApplication.iconMicroarraySingleColor}" />						    	
+					     <mx:Image 					    	
+                            source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconMicroarraySingleColorDisabled}"/>							
 					    </mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 1-color Microarray" value="AGIL1" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilentSingleColor" width="176"/>							
-					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%"/>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Agilent 1-color Microarray" value="AGIL1" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAgilentSingleColor" width="206"						
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? true : false}"/>							
+					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@notes}" width="100%"
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AGIL1').@isActive == 'Y' ? true : false}"/>							
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
-					     <mx:Image source="{parentApplication.iconMicroarrayAffy}" />						    	
+					     <mx:Image 				    	
+                            source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? parentApplication.iconMicroarrayAffy : parentApplication.iconMicroarrayAffyDisabled}"/>							
 					    </mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="176"/>							
-					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%"/>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Affymetrix Microarray" value="AFFY" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioAffy" width="206"							
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? true : false}"/>							
+					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@notes}" width="100%"
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'AFFY').@isActive == 'Y' ? true : false}"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">									
 					    <mx:HBox horizontalAlign="center">
-					    	<mx:Image source="{parentApplication.iconQC}"/>
+					    	<mx:Image 
+                            source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'QC').@isActive == 'Y' ? parentApplication.iconQC : parentApplication.iconQCDisabled}"/>							
 					    </mx:HBox>
-					    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0" width="176"/>					
-					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'QC').@notes}" width="100%"/>
+					    <mx:RadioButton groupName="requestTypeGroup" label="Sample Quality" value="QC" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioQC" paddingBottom="0" width="206"					
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'QC').@isActive == 'Y' ? true : false}"/>							
+					    <mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'QC').@notes}" width="100%"
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'QC').@isActive == 'Y' ? true : false}"/>							
 					</mx:HBox>
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:HBox horizontalAlign="center">
-					     <mx:Image source="{parentApplication.iconSolexa}"/>						    	
+					     <mx:Image
+                            source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? parentApplication.iconSolexa : parentApplication.iconSolexaDisabled}"/>							
 					    </mx:HBox>
-						<mx:RadioButton groupName="requestTypeGroup" label="Illumina Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa" width="176"/>																							
-						<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%"/>
+						<mx:RadioButton groupName="requestTypeGroup" label="Illumina GAIIx Sequencing" value="SOLEXA" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioSolexa" width="206"																							
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}"/>							
+						<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@notes}" width="100%"
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA').@isActive == 'Y' ? true : false}"/>							
+					</mx:HBox>
+					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
+					    <mx:HBox horizontalAlign="center">
+					     <mx:Image 
+                            source="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? parentApplication.iconHiSeq : parentApplication.iconHiSeqDisabled}"/>							
+					    </mx:HBox>
+						<mx:RadioButton groupName="requestTypeGroup" label="Illumina HiSeq 2000 Sequencing" value="HISEQ" click="parentDocument.setRequestCategoryName();checkSetupCompleteness();" change="checkSetupCompleteness()" id="requestRadioHiSeq" width="206"
+                            enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}"							
+							/>																							
+						<mx:Text text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@notes}" width="100%"
+							enabled="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ').@isActive == 'Y' ? true : false}"							
+							/>
 					</mx:HBox>
 				</mx:VBox>
 			</mx:HBox>

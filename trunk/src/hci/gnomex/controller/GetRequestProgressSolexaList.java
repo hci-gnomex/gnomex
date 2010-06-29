@@ -142,6 +142,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         n.setAttribute("idLab",           row[9] == null ? "" : ((Integer)row[9]).toString());
         n.setAttribute("ownerFirstName",  row[10] == null ? "" : (String)row[10]);
         n.setAttribute("ownerLastName",   row[11] == null ? "" : (String)row[11]);
+        n.setAttribute("codeRequestCategory", row[12] == null ? "" : (String)row[12]);
         
         String sampleNumber = (String)row[4];
         Integer sequencedLaneCount = (Integer)laneSeqStatusMap.get(sampleNumber);

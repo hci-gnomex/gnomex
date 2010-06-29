@@ -87,6 +87,8 @@ public class RequestHTMLFormatter {
      imageName = "chart_line.png";
    } else if (this.request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
      imageName = "DNA_diag.png";
+   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
+     imageName = "DNA_diag_lightening.png";
    } else {
      imageName = "flask.png";
    }
