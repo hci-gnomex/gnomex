@@ -27,7 +27,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append("        req.idAppUser, ");
     queryBuf.append("        s.number, s.name, s.qualDate, s.seqPrepDate, s.seqPrepByCore, ");
     queryBuf.append("        req.idLab, ");
-    queryBuf.append("        reqOwner.firstName, reqOwner.lastName");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.codeRequestCategory ");
     getSolexaQueryBody(queryBuf);
     
     return queryBuf;
@@ -47,9 +47,13 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
 
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory = '");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("', ");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("') ");
     
 
     queryBuf.append(" order by req.createDate desc, req.number desc , s.number asc");
@@ -80,9 +84,13 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     addSecurityCriteria();
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory = '");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("', ");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("') ");
 
     queryBuf.append("        group by s.number ");
     
@@ -133,9 +141,13 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     addSecurityCriteria();
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory = '");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("', ");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("') ");
 
     queryBuf.append("        group by s.number, ch.lastCycleDate ");
     
@@ -159,9 +171,13 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     addSecurityCriteria();
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory = '");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append(" req.codeRequestCategory IN (");
     queryBuf.append("'");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("', ");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("') ");
 
     queryBuf.append("        group by s.number, ch.pipelineDate ");
     

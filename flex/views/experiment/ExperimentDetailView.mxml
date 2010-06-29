@@ -63,7 +63,8 @@
 			this.theViews.selectedIndex = 0;
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
-			} else if (this.selectedExperiment.@codeRequestCategory == 'SOLEXA') {
+			} else if (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
+			           this.selectedExperiment.@codeRequestCategory == 'HISEQ') {
 				currentState = 'SolexaState';
 			} else {
 				currentState = 'MicroarrayState';

@@ -249,7 +249,7 @@ ControlBar {
 }
         
 RadioButton {
-	disabledColor: #5f5f5f;
+	disabledColor: #ABA1A1;
 }
 TextInput {
 	disabledColor: #5f5f5f;

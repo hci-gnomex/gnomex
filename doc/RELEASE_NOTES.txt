@@ -6,6 +6,11 @@ GNomEx Release Notes
 - Add total PO debit and credit rows to Billing GL Interface and change journal entry name to 'MICROARRAY'
 - Billing 'approved' link now jumps to 'Approved (external)' rather than 'Approved'.
 - On experiments page, don't include request category and application in sort.  Sort be request number (descending) instead.
+- Introduced Illumina HiSeq 2000 request category
+- Disable request categories on submit request window, add services window if request category is inactive
+- Filter number sequencing cycles by request category (GAIIx vs HiSeq 2000)
+- Order radio buttons (ascending sort) for number seq cycles 
+- Order radio buttons for single vs. paired ends
 
 
 4.7 patch (June 22, 2010)

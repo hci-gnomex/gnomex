@@ -9,6 +9,7 @@ public class SeqRunType extends DictionaryEntry implements Serializable {
   private Integer  idSeqRunType;
   private String   seqRunType;
   private String   isActive;
+  private Integer  sortOrder;
   
   public String getDisplay() {
     String display = this.getNonNullString(getSeqRunType());
@@ -48,6 +49,16 @@ public class SeqRunType extends DictionaryEntry implements Serializable {
   
   public void setSeqRunType(String seqRunType) {
     this.seqRunType = seqRunType;
+  }
+
+  
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 
 }

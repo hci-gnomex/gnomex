@@ -739,6 +739,7 @@
 		</id>
 		<property name="seqRunType" column="seqRunType" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 
 	<!-- hci.gnomex.model.FundingAgency -->
@@ -812,6 +813,18 @@
 		</id>
 		<property name="numberSequencingCycles" column="numberSequencingCycles" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
+	<!-- hci.gnomex.model.NumberSequencingCyclesAllowed -->
+	<class name="hci.gnomex.model.NumberSequencingCyclesAllowed" table="NumberSequencingCyclesAllowed">
+		<id name="idNumberSequencingCyclesAllowed" column="idNumberSequencingCyclesAllowed" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
+		<many-to-one name="numberSequencingCycles"  column="idNumberSequencingCycles" class="hci.gnomex.model.NumberSequencingCycles" cascade="none" insert="false" update="false" />
+		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
+		
 	</class>
 
   <!-- hci.gnomex.model.OligoBarcode -->

@@ -225,7 +225,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     requestNode.setAttribute("ownerFirstName",         row[8] == null ? "" : (String)row[8]);
     requestNode.setAttribute("ownerLastName",          row[9] == null ? "" : (String)row[9]);
     
-    if (requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       requestNode.setAttribute("label", requestNode.getAttributeValue("number") + " - " + requestNode.getAttributeValue("createDateDisplay"));
     } else {
       requestNode.setAttribute("label", requestNode.getAttributeValue("number") + " - " + requestNode.getAttributeValue("createDateDisplay") + " - " + requestNode.getAttributeValue("slideProduct"));
@@ -285,7 +285,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
 
     StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
-    if (requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       label.append(" -  ");
       label.append(itemNode.getAttributeValue("sampleName1"));
       requestNode.setAttribute("seqRunType", itemNode.getAttributeValue("seqRunType"));
@@ -305,7 +305,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     itemNode.setAttribute("label", label.toString());
 
     // Set the solexa request label to the concatenation of sample types and flow cell types
-    if (requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       StringBuffer buf = new StringBuffer();
       for (Iterator i = requestSeqRunTypeMap.keySet().iterator(); i.hasNext();) {
         buf.append(i.next());

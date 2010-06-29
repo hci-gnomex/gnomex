@@ -231,14 +231,16 @@ VALUES
   (1, 'Sample Quality', 'Sample Quality Price Sheet', 'Y'),
   (2, 'Agilent Microarray', 'Agilent Microarray Price Sheet', 'Y'),
   (3, 'Affymetrix Microarray', 'Affymetrix Microarray Price Sheet', 'Y'),
-  (4, 'Illumina Sequencing', 'Illumina Sequencing Price Sheet', 'Y');
+  (4, 'Illumina GAIIx Sequencing', 'Illumina GAIIx Sequencing Price Sheet', 'Y'),
+  (5, 'Illumina HiSeq 2000 Sequencing', 'Illumina HiSeq 2000 Sequencing Price Sheet', 'Y');
 
 INSERT INTO `gnomex`.`PriceSheetRequestCategory`(`idPriceSheet`, `codeRequestCategory`)
 VALUES (1, 'QC'),
   (2, 'AGIL'),
   (2, 'AGIL1'),
   (3, 'AFFY'),
-  (4, 'SOLEXA');
+  (4, 'SOLEXA'),
+  (5, 'HISEQ');
 
 INSERT INTO `gnomex`.`PriceCategory`(`idPriceCategory`, `name`, `description`, `pluginClassName`, `codeBillingChargeKind`, `dictionaryClassNameFilter1`, `dictionaryClassNameFilter2`, `isActive`)
 VALUES (1, 'Sample Quality', 'Sample Quality', 'hci.gnomex.billing.SampleQualityPlugin', 'SERVICE', 'hci.gnomex.model.Application', 'hci.gnomex.model.BioanalyzerChipType', 'Y'),
@@ -540,11 +542,20 @@ VALUES ('CGH', 'CGH', 'Y', 3),
   ('QUBIT', 'Qubit picoGreen', 'Y', 4),
   ('DNAGEL', 'DNA Gel', 'Y', 4);
 
-INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
-VALUES (1, 18, 'N'),
-  (2, 26, 'N'),
-  (3, 36, 'Y'),
-  (4, 76, 'Y');
+INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`, `sortOrder`)
+VALUES (1, 18, 'Y', 1),
+  (2, 26, 'N', 2),
+  (3, 36, 'Y', 3),
+  (4, 50, 'Y', 4),
+  (5, 76, 'N', 5),
+  (6, 101, 'Y', 6),
+
+INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`)
+VALUES 
+  (1, 1, 'SOLEXA'),
+  (2, 3, 'SOLEXA'),
+  (3, 4, 'HISEQ'),
+  (4, 6, 'HISEQ');
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
 VALUES (1, '3 base code', '3 base code scheme, allows for 2-4 samples per flowcell channel', 'Y');
@@ -649,7 +660,8 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null),
   ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null),
   ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel'),
-  ('SOLEXA', 'Illumina Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)'),
+  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)'),
+  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)'),
   ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA');
 
 INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
@@ -673,7 +685,13 @@ VALUES ('AFFY', 'CHIP'),
   ('SOLEXA', 'DNASEQ'),
   ('SOLEXA', 'TDNASEQ'),
   ('SOLEXA', 'MRNASEQ'),
-  ('SOLEXA', 'SMRNASEQ');
+  ('SOLEXA', 'SMRNASEQ'),
+  ('HISEQ', 'CHIPSEQ' ),
+  ('HISEQ', 'DMRNASEQ'),
+  ('HISEQ', 'DNASEQ'),
+  ('HISEQ', 'TDNASEQ'),
+  ('HISEQ', 'MRNASEQ'),
+  ('HISEQ', 'SMRNASEQ');
 
 
 
@@ -800,7 +818,24 @@ VALUES (1, 1, 'AGIL'),
   (88, 27, 'SOLEXA'),
   (89, 28, 'SOLEXA'),
   (90, 29, 'SOLEXA'),
-  (91, 30, 'SOLEXA');
+  (91, 30, 'SOLEXA'),
+  (92, 1, 'HISEQ'),
+  (93, 2, 'HISEQ'),
+  (94, 3, 'HISEQ'),
+  (95, 4, 'HISEQ'),
+  (96, 5, 'HISEQ'),
+  (97, 6, 'HISEQ'),
+  (98, 20, 'HISEQ'),
+  (99, 21, 'HISEQ'),
+  (100, 22, 'HISEQ'),
+  (101, 23, 'HISEQ'),
+  (102, 24, 'HISEQ'),
+  (103, 25, 'HISEQ'),
+  (104, 26, 'HISEQ'),
+  (105, 27, 'HISEQ'),
+  (106, 28, 'HISEQ'),
+  (107, 29, 'HISEQ'),
+  (108, 30, 'HISEQ');
 
 INSERT INTO `gnomex`.`SamplePrepMethodSampleType`(`idSamplePrepMethodSampleType`, `idSampleType`, `idSamplePrepMethod`, `isDefaultForSampleType`, `isActive`)
 VALUES (2, 5, 23, 'N', 'Y'),
@@ -912,7 +947,16 @@ VALUES (1, 1, 'AGIL'),
   (41, 6, 'AGIL1'),
   (42, 7, 'AGIL1'),
   (43, 8, 'AGIL1'),
-  (44, 9, 'AGIL1');
+  (44, 9, 'AGIL1'),
+  (45, 1, 'HISEQ'),
+  (46, 5, 'HISEQ'),
+  (47, 9, 'HISEQ'),
+  (48, 7, 'HISEQ'),
+  (49, 4, 'HISEQ'),
+  (50, 9, 'HISEQ'),
+  (51, 10, 'HISEQ'),
+  (52, 11, 'HISEQ'),
+  (53, 12, 'HISEQ');
 
 
 INSERT INTO `gnomex`.`SeqLibProtocol`(`idSeqLibProtocol`, `seqLibProtocol`,`description`,`url`, `isActive`)

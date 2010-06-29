@@ -915,7 +915,25 @@ CREATE TABLE `gnomex`.`NumberSequencingCycles` (
   `idNumberSequencingCycles` INT(10) NOT NULL AUTO_INCREMENT,
   `numberSequencingCycles` INT(10) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`idNumberSequencingCycles`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`NumberSequencingCyclesAllowed;
+CREATE TABLE `gnomex`.`RequestCategoryApplication` (
+  `idNumberSequencingCyclesAllowed` INT(10) NOT NULL AUTO_INCREMENT,
+  `idNumberSequencingCycles` INT(10) NOT NULL,
+  `codeRequestCategory` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idNumberSequencingCyclesRequestCategory`),
+  CONSTRAINT `FK_NumberSequencingCyclesAllowed_RequestCategory` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_RequestCategory` (`codeRequestCategory`)
+    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_NumberSequencingCyclesAllowed_NumberSequencingCycles` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_NumberSequencingCycles` (`idNumberSequencingCycles`)
+    REFERENCES `gnomex`.`NumberSequencingCycles` (`idNumberSequencingCycles`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
