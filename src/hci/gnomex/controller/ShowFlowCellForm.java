@@ -90,42 +90,42 @@ public class ShowFlowCellForm extends GNomExCommand implements Serializable {
             
             Element body = new Element("BODY");
             root.addContent(body);
-
-            Element center = new Element("CENTER");
-            body.addContent(center);
             
+            Element outerDiv = new Element("DIV");
+            outerDiv.setAttribute("id", "container");
+            body.addContent(outerDiv);
+            
+            Element maindiv = new Element("DIV");
+            maindiv.setAttribute("id", "containerForm");
+            outerDiv.addContent(maindiv);
+
+
             
             // 'Print this page' link
+            Element printColRight = new Element("DIV");
+            printColRight.setAttribute("id", "printLinkColRight");
             Element printLink = new Element("A");
             printLink.setAttribute("HREF", "javascript:window.print()");
             printLink.addContent("Print page");
-            Element printTable = new Element("TABLE");   
-            Element row = new Element("TR");
-            Element cell = new Element("TD");
-            cell.setAttribute("ALIGN", "RIGHT");
-            printTable.addContent(row);
-            row.addContent(cell);
-            cell.addContent(printLink);
-            center.addContent(printTable);
+            printColRight.addContent(printLink);
+            maindiv.addContent(printColRight);
+            Element ftr = new Element("DIV");
+            ftr.setAttribute("id", "footer");            
+            maindiv.addContent(ftr);
             
-            Element h3 = new Element("H3");
-            h3.addContent("Flow Cell Run Report - " + flowCell.getNumber());
-            center.addContent(h3);
 
-            Element center1 = new Element("CENTER");
-            body.addContent(center1);
-            
-            
-;
-            
-            center1.addContent(formatter.makeFlowCellTable());
+            Element h2 = new Element("H2");
+            h2.addContent("Flow Cell Run Report - " + flowCell.getNumber());
+            maindiv.addContent(h2);
 
             
-            Element center2 = new Element("CENTER");
-            body.addContent(center2);
+            maindiv.addContent(formatter.makeFlowCellTable());
+
+            
+
             
             if (!flowCell.getFlowCellChannels().isEmpty()) {
-              center2.addContent(formatter.makeFlowCellChannelTable(flowCell.getFlowCellChannels()));          
+              maindiv.addContent(formatter.makeFlowCellChannelTable(flowCell.getFlowCellChannels()));          
             }
 
             
