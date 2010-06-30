@@ -115,7 +115,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
               
               WorkItem wi = new WorkItem();
               wi.setIdRequest(sample.getIdRequest());
-              wi.setCodeStepNext(Step.SEQ_PREP);
+              wi.setCodeStepNext(workItem.getCodeStepNext().equals(Step.SEQ_QC) ? Step.SEQ_PREP : Step.HISEQ_PREP);
               wi.setSample(sample);
               wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
 

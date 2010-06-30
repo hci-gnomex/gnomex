@@ -7,7 +7,7 @@
 >
 <mx:HBox>
 	<mx:Image source="@Embed('../../assets/chart_curve.png')"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Sample Quality"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text="{codeStepNext == 'SEQQC' ? 'Illumina GAIIx Sample Quality' : 'Illumina HiSeq Sample Quality'}"/>
 </mx:HBox>
 	
 	<mx:HTTPService 
@@ -20,7 +20,7 @@
     fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>SEQQC</codeStepNext>
+        <codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
@@ -56,6 +56,10 @@
         import views.renderers.ComboBoxWorkflowStatus;
         import hci.flex.controls.DropdownLabel;
         import hci.flex.controls.ComboBox;
+        
+        
+        [Bindable]
+        public var codeStepNext:String; 
         
         [Bindable]
         private var requestNumberCount:String;

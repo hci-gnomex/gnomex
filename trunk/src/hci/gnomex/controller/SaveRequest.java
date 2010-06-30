@@ -222,12 +222,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-            if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+            if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
 
               if (requestParser.isQCAmendRequest() && !isNewSample) {
+                String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
                 // QC->Solexa request....
                 // Place samples on Seq Prep worklist.
-                workItem.setCodeStepNext(Step.SEQ_PREP);
+                workItem.setCodeStepNext(codeStepNext);
                 if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
                   sample.setQualBypassed( "Y");
                   sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));                  
@@ -238,9 +239,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
                 // will be recorded.
                 if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
-                  workItem.setCodeStepNext(Step.SEQ_QC);
+                  String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_QC : Step.HISEQ_QC;
+                  workItem.setCodeStepNext(codeStepNext);
                 } else {
-                  workItem.setCodeStepNext(Step.SEQ_PREP);
+                  String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
+                  workItem.setCodeStepNext(codeStepNext);
                   sample.setQualBypassed("Y");
                   sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
                 }                

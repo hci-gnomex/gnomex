@@ -45,6 +45,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaAssemble.class);
   
+  private String                       codeStepNext;
   private String                       flowCellBarcode;
   private String                       flowCellDateStr;
   private String                       workItemXMLString = null;
@@ -62,6 +63,12 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
+    
+    if (request.getParameter("codeStepNext") != null && !request.getParameter("codeStepNext").equals("")) {
+      codeStepNext = request.getParameter("codeStepNext");
+    } else {
+      this.addInvalidField("codeStepNext", "codeStepNext is required");
+    }
     
     if (request.getParameter("flowCellBarcode") != null && !request.getParameter("flowCellBarcode").equals("")) {
       flowCellBarcode = request.getParameter("flowCellBarcode");
@@ -202,7 +209,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               // Create a work item for each channel
               WorkItem wi = new WorkItem();
               wi.setFlowCellChannel(channel);
-              wi.setCodeStepNext(Step.SEQ_RUN);
+              wi.setCodeStepNext(codeStepNext);
               wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
               sess.save(wi);
 

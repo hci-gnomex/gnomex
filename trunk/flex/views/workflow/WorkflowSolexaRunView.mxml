@@ -7,7 +7,8 @@
 >
 <mx:HBox>
 	<mx:Image source="{parentApplication.iconSolexa}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Sequencing Run"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" 
+		text="{codeStepNext == 'SEQRUN' ? 'Illumina GAIIx Sequencing Run' : 'Illumina HiSeq Sequencing Run'}"/>
 	
 </mx:HBox>
 
@@ -23,7 +24,7 @@
     fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>SEQRUN</codeStepNext>
+        <codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
@@ -58,6 +59,9 @@
         import mx.controls.Alert;
         import hci.flex.controls.DropdownLabel;
         import views.renderers.ComboBoxWorkflowStatus;
+        
+        [Bindable]
+        public var codeStepNext:String;
         
         [Bindable]
         private var flowCellChannelCount:String;
