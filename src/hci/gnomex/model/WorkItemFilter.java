@@ -34,7 +34,9 @@ public class WorkItemFilter extends DetailObject {
     
     if(this.codeStepNext.equals(Step.QUALITY_CONTROL_STEP) ||
        this.codeStepNext.equals(Step.SEQ_QC) ||
+       this.codeStepNext.equals(Step.HISEQ_QC) ||
        this.codeStepNext.equals(Step.SEQ_PREP) ||
+       this.codeStepNext.equals(Step.HISEQ_PREP) ||
        this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       return getQuery(this.SAMPLE_LEVEL);
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
@@ -42,10 +44,13 @@ public class WorkItemFilter extends DetailObject {
     } else if (this.codeStepNext.equals(Step.HYB_STEP) ||
                 this.codeStepNext.equals(Step.SCAN_EXTRACTION_STEP)) {
       return getQuery(this.HYB_LEVEL);
-    } else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN) ||
+                this.codeStepNext.equals(Step.HISEQ_CLUSTER_GEN)) {
       return getQuery(this.LANE_LEVEL);
     } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
-                this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
+                this.codeStepNext.equals(Step.HISEQ_RUN) ||
+                this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE) ||
+                this.codeStepNext.equals(Step.HISEQ_DATA_PIPELINE)) {
       return getQuery(this.FLOW_CELL_LEVEL);
     } else {
       return null;
@@ -129,7 +134,8 @@ public class WorkItemFilter extends DetailObject {
   private void addSpecificColumns(StringBuffer queryBuf) {
 
     if (this.codeStepNext.equals(Step.QUALITY_CONTROL_STEP) ||
-        this.codeStepNext.equals(Step.SEQ_QC)) {
+        this.codeStepNext.equals(Step.SEQ_QC) ||
+        this.codeStepNext.equals(Step.HISEQ_QC)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.qualDate, ");
       queryBuf.append("    s.qualFailed, ");
@@ -171,7 +177,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    h.idFeatureExtractionProtocol, ");
       queryBuf.append("    h.extractionFailed, ");
       queryBuf.append("    h.extractionBypassed ");
-    } else if (this.codeStepNext.equals(Step.SEQ_PREP)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_PREP) ||
+                this.codeStepNext.equals(Step.HISEQ_PREP)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.idSeqLibProtocol, ");
       queryBuf.append("    s.seqPrepByCore, ");
@@ -191,20 +198,23 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.seqPrepStockDate, ");
       queryBuf.append("    s.seqPrepStockFailed, ");
       queryBuf.append("    s.seqPrepStockBypassed ");
-    }  else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN)) {
+    }  else if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN) ||
+                 this.codeStepNext.equals(Step.HISEQ_CLUSTER_GEN)) {
       queryBuf.append("      , ");
       queryBuf.append("    l.idSequenceLane, ");
       queryBuf.append("    l.idSeqRunType, ");
       queryBuf.append("    s.idOrganism, ");
       queryBuf.append("    l.idNumberSequencingCycles, ");
       queryBuf.append("    s.idOligoBarcode ");
-    } else if (this.codeStepNext.equals(Step.SEQ_RUN)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
+                this.codeStepNext.equals(Step.HISEQ_RUN)) {
       queryBuf.append("      , ");
       queryBuf.append("    fc, ");
       queryBuf.append("    ch ");
 
       
-    } else if (this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
+    } else if (this.codeStepNext.equals(Step.SEQ_DATA_PIPELINE) ||
+                this.codeStepNext.equals(Step.HISEQ_DATA_PIPELINE)) {
       queryBuf.append("      , ");
       queryBuf.append("    fc, ");
       queryBuf.append("    ch ");

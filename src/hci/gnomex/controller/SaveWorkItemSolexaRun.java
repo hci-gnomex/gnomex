@@ -118,7 +118,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
               // Create work item for data pipeline
               if (channel.getLastCycleDate() != null) {
                 WorkItem wi = new WorkItem();
-                wi.setCodeStepNext(Step.SEQ_DATA_PIPELINE);
+                wi.setCodeStepNext(workItem.getCodeStepNext().equals(Step.SEQ_RUN) ? Step.SEQ_DATA_PIPELINE : Step.HISEQ_DATA_PIPELINE);
                 wi.setCreateDate(new  java.sql.Date(System.currentTimeMillis()));
                 wi.setFlowCellChannel(channel);
                 

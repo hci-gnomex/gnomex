@@ -8,7 +8,8 @@
 	>
 <mx:HBox>
 	<mx:Image source="{parentApplication.iconSamplePrep}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Library Prep"/>	
+	<mx:Label id="titleLabel" styleName="titleLabel" 
+		text="{codeStepNext == 'SEQPREP' ? 'Illumina GAIIx Library Prep' : 'Illumina HiSeq Library Prep'}"/>	
 </mx:HBox>
 	
 	<mx:HTTPService 
@@ -21,7 +22,7 @@
     fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>SEQPREP</codeStepNext>
+        <codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
@@ -55,7 +56,10 @@
         import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
         import views.renderers.ComboBox;
-        
+
+		[Bindable]
+        public var codeStepNext:String;
+                
         [Bindable]
         private var requestNumberCount:String;
         

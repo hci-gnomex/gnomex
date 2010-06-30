@@ -5,7 +5,8 @@
 	
 <mx:HBox>
 	<mx:Image source="assets/text_align_justify.png"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Illumina Cluster Gen"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" 
+		text="{codeStepNext == 'SEQASSEM' ? 'Illumina GAIIx Cluster Gen' : 'Illumina HiSeq Cluster Gen'}"/>
 </mx:HBox>
 <mx:TextArea styleName="instructionBox" wordWrap="false" height="20" paddingLeft="4" paddingRight="4" width="764">
 		<mx:htmlText><![CDATA[To assemble flow cell, drag control or sequence request onto flow cell.  To drag multiple rows, hold SHIFT or CTRL key while selecting.]]></mx:htmlText>
@@ -21,7 +22,7 @@
     fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>SEQASSEM</codeStepNext>
+        <codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
@@ -78,6 +79,10 @@
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		import views.renderers.CheckBoxFlowCellIsControl;
+		
+		[Bindable]
+        public var codeStepNext:String;
+        
 		
 		private var isValid:Boolean = true;
 		
@@ -194,6 +199,8 @@
     		params.flowCellBarcode = this.flowCellBarcode.text;
     		params.flowCellDate = this.flowCellDate.text;
     		params.workItemXMLString = dirtyChannelWorkList.toXMLString();
+    		params.codeStepNext = codeStepNext == 'SEQASSEM' ? 'SEQRUN' : 'HSEQRUN';
+
     		
     		// These are the work items still on the cluster
     		// gen work list that have a new status 

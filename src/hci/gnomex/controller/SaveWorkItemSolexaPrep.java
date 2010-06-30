@@ -122,7 +122,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                     if (otherWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(sample.getIdRequest());
-                      wi.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
+                      wi.setCodeStepNext(workItem.getCodeStepNext().equals(Step.SEQ_PREP) ? Step.SEQ_CLUSTER_GEN : Step.HISEQ_CLUSTER_GEN);
                       wi.setSequenceLane(lane);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                       sess.save(wi);                      

@@ -7,7 +7,8 @@
 >
 <mx:HBox>
 	<mx:Image source="{parentApplication.iconServer}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Genome Analyzer Pipeline"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" 
+		text="{codeStepNext == 'SEQPIPE' ? 'Illumina GAIIx Data Pipeline' : 'Illumina HiSeq Data Pipeline'}"/>
 </mx:HBox>
 	
 	<mx:HTTPService  
@@ -20,7 +21,7 @@
     fault="parentApplication.onFailHttpRequest('Unable to get work list', event)"
     useProxy="false">
     <mx:request>
-        <codeStepNext>SEQPIPE</codeStepNext>
+        <codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
     </mx:HTTPService >
     
@@ -55,7 +56,10 @@
         import mx.controls.Alert;
         import hci.flex.controls.DropdownLabel;
         import views.renderers.ComboBoxWorkflowStatus;
-        
+
+		[Bindable]
+        public var codeStepNext:String;
+                
         [Bindable]
         private var flowCellChannelCount:String;
         
