@@ -542,13 +542,13 @@ VALUES ('CGH', 'CGH', 'Y', 3),
   ('QUBIT', 'Qubit picoGreen', 'Y', 4),
   ('DNAGEL', 'DNA Gel', 'Y', 4);
 
-INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`, `sortOrder`)
-VALUES (1, 18, 'Y', 1),
-  (2, 26, 'N', 2),
-  (3, 36, 'Y', 3),
-  (4, 50, 'Y', 4),
-  (5, 76, 'N', 5),
-  (6, 101, 'Y', 6),
+INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
+VALUES (1, 18, 'Y'),
+  (2, 26, 'N'),
+  (3, 36, 'Y'),
+  (4, 50, 'Y'),
+  (5, 76, 'N'),
+  (6, 101, 'Y');
 
 INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`)
 VALUES 
@@ -980,11 +980,11 @@ VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
   (2, 'Bisulfite treatment', 'Y'),
   (3, 'DSN (Duplex-specific nuclease) treatment of library', 'Y');
 
-INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`)
-VALUES (1, 'Sequencing / chIP Sequencing', 'N'),
-  (2, 'Digital Gene Expression', 'N'),
-  (3, 'Single-end reads', 'Y'),
-  (4, 'Paired-end reads', 'Y');
+INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`, `sortOrder`)
+VALUES (1, 'Sequencing / chIP Sequencing', 'N', NULL),
+  (2, 'Digital Gene Expression', 'N', NULL),
+  (3, 'Single-end reads', 'Y',1),
+  (4, 'Paired-end reads', 'Y',2);
 
 
 

@@ -921,12 +921,12 @@ CREATE TABLE `gnomex`.`NumberSequencingCycles` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`NumberSequencingCyclesAllowed;
-CREATE TABLE `gnomex`.`RequestCategoryApplication` (
+DROP TABLE IF EXISTS `gnomex`.`NumberSequencingCyclesAllowed`;
+CREATE TABLE `gnomex`.`NumberSequencingCyclesAllowed` (
   `idNumberSequencingCyclesAllowed` INT(10) NOT NULL AUTO_INCREMENT,
   `idNumberSequencingCycles` INT(10) NOT NULL,
   `codeRequestCategory` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`idNumberSequencingCyclesRequestCategory`),
+  PRIMARY KEY (`idNumberSequencingCyclesAllowed`),
   CONSTRAINT `FK_NumberSequencingCyclesAllowed_RequestCategory` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
     ON DELETE NO ACTION
@@ -1458,6 +1458,7 @@ CREATE TABLE `gnomex`.`SeqRunType` (
   `idSeqRunType` INT(10) NOT NULL AUTO_INCREMENT,
   `seqRunType` VARCHAR(200) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`idSeqRunType`)
 )
 ENGINE = INNODB;
