@@ -991,6 +991,10 @@ VALUES (1, 'Sequencing / chIP Sequencing', 'N', NULL),
 INSERT INTO `gnomex`.`SequencingControl`(`idSequencingControl`, `sequencingControl`, `isActive`, `idAppUser`)
 VALUES (1, 'PhiX Control', 'Y', NULL);
 
+INSERT INTO `gnomex`.`SequencingPlatform`(`codeSequencingPlatform`, `sequencingPlatform`, `isActive`)
+VALUES ('GAIIX', 'Illumina GAIIx Sequencing', 'Y'),
+   ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 'Y');
+
 INSERT INTO `gnomex`.`SlideDesign`(`idSlideDesign`, `name`, `slideDesignProtocolName`, `idSlideProduct`, `accessionNumberArrayExpress`, `isActive`)
 VALUES (3,'Whole human genome microarray (44K)','012391',2,'A-AGIL-28','N'),
  (4,'Human promoter 1 ChIP-on-chip (44K)',NULL,3,NULL,'N'),

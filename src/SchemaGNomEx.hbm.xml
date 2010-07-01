@@ -193,6 +193,7 @@
 		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
 		<property name="barcode" column="barcode" type="string"/>
+		<property name="codeSequencingPlatform" column="codeSequencingPlatform" type="string"/>
 		<set name="flowCellChannels" table="flowCellChannels" lazy="false" cascade="none" sort="hci.gnomex.utility.FlowCellChannelComparator">
 			<key column="idFlowCell"/>
 			<one-to-many class="hci.gnomex.model.FlowCellChannel" />
@@ -1149,6 +1150,15 @@
 	</class>
 
 	
+	<!-- hci.gnomex.model.SequencingPlatform -->
+	<class name="hci.gnomex.model.SequencingPlatform" table="SequencingPlatform">
+		<id name="codeSequencingPlatform" column="codeSequencingPlatform" type="string">
+			<generator class="assigned"/>
+		</id>
+		<property name="sequencingPlatform" column="sequencingPlatform" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+	</class>
+
 	<!-- hci.gnomex.model.SlideDesign -->
 	<class name="hci.gnomex.model.SlideDesign" table="SlideDesign">
 		<id name="idSlideDesign" column="idSlideDesign" type="integer">

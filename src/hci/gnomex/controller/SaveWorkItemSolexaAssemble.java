@@ -2,14 +2,10 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.SequencingControl;
+import hci.gnomex.model.SequencingPlatform;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
@@ -145,6 +141,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             sess.flush();
             
             flowCell.setNumber("FC" + flowCell.getIdFlowCell());
+            flowCell.setCodeSequencingPlatform(codeStepNext.equals(Step.SEQ_RUN) ? SequencingPlatform.ILLUMINA_GAIIX_SEQUENCING_PLATFORM : SequencingPlatform.ILLUMINA_HISEQ_2000_SEQUENCING_PLATFORM);
             
             
             java.sql.Date flowCellDate = null;

@@ -593,6 +593,7 @@ CREATE TABLE `gnomex`.`FlowCell` (
   `createDate` DATETIME NULL,
   `notes` VARCHAR(200) NULL,
   `barcode` VARCHAR(100) NULL,
+  `codeSequencingPlatform` VARCHAR(10) NULL,
   PRIMARY KEY (`idFlowCell`),
   CONSTRAINT `FK_FlowCell_NumberSequencingCycles` FOREIGN KEY `FK_FlowCell_NumberSequencingCycles` (`idNumberSequencingCycles`)
     REFERENCES `gnomex`.`NumberSequencingCycles` (`idNumberSequencingCycles`)
@@ -600,6 +601,10 @@ CREATE TABLE `gnomex`.`FlowCell` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_FlowCell_SeqRunType` FOREIGN KEY `FK_FlowCell_SeqRunType` (`idSeqRunType`)
     REFERENCES `gnomex`.`SeqRunType` (`idSeqRunType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_FlowCell_SequencingPlatform` FOREIGN KEY `FK_FlowCell_SequencingPlatform` (`idSequencingPlatform`)
+    REFERENCES `gnomex`.`SequencingPlatform` (`codeSequencingPlatform`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1514,6 +1519,16 @@ CREATE TABLE `gnomex`.`SequencingControl` (
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+
+DROP TABLE IF EXISTS `gnomex`.`SequencingPlatform`;
+CREATE TABLE `gnomex`.`SequencingPlatform` (
+  `codeSequencingPlatform` VARCHAR(10) NOT NULL,
+  `sequencingPlatform` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeSequencingPlatform`)
 )
 ENGINE = INNODB;
 
