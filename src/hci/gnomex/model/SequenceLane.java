@@ -242,6 +242,16 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
+  
+  
+  public BigDecimal getPhiXErrorRate() {
+    if (flowCellChannel != null) {
+      return flowCellChannel.getPhiXErrorRate();
+    } else {
+      return null;
+    }
+  }
+
 
   
   public String getFileName() {

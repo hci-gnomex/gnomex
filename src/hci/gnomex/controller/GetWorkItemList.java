@@ -509,6 +509,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
             n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
             n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
+            n.setAttribute("phiXErrorRate",                ch.getPhiXErrorRate()  == null ? "" :  ch.getPhiXErrorRate().toString());
             
 
             String pipelineStatus = "";

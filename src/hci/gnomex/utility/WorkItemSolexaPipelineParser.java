@@ -101,6 +101,12 @@ public class WorkItemSolexaPipelineParser implements Serializable {
       channel.setPipelineFailed("N");
     }
     
+    if (n.getAttributeValue("phiXErrorRate") != null && !n.getAttributeValue("phiXErrorRate").equals("")) {
+      channel.setPhiXErrorRate(new BigDecimal(n.getAttributeValue("phiXErrorRate")));
+    } else {
+      channel.setPhiXErrorRate(null);
+    } 
+    
   }
 
 
