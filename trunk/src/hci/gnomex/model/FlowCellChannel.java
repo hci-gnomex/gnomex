@@ -31,6 +31,7 @@ public class FlowCellChannel extends HibernateDetailObject {
   private String            pipelineFailed;
   private Set               sequenceLanes;
   private String            isControl;
+  private BigDecimal        phiXErrorRate;
   
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
@@ -254,6 +255,16 @@ public class FlowCellChannel extends HibernateDetailObject {
 
   public void setIsControl(String isControl) {
     this.isControl = isControl;
+  }
+
+  
+  public BigDecimal getPhiXErrorRate() {
+    return phiXErrorRate;
+  }
+
+  
+  public void setPhiXErrorRate(BigDecimal phiXErrorRate) {
+    this.phiXErrorRate = phiXErrorRate;
   }
 
   

@@ -145,7 +145,16 @@
 						    </mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn  dataField="@fileName" width="100" headerText="Folder name"/>
+					<mx:DataGridColumn  dataField="@phiXErrorRate" width="90" headerText="PhiX Error Rate">
+                       <mx:headerRenderer > 
+						    <mx:Component>
+						    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+							        <mx:Label text="PhiX"/>
+							        <mx:Label text="Error Rate"/>
+				    			</mx:VBox>
+						    </mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>					<mx:DataGridColumn  dataField="@fileName" width="100" headerText="Folder name"/>
 					<mx:DataGridColumn  dataField="@workflowStatus" width="100" headerText="Status"/>
 				</mx:columns>			
 			</mx:DataGrid>			

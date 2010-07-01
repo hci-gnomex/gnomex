@@ -329,7 +329,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size rangee (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom">
+					<mx:DataGridColumn headerText="Gel size range (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">

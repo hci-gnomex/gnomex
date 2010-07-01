@@ -200,7 +200,17 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
- 	                <mx:DataGridColumn headerText="Folder name" width="70" dataField="@fileName" editable="true"/>			                
+ 	                <mx:DataGridColumn headerText="Folder name" width="40" dataField="@fileName" editable="true"/>			                
+	                <mx:DataGridColumn headerText="phiX Error Rate" width="30" dataField="@phiXErrorRate" editable="true">
+	                  <mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+							    <mx:Label text="phiX Error Rate"/>
+							    <mx:Label text="example: .0502"/>
+							</mx:VBox>
+						</mx:Component>
+         			  </mx:headerRenderer>
+	                </mx:DataGridColumn>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@pipelineStatus" 
 	                	editorDataField="value" 
 	                	editable="true"

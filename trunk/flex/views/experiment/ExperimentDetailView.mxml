@@ -807,6 +807,16 @@
 							    </mx:Component>
 							   </mx:headerRenderer>
 						    </mx:DataGridColumn>
+				            <mx:DataGridColumn  width="90" headerText="PhiX Error Rate"  editable="false" dataField="@phiXErrorRate"> 						             						             
+							   <mx:headerRenderer > 
+							    <mx:Component>
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								        <mx:Label text="PhiX"/>
+								        <mx:Label text="Error Rate"/>
+					    			</mx:VBox>
+							    </mx:Component>
+							   </mx:headerRenderer>
+						    </mx:DataGridColumn>
 				            <mx:DataGridColumn  width="90"  headerText="File name"  editable="false" dataField="@fileName"/> 						             						             
 							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
 							   <mx:headerRenderer > 
