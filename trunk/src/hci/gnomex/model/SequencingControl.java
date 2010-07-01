@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 public class SequencingControl extends DictionaryEntry implements Serializable, DictionaryEntryUserOwned {
   private Integer  idSequencingControl;
-  private String   analysisType;
+  private String   sequencingControl;
   private String   isActive;
   private Integer  idAppUser;
   
@@ -43,15 +43,6 @@ public class SequencingControl extends DictionaryEntry implements Serializable, 
     this.idSequencingControl = idSequencingControl;
   }
 
-  
-  public String getSequencingControl() {
-    return analysisType;
-  }
-
-  
-  public void setSequencingControl(String analysisType) {
-    this.analysisType = analysisType;
-  }
 
   
   public Integer getIdAppUser() {
@@ -83,6 +74,16 @@ public class SequencingControl extends DictionaryEntry implements Serializable, 
   
   public String getLaneNumber() {
     return getDisplay();
+  }
+
+  
+  public String getSequencingControl() {
+    return sequencingControl;
+  }
+
+  
+  public void setSequencingControl(String sequencingControl) {
+    this.sequencingControl = sequencingControl;
   }
   
 }
