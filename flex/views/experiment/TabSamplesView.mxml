@@ -424,12 +424,14 @@
     				}
         		}
         		if (isValidNumberSeqLanes) {
+        			var lanesAdded:Boolean = false;
 	        		for each (var theSample:Object in parentDocument.samples) {
 	        			var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
 	        			if (numberLanesForSample < theSample.@numberSequencingLanes) {
 		        			var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
 		        			for (var x:Number = 0; x < numberLanesToAdd; x++) {
 		        				addSequencingLaneForSample(theSample);
+		        				lanesAdded = true;
 		        			}
 	        			} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
 	        				var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
@@ -438,6 +440,9 @@
 							}
 	        			}
 	        				
+	        		}
+	        		if (lanesAdded) {
+	        			parentDocument.lanes.refresh();
 	        		}
         		}
         	}
@@ -574,13 +579,16 @@
 
         	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState();
+				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
+					numberSequencingLanesCol.editable = false;
 					additionalNumberSequencingLanesCol.visible = true;
 					existingNumberSequencingLanesCol.visible = true;
 				} else if (parentDocument.currentState == "SolexaBaseAmendState") {
+					numberSequencingLanesCol.editable = false;
 					numberSequencingLanesCol.visible = true;
 					numberSequencingLanesCol.editable = true;
 				}
