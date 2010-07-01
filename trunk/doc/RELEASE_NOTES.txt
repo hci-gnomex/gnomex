@@ -12,6 +12,7 @@ GNomEx Release Notes
 - Order radio buttons (ascending sort) for number seq cycles 
 - Order radio buttons for single vs. paired ends
 - Add notes to number sequencing cycles
+- Allow more than 1 sequencing lane per sample on Illumina new requests
 
 
 4.7 patch (June 22, 2010)
