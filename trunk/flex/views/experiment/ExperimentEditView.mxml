@@ -2423,6 +2423,32 @@
 				}
 			}			
 		}			
+        private function sortLanes(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var sampleId1:Object =  obj1.@idSample;
+				var sampleId2:Object =  obj2.@idSample
+				
+				if (sampleId1 == '') {
+					return -1;
+				} else if (sampleId2 == '') {
+					return 1;
+				} else {
+					if (sampleId1 < sampleId2) {
+						return -1;
+					} else if (sampleId1 > sampleId2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		}			
 
         private function sortNumberSequencingCycles(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
@@ -3006,7 +3032,8 @@
 	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}" />
 
 
-	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}"/>
+	<mx:Sort id="laneSorter" compareFunction="sortLanes"/>
+	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}" sort="{laneSorter}"/>
 	
  
   	<mx:XMLListCollection id="billingAccounts" />
