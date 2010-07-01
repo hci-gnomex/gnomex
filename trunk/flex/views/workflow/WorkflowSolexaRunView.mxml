@@ -131,7 +131,7 @@
 
 	    	nv.domain = "int";
 	    	nv.precision = 0;
-	    	nv.maxValue = 99;
+	    	nv.maxValue = 999;
         	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@numberSequencingCyclesActual);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
