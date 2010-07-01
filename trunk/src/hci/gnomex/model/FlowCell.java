@@ -16,6 +16,7 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  idSeqRunType;
   private Integer  idNumberSequencingCycles;
   private String   barcode;
+  private String   codeSequencingPlatform;
   private Set      flowCellChannels = new TreeSet();
   
   public Integer getIdFlowCell() {
@@ -91,6 +92,15 @@ public class FlowCell extends HibernateDetailObject {
   
   public void setFlowCellChannels(Set flowCellChannels) {
     this.flowCellChannels = flowCellChannels;
+  }
+
+  public String getCodeSequencingPlatform() {
+    return codeSequencingPlatform;
+  }
+
+  
+  public void setCodeSequencingPlatform(String codeSequencingPlatform) {
+    this.codeSequencingPlatform = codeSequencingPlatform;
   }
 
     

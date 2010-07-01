@@ -26,6 +26,7 @@ import hci.gnomex.model.ScanProtocol;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SeqRunType;
+import hci.gnomex.model.SequencingPlatform;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.SlideSource;
@@ -75,6 +76,7 @@ public class DictionaryHelper implements Serializable {
   private Map              seqLibProtocolMap = new HashMap();
   private List             seqLibTreatmentList = new ArrayList();
   private Map              seqLibTreatmentMap = new HashMap();
+  private Map              seqPlatformMap = new HashMap();
   
 
   
@@ -248,7 +250,12 @@ public class DictionaryHelper implements Serializable {
       SeqLibTreatment t = (SeqLibTreatment)i.next();
       seqLibTreatmentMap.put(t.getIdSeqLibTreatment(), t);
       seqLibTreatmentList.add(t);
-    }      
+    }   
+    List seqPlatforms = sess.createQuery("SELECT p from SequencingPlatform as p").list();
+    for(Iterator i = seqPlatforms.iterator(); i.hasNext();) {
+      SequencingPlatform p = (SequencingPlatform)i.next();
+      seqPlatformMap.put(p.getCodeSequencingPlatform(), p.getSequencingPlatform());
+    } 
    }
   
   
@@ -293,6 +300,11 @@ public class DictionaryHelper implements Serializable {
     if (idSampleType != null) {
       name = (String)sampleTypeMap.get(idSampleType);
     }
+    return name;
+  }
+  public String getSequencingPlatform(String codeSequencingPlatform) {
+    String name = "";
+    name = (String)seqPlatformMap.get(codeSequencingPlatform);
     return name;
   }
   public String getSlideDesignName(Integer idSlideDesign) {

@@ -27,11 +27,18 @@ public class GetFlowCellList extends GNomExCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetFlowCellList.class);
   
+  private String   codeSequencingPlatform;
   
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
+    
+    if (request.getParameter("codeSequencingPlatform") != null && !request.getParameter("codeSequencingPlatform").equals("")) {
+      codeSequencingPlatform = request.getParameter("codeSequencingPlatform");
+    } else {
+      this.addInvalidField("codeSequencingPlatform", "Sequencing platform is required.");
+    }
 
   }
 
@@ -43,7 +50,9 @@ public class GetFlowCellList extends GNomExCommand implements Serializable {
         
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
-        StringBuffer buf =  new StringBuffer("SELECT fc from FlowCell as fc order by fc.createDate desc");
+        StringBuffer buf =  new StringBuffer("SELECT fc from FlowCell as fc ");
+        buf.append(" WHERE codeSequencingPlatform ='" + codeSequencingPlatform + "'");
+        buf.append(" ORDER by fc.createDate desc");
         List flowCells = (List)sess.createQuery(buf.toString()).list();
         
         Document doc = new Document(new Element("FlowCellList"));

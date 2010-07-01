@@ -115,7 +115,9 @@ public class ShowFlowCellPrepForm extends GNomExCommand implements Serializable 
             Element h2 = new Element("H2");
             h2.addContent("Flow Cell Preparation Report - " + flowCell.getNumber());
             maindiv.addContent(h2);
-            
+            Element h4 = new Element("H4");
+            h4.addContent(dictionaryHelper.getSequencingPlatform(flowCell.getCodeSequencingPlatform()));
+            maindiv.addContent(h4);
             
             maindiv.addContent(formatter.makeFlowCellPrepTable());
 
