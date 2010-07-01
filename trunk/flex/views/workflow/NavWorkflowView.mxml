@@ -51,6 +51,7 @@
 			detailViews.selectedIndex = 1;  
 			detailViews.visible = true;
 
+
         }
         private function onHiSeqWorklistChange():void {
         	if (hiSeqViews.selectedChild == workflowHiSeqQCView) {
@@ -73,7 +74,23 @@
         	} 
 			detailViews.selectedIndex = 2;  
 			detailViews.visible = true;
+			
 
+        }
+        
+        private function onTabChange():void {
+        	if (this.navBar.selectedChild == this.solexaTab) {
+        		this.flowCellView.codeSequencingPlatform = "GAIIX";
+        		microarrayViews.selectedChild=blankMicroarray;
+        		hiSeqViews.selectedChild=this.blankHiSeq;
+        	} else if (this.navBar.selectedChild == this.hiSeqTab) {
+        		this.flowCellView.codeSequencingPlatform = "HISEQ";
+	        	solexaViews.selectedChild=blankSolexa;
+    	    	microarrayViews.selectedChild=blankMicroarray;
+        	} else {
+	        	solexaViews.selectedChild=blankSolexa;
+    	    	hiSeqViews.selectedChild=this.blankHiSeq;
+        	}
         }
         ]]>
     </mx:Script>
@@ -81,8 +98,8 @@
 
 	<mx:HDividedBox width="100%" height="100%">
 
-		<mx:TabNavigator styleName="navTabNavigator" width="195"  height="100%"  change="{solexaViews.selectedChild=blankSolexa;microarrayViews.selectedChild=blankMicroarray}">
-			<mx:Canvas label="Microarray" width="100%" height="100%" > 
+		<mx:TabNavigator id="navBar" styleName="navTabNavigator" width="195"  height="100%" change="onTabChange()">
+			<mx:Canvas id="microarrayTab" label="Microarray" width="100%" height="100%" > 
 				<mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			  		<mx:Text text="Microarray and Sample Quality Work Lists" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
 			  		
@@ -91,7 +108,7 @@
 				
 				</mx:VBox>
 			</mx:Canvas >
-			<mx:Canvas label="GAIIx" width="100%" height="100%">
+			<mx:Canvas id="solexaTab" label="GAIIx" width="100%" height="100%">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
 			  		<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4">
@@ -104,7 +121,7 @@
 			  		<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{detailViews.selectedChild = flowCellView;flowCellView.getFlowCellList.send();}"/>
 				</mx:VBox>
 			</mx:Canvas>
-			<mx:Canvas label="HiSeq" width="100%" height="100%">
+			<mx:Canvas id="hiSeqTab" label="HiSeq" width="100%" height="100%">
 				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
 					
 			  		<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4">
@@ -148,7 +165,7 @@
 			   
 			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowSolexaRunView" icon="{parentApplication.iconSolexa}"/> 	           
 
-			   <workflow:WorkflowSolexaPipelineView label="GA Pipeline" id="workflowSolexaPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
+			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowSolexaPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
 			    
 			   <mx:Canvas id="blankSolexa" label=""/>
 			   
@@ -161,9 +178,9 @@
 
 			   <workflow:WorkflowSolexaAssembleView label="Cluster Gen" id="workflowHiSeqAssembleView" icon="@Embed('../../assets/text_align_justify.png')"/> 	           
 			   
-			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowHiSeqRunView" icon="{parentApplication.iconSolexa}"/> 	           
+			   <workflow:WorkflowSolexaRunView label="Seq Run" id="workflowHiSeqRunView" icon="{parentApplication.iconHiSeq}"/> 	           
 
-			   <workflow:WorkflowSolexaPipelineView label="GA Pipeline" id="workflowHiSeqPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
+			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
 			    
 			   <mx:Canvas id="blankHiSeq" label=""/>
 			   
