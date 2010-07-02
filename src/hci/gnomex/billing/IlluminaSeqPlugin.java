@@ -82,8 +82,8 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         Price p = (Price)i1.next();
         for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
           PriceCriteria criteria = (PriceCriteria)i2.next();
-          if (criteria.getFilter1().equals(idNumberSequencingCycles)) {
-            if (criteria.getFilter2().equals(idSeqRunType)) {
+          if (criteria.getFilter1().equals(idSeqRunType)) {
+            if (criteria.getFilter2().equals(idNumberSequencingCycles)) {
               price = p;
               break;            
             }
