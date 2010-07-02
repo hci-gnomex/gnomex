@@ -1,5 +1,7 @@
 GNomEx Release Notes
-
+4.8 (Patch Jul 2, 2010)
+------------------------
+- Fixed bug that was causing actionscript error deep in renderer code.  Only happened when clicking on microarray experiment.  Fixed by adding hybs grid in MicroarrayState.
 
 4.8 (July 1, 2010)
 ------------------------
