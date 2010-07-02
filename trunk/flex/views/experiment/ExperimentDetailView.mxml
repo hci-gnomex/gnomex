@@ -439,7 +439,7 @@
 	]]>
 </mx:Script>
 
-<mx:VBox width="100%" height="100%"  styleName="form" >
+<mx:VBox width="100%" height="100%"  styleName="form"  id="vbox2">
 	
 		
 	<mx:ViewStack id="theViews"  width="100%" height="100%" >
@@ -584,152 +584,6 @@
 		        <mx:Spacer height="4"/>
 					</mx:VBox>
 					<mx:HRule width="100%"/>
-					
-			    
-					<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
-						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
-							<mx:Label text="{'Hybridizations (' + hybsGridConfirm.dataProvider.length + ')' }" fontWeight="bold"/>
-							<mx:HBox width="100%"  horizontalAlign="right" paddingRight="4">
-								<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling columns" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
-								<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
-								<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
-								<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
-							</mx:HBox>
-						</mx:HBox>
-						<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{this.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid">
-							<mx:columns>
-								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-							    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
-							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
-							    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
-							    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
-
-								<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol" width="80" dataField="@idLabelingProtocolChannel1"
-                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolChannel1')}">                 											
-									<mx:headerRenderer > 
-									<mx:Component>
-										<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Protocol"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol2"  visible="false" headerText="Channel1 Labeling yield" width="80" dataField="@labelingYieldChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Conc."/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Reaction size"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol4"  visible="false" headerText="Channel1 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="# reactions"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy3 Label"/>
-										    <mx:Label text="Status"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel2"
-                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value','@idLabelingProtocolChannel2')}">                 											
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Protocol"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol7"   visible="false" headerText="Channel2 Labeling yield" width="80" dataField="@labelingYieldChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Conc."/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Reaction size"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol9"  visible="false"  headerText="Channel2 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="# reactions"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-								<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2">
-									<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
-										    <mx:Label text="Cy5 Label"/>
-										    <mx:Label text="Status"/>
-										</mx:VBox>
-									</mx:Component>
-									</mx:headerRenderer>
-								</mx:DataGridColumn>
-
-
-
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" dataField="@idHybProtocol"
-                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocol')}"/>                 											
-								<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
-
-
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" dataField="@idScanProtocol"
-                                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocol')}"/>                 											
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" dataField="@idFeatureExtractionProtocol"
-                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocol')}"/>                 											
-								<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
-
-
-							     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" labelFunction="lookupSlideDesignName" />
-							     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"   
-                                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>                 											
-								<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
-							</mx:columns>
-						</mx:DataGrid>
-					</mx:VBox>
 				</mx:VBox>
 		    </mx:VBox>
 			
@@ -766,12 +620,156 @@
 
 <util:states>
 	<mx:State name="MicroarrayState">		 
+		<mx:AddChild relativeTo="{this.confirmContainer}" position="lastChild">
+			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+				<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+					<mx:Label text="{'Hybridizations (' + hybsGridConfirm.dataProvider.length + ')' }" fontWeight="bold"/>
+					<mx:HBox width="100%"  horizontalAlign="right" paddingRight="4">
+						<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling columns" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
+						<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
+						<mx:CheckBox id="showHybFieldsCheckBox" label="Hyb"/>
+						<mx:CheckBox id="showExtFieldsCheckBox" label="Scan/FE"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm"  horizontalScrollPolicy="auto" editable="false" dataProvider="{this.selectedExperiment.hybridizations.Hybridization}"  backgroundAlpha="0" borderStyle="solid">
+					<mx:columns>
+						<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="getChannel1SampleName"/>
+					    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
+					    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
+					    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
+						
+						<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol" width="80" dataField="@idLabelingProtocolChannel1"
+						                         itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolChannel1')}">                 											
+							<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy3 Label"/>
+								    <mx:Label text="Protocol"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol2"  visible="false" headerText="Channel1 Labeling yield" width="80" dataField="@labelingYieldChannel1">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy3 Label"/>
+								    <mx:Label text="Conc."/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol3"  visible="false" headerText="Channel1 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel1">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy3 Label"/>
+								    <mx:Label text="Reaction size"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol4"  visible="false" headerText="Channel1 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel1">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy3 Label"/>
+								    <mx:Label text="# reactions"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn  id="labelCol5"   visible="false" headerText="Channel1 Labeling Status" width="80" dataField="@labelingStatusChannel1">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy3 Label"/>
+								    <mx:Label text="Status"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol6"   visible="false" headerText="Channel2 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel2"
+						                         itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value','@idLabelingProtocolChannel2')}">                 											
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy5 Label"/>
+								    <mx:Label text="Protocol"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol7"   visible="false" headerText="Channel2 Labeling yield" width="80" dataField="@labelingYieldChannel2">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy5 Label"/>
+								    <mx:Label text="Conc."/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol8"  visible="false" headerText="Channel2 Labeling Reaction size" width="80" dataField="@codeLabelingReactionSizeChannel2">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy5 Label"/>
+								    <mx:Label text="Reaction size"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol9"  visible="false"  headerText="Channel2 Labeling # Reactions" width="80" dataField="@numberOfReactionsChannel2">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy5 Label"/>
+								    <mx:Label text="# reactions"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="labelCol10"   visible="false" headerText="Channel2 Labeling Status" width="80" dataField="@labelingStatusChannel2">
+							<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalAlign="center" verticalAlign="middle">
+								    <mx:Label text="Cy5 Label"/>
+								    <mx:Label text="Status"/>
+								</mx:VBox>
+							</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+						
+						
+						
+						<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Slide barcode" width="70" dataField="@slideBarcode"/>
+						<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Coordinate" width="70" dataField="@arrayCoordinateName"/>
+						<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Protocol" width="70" dataField="@idHybProtocol"
+						                          itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocol')}"/>                 											
+						<mx:DataGridColumn visible="{showHybFieldsCheckBox.selected}" headerText="Hyb Status" width="90" dataField="@hybStatus"/>
+						
+						
+						<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Scan Protocol" width="70" dataField="@idScanProtocol"
+						                         itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocol')}"/>                 											
+						<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="F/E Protocol" width="70" dataField="@idFeatureExtractionProtocol"
+						                          itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocol')}"/>                 											
+						<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
+					     
+					     
+					     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" labelFunction="lookupSlideDesignName" />
+					     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"   
+					                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>                 											
+						<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+		</mx:AddChild>
 	</mx:State>
 	<mx:State name="QCState">		
-		<mx:RemoveChild target="{hybsConfirmContainer}"/>	 
 	</mx:State>
 	<mx:State name="SolexaState">
-		<mx:RemoveChild target="{hybsConfirmContainer}"/>	
 		<mx:AddChild relativeTo="{this.confirmContainer}">
 				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
 						<mx:Label text="{'Sequencing Lanes (' + lanesConfirmGrid.dataProvider.length + ')'}"  fontWeight="bold"/>
