@@ -1569,7 +1569,9 @@
 					samplesView.currentState = 'SolexaSamplesEditState';					
 				}
 				samplesView.showHideColumns();
-				//this.seqSetupView.currentState = "EditState";
+				
+				// Comment out since seq lib treatments are not in use for now
+				//this.seqSetupView.currentState = "EditState";  
 					
  				if (parentApplication.hasPermission("canWriteAnyObject")) {
 					lanesView.currentState = 'LanesAdminState';
