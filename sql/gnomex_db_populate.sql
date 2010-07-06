@@ -543,7 +543,7 @@ VALUES ('CGH', 'CGH', 'Y', 3, NULL),
   ('DNAGEL', 'DNA Gel', 'Y', 4, NULL),
   ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2),
   ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5),
-  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3),
+  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3);
 
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
@@ -993,8 +993,8 @@ VALUES (31, 'DNASEQ'),
   (39, 'TSCRPTSEQ');
   
 -- TREATMENTS are replaced by Applications (for now)
---INSERT INTO `gnomex`.`SeqLibTreatment`(`idSeqLibTreatment`, `seqLibTreatment`, `isActive`)
---VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
+-- INSERT INTO `gnomex`.`SeqLibTreatment`(`idSeqLibTreatment`, `seqLibTreatment`, `isActive`)
+-- VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
 --  (2, 'Bisulfite treatment', 'Y'),
 --  (3, 'DSN (Duplex-specific nuclease) treatment of library', 'Y');
 

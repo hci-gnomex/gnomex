@@ -603,7 +603,7 @@ CREATE TABLE `gnomex`.`FlowCell` (
     REFERENCES `gnomex`.`SeqRunType` (`idSeqRunType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_FlowCell_SequencingPlatform` FOREIGN KEY `FK_FlowCell_SequencingPlatform` (`idSequencingPlatform`)
+  CONSTRAINT `FK_FlowCell_SequencingPlatform` FOREIGN KEY `FK_FlowCell_SequencingPlatform` (`codeSequencingPlatform`)
     REFERENCES `gnomex`.`SequencingPlatform` (`codeSequencingPlatform`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -905,7 +905,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`Application`;
 CREATE TABLE `gnomex`.`Application` (
   `codeApplication` VARCHAR(10) NOT NULL,
-  `application` VARCHAR(50) NULL,
+  `application` VARCHAR(100) NULL,
   `isActive` CHAR(1) NULL,
   `idApplicationTheme` INT(10) NULL,
   `sortOrder` INT(10) NULL,
