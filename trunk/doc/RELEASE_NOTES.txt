@@ -1,4 +1,12 @@
 GNomEx Release Notes
+
+4.8.1 (Jul 6, 2010)
+-----------------------
+- Replaced seq lib treatments with request categories
+- Order sequencing application radio buttons
+- Added fk constraint on Request to Request Category
+
+
 4.8 (Patch Jul 2, 2010)
 ------------------------
 - Fixed bug that was causing actionscript error deep in renderer code.  Only happened when clicking on microarray experiment.  Fixed by adding hybs grid in MicroarrayState.

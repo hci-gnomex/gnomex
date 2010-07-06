@@ -908,6 +908,7 @@ CREATE TABLE `gnomex`.`Application` (
   `application` VARCHAR(50) NULL,
   `isActive` CHAR(1) NULL,
   `idApplicationTheme` INT(10) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
@@ -1108,6 +1109,10 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_BillingAccount` FOREIGN KEY `FK_Request_BillingAccount` (`idBillingAccount`)
     REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_RequestCategory` FOREIGN KEY `FK_Request_RequestCategory` (`codeRequestCategory`)
+    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_Visibility` FOREIGN KEY `FK_Request_Visibility` (`codeVisibility`)

@@ -221,7 +221,7 @@
 		       </mx:VBox>
 		   </mx:HBox>
 		   	 
-		   <mx:HBox width="100%" horizontalGap="0" height="100%">
+		   <mx:HBox width="100%" horizontalGap="0" height="100%" visible="false">
 		       <mx:Text text="Identify all conditions/instructions that apply to these samples." width="200" id="labelSeqLibTreatment"/>
 		       <mx:VBox height="100%"  width="550" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqLibTreatmentBox">
 		           <mx:DataGrid id="seqLibTreatmentGrid"   

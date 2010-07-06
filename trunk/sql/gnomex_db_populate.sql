@@ -523,24 +523,28 @@ VALUES (1, 'DNA Sequencing', 'Y'),
   (3, 'Microarray', 'Y'),
   (4, 'Sample Quality', 'Y');
 
-INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`)
-VALUES ('CGH', 'CGH', 'Y', 3),
-  ('CHIP', 'ChiP-on-chip', 'Y', 3),
-  ('EXON', 'Exon', 'Y', 3),
-  ('EXP', 'Gene Expression', 'Y', 3),
-  ('METH', 'DNA Methylation', 'Y', 3),
-  ('MIRNA', 'miRNA', 'Y', 3),
-  ('SNP', 'SNP', 'Y', 3),
-  ('WTRANSCRP', 'HybMap', 'Y', 3),
-  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1),
-  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2),
-  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1),
-  ('TDNASEQ', 'Targeted Genomic DNA Sequencing (capture/release)', 'Y', 1),
-  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2),
-  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2),
-  ('BIOAN', 'Bioanalyzer', 'Y', 4),
-  ('QUBIT', 'Qubit picoGreen', 'Y', 4),
-  ('DNAGEL', 'DNA Gel', 'Y', 4);
+INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`)
+VALUES ('CGH', 'CGH', 'Y', 3, NULL),
+  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL),
+  ('EXON', 'Exon', 'Y', 3, NULL),
+  ('EXP', 'Gene Expression', 'Y', 3, NULL),
+  ('METH', 'DNA Methylation', 'Y', 3, NULL),
+  ('MIRNA', 'miRNA', 'Y', 3, NULL),
+  ('SNP', 'SNP', 'Y', 3, NULL),
+  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL),
+  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2),
+  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1),
+  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3),
+  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1),
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4),
+  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL),
+  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL),
+  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL),
+  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2),
+  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5),
+  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3),
+
 
 INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
 VALUES (1, 18, 'Y'),
@@ -686,12 +690,18 @@ VALUES ('AFFY', 'CHIP'),
   ('SOLEXA', 'TDNASEQ'),
   ('SOLEXA', 'MRNASEQ'),
   ('SOLEXA', 'SMRNASEQ'),
+  ('SOLEXA', 'DNAMETHSEQ'),
+  ('SOLEXA', 'MONNUCSEQ'),
+  ('SOLEXA', 'TSCRPTSEQ'),
   ('HISEQ', 'CHIPSEQ' ),
   ('HISEQ', 'DMRNASEQ'),
   ('HISEQ', 'DNASEQ'),
   ('HISEQ', 'TDNASEQ'),
   ('HISEQ', 'MRNASEQ'),
-  ('HISEQ', 'SMRNASEQ');
+  ('HISEQ', 'SMRNASEQ'),
+  ('HISEQ', 'DNAMETHSEQ'),
+  ('HISEQ', 'MONNUCSEQ'),
+  ('HISEQ', 'TSCRPTSEQ');
 
 
 
@@ -900,8 +910,12 @@ VALUES (2, 5, 'EXP', null, null, null, null, 'Y'),
   (16, 1, 'DNASEQ', null, null, null, null, 'Y'),
   (17, 1, 'TDNASEQ', null, null, null, null, 'Y'),
   (18, 4, 'MRNASEQ', null, null, null, null, 'Y'),
-  (19, 12, 'SMRNASEQ', null, null, null, null, 'Y');
-
+  (19, 12, 'SMRNASEQ', null, null, null, null, 'Y'),
+  (20, 1, 'DNAMETHSEQ', null, null, null, null, 'Y'),
+  (21, 1, 'MONNUCSEQ', null, null, null, null, 'Y'),
+  (22, 4, 'TSCRPTSEQ', null, null, null, null, 'Y'),
+  (23, 9, 'MRNASEQ', null, null, null, null, 'Y'),
+  (24, 9, 'TSCRPTSEQ', null, null, null, null, 'Y');
 
 INSERT INTO `gnomex`.`SampleTypeRequestCategory`(`idSampleTypeRequestCategory`, `idSampleType`, `codeRequestCategory`)
 VALUES (1, 1, 'AGIL'),
@@ -973,12 +987,16 @@ VALUES (31, 'DNASEQ'),
   (33, 'MRNASEQ'),
   (34,'CHIPSEQ'),
   (35, 'SMRNASEQ'),
-  (39, 'MRNASEQ');
-
-INSERT INTO `gnomex`.`SeqLibTreatment`(`idSeqLibTreatment`, `seqLibTreatment`, `isActive`)
-VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
-  (2, 'Bisulfite treatment', 'Y'),
-  (3, 'DSN (Duplex-specific nuclease) treatment of library', 'Y');
+  (39, 'MRNASEQ'),
+  (31, 'DNAMETHSEQ'),
+  (31, 'MONNUCSEQ'),
+  (39, 'TSCRPTSEQ');
+  
+-- TREATMENTS are replaced by Applications (for now)
+--INSERT INTO `gnomex`.`SeqLibTreatment`(`idSeqLibTreatment`, `seqLibTreatment`, `isActive`)
+--VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
+--  (2, 'Bisulfite treatment', 'Y'),
+--  (3, 'DSN (Duplex-specific nuclease) treatment of library', 'Y');
 
 INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`, `sortOrder`)
 VALUES (1, 'Sequencing / chIP Sequencing', 'N', NULL),

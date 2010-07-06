@@ -31,6 +31,7 @@ public class Application extends DictionaryEntry implements Serializable {
   private String  application;
   private String  isActive;
   private Integer idApplicationTheme;
+  private Integer sortOrder;
 
   
   public String getDisplay() {
@@ -88,6 +89,16 @@ public class Application extends DictionaryEntry implements Serializable {
     } else {
       return 1;
     }
+  }
+
+  
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 
   
