@@ -580,6 +580,7 @@
 		<property name="application" column="application" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idApplicationTheme" column="idApplicationTheme" type="integer"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 
   <!-- hci.gnomex.model.ApplicationTheme -->
