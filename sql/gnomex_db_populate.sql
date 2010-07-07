@@ -434,7 +434,7 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
  (77,'3','5',77),
  (78,'4','5',78),
  (79,'14',NULL,25),
- (80,'MONNUCSEQ',NULL,31),
+ (80,'MONNUCSEQ',NULL,32),
  (81,'DNAMETHSEQ',NULL,31),
  (82,'TSCRPTSEQ',NULL,63);
 
