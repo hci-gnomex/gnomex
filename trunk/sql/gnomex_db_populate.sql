@@ -254,7 +254,8 @@ VALUES (1, 'Sample Quality', 'Sample Quality', 'hci.gnomex.billing.SampleQuality
   (7, 'Illumina GA Sequencing', 'Illumina GA Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y'),
   (8, 'Sample Quality (Illumina Lib)', 'Sample Quality (Illumina Lib)', 'hci.gnomex.billing.IlluminaLibSampleQualityPlugin', 'SERVICE',  'hci.gnomex.model.Application', 'hci.gnomex.model.BioanalyzerChipType', 'Y'),
   (9, 'Miscellaneous', 'Agilent Miscellaneous', NULL, 'SERVICE', NULL, NULL, 'Y'),
-  (10, 'Array Capture', 'Illuimina Array Capture', NULL, 'SERVICE', NULL, NULL, 'Y');
+  (10, 'Array Capture', 'Illumina Array Capture', NULL, 'SERVICE', NULL, NULL, 'Y'),
+  (11, 'Illumina HiSeq Sequencing', 'Illumina HiSeq Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y');
 
 INSERT INTO `gnomex`.`PriceSheetPriceCategory`(`idPriceSheet`, `idPriceCategory`, `sortOrder`)
 VALUES
@@ -272,7 +273,12 @@ VALUES
   (4, 5, 2),
   (4, 8, 3),
   (4, 7, 5),
-  (4, 10, 6);
+  (4, 10, 6),
+  (5, 1, 1),
+  (5, 5, 2),
+  (5, 8, 3),
+  (5, 11, 5),
+  (5, 10, 6);
 
 INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPriceExternal`,`idPriceCategory`,`isActive`) VALUES
  (1,'Bioanalyzer RNA Nano','sample quality','0.00',NULL,1,'Y'),
@@ -427,7 +433,10 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
  (76,'19',NULL,76),
  (77,'3','5',77),
  (78,'4','5',78),
- (79,'14',NULL,25);
+ (79,'14',NULL,25),
+ (80,'MONNUCSEQ',NULL,31),
+ (81,'DNAMETHSEQ',NULL,31),
+ (82,'TSCRPTSEQ',NULL,63);
 
 
 
