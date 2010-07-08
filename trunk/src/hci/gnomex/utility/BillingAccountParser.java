@@ -86,7 +86,10 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     }
     if (n.getAttributeValue("idFundingAgency") != null && !n.getAttributeValue("idFundingAgency").equals("")) {
       billingAccount.setIdFundingAgency(new Integer(n.getAttributeValue("idFundingAgency")));
-    } 
+    }
+    if (n.getAttributeValue("isPO") != null && !n.getAttributeValue("isPO").equals("")) {
+        billingAccount.setIsPO(n.getAttributeValue("isPO"));
+    }
   }
 
   

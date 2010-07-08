@@ -21,6 +21,7 @@ public class BillingAccount extends HibernateDetailObject {
   private String  accountNumberAu;
   private String  accountNumberYear;
   private Integer idFundingAgency;
+  private String  isPO;
   
   
   public String getAccountNumber() {
@@ -224,6 +225,14 @@ public class BillingAccount extends HibernateDetailObject {
       number = "";
     }
     return getActiveDisplay() + number + getAccountName();       
+  }
+
+  public String getIsPO() {
+	return isPO;
+  }
+
+  public void setIsPO(String isPO) {
+	this.isPO = isPO;
   }
   
 }
