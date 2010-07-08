@@ -409,12 +409,15 @@
 		public function refreshAndSelectPricing(nodeName:String, id:Object):void {
 			this.pricingNodeToSelect = nodeName;
 			this.pricingIdToSelect = id;
-			refresh();
+			var params:Object = new Object();
+			params.action = "refresh";
+			getPricingList.send();
+			//refresh();
 		}
 
 		public function refresh():void {
 			if (dirty.isDirty()) {
-				Alert.show( "Unsaved changes will be discarded.  Proceed anyways?",
+				Alert.show( "Unsaved changes will be discarded.  Proceed anyway?",
 						"Warning",
 						(Alert.YES | Alert.NO), this, 
 						onPromptToRefresh,						
@@ -512,12 +515,14 @@
 					node = getPricingList.lastResult.PriceSheet.(@idPriceSheet == pricingIdToSelect);
 				} 
 				if  (node != null && node is XMLList) {
-					this.pricingTree.selectedItem = node[0];
-					this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 
+					if(node[0] != null) {
+						this.pricingTree.selectedItem = node[0];
+						this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 						
+					}
 				} else {
 					this.pricingTree.selectedItem = node;
 					this.pricingTree.scrollToIndex(this.pricingTree.selectedIndex); 
-				} 
+				}
 			}
 			
 		}
@@ -626,6 +631,56 @@
 				}	
 			}			
 		}
+		
+		private function setLastSelectedItemToNextNeighbor():void {
+			var selectedItemFound:Boolean = false;
+			var selectedItemSet:Boolean = false;
+			if (lastSelectedItem != null) {
+				if (lastSelectedItem.name() == "Request") {
+					for each(var p:XML in requests) {
+						for each(var request:XML in p..Request) {
+							if(selectedItemFound && !selectedItemSet) {
+								lastSelectedItem = request;
+								selectedItemSet = true;
+								break;								
+							}
+							if (request.@requestNumber == lastSelectedItem.@requestNumber) {
+								selectedItemFound = true;
+							}
+						}
+						if(selectedItemSet) {
+							break;
+						}
+					}
+				} else if (lastSelectedItem.name() == "Status") {
+					for each(var status:XML in requests) {
+						if(selectedItemFound && !selectedItemSet) {
+							lastSelectedItem = status;
+							break;								
+						}
+						if (status.@label == lastSelectedItem.@label) {
+							selectedItemFound = true;
+						}
+					}
+				} else if (lastSelectedItem.name() == "Lab") {
+					for each(var st:XML in requests) {
+						for each(var lab:XML in st.Lab) {
+							if(selectedItemFound && !selectedItemSet) {
+								lastSelectedItem = lab;
+								break;								
+							}
+							if (lab.@label == lastSelectedItem.@label) {
+								selectedItemFound = true;
+							}								
+						}
+						if(selectedItemSet) {
+							break;
+						}
+					}
+				}	
+			}			
+		}
+		
 		private function onCreateBillingItems(event:ResultEvent):void {
 			if (createBillingItems.lastResult.name() == "NewBilling") {
 				this.billingItems.addItem(createBillingItems.lastResult..Request);
@@ -1036,6 +1091,13 @@
         		billingItemsToRemove = new XMLListCollection();
 
         		lastSelectedItem = this.requestTree.selectedItem;
+        		if(lastSelectedItem != null && lastSelectedItem.name() == "Request") {
+        			var parentItem:Object = this.requestTree.getParentItem(lastSelectedItem);
+        			parentItem = this.requestTree.getParentItem(parentItem);
+        			if(parentItem.name() == "Status" && parentItem.@label == "Completed") {
+        				setLastSelectedItemToNextNeighbor();
+        			}
+        		}
         		billingItemsDisplayed = new XMLListCollection();
         		billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
         		

@@ -54,6 +54,7 @@
 		import hci.flex.dictionary.DictionaryEvent;
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
+		import hci.flex.controls.CheckBox;
 		
 		
 		private var savedIdLab:Object = '';
@@ -165,7 +166,27 @@
         }
         
         private function save():void {
-			
+        	
+        	// Check for account chartfield numbers before saving
+        	var i:int = 1;
+        	var isBillingAccountError:Boolean = false;
+			for each(var ba:Object in billingAccounts) {
+				if(ba.@accountNumberBus == "" && (ba.@isPO == "" || ba.@isPO == "N")) {
+					isBillingAccountError = true;
+				}
+				if(ba.@accountNumberBus != "" && ba.@isPO == "Y") {
+					isBillingAccountError = true;
+				}
+				if(isBillingAccountError) {
+					Alert.show("If this account is using a PO number, please place a "
+								+ "check in the PO box. Otherwise, please enter the "
+								+ "account chartfield number (\"Bus\" column) prior to clicking \"Save.\" "
+								+ "(See Billing Accounts, line " + i + ".)");
+					return;
+				}
+				i++;
+				
+			}	
 			var params:Object = new Object();
 			
 			if (parentDocument.fullLab != null) {
@@ -185,7 +206,7 @@
 			params.contactEmail = this.contactEmail.text;
 			params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
 			params.isActive = this.isActiveCheckBox.selected ? "Y" : "N";
-			params.isExternal = this.isExternalCheckBox.selected ? "Y" : "N"; 
+			params.isExternal = this.isExternalPricingButton.selected ? "Y" : "N"; 
 			
 			for each(var ba:Object in billingAccounts) {
 				ba.@expirationDate = ba.@expirationDateOther;
@@ -196,7 +217,7 @@
 			params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
 			params.managersXMLString = "<managers>" + managers.toXMLString() + "</managers>";
 
-			saveGroup.send(params);			
+			saveGroup.send(params);		
 			
 		} 
 		
@@ -277,6 +298,20 @@
        			dictionaryEditor.selectDictionaryEntry(contactStateCombo.selectedItem);
        		}
         }
+        private function checkPricingChange():void {
+        	if(isExternalPricingButton.selected) {
+        		if(parentDocument.fullLab.@isExternal != 'Y') {
+        			dirty.setDirty();
+        		}
+        	} else {
+        		if(parentDocument.fullLab.@isExternal == 'Y') {
+        			dirty.setDirty();
+        		}
+        		
+        	}
+        		
+
+        }
 	]]>
 </mx:Script>	  
 
@@ -305,6 +340,10 @@
 								<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="160" change="dirty.setDirty()"/>
 							</mx:VBox>
 							<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
+							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
+							<mx:RadioButtonGroup id="pricingModel"/>
+							<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternal == 'Y' ? false : true}" click="checkPricingChange()"/>
+							<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternal == 'Y' ? true : false}" click="checkPricingChange()"/>
 					   	</mx:HBox>
 					   	<mx:HBox width="100%" verticalAlign="bottom">
 					   		<mx:VBox  verticalGap="0" width="100%">
@@ -325,8 +364,6 @@
 					   			<mx:Label text="Department" />
 					   			<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="dirty.setDirty()"/>
 					   	    </mx:VBox>
-					   		<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
-					   		<mx:CheckBox id="isExternalCheckBox" selected="{parentDocument.fullLab.@isExternal == 'Y' ? true : false}" label="External Billing?" click="dirty.setDirty()"/>
 
 					   	</mx:HBox>
 				   	<mx:HRule width="100%"/>
@@ -435,10 +472,18 @@
 						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
 					</mx:HBox>
 				</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto" itemEditEnd="dirty.setDirty()">
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto" itemEditEnd="dirty.setDirty()" change="dirty.setDirty()">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="140"/>
+			            <mx:DataGridColumn headerText="PO"  
+			            	width="30" 
+			            	editable="false"                        	
+			            	dataField="@isPO" 
+			            	editorDataField="selected" 
+			            	textAlign="center" 
+			            	itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isPO', true)}" >
+		            	</mx:DataGridColumn>
+	   					<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
 						<mx:DataGridColumn dataField="@expirationDate" width="75"
 			                headerText="Expires"  
 			          		itemEditor="views.renderers.DateFieldExpiration" 

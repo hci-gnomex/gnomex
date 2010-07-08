@@ -132,7 +132,7 @@
 		<property name="accountNumberYear" column="accountNumberYear" type="string"/>
 		<property name="expirationDate" column="expirationDate" type="date"/>
 		<property name="idFundingAgency" column="idFundingAgency" type="integer"/>
-		
+		<property name="isPO" column="isPO" type="string"/>		
 	</class>
 	
 	<!-- hci.gnomex.model.BillingItem -->

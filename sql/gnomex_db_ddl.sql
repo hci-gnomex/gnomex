@@ -244,6 +244,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `accountNumberAu` VARCHAR(10) NULL,
   `accountNumberYear` VARCHAR(10) NULL,
   `idFundingAgency` INT(10) NULL,
+  `isPO` CHAR(1) NULL,
   PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)

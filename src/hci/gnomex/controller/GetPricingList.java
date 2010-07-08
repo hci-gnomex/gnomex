@@ -69,8 +69,10 @@ public class GetPricingList extends GNomExCommand implements Serializable {
           for(Iterator i = priceSheets.iterator(); i.hasNext();) {
             PriceSheet priceSheet = (PriceSheet)i.next();
             
-            if (priceSheet.getIsActive() != null && priceSheet.getIsActive().equals("N")) {
-              continue;
+            if (showInactive.equals("N")) {
+                if (priceSheet.getIsActive() != null && priceSheet.getIsActive().equals("N")) {
+                    continue;
+                  }
             }
             
             priceSheet.excludeMethodFromXML("getPriceCategories");
@@ -86,8 +88,10 @@ public class GetPricingList extends GNomExCommand implements Serializable {
                 PriceSheetPriceCategory x = (PriceSheetPriceCategory)i1.next();
                 PriceCategory priceCat = x.getPriceCategory();
 
-                if (priceCat.getIsActive() != null && priceCat.getIsActive().equals("N")) {
-                  continue;
+                if (showInactive.equals("N")) {
+					if (priceCat.getIsActive() != null && priceCat.getIsActive().equals("N")) {
+						continue;
+					}
                 }
 
                 priceCat.excludeMethodFromXML("getPrices");
