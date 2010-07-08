@@ -3,6 +3,7 @@ package hci.gnomex.billing;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -38,7 +39,7 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
     
     // Generate the billing item.  Find the price using the
     // criteria of the illumina application.
-    Integer qty = samples.size();
+    Integer qty = 0;
     
     // Show the sample numbers in the notes
     String notes = "";
@@ -50,6 +51,17 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
       }
       notes += s.getNumber();
       
+      // Only charge for lib prep if core is performing it.
+      if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equals("Y")) {
+        qty++;
+      } 
+      
+    }
+    
+    // If we don't have any samples that were prepped by core
+    // just bypass creating billing item.
+    if (qty == 0) {
+      return billingItems;
     }
 
     // Find the price
