@@ -4,6 +4,7 @@ GNomEx Release Notes
 -----------------------
 - Fixed printable request form for Illumina HiSeq to show barcode (also other code that should test for both GAIIX and HiSeq like sample quality billing plug-in)
 - Fixed billing summary report by lab to include HiSeq in Solexa totals.
+- Work around unreachable orion dtd in datasources.xml by using dummy entity resolver in lucene BuildIndex java app
 
 4.8.1 (Jul 6, 2010)
 -----------------------
