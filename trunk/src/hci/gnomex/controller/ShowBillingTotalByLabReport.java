@@ -114,7 +114,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
           TreeMap labMap = new TreeMap();
 
           TreeMap solexaMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.SOLEXA_REQUEST_CATEGORY, labMap, solexaMap);
+          getIlluminaBillingItems(sess, labMap, solexaMap);
           
           TreeMap qcMap = new TreeMap();
           getBillingItems(sess, RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY, labMap, qcMap);
@@ -178,10 +178,10 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
               total = total.add(totalMicroarray != null ? totalMicroarray : new BigDecimal(0));
               total = total.add(totalPriceQC != null ? totalPriceQC : new BigDecimal(0));
 
-              BigDecimal illuminaPercent = totalPriceIllumina != null ? totalPriceIllumina.divide(grandTotalIllumina, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-              BigDecimal microarrayPercent = totalMicroarray != null ? totalMicroarray.divide(grandTotalMicroarray, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-              BigDecimal qcPercent = totalPriceQC != null ? totalPriceQC.divide(grandTotalQC, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-              BigDecimal totalPercent = total != null ? total.divide(grandTotal, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal illuminaPercent = totalPriceIllumina != null && totalPriceIllumina.intValue() > 0 ? totalPriceIllumina.divide(grandTotalIllumina, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal microarrayPercent = totalMicroarray != null && totalMicroarray.intValue() > 0 ? totalMicroarray.divide(grandTotalMicroarray, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal qcPercent = totalPriceQC != null && totalPriceQC.intValue() > 0 ? totalPriceQC.divide(grandTotalQC, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+              BigDecimal totalPercent = total != null && total.intValue() > 0 ? total.divide(grandTotal, 4, BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
 
 
               values.add(key);
@@ -305,6 +305,25 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     
   }
   
+  private void getIlluminaBillingItems(Session sess, Map labMap, Map map) throws Exception {
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT lab, req.codeRequestCategory, bi.totalPrice ");
+    buf.append("FROM   Request req ");
+    buf.append("JOIN   req.billingItems bi ");
+    buf.append("JOIN   bi.lab as lab ");
+    buf.append("JOIN   bi.billingPeriod as bp ");
+    buf.append("WHERE  bp.startDate >= '" + this.formatDate(startDate) + "' ");
+    buf.append("AND    bp.endDate <= '" + this.formatDate(endDate) + "' ");
+    buf.append("AND    req.codeRequestCategory IN " );
+    buf.append("       ('" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "', '" + RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY + "') ");
+    buf.append("ORDER BY lab.lastName, lab.firstName, req.codeRequestCategory ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    
+    fillMap(labMap, map, results);
+    
+  }
+  
   
   private void fillMap(Map labMap, Map map, List results) {
     for(Iterator i = results.iterator(); i.hasNext();) {
@@ -334,7 +353,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       if (totalPrice != null) {
         grandTotal = grandTotal.add(totalPrice);
         
-        if (codeRequestCategory.equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+        if (RequestCategory.isIlluminaRequestCategory(codeRequestCategory)) {
           grandTotalIllumina = grandTotalIllumina.add(totalPrice);
         }
         

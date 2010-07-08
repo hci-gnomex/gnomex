@@ -241,7 +241,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         
         
         boolean isSolexaRequest = false;
-        if (n.getAttributeValue("codeRequestCategory") != null && n.getAttributeValue("codeRequestCategory").equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+        if (n.getAttributeValue("codeRequestCategory") != null && RequestCategory.isIlluminaRequestCategory(n.getAttributeValue("codeRequestCategory"))) {
           isSolexaRequest = true;
         }
         

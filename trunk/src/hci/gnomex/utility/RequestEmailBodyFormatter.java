@@ -172,7 +172,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     }
     
     String seqLibTreatments = ""; 
-    if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+    if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       int count = 0;
       for(Iterator i = request.getSeqLibTreatments().iterator(); i.hasNext();) {
         SeqLibTreatment t = (SeqLibTreatment)i.next();

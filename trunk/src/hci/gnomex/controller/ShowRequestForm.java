@@ -213,7 +213,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
               maindiv.addContent(hApp);
 
-              if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+              if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
                 
                 for(Iterator i = request.getSeqLibTreatments().iterator(); i.hasNext();) {
                   SeqLibTreatment t = (SeqLibTreatment)i.next();

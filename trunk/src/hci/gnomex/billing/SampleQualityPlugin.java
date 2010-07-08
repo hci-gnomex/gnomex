@@ -62,7 +62,7 @@ public class SampleQualityPlugin implements BillingPlugin {
       String filter2 = null;
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
-      if (request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
        
         
         if (request.getCodeApplication().equals(Application.CHIP_SEQ_CATEGORY)) {
