@@ -57,6 +57,15 @@ public class SampleQualityPlugin implements BillingPlugin {
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       
+      
+      // Bypass sample quality on illumina requests where the library is
+      // not prepped by core.
+      if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+        if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equals("N")) {
+          continue;
+        }
+      }
+      
 
       String filter1 = Application.BIOANALYZER_QC;
       String filter2 = null;

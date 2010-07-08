@@ -38,9 +38,16 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
       return billingItems;
     }
     
+    
     // Count up number of samples for each codeBioanalyzerChipType
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
+
+      // The price of QC is built into libary prep when core preps the library,
+      // so bypass creating billing item when seqPrepCore=Y.
+      if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equals("Y")) {
+        continue;
+      }
       
       String codeChipType = sample.getSeqPrepQualCodeBioanalyzerChipType();
       
