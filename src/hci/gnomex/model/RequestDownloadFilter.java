@@ -337,9 +337,13 @@ public class RequestDownloadFilter extends DetailObject {
     // Search for Solexa requests
     if (isSolexa.equals("Y")) {
       this.addWhereOrAnd();
-      queryBuf.append(" req.codeRequestCategory = '");
-      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+      queryBuf.append(" req.codeRequestCategory IN (");
       queryBuf.append("'");
+      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+      queryBuf.append("', '");
+      queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+      queryBuf.append("' ");
+      queryBuf.append(") ");
     }  else if (isBioanalyzer.equals("Y")) {
       // Search for bioanalyzer requests
       this.addWhereOrAnd();

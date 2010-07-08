@@ -401,7 +401,7 @@ public class Request extends HibernateDetailObject {
     
     if (this.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       isFinished = isFinishedWithQC();
-    } else if (this.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+    } else if (RequestCategory.isIlluminaRequestCategory(this.getCodeRequestCategory())) {
       int doneLaneCount = 0;
       for(Iterator i1 = this.getSequenceLanes().iterator(); i1.hasNext();) {
         SequenceLane l = (SequenceLane)i1.next();

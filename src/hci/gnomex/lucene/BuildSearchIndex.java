@@ -6,9 +6,12 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.security.SecurityManagerGNomEx.DummyEntityRes;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +29,9 @@ import org.hibernate.cfg.Configuration;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 
 
@@ -263,7 +269,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   ls1.sample as s1 ");
     buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls2 ");
     buf.append("LEFT JOIN   ls2.sample as s2 ");
-    buf.append("WHERE       req.codeRequestCategory != '" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "' ");
+    buf.append("WHERE       req.codeRequestCategory NOT IN ('" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "', '" + RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY + "')");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -322,7 +328,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.sequenceLanes as lane ");
     buf.append("LEFT JOIN   lane.sample as s1 ");
-    buf.append("WHERE       req.codeRequestCategory = '" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "' ");
+    buf.append("WHERE       req.codeRequestCategory  IN ('" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "', '" + RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY + "')");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     results = sess.createQuery(buf.toString()).list();
@@ -999,6 +1005,10 @@ public class BuildSearchIndex extends DetailObject {
     if(xmlFile.exists()) {
       try {
         SAXBuilder builder = new SAXBuilder();
+        // Just in case the orion site is down, we don't want 
+        // to fail because the dtd is unreachable 
+        builder.setEntityResolver(new DummyEntityRes());
+        
         org.jdom.Document doc = builder.build(xmlFile);
         this.registerDataSources(doc);
       } catch (JDOMException e) {
@@ -1025,4 +1035,14 @@ public class BuildSearchIndex extends DetailObject {
   }
 
 
+  // Bypassed dtd validation when reading data sources.
+  public class DummyEntityRes implements EntityResolver
+  {
+      public InputSource resolveEntity(String publicId, String systemId)
+              throws SAXException, IOException
+      {
+          return new InputSource(new StringReader(" "));
+      }
+
+  }
 }

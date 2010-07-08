@@ -179,7 +179,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
-    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+    if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (showBarcodeTag) {
         this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));        
       }
@@ -194,7 +194,7 @@ public class RequestHTMLFormatter {
     if (includeMicroarrayCoreNotes ) {
       this.addHeaderCell(rowh, "----------Quality-----------", new Integer(1), new Integer(4),
          "colgroup");
-      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         this.addHeaderCell(rowh, "---Lib Prep---", new Integer(1), new Integer(2), "colgroup");        
       }
       
@@ -210,7 +210,7 @@ public class RequestHTMLFormatter {
       }
       
       
-      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         this.addHeaderCell(rowh, "Start templ. qty");
         this.addHeaderCell(rowh, "Gel size rng");
       }
@@ -250,7 +250,7 @@ public class RequestHTMLFormatter {
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
-      if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+      if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         if (showBarcodeTag) {
           this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");          
         }
@@ -278,7 +278,7 @@ public class RequestHTMLFormatter {
                       
       }
       if (includeMicroarrayCoreNotes ) {
-        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
+        if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
           if (sample.getSeqPrepByCore() == null || sample.getSeqPrepByCore().equals("N")) {
             this.addCell(row, "prepped by lab");              
             this.addCell(row, "prepped by lab");                          
