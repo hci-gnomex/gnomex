@@ -13,10 +13,7 @@
     fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)"
 	method="POST"
     useProxy="false">
-    <mx:request>
-    	<id>{this.protocolRepeater.currentItem.@idProtocol}</id>
-    	<protocolClassName>{this.protocolRepeater.currentItem.@protocolClassName}</protocolClassName>
-    </mx:request>
+    
   </mx:HTTPService>
   	 
 <mx:Script>
@@ -426,6 +423,14 @@
         	}
         }
         
+        
+        private function showProtocol(idProtocol:Object, protocolClassName:String):void {
+        	var params:Object = new Object();
+        	params.id = idProtocol;
+        	params.protocolClassName = protocolClassName;
+        	getProtocol.send(params);
+        }
+        
     	private function onGetProtocol(event:ResultEvent): void { 
 			if (getProtocol.lastResult.name() != "Protocol") {
         		mx.controls.Alert.show(getProtocol.lastResult..ACTMESSAGE.@TEXT);
@@ -507,7 +512,7 @@
 		        	<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
 				    	<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
 				    		paddingLeft="1" paddingRight="1"
-				    		click="{getProtocol.send()}"/>
+				    		click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"/>
   					</mx:Repeater>
 		        </mx:HBox>
 	
