@@ -208,8 +208,8 @@
 			params.isActive = this.isActiveCheckBox.selected ? "Y" : "N";
 			params.isExternal = this.isExternalPricingButton.selected ? "Y" : "N"; 
 			
-			for each(var ba:Object in billingAccounts) {
-				ba.@expirationDate = ba.@expirationDateOther;
+			for each(var acct:Object in billingAccounts) {
+				acct.@expirationDate = acct.@expirationDateOther;
 			}
 			
 			params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + "</billingAccounts>";
