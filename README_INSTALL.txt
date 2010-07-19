@@ -37,32 +37,36 @@ Install Instructions
 	 f. Copy the /path/to/GNomEx_$VERSION/gnomex/dist/gnomex.ear into /path/to/orion/applications/
 	 
 4. Install the MySQL database server 5.XX (http://mysql.com)
+   - Login to mysql.
+
+     >mysql -u root -p
+     [enter root password]     
+
    - Create a database user called gnomex and gnomexGuest. Grant all
      privileges on gnomex database to gnomexUser, but only read access 
      on gnomex database to gnomexGuest.
      
-     >mysql -u root -p
-     [enter root password]     
-     
-      mysql> CREATE USER 'gnomex'@'localhost' IDENTIFIED BY 'password_for_gnomex_account';
-      mysql> CREATE USER 'gnomex'@'%' IDENTIFIED BY 'password_for_gnomex_account';
-      mysql> GRANT ALL PRIVILEGES ON gnomex.* TO 'gnomex'@'localhost' WITH GRANT OPTION;
-      mysql> GRANT ALL PRIVILEGES ON gnomex.* TO 'gnomex'@'%' WITH GRANT OPTION;
-      
-      mysql> CREATE USER 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
-      mysql> CREATE USER 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
-      mysql> GRANT SELECT ON gnomex.* TO 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
-      mysql> GRANT SELECT ON gnomex.* TO 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
-      
-      mysql> FLUSH PRIVILEGES;  
+
+     CREATE DATABASE gnomex;  
+     CREATE USER 'gnomex'@'localhost' IDENTIFIED BY 'password_for_gnomex_account';
+     CREATE USER 'gnomex'@'%' IDENTIFIED BY 'password_for_gnomex_account';
+     GRANT ALL PRIVILEGES ON gnomex.* TO 'gnomex'@'localhost' WITH GRANT OPTION;
+     GRANT ALL PRIVILEGES ON gnomex.* TO 'gnomex'@'%' WITH GRANT OPTION;
+     CREATE USER 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
+     CREATE USER 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
+     GRANT SELECT ON gnomex.* TO 'gnomexGuest'@'localhost' IDENTIFIED BY 'password_for_gnomexGuest_account';
+     GRANT SELECT ON gnomex.* TO 'gnomexGuest'@'%' IDENTIFIED BY 'password_for_gnomexGuest_account';
+     FLUSH PRIVILEGES;  
      
    - Login into MySQL as gnomex user and run the SQL scripts
      /path/to/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql to create the gnomex database and  
      /path/to/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql to load the dictionaries.
      
      >mysql -u gnomex -p
-     mysql> source ~/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql
-     mysql> source ~/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql
+     [enter gnomex password]
+     
+     source ~/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql
+     source ~/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql
 
 5. Copy the following files in /path/to/GNomEx_$VERSION/orion/config to 
    /path/to/orion/config:
