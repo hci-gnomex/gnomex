@@ -46,7 +46,6 @@ Install Instructions
      privileges on gnomex database to gnomexUser, but only read access 
      on gnomex database to gnomexGuest.
      
-
      CREATE DATABASE gnomex;  
      CREATE USER 'gnomex'@'localhost' IDENTIFIED BY 'password_for_gnomex_account';
      CREATE USER 'gnomex'@'%' IDENTIFIED BY 'password_for_gnomex_account';
@@ -65,8 +64,8 @@ Install Instructions
      >mysql -u gnomex -p
      [enter gnomex password]
      
-     source ~/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql
-     source ~/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql
+     SOURCE ~/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql
+     SOURCE ~/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql
 
 5. Copy the following files in /path/to/GNomEx_$VERSION/orion/config to 
    /path/to/orion/config:
