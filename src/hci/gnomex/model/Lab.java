@@ -9,7 +9,7 @@ public class Lab extends HibernateDetailObject {
   private Integer idLab;
   private String  firstName;
   private String  lastName;
-  private String  isExternal;
+  private String  isExternalPricing;
   private String  department;
   private String  contactName;
   private String  contactAddress;
@@ -252,15 +252,6 @@ public class Lab extends HibernateDetailObject {
     this.lastName = lastName;
   }
 
-  
-  public String getIsExternal() {
-    return isExternal;
-  }
-
-  
-  public void setIsExternal(String isExternal) {
-    this.isExternal = isExternal;
-  }
 
   public static String formatLabName(String lastName, String firstName) {
     
@@ -298,5 +289,15 @@ public class Lab extends HibernateDetailObject {
   
   public void setIsActive(String isActive) {
     this.isActive = isActive;
+  }
+
+  
+  public String getIsExternalPricing() {
+    return isExternalPricing;
+  }
+
+  
+  public void setIsExternalPricing(String isExternalPricing) {
+    this.isExternalPricing = isExternalPricing;
   }
 }

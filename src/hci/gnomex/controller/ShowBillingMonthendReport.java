@@ -67,7 +67,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     if (request.getParameter("codeBillingStatus") != null && !request.getParameter("codeBillingStatus").equals("")) {
       codeBillingStatus = request.getParameter("codeBillingStatus");
       
-      if (!codeBillingStatus.equals(BillingStatus.APPROVED) && !codeBillingStatus.equals(BillingStatus.APPROVED_EXTERNAL)) {
+      if (!codeBillingStatus.equals(BillingStatus.APPROVED) && !codeBillingStatus.equals(BillingStatus.APPROVED_PO)) {
         this.addInvalidField("billingStatusInvalid", "Please select the 'Approved' or 'Approved (External)' folder");
       }
     } else {

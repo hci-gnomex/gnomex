@@ -116,11 +116,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
             
             sess.refresh(billingItem);
             
-            // For groups with external billing, approved status is changed to 
-            // 'Approved External'
+            // For PO Billing account, approved status is changed to 
+            // 'Approved External' so that it shows under a different
+            // folder in the billing tree.
             if (billingItem.getCodeBillingStatus().equals(BillingStatus.APPROVED)) {
-              if (billingItem.getLab().getIsExternal() != null && billingItem.getLab().getIsExternal().equals("Y")) {
-                billingItem.setCodeBillingStatus(BillingStatus.APPROVED_EXTERNAL);
+              if (billingItem.getBillingAccount().getIsPO() != null && billingItem.getBillingAccount().getIsPO().equals("Y")) {
+                billingItem.setCodeBillingStatus(BillingStatus.APPROVED_PO);
               }
             }
             

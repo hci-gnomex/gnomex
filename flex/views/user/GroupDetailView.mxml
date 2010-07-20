@@ -55,6 +55,7 @@
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		import hci.flex.controls.CheckBox;
+		import mx.events.DataGridEvent;
 		
 		
 		private var savedIdLab:Object = '';
@@ -165,28 +166,98 @@
         	return item.@expirationDateOther.toString();
         }
         
-        private function save():void {
+        
+        private function isChartFieldFilledIn(ba:Object):Boolean {
+        	if (ba.@accountNumberBus != '' && 
+        	    ba.@accountNumberBus != '' &&
+				ba.@accountNumberOrg != '' &&
+				ba.@accountNumberFund != '' &&
+				(ba.@accountNumberActivity != '' || ba.@accountNumberProject != '') &&
+				ba.@accountNumberAccount != '' &&
+			    ba.@accountNumberAu != '' &&
+				ba.@accountNumberYear != '') {
+				return true;		
+			} else {
+				return false;
+			}
+        }
+        
+        private function isChartFieldBlank(ba:Object):Boolean {
+        	if (ba.@accountNumberBus == '' && 
+        	    ba.@accountNumberBus == '' &&
+				ba.@accountNumberOrg == '' &&
+				ba.@accountNumberFund == '' &&
+				ba.@accountNumberActivity == '' && 
+				ba.@accountNumberProject == '' &&
+				ba.@accountNumberAccount == '' &&
+			    ba.@accountNumberAu == '' &&
+				ba.@accountNumberYear == '') {
+				return true;		
+			} else {
+				return false;
+			}
+        }
+        
+        private function blankOutChartFields(ba:Object):void {
+        	ba.@accountNumberBus = '';
+        	ba.@accountNumberBus = '';
+			ba.@accountNumberOrg = '';
+			ba.@accountNumberFund = '';
+			ba.@accountNumberActivity = ''; 
+			ba.@accountNumberProject = '';
+			ba.@accountNumberAccount = '';
+			ba.@accountNumberAu = '';
+			ba.@accountNumberYear = '';
+        }
+        
+        private function validateAndSave():void {
         	
         	// Check for account chartfield numbers before saving
-        	var i:int = 1;
-        	var isBillingAccountError:Boolean = false;
-			for each(var ba:Object in billingAccounts) {
-				if(ba.@accountNumberBus == "" && (ba.@isPO == "" || ba.@isPO == "N")) {
-					isBillingAccountError = true;
+        	var warningMessage:String = "";
+        	for each(var ba:Object in billingAccounts) {
+				if(ba.@isPO == "" || ba.@isPO == "N") {
+					if (!this.isChartFieldFilledIn(ba)) {
+						if (warningMessage != "") {
+							warningMessage += "\n";
+						}
+						warningMessage += "All of the chart fields have not been filled in for account " + ba.@accountName + ".";
+					}
+				}else if(ba.@isPO == "Y") {
+					if (!this.isChartFieldBlank(ba)) {
+						if (warningMessage != "") {
+							warningMessage += "\n";
+						}
+						warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
+					}
 				}
-				if(ba.@accountNumberBus != "" && ba.@isPO == "Y") {
-					isBillingAccountError = true;
-				}
-				if(isBillingAccountError) {
-					Alert.show("If this account is using a PO number, please place a "
-								+ "check in the PO box. Otherwise, please enter the "
-								+ "account chartfield number (\"Bus\" column) prior to clicking \"Save.\" "
-								+ "(See Billing Accounts, line " + i + ".)");
-					return;
-				}
-				i++;
-				
 			}	
+			
+			if (warningMessage == "") {
+				save();
+			} else {
+				Alert.show(warningMessage + "\n\nDo you want to proceed with save?",
+						   "Warning", 
+						   (Alert.YES | Alert.NO), 
+						   this,
+						   onPromptToSave); 
+			}
+        }
+        
+        private function onPromptToSave(event:CloseEvent):void {
+        	if (event.detail == Alert.YES) {
+        		save();
+        	}
+        }
+        
+        private function save():void {
+        	
+        	// Blank out chartfields on PO accounts
+        	for each(var ba:Object in billingAccounts) {
+        		if(ba.@isPO == "Y") {
+        			this.blankOutChartFields(ba);
+        		}
+        	}
+        	
 			var params:Object = new Object();
 			
 			if (parentDocument.fullLab != null) {
@@ -206,7 +277,7 @@
 			params.contactEmail = this.contactEmail.text;
 			params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
 			params.isActive = this.isActiveCheckBox.selected ? "Y" : "N";
-			params.isExternal = this.isExternalPricingButton.selected ? "Y" : "N"; 
+			params.isExternalPricing = this.isExternalPricingButton.selected ? "Y" : "N"; 
 			
 			for each(var acct:Object in billingAccounts) {
 				acct.@expirationDate = acct.@expirationDateOther;
@@ -300,17 +371,29 @@
         }
         private function checkPricingChange():void {
         	if(isExternalPricingButton.selected) {
-        		if(parentDocument.fullLab.@isExternal != 'Y') {
+        		if(parentDocument.fullLab.@isExternalPricing != 'Y') {
         			dirty.setDirty();
         		}
         	} else {
-        		if(parentDocument.fullLab.@isExternal == 'Y') {
+        		if(parentDocument.fullLab.@isExternalPricing == 'Y') {
         			dirty.setDirty();
         		}
         		
         	}
         		
 
+        }
+        
+        private function verifyChartfieldEdit(event:DataGridEvent) : void {
+        	// PO checkbox, account name, and expiration data are always editable
+			if (event.dataField == '@isPO' || event.dataField == '@accountName' || event.dataField == '@expirationDate') {
+        		return;
+        	}
+        	
+        	// Other fields are only editable on non-PO accounts.  
+    		if(billingAccounts.getItemAt(event.rowIndex).@isPO == 'Y') {
+        		event.preventDefault(); 
+        	} 
         }
 	]]>
 </mx:Script>	  
@@ -323,7 +406,7 @@
 	
 	
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
-
+ 
 		
 		<mx:TabNavigator width="100%" height="100%"  styleName="form" >
 			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
@@ -341,9 +424,11 @@
 							</mx:VBox>
 							<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
 							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
+							<mx:VBox verticalGap="0">
+								<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? false : true}" click="checkPricingChange()" paddingTop="0" paddingBottom="0"/>
+								<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()" paddingBottom="0" paddingTop="0"/>
+							</mx:VBox>
 							<mx:RadioButtonGroup id="pricingModel"/>
-							<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternal == 'Y' ? false : true}" click="checkPricingChange()"/>
-							<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternal == 'Y' ? true : false}" click="checkPricingChange()"/>
 					   	</mx:HBox>
 					   	<mx:HBox width="100%" verticalAlign="bottom">
 					   		<mx:VBox  verticalGap="0" width="100%">
@@ -472,7 +557,9 @@
 						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
 					</mx:HBox>
 				</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" horizontalScrollPolicy="auto" itemEditEnd="dirty.setDirty()" change="dirty.setDirty()">
+				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" 
+					itemEditBeginning="verifyChartfieldEdit(event)" 
+					horizontalScrollPolicy="auto" itemEditEnd="dirty.setDirty()" change="dirty.setDirty()">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 			            <mx:DataGridColumn headerText="PO"  
@@ -494,7 +581,6 @@
 						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
 							editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 						   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
-    	                   
     	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
 						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
@@ -515,7 +601,7 @@
 		    <mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Verify users"/>
 		    <mx:Spacer width="100%"/>
 		    <util:DirtyNote id="dirty"/>
-			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="save()" id="button1"/>
+			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="validateAndSave()" id="button1"/>
 		</mx:ControlBar>
 	    
   

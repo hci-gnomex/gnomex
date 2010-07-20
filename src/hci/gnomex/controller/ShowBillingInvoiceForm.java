@@ -162,7 +162,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("WHERE  bi.idLab = " + idLab + " ");
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_EXTERNAL + "')");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_PO + "')");
     buf.append("ORDER BY req.number, bi.idBillingItem ");
     
     List results = sess.createQuery(buf.toString()).list();

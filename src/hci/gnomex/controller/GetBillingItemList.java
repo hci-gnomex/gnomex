@@ -76,16 +76,16 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     for(Iterator i = billingItems.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
-      String codeBillingStatus   = (String)row[0]  == null ? ""  : (String)row[0];
-      Integer idRequest          = (Integer)row[1];
-      String requestNumber       = (String)row[2]  == null ? ""  : (String)row[2];
-      Integer idLab              = (Integer)row[3];
-      String codeRequestCategory = (String)row[4]  == null ? ""  : (String)row[4];
-      String labLastName         = (String)row[5]  == null ? ""  : (String)row[5];
-      String labFirstName        = (String)row[6]  == null ? ""  : (String)row[6];
-      AppUser submitter          = (AppUser)row[7];
-      BillingItem billingItem    = (BillingItem)row[8];
-      String labIsExternal       = (String)row[9];
+      String codeBillingStatus    = (String)row[0]  == null ? ""  : (String)row[0];
+      Integer idRequest           = (Integer)row[1];
+      String requestNumber        = (String)row[2]  == null ? ""  : (String)row[2];
+      Integer idLab               = (Integer)row[3];
+      String codeRequestCategory  = (String)row[4]  == null ? ""  : (String)row[4];
+      String labLastName          = (String)row[5]  == null ? ""  : (String)row[5];
+      String labFirstName         = (String)row[6]  == null ? ""  : (String)row[6];
+      AppUser submitter           = (AppUser)row[7];
+      BillingItem billingItem     = (BillingItem)row[8];
+      String labIsExternalPricing = (String)row[9];
 
       String labName = Lab.formatLabName(labLastName, labFirstName);
       
@@ -102,7 +102,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("billingLabName", labName);        
         requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountNameAndNumber());       
         requestNode.setAttribute("idBillingAccount", billingItem.getBillingAccount().getIdBillingAccount().toString() );       
-        requestNode.setAttribute("isExternal", labIsExternal != null ? labIsExternal : "N");
+        requestNode.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
         requestNode.setAttribute("isDirty", "N");
         
         doc.getRootElement().addContent(requestNode);

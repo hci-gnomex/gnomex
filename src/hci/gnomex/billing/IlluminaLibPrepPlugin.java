@@ -80,7 +80,7 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
     // Instantiate a BillingItem for the matched price
     if (price != null) {
       BigDecimal theUnitPrice = price.getUnitPrice();
-      if (request.getLab() != null && request.getLab().getIsExternal() != null && request.getLab().getIsExternal().equalsIgnoreCase("Y")) {
+      if (request.getLab() != null && request.getLab().getIsExternalPricing() != null && request.getLab().getIsExternalPricing().equalsIgnoreCase("Y")) {
         theUnitPrice = price.getUnitPriceExternal();
       }
 
