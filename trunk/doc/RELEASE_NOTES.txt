@@ -5,7 +5,9 @@ GNomEx Release Notes
 - Fixed bug where reselect on deactivated price caused blacked-out line. (Robb)
 - Made change so cursor stays on “complete” after request has been moved from “complete” to “approved.” (Robb)
 - Changed External Billing checkbox to Internal/External Pricing radio buttons. (Robb)
-- Added PO checkbox to BillingAccounts items and data check to make sure box checked if nothing in Bus column. (Robb)
+- Added PO checkbox to BillingAccounts items and blank out chartfields when checked.  
+- Use PO flag on billing account to determine if billing shows under 'External PO' folder rather than using 'External' flag on Lab. (Robb)
+- Warn when price, qty, or unit price is blank or 0;
 
 
 4.8.2 (patch July 9, 2010)

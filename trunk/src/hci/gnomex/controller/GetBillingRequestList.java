@@ -96,17 +96,17 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       for(Iterator i = newRequests.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
         
-        Integer idRequest          = (Integer)row[0];
-        String requestNumber       = (String)row[1]  == null ? ""  : (String)row[1];
-        String codeRequestCategory = (String)row[2]  == null ? ""  : (String)row[2];
-        String idBillingAccount    = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
-        String labLastName         = (String)row[4]  == null ? ""  : (String)row[4];
-        String labFirstName        = (String)row[5]  == null ? ""  : (String)row[5];
-        AppUser submitter          = (AppUser)row[6];
-        Date createDate            = (Date)row[7];
-        Date completedDate         = (Date)row[8];
-        BillingAccount billingAcct = (BillingAccount)row[9];
-        String labIsExternal       = (String)row[10];
+        Integer idRequest           = (Integer)row[0];
+        String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
+        String codeRequestCategory  = (String)row[2]  == null ? ""  : (String)row[2];
+        String idBillingAccount     = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
+        String labLastName          = (String)row[4]  == null ? ""  : (String)row[4];
+        String labFirstName         = (String)row[5]  == null ? ""  : (String)row[5];
+        AppUser submitter           = (AppUser)row[6];
+        Date createDate             = (Date)row[7];
+        Date completedDate          = (Date)row[8];
+        BillingAccount billingAcct  = (BillingAccount)row[9];
+        String labIsExternalPricing = (String)row[10];
         
         String labName = Lab.formatLabName(labLastName, labFirstName);
         
@@ -131,7 +131,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("codeBillingStatus", BillingStatus.NEW);
         node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
         node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
-        node.setAttribute("isExternal", labIsExternal != null ? labIsExternal : "N");
+        node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
       
         String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
         String requestNumberBilled = requestNumber + labBillingName;
@@ -173,18 +173,18 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     for(Iterator i = billingItemRequests.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
-      String codeBillingStatus   = (String)row[0]  == null ? ""  : (String)row[0];
-      Integer idRequest          = (Integer)row[1];
-      String requestNumber       = (String)row[2]  == null ? ""  : (String)row[2];
-      String codeRequestCategory = (String)row[3]  == null ? ""  : (String)row[3];
-      Integer idLab              = (Integer)row[4];
-      String labLastName         = (String)row[5]  == null ? ""  : (String)row[5];
-      String labFirstName        = (String)row[6]  == null ? ""  : (String)row[6];
-      AppUser submitter          = (AppUser)row[7];
-      Date createDate            = (Date)row[8];
-      Date completedDate         = (Date)row[9];
-      BillingAccount billingAcct = (BillingAccount)row[10];
-      String labIsExternal       = (String)row[11];
+      String codeBillingStatus    = (String)row[0]  == null ? ""  : (String)row[0];
+      Integer idRequest           = (Integer)row[1];
+      String requestNumber        = (String)row[2]  == null ? ""  : (String)row[2];
+      String codeRequestCategory  = (String)row[3]  == null ? ""  : (String)row[3];
+      Integer idLab               = (Integer)row[4];
+      String labLastName          = (String)row[5]  == null ? ""  : (String)row[5];
+      String labFirstName         = (String)row[6]  == null ? ""  : (String)row[6];
+      AppUser submitter           = (AppUser)row[7];
+      Date createDate             = (Date)row[8];
+      Date completedDate          = (Date)row[9];
+      BillingAccount billingAcct  = (BillingAccount)row[10];
+      String labIsExternalPricing = (String)row[11];
   
       
       String labName = Lab.formatLabName(labLastName, labFirstName);
@@ -247,7 +247,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       node.setAttribute("labName", labName != null ? labName : "");
       node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
       node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
-      node.setAttribute("isExternal", labIsExternal != null ? labIsExternal : "N");
+      node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
       
       // There can be multiple requests nodes for a given request number when
       // the request's billing items are split among multiple billing 
@@ -324,7 +324,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         if (codeBillingStatus == null) {
           for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
             String code = (String)i1.next();
-            if (code.equals(BillingStatus.APPROVED_EXTERNAL)) {
+            if (code.equals(BillingStatus.APPROVED_PO)) {
               codeBillingStatus = code;
               break;
             }
@@ -401,12 +401,12 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
       }
     }
-    status = (Element)statusNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
+    status = (Element)statusNodeMap.get(BillingStatus.APPROVED_PO);
     if (status != null) {
       doc.getRootElement().addContent(status);      
 
       // Add non-empty labNodes onto status
-      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_EXTERNAL);
+      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_PO);
       for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
         String key = (String)i1.next();
         Element labNode = (Element)labNodeMap.get(key);

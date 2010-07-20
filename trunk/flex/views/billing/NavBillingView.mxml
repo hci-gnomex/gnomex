@@ -573,10 +573,10 @@
 			}
 		}
 		private function jumpToApproved():void {
-			// First try to jump to 'Approved (External)'
+			// First try to jump to 'Approved (PO)'
 			var found:Boolean = false;
 			for each(var item:XML in requests) {
-				if (item.@label == 'Approved (External)') {
+				if (item.@label == 'Approved (PO)') {
 					this.requestTree.selectedItem = item;
 					this.requestTree.firstVisibleItem = item;
 					this.onRequestNodeSelected();
@@ -1032,9 +1032,10 @@
 		
 		private function validateAndSave():void {
 			var isExternalApproved:Boolean = false;
+			var isEmptyPriceOrQty:Boolean = false;
 			for each(var request:XML in billingItems) {
  				if (request.@isDirty == "Y") { 
- 					if (request.@isExternal == "Y") {
+ 					if (request.@isExternalPricing == "Y") {
 	 					for each(var bi:XML in request.BillingItem) {
 	 						if (bi.@codeBillingStatus == 'APPROVED') {
 	 							isExternalApproved = true;
@@ -1042,10 +1043,24 @@
 	 						}
  						}					
  					}
+ 					for each(var bi1:XML in request.BillingItem) {
+ 						if (bi1.@qty == '' || bi1.@unitPrice == '' || bi1.@unitPrice == 0 || bi1.@totalPrice == '' || bi1.@totalPrice == 0) {
+ 							isEmptyPriceOrQty = true;
+ 							break;
+ 						}
+ 					}					
  				} 
  			}
+ 			var msg:String = '';
  			if (isExternalApproved) {
- 				Alert.show("External account to be approved.  Has pricing been verified?",
+ 				msg += "External account to be approved.  Has pricing been verified?\n";
+ 			}
+ 			if (isEmptyPriceOrQty) {
+ 				msg += "Price or qty is blank.  Proceed anyways?\n"
+ 			}
+ 			
+ 			if (msg != '') {
+ 				Alert.show(msg,
  				  "Warning",
  				  Alert.YES | Alert.NO,
  				  this,
@@ -1094,7 +1109,7 @@
         		if(lastSelectedItem != null && lastSelectedItem.name() == "Request") {
         			var parentItem:Object = this.requestTree.getParentItem(lastSelectedItem);
         			parentItem = this.requestTree.getParentItem(parentItem);
-        			if(parentItem.name() == "Status" && parentItem.@label == "Completed") {
+        			if(parentItem != null && parentItem.name() == "Status" && parentItem.@label == "Completed") {
         				setLastSelectedItemToNextNeighbor();
         			}
         		}
@@ -1168,11 +1183,11 @@
 					navigateToURL(url, '_blank');			
 					
 				} else {
-					Alert.show("Please select the 'Approved' or 'Approved (External)' folder.")
+					Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
 				}
 				
 			} else {
-				Alert.show("Please select the 'Approved' or 'Approved (External)' folder.")
+				Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
 			}
 		}
 		

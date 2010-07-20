@@ -145,8 +145,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             Request req    =  (Request)row[0];
             BillingItem bi =  (BillingItem)row[1];
             
-            // Bypass external billing groups
-            if (bi.getLab().getIsExternal() != null && bi.getLab().getIsExternal().equals("Y")) {
+            // Bypass PO billing accounts
+            if (bi.getBillingAccount().getIsPO() != null && bi.getBillingAccount().getIsPO().equals("Y")) {
               continue;
             }
             
@@ -326,7 +326,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             buf.append("JOIN   req.billingItems bi ");
             buf.append("JOIN   bi.lab as lab ");
             buf.append("JOIN   bi.billingAccount as ba ");
-            buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_EXTERNAL + "' ");
+            buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
             buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
             results = sess.createQuery(buf.toString()).list();
             if (results.size() > 0) {

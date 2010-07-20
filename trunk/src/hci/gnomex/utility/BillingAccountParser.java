@@ -54,28 +54,28 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     if (n.getAttributeValue("accountName") != null && !n.getAttributeValue("accountName").equals("")) {
       billingAccount.setAccountName(n.getAttributeValue("accountName"));
     } 
-    if (n.getAttributeValue("accountNumberBus") != null && !n.getAttributeValue("accountNumberBus").equals("")) {
+    if (n.getAttributeValue("accountNumberBus") != null) {
       billingAccount.setAccountNumberBus(n.getAttributeValue("accountNumberBus"));
     } 
-    if (n.getAttributeValue("accountNumberOrg") != null && !n.getAttributeValue("accountNumberOrg").equals("")) {
+    if (n.getAttributeValue("accountNumberOrg") != null) {
       billingAccount.setAccountNumberOrg(n.getAttributeValue("accountNumberOrg"));
     } 
-    if (n.getAttributeValue("accountNumberFund") != null && !n.getAttributeValue("accountNumberFund").equals("")) {
+    if (n.getAttributeValue("accountNumberFund") != null) {
       billingAccount.setAccountNumberFund(n.getAttributeValue("accountNumberFund"));
     } 
-    if (n.getAttributeValue("accountNumberActivity") != null && !n.getAttributeValue("accountNumberActivity").equals("")) {
+    if (n.getAttributeValue("accountNumberActivity") != null) {
       billingAccount.setAccountNumberActivity(n.getAttributeValue("accountNumberActivity"));
     } 
-    if (n.getAttributeValue("accountNumberProject") != null && !n.getAttributeValue("accountNumberProject").equals("")) {
+    if (n.getAttributeValue("accountNumberProject") != null) {
       billingAccount.setAccountNumberProject(n.getAttributeValue("accountNumberProject"));
     } 
-    if (n.getAttributeValue("accountNumberAccount") != null && !n.getAttributeValue("accountNumberAccount").equals("")) {
+    if (n.getAttributeValue("accountNumberAccount") != null) {
       billingAccount.setAccountNumberAccount(n.getAttributeValue("accountNumberAccount"));
     } 
-    if (n.getAttributeValue("accountNumberAu") != null && !n.getAttributeValue("accountNumberAu").equals("")) {
+    if (n.getAttributeValue("accountNumberAu") != null) {
       billingAccount.setAccountNumberAu(n.getAttributeValue("accountNumberAu"));
     } 
-    if (n.getAttributeValue("accountNumberYear") != null && !n.getAttributeValue("accountNumberYear").equals("")) {
+    if (n.getAttributeValue("accountNumberYear") != null) {
       billingAccount.setAccountNumberYear(n.getAttributeValue("accountNumberYear"));
     } 
     
@@ -86,9 +86,13 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     }
     if (n.getAttributeValue("idFundingAgency") != null && !n.getAttributeValue("idFundingAgency").equals("")) {
       billingAccount.setIdFundingAgency(new Integer(n.getAttributeValue("idFundingAgency")));
+    } else {
+      billingAccount.setIdFundingAgency(null);
     }
     if (n.getAttributeValue("isPO") != null && !n.getAttributeValue("isPO").equals("")) {
         billingAccount.setIsPO(n.getAttributeValue("isPO"));
+    } else {
+      billingAccount.setIsPO("N");
     }
   }
 
