@@ -125,6 +125,10 @@ public abstract class GNomExCommand extends Command implements Serializable {
   public String getLaunchAppURL(HttpServletRequest request) throws Exception {
     return getAppURL(request) + Constants.LAUNCH_APP_JSP;
   }
-  
+
+  public String getShowRequestFormURL(HttpServletRequest request) throws Exception {
+    return getAppURL(request) + Constants.SHOW_REQUEST_FORM;
+  }
+
 
 }

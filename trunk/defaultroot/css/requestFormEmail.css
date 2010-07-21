@@ -1,0 +1,242 @@
+
+body {
+      font-family: arial,Helvetica,sans-serif;
+      font-size: 9pt;
+      width: 700;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+ }
+ 
+ td.gridreverse {
+      color: white;
+      font-weight: bold;
+      background-color: black;
+}
+
+
+table {
+   cell-padding: 10px;
+   width: 700;
+   border: none;
+}
+table.gridHalf {
+	width: 345;
+}
+
+p.break {
+     page-break-before: always;
+}
+#container{
+	font-size: 11pt;
+	width:700;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
+ }
+ 
+#printLinkColLeft {
+	float: left;
+	margin-left: 0px;
+	margin-bottom: 15px;
+	width: 190;
+	line-height: 180%;
+	font-style: normal;
+	font-size: 9pt;
+}
+ 
+#printLinkColRight {
+	margin-bottom: 15px;
+	float: right;
+	margin-left: 0px;
+	width: 90;
+	line-height: 180%;
+	font-style: normal;
+	font-size: 9pt;
+}
+
+
+#col1 {
+	float: left;
+	margin-right: 5;
+	width: 345;
+}
+
+#col2 { 
+	float: right;
+	margin-right: 0px;
+	width: 345;
+
+}
+
+#footer {
+    clear: both;
+}
+
+#containerForm{
+	font-size: 11pt;
+	width:700;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
+}
+#containerInstruction{
+	font-size: 11pt;
+	width:700;
+	margin-left:0;
+	margin-right:auto;
+	text-align:left;  
+}
+
+H2 {
+      margin-top: 0;
+      margin-bottom: 0;
+      font-size: 12pt;
+      font-weight: bold;
+      text-align: center;
+} 
+
+h3 {
+      font-size: 11pt;
+      font-weight: bold;
+      padding-top: 5;
+      text-align: left;
+}
+
+h4 {
+
+      margin-top: 0;
+      margin-bottom: 10;
+      font-size: 10pt;
+      font-weight: bold;
+	text-align: center;
+}
+ 
+caption
+{
+  font-size: 10pt;
+  font-weight: bold;
+  color: #8B7765;
+  caption-side: top;
+  text-align: left;
+  margin-left: 0;
+  margin-top: 25;
+  margin-bottom: 0;
+  padding-top: 25;
+  padding-bottom: 0;
+
+}
+
+
+
+td.label {
+  font-size: 9pt;
+  border: none;
+  font-weight: bold;
+  color: #8B7765;
+  margin-right: 10;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 70%;
+     
+ 
+}
+ td.value {
+  font-size: 9pt;
+  border: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 5px;
+  margin-right: 5px;
+  line-height: 70%;
+}
+
+th  {
+  font-size: 8pt;
+  border: none;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 0px;
+  padding-right: 10px;
+  font-size: 8pt;
+}
+
+
+
+th.colgroup {
+  font-size: 8pt;
+  border: none;
+}
+
+tr.forcedRowHeight {
+	line-height: 130%;
+}
+
+td {
+      font-size: 9pt;
+}
+
+td.grid {
+      font-size: 9pt;
+      border-top: thin solid;
+      border-color: #CDCDC1;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4; 
+}
+
+
+td.gridleft {
+      font-size: 9pt;
+      border-top: thin solid;
+      border-color: #CDCDC1;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4; 
+}
+
+td.gridright {
+      font-size: 9pt;
+      border-top: thin solid;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4; 
+}
+
+td.gridSmall{
+  width: 40;
+  font-size: 9pt;
+  border-top: thin solid;
+  border-color: #CDCDC1;
+  padding-top: 4;
+  padding-bottom: 4;
+  padding-right: 4;
+  padding-left: 4; 
+
+}
+td.gridempty {
+  width: 150;
+  font-size: 9pt;
+  border-top: thin solid;
+  border-color: #CDCDC1;
+  padding-top: 4;
+  padding-bottom: 4;
+  padding-right: 4;
+  padding-left: 4; 
+}
+
+td.gridemptysmall {
+  width: 50;
+  font-size: 9pt;
+  border-top: thin solid;
+  border-color: #CDCDC1;
+  padding-top: 4;
+  padding-bottom: 4;
+  padding-right: 4;
+  padding-left: 4; 
+}
+
+
