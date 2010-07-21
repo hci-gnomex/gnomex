@@ -141,16 +141,25 @@ public class RequestHTMLFormatter {
     
     return table;
   }
-  
+ 
   public Element makeSampleTable(Set samples) {
+    return makeSampleTable(samples, null);
+  }
+  
+  public Element makeSampleTable(Set samples, String captionStyle) {
+    
+    
     Element table = new Element("TABLE");
     table.setAttribute("CLASS", "grid");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
  
     Element caption = new Element("CAPTION");
+    if (captionStyle != null) {
+      caption.setAttribute("style", captionStyle);
+    }
     caption.addContent("Samples");
-    table.addContent(caption);
+    table.addContent(caption);      
     
     
     Element rowh = new Element("TR");
@@ -294,15 +303,22 @@ public class RequestHTMLFormatter {
   }
   
   public Element makeSampleQualityTable(Set samples) {
+    return makeSampleQualityTable(samples, null);
+  }
+  
+  public Element makeSampleQualityTable(Set samples, String captionStyle) {
     Element table = new Element("TABLE");
     table.setAttribute("CLASS", "grid");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
  
     Element caption = new Element("CAPTION");
+    if (captionStyle != null) {
+      caption.setAttribute("style", captionStyle);
+    }
     caption.addContent("Samples");
     caption.setAttribute("ALIGN", "LEFT");
-    table.addContent(caption);
+    table.addContent(caption);      
     
 
     
@@ -461,17 +477,23 @@ public class RequestHTMLFormatter {
     return table;
   }
 
-  
   public Element makeHybTable(Set hybridizations) {
+    return makeHybTable(hybridizations, null);
+  }
+  
+  public Element makeHybTable(Set hybridizations, String captionStyle) {
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
  
     Element caption = new Element("CAPTION");
+    if (captionStyle != null) {
+      caption.setAttribute("style", captionStyle);
+    }
     caption.addContent("Hybridizations");
-    table.addContent(caption);
-    
+    table.addContent(caption);      
+
     
     Element rowh = new Element("TR");
     table.addContent(rowh);
@@ -536,8 +558,11 @@ public class RequestHTMLFormatter {
     return table;
   }
   
-  
   public void addSequenceLaneTable(Element parentNode, Set lanes, String amendState) {
+    addSequenceLaneTable(parentNode, lanes, amendState, null);
+  }
+  
+  public void addSequenceLaneTable(Element parentNode, Set lanes, String amendState, String captionStyle) {
 
     // Group lanes by create Date
     TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator());
@@ -567,8 +592,7 @@ public class RequestHTMLFormatter {
         }
       }
 
-      
-      parentNode.addContent(makeSequenceLaneTable(caption, theLanes));
+      parentNode.addContent(makeSequenceLaneTable(caption, theLanes, captionStyle));
       
       // If the user just added lanes from the 'Add services' window,
       // just show the lanes just added, not all of the existing lanes.
@@ -586,15 +610,18 @@ public class RequestHTMLFormatter {
   }
     
     
-  private Element makeSequenceLaneTable(String caption, List lanes) {
+  private Element makeSequenceLaneTable(String caption, List lanes, String captionStyle) {
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
 
     Element cap = new Element("CAPTION");
+    if (captionStyle != null) {
+      cap.setAttribute("style", captionStyle);
+    }
     cap.addContent(caption);
-    table.addContent(cap);
+    table.addContent(cap);      
 
 
     Element rowh = new Element("TR");

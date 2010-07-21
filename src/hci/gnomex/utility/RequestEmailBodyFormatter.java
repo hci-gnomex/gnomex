@@ -36,6 +36,8 @@ public class RequestEmailBodyFormatter extends DetailObject{
   private BillingAccount   billingAccount;
   private DictionaryHelper dictionaryHelper;
   
+  private String           captionStyle = "font-size: 10pt; font-weight: bold; color: #8B7765; caption-side: top; text-align: left; margin-left: 0; margin-top: 25; margin-bottom: 0; padding-top: 25; padding-bottom: 0;";
+  
   protected boolean       includeMicroarrayCoreNotes = true;
 
   public RequestEmailBodyFormatter(Session sess, String appURL, DictionaryHelper dictionaryHelper, Request request, String amendState, Set samples, Set hybs, Set lanes, String introNote) {
@@ -75,16 +77,16 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     center1.addContent(formatter.makeRequestTable());
 
-    center1.addContent(formatter.makeSampleTable(samples));
+    center1.addContent(formatter.makeSampleTable(samples, captionStyle));
     
     center1.addContent(new Element("BR"));
 
     if (!hybs.isEmpty()) {
-      center1.addContent(formatter.makeHybTable(hybs));          
+      center1.addContent(formatter.makeHybTable(hybs, captionStyle));          
     }
     
     if (!lanes.isEmpty()) {
-      formatter.addSequenceLaneTable(center1, lanes, amendState);          
+      formatter.addSequenceLaneTable(center1, lanes, amendState, captionStyle);          
     }
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -109,7 +111,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     center1.addContent(formatter.makeRequestTable());
 
-    center1.addContent(formatter.makeSampleQualityTable(samples));
+    center1.addContent(formatter.makeSampleQualityTable(samples, captionStyle));
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     String buf = out.outputString(doc);
@@ -127,14 +129,16 @@ public class RequestEmailBodyFormatter extends DetailObject{
     Element head = new Element("HEAD");
     root.addContent(head);
     
-    Element style = new Element("style");
-    style.setAttribute("type", "text/css");
-    style.addContent(this.getCascadingStyleSheet());
-    head.addContent(style);
     
     Element title = new Element("TITLE");
     title.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber());
     head.addContent(title);
+
+    Element style = new Element("style");
+    style.setAttribute("type", "text/css");
+    style.addContent(this.getCascadingStyleSheet());
+    head.addContent(style);
+
     
     Element body = new Element("BODY");
     root.addContent(body);
@@ -158,7 +162,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     Element h2 = new Element("H2");
     h2.addContent(formatter.makeRequestCategoryImage(appURL));
-    h2.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
+    h2.addContent("&nbsp;&nbsp;&nbsp;" + request.getNumber() + "&nbsp;&nbsp;&nbsp;");
     h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
     center.addContent(h2);
     
@@ -189,7 +193,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     StringBuffer buf = new StringBuffer();
     BufferedReader input =  null;
     try {
-      input = new BufferedReader(new FileReader(Constants.WEBCONTEXT_DIR + Constants.REQUEST_FORM_CSS));
+      input = new BufferedReader(new FileReader(Constants.WEBCONTEXT_DIR + Constants.REQUEST_FORM_EMAIL_CSS));
     } catch (FileNotFoundException ex) {
       System.out.println(ex.toString());
     }

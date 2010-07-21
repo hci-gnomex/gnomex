@@ -1,6 +1,10 @@
 GNomEx Release Notes
 
-4.8.3
+4.8.4
+-------------------------
+- Fix email body to work with Outlook 2007 and Gmail HTML renderers.
+
+4.8.3 (July 21, 2010)
 -------------------------
 - Fixed bug where reselect on deactivated price caused blacked-out line. (Robb)
 - Made change so cursor stays on “complete” after request has been moved from “complete” to “approved.” (Robb)

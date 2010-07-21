@@ -82,6 +82,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private RequestParser    requestParser;
   
   private String           launchAppURL;
+  private String           showRequestFormURLBase;
   private String           appURL;
   private String           serverName;
 
@@ -141,7 +142,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     try {
-      launchAppURL = this.getLaunchAppURL(request);      
+      launchAppURL = this.getLaunchAppURL(request);  
+      showRequestFormURLBase = this.getShowRequestFormURL(request);
       appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
