@@ -1,8 +1,9 @@
 GNomEx Release Notes
 
-4.8.4
+4.8.4 (July 25, 2010)
 -------------------------
 - Fix email body to work with Outlook 2007 and Gmail HTML renderers.
+- Only warn about missing chartfields or blanking out chartfields on PO accounts for billing accounts just updated or added.
 
 4.8.3 (July 21, 2010)
 -------------------------

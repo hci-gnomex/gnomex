@@ -45,6 +45,7 @@
 	  
 <mx:Script>
 	<![CDATA[
+		import mx.events.CollectionEvent;
 		import hci.flex.dictionary.DictionaryEditor; 
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
@@ -56,13 +57,17 @@
 		import hci.flex.controls.DropdownLabel;
 		import hci.flex.controls.CheckBox;
 		import mx.events.DataGridEvent;
-		
+		import mx.events.CollectionEventKind;
+        import mx.events.PropertyChangeEvent;
+
+
 		
 		private var savedIdLab:Object = '';
 		private var dictionaryEditor:DictionaryEditor;
 		
 		public function initializeData():void {
 			this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
+			
 		}
 		
 		public function promptToSaveDirty():void {
@@ -215,21 +220,24 @@
         	// Check for account chartfield numbers before saving
         	var warningMessage:String = "";
         	for each(var ba:Object in billingAccounts) {
-				if(ba.@isPO == "" || ba.@isPO == "N") {
-					if (!this.isChartFieldFilledIn(ba)) {
-						if (warningMessage != "") {
-							warningMessage += "\n";
+        		// Only validate dirty billing accounts
+        		if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
+					if(ba.@isPO == "" || ba.@isPO == "N") {
+						if (!this.isChartFieldFilledIn(ba)) {
+							if (warningMessage != "") {
+								warningMessage += "\n";
+							}
+							warningMessage += "All of the chart fields have not been filled in for account " + ba.@accountName + ".";
 						}
-						warningMessage += "All of the chart fields have not been filled in for account " + ba.@accountName + ".";
-					}
-				}else if(ba.@isPO == "Y") {
-					if (!this.isChartFieldBlank(ba)) {
-						if (warningMessage != "") {
-							warningMessage += "\n";
+					}else if(ba.@isPO == "Y") {
+						if (!this.isChartFieldBlank(ba)) {
+							if (warningMessage != "") {
+								warningMessage += "\n";
+							}
+							warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
 						}
-						warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
 					}
-				}
+        		}
 			}	
 			
 			if (warningMessage == "") {
@@ -253,8 +261,10 @@
         	
         	// Blank out chartfields on PO accounts
         	for each(var ba:Object in billingAccounts) {
-        		if(ba.@isPO == "Y") {
-        			this.blankOutChartFields(ba);
+        		if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
+	        		if(ba.@isPO == "Y") {
+    	    			this.blankOutChartFields(ba);
+        			}
         		}
         	}
         	
@@ -384,7 +394,16 @@
 
         }
         
+        public function setDirtyBillingAccount(billingAccount:Object):void {
+        	billingAccount.@isDirty = 'Y';
+        	dirty.setDirty();
+        }
+        
         private function verifyChartfieldEdit(event:DataGridEvent) : void {
+        	// Mark that this billing account is dirty.  We will only warn about
+        	// validation when the billing account has been changed.
+        	setDirtyBillingAccount(billingAccounts.getItemAt(event.rowIndex));
+        	
         	// PO checkbox, account name, and expiration data are always editable
 			if (event.dataField == '@isPO' || event.dataField == '@accountName' || event.dataField == '@expirationDate') {
         		return;
@@ -395,6 +414,7 @@
         		event.preventDefault(); 
         	} 
         }
+
 	]]>
 </mx:Script>	  
 
@@ -559,7 +579,7 @@
 				</mx:HBox>
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" 
 					itemEditBeginning="verifyChartfieldEdit(event)" 
-					horizontalScrollPolicy="auto" itemEditEnd="dirty.setDirty()" change="dirty.setDirty()">
+					horizontalScrollPolicy="auto" >
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 			            <mx:DataGridColumn headerText="PO"  
@@ -568,7 +588,7 @@
 			            	dataField="@isPO" 
 			            	editorDataField="selected" 
 			            	textAlign="center" 
-			            	itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isPO', true)}" >
+			            	itemRenderer="{views.renderers.CheckBoxIsPO.create()}" >
 		            	</mx:DataGridColumn>
 	   					<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
 						<mx:DataGridColumn dataField="@expirationDate" width="75"
