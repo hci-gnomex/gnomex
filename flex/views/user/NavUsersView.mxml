@@ -127,7 +127,10 @@
           import mx.rpc.events.ResultEvent; 
 		  import mx.controls.Alert;
 		  import mx.events.CloseEvent;
-
+		  import mx.events.CollectionEventKind;
+          import mx.events.PropertyChangeEvent;
+          import mx.events.CollectionEvent;
+        
           [Bindable]
           public var selectedUser:Object;
           [Bindable]
@@ -146,7 +149,7 @@
 		  
 		  private function init():void {
 			  checkSecurity();
-			  initializeData();		  	
+			  initializeData();	
 		  }
             		
 		  public function isDirty():Boolean {
