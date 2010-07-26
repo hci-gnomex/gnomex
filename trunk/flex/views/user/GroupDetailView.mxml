@@ -99,10 +99,12 @@
 			    " accountNumberOrg=''" + 
 			    " accountNumberFund=''" + 
 			    " accountNumberActivity=''" + 
-			    " accountNumberProject=''" + 
+			    " accountNumberProject=''" +  
 			    " accountNumberAccount=''" + 
 			    " accountNumberAu=''" + 
 			    " accountNumberYear=''" +  
+			    " isDirty='Y'" +
+			    " isPO='N'" +
 			    " isSelectedPeerReviewedFunding='false'" + 
 				"/>");
 			billingAccounts.addItem(node);
