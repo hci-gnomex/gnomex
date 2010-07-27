@@ -151,6 +151,7 @@
 		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
 		<many-to-one name="billingPeriod" column="idBillingPeriod" class="hci.gnomex.model.BillingPeriod" cascade="none" insert="false" update="false" />
 		<property name="idPriceCategory" column="idPriceCategory" type="integer"/>
+		<many-to-one name="priceCategory" column="idPriceCategory" class="hci.gnomex.model.PriceCategory" cascade="none" insert="false" update="false" />
 		<property name="idPrice" column="idPrice" type="integer"/>		
 		<property name="idRequest" column="idRequest" type="integer"/>
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
