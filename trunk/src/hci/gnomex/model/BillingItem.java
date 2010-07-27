@@ -22,6 +22,7 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idBillingPeriod;  
   private BillingPeriod  billingPeriod;
   private Integer        idPriceCategory;
+  private PriceCategory  priceCategory;
   private Integer        idPrice;
   private Integer        idRequest;
   private Integer        idBillingAccount;
@@ -144,6 +145,7 @@ public class BillingItem extends HibernateDetailObject {
     this.excludeMethodFromXML("getBillingAccount");
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getBillingPeriod");
+    this.excludeMethodFromXML("getPriceCategory");
   }
 
   
@@ -234,5 +236,15 @@ public class BillingItem extends HibernateDetailObject {
   
   public void setIdPrice(Integer idPrice) {
     this.idPrice = idPrice;
+  }
+
+  
+  public PriceCategory getPriceCategory() {
+    return priceCategory;
+  }
+
+  
+  public void setPriceCategory(PriceCategory priceCategory) {
+    this.priceCategory = priceCategory;
   }
 }

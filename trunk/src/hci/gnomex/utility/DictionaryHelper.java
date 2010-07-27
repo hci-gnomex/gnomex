@@ -3,6 +3,7 @@ package hci.gnomex.utility;
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
@@ -64,6 +65,7 @@ public class DictionaryHelper implements Serializable {
   private Map              analysisTypeMap = new HashMap();
   private Map              billingStatusMap = new HashMap();
   private Map              billingPeriodMap = new HashMap();
+  private Map              billingChargeKindMap = new HashMap();
   private Map              sampleTypeToDefaultSamplePrepMethodMap = new HashMap();
   private Map              labelMap = new HashMap();
   private Map              propertyMap = new HashMap();
@@ -191,6 +193,11 @@ public class DictionaryHelper implements Serializable {
     for(Iterator i = billingPeriodList.iterator(); i.hasNext();) {
       BillingPeriod bp = (BillingPeriod)i.next();
       billingPeriodMap.put(bp.getIdBillingPeriod(), bp);
+    }      
+    List billingChargeKindList = sess.createQuery("SELECT bp from BillingChargeKind as bp").list();
+    for(Iterator i = billingChargeKindList.iterator(); i.hasNext();) {
+      BillingChargeKind bp = (BillingChargeKind)i.next();
+      billingChargeKindMap.put(bp.getCodeBillingChargeKind(), bp.getBillingChargeKind());
     }      
     List samplePrepMethodSampleTypes = sess.createQuery("SELECT x from SamplePrepMethodSampleType as x").list();
     for(Iterator i = samplePrepMethodSampleTypes.iterator(); i.hasNext();) {
@@ -461,7 +468,6 @@ public class DictionaryHelper implements Serializable {
   public List getSeqLibTreatments() {
     return seqLibTreatmentList;
   }
-  
   public String getBillingStatus(String codeBillingStatus) {
     String billingStatus = "";
     if (codeBillingStatus != null) {
@@ -469,7 +475,13 @@ public class DictionaryHelper implements Serializable {
     }
     return billingStatus;
   }
-  
+  public String getBillingChargeKind(String codeBillingChargeKind) {
+    String billingChargeKind = "";
+    if (codeBillingChargeKind != null) {
+      billingChargeKind = (String)billingChargeKindMap.get(codeBillingChargeKind);
+    }
+    return billingChargeKind;
+  }
   public BillingPeriod getBillingPeriod(Integer idBillingPeriod) {
     BillingPeriod billingPeriod = null;
     if (idBillingPeriod != null) {

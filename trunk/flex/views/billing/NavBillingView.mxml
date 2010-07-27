@@ -1197,6 +1197,12 @@
             summaryWindow.setFocus();
             summaryWindow.billingPeriods = this.billingPeriods; 				
 		}
+		public function showBillingUsageWindow():void {
+			var usageWindow:BillingUsageView = BillingUsageView(mx.managers.PopUpManager.createPopUp(this, BillingUsageView, true));
+            mx.managers.PopUpManager.centerPopUp(usageWindow);
+            usageWindow.setFocus();
+            usageWindow.billingPeriods = this.billingPeriods; 				
+		}
 		public function showBillingGLInterface():void {
 			if (billingPeriodCombo.selectedItem == null ||
 			    billingPeriodCombo.selectedItem.@value == "") {
@@ -1601,6 +1607,8 @@
 	                                    <mx:LinkButton label="Monthend Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingMonthendReport()"/>
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="summaryReportButton" label="Total Billing by Lab Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingSummaryWindow()"/>
+	                                    <mx:VRule height="20"/>
+	                                    <mx:LinkButton  id="usageReportButton" label="Lab Usage Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingUsageWindow()"/>
 	                                    <mx:VRule height="20"/>
 	                                    <mx:Spacer width="30"/>
 	                                    <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"   paddingLeft="8">
