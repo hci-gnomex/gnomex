@@ -129,6 +129,7 @@
 			<url-pattern>Save*.gx</url-pattern>
 			<url-pattern>GenerateUserAccountEmail.gx</url-pattern>
 			<url-pattern>GetAppUser.gx</url-pattern>
+			<url-pattern>GetAnalysisLabList.gx</url-pattern>
 			<url-pattern>GetBillingItemList.gx</url-pattern>
 			<url-pattern>GetBillingRequestList.gx</url-pattern>
 			<url-pattern>getPricingList.gx</url-pattern>

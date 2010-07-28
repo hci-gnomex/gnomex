@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	layout="vertical" width="400" height="300" title="Choose Groups">
+<mx:Script>
+	<![CDATA[
+		import hci.flex.controls.CheckBox;
+		import mx.managers.PopUpManager;
+		
+
+		
+		private function saveLabKeys():void {
+			var labKeys:String = "";
+			var label:String = "";
+			for each(var lab:Object in parentApplication.navAnalysisView.labList) {
+				if (lab.@isSelected == 'true') {
+					if (labKeys != "") {
+						labKeys += ":";
+					}
+					if (label != "") {
+						label += ",";
+					}
+					labKeys += lab.@idLab;
+					label += lab.@lastName != "" ? lab.@lastName : lab.@firstName;
+				}
+			}
+			parentApplication.navAnalysisView.refreshAnalysisFilterByLabs(labKeys, label);
+			PopUpManager.removePopUp(this);
+		}
+		
+		
+		private function unselectAllLabs():void {
+			for each(var lab:Object in parentApplication.navAnalysisView.labList) {
+				lab.@isSelected = 'false';
+			}
+		}
+	]]>
+</mx:Script>
+	<mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.navAnalysisView.labList}" >
+		<mx:columns>
+            <mx:DataGridColumn headerText=" " 
+            	width="30" 
+            	editable="true"                        	
+            	dataField="@isSelected" 
+            	editorDataField="selected" sortable="false"
+            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
+            </mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Group" dataField="@name"/>
+			<mx:DataGridColumn headerText="Analysis" dataField="@analysisCount" width="60">
+			   <mx:headerRenderer>
+			   	  <mx:Component>
+			   	  	<mx:VBox verticalGap="0" textAlign="center">
+			   	  		<mx:Label text="Analysis"/>
+			   	  		<mx:Label text="Count"/>
+			   	  	</mx:VBox>
+			   	  </mx:Component>
+			   </mx:headerRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:ControlBar horizontalAlign="left">
+		<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAllLabs()" />
+		<mx:Spacer width="100%"/>
+		<mx:Button label="OK" id="saveButton" click="saveLabKeys()" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>
