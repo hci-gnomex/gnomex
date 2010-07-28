@@ -1,5 +1,14 @@
 GNomEx Release Notes
 
+4.8.5
+-------------------------
+- Introduced new Billing Lab Usage report.
+- Don't allow Lab to be changed on Analysis edit window.  (Should use drag-n-drop instead)
+- Reformat Analysis edit window to leave more room for description.  Moved analysis group to its own tab.
+- Move filter widgets and refresh link to top panel in Analysis view.  
+- Add ability to filter by multiple labs in Analysis view and ability to filter by analysis created in last week, month, 3 months, or year.
+
+
 4.8.4 (July 25, 2010)
 -------------------------
 - Fix email body to work with Outlook 2007 and Gmail HTML renderers.

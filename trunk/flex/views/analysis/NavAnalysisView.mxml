@@ -5,6 +5,7 @@
 	xmlns:analysis="views.analysis.*"
 	xmlns:util="views.util.*"
 	creationPolicy="all" show="init()"
+	defaultButton="{lookupButton}"
 	cornerRadius="10"  >
 
 
@@ -16,12 +17,17 @@
     showBusyCursor="true"
     result="onGetAnalysisGroupList(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
-    method="POST" 
+    method="POST"   
     useProxy="false">
     <mx:request>
-            <idLab>{browseLabCombo.selectedItem.@idLab}</idLab> 
+            <labKeys>{labKeys}</labKeys> 
+            <searchText>{searchTextField.text}</searchText>
             <showMyLabsAlways>{this.currentState == "AdminState" ? 'N' : 'Y'}</showMyLabsAlways>
             <searchPublicProjects>{currentState == 'GuestState'|| searchPublicProjectsCheckbox.selected ? 'Y' : 'N'}</searchPublicProjects>
+            <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
+            <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
+            <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
+            <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
     </mx:request> 
    </mx:HTTPService>
    
@@ -33,6 +39,18 @@
     showBusyCursor="false"
     result="onGetAnalysis(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+   <mx:HTTPService  
+    id="getAnalysisLabList" 
+    url="GetAnalysisLabList.gx"
+    destination="getAnalysisLabList"
+    resultFormat="e4x"
+    showBusyCursor="false"
+    result="onGetAnalysisLabList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get analysis lab list', event)"
     method="POST"
     useProxy="false">
   </mx:HTTPService>
@@ -159,12 +177,25 @@
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
 	 	
 	 	public var isInitialized:Boolean = false;
+	 	
+	 	[Bindable]
+	 	public var labList:XMLListCollection = null;
+	 	
+	 	[Bindable]
+	 	private var labKeys:String = "";
+	 	
+	 	[Bindable]
+	 	private var selectedLabsLabel:String = "";
 
 		public function checkDirty():void {
 		}
 		
 		private function init():void {
 			checkSecurity();
+
+			if (!isInitialized) {
+				this.getAnalysisLabList.send();				
+			}
 			
 			// Only initialize analysis if the user clicked on
 			// Analysis link in top nav bar. (Bypass
@@ -172,6 +203,7 @@
 			if (selectedAnalysisNumber == null) {
 	            initializeAnalysis();			
 			}
+			
 			
 			if (this.shortcutToDownloadTab || this.shortcutToAnalysisListTab) {
    				if (this.currentState == "AdminState") {
@@ -228,12 +260,17 @@
         }
         
        
+        private function onGetAnalysisLabList(event:ResultEvent):void {
+        	if (getAnalysisLabList.lastResult.name() == "LabList") {
+	        	labList = new XMLListCollection(getAnalysisLabList.lastResult.Lab);    		
+        	}
+        }
         
         private function onGetRequestDownloadList(event:ResultEvent): void {        	
         	setResultsCount();
         }
         
-        private function onGetAnalysisGroupList(event:ResultEvent): void {  
+        private function onGetAnalysisGroupList(event:ResultEvent): void {
         	if (getAnalysisGroupList.lastResult.Lab.length() == 0) {
         		browseTree.visible = false;
         	} else {
@@ -291,12 +328,15 @@
 		    				if (analysis.@number == selectedAnalysisNumber) {
 		    					idx = --pos;
 		    					
-								// We came from the main gnomex app, so select the lab from the lab combo
+								// We came from the main gnomex app, so select the lab 
 		    					if (this.currentState == "AdminState") {
-		    						for each(var l:Object in  parentApplication.promptedLabList) {
+		    						for each(var l:Object in  labList) {
 		    							if (l.@idLab == analysis.@idLab) {
-		    								this.browseLabCombo.selectedItem = l;
-		    								break;	
+		    								l.@isSelected = 'true';
+		    								this.selectedLabsLabel = l.@name;
+		    								this.labKeys = l.@idLab;
+		    							} else {
+		    								l.@isSelected = 'false';
 		    							}
 		    						}
 		    					}		    					
@@ -759,9 +799,17 @@
 				}
 		}
 		
+		
+		
 		public function refreshAnalysis():void {
 			this.browseTree.selectedItem = null;
 			getAnalysisGroupList.send();
+		}
+		
+		public function refreshAnalysisFilterByLabs(labKeys:String, label:String):void {
+			this.labKeys = labKeys;
+			this.selectedLabsLabel = label;
+			refreshAnalysis();
 		}
 		
 		public function initializeAnalysis():void {
@@ -899,23 +947,79 @@
 	   		
 	   	}
 
+		private function showMultiLabFilterWindow():void {  
+			var window:MultiLabFilterWindow  = MultiLabFilterWindow(PopUpManager.createPopUp(this, MultiLabFilterWindow, false));
+			PopUpManager.centerPopUp(window);
+		}
+		
+	private function toggleDateCheckboxes(checkBoxNumber:int):void {
+		if (checkBoxNumber == 1) {
+			this.lastMonthCheckbox.selected = false;
+			this.lastThreeMonthsCheckbox.selected = false;
+			this.lastYearCheckbox.selected  = false;
+		} else if (checkBoxNumber == 2) {
+			this.lastWeekCheckbox.selected = false;
+			this.lastThreeMonthsCheckbox.selected = false;
+			this.lastYearCheckbox.selected  = false;
+		} else if (checkBoxNumber == 3) {
+			this.lastWeekCheckbox.selected  = false;
+			this.lastMonthCheckbox.selected = false; 
+			this.lastYearCheckbox.selected  = false;
+		}  else if (checkBoxNumber == 4) {
+			this.lastWeekCheckbox.selected  = false;
+			this.lastMonthCheckbox.selected = false; 
+			this.lastThreeMonthsCheckbox.selected = false;
+		}   
+	} 					
 	    	    		
        ]]>
     </mx:Script>
-   	  <mx:ArrayCollection id="analysisNumbers"  sort="{requestNumberSorter}"/>
-	  <mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>
     
-	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+<mx:ArrayCollection id="analysisNumbers"  sort="{requestNumberSorter}"/>
+<mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
+<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
-    
-	<mx:HDividedBox height="100%" width="100%">
-	
-	
-			
+    <mx:VBox width="100%" height="100%">
+      <util:PanelBox height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
+          <mx:HBox id="filterBox"  horizontalGap="20" verticalAlign="middle">
+          	  <mx:Label text="Filter by"/>
+          	  <mx:HBox horizontalGap="0" verticalAlign="middle">
+          	      <mx:Label text="Search" id="label1"/>
+	          	  <mx:TextInput id="searchTextField"/>     
+			      <mx:Button id="lookupButton"  
+			              	fontFamily="Arial"  height="18" width="30"
+			               	color="#400040" click="{if (searchTextField.text != '') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>
+          	  </mx:HBox>
+          	  <mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
+		      <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+		      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+		    		<mx:click>toggleDateCheckboxes(1);refreshAnalysis();</mx:click>
+		    	</mx:CheckBox>
+		    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+		    		<mx:click>toggleDateCheckboxes(2);refreshAnalysis();</mx:click>
+		    	</mx:CheckBox>
+		    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+		    		<mx:click>toggleDateCheckboxes(3);refreshAnalysis();</mx:click>
+		    	</mx:CheckBox>
+		    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+		    		<mx:click>toggleDateCheckboxes(4);refreshAnalysis();</mx:click>
+		    	</mx:CheckBox>
+			  </mx:HBox>          	  
+          	  <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="linkbutton1"/>
+          </mx:HBox>
+      </util:PanelBox>
+	  <mx:HDividedBox height="100%" width="100%">
 			<util:PanelBox label="Analysis" width="278" height="100%" id="navPanel" >
 			    <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"/>
-				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="4" label="Experiments">
+				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
+						<mx:HBox width="100%" horizontalGap="8" horizontalAlign="right">
+						<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
+							<mx:LinkButton label="Drag-and-drop hint" 
+								click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}">
+							</mx:LinkButton>
+						</mx:VBox>					    	
+						</mx:HBox>
 
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getAnalysisGroupList.lastResult}" 
@@ -929,14 +1033,6 @@
 							dragDrop="browseTreeDrop(event);" mouseDown="browseTreeMouseDown(event);" 
 							dragEnabled="true" 
 							dropEnabled="true"></mx:Tree>
-					    <mx:HBox width="100%" horizontalGap="8">
-							<mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
-							<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
-								<mx:LinkButton label="Drag-and-drop hint" 
-									click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}">
-								</mx:LinkButton>
-							</mx:VBox>					    	
-					    </mx:HBox>
 						
 					</mx:VBox>
 
@@ -957,7 +1053,6 @@
 						        	 letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false" textDecoration="underline">
 						        	        <mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 						        </mx:LinkButton>
-						        <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline"/>
 						</mx:VBox>
 								
 					</mx:ControlBar>
@@ -982,30 +1077,28 @@
 
          </mx:ViewStack>
 		
-	</mx:HDividedBox>
+	  </mx:HDividedBox>
+    </mx:VBox>
 	
 	<mx:states>
 		<mx:State name="GuestState">
-			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
+			<mx:RemoveChild target="{searchPublicProjectsCheckbox}"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">
-			<mx:AddChild position="firstChild"  relativeTo="{navContainer}">
-					<mx:VBox verticalGap="0" width="100%">
-				        <mx:Label id="groupLabel" visible="true" text="Select group to show analysis:" paddingBottom="0"/>
-						<mx:ComboBox id="browseLabCombo" 
-							labelField="@name"
-							dataProvider="{parentApplication.promptedLabList}"
-							 change="getAnalysisGroupList.send()"  
-							 visible="true"  width="200">
-						</mx:ComboBox>				
-				        <mx:Spacer height="6"/>
-						
-					</mx:VBox>
+			<mx:AddChild relativeTo="{linkbutton1}" position="before">
+				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+					<mx:LinkButton label="Select Groups" textDecoration="underline" click="showMultiLabFilterWindow()"/>
+					<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic"/>
+				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild  target="{searchPublicProjectsCheckbox}"/>
+			<mx:RemoveChild target="{searchPublicProjectsCheckbox}"/>
+			<mx:SetProperty target="{label1}" name="text" value="Keyword:"/>
+			<mx:SetStyle target="{lookupButton}" name="icon" value="@Embed(source='../../assets/arrow_right.png')"/>
+			<mx:RemoveChild target="{hbox3}"/>
+			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
 		</mx:State>
 
 		
