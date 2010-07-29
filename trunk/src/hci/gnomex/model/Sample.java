@@ -61,6 +61,7 @@ public class Sample extends HibernateDetailObject {
   private Date        seqPrepStockDate;
   private String      seqPrepStockFailed;
   private String      seqPrepStockBypassed;
+  private String      prepInstructions;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -574,6 +575,16 @@ public class Sample extends HibernateDetailObject {
   
   public void setSequenceLaneCount(int sequenceLaneCount) {
     this.sequenceLaneCount = sequenceLaneCount;
+  }
+
+  
+  public String getPrepInstructions() {
+    return prepInstructions;
+  }
+
+  
+  public void setPrepInstructions(String prepInstructions) {
+    this.prepInstructions = prepInstructions;
   }
 
 

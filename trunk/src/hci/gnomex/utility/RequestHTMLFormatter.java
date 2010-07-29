@@ -195,6 +195,7 @@ public class RequestHTMLFormatter {
       if (showSeqLibProtocol) {
           this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
       }
+      this.addHeaderCell(rowh, "Prep Instructions", rowSpan, new Integer(1));
     } 
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       
@@ -260,6 +261,7 @@ public class RequestHTMLFormatter {
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+        this.addCell(row, sample.getPrepInstructions() != null && !sample.getPrepInstructions().equals("") ? sample.getPrepInstructions() : "&nbsp");
         if (showBarcodeTag) {
           this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");          
         }

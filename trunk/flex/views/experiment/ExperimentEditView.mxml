@@ -1589,7 +1589,9 @@
 				samplesView.showHideColumns(); 
 
 			} else {
+				
 				currentState = 'MicroarrayEditState';
+				this.filteredMicroarrayAppList.refresh();
 				this.hybSetupView.currentState = 'EditState';
 				this.annotationView.currentState = 'EditState';			
 				if (parentApplication.hasPermission("canWriteAnyObject")) {

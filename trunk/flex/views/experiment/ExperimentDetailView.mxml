@@ -306,6 +306,7 @@
 				chipTypeCol.visible = false;
 				barcodeCol.visible = false;
 				concentrationUnitCol.visible = false;
+				prepInstructionsCol.visible = false;
 
 				AGE0.visible = false;
 				CELLLINE0.visible = false;   
@@ -355,6 +356,7 @@
 					chipTypeCol.visible = false;
 					barcodeCol.visible = true;
 					concentrationUnitCol.visible = false;
+				    prepInstructionsCol.visible = true;
 	        		
 	        	} else if (currentState == 'QCState') {
 					concentrationCol.visible = false; 
@@ -365,6 +367,7 @@
 					chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
 					barcodeCol.visible = false;
 					concentrationUnitCol.visible = true;
+				    prepInstructionsCol.visible = false;
 	        		
 	        	} else {
 					concentrationCol.visible = true; 
@@ -375,6 +378,7 @@
 					chipTypeCol.visible = false;
 					barcodeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
+				    prepInstructionsCol.visible = false;
         		}
         	} 
         }
@@ -583,6 +587,7 @@
 								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
 								<mx:DataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 
+								<mx:DataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
 								<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
 							</mx:columns>
 						</mx:DataGrid>

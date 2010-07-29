@@ -3,7 +3,7 @@
    body {
       font-family: arial,Helvetica,sans-serif;
       font-size: 9pt;
-      width: 600;
+      width: 700;
       text-align: center;
       margin-left: auto;
       margin-right: auto;
@@ -19,11 +19,11 @@
 
 table {
    cell-padding: 10px;
-   width: 600;
+   width: 700;
    border: none;
 }
 table.gridHalf {
-	width: 295;
+	width: 345;
 }
 
 p.break {
@@ -31,7 +31,7 @@ p.break {
 }
 #container{
 	font-size: 11pt;
-	width:600;
+	width:700;
 	margin-left:0;
 	margin-right:auto;
 	text-align:left;  
@@ -61,13 +61,13 @@ p.break {
 #col1 {
 	float: left;
 	margin-right: 5;
-	width: 295;
+	width: 345;
 }
 
 #col2 { 
 	float: right;
 	margin-right: 0px;
-	width: 295;
+	width: 345;
 
 }
 
@@ -77,14 +77,14 @@ p.break {
 
 #containerForm{
 	font-size: 11pt;
-	width:600;
+	width:700;
 	margin-left:0;
 	margin-right:auto;
 	text-align:left;  
 }
 #containerInstruction{
 	font-size: 11pt;
-	width:600;
+	width:700;
 	margin-left:0;
 	margin-right:auto;
 	text-align:left;  
