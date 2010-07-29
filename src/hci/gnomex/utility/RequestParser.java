@@ -313,6 +313,12 @@ public class RequestParser implements Serializable {
     } else {
       sample.setFragmentSizeTo(null);
     }
+    if (n.getAttributeValue("prepInstructions") != null && !n.getAttributeValue("prepInstructions").equals("")) {
+      sample.setPrepInstructions(n.getAttributeValue("prepInstructions"));
+    } else {
+      sample.setPrepInstructions(null);
+    }
+    
     
     
     

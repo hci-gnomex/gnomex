@@ -7,6 +7,9 @@ GNomEx Release Notes
 - Reformat Analysis edit window to leave more room for description.  Moved analysis group to its own tab.
 - Move filter widgets and refresh link to top panel in Analysis view.  
 - Add ability to filter by multiple labs in Analysis view and ability to filter by analysis created in last week, month, 3 months, or year.
+- Add core prep instructions to Submit Illumina Request window.  Show instructions on printable form.
+- Fix save bug on Microarray edit screen by refreshing list that populates application radio buttons based on request category.
+- Increase width of printable request form from 600 to 700 pixels.
 
 
 4.8.4 (July 25, 2010)

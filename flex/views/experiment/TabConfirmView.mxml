@@ -15,6 +15,8 @@
 				preppedByCoreCol.visible = true;
 				samplePrepMethodConfirmCol.visible = true;
 				
+				corePrepInstructionsConfirmColumn.visible = true;
+				
 				if (!parentDocument.isEditState() &&
 				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
 					seqLibProtocolConfirmCol.visible = false;
@@ -28,6 +30,7 @@
 				samplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
+				corePrepInstructionsConfirmColumn.visible = false;
 			} else {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
@@ -35,6 +38,7 @@
 				samplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
+				corePrepInstructionsConfirmColumn.visible = false;
 			}
 			// If this is a QC request, hide the annotation columns 
 			if (parentDocument.currentState == 'QCState') {
@@ -114,6 +118,7 @@
 						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
 
+						<mx:DataGridColumn id="corePrepInstructionsConfirmColumn" headerText="Instructions" width="140" dataField="@prepInstructions"/>
 
 
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>

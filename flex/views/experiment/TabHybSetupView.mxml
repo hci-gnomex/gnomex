@@ -8,8 +8,8 @@
 			<mx:SetProperty target="{textarea1}" name="htmlText">
 				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can<br>  change the selection in order to specify a<br>  different microarray for this experiment<br>  request.  The change will be reflected<br>  in the next tab.]]></mx:value>
 			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}"  name="width" value="250"/>
-			<mx:SetProperty target="{textarea1}"  name="height" value="100"/>
+			<mx:SetProperty target="{textarea1}"  name="width" value="260"/>
+			<mx:SetProperty target="{textarea1}"  name="height" value="120"/>
 		</mx:State>
 	</mx:states>
 <mx:Script> 

@@ -464,6 +464,7 @@
 		<property name="seqPrepStockBypassed" column="seqPrepStockBypassed" type="string"/>
 		<property name="seqPrepStockLibVol" column="seqPrepStockLibVol" type="big_decimal"/>
 		<property name="seqPrepStockEBVol" column="seqPrepStockEBVol" type="big_decimal"/>
+		<property name="prepInstructions" column="prepInstructions" type="string"/>
 		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />

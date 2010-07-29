@@ -45,6 +45,7 @@
 					" idSeqLibProtocol='" + parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value + "'" +				
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
+					" corePrepInstructions='" + parentDocument.seqSetup1View.corePrepInstructions.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
@@ -219,6 +220,7 @@
 					" concentration='" + sampleToCopy.@concentration + "'" +				
 					" treatment='" + sampleToCopy.@treatment + "'" +		
 					" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
+					" corePrepInstructions='" + sampleToCopy.@corePrepInstructions + "'" +		
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
@@ -554,6 +556,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
+        	corePrepInstructionsCol.visible = false;
         	
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
         	sampleRowNumberCol.visible = !parentDocument.isEditState();
@@ -582,6 +585,7 @@
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
+				corePrepInstructionsCol.visible = true;
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
 					numberSequencingLanesCol.editable = false;
@@ -873,6 +877,7 @@
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>
  	                   
+					<mx:DataGridColumn id="corePrepInstructionsCol" headerText="Core Prep Instructions" width="140" dataField="@prepInstructions"/> 
 					<mx:DataGridColumn headerText="Description" width="140" dataField="@description"/> 
 
                     <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
