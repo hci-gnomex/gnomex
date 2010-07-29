@@ -45,7 +45,7 @@
 					" idSeqLibProtocol='" + parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value + "'" +				
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
-					" corePrepInstructions='" + parentDocument.seqSetup1View.corePrepInstructions.text + "'" +				
+					" prepInstructions='" + parentDocument.seqSetup1View.prepInstructions.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
@@ -220,7 +220,7 @@
 					" concentration='" + sampleToCopy.@concentration + "'" +				
 					" treatment='" + sampleToCopy.@treatment + "'" +		
 					" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
-					" corePrepInstructions='" + sampleToCopy.@corePrepInstructions + "'" +		
+					" prepInstructions='" + sampleToCopy.@prepInstructions + "'" +		
 					" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 					" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
 					" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
