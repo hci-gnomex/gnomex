@@ -650,7 +650,6 @@
             <mx:SetProperty target="{samplesAlreadyPreppedCheckbox}" name="label">
                 <mx:value>No, library has already been prepped using kit</mx:value>
             </mx:SetProperty>
-            <mx:SetProperty target="{radioYesBarcoding}" name="enabled" value="false"/>
         </mx:State>
         <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
              <mx:AddChild relativeTo="{hbox4}" position="lastChild">

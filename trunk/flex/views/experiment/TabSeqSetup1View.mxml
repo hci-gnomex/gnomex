@@ -20,6 +20,10 @@
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:SetProperty target="{label11}" name="width" value="340"/>
 			<mx:SetProperty target="{label12}" name="width" value="340"/>
+			<mx:SetProperty target="{text1}" name="width" value="340"/>
+			<mx:SetProperty target="{text1}" name="text">
+				<mx:value>(6) Provide any special analysis instructions for bionformatics.</mx:value>
+			</mx:SetProperty>
 		</mx:State>
 	</mx:states>
 <mx:Script>
@@ -297,14 +301,14 @@
 						<mx:HBox width="100%" horizontalGap="0">
 						    <mx:Spacer width="20"/>
 						</mx:HBox>
-				</mx:VBox>
+				</mx:VBox> 
 			</mx:HBox>
 			<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
 				<mx:Text text="{'(4) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
 				<mx:TextArea id="prepInstructions" width="100%" focusOut="this.propagatePrepInstructions()" maxChars="2000" height="100%"/>
 			</mx:HBox>
 			<mx:HBox id="analysisInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
-				<mx:Text text="(5) Provide any special analysis instructions for bionformatics." width="314" />
+				<mx:Text text="(5) Provide any special analysis instructions for bionformatics." width="314"  id="text1"/>
 				<mx:TextArea id="analysisInstructions" width="100%" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
 			</mx:HBox>
 		
