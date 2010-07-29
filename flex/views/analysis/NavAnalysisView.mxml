@@ -182,10 +182,10 @@
 	 	public var labList:XMLListCollection = null;
 	 	
 	 	[Bindable]
-	 	private var labKeys:String = "";
+	 	public var labKeys:String = "";
 	 	
 	 	[Bindable]
-	 	private var selectedLabsLabel:String = "";
+	 	public var selectedLabsLabel:String = "";
 
 		public function checkDirty():void {
 		}
@@ -419,6 +419,7 @@
 	    	
 	    	if (idx != -1) {
 	    		browseTree.selectedIndex = idx;
+	    		browseTree.scrollToIndex(idx);
 	    	}
 	    	
 	    	if(noOnBrowseTreeCall) {
@@ -756,7 +757,12 @@
 				selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
 		 	} else {
 		 		if (currentState == 'AdminState') {
-					selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == browseLabCombo.selectedItem.@idLab);		 	
+		 			for each(var l:Object in labList) {
+		 				if (l.@isSelected == 'true') {
+							selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == l.@idLab);
+							break;		 			 					
+		 				}
+		 			}
 		 		} else {
 			 		selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@canSubmitRequests == "Y")[0];
 		 			
