@@ -1,6 +1,16 @@
 GNomEx Release Notes
 
-4.8.5
+
+4.8.6 (July 29, 2010)
+-------------------------
+- Show billing items for other periods in Billing window (when clicking on request from tree)
+
+4.8.5 patch (July 29, 2010)
+-------------------------
+- Fixed bug on Illumina submit request that was causing 'Samples' tab to be non-functional when 'Prepped by Core' = 'N'.  Bug introduced with prep instructions.
+- Enabled barcoding for Illumina requests where the seq lib is prepped by lab (rather than core)
+
+4.8.5 (July 28, 2010)
 -------------------------
 - Introduced new Billing Lab Usage report.
 - Don't allow Lab to be changed on Analysis edit window.  (Should use drag-n-drop instead)
