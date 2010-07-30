@@ -126,6 +126,7 @@
     method="POST"
     useProxy="false">
        <mx:request>
+         <showOtherBillingItems>{spanOtherCheckbox.selected ? 'Y' : 'N'}</showOtherBillingItems>
          <requestNumber>{requestNumberText.text}</requestNumber>
          <idBillingPeriod>{requestNumberText.text == "" ? billingPeriodCombo.selectedItem.@value : ""}</idBillingPeriod>       	
          <idLab>{requestNumberText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
@@ -703,11 +704,12 @@
  			if (this.requestTree.selectedItem == null) {
  				return;
  			}
+ 			lastSelectedItem = this.requestTree.selectedItem;
  			gatherDisplayInfo(this.requestTree.selectedItem);
  		}
  		
  		private function gatherDisplayInfo(selectedItem:Object):void {
-
+			
 			billingItemsDisplayed = new XMLListCollection();
 			
 			var totalPrice:Number = new Number(0);
@@ -1487,8 +1489,14 @@
 			}
 			
 			if (billingPeriods.length > 1) {
-				Alert.show("This experiment has billing items spanning multiple billing periods.  Please select a billing period from the dropdown to qualify the billing items to be split.");
-				return;
+				if (this.billingPeriodCombo.selectedItem != null && this.billingPeriodCombo.selectedItem.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
+					Alert.show("This experiment has billing items spanning multiple billing periods.\n\nPlease uncheck the checkbox 'Show related charges in other periods' to narrow the billing items to qualify the billing items to be split.");
+					return;			
+				} else {
+					Alert.show("This experiment has billing items spanning multiple billing periods.  Please select a billing period from the dropdown to qualify the billing items to be split.");
+					return;
+					
+				}
 			}
 			
 			if (billingPeriods.length == 0) {
@@ -1592,11 +1600,17 @@
 
  	]]>
  </mx:Script>	
+
+<mx:Style>
+  .other { fontStyle:italic; color: #747170; }
+  .percentageEmphasis {fontWeight:bold; color: #AA082A;}
+  .normal {}    
+</mx:Style>
  
   <mx:VBox width="100%" verticalGap="4" height="100%" paddingTop="0">
  
-	    <mx:VBox width="100%" styleName="panelBox" horizontalGap="8" paddingTop="0" verticalGap="2" paddingRight="0" paddingLeft="0">
-	                    <mx:HBox backgroundSize="100%" width="100%" backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" verticalAlign="middle" paddingTop="4" paddingBottom="4">
+	    <mx:VBox width="100%" styleName="panelBox" horizontalGap="4" paddingTop="0" verticalGap="2" paddingRight="0" paddingLeft="0">
+	                    <mx:HBox backgroundSize="100%" width="100%" backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2">
 	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
 	                                               click="refresh()" toolTip="Refresh"/>
 	                                    <mx:VRule height="20"/>
@@ -1610,7 +1624,6 @@
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="usageReportButton" label="Lab Usage Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingUsageWindow()"/>
 	                                    <mx:VRule height="20"/>
-	                                    <mx:Spacer width="30"/>
 	                                    <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"   paddingLeft="8">
 	                                    	<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0" styleName="labelSmall"/>
 	                                    	<mx:TextInput id="requestNumberText" width="60">
@@ -1623,15 +1636,22 @@
                 	
                 </mx:HBox>
 
-	      <mx:HBox horizontalGap="8" verticalAlign="middle">
+	      <mx:HBox horizontalGap="8" verticalAlign="top">
 		    	<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
 					<mx:Label text="Filter by:   " paddingLeft="4"/>
-					<mx:Label id="billingPeriodLabel" visible="true" text="Period" paddingBottom="0"/>
-					<mx:ComboBox id="billingPeriodCombo" 
-						labelField="@display"
-						visible="true"  
-						width="100" change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()">
-					</mx:ComboBox>			   	
+					<mx:VBox verticalGap="0" paddingTop="0">
+					  <mx:HBox horizontalGap="0" verticalAlign="middle">
+						<mx:Label id="billingPeriodLabel" visible="true" text="Period" paddingBottom="0"/>
+						<mx:ComboBox id="billingPeriodCombo" 
+							labelField="@display"
+							visible="true"  
+							change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()">
+						</mx:ComboBox>
+					  </mx:HBox>
+						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()">
+							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
+						</mx:CheckBox>
+					</mx:VBox>
 		    	</mx:HBox>  
 
 			   <mx:HBox horizontalGap="0" verticalAlign="middle">
@@ -1643,9 +1663,9 @@
 					</mx:ComboBox>
 			   </mx:HBox>
 
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0">
+		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="right" paddingRight="0">
 					<mx:Label id="billingAccountLabel" visible="true" text="Account" paddingBottom="0"/>
-					<mx:HBox width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalAlign="middle">
+					<mx:HBox width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalAlign="top">
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
 							 visible="true"  width="400" change="requestNumberText.text = &quot;&quot;;refresh()">
@@ -1771,7 +1791,7 @@
         				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="13"  wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"   
-						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
+						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
 						  itemEditor="{views.renderers.ComboBoxBillingPeriod.create(billingPeriods, '@display', '@value', '@idBillingPeriod', null, true)}"/>                 
         				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="true" textAlign="right" width="6" wordWrap="false"
         				  editorDataField="text"
@@ -1780,18 +1800,54 @@
         				<mx:AdvancedDataGridColumn headerText="Type" dataField="@codeBillingChargeKind" editable="true" width="6" wordWrap="false" 
         			      editorDataField="value" 
         				  rendererIsEditor="false"
-						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
+						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
 						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="12" wordWrap="true"/>
-        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="12" wordWrap="true"/>
-        				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true"/>
-        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"/> 
-        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false"/>
-        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="11" editable="false" wordWrap="false"/>
+        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="12" wordWrap="true">
+			              <mx:itemRenderer>
+			                  <mx:Component>
+			                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  </mx:Component>
+			              </mx:itemRenderer>
+        				</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="12" wordWrap="true">
+			              <mx:itemRenderer>
+			                  <mx:Component>
+			                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  </mx:Component>
+			              </mx:itemRenderer>
+        				</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true">
+        				  <mx:itemRenderer>
+			                  <mx:Component>
+			                  <mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  </mx:Component>
+			              </mx:itemRenderer>
+						</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"> 
+        				  <mx:itemRenderer>
+			                  <mx:Component>
+			                  <mx:Text text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  </mx:Component>
+			              </mx:itemRenderer>
+						</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false">
+        				  <mx:itemRenderer>
+			                  <mx:Component>
+			                  <mx:Text text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  </mx:Component>
+			              </mx:itemRenderer>
+						</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="11" editable="false" wordWrap="false">
+        				  <mx:itemRenderer>
+			                  <mx:Component>
+			                  <mx:Text text="{data.@totalPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+			                  </mx:Component>
+			              </mx:itemRenderer>
+						</mx:AdvancedDataGridColumn>
         				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="18" wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"
-						  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
+						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
 						  itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
         			</mx:columns>
         			 

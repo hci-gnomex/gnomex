@@ -11,29 +11,15 @@ package views.renderers
           if (data == null) {
           	return;
           }
-          if (data.@percentageDisplay != "" && data.@percentageDisplay != "100%") {
-	      	this.setStyle("color", 0xAA082A);
-	      	this.setStyle("fontWeight", "bold");
+          
+          if (data.@other == 'Y') {
+          	styleName = "other";
+          } else if (data.@percentageDisplay != "" && data.@percentageDisplay != "100%") {
+          	styleName = "percentageEmphasis";
           } else {
-          	this.setStyle("color", 0x000000);
-	      	this.setStyle("fontWeight", "normal");
+          	styleName = "normal";
           }
-          /*
-	          var g:Graphics = graphics;
-    	      g.clear();
-        	  g.beginFill(0xffff99);
-          	  g.drawRect(0,0,unscaledWidth,unscaledHeight);
-          	  g.endFill();           	
-          } else {
-	          var g:Graphics = graphics;
-    	      g.clear();
-        	  g.beginFill(owner.);
-          	  g.drawRect(0,0,unscaledWidth,unscaledHeight);
-          	  g.endFill();           	
-          	
-          }
-          */
-
-	     }
+        
+	    }
 	}
 }
