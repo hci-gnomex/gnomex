@@ -1,9 +1,11 @@
 GNomEx Release Notes
 
 
-4.8.6 (July 29, 2010)
+4.8.6 (Aug 9, 2010)
 -------------------------
 - Show billing items for other periods in Billing window (when clicking on request from tree)
+- Moved 'internal pricing' and 'external pricing' radio buttons to Billing Account tab on Group detail window.
+- When looking up experiment by request number, find experiment regardless of revision number (proceeding 'R' in experiment number).
 
 4.8.5 patch (July 29, 2010)
 -------------------------

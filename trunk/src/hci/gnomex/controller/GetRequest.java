@@ -86,7 +86,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request = (Request)sess.get(Request.class, idRequest);
       } else {
         requestNumber = requestNumber.replaceAll("#", "");
-        StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number = '" + requestNumber.toUpperCase() + "'");
+        requestNumber = requestNumber.toUpperCase();
+        String requestNumberBase = requestNumber;
+        String tokens[] = requestNumber.split("R");
+        if (tokens != null && tokens.length > 0) {
+          requestNumberBase = tokens[0] + "R";
+        }
+        StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "'");
         List requests = (List)sess.createQuery(buf.toString()).list();
         if (requests.size() > 0) {
           request = (Request)requests.get(0);
