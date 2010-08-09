@@ -446,10 +446,6 @@
 							</mx:VBox>
 							<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
 							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
-							<mx:VBox verticalGap="0">
-								<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? false : true}" click="checkPricingChange()" paddingTop="0" paddingBottom="0"/>
-								<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()" paddingBottom="0" paddingTop="0"/>
-							</mx:VBox>
 							<mx:RadioButtonGroup id="pricingModel"/>
 					   	</mx:HBox>
 					   	<mx:HBox width="100%" verticalAlign="bottom">
@@ -571,9 +567,15 @@
 
 			</mx:VBox>
 			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox horizontalGap="12">
+					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? false : true}" click="checkPricingChange()"/>
+					<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>
+				</mx:HBox>
+				<mx:Spacer height="8"/>
+				<mx:Label text="Accounts:" fontWeight="bold"/>
 				<mx:HBox horizontalAlign="left" width="100%">
 					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
-						<mx:Label text="Account name"/>
+						<mx:Label text="Add Account    Name:"/>
 						<mx:TextInput id="accountName" width="100%"/>
 						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}" width="24"/>
 						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
@@ -581,7 +583,7 @@
 				</mx:HBox>
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" 
 					itemEditBeginning="verifyChartfieldEdit(event)" 
-					horizontalScrollPolicy="auto" >
+					horizontalScrollPolicy="auto">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
 			            <mx:DataGridColumn headerText="PO"  
