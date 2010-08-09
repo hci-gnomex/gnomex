@@ -734,7 +734,15 @@
 			if (selectedIdRequest != null) {
 				selectedExperiment = getRequestFromNav.lastResult.Request.(@idRequest == selectedIdRequest);			
 			} else {
-				selectedExperiment = getRequestFromNav.lastResult.Request.(@number == String(selectedRequestNumber).toUpperCase());
+				var selectedRequestNumberBase:String = String(selectedRequestNumber).toUpperCase();
+				var tokens:Array = String(selectedRequestNumber).toUpperCase().split("R");
+				if (tokens != null && tokens.length > 0) {
+					selectedRequestNumberBase = tokens[0] + "R";
+				}
+				
+				var reg:RegExp = new RegExp(selectedRequestNumberBase, "i");
+				selectedExperiment = getRequestFromNav.lastResult.Request.(reg["test"](@number));
+				selectedRequestNumber = selectedExperiment.@number.toString();
 			}
 				
 			var params:Object = new Object();
