@@ -6,6 +6,8 @@ GNomEx Release Notes
 - Show billing items for other periods in Billing window (when clicking on request from tree)
 - Moved 'internal pricing' and 'external pricing' radio buttons to Billing Account tab on Group detail window.
 - When looking up experiment by request number, find experiment regardless of revision number (proceeding 'R' in experiment number).
+- Show price criteria on Pricing tab of Billing window.
+- Put refresh button as last link button on right of top nav panel for billing, experiments for consistent UI layout
 
 4.8.5 patch (July 29, 2010)
 -------------------------

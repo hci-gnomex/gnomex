@@ -338,6 +338,10 @@
 	        [Bindable]
 	        [Embed(source="assets/pricesheet.png")]
 	        public var iconPriceSheet:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/attach.png")]
+	        public var iconPriceCriteria:Class;
 
 	        
 	        [Bindable]
