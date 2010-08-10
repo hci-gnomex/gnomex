@@ -26,11 +26,13 @@
     url="GetPricingList.gx"
     resultFormat="e4x"
     result="onGetPricingList(event)"
+    showBusyCursor="true"
     fault="parentApplication.onFailHttpRequest('Unable to get prices', event)"
     method="POST"
     useProxy="false">
     <mx:request>
     	<showInactive>{this.showInactivePricesCheckbox.selected ? "Y" : "N"}</showInactive>
+    	<showPriceCriteria>{this.showPriceCriteriaCheckbox.selected  ? "Y" : "N"}</showPriceCriteria>
     </mx:request>
     </mx:HTTPService > 
 
@@ -229,7 +231,7 @@
         private var grandTotalPrice:String = "";
         
         private var requestTabWidth:Number = 220;
-        private var priceTabWidth:Number = 400;
+        private var priceTabWidth:Number = 460;
         
         private var pricingNodeToSelect:String = null;
         private var pricingIdToSelect:Object = null;
@@ -366,7 +368,7 @@
 		public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Status" ){ 
 					return parentApplication.iconProject;
-				}else if (item.name() == "Request") {
+				} else if (item.name() == "Request") {
 					if (item.@codeRequestCategory == "SOLEXA") {
 						return parentApplication.iconSolexa;
 					} else if (item.@codeRequestCategory == "HISEQ") {
@@ -382,16 +384,18 @@
 					} else {
 						return parentApplication.iconFlask;
 					}
-				}else if (item.name() == "PriceSheet") {
+				} else if (item.name() == "PriceSheet") {
 				    return parentApplication.iconPriceSheet;
-				}else if (item.name() == "PriceCategory" ) {
+				} else if (item.name() == "PriceCategory" ) {
 					return parentApplication.iconBillingFolder;
 				} else if (item.name() == "Price" ) {
 					if (item.@isActive == "N") {
 						return parentApplication.iconBillingDisabled;
 					} else {
 						return parentApplication.iconBilling;
-					}
+					} 
+				} else if (item.name() == "PriceCriteria") {
+					return parentApplication.iconPriceCriteria;
 				} else if (item.name() == "Lab") {
 					return parentApplication.iconGroup;
 				} else {
@@ -1242,7 +1246,10 @@
 			if (pricingTree.selectedItem.name() == "Price") {
 				params.idPrice =     this.pricingTree.selectedItem.@idPrice;
 				this.getPrice.send(params);
-			} else if (pricingTree.selectedItem.name() == "PriceSheet") {
+			} else if (pricingTree.selectedItem.name() == "PriceCriteria") {
+				params.idPrice =     this.pricingTree.selectedItem.@idPrice;
+				this.getPrice.send(params);
+			}else if (pricingTree.selectedItem.name() == "PriceSheet") {
 				params.idPriceSheet =     this.pricingTree.selectedItem.@idPriceSheet;
 				this.getPriceSheet.send(params);
 			} else if (pricingTree.selectedItem.name() == "PriceCategory") {
@@ -1611,8 +1618,6 @@
  
 	    <mx:VBox width="100%" styleName="panelBox" horizontalGap="4" paddingTop="0" verticalGap="2" paddingRight="0" paddingLeft="0">
 	                    <mx:HBox backgroundSize="100%" width="100%" backgroundImage="@Embed(source='../../assets/filterBarNarrow.png')" verticalAlign="middle" paddingTop="4" paddingBottom="4" horizontalGap="2">
-	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
-	                                               click="refresh()" toolTip="Refresh"/>
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton label="Invoice" textDecoration="underline" icon="@Embed(source='../../assets/email_open.png')" click="showBillingInvoice()"/>
 	                                    <mx:VRule height="20"/>
@@ -1624,64 +1629,65 @@
 	                                    <mx:VRule height="20"/>
 	                                    <mx:LinkButton  id="usageReportButton" label="Lab Usage Report" textDecoration="underline" icon="@Embed(source='../../assets/page.png')" click="showBillingUsageWindow()"/>
 	                                    <mx:VRule height="20"/>
-	                                    <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"   paddingLeft="8">
-	                                    	<mx:Label id="requestNumberLabel" visible="true" text="Lookup by Experiment #" paddingBottom="0" styleName="labelSmall"/>
-	                                    	<mx:TextInput id="requestNumberText" width="60">
-	                                    	</mx:TextInput>			   	
-	                                    	<mx:Button id="lookupButton"  
-	                                    		height="18"
-	                                    		click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
-	                                     </mx:HBox>
+	                                    <mx:LinkButton textDecoration="underline" label="Refresh" icon="@Embed('../../assets/action_refresh.gif')" 
+	                                               click="refresh()" toolTip="Refresh"/>
                 	
                 	
                 </mx:HBox>
 
 	      <mx:HBox horizontalGap="8" verticalAlign="top">
+		    	<mx:Label text="Filter by:"/>
 		    	<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  >
-					<mx:Label text="Filter by:   " paddingLeft="4"/>
-					<mx:VBox verticalGap="0" paddingTop="0">
-					  <mx:HBox horizontalGap="0" verticalAlign="middle">
+					<mx:VBox verticalGap="0" paddingTop="0" paddingLeft="2">
 						<mx:Label id="billingPeriodLabel" visible="true" text="Period" paddingBottom="0"/>
 						<mx:ComboBox id="billingPeriodCombo" 
 							labelField="@display"
 							visible="true"  
-							change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()">
+							change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()" width="208">
 						</mx:ComboBox>
-					  </mx:HBox>
 						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()">
 							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
 						</mx:CheckBox>
 					</mx:VBox>
 		    	</mx:HBox>  
 
-			   <mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0"/>
+			   <mx:VBox horizontalGap="0" verticalAlign="middle" verticalGap="0">
+					<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" width="39"/>
 					<mx:ComboBox id="labCombo" 
 						labelField="@name"
 						dataProvider="{parentApplication.promptedLabList}"
 						visible="true"  width="160" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
 					</mx:ComboBox>
-			   </mx:HBox>
+			   </mx:VBox>
 
-		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="right" paddingRight="0">
+		    	<mx:VBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="left" paddingRight="0">
 					<mx:Label id="billingAccountLabel" visible="true" text="Account" paddingBottom="0"/>
-					<mx:HBox width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalAlign="top">
-						<mx:ComboBox id="billingAccountCombo" 
-							labelField="@accountNameDisplay"
-							 visible="true"  width="400" change="requestNumberText.text = &quot;&quot;;refresh()">
-						</mx:ComboBox>
-						<mx:VBox verticalGap="0" paddingBottom="0" paddingTop="0">
-							<mx:RadioButton label="Acct name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
-								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
-							</mx:RadioButton>
-							<mx:RadioButton label="Acct #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
-								<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
-							</mx:RadioButton>
-							
-						</mx:VBox>
+					<mx:ComboBox id="billingAccountCombo" 
+						labelField="@accountNameDisplay"
+						 visible="true"  width="400" change="requestNumberText.text = &quot;&quot;;refresh()">
+					</mx:ComboBox>
+					<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0">
+						<mx:RadioButton label="Acct name" styleName="labelSmall" selected="true" id="radioShowBillingAccountName" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+							<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
+						</mx:RadioButton>
+						<mx:RadioButton label="Acct #" styleName="labelSmall" id="radioShowBillingAccountNumber" paddingLeft="4" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
+							<mx:click>{radioShowBillingAccountName.selected ? billingAccountCombo.labelField = '@accountNameDisplay' : billingAccountCombo.labelField = '@accountNumberDisplay'}</mx:click>
+						</mx:RadioButton>
+						
 					</mx:HBox>
 			   	
-		    	</mx:HBox> 
+		    	</mx:VBox> 
+		    	<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left">
+						<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0" styleName="labelSmall"/>
+						<mx:HBox horizontalGap="0">
+							<mx:TextInput id="requestNumberText" width="60">
+							</mx:TextInput>			   	
+							<mx:Button id="lookupButton"  
+								height="18"
+								click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
+						</mx:HBox>
+				</mx:VBox>
+
 		   </mx:HBox> 	
 	    </mx:VBox>
 
@@ -1719,6 +1725,7 @@
         		
         		<mx:VBox id="priceTab" label="Prices" height="100%" verticalGap="0" width="100%" color="#000000">
 					<mx:HBox width="100%">
+						<mx:CheckBox label="Show price criteria" id="showPriceCriteriaCheckbox" click="{this.getPricingList.send()}"/>
 						<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}"/>
 						<mx:Spacer width="100%"/>
 						<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">

@@ -41,7 +41,8 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   // put any instance variables here (usually the DetailObjects used by this command)
   private DictionaryManager manager;
 
-  public String DICTIONARY_NAMES_XML = "applications/gnomex/Dictionaries.xml";
+  public static final String  DICTIONARY_NAMES_XML = "applications/gnomex/Dictionaries.xml";
+  
   public String SUCCESS_JSP = "/getXML.jsp";
   public String ERROR_JSP = "/message.jsp";
   

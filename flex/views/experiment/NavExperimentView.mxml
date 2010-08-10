@@ -1188,6 +1188,7 @@
 		    			<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    		</mx:CheckBox>
 		    	</mx:HBox> 
+		    	<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline"/>
 	    	
 	    </mx:HBox>
 	</mx:HBox>		
@@ -1250,7 +1251,6 @@
 							
 			  			</mx:VBox>
 						<mx:VBox verticalGap="0">
-						        <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline"/>
 						</mx:VBox>
 								
 					</mx:ControlBar> 

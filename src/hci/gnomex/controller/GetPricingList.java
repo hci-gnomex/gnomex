@@ -1,11 +1,13 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.security.SecurityAdvisor;
@@ -21,6 +23,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -29,6 +32,7 @@ import org.jdom.Element;
 public class GetPricingList extends GNomExCommand implements Serializable {
   
   private String showInactive = "N";
+  private String showPriceCriteria = "N";
   
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPricingList.class);
@@ -42,7 +46,11 @@ public class GetPricingList extends GNomExCommand implements Serializable {
     if (request.getParameter("showInactive") != null) {
       showInactive = request.getParameter("showInactive");
     }
-    
+
+    if (request.getParameter("showPriceCriteria") != null) {
+      showPriceCriteria = request.getParameter("showPriceCriteria");
+    }
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -59,9 +67,8 @@ public class GetPricingList extends GNomExCommand implements Serializable {
     
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
  
-         
-
-          
+          DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
+                  
           Document doc = new Document(new Element("Pricing"));
           
           List priceSheets = sess.createQuery("SELECT p from PriceSheet p order by p.name").list();
@@ -106,7 +113,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
                     Price price = (Price)i2.next();
                     
                     price.excludeMethodFromXML("getPriceCriterias");
-
+                    
                     // Exclude inactive prices unless requested otherwise.
                     if (showInactive.equals("N")) {
                       if (price.getIsActive() != null && price.getIsActive().equals("N")) {
@@ -119,7 +126,25 @@ public class GetPricingList extends GNomExCommand implements Serializable {
                     priceNode.setAttribute("codeBillingChargeKind", categoryNode.getAttributeValue("codeBillingChargeKind"));
                     categoryNode.addContent(priceNode);                                              
                       
-                   
+                    if (showPriceCriteria.equals("Y")) {
+                      for(Iterator i3 = price.getPriceCriterias().iterator(); i3.hasNext();) {
+                        PriceCriteria priceCriteria = (PriceCriteria)i3.next();
+                        
+                        Element priceCriteriaNode = priceCriteria.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+                        String label = "";
+                        if (priceCat.getDictionaryClassNameFilter1() != null && !priceCat.getDictionaryClassNameFilter1().equals("")) {
+                          label = dictionaryManager.getDisplayByValue(priceCat.getDictionaryClassNameFilter1(), priceCriteria.getFilter1());                        
+                        }
+                        if (priceCat.getDictionaryClassNameFilter1() != null && !priceCat.getDictionaryClassNameFilter1().equals("")) {
+                          label += " " + dictionaryManager.getDisplayByValue(priceCat.getDictionaryClassNameFilter2(), priceCriteria.getFilter2());
+                        }
+                        priceCriteriaNode.setAttribute("display", label);
+                        priceNode.addContent(priceCriteriaNode);
+                      }
+                      
+                    }
+                    
                   }
                 }
               }

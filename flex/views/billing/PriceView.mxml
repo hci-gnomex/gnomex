@@ -131,7 +131,7 @@
 	<mx:VBox width="100%"  verticalGap="0">
 			<mx:Label text="Price applies to:" paddingTop="4"/>
 			<mx:HBox>
-				<mx:LinkButton label="New criteria" id="newCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/criteria_add.png')" click="addPriceCriteria()"/>
+				<mx:LinkButton label="New criteria" id="newCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/attach_add.png')" click="addPriceCriteria()"/>
 				<mx:LinkButton label="Remove criteria" id="removeCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{criteriaGrid.selectedItem != null}" click="removePriceCriteria()"/>
 						
 			</mx:HBox>
