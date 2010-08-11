@@ -1,3 +1,12 @@
+body {
+      font-family: arial,Helvetica,sans-serif;
+      font-size: 9pt;
+      width: 960;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+ }
+
  table {
   width: 960;
 
@@ -18,18 +27,15 @@
  } 
  
   H3 {
-
-      font-family: Arial;
       font-size: 10pt;
       font-weight: bold;
       padding-top: 0;
       padding-right: 8;
       padding-bottom: 0;     
   }
-  
- caption{
+ 
 
-      font-family: Arial;
+ caption{
       font-size: 10pt;
       color: black;
       font-weight: bold;
@@ -41,8 +47,6 @@
 
 
   td.value {
-
-      font-family: Arial;
       font-size: 10pt;
       padding-top: 0;
       padding-bottom: 0;
@@ -50,8 +54,6 @@
   }
 
   td.label {
-
-      font-family: Arial;
       font-size: 9pt;
       font-weight: bold;
       padding-top: 0;
@@ -60,10 +62,7 @@
   }
   
   td.note {
-
-      font-family: Arial;
       font-size: 10pt;
-      
       padding-top: 4;
       padding-bottom: 0;
       padding-right: 8;
@@ -71,40 +70,28 @@
 
   }
   td.grid {
-
-      font-family: Arial;
       font-size: 9pt;
-      
       padding-top: 4;
       padding-bottom: 0;
       padding-right: 8;
       padding-left: 4;
-
   }
   
 
 
   td.gridright {
-
-      font-family: Arial;
       font-size: 9pt;
       text-align: RIGHT;
-
       padding-top: 4;
       padding-bottom: 0;
       padding-right: 8;
       padding-left: 4;
-
-
   }
   
 
   td.gridcenter {
-
-      font-family: Arial;
       font-size: 9pt;
       text-align: CENTER;
-
       padding-top: 4;
       padding-bottom: 0;
       padding-right: 8;
@@ -114,17 +101,13 @@
   }
 
   td.gridtotal {
-
-      font-family: Arial;
       font-size: 9pt;
       font-weight: bold;
       text-align: RIGHT;
-
       padding-top: 4;
       padding-bottom: 0;
       padding-right: 8;
       padding-left: 4;
-
       border-color: #CDCDC1;
       border-top: thin  solid;
       border-width: 1;
@@ -132,20 +115,15 @@
   }
 
   td.gridempty {
-      
-
-
       width: 150;
   }  
   
   td.gridemptysmall {
-
       border-color: #CDCDC1;
       width: 50;
   } 
 
   th {
-       font-family: Trebuchet MS;
        font-size: 9pt;
        font-weight: bold;
        text-decoration: underline;
@@ -163,7 +141,6 @@
    
    
    a {
-       font-family: Trebuchet MS;
        font-size: 9pt;
        text-align: left;
    }

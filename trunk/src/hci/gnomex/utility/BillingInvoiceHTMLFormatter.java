@@ -115,8 +115,8 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
-    table.setAttribute("CELLPADDING", "0");
-    table.setAttribute("CELLSPACING", "0");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
 
     Element rowh = new Element("TR");
     table.addContent(rowh);
