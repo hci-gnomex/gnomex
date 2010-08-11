@@ -86,15 +86,15 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     
     Element head = new Element("HEAD");
     root.addContent(head);
-    
+
+    Element title = new Element("TITLE");
+    title.addContent(getSubject());
+    head.addContent(title);
+
     Element style = new Element("style");
     style.setAttribute("type", "text/css");
     style.addContent(this.getCascadingStyleSheet());
     head.addContent(style);
-    
-    Element title = new Element("TITLE");
-    title.addContent(getSubject());
-    head.addContent(title);
     
     Element body = new Element("BODY");
     root.addContent(body);
