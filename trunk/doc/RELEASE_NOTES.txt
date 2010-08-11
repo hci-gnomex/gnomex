@@ -1,6 +1,15 @@
 GNomEx Release Notes
 
 
+4.8.7
+-------------------------
+- Show links on Price sheet tab of Billing window to jump to a particular price sheet.
+- Add checkbox 'Show Prices' to price sheet tab of Billing window.
+- Reformat filter box in Billing window nav area.
+- Fix email body for invoices to wor with Gmail HTML renderer.
+- Use DictionaryManager cache in DictionaryHelper rather than hibernate queries, reducing DictionaryHelper.loadDictionaries from 2 seconds to < millisecond.
+
+
 4.8.6 (Aug 9, 2010)
 -------------------------
 - Show billing items for other periods in Billing window (when clicking on request from tree)
