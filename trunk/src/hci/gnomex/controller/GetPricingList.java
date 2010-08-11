@@ -32,6 +32,7 @@ import org.jdom.Element;
 public class GetPricingList extends GNomExCommand implements Serializable {
   
   private String showInactive = "N";
+  private String showPrices = "Y";
   private String showPriceCriteria = "N";
   
   // the static field for logging in Log4J
@@ -45,6 +46,10 @@ public class GetPricingList extends GNomExCommand implements Serializable {
 
     if (request.getParameter("showInactive") != null) {
       showInactive = request.getParameter("showInactive");
+    }
+
+    if (request.getParameter("showPrices") != null) {
+      showPrices = request.getParameter("showPrices");
     }
 
     if (request.getParameter("showPriceCriteria") != null) {
@@ -108,7 +113,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
                 
                 Set prices = priceCat.getPrices();
                 
-                if (prices != null) {
+                if (prices != null && showPrices.equals("Y")) {
                   for(Iterator i2 = prices.iterator(); i2.hasNext();) {
                     Price price = (Price)i2.next();
                     
