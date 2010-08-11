@@ -1,7 +1,10 @@
 package hci.gnomex.lucene;
 
+import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
@@ -57,6 +60,10 @@ public class BuildSearchIndex extends DetailObject {
   private String gnomex_db_password;
   
   
+  private Map propertyMap;
+  private Map dictionaryMap;
+  
+  
   private Map projectRequestMap;
   private Map projectAnnotationMap;
   private Map analysisGroupMap;
@@ -66,7 +73,7 @@ public class BuildSearchIndex extends DetailObject {
   private Map protocolMap;
   private Map analysisFileCommentsMap;
   
-  private DictionaryHelper dh = null;
+  
   
 
   private static final String          KEY_DELIM = "&-&-&";
@@ -132,14 +139,50 @@ public class BuildSearchIndex extends DetailObject {
   }
   
   private void init() throws Exception {
-    // Get dictionaries
-    dh = DictionaryHelper.getInstance(sess);
+
+    // Get system properties
+    propertyMap = new HashMap();
+    List props = sess.createQuery("SELECT p from Property as p").list();
+    for(Iterator i = props.iterator(); i.hasNext();) {
+      Property p = (Property)i.next();
+      propertyMap.put(p.getPropertyName(), p.getPropertyValue());
+    }
+
+    // Cache dictionary value-to-display
+    dictionaryMap = new HashMap();
+    cacheDictionary("hci.gnomex.model.SampleType", "SampleType");
+    cacheDictionary("hci.gnomex.model.Organism", "Organism");
+    cacheDictionary("hci.gnomex.model.RequestCategory", "RequestCategory");
+    cacheDictionary("hci.gnomex.model.Application", "Application");
+    cacheDictionary("hci.gnomex.model.AnalysisType", "AnalysisType");
+    cacheDictionary("hci.gnomex.model.AnalysisProtocol", "AnalysisProtocol");
     
+  }
+  
+  private void cacheDictionary(String className, String objectName) {
+    List entries = sess.createQuery("SELECT de from " + objectName + " as de ").list();
+    for(Iterator i = entries.iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      dictionaryMap.put(className + "-" + de.getValue(), de.getDisplay());
+    }
+  }
+  
+  private String getDictionaryDisplay(String className, String value) {
+    String display =  (String)dictionaryMap.get(className + "-" + value);
+    if (display == null) {
+      return "";
+    } else {
+      return display;
+    }
+  }
+  
+  private String getProperty(String name) {
+    return (String)propertyMap.get(name);
   }
   
   private void buildExperimentIndex() throws Exception{
 
-    IndexWriter experimentIndexWriter = new IndexWriter(dh.getProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY), new StandardAnalyzer(), true);
+    IndexWriter experimentIndexWriter = new IndexWriter(getProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY), new StandardAnalyzer(), true);
 
     // Get basic project/request data
     getProjectRequestData(sess);
@@ -172,7 +215,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildProtocolIndex() throws Exception{
 
-    IndexWriter protocolIndexWriter   = new IndexWriter(dh.getProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
+    IndexWriter protocolIndexWriter   = new IndexWriter(getProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
 
     // Get basic protocol data
     getProtocolData(sess);
@@ -198,7 +241,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildAnalysisIndex() throws Exception{
 
-    IndexWriter analysisIndexWriter   = new IndexWriter(dh.getProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
+    IndexWriter analysisIndexWriter   = new IndexWriter(getProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
 
     // Get analysis data
     getAnalysisData(sess);
@@ -256,7 +299,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '', ");
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate, ");
-    buf.append("       s1.idSampleType ");
+    buf.append("       s1.idSampleType, ");
+    buf.append("       slideProd.name ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -319,7 +363,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '', ");
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate, ");
-    buf.append("       s1.idSampleType ");
+    buf.append("       s1.idSampleType, ");
+    buf.append("       '' ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -670,8 +715,8 @@ public class BuildSearchIndex extends DetailObject {
       }      
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
-      sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
-      sampleTypes.append(     idSampleType != null ? dh.getSampleType(idSampleType) + " " : "");
+      sampleOrganisms.append(   idOrganism != null    ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) + " " : "");
+      sampleTypes.append(     idSampleType != null    ? getDictionaryDisplay("hci.gnomex.model.SampleType", idSampleType.toString()) + " " : "");
 
       // sample 2
       sampleName      = (String) row[10];
@@ -683,7 +728,7 @@ public class BuildSearchIndex extends DetailObject {
       
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
-      sampleOrganisms.append(   idOrganism != null    ? dh.getOrganism(idOrganism) + " " : "");
+      sampleOrganisms.append(   idOrganism != null    ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) + " " : "");
       
       // more request data
       idSlideProduct           = row[14] instanceof Integer ? (Integer)row[14] : null;
@@ -700,11 +745,11 @@ public class BuildSearchIndex extends DetailObject {
       requestOwnerLastName     = (String) row[25];      
       requestCodeVisibility    = (String) row[27];
       requestCreateDate        = (java.sql.Date) row[28];
+      slideProduct             = (String) row[30];
       
-      slideProduct             = idSlideProduct != null ? dh.getSlideProductName(idSlideProduct) : null;
-      slideProductOrganism     = idOrganismSlideProduct != null ? dh.getOrganism(idOrganismSlideProduct) : null;
-      requestCategory          = dh.getRequestCategory(codeRequestCategory);
-      application       = dh.getApplication(codeApplication);
+      slideProductOrganism     = idOrganismSlideProduct != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganismSlideProduct.toString()) : null;
+      requestCategory          = getDictionaryDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
+      application              = getDictionaryDisplay("hci.gnomex.model.Application", codeApplication);
       if (requestCodeVisibility != null && requestCodeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC)) {
         requestPublicNote = "(Public) ";
       }
@@ -727,7 +772,7 @@ public class BuildSearchIndex extends DetailObject {
         requestDisplayName.append(requestNumber);
         if (codeApplication != null && !codeApplication.equals("")) {
           requestDisplayName.append(" - ");
-          requestDisplayName.append(this.dh.getApplication(codeApplication));                
+          requestDisplayName.append(getDictionaryDisplay("hci.gnomex.model.Application", codeApplication));                
         }
         requestDisplayName.append(" - ");
         requestDisplayName.append(requestOwnerFirstName);
@@ -972,11 +1017,11 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NAME, name);
     indexedFieldMap.put(AnalysisIndexHelper.DESCRIPTION, desc);
     indexedFieldMap.put(AnalysisIndexHelper.ID_ORGANISM, idOrganism);
-    indexedFieldMap.put(AnalysisIndexHelper.ORGANISM, idOrganism != null ? dh.getOrganism(idOrganism) : "");
+    indexedFieldMap.put(AnalysisIndexHelper.ORGANISM, idOrganism != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_TYPE, idAnalysisType);
-    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_TYPE, idAnalysisType != null ? dh.getAnalysisType(idAnalysisType) : "");
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_TYPE, idAnalysisType != null ? getDictionaryDisplay("hci.gnomex.model.AnalysisType", idAnalysisType.toString()) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, idAnalysisProtocol);
-    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? dh.getAnalysisProtocol(idAnalysisProtocol) : "");
+    indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? getDictionaryDisplay("hci.gnomex.model.AnalysisProtocol", idAnalysisProtocol.toString()) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");

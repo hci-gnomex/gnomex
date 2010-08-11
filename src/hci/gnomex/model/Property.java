@@ -57,7 +57,7 @@ public class Property extends DictionaryEntry implements Serializable {
   }
  
   public String getDisplay() {
-    return getPropertyName();
+    return getPropertyValue();
   }
 
   

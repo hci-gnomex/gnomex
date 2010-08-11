@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -172,7 +173,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Element stParentNode = new Element("SeqLibTreatmentEntries");
           requestNode.addContent(stParentNode);
           for(Iterator i1 = dh.getSeqLibTreatments().iterator(); i1.hasNext();) {
-            SeqLibTreatment st = (SeqLibTreatment)i1.next();
+            Object de = i1.next();
+            if (de instanceof NullDictionaryEntry) {
+              continue;
+            }
+            SeqLibTreatment st = (SeqLibTreatment)de;
             
             if (st.getIsActive() != null && st.getIsActive().equalsIgnoreCase("N")) {
               continue;
