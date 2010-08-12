@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
+import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Property;
@@ -26,6 +27,7 @@ import org.hibernate.Session;
 public class DictionaryHelper implements Serializable {
   private static DictionaryHelper theInstance;
   
+  private Map              propertyMap = new HashMap();
   private Map              requestCategoryMap = new HashMap();
   private Map              oligoBarcodeMap = new HashMap();
   private Map              submissionInstructionMap = new HashMap();
@@ -40,7 +42,7 @@ public class DictionaryHelper implements Serializable {
   public static synchronized DictionaryHelper getInstance(Session sess) {
     if (theInstance == null) {
       theInstance = new DictionaryHelper();
-      theInstance.loadDictionaries(sess);      
+      theInstance.loadDictionaries(sess);
     }
     return theInstance;
     
@@ -54,8 +56,19 @@ public class DictionaryHelper implements Serializable {
   }
   
   
-  private void loadDictionaries(Session sess) {
-    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
+  private void loadDictionaries(Session sess)  {
+    if (!ManageDictionaries.isLoaded) {
+      theInstance = null;
+      throw new RuntimeException("Please run ManagerDictionaries command first");
+    }
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.Property").iterator(); i.hasNext();) {
+      Object de = i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      Property prop = (Property)de;
+      propertyMap.put(prop.getPropertyName(), prop.getPropertyValue());
+    }    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
@@ -341,7 +354,7 @@ public class DictionaryHelper implements Serializable {
   public String getProperty(String name) {
     String propertyValue = "";
     if (name != null && !name.equals("")) {
-      return DictionaryManager.getDisplay("hci.gnomex.model.Property", name);
+      return (String)propertyMap.get(name);
     } else {
       return "";
     }
