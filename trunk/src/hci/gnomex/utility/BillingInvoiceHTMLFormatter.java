@@ -240,6 +240,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
   private void addRightAlignCell(Element row, String value) {
     Element cell = new Element("TD");
+    
+    // for consistent rendering in different email apps
+    cell.setAttribute("ALIGN", "RIGHT");
+    
     cell.setAttribute("CLASS", "gridright");      
     cell.addContent(value);
     row.addContent(cell);
@@ -247,6 +251,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   
   private void addTotalCell(Element row, String value) {
     Element cell = new Element("TD");
+    
+    // for consistent rendering in different email apps
+    cell.setAttribute("ALIGN", "RIGHT");
+    
     cell.setAttribute("CLASS", "gridtotal");      
     cell.addContent(value);
     row.addContent(cell);
@@ -291,12 +299,21 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   }
   
   private void addHeaderCell(Element row, String header, String clazzName) {
+
     addHeaderCell(row, header, clazzName, null);
   }
   
   
   private void addHeaderCell(Element row, String header, String clazzName, Integer width) {
-    Element cell = new Element("TH");    
+    Element cell = new Element("TH");  
+    
+    // for consistent rendering in different email apps
+    if (clazzName.equals("right")) {
+      cell.setAttribute("ALIGN", "RIGHT");      
+    } else {
+      cell.setAttribute("ALIGN", "LEFT");
+    }
+    
     if (clazzName != null) {
       cell.setAttribute("CLASS", clazzName);
     }
