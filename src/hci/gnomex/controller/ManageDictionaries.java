@@ -37,6 +37,8 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ManageDictionaries.class);
+  
+  public static boolean isLoaded = false;
 
   // put any instance variables here (usually the DetailObjects used by this command)
   private DictionaryManager manager;
@@ -125,6 +127,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     	if (action != null && action.equals(manager.RELOAD_CACHE)) {
         DictionaryHelper.reload(HibernateSession.currentSession(this.username));
     	}
+    	isLoaded = true;
 
 		} catch (Exception e) {
 			String msg = e.getMessage();
