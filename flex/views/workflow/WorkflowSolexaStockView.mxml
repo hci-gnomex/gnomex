@@ -164,11 +164,6 @@
         	return keep;
         }
         
-		public function lookupUserName(item:Object, col:DataGridColumn):String 
-    	{ 
-    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
-    	}  
-    	
 
         ]]>
     </mx:Script> 

@@ -46,8 +46,7 @@ package views.renderers
 		        if (data == null) {
 		          	return;
 		        }
-		        var slideProduct:Object = parentApplication.getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == data.@idSlideDesign).parent().parent();
-					if (slideProduct.@arraysPerSlide == "" || slideProduct.@arraysPerSlide == "1") {
+				if (data.@arraysPerSlide == "" || data.@arraysPerSlide == "1") {
 					this.enabled = false;
 				} else {
 					this.enabled = true;

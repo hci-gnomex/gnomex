@@ -131,8 +131,34 @@
     	<idLab>{this.labCombo.selectedItem.@idLab}</idLab>
     </mx:request>
    </mx:HTTPService>
+   
+    <mx:HTTPService 
+    id="getSlideProductList" 
+    url="GetSlideProductList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetSlideProductList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to slide product list', event)"
+    destination="getSlideProductList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+          
+    <mx:HTTPService 
+    id="getSlideDesignList" 
+    url="GetSlideDesignList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetSlideDesignList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to slide design list', event)"
+    destination="getSlideDesignList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
 
-  
 	<mx:Script>
 		<![CDATA[
 		import mx.events.PropertyChangeEvent;
@@ -151,6 +177,7 @@
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		import mx.events.ValidationResultEvent;
+        import views.util.PromptXMLListCollection;
         
         
 		[Bindable]
@@ -204,6 +231,8 @@
 		public var filteredSlideProductList:XMLListCollection;
 		[Bindable]
 		public var filteredProjectList:XMLListCollection;
+		[Bindable]
+		public var slideDesignList:XMLListCollection;
 
         [Bindable]
         private var appUsers:XMLListCollection;
@@ -262,12 +291,6 @@
 			}
 			
 			
-	        // Clear out the form
-	        if (parentApplication.theViews.selectedChild == this) {
-    	    	this.setupSubmitForm();
-        	} else if (this.id == "editView" && request != null) {
-        		this.setupTheEditForm();
-        	} 
 
 		}
 
@@ -276,6 +299,10 @@
 		}
 				
 		private function initializeData():void {
+			
+			getSlideProductList.send();
+			
+			getSlideDesignList.send();
 
 			samplePrepMethodList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod'));
         	var dictionarySorter:Sort = new Sort();
@@ -326,9 +353,6 @@
         	filteredAppListSorter.compareFunction = this.sortApplication;
         	filteredAppList.sort = filteredAppListSorter;
         
-			filteredSlideProductList = new XMLListCollection(parentApplication.getSlideProductList.lastResult.SlideProduct);
-	        filteredSlideProductList.filterFunction = filterSlideProduct;
-	        
 	        filteredProjectList = new XMLListCollection(parentApplication.getProjectList.lastResult.Project);
 	        filteredProjectList.filterFunction = filterProject;
 
@@ -353,10 +377,7 @@
 		private function initFilters():void {
 	        this.filteredProjectList.filterFunction = this.filterProject;
 	        this.filteredProjectList.refresh();
-			
-			filteredSlideProductList.filterFunction = filterSlideProduct;
-			filteredSlideProductList.refresh();
-			
+						
 
 			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
 			samplePrepMethodList.refresh();
@@ -1720,7 +1741,7 @@
 			if (isMicroarrayState()) {
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
-				var theSlideProduct:Object = parentApplication.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
+				var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
 				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', theSlideProduct.@idOrganism);
 
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
@@ -2572,6 +2593,40 @@
 				
 			}			
 
+		}
+
+        private function onGetSlideDesignList(event:ResultEvent):void {
+        	var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
+        	slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
+        	
+       		checkToSetupEditForm(); 
+
+        }
+        
+        private function onGetSlideProductList(event:ResultEvent):void {
+        	var emptyNode:XML = <SlideProduct idSlideProduct='' name='' label=''/>;
+        	
+        	filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
+        	filteredSlideProductList.addItemAt(emptyNode, 0);
+
+	        filteredSlideProductList.filterFunction = filterSlideProduct;
+	        filteredSlideProductList.refresh();
+	        
+	        checkToSetupEditForm();
+        }		
+		
+		private function checkToSetupEditForm():void {
+			// Clear out the form
+	        // Need to call these methods AFTER
+	        // getslideproductlist, getslidedesignlist finished.
+	        // tricky b/c we don't have to call it every time
+			if (getSlideProductList.lastResult != null && this.getSlideDesignList != null) {
+		        if (parentApplication.theViews.selectedChild == this) {
+	    	    	this.setupSubmitForm();
+	        	} else if (this.id == "editView" && request != null) {
+	        		this.setupTheEditForm();
+	        	}	
+			}
 		}
 		
 		private function setAmendState():void {

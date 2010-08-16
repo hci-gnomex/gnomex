@@ -9,6 +9,20 @@
 	creationPolicy="all" show="init()" 
 	width="100%" height="100%" icon="@Embed('../../assets/magnifier.png')">
 
+    <mx:HTTPService 
+    id="getSlideProductList" 
+    url="GetSlideProductList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetSlideProductList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to slide product list', event)"
+    destination="getSlideProductList"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+
     
 	<mx:Script>
     <![CDATA[ 
@@ -29,17 +43,40 @@
         [Bindable]
         public var simpleSearchText:String = null;
         
+        [Bindable] 
+		public var filteredSlideProductList:XMLListCollection;
+		
+		private var isInitialized:Boolean = false;
+
+        
 		public function checkDirty():void {
 		}
 		
 		public function init():void {
 			this.searchView.checkSecurity();
-			this.searchView.initializeData();
-			
+			this.getSlideProductList.send();
+		}
+		
+		// Perform initialization after slide product list is returned
+		private function initImpl():void {
+            if (!isInitialized) {
+				this.searchView.initializeData();
+			}
 			if (simpleSearchText != null) {
 				performSimpleSearch(simpleSearchText);
 			}
+			isInitialized = true;
 		}
+		
+        private function onGetSlideProductList(event:ResultEvent):void {
+        	var emptyNode:XML = <SlideProduct idSlideProduct='' name='' label=''/>;
+        	
+        	filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
+        	filteredSlideProductList.addItemAt(emptyNode, 0);
+            
+            // Delay initialization until after slide product list is returned.
+			initImpl();
+        }		
 		
 		public function performSimpleSearch(searchText:String): void {
 			var params:Object = new Object();

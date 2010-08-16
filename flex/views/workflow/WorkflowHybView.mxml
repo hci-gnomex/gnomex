@@ -81,16 +81,7 @@
         	} else {
         		return "";
         	}
-        }
-        
-		private function getSlideDesignName(item:Object, col:int):String {
-			var de:XMLList = parentApplication.getSlideProductList.lastResult.SlideProduct..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
-	    	if (de.length() == 1) {
-		    	return de[0].@name;
-	    	} else {
-	    		return "";
-	    	}
-		}            
+        }       
                 
         public function onEdit():void {
         	workList.filterFunction = null;
@@ -170,10 +161,7 @@
         	}        	
         	return keep;
         }
- 		public function lookupUserName(item:Object, col:DataGridColumn):String 
-    	{ 
-    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
-    	} 
+
 		private function getHybProtocol(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.HybProtocol", item.@idHybProtocol);
@@ -209,8 +197,8 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""  width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Hyb #" width="9" dataField="@hybNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@idAppUser" labelFunction="lookupUserName"/>
-					<mx:DataGridColumn headerText="Slide" width="22" labelFunction="getSlideDesignName"/>
+					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@appUserName"/>
+					<mx:DataGridColumn headerText="Slide" width="22" dataField="@slideDesignName"/>
 					<mx:DataGridColumn headerText="Slide Barcode" width="13" dataField="@slideBarcode"/>
 					<mx:DataGridColumn headerText="Coord"  width="7" dataField="@arrayCoordinate" 
 	                   editorDataField="value"

@@ -194,7 +194,9 @@
 			checkSecurity();
 
 			if (!isInitialized) {
-				this.getAnalysisLabList.send();				
+				if (!parentApplication.isGuestMode()) {
+					this.getAnalysisLabList.send();				
+				}
 			}
 			
 			// Only initialize analysis if the user clicked on

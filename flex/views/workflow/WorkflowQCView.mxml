@@ -224,10 +224,6 @@
         	return keep;
         }
         
-      	public function lookupUserName(item:Object, col:DataGridColumn):String 
-    	{ 
-    		return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
-    	}
 
            
 
@@ -253,7 +249,7 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
+					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@appUserName" />
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration">
 						<mx:headerRenderer > 
 						<mx:Component>
