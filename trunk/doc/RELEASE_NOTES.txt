@@ -8,7 +8,7 @@ GNomEx Release Notes
 - Reformat filter box in Billing window nav area.
 - Fix email body for invoices to work with Gmail HTML renderer.
 - Use DictionaryManager cache in DictionaryHelper rather than hibernate queries, reducing DictionaryHelper.loadDictionaries from 2 seconds to < millisecond.
-- Improved app startup performance by waiting to run queries to get slides and app user list until needed.  Also, improved performace of lab list by lazing loading billing accounts.
+- Improved app startup performance by waiting to run queries to get slides and app user list until needed.  Also, improved performace of lab list by lazing loading billing accounts. (reduced startup on test server from 18 to 7 seconds)
 - Fixed bug that was causing vendor, lab, billing class, etc. dropdowns to clear out after switching from Slides to some other window.
 - Don't show account number or submission instructions on printable request form when guest is logged into GNomEx.
 - On home page, rename 'Show My Experiments' to 'Show Experiments' when guest is logged into GNomEx.  
