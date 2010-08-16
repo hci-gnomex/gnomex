@@ -1222,7 +1222,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     introNote.append("<br><br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), samples, hybs, sequenceLanes, introNote.toString());
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), samples, hybs, sequenceLanes, introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;

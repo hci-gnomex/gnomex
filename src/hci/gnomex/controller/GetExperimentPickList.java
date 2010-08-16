@@ -252,16 +252,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     itemNode.setAttribute("analysisInstructions",     row[20] == null ? ""  : (String)row[20]);
     itemNode.setAttribute("flowCellChannelNumber",    row[21] == null ? ""  : ((Integer)row[21]).toString());
     itemNode.setAttribute("flowCellNumber",           row[22] == null ? ""  : (String)row[22]);
-
     
-    
-    
-    
-    Integer idSlideDesign = (Integer)row[11];
-    if (idSlideDesign != null && idSlideDesign.intValue() != -1) {
-      String slideDesignName = (String)this.slideDesignMap.get(idSlideDesign);
-      itemNode.setAttribute("slideDesign", slideDesignName);      
-    }
     
     Integer idNumberSequencingCycles = (Integer)row[12];
     if (idNumberSequencingCycles.intValue() != -1) {
@@ -327,6 +318,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     } else {
       itemNode.setAttribute("type", "Hybridization");
       itemNode.setAttribute("idHybridization", ((Integer)row[23]).toString());
+      itemNode.setAttribute("slideDesignName", row[24] == null ? ""  : (String)row[24]);
     }
     
     

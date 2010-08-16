@@ -43,7 +43,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     labFilter = new LabFilter();
     HashMap errors = this.loadDetailObject(request, labFilter);
     this.addInvalidFields(errors);
@@ -90,7 +90,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
       
       for(Iterator i = labs.iterator(); i.hasNext();) {
         Lab lab = (Lab)i.next();
-        
+       
         if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
           lab.canSubmitRequests(true);
         } else {
@@ -135,10 +135,8 @@ public class GetLabList extends GNomExCommand implements Serializable {
           lab.excludeMethodFromXML("getCollaborators");
           lab.excludeMethodFromXML("getManagers");
 
-          // Don't show billing accounts if the user can't submit requests
-          if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
-            lab.excludeMethodFromXML("getBillingAccounts");
-          }
+          lab.excludeMethodFromXML("getBillingAccounts");
+          
           doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
         }
       }
