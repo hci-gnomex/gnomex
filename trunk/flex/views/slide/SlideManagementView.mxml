@@ -150,9 +150,28 @@
 		[Bindable]
         [Embed(source="../../assets/images_disable.png")]
         public var iconSlideSetInActive:Class;
+        
+        private var isInitialized:Boolean = false;
 		
 		private function init():void {
-			initializeData();
+			if (!isInitialized) {
+				initializeData();
+			}
+			isInitialized = true;
+			
+			// Reselect the previously selected tree node b/c
+			// the dictionaries have refreshed and we have
+			// lost the dropdown selections.
+			var params:Object;
+			if (fullSlideDesign != null) {
+				params = new Object();
+				params.idSlideDesign= fullSlideDesign.@idSlideDesign;
+				callGetSlideDesign(params);
+			} else if (fullSlideProduct != null) {
+				params = new Object();
+				params.idSlideProduct = fullSlideProduct.@idSlideProduct;
+				callGetSlideProduct(params);
+			}
 		}
 		
 		public function checkDirty():void {
@@ -164,7 +183,19 @@
           
         public function refreshDictionaries():void {
 			parentApplication.dictionaryManager.reload("hci.gnomex.model.SlideDesign");
-			parentApplication.getSlideProductList.send();
+			
+			// If the 'experiments' window has already been initialized, refresh the
+			// slide product and slide design list.
+			if (parentApplication.navExperimentView != null && parentApplication.navExperimentView.editView != null) {
+				parentApplication.navExperimentView.editView.getSlideProductList.send();
+				parentApplication.navExperimentView.editView.getSlideDesignList.send();
+			} else if (parentApplication.submitRequestView != null) {
+				// If the 'submit requests' window has already been initialized and we
+				// haven't instantiated the 'experiments' window yet, go ahead and refresh
+				// the slide product and slide design list this way (on ExperimentEditView).
+				parentApplication.submitRequestView.getSlideProductList.send();
+				parentApplication.submitRequestView.getSlideDesignList.send();
+			}
         }
 		
 		public function resultHandler(event:ResultEvent):void {
