@@ -16,6 +16,7 @@
 				<mx:RemoveChild target="{text1}"/>
 				<mx:RemoveChild target="{hbox1}"/>
 				<mx:RemoveChild target="{hbox3}"/>
+				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
 			</mx:State>
 			<mx:State name="AdminState">
 				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
