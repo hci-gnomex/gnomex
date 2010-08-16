@@ -117,7 +117,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             billingAccount = (BillingAccount)sess.get(BillingAccount.class, request.getIdBillingAccount());
           }
           
-          RequestHTMLFormatter formatter = new RequestHTMLFormatter(request, appUser, billingAccount, dictionaryHelper);
+          RequestHTMLFormatter formatter = new RequestHTMLFormatter(this.getSecAdvisor(), request, appUser, billingAccount, dictionaryHelper);
           
           if (this.getSecAdvisor().canRead(request)) {
             
@@ -254,21 +254,26 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             
                        
-            String instructions = this.getInstructions();
-            if (instructions != null) {
-              
+            // Append the submission instructions to the printabe form
+            // for non-guest users.
+            String instructions = "";
+            if (!this.getSecAdvisor().isGuest()) {
+              instructions = this.getInstructions();
+              if (instructions != null) {
+                
 
-              Element instructDiv = new Element("DIV");
-              instructDiv.setAttribute("id", "containerInstruction");
-              outerDiv.addContent(instructDiv);
+                Element instructDiv = new Element("DIV");
+                instructDiv.setAttribute("id", "containerInstruction");
+                outerDiv.addContent(instructDiv);
 
-              instructDiv.addContent(new Element("BR"));
-              formatter.makePageBreak(instructDiv);
-              
-              instructDiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
-              // Convert degree and micro symbols to html escape codes
-              instructions = instructions.replaceAll("\\xB0", "&#176;");
-              instructions = instructions.replaceAll("\\xB5", "&#181;");              
+                instructDiv.addContent(new Element("BR"));
+                formatter.makePageBreak(instructDiv);
+                
+                instructDiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
+                // Convert degree and micro symbols to html escape codes
+                instructions = instructions.replaceAll("\\xB0", "&#176;");
+                instructions = instructions.replaceAll("\\xB5", "&#181;");              
+              }              
             }
           
             XMLOutputter out = new org.jdom.output.XMLOutputter();

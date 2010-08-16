@@ -123,6 +123,19 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
         n.setAttribute("hasResults", row[18] == null ? "" : (String)row[18]);
         n.setAttribute("ownerFirstName", row[20] == null ? "" : (String)row[20]);
         n.setAttribute("ownerLastName", row[21] == null ? "" : (String)row[21]);
+        
+        String appUserName = "";
+        if (row[21] != null) {
+          appUserName = (String)row[21];
+        }
+        if (row[20] != null) {
+          if (appUserName.length() > 0) {
+            appUserName += ", ";            
+          }
+          appUserName += (String)row[20];
+        }
+        n.setAttribute("appUserName", appUserName);
+
         doc.getRootElement().addContent(n);
         
         prevRequestNumber = requestNumber;

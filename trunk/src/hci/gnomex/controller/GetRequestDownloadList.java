@@ -257,6 +257,18 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
         n.setAttribute("ownerFirstName", row[28] == null ? "" :  (String)row[28]);
         n.setAttribute("ownerLastName",  row[29] == null ? "" :  (String)row[29]);
+        
+        String appUserName = "";
+        if (row[29] != null) {
+          appUserName = (String)row[29];
+        }
+        if (row[28] != null) {
+          if (appUserName.length() > 0) {
+            appUserName += ", ";            
+          }
+          appUserName += (String)row[28];
+        }
+        n.setAttribute("appUserName", appUserName);
 
         String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String)row[30];
         

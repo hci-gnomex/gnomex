@@ -23,6 +23,7 @@ public class Hybridization extends HibernateDetailObject {
   private Date            extractionDate;
   private String          codeSlideSource;
   private Integer         idSlideDesign;
+  private SlideDesign     slideDesign;
   private Integer         idLabeledSampleChannel1;
   private Integer         idLabeledSampleChannel2;
   private LabeledSample   labeledSampleChannel1;
@@ -502,8 +503,25 @@ public class Hybridization extends HibernateDetailObject {
     } else {
       return "";
     }
+  }
+
+  
+  public SlideDesign getSlideDesign() {
+    return slideDesign;
+  }
+
+  
+  public void setSlideDesign(SlideDesign slideDesign) {
+    this.slideDesign = slideDesign;
   } 
 
+  public String getSlideDesignName() {
+    if (this.getSlideDesign() != null) {
+      return this.getSlideDesign().getName();
+    } else {
+      return "";
+    }
+  }
     
 
 }

@@ -43,7 +43,8 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        '', ");
     queryBuf.append("        -1, ");
     queryBuf.append("        '', ");
-    queryBuf.append("        hyb.idHybridization ");
+    queryBuf.append("        hyb.idHybridization, ");
+    queryBuf.append("        slideDesign.name ");
     getMicroarrayQueryBody(queryBuf);
     
     queryBuf.append(" ORDER BY project.name, req.number, hyb.number ");
@@ -63,6 +64,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
     queryBuf.append(" LEFT JOIN      hyb.labeledSampleChannel2 as ls2 ");
     queryBuf.append(" LEFT JOIN      ls2.sample as s2 ");
+    queryBuf.append(" LEFT JOIN      hyb.slideDesign as slideDesign ");
 
 
     addRequestCriteria();

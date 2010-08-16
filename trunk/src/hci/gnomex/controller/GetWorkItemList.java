@@ -127,20 +127,20 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
-            Integer idLabel         = row[17] == null || row[17].equals("") ? null : (Integer)row[17];
-            Integer idLabeledSample = row[19] == null || row[19].equals("") ? null : (Integer)row[19];
+            Integer idLabel         = row[17] == null || row[19].equals("") ? null : (Integer)row[19];
+            Integer idLabeledSample = row[19] == null || row[21].equals("") ? null : (Integer)row[21];
             key = requestNumber + "," + sampleNumber + "," + idLabel  + "," + idLabeledSample;
           } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
                       filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
-            FlowCell fc = (FlowCell)row[14];
-            FlowCellChannel ch = (FlowCellChannel)row[15];
+            FlowCell fc = (FlowCell)row[16];
+            FlowCellChannel ch = (FlowCellChannel)row[17];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
-            FlowCell fc = (FlowCell)row[14];
-            FlowCellChannel ch = (FlowCellChannel)row[15];
+            FlowCell fc = (FlowCell)row[16];
+            FlowCellChannel ch = (FlowCellChannel)row[17];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
@@ -203,7 +203,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
               filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
-            FlowCell fc = (FlowCell)row[14];
+            FlowCell fc = (FlowCell)row[16];
             flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
               alt = !alt;
@@ -211,7 +211,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) || 
                       filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
-            FlowCell fc = (FlowCell)row[14];
+            FlowCell fc = (FlowCell)row[16];
             flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
               alt = !alt;
@@ -250,24 +250,36 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("hybNumber",              row[12] == null ? "" :  (String)row[12]);
           }
           n.setAttribute("workItemCreateDate",     row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
+          
+          String appUserName = "";
+          if (row[14] != null) {
+            appUserName = (String)row[14];
+          }
+          if (row[15] != null) {
+            if (appUserName.length() > 0) {
+              appUserName += ", ";
+            }
+            appUserName += (String)row[15];
+          }
+          n.setAttribute("appUserName",            appUserName);
           n.setAttribute("isDirty","N");
           
           
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC) ||
               filter.getCodeStepNext().equals(Step.HISEQ_QC)) {
-            n.setAttribute("qualDate",                   row[14] == null ? "" :  this.formatDate((java.sql.Date)row[14]));
-            n.setAttribute("qualCompleted",              row[14] == null ? "N" : "Y");
-            n.setAttribute("qualFailed",                 row[15] == null ? "" :  (String)row[15]);
-            n.setAttribute("qual260nmTo280nmRatio",      row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("qual260nmTo230nmRatio",      row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
-            n.setAttribute("qualCalcConcentration",      row[18] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[18]));
-            n.setAttribute("qual28sTo18sRibosomalRatio", row[19] == null ? "" :  ((BigDecimal)row[19]).toString());
-            n.setAttribute("qualRINNumber",              row[20] == null ? "" :  ((String)row[20]));
-            n.setAttribute("qualBypassed",               row[21] == null ? "" :  (String)row[21]);
-            n.setAttribute("qualCodeBioanalyzerChipType",row[22] == null ? "" :  (String)row[22]);
-            n.setAttribute("qualFragmentSizeFrom",       row[23] == null ? "" :  ((Integer)row[23]).toString());
-            n.setAttribute("qualFragmentSizeTo",         row[24] == null ? "" :  ((Integer)row[24]).toString());
+            n.setAttribute("qualDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+            n.setAttribute("qualCompleted",              row[16] == null ? "N" : "Y");
+            n.setAttribute("qualFailed",                 row[17] == null ? "" :  (String)row[17]);
+            n.setAttribute("qual260nmTo280nmRatio",      row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+            n.setAttribute("qual260nmTo230nmRatio",      row[19] == null ? "" :  ((BigDecimal)row[19]).toString());
+            n.setAttribute("qualCalcConcentration",      row[20] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[20]));
+            n.setAttribute("qual28sTo18sRibosomalRatio", row[21] == null ? "" :  ((BigDecimal)row[21]).toString());
+            n.setAttribute("qualRINNumber",              row[22] == null ? "" :  ((String)row[22]));
+            n.setAttribute("qualBypassed",               row[23] == null ? "" :  (String)row[23]);
+            n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
+            n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
+            n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
             
             String qualStatus = "";
             if (n.getAttributeValue("qualCompleted").equals("Y")) {
@@ -282,16 +294,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("qualStatus", qualStatus);
             
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
-            n.setAttribute("labelingDate",               row[14] == null ? "" :  this.formatDate((java.sql.Date)row[14]));
-            n.setAttribute("labelingCompleted",          row[14] == null ? "N" : "Y");
-            n.setAttribute("labelingFailed",             row[15] == null ? "" :  (String)row[15]).toString();
-            n.setAttribute("labelingYield",              row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("idLabel",                    row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("idLabelingProtocol",         row[18] == null ? "" :  ((Integer)row[18]).toString());
-            n.setAttribute("idLabeledSample",            row[19] == null ? "" :  ((Integer)row[19]).toString());
-            n.setAttribute("codeLabelingReactionSize",   row[20] == null ? "" :  (String)row[20]);
-            n.setAttribute("numberOfReactions",          row[21] == null ? "" :  ((Integer)row[21]).toString());
-            n.setAttribute("labelingBypassed",           row[22] == null ? "" :  (String)row[22]);
+            n.setAttribute("labelingDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+            n.setAttribute("labelingCompleted",          row[16] == null ? "N" : "Y");
+            n.setAttribute("labelingFailed",             row[17] == null ? "" :  (String)row[15]).toString();
+            n.setAttribute("labelingYield",              row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+            n.setAttribute("idLabel",                    row[19] == null ? "" :  ((Integer)row[19]).toString());
+            n.setAttribute("idLabelingProtocol",         row[20] == null ? "" :  ((Integer)row[20]).toString());
+            n.setAttribute("idLabeledSample",            row[21] == null ? "" :  ((Integer)row[21]).toString());
+            n.setAttribute("codeLabelingReactionSize",   row[22] == null ? "" :  (String)row[22]);
+            n.setAttribute("numberOfReactions",          row[23] == null ? "" :  ((Integer)row[23]).toString());
+            n.setAttribute("labelingBypassed",           row[24] == null ? "" :  (String)row[24]);
             
             String labelingStatus = "";
             if (n.getAttributeValue("labelingCompleted").equals("Y")) {
@@ -307,16 +319,18 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("labelingStatus", labelingStatus);
             
           } else if (filter.getCodeStepNext().equals(Step.HYB_STEP)) {
-            n.setAttribute("hybDate",                   row[14] == null ? "" :  this.formatDate((java.sql.Date)row[14]));
-            n.setAttribute("hybCompleted",              row[14] == null ? "N" : "Y");
-            n.setAttribute("hybFailed",                 row[15] == null ? "" :  (String)row[15]);
-            n.setAttribute("idHybProtocol",             row[16] == null ? "" :  ((Integer)row[16]).toString());
-            n.setAttribute("idSlide",                   row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("slideBarcode",              row[18] == null ? "" :  (String)row[18]);
-            n.setAttribute("idSlideDesign",             row[19] == null ? "" :  ((Integer)row[19]).toString());
-            n.setAttribute("idArrayCoordinate",         row[20] == null ? "" :  ((Integer)row[20]).toString());
-            n.setAttribute("arrayCoordinate",           row[21] == null ? "" :  (String)row[21]);
-            n.setAttribute("hybBypassed",               row[22] == null ? "" :  (String)row[22]);
+            n.setAttribute("hybDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+            n.setAttribute("hybCompleted",              row[16] == null ? "N" : "Y");
+            n.setAttribute("hybFailed",                 row[17] == null ? "" :  (String)row[17]);
+            n.setAttribute("idHybProtocol",             row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("idSlide",                   row[19] == null ? "" :  ((Integer)row[19]).toString());
+            n.setAttribute("slideBarcode",              row[20] == null ? "" :  (String)row[20]);
+            n.setAttribute("idSlideDesign",             row[21] == null ? "" :  ((Integer)row[21]).toString());
+            n.setAttribute("idArrayCoordinate",         row[22] == null ? "" :  ((Integer)row[22]).toString());
+            n.setAttribute("arrayCoordinate",           row[23] == null ? "" :  (String)row[23]);
+            n.setAttribute("hybBypassed",               row[24] == null ? "" :  (String)row[24]);
+            n.setAttribute("slideDesignName",           row[25] == null ? "" :  (String)row[25]);
+            n.setAttribute("arraysPerSlide",            row[26] == null ? "" :  ((Integer)row[26]).toString());
 
             String hybStatus = "";
             if (n.getAttributeValue("hybCompleted").equals("Y")) {
@@ -332,12 +346,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("hybStatus", hybStatus);
 
           } else if (filter.getCodeStepNext().equals(Step.SCAN_EXTRACTION_STEP)) {
-            n.setAttribute("extractionDate",               row[14] == null ? "" :  this.formatDate((java.sql.Date)row[14]));
-            n.setAttribute("extractionCompleted",          row[14] == null ? "N" : "Y");
-            n.setAttribute("idScanProtocol",               row[15] == null ? "" :  ((Integer)row[15]).toString());
-            n.setAttribute("idFeatureExtractionProtocol",  row[16] == null ? "" :  ((Integer)row[16]).toString());
-            n.setAttribute("extractionFailed",             row[17] == null ? "" :  (String)row[17]);
-            n.setAttribute("extractionBypassed",           row[18] == null ? "" :  (String)row[18]);
+            n.setAttribute("extractionDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+            n.setAttribute("extractionCompleted",          row[16] == null ? "N" : "Y");
+            n.setAttribute("idScanProtocol",               row[17] == null ? "" :  ((Integer)row[17]).toString());
+            n.setAttribute("idFeatureExtractionProtocol",  row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("extractionFailed",             row[19] == null ? "" :  (String)row[19]);
+            n.setAttribute("extractionBypassed",           row[20] == null ? "" :  (String)row[20]);
             
 
             String extractionStatus = "";
@@ -353,19 +367,19 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("extractionStatus", extractionStatus);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_PREP)) {
-            n.setAttribute("idSeqLibProtocol",                  row[14] == null ? "" :  ((Integer)row[14]).toString());
-            n.setAttribute("seqPrepByCore",                     row[15] == null ? "" :  (String)row[15]);
-            n.setAttribute("seqPrepLibConcentration",           row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[17] == null ? "" :  (String)row[17]);
-            n.setAttribute("seqPrepGelFragmentSizeFrom",        row[18] == null ? "" :  ((Integer)row[18]).toString());
-            n.setAttribute("seqPrepGelFragmentSizeTo",          row[19] == null ? "" :  ((Integer)row[19]).toString());
-            n.setAttribute("seqPrepDate",                       row[20] == null ? "" :  this.formatDate((java.sql.Date)row[20]));
-            n.setAttribute("seqPrepFailed",                     row[21] == null ? "" :  (String)row[21]);
-            n.setAttribute("seqPrepBypassed",                   row[22] == null ? "" :  (String)row[22]);
-            n.setAttribute("idSampleType",                      row[23] == null ? "" :  ((Integer)row[23]).toString());
+            n.setAttribute("idSeqLibProtocol",                  row[16] == null ? "" :  ((Integer)row[16]).toString());
+            n.setAttribute("seqPrepByCore",                     row[17] == null ? "" :  (String)row[17]);
+            n.setAttribute("seqPrepLibConcentration",           row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+            n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[19] == null ? "" :  (String)row[19]);
+            n.setAttribute("seqPrepGelFragmentSizeFrom",        row[20] == null ? "" :  ((Integer)row[20]).toString());
+            n.setAttribute("seqPrepGelFragmentSizeTo",          row[21] == null ? "" :  ((Integer)row[21]).toString());
+            n.setAttribute("seqPrepDate",                       row[22] == null ? "" :  this.formatDate((java.sql.Date)row[22]));
+            n.setAttribute("seqPrepFailed",                     row[23] == null ? "" :  (String)row[23]);
+            n.setAttribute("seqPrepBypassed",                   row[24] == null ? "" :  (String)row[24]);
+            n.setAttribute("idSampleType",                      row[25] == null ? "" :  ((Integer)row[25]).toString());
             // Fill in the seq lib protocol with the default specified in dictionary
             // SampleTypeApplication.
-            String codeApplication = (String)row[24];
+            String codeApplication = (String)row[26];
             if (codeApplication != null) {
               Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
               if (n.getAttributeValue("seqPrepByCore").equals("Y") && 
@@ -388,11 +402,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("seqPrepStatus", seqPrepStatus);
           
           }   else if (filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
-            n.setAttribute("seqPrepStockLibVol",         row[14] == null ? "" :  ((BigDecimal)row[14]).toString());
-            n.setAttribute("seqPrepStockEBVol",          row[15] == null ? "" :  ((BigDecimal)row[15]).toString());
-            n.setAttribute("seqPrepStockDate",           row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-            n.setAttribute("seqPrepStockFailed",         row[17] == null ? "" :  (String)row[17]);
-            n.setAttribute("seqPrepStockBypassed",       row[18] == null ? "" :  (String)row[18]);
+            n.setAttribute("seqPrepStockLibVol",         row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
+            n.setAttribute("seqPrepStockEBVol",          row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
+            n.setAttribute("seqPrepStockDate",           row[18] == null ? "" :  this.formatDate((java.sql.Date)row[18]));
+            n.setAttribute("seqPrepStockFailed",         row[19] == null ? "" :  (String)row[19]);
+            n.setAttribute("seqPrepStockBypassed",       row[20] == null ? "" :  (String)row[20]);
 
             String seqPrepStockStatus = "";
             if (!n.getAttributeValue("seqPrepStockDate").equals("")) {
@@ -408,18 +422,18 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
-            n.setAttribute("idSequenceLane",               row[14] == null ? "" :  ((Integer)row[14]).toString());
-            n.setAttribute("idSeqRunType",                 row[15] == null ? "" :  ((Integer)row[15]).toString());
-            n.setAttribute("idOrganism",                   row[16] == null ? "" :  ((Integer)row[16]).toString());
-            n.setAttribute("idNumberSequencingCycles",     row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("idOligoBarcode",               row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
+            n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
+            n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
+            n.setAttribute("idNumberSequencingCycles",     row[19] == null ? "" :  ((Integer)row[19]).toString());
+            n.setAttribute("idOligoBarcode",               row[20] == null ? "" :  ((Integer)row[20]).toString());
             n.setAttribute("isControl",                    "false");            
             n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
             
             
             
             Integer idSample = (Integer)row[9];
-            Integer idSequenceLane = (Integer)row[14];
+            Integer idSequenceLane = (Integer)row[16];
             
             StringBuffer infoBuf = new StringBuffer();
             List infoList = (List)relatedFlowCellInfoMap.get(idSample);
@@ -443,8 +457,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
                        filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
             
            
-            FlowCell fc = (FlowCell)row[14];
-            FlowCellChannel ch = (FlowCellChannel)row[15];
+            FlowCell fc = (FlowCell)row[16];
+            FlowCellChannel ch = (FlowCellChannel)row[17];
             
             n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
             n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
@@ -492,8 +506,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE)) {
 
-            FlowCell fc = (FlowCell)row[14];
-            FlowCellChannel ch = (FlowCellChannel)row[15];
+            FlowCell fc = (FlowCell)row[16];
+            FlowCellChannel ch = (FlowCellChannel)row[17];
            
             n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
             n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());

@@ -194,7 +194,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + ".");
     introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
         
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
