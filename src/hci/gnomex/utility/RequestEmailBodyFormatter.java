@@ -6,6 +6,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SeqLibTreatment;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
 
 import java.io.BufferedReader;
@@ -23,6 +24,7 @@ import org.jdom.output.XMLOutputter;
 
 public class RequestEmailBodyFormatter extends DetailObject{
   
+  private SecurityAdvisor  secAdvisor;
   private Request          request;
   private Set              samples;
   private Set              hybs;
@@ -40,7 +42,8 @@ public class RequestEmailBodyFormatter extends DetailObject{
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public RequestEmailBodyFormatter(Session sess, String appURL, DictionaryHelper dictionaryHelper, Request request, String amendState, Set samples, Set hybs, Set lanes, String introNote) {
+  public RequestEmailBodyFormatter(Session sess, SecurityAdvisor secAdvisor, String appURL, DictionaryHelper dictionaryHelper, Request request, String amendState, Set samples, Set hybs, Set lanes, String introNote) {
+    this.secAdvisor = secAdvisor;
     this.request = request;
     this.samples = samples;
     this.hybs = hybs;
@@ -66,7 +69,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
   public String format() {
 
     
-    RequestHTMLFormatter formatter = new RequestHTMLFormatter(request, appUser, billingAccount, dictionaryHelper);
+    RequestHTMLFormatter formatter = new RequestHTMLFormatter(this.secAdvisor, request, appUser, billingAccount, dictionaryHelper);
     formatter.setIncludeMicroarrayCoreNotes(includeMicroarrayCoreNotes);
     
     Element root = new Element("HTML");
@@ -101,7 +104,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
   
   
   public String formatQualityControl() {
-    RequestHTMLFormatter formatter = new RequestHTMLFormatter(request, appUser, billingAccount, dictionaryHelper);
+    RequestHTMLFormatter formatter = new RequestHTMLFormatter(this.secAdvisor, request, appUser, billingAccount, dictionaryHelper);
     
     Element root = new Element("HTML");
     Document doc = new Document(root);

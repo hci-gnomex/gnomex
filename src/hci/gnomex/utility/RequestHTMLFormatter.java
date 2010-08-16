@@ -14,6 +14,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.SlideSource;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import org.jdom.output.XMLOutputter;
 
 public class RequestHTMLFormatter {
   
+  private SecurityAdvisor  secAdvisor;
   private Request          request;
   private AppUser          appUser;
   private BillingAccount   billingAccount;
@@ -38,7 +40,8 @@ public class RequestHTMLFormatter {
   private boolean         includeMicroarrayCoreNotes = true;
   private boolean         dnaSamples = false;
   
- public RequestHTMLFormatter(Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper) {
+ public RequestHTMLFormatter(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper) {
+   this.secAdvisor = secAdvisor;
    this.request = request;
    this.appUser = appUser;
    this.billingAccount = billingAccount;
@@ -115,7 +118,11 @@ public class RequestHTMLFormatter {
     }
     String accountNumber = "";
     if (billingAccount != null) {
-      accountNumber = billingAccount.getAccountNumber();
+      if (!this.secAdvisor.isGuest()) {
+        // Don't show the account number if the user logged in as guest
+        accountNumber = billingAccount.getAccountNumber();
+          accountNumber = billingAccount.getAccountNumber();
+      }
     }
     String labName = "";
     if (request.getLab() != null) {
