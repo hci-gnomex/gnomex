@@ -74,10 +74,7 @@
     		return "";
     	}
 	}
-    public function lookupUserName(item:Object, col:DataGridColumn):String 
-    { 
-    	return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
-    }
+
     
  ]]>
  </mx:Script>
@@ -108,7 +105,7 @@
 			            </mx:DataGridColumn> 
 				       	<mx:DataGridColumn headerText="Date"              width="15" dataField="@createDate"/>
 			            <mx:DataGridColumn headerText="Request Kind"      width="24" labelFunction="getRequestKind"/>
-				        <mx:DataGridColumn headerText="Requester"         width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
+				        <mx:DataGridColumn headerText="Requester"         width="20" dataField="@appUserName"/>
 				       	<mx:DataGridColumn headerText="Hyb #"             width="10" dataField="@hybNumber"/>
 				       	<mx:DataGridColumn headerText="Cy3 Sample"        width="25" dataField="@nameSample1"  />
 			            <mx:DataGridColumn width="7" headerText="QC" >
@@ -194,7 +191,7 @@
 			                </mx:itemRenderer>
 			            </mx:DataGridColumn> 
 				       	<mx:DataGridColumn headerText="Date"              width="15" dataField="@createDate"/>
-				        <mx:DataGridColumn headerText="Requester"         width="20" dataField="@idAppUser" labelFunction="lookupUserName"/>
+				        <mx:DataGridColumn headerText="Requester"         width="20" dataField="@idAppUser"/>
 				       	<mx:DataGridColumn headerText="Sample #"          width="15" dataField="@sampleNumber"/>
 				       	<mx:DataGridColumn headerText="Sample Name"       width="22" dataField="@sampleName"  />
 			            <mx:DataGridColumn width="7" headerText="QC" >

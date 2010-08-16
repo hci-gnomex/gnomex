@@ -47,19 +47,7 @@
     </mx:request>
     </mx:HTTPService > 
     
-    
-    <mx:HTTPService 
-    id="getAppUserList" 
-    url="GetAppUserList.gx"
-    resultFormat="e4x"
-    result="onGetAppUserList(event)"
-    destination="getAppUserList"
-	fault="onFailHttpRequest('Failed to get user list', event)"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
+   
     
 
     <mx:HTTPService 
@@ -103,32 +91,6 @@
     </mx:request>
     </mx:HTTPService >
     
-    <mx:HTTPService 
-    id="getSlideProductList" 
-    url="GetSlideProductList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetSlideProductList(event)"
-	fault="onFailHttpRequest('Failed to slide product list', event)"
-    destination="getSlideProductList"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-    
-        
-    <mx:HTTPService 
-    id="getSlideDesignList" 
-    url="GetSlideDesignList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetSlideDesignList(event)"
-	fault="onFailHttpRequest('Failed to slide design list', event)"
-    destination="getSlideDesignList"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
     
     <mx:HTTPService 
     id="getProjectList" 
@@ -375,12 +337,6 @@
 			public var promptedSubmitRequestLabList:PromptXMLListCollection;
 			[Bindable]
 			public var manageLabList:XMLListCollection;
-			[Bindable]
-			public var promptedAppUserList:PromptXMLListCollection;
-			[Bindable] 
-			public var filteredSlideProductList:XMLListCollection;
-			[Bindable]
-			public var slideDesignList:XMLListCollection;
 
 			private var properties:Object;
 
@@ -671,19 +627,7 @@
             }
             
                    
-            public function getUserName(item:Object, col:int):String 
-            { 
-	        	var userName:String = "";
-	        	var appUserList:XMLList = getAppUserList.lastResult.AppUser;     			
-	        	for(var i:Number = 0; i < appUserList.length(); i++) {
-	            	if(appUserList[i].@idAppUser == item.@idAppUser) {
-	                	userName = getAppUserList.lastResult.AppUser[i].@displayName;
-	                    break;
-	             	} 
-	             } 
-	             return userName;
-       	 
-            }
+
             public function getLabName(item:Object, col:int):String 
             {  
 	        	var labName:String = "";
@@ -788,7 +732,7 @@
             	}
 			    
 			    this.appProgressBar.currentState = "LoadingState";
-			    this.showProgress(10);
+			    this.showProgress(30);
 			    
 			    userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 			    version = createSecurityAdvisor.lastResult.@version;
@@ -798,21 +742,17 @@
 			    dictionaryManager.call("load", "");
 			    
 				
-            	getAppUserList.send();
             	getExperimentDesignList.send();
             	getExperimentFactorList.send();
             	getLabList.send();
-            	getSlideProductList.send();
-            	getSlideDesignList.send();
             	getProjectList.send();
 
-			    this.showProgress(10);
 				
             }
             
             private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
 			    this.appProgressBar.currentState = "LoadingState";
-            	this.showProgress(10);
+            	this.showProgress(30);
 
             	if (!(getSecurityAdvisorForGuest.lastResult is XML) ||
             	    getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
@@ -827,11 +767,9 @@
 			    dictionaryManager.call("load", "");
 
 
-            	getAppUserList.send(); 
             	getExperimentDesignList.send();
             	getExperimentFactorList.send();
             	getLabList.send();
-            	getSlideProductList.send();
             	getProjectList.send();
             	
             	showProgress(20);
@@ -847,8 +785,8 @@
             	}
             	pricingURL = getProperty(PROPERTY_PRICING_URL);
             	
+	        	showProgress(40);
 	        	enableApp();
-	        	showProgress(10);
             }
             
             public function getProperty(name:String):String {
@@ -856,15 +794,6 @@
             		return "";
             	}
             	return properties[name];
-            }
-            
-
-            
-            private function onGetAppUserList(event:ResultEvent):void {
-	        	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
-	        	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser));
-	        	showProgress(10);
-	        	enableApp();
             }
             
             private function showProgress(interval:uint):void {
@@ -887,30 +816,11 @@
 	        	submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
 	        	promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 	        	manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
-	        	showProgress(10);
+	        	showProgress(30);
 	        	enableApp();
 	        }		
             
-            private function onGetSlideProductList(event:ResultEvent):void {
-	        	var emptyNode:XML = <SlideProduct idSlideProduct='' name='' label=''/>;
-	        	
-	        	filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
-	        	filteredSlideProductList.addItemAt(emptyNode, 0);
-	        	
-	        	showProgress(10);
-
-	        	enableApp();
-	            
-	        }		
 	        
-            private function onGetSlideDesignList(event:ResultEvent):void {
-	        	var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
-	        	slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
-	        	
-	        	showProgress(10);
-	        	enableApp();
-            }
-            
             private function onGetProjectList(event:ResultEvent):void {
 	        	
 	       	    showProgress(10);
@@ -929,20 +839,13 @@
 	        	if (dictionaryManager != null &&
 	        	    dictionaryManager.xml != null &&
 	        	    manageLabList != null &&
-	        	    promptedAppUserList != null &&
-	        	    promptedLabList != null &&
-	        	    filteredSlideProductList != null) {
+	        	    promptedLabList != null ) {
 	        	    
-	        	    // We only need the slide design for non-guest users,
-	        	    // i.e. users that can submit requests	
-	        	    if (this.isGuestMode() || slideDesignList != null) {
-						appProgressBar.bar.setProgress(100, 100);
+	        	    
+					appProgressBar.bar.setProgress(100, 100);
 
-		        	    PopUpManager.removePopUp(appProgressBar);
-	    	    	    currentState = "enabledState"; 
-	        	    	
-	        	    }
-	        	    	
+		        	PopUpManager.removePopUp(appProgressBar);
+	    	    	currentState = "enabledState"; 
 	        	} 
 	        	
 	        }
@@ -1022,14 +925,7 @@
 			}
 		}
 		
-        public function lookupSlideDesignName(item:Object, col:DataGridColumn):String {
-        	var sd:Object = getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
-        	if (sd != null) {
-        		return sd.@name;
-        	} else {
-        		return "";
-        	}
-        }
+
             
         public function onFailHttpRequest(title:String, event:FaultEvent):void {
         	if (event.message.body is String) {

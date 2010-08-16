@@ -35,8 +35,6 @@
 		[Bindable]
 		private var seqLibTreatments:String;
 		[Bindable]
-		private var billingAccountName:String;
-		[Bindable]
 		private var visibilityName:String;
 		
 		[Bindable]
@@ -87,7 +85,6 @@
 			getRequestCategoryName();
 			getExperimentCategoryName();
 			getSeqLibTreatments();
-			getBillingAccountName();
 			getVisibilityName();
 			callLater(showHideColumns);
 			this.addNonStandardSampleColumns();
@@ -170,21 +167,7 @@
 				experimentCategoryName = experimentCategory.@display.toString();
 			}
 		}
-		private function getBillingAccountName():void {
-			var billingAccount:Object = null;
-			for each(var lab:Object in parentApplication.promptedSubmitRequestLabList) {
-				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
-					if (ba.@idBillingAccount == this.selectedExperiment.@idBillingAccount) {
-						billingAccount = ba;
-						break;
-					}
-						
-				}
-			}
-			if (billingAccount != null) {
-				billingAccountName = billingAccount.@accountName;
-			}
-		}
+
 		private function getSeqLibTreatments():void {
 			seqLibTreatments = "";
 			for each(var item:Object in this.selectedExperiment.seqLibTreatments.SeqLibTreatment) {
@@ -418,14 +401,7 @@
        		}
         	
         }
-        public function lookupSlideDesignName(item:Object, col:DataGridColumn):String {
-        	var sd:Object = parentApplication.getSlideProductList.lastResult..SlideDesign.(@idSlideDesign == item.@idSlideDesign);
-        	if (sd != null) {
-        		return sd.@name;
-        	} else {
-        		return "";
-        	}
-        }
+
         
         
         private function showProtocol(idProtocol:Object, protocolClassName:String):void {
@@ -497,7 +473,7 @@
 			        	
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 			                <mx:Label text="Account"  width="55" fontWeight="bold"/>
-			                <mx:Text text="{billingAccountName}" width="100%" />
+			                <mx:Text text="{this.selectedExperiment.@billingAccountName}" width="100%" />
 			            </mx:HBox>
 			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 			                <mx:Label text="Visibility"  width="55" fontWeight="bold"/>
@@ -768,7 +744,7 @@
 						<mx:DataGridColumn visible="{showExtFieldsCheckBox.selected}" headerText="Ext Status" width="90" dataField="@extractionStatus"/>
 					     
 					     
-					     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" labelFunction="lookupSlideDesignName" />
+					     <mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" dataField="@slideDesignName" />
 					     <mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"   
 					                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>                 											
 						<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>

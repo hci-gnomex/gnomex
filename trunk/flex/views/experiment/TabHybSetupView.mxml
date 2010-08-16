@@ -229,7 +229,7 @@
 				var slideDesign:Object = this.getDefaultSlideDesign();
 				arrayCoordinates = new XMLListCollection();
 				if (slideDesign != null) {
-					for each(var sd:Object in parentApplication.slideDesignList) {
+					for each(var sd:Object in parentDocument.slideDesignList) {
 					  if (sd.@idSlideDesign == slideDesign.@idSlideDesign) {
 					  	for each(var coords:Object in sd.children()) {
 					  		if (coords.name() == "arrayCoordinates") {

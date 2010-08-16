@@ -291,6 +291,7 @@
 			    	" sampleNumber1 ='" + item.@sampleNumber1 + "'" +
 			    	" sampleNumber2 ='" + item.@sampleNumber2 + "'" +
 			    	" slideDesign ='" + item.@slideDesign + "'" +
+			    	" slideDesignName ='" + item.@slideDesignName + "'" +
 			    	" idSlideDesign ='" + item.@idSlideDesign + "'" +
 					"/>");
 				// Sample names may have special characters.  Assign this
@@ -826,6 +827,7 @@
 				getExperimentPickList.send();
 			}
 		}
+		
 
 	]]>
 </mx:Script>
@@ -1019,7 +1021,7 @@
 					     		    <mx:DataGridColumn editable="false" headerText="ID"  width="60" dataField="@sampleNumber1"/>
 					     		    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" dataField="@sampleName2"/>
 					     		    <mx:DataGridColumn editable="false" headerText="ID"  width="60" dataField="@sampleNumber2"/>
-					     		    <mx:DataGridColumn headerText="Slide" width="320" labelFunction="parentApplication.lookupSlideDesignName"  />
+					     		    <mx:DataGridColumn headerText="Slide" width="320" dataField="@slideDesignName"  />
 					     		</mx:columns>
 					     	</mx:DataGrid>
 					     	

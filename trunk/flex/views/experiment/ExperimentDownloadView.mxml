@@ -299,10 +299,7 @@
 			fileGrid.selectedItem.@isSelected = "true";
 		}
 	}
-    public function lookupUserName(item:Object, col:DataGridColumn):String 
-    { 
-    	return parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == item.@idAppUser).@displayName;
-    }
+
  	public static function getEstimatedCompressedSize(item:Object):Number {
  		var compressionRatio:Number = 1; 
  		if (item.@type == 'fep') {
@@ -409,7 +406,7 @@
 			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@itemNumber"/>
 			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
 			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
-			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@idAppUser" labelFunction="lookupUserName"/>
+			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@appUserName"/>
 			       	<mx:DataGridColumn headerText="Sample 1" width="50" dataField="@nameSample1"/>
 			       	<mx:DataGridColumn headerText="Sample 2" width="50" dataField="@nameSample2"/>
 		         </util:columns>

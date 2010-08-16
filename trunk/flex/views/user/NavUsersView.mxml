@@ -130,6 +130,8 @@
 		  import mx.events.CollectionEventKind;
           import mx.events.PropertyChangeEvent;
           import mx.events.CollectionEvent;
+          import views.util.PromptXMLListCollection;
+
         
           [Bindable]
           public var selectedUser:Object;
@@ -139,9 +141,18 @@
           public var fullUser:Object;
           [Bindable]
           public var fullLab:Object;
+          
+          // List for the nav area.  It is filtered when the user
+          // types in part of the user name.
           [Bindable]
           public var filteredAppGroupXML:XMLList;
+          
+          // Non-filtered user list used for group detail, group manage
+          // window's dropdowns of users.
           [Bindable]
+		  public var promptedAppUserList:PromptXMLListCollection;
+		  
+		  [Bindable]
 		  private var groupsToManage:XMLListCollection;
 		  
 		  public var itemToSelect:Object = null;
@@ -166,8 +177,13 @@
           
           public function initializeData():void
           {
+          	
+          	// Get the list of users to be filtered
           	callGetAppUserList();
+          	
+          	// Get the list of all labs
           	callGetLabList();
+          	
           	this.groupDetailView.initializeData();
           }
 
@@ -392,6 +408,10 @@
               
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
+              
+              var emptyNode:XML = <Lab idLab='' name='' label=''/>;
+              promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser));			
+
               if (itemToSelect != null) {
 	              var item:Object = getAppUserList.lastResult.AppUser.(@idAppUser == itemToSelect.@id);
     	          if (item !== null && item is XMLList) {
@@ -441,7 +461,7 @@
           }
           private function onDeleteAppUser(event:ResultEvent):void {          	
           	if (deleteAppUser.lastResult.name() == "SUCCESS") {          		
-			  parentApplication.getAppUserList.send();
+			  getAppUserList.send();
               refreshAppUserList();
               detailViews.selectedChild = this.userEmptyView;              
             } else {

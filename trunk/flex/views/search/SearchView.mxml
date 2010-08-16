@@ -76,9 +76,9 @@
 
 
        public function initializeData():void {
-       	parentApplication.filteredSlideProductList.filterFunction = filterSlideProduct;
-       	parentApplication.filteredSlideProductList.refresh();
-       	microarrayCombo.dataProvider = parentApplication.filteredSlideProductList;
+       	parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
+       	parentDocument.filteredSlideProductList.refresh();
+       	microarrayCombo.dataProvider = parentDocument.filteredSlideProductList;
        	
        	applicationCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application');
        	organismCombo.dataProvider               = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Organism');
@@ -198,7 +198,7 @@
 			this.searchOrganismOnSampleCheck.selected = false;
 			this.searchOrganismOnSlideProductCheck.selected = false;
 			
-			parentApplication.filteredSlideProductList.refresh();
+			parentDocument.filteredSlideProductList.refresh();
 			
 			for each (var item:Object in parentApplication.experimentDesignList) {
 				item.@isSelected = "false";
@@ -304,7 +304,7 @@
               <mx:ComboBox id="labCombo"  
               	labelField="@name" dataProvider="{parentApplication.promptedLabList}" 
                width="200"
-               change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
+               change="parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0">
               	</mx:ComboBox>
               	
             </mx:HBox>
@@ -314,7 +314,7 @@
                		<mx:ComboBox 
                			id="organismCombo"  labelField="@display"  
                		width="200" 
-               		change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
+               		change="parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
                		</mx:ComboBox>
                		<mx:HBox>
                   		<mx:CheckBox id="searchOrganismOnSlideProductCheck" label="Microarray"  selected="false" click="scopeSearch()"/>
@@ -327,7 +327,7 @@
              <mx:Label text="Experiment Category:" textAlign="left" width="190" id="label4"/>
              <mx:ComboBox id="requestCategoryCombo"  labelField="@display" 
              	 width="200">
-              <mx:change>parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()</mx:change>
+              <mx:change>parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()</mx:change>
              </mx:ComboBox>
             </mx:HBox>
             <mx:HBox>
@@ -340,7 +340,7 @@
             <mx:HBox>
              <mx:Label text="Experiment Application:" textAlign="left" width="190" id="label8"/>
              <mx:ComboBox id="applicationCombo"  labelField="@display" 
-             	 width="200" change="parentApplication.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
+             	 width="200" change="parentDocument.filteredSlideProductList.refresh();microarrayCombo.selectedIndex=0;scopeSearch()">
              </mx:ComboBox>
             </mx:HBox>
             <mx:HBox width="100%">

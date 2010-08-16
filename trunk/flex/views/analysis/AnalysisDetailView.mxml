@@ -240,7 +240,7 @@
 								    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel1SampleNumber"/>
 								    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="getChannel2SampleName"/>
 								    <mx:DataGridColumn editable="false" headerText="ID"  width="60" labelFunction="getChannel2SampleNumber"/>
-								    <mx:DataGridColumn headerText="Slide" width="320" />
+								    <mx:DataGridColumn headerText="Slide" width="320" dataField="@slideDesignName"/>
 									<mx:DataGridColumn headerText="Notes" width="100"   dataField="@notes"/>
 								</mx:columns>
 							</mx:DataGrid>
