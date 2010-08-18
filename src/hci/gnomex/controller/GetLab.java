@@ -62,6 +62,12 @@ public class GetLab extends GNomExCommand implements Serializable {
     
     Lab theLab = (Lab)sess.get(Lab.class, lab.getIdLab());
     
+    // We want the billing accounts to show up if the user is authorized to submit
+    // requests for this lab
+    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
+      Hibernate.initialize(theLab.getBillingAccounts());
+    }
+    
     
     theLab.excludeMethodFromXML("getIsMyLab");
     theLab.excludeMethodFromXML("getCanSubmitRequests");
@@ -75,7 +81,6 @@ public class GetLab extends GNomExCommand implements Serializable {
       Hibernate.initialize(theLab.getMembers());
       Hibernate.initialize(theLab.getCollaborators());
       Hibernate.initialize(theLab.getManagers());
-      Hibernate.initialize(theLab.getBillingAccounts());
 
       
       Document doc = new Document(new Element("OpenLabList"));
