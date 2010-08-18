@@ -134,6 +134,9 @@
         }
 
         public function checkForSlideProductWarning():void {
+        	if (this.slideProductCombo.dataProvider == null) {
+        		return;
+        	}
         	if (this.slideProductCombo.dataProvider.length == 1) {
         		slideProductStack.selectedIndex = 1;
         	} else {
