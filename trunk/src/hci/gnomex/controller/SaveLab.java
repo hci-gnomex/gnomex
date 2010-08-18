@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -155,6 +156,10 @@ public class SaveLab extends GNomExCommand implements Serializable {
         } else {
           
           lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
+          
+          // Need to initialize billing accounts; otherwise new accounts
+          // get in the list and get deleted.
+          Hibernate.initialize(lab.getBillingAccounts());
           
           initializeLab(lab);
         }
