@@ -1,6 +1,6 @@
 GNomEx Release Notes
 
-4.8.7.1 (Aug 17, 2011)
+4.8.7.1 (Aug 17, 2010)
 -------------------------
 - Fixed bug introduced in 4.8.7 that was causing billing account dropdown to be blank on Submit Request window for non-admin users.
 - Fixed bug introduced in 4.8.7 that was not allowing new billing accounts to be added to a lab.
@@ -9,6 +9,7 @@ GNomEx Release Notes
 - Don't show drag-n-drop hint on Experiments and Analysis windows for guest users.
 - Multi-group selection window to filter Analysis now allows user to click on row to select lab.
 - Analysis filter 'Show public experiments' causes analysis tree to refresh automatically.
+- Fix wording on 'Add Services' when no QC experiments found (incorrectly worded as 'No Illumina experiments found'
 
 4.8.7 (Aug 16, 2010)
 -------------------------
