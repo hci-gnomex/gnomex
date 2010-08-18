@@ -1213,9 +1213,9 @@
 									<mx:LinkButton  label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseProjectNodes()}" textDecoration="underline" />					    	
 						        </mx:HBox>
 						    </mx:ViewStack>
-						   	<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
+						   	<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4" id="vbox2">
 								<mx:LinkButton label="Drag-and-drop hint" 
-								click="{Alert.show('Drag-and-drop experiment to move to another project.')}">
+								click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1">
 								</mx:LinkButton>
 							</mx:VBox>
 					    </mx:HBox>
@@ -1282,6 +1282,8 @@
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:SetStyle target="{hbox3}" name="paddingLeft" value="4"/>
 			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="10"/>
+			<mx:SetProperty target="{linkbutton1}" name="height" value="21"/>
+			<mx:RemoveChild target="{vbox2}"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">
