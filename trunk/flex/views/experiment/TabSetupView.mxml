@@ -22,6 +22,8 @@
          <mx:SetProperty target="{text2}" name="width" value="200"/>
          <mx:SetProperty target="{requestTypeBox}" name="width" value="100%"/>
          <mx:SetProperty target="{text3}" name="width" value="230"/>
+         <mx:SetStyle target="{label1}" name="paddingTop"/>
+         <mx:SetStyle target="{vbox1}" name="verticalGap" value="12"/>
       </mx:State>
    </mx:states>
    
@@ -132,14 +134,7 @@
 			} else {
 				this.currentState = "";
 				idAppUser = parentApplication.getIdAppUser();
-				if (labCombo.dataProvider.length == 2) {
-					labCombo.selectedIndex = 1;
-				}
 			}			
-			var emptyNode:XML = new XML("<BillingAccount value='' display='' accountNameAndNumber=''/>");
-			this.billingAccounts.addItem(emptyNode);
-			this.billingAccountCombo.selectedIndex = 0;
-			this.billingAccountValidator.validate();	
 			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
 		}
 		
@@ -264,14 +259,15 @@
 
 		
 		
-		private function getMembersOfLab():void {
-			if (parentApplication.hasPermission("canWriteAnyObject") && 
-			    this.labCombo.selectedItem.@idLab != '') {
-			    idAppUser = null;
-			}
-			
+		private function getMembersOfLab():void {			
 			if (this.labCombo.selectedItem.@idLab != null) {
-				getLab.send();				
+				if (lab == null || labCombo.selectedItem.@idLab != lab.@idLab) {
+					if (parentApplication.hasPermission("canWriteAnyObject") && 
+					    this.labCombo.selectedItem.@idLab != '') {
+					    idAppUser = null;
+					}
+					getLab.send();				
+				}
 			}
 		}
 		private function onGetLab(event:ResultEvent):void {			
@@ -418,7 +414,7 @@
         source="{this.projectCombo}"
         lowerThanMinError="This field is required."
         property="selectedIndex"
-        minValue="1" />           
+        minValue="0" />           
           
 
 		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
@@ -433,7 +429,7 @@
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
 					width="340"
-					 change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" id="labCombo">
+					 change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" id="labCombo">
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
@@ -442,7 +438,7 @@
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
-						<mx:ComboBox labelField="@accountNameAndNumber" width="490" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+						<mx:ComboBox labelField="@accountNameAndNumber" width="470" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 						</mx:ComboBox>
 						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
@@ -466,7 +462,7 @@
 				</mx:HBox>
 				
 			</mx:VBox>
-			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top">
+			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="12">
 				<mx:Label text="(3) Select a service category." width="200" id="label11"/>
 				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="1" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="100%">
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
