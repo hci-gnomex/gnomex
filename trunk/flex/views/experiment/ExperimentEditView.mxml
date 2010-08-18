@@ -135,7 +135,7 @@
     <mx:HTTPService 
     id="getSlideProductList" 
     url="GetSlideProductList.gx"
-    showBusyCursor="false"
+    showBusyCursor="true"
     resultFormat="e4x"
     result="onGetSlideProductList(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to slide product list', event)"
@@ -149,7 +149,7 @@
     <mx:HTTPService 
     id="getSlideDesignList" 
     url="GetSlideDesignList.gx"
-    showBusyCursor="false"
+    showBusyCursor="true"
     resultFormat="e4x"
     result="onGetSlideDesignList(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to slide design list', event)"
@@ -286,11 +286,18 @@
 				this.initializeData();
         	    this.checkSecurity();
             	this.setupDataListeners();
+            	
+
 
     			isInitialized = true;
 			}
 			
 			
+        	if (parentApplication.theViews.selectedChild == this) {
+    	    	this.setupSubmitForm();
+        	} else if (this.id == "editView" && request != null) {
+        		this.setupTheEditForm();
+        	}	
 
 		}
 
@@ -299,11 +306,6 @@
 		}
 				
 		private function initializeData():void {
-			
-			getSlideProductList.send();
-			
-			getSlideDesignList.send();
-
 			samplePrepMethodList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SamplePrepMethod'));
         	var dictionarySorter:Sort = new Sort();
     	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
@@ -811,7 +813,6 @@
 
 					
 					this.hybSetupView.slideProductCombo.selectedIndex = 0;
-					this.filteredSlideProductList.refresh();
 					this.hybSetupView.checkForSlideProductWarning();
 					this.hybSetupView.numberOfHybsValidator.validate();
 
@@ -844,6 +845,15 @@
 
 	
 					this.samplesView.checkSamplesCompleteness();	
+					
+					if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
+						getSlideProductList.send();
+					} else {
+						filteredSlideProductList.refresh()
+					}
+					if (this.getSlideDesignList.lastResult == null) {
+						getSlideDesignList.send();
+					}
 					
 				}
 			}
@@ -1698,13 +1708,48 @@
 		
 		private function refreshLab():void {
 			if (requestEditLabCombo.selectedItem != null && requestEditLabCombo.selectedItem.@idLab != '') {
+
 				var params:Object = new Object();
 				params.idLab = requestEditLabCombo.selectedItem.@idLab;
 				getLab.send(params);
 			}
 		}
-
+		
+		// We have to make sure that the slide product list and slide design list
+		// is initialized for the edit form before we can initialize its controls.
+		// This is now necessary because the getting of the slide product and slide
+		// design list was taken out of the gnomex app launch and deferred to the
+		// show() of ExperimentEditForm.
 		private function initializeControls():void {
+			if (isMicroarrayState() && this.isEditState()) {
+				if (this.getSlideProductList.lastResult != null && filteredSlideProductList != null) {
+					// If we already have the slide product and slide design list, initialize controls
+					initializeControlsImpl();
+				} else {
+					
+					if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
+						// We don't have the slide design list so run the query.
+						// The result handler will detect if it is time to call
+						// initializeControlsImpl.
+						getSlideProductList.send();
+					} else {
+						// We do have the slide product list so  refresh it. 
+						this.checkToInitializeEditControls();
+					}
+					
+					if (this.getSlideDesignList.lastResult == null) {
+						// We don't have the slide design list so run the query.
+						// The result handler will detect if it is time to call
+						// initializeControlsImpl.
+						getSlideDesignList.send();
+					}
+				} 
+			} else {
+				initializeControlsImpl();
+			}
+		}
+
+		private function initializeControlsImpl():void {
 			
 			if (isEditState()) {
 				for each(var l:Object in parentApplication.promptedSubmitRequestLabList) {
@@ -2598,9 +2643,8 @@
         private function onGetSlideDesignList(event:ResultEvent):void {
         	var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
         	slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
-        	
-       		checkToSetupEditForm(); 
 
+	        checkToInitializeEditControls();
         }
         
         private function onGetSlideProductList(event:ResultEvent):void {
@@ -2612,22 +2656,17 @@
 	        filteredSlideProductList.filterFunction = filterSlideProduct;
 	        filteredSlideProductList.refresh();
 	        
-	        checkToSetupEditForm();
+	        checkToInitializeEditControls();
         }		
+        
+        private function checkToInitializeEditControls():void {
+        	if (isMicroarrayState() && this.isEditState()) {
+				if (getSlideProductList.lastResult != null && this.getSlideDesignList.lastResult != null) {
+					initializeControlsImpl();
+				}
+        	}
+        }
 		
-		private function checkToSetupEditForm():void {
-			// Clear out the form
-	        // Need to call these methods AFTER
-	        // getslideproductlist, getslidedesignlist finished.
-	        // tricky b/c we don't have to call it every time
-			if (getSlideProductList.lastResult != null && this.getSlideDesignList != null) {
-		        if (parentApplication.theViews.selectedChild == this) {
-	    	    	this.setupSubmitForm();
-	        	} else if (this.id == "editView" && request != null) {
-	        		this.setupTheEditForm();
-	        	}	
-			}
-		}
 		
 		private function setAmendState():void {
 			if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != "") {
