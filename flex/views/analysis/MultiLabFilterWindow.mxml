@@ -5,6 +5,7 @@
 	<![CDATA[
 		import hci.flex.controls.CheckBox;
 		import mx.managers.PopUpManager;
+		import mx.events.ListEvent;
 		
 
 		
@@ -33,9 +34,23 @@
 				lab.@isSelected = 'false';
 			}
 		}
+		
+		private function toggleLabCheck(event:ListEvent):void {
+			if (event.columnIndex == 0) {
+   				return;
+   			}
+			if (this.labGrid.selectedItem.@isSelected == "true") {
+				labGrid.selectedItem.@isSelected = "false";
+			} else {
+				labGrid.selectedItem.@isSelected = "true";
+			}
+		}
 	]]>
 </mx:Script>
-	<mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.navAnalysisView.labList}" >
+	<mx:DataGrid width="100%" height="100%" 
+		id="labGrid"
+        itemClick="toggleLabCheck(event)"
+		dataProvider="{parentApplication.navAnalysisView.labList}" >
 		<mx:columns>
             <mx:DataGridColumn headerText=" " 
             	width="30" 
