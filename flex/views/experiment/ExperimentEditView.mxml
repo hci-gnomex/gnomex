@@ -2645,6 +2645,7 @@
         	slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
 
 	        checkToInitializeEditControls();
+	        checkToPerformPostAmendSetup();
         }
         
         private function onGetSlideProductList(event:ResultEvent):void {
@@ -2657,12 +2658,21 @@
 	        filteredSlideProductList.refresh();
 	        
 	        checkToInitializeEditControls();
+	        checkToPerformPostAmendSetup();
         }		
         
         private function checkToInitializeEditControls():void {
         	if (isMicroarrayState() && this.isEditState()) {
 				if (getSlideProductList.lastResult != null && this.getSlideDesignList.lastResult != null) {
 					initializeControlsImpl();
+				}
+        	}
+        }
+
+        private function checkToPerformPostAmendSetup():void {
+        	if (currentState == "MicroarrayAmendState") {
+				if (getSlideProductList.lastResult != null && this.getSlideDesignList.lastResult != null) {
+					this.postSetupAmendFormImpl();
 				}
         	}
         }
@@ -2761,8 +2771,10 @@
         		}
         		if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC") == 0) {
         			Alert.show("No Sample Quality experiments " + filter + "found.");
-        		} else {
+        		} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("LANES") > 0){
         			Alert.show("No Illumina Sequencing experiments " + filter + "found.");
+        		} else {
+        			Alert.show("No Sample Quality experiments " + filter + "found.");
         		}
         	} else {
         		this.browseTree.visible = true;
@@ -2986,6 +2998,35 @@
 		}
 		
 		private function postSetupAmendForm():void {
+			if (currentState == "MicroarrayAmendState") {
+				if (this.getSlideProductList.lastResult != null && filteredSlideProductList != null) {
+					// If we already have the slide product and slide design list, initialize controls
+					postSetupAmendFormImpl();
+				} else {
+					
+					if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
+						// We don't have the slide design list so run the query.
+						// The result handler will detect if it is time to call
+						// initializeControlsImpl.
+						getSlideProductList.send();
+					} else {
+						// We do have the slide product list so  refresh it. 
+						this.checkToPerformPostAmendSetup();  
+					}
+					
+					if (this.getSlideDesignList.lastResult == null) {
+						// We don't have the slide design list so run the query.
+						// The result handler will detect if it is time to call
+						// initializeControlsImpl.
+						getSlideDesignList.send();
+					}
+				} 
+			} else {
+				postSetupAmendFormImpl();
+			}
+		}
+		
+		private function postSetupAmendFormImpl():void {
 			// Set the codeRequestCategory
 			request.@codeRequestCategory = this.getAmendRequestType();
 			
