@@ -194,7 +194,7 @@
 			checkSecurity();
 
 			if (!isInitialized) {
-				if (!parentApplication.isGuestMode()) {
+				if (currentState == "AdminState") {
 					this.getAnalysisLabList.send();				
 				}
 			}
@@ -998,7 +998,7 @@
 			              	fontFamily="Arial"  height="18" width="30"
 			               	color="#400040" click="{if (searchTextField.text != '') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>
           	  </mx:HBox>
-          	  <mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox"/>
+          	  <mx:CheckBox label="Show public analysis" id="searchPublicProjectsCheckbox" click="refreshAnalysis()"/>
 		      <mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
 		      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
 		    		<mx:click>toggleDateCheckboxes(1);refreshAnalysis();</mx:click>
@@ -1024,7 +1024,7 @@
 						<mx:HBox width="100%" horizontalGap="8" horizontalAlign="right">
 						<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
 							<mx:LinkButton label="Drag-and-drop hint" 
-								click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}">
+								click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2">
 							</mx:LinkButton>
 						</mx:VBox>					    	
 						</mx:HBox>
@@ -1093,6 +1093,7 @@
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
 			<mx:RemoveChild target="{searchPublicProjectsCheckbox}"/>
+			<mx:RemoveChild target="{linkbutton2}"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">
