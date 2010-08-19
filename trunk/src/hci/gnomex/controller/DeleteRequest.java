@@ -12,10 +12,12 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 
@@ -71,6 +73,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         }
         sess.flush();
 
+
         // Delete the labeled samples next
         for(Iterator i = req.getLabeledSamples().iterator(); i.hasNext();) {
           LabeledSample ls  = (LabeledSample)i.next();
@@ -96,6 +99,10 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         //
         // Delete Request
         //
+        Hibernate.initialize(req.getSeqLibTreatments());
+        req.setSeqLibTreatments(new TreeSet());
+        sess.flush();
+        
         sess.delete(req);
         
         sess.flush();
