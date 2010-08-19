@@ -133,6 +133,11 @@
 		<property name="expirationDate" column="expirationDate" type="date"/>
 		<property name="idFundingAgency" column="idFundingAgency" type="integer"/>
 		<property name="isPO" column="isPO" type="string"/>		
+		<property name="isApproved" column="isApproved" type="string"/>		
+		<property name="approvedDate" column="approvedDate" type="date"/>
+		<property name="createDate" column="createDate" type="date"/>
+		<property name="submitterEmail" column="submitterEmail" type="string"/>		
+		<property name="submitterUID" column="submitterUID" type="string"/>		
 	</class>
 	
 	<!-- hci.gnomex.model.BillingItem -->

@@ -1,14 +1,18 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountParser;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabMemberParser;
+import hci.gnomex.utility.MailUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -19,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -57,6 +63,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
   private Lab                   labScreen;
   private boolean              isNewLab = false;
   
+  private String                         serverName;
+  private String                         launchAppURL;
   
   public void validate() {
   }
@@ -134,6 +142,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
       log.error( "Cannot parse accountsXMLString", je );
       this.addInvalidField( "accountsXMLString", "Invalid accountsXMLString");
     }
+    
+    try {
+      launchAppURL = this.getLaunchAppURL(request);  
+    } catch (Exception e) {
+      log.warn("Cannot get launch app URL in SaveLab", e);
+    }
+
+    serverName = request.getServerName();
 
   }
 
@@ -173,6 +189,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
           BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);
           ba.setIdLab(lab.getIdLab());
           sess.save(ba);
+          
+          // If billing account has just been approved, send out a notification
+          // email to submitter of work auth form as well as lab managers
+          if (ba.isJustApproved()) {
+            this.sendApprovedBillingAccountEmail(sess, ba, lab);
+          }
         }
         
         // Remove billing accounts no longer in the billing acount list
@@ -273,6 +295,93 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setIsCcsgMember(labScreen.getIsCcsgMember());
     lab.setIsExternalPricing(labScreen.getIsExternalPricing());
     lab.setIsActive(labScreen.getIsActive());
+    
+  }
+  
+  private void sendApprovedBillingAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
+    
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    
+    
+    StringBuffer submitterNote = new StringBuffer();
+    StringBuffer body = new StringBuffer();
+    String submitterSubject = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved";    
+    
+    boolean send = false;
+    String submitterEmail = billingAccount.getSubmitterEmail();
+    String coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    boolean isTestEmail = false;
+    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+      send = true;
+    } else {
+      if (submitterEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+        send = true;
+        isTestEmail = true;
+        submitterSubject = "TEST - " + submitterSubject;
+        coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
+      }
+    }
+    
+    submitterNote.append("The following work authorization " +
+        "has been approved by the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
+        ".  Lab members can now submit experiment " +
+        "requests against this account in GNomEx " + launchAppURL + ".");
+
+
+    body.append("\n");
+    body.append("\n");
+    body.append("Lab:               " + lab.getName() + "\n");
+    body.append("Account:           " + billingAccount.getAccountName() + "\n");
+    body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
+    body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
+    body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
+    body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
+    body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
+    
+
+    if (send) {
+      // Email submitter
+      MailUtil.send(submitterEmail, 
+            null,
+            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+            submitterSubject, 
+            submitterNote.toString() + body.toString(),
+            false); 
+      
+      // Email lab managers
+      for (Iterator i = lab.getManagers().iterator(); i.hasNext();) {
+        AppUser manager = (AppUser)i.next();        
+        if (manager.getEmail() != null && !manager.getEmail().equals("")) {
+          String managerEmail = manager.getEmail();
+          if (isTestEmail) {
+            managerEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
+          }
+          // Email lab manager(s) for lab
+          MailUtil.send(managerEmail, 
+              null,
+              dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+              isTestEmail ? submitterSubject + " (for lab manager" + manager.getEmail()+ ")": submitterSubject, 
+              submitterNote.toString() + body.toString(),
+              false); 
+        }
+      }
+      
+      // Email lab contact email address(es)
+      if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
+        String contactEmail = lab.getContactEmail();
+        if (isTestEmail) {
+          contactEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
+        }
+        MailUtil.send(contactEmail, 
+            null,
+            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+            isTestEmail ? submitterSubject + " (for lab contact " + lab.getContactEmail() + ")" : submitterSubject, 
+            submitterNote.toString() + body.toString(),
+            false); 
+                
+      }
+
+    }
     
   }
   

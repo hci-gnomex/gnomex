@@ -10,6 +10,7 @@ public class UserPermissionKind extends DictionaryEntry implements Serializable 
   public static final String        ADMIN_PERMISSION_KIND   = "ADMIN";
   public static final String        GROUP_PERMISSION_KIND   = "LAB";
   public static final String        BILLING_PERMISSION_KIND = "BILLING";
+  public static final String        UNIVERSITY_ONLY_PERMISSION_KIND = "UONLY";
   
   private String  codeUserPermissionKind;
   private String  userPermissionKind;

@@ -94,6 +94,26 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     } else {
       billingAccount.setIsPO("N");
     }
+    if (n.getAttributeValue("isApproved") != null && !n.getAttributeValue("isApproved").equals("")) {
+      String isApproved = n.getAttributeValue("isApproved");
+      
+      // If we have toggled from not approved to approved, set the approved date
+      if (isApproved.equals("Y")) {
+        if (billingAccount.getIsApproved() == null || 
+            billingAccount.getIsApproved().equals("") ||
+            billingAccount.getIsApproved().equalsIgnoreCase("N")) {
+          billingAccount.setApprovedDate(new java.sql.Date(System.currentTimeMillis()));
+          billingAccount.isJustApproved(true);
+        }
+      }
+      billingAccount.setIsApproved(isApproved);
+      
+      if (n.getAttributeValue("submitterEmail") != null) {
+        billingAccount.setSubmitterEmail(n.getAttributeValue("submitterEmail"));
+      }
+  } else {
+    billingAccount.setIsApproved("N");
+  }
   }
 
   

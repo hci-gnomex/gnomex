@@ -1,5 +1,8 @@
 package hci.gnomex.model;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import hci.hibernate3utils.HibernateDetailObject;
@@ -31,6 +34,7 @@ public class Lab extends HibernateDetailObject {
   private boolean canManage = false;
   private boolean isMyLab = false;
   private boolean hasPublicData = false;
+  
   
   public String getContactAddress() {
     return contactAddress;
@@ -299,5 +303,29 @@ public class Lab extends HibernateDetailObject {
   
   public void setIsExternalPricing(String isExternalPricing) {
     this.isExternalPricing = isExternalPricing;
+  }
+  
+  public List getApprovedBillingAccounts() {
+    ArrayList approvedBillingAccounts = new ArrayList();
+    for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
+      BillingAccount ba = (BillingAccount)i.next();
+      if (ba.getIsApproved() != null && ba.getIsApproved().equalsIgnoreCase("Y")) {
+        approvedBillingAccounts.add(ba);
+      }
+    }
+    return approvedBillingAccounts;
+  }
+  
+  public List getPendingBillingAccounts() {
+    ArrayList pendingBillingAccounts = new ArrayList();
+    for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
+      BillingAccount ba = (BillingAccount)i.next();
+      if (ba.getIsApproved() == null || 
+          ba.getIsApproved().equals("") ||
+          ba.getIsApproved().equalsIgnoreCase("N")) {
+        pendingBillingAccounts.add(ba);
+      }
+    }
+    return pendingBillingAccounts;
   }
 }

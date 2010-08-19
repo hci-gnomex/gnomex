@@ -310,6 +310,7 @@
 	        [@Embed(source="assets/ding.mp3")]
 	        public var soundDing:Class;
 	        
+	        public var isUniversityOnlyUser:Boolean = false;
 	        
 	        [Bindable]
 	        private var pricingURL:String = null;
@@ -560,7 +561,8 @@
             	} else {
             		return false;
             	}
-            }
+             }
+
             public function launchExperimentDownloads():Boolean {
             	if (Application.application.parameters.launchWindow != null &&
             	    Application.application.parameters.launchWindow == "ExperimentDownload" &&
@@ -650,6 +652,22 @@
             	}
             }
             
+            public function getUNID():Object {
+            	if (isGuestMode()) {
+            		return "";
+            	} else {
+            		return createSecurityAdvisor.lastResult.@uNID;
+            	}
+            }
+            
+            public function getUserEmail():Object {
+            	if (isGuestMode()) {
+            		return "";
+            	} else {
+            		return createSecurityAdvisor.lastResult.@userEmail;
+            	}
+            }
+            
             public function hasPermission(permission:String):Boolean {
             	var hasPermission:Boolean = false;
             	var thePermission:Object = null;
@@ -707,7 +725,7 @@
             }
               
             private function checkSecurity():void {
-				if (this.isGuestMode()) {
+				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
 				} else if (hasPermission("canAccessAnyObject")) {
 					currentState = "AdminState";
@@ -735,6 +753,7 @@
 			    this.showProgress(30);
 			    
 			    userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
+			    isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
 			    version = createSecurityAdvisor.lastResult.@version;
 			    		
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
@@ -761,6 +780,8 @@
             	}
             	userName.text = "(guest)";
 			    version = getSecurityAdvisorForGuest.lastResult.@version;
+			    isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
+
 			    
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);

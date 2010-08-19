@@ -85,6 +85,22 @@ public class GetLabList extends GNomExCommand implements Serializable {
         }        
       }
       
+      // If this is a non-gnomex University-only user, we want to get
+      // all of the active labs
+      Map activeLabMap = new HashMap();
+      if (this.getSecAdvisor().isUniversityOnlyUser()) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("SELECT l.idLab  ");
+        buf.append(" FROM  Lab l ");
+        buf.append(" WHERE l.isActive = 'Y' ");
+        List allLabs = (List)sess.createQuery(buf.toString()).list();
+        for (Iterator i = allLabs.iterator(); i.hasNext();) {
+          Integer idLab = (Integer)i.next();
+          activeLabMap.put(idLab, idLab);        
+        }        
+        
+      }
+      
       StringBuffer queryBuf = labFilter.getQuery(this.getSecAdvisor());
       List labs = (List)sess.createQuery(queryBuf.toString()).list();
       
@@ -119,7 +135,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
           }
         }
         
-        if (lab.getIsMyLab().equals("Y") || lab.getHasPublicData().equals("Y")) {
+        if (lab.getIsMyLab().equals("Y") || publicLabMap.containsKey(lab.getIdLab()) || activeLabMap.containsKey(lab.getIdLab())) {
 
           lab.excludeMethodFromXML("getDepartment");
           lab.excludeMethodFromXML("getNotes");
@@ -136,6 +152,13 @@ public class GetLabList extends GNomExCommand implements Serializable {
           lab.excludeMethodFromXML("getManagers");
 
           lab.excludeMethodFromXML("getBillingAccounts");
+          
+          lab.excludeMethodFromXML("getProjects");
+          
+          if (this.getSecAdvisor().isUniversityOnlyUser()) {
+            lab.excludeMethodFromXML("getIsCcsgMember");
+            lab.excludeMethodFromXML("getIsExternalPricing");
+          }
           
           doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
         }

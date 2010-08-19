@@ -127,6 +127,7 @@
 			<url-pattern>launch.jsp</url-pattern>
 			<url-pattern>Delete*.gx</url-pattern>
 			<url-pattern>Save*.gx</url-pattern>
+			<url-pattern>SubmitWorkAuthForm.gx</url-pattern>
 			<url-pattern>GenerateUserAccountEmail.gx</url-pattern>
 			<url-pattern>GetAppUser.gx</url-pattern>
 			<url-pattern>GetAnalysisLabList.gx</url-pattern>

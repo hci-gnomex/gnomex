@@ -1,6 +1,5 @@
 package hci.gnomex.security;
 
-import hci.utility.server.HCISecurityManager;
 import hci.utility.server.LDAPURLEncoder;
 
 import java.io.File;
@@ -10,14 +9,19 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import com.orionsupport.security.SimpleUserManager;
 
@@ -85,6 +89,7 @@ public class SecurityManager extends SimpleUserManager  {
       return result;
   }
   
+  
   private boolean isAuthenticatedGNomExExternalUser(String uid, String password) {
     
     boolean result = false;
@@ -137,12 +142,18 @@ public class SecurityManager extends SimpleUserManager  {
     }
     
     if (this.isGNomExUniversityUser(uid)) {
+      // If this is a GNomEx user with a uNID, check the credentials 
+      // against the Univ of Utah LDAP
       return checkUniversityCredentials(uid, password);
     } else if (this.isAuthenticatedGNomExExternalUser(uid, password)) {
+      // If this is a GNomEx external user, check credentials 
+      // against the GNomEx encrypted password
       return true;
     } else {
-      return false;
-    }
+      // Otherwise, if this is not a GNomEx user, check the credentials
+      // against the Univ of Utah LDAP
+      return checkUniversityCredentials(uid, password);
+    } 
   }
   
   private boolean checkUniversityCredentials(String uid, String password) {

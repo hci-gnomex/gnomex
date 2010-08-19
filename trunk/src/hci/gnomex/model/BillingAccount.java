@@ -22,6 +22,14 @@ public class BillingAccount extends HibernateDetailObject {
   private String  accountNumberYear;
   private Integer idFundingAgency;
   private String  isPO;
+  private String  isApproved;
+  private Date    approvedDate;
+  private Date    createDate;
+  private String  submitterEmail;
+  private String  submitterUID;
+  
+  // transient field used to keep track of billing accounts just approved
+  private boolean isJustApproved = false;
   
   
   public String getAccountNumber() {
@@ -209,7 +217,13 @@ public class BillingAccount extends HibernateDetailObject {
   }
  
   private String getActiveDisplay() {
-    return getIsActive().equals("N") ?"(inactive) " : "";
+    if (getIsActive().equals("N")) {
+      return "(inactive) ";
+    } else if (getIsApproved() == null || getIsApproved().equals("") || getIsApproved().equalsIgnoreCase("N")){
+      return "(pending) ";
+    } else {
+      return "";
+    }
   }
   
   public String getAccountNameDisplay() {
@@ -233,6 +247,64 @@ public class BillingAccount extends HibernateDetailObject {
 
   public void setIsPO(String isPO) {
 	this.isPO = isPO;
+  }
+
+  
+  public String getIsApproved() {
+    return isApproved;
+  }
+
+  
+  public void setIsApproved(String isApproved) {
+    this.isApproved = isApproved;
+  }
+
+  
+  public Date getApprovedDate() {
+    return approvedDate;
+  }
+
+  
+  public void setApprovedDate(Date approvedDate) {
+    this.approvedDate = approvedDate;
+  }
+
+  
+  public Date getCreateDate() {
+    return createDate;
+  }
+
+  
+  public void setCreateDate(Date createDate) {
+    this.createDate = createDate;
+  }
+
+  
+  public String getSubmitterEmail() {
+    return submitterEmail;
+  }
+
+  
+  public void setSubmitterEmail(String submitterEmail) {
+    this.submitterEmail = submitterEmail;
+  }
+
+
+  public String getSubmitterUID() {
+    return submitterUID;
+  }
+
+  
+  public void setSubmitterUID(String submitterUID) {
+    this.submitterUID = submitterUID;
+  }
+  
+  public void isJustApproved(boolean approved) {
+    this.isJustApproved = approved;
+  }
+  
+  public boolean isJustApproved() {
+    return isJustApproved;
   }
   
 }

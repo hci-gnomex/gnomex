@@ -16,6 +16,7 @@ import java.util.Properties;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -23,6 +24,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import com.orionsupport.security.SimpleUserManager;
@@ -155,12 +157,18 @@ public class SecurityManagerLocal extends SimpleUserManager  {
     }
     
     if (this.isGNomExUniversityUser(uid)) {
+      // If this is a GNomEx user with a uNID, check the credentials 
+      // against the Univ of Utah LDAP
       return checkUniversityCredentials(uid, password);
     } else if (this.isAuthenticatedGNomExExternalUser(uid, password)) {
+      // If this is a GNomEx external user, check credentials 
+      // against the GNomEx encrypted password
       return true;
     } else {
-      return false;
-    }
+      // Otherwise, if this is not a GNomEx user, check the credentials
+      // against the Univ of Utah LDAP
+      return checkUniversityCredentials(uid, password);
+    } 
   }
   
   private boolean checkUniversityCredentials(String username, String password) {
@@ -199,6 +207,13 @@ public class SecurityManagerLocal extends SimpleUserManager  {
       if (cn == null) {
         return false;
       }
+      
+      
+
+      
+      
+      
+      
     } catch (NamingException e) {
       System.err.println("Problem getting attribute: " + e);
     }
@@ -212,6 +227,7 @@ public class SecurityManagerLocal extends SimpleUserManager  {
     try {
       // Bind to the LDAP directory
       ctx = new InitialDirContext(env1);
+       
 
       // if we are here, it worked !
       return true;

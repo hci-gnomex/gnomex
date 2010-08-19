@@ -112,6 +112,7 @@
 		import mx.collections.XMLListCollection;
 		import views.experiment.RequestCloneWindow;
 		import views.experiment.ProjectDetailWindow;
+		import views.util.WorkAuthorizationWindow;
 
         [Bindable]
         private var lab:Object = null;
@@ -171,6 +172,10 @@
 		private function filterBillingAccount(item:Object):Boolean {
 
         	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	
+        	if (item.@isApproved == 'N') {
         		return false;
         	}
         	return true;
@@ -389,6 +394,22 @@
 			PopUpManager.centerPopUp(requestCloneWindow);
 			requestCloneWindow.expandAllNodes();
 		}
+		
+		private function showWorkAuthForm():void {
+			// If this gnomex installation supports universtion user authentication,
+			// show window that allows user to enter work auth form directly; otherwise,
+			// show URL that is a printable work auth form.
+			if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == "Y") {
+				var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this, WorkAuthorizationWindow, true));
+				PopUpManager.centerPopUp(workAuthWindow);
+				workAuthWindow.emailAddress.text = parentApplication.getUserEmail();
+				if (workAuthWindow.labCombo.dataProvider.length == 2) {
+					workAuthWindow.labCombo.selectedIndex = 1;
+				}
+			}else {
+				navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');			
+			}
+		}
         
 
 	]]>
@@ -446,7 +467,7 @@
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0">
 							<mx:LinkButton  label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
-								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');</mx:click>
+								<mx:click>showWorkAuthForm()</mx:click>
 							</mx:LinkButton>
 							<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_NAME)}" styleName="formLinkButton" id="workAuthLink2" fontSize="9" paddingLeft="2" paddingTop="0">
 								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_URL)), '_blank');</mx:click>

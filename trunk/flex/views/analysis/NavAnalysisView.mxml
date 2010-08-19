@@ -249,7 +249,7 @@
 			this.browseView.checkSecurity();
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				currentState = "AdminState";
-			} else if (parentApplication.isGuestMode()) {
+			} else if (parentApplication.currentState == "GuestState") {
 				currentState = "GuestState";
 			} else {
 				currentState = "";
