@@ -39,7 +39,6 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    System.out.println(System.currentTimeMillis());
     filter = new AppUserFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
@@ -89,7 +88,6 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
-    System.out.println(System.currentTimeMillis());
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetAppUserList ", e);

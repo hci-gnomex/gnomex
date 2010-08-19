@@ -67,7 +67,7 @@
         
        public function checkSecurity():void {
        	if (parentApplication.hasPermission("canAccessAnyObject") ||
-       	    parentApplication.isGuestMode()) {
+       	    parentApplication.currentState == "GuestState") {
        		this.includePublicProjectsCheckBox.visible = false;    	
        	} else {
        		this.includePublicProjectsCheckBox.visible = true;

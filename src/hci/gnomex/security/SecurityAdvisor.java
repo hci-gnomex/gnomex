@@ -57,13 +57,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   public static final String          CAN_BE_LAB_MEMBER                           = "canBeLabMember";  
   public static final String          CAN_BE_LAB_COLLABORATOR                     = "canBeLabCollaborator";            
+  public static final String          CAN_SUBMIT_WORK_AUTH_FORMS                  = "canSubmitWorkAuthForms";            
   
 
 
   // Session info
   private AppUser                      appUser;
   private boolean                     isGuest = false;
-  private boolean                     isUniversityUser = true;
+  private boolean                     isGNomExUniversityUser = false;
+  private boolean                     isGNomExExternalUser = false;
+  private boolean                     isUniversityOnlyUser = false;
   
   // version info
   private String                       version;
@@ -72,10 +75,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private Map                          globalPermissionMap = new HashMap();
   
   
-  private SecurityAdvisor(AppUser appUser, boolean isUniversityUser) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser) throws InvalidSecurityAdvisorException {
     
     this.appUser = appUser;
-    this.isUniversityUser = isUniversityUser;
+    this.isGNomExUniversityUser = isGNomExUniversityUser;
+    this.isGNomExExternalUser = isGNomExExternalUser;
+    this.isUniversityOnlyUser = isUniversityOnlyUser;
     
     validate();
     setGlobalPermissions();    
@@ -83,12 +88,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   private SecurityAdvisor() throws InvalidSecurityAdvisorException {
     isGuest = true;
-    isUniversityUser = false;
+    isGNomExUniversityUser = false;
+    isGNomExExternalUser = false;
+    isUniversityOnlyUser = false;
     setGlobalPermissions();
   }
   
   public boolean isGuest() {
     return isGuest;
+  }
+  
+  public boolean isUniversityOnlyUser() {
+    return isUniversityOnlyUser;
   }
   
   public String getIsGuest() {
@@ -98,15 +109,25 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       return "N";
     }
   }
-  
+
+  public String getIsUniversityOnlyUser() {
+    if (this.isUniversityOnlyUser) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+
 
   public static SecurityAdvisor create(Session   sess, 
                                          String    uid) throws InvalidSecurityAdvisorException {
     SecurityAdvisor securityAdvisor = null;
     
-    boolean isUniversityUser = true;
+    boolean isGNomExUniversityUser = false;
+    boolean isGNomExExternalUser = false;
+    boolean isUniversityOnlyUser = true;
     
-    // Get AppUser
+    // Is this a GNomEx university user?
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append(" SELECT user from AppUser as user ");
     queryBuf.append(" WHERE  user.uNID =  '" + uid + "' ");
@@ -116,10 +137,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     AppUser appUser = null;
     if (users.size() > 0) {
       appUser = (AppUser)users.get(0);
-      isUniversityUser = true;
+      Hibernate.initialize(appUser.getLabs());
+      Hibernate.initialize(appUser.getCollaboratingLabs());
+      Hibernate.initialize(appUser.getManagingLabs());
+
+      isGNomExUniversityUser = true;
+      isGNomExExternalUser = false;
+      isUniversityOnlyUser = false;
     }
     
-    // If this is not a university user, 
+    // Is this a GNomEx external user? 
     if (appUser == null) {
       queryBuf = new StringBuffer();
       queryBuf.append(" SELECT user from AppUser as user ");
@@ -130,8 +157,33 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       appUser = null;
       if (users.size() > 0) {
         appUser = (AppUser)users.get(0);
-        isUniversityUser = false;
+        Hibernate.initialize(appUser.getLabs());
+        Hibernate.initialize(appUser.getCollaboratingLabs());
+        Hibernate.initialize(appUser.getManagingLabs());
+
+        isGNomExExternalUser = true;
+        isGNomExUniversityUser = false;
+        isUniversityOnlyUser = false;
       }
+      
+    }
+    
+    // Is this a non-GNomEx University user?
+    if (appUser == null) {
+      isUniversityOnlyUser = true;
+      isGNomExExternalUser = false;
+      isGNomExUniversityUser = false;
+      
+      appUser = new AppUser();
+      appUser.setuNID(uid);
+      appUser.setCodeUserPermissionKind(UserPermissionKind.UNIVERSITY_ONLY_PERMISSION_KIND);
+
+      //TODO: Would like to get user name from UofU LDAP
+      appUser.setLastName("University User " + uid);
+      appUser.setFirstName("");
+      appUser.setLabs(new TreeSet());
+      appUser.setCollaboratingLabs(new TreeSet());
+      appUser.setManagingLabs(new TreeSet());
       
     }
     
@@ -141,10 +193,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     
     // Instantiate SecurityAdvisor
-    Hibernate.initialize(appUser.getLabs());
-    Hibernate.initialize(appUser.getCollaboratingLabs());
-    Hibernate.initialize(appUser.getManagingLabs());
-    securityAdvisor = new SecurityAdvisor(appUser, isUniversityUser);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser);
     
     // Make sure we have a valid state.
     securityAdvisor.validate();
@@ -752,7 +801,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     // Can access objects governed by group level permissions
-    globalPermissionMap.put(new Permission(CAN_PARTICIPATE_IN_GROUPS), null);
+    if (this.isGNomExExternalUser || this.isGNomExUniversityUser) {
+      globalPermissionMap.put(new Permission(CAN_PARTICIPATE_IN_GROUPS), null);
+    }
     
     // Can submit requests
     if (this.getAllMyGroups().size() > 0) {
@@ -761,12 +812,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     
     // Can be lab member
-    globalPermissionMap.put(new Permission(CAN_BE_LAB_MEMBER), null);      
+    if (this.isGNomExExternalUser || this.isGNomExUniversityUser) {
+      globalPermissionMap.put(new Permission(CAN_BE_LAB_MEMBER), null);            
+    }
 
     
     // Can be lab collaborator
-    if (!isGuest) {
+    if (this.isGNomExExternalUser || this.isGNomExUniversityUser) {
       globalPermissionMap.put(new Permission(CAN_BE_LAB_COLLABORATOR), null);      
+    }
+    
+    // Can submit work authorization forms
+    if (!isGuest) {
+      globalPermissionMap.put(new Permission(CAN_SUBMIT_WORK_AUTH_FORMS), null);      
     }
 
 
@@ -791,12 +849,35 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
   }
   
+  
+  public String getUserEmail() {
+    if (isGuest) {
+      return "";
+    } else {
+      return appUser.getEmail();      
+    }
+  }
+
+  
   public Integer getIdAppUser() {
     if (isGuest) {
+      return new Integer(-999999);
+    } else if (isUniversityOnlyUser) {
       return new Integer(-999999);
     } else {
       return appUser.getIdAppUser();
     }
+  }
+  
+  public String getUID() {
+    if (isGuest) {
+      return "";
+    } else if (this.isGNomExUniversityUser || this.isUniversityOnlyUser) {
+      return appUser.getuNID();
+    } else {
+      return appUser.getUserNameExternal();
+    }
+
   }
   
   
@@ -1574,6 +1655,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public void setVersion(String version) {
     this.version = version;
   }
+
 
   
   

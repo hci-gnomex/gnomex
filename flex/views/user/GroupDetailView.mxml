@@ -108,6 +108,7 @@
 			    " accountNumberYear=''" +  
 			    " isDirty='Y'" +
 			    " isPO='N'" +
+			    " isApproved='Y'" +
 			    " isSelectedPeerReviewedFunding='false'" + 
 				"/>");
 			billingAccounts.addItem(node);
@@ -298,7 +299,7 @@
 				acct.@expirationDate = acct.@expirationDateOther;
 			}
 			
-			params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + "</billingAccounts>";
+			params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
 			params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
 			params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
 			params.managersXMLString = "<managers>" + managers.toXMLString() + "</managers>";
@@ -405,9 +406,10 @@
         }
         
         private function verifyChartfieldEdit(event:DataGridEvent) : void {
+        	var theGrid:DataGrid = DataGrid(event.target);
         	// Mark that this billing account is dirty.  We will only warn about
         	// validation when the billing account has been changed.
-        	setDirtyBillingAccount(billingAccounts.getItemAt(event.rowIndex));
+        	setDirtyBillingAccount(theGrid.dataProvider.getItemAt(event.rowIndex));
         	
         	// PO checkbox, account name, and expiration data are always editable
 			if (event.dataField == '@isPO' || event.dataField == '@accountName' || event.dataField == '@expirationDate') {
@@ -415,15 +417,19 @@
         	}
         	
         	// Other fields are only editable on non-PO accounts.  
-    		if(billingAccounts.getItemAt(event.rowIndex).@isPO == 'Y') {
+    		if(theGrid.dataProvider.getItemAt(event.rowIndex).@isPO == 'Y') {
         		event.preventDefault(); 
         	} 
         }
 
+	    private function getSubmitterInfo(item:Object, col:int):String {
+			return item.@submitterEmail + ' ' + item.@submitterUID;
+		}
 	]]>
 </mx:Script>	  
 
-	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.billingAccounts.BillingAccount}"/>
+	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}"/>
+	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}"/>
 	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
 	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
 	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}"/>
@@ -574,8 +580,8 @@
 					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? false : true}" click="checkPricingChange()"/>
 					<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>
 				</mx:HBox>
-				<mx:Spacer height="8"/>
-				<mx:Label text="Accounts:" fontWeight="bold"/>
+				<mx:Spacer height="2"/>
+				<mx:Label text="Accounts" fontWeight="bold"/>
 				<mx:HBox horizontalAlign="left" width="100%">
 					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
 						<mx:Label text="Add Account    Name:"/>
@@ -585,7 +591,7 @@
 					</mx:HBox>
 				</mx:HBox>
 				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true" 
-					itemEditBeginning="verifyChartfieldEdit(event)" 
+					itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
 					horizontalScrollPolicy="auto">
 					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					<mx:columns>
@@ -617,6 +623,49 @@
 						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
 						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
 						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:Spacer height="8"/>
+				<mx:Label text="Pending Accounts (check and press 'Save' to approve)" fontWeight="bold"/>
+				<mx:DataGrid width="100%" height="100" 
+					id="pendingBillingAccountGrid" editable="true" 
+					itemEditBeginning="verifyChartfieldEdit(event)" 
+					 horizontalScrollPolicy="auto" fontSize="9">
+					<mx:dataProvider>{pendingBillingAccounts}</mx:dataProvider>
+					<mx:columns>
+			            <mx:DataGridColumn headerText=""  
+			            	width="24" 
+			            	editable="false"                         	
+			            	dataField="@isApproved" 
+			            	editorDataField="selected" 
+			            	textAlign="center" 
+			            	itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isApproved', true)}" >
+		            	</mx:DataGridColumn>
+	   					<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130"/>
+						<mx:DataGridColumn dataField="@expirationDate" width="75"
+			                headerText="Expires"  
+			          		itemEditor="views.renderers.DateFieldExpiration" 
+			           		itemRenderer="mx.controls.Label" 
+			                rendererIsEditor="false" 
+			                labelFunction="getExpirationDateString"
+			                editorDataField="selectedDate"/>
+						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" 
+							editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
+						   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
+    	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
+						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
+						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
+						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70"/>
+						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70"/>
+						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50"/>
+						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25"/>
+						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30"/>
+						<mx:DataGridColumn headerText="Created"  editable="false" dataField="@createDate" width="30"/>
+						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
+						<mx:DataGridColumn headerText="UID"  dataField="@submitterUID" width="10"/>
+						
 					</mx:columns>
 				</mx:DataGrid>
 				

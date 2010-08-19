@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Enter Work Authorization" width="652" height="430" defaultButton="{saveButton}">
+    
+    <mx:HTTPService 
+    id="submitWorkAuthForm" 
+    url="SubmitWorkAuthForm.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSubmitWorkAuthForm(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to submit work authorization form', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >  
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		
+		
+		
+		
+		private function save():void {
+			var params:Object = new Object();
+			params.accountName = this.accountName.text;
+			params.expirationDate = this.expirationDatePicker.text;
+			params.idLab = this.labCombo.selectedItem.@idLab;
+			params.accountNumberBus = this.bus.text;
+			params.accountNumberOrg = this.org.text;
+			params.accountNumberFund = this.fund.text;
+			params.accountNumberActivity = this.activity.text;
+			params.accountNumberProject = this.project.text;
+			params.accountNumberAccount = this.account.text;
+			params.accountNumberAu = this.au.text;
+			params.accountNumberYear = this.year.text;
+			params.idFundingAgency = this.fundingAgencyCombo.selectedItem.@value;
+			params.isPO = "N";
+			params.submitterEmail = this.emailAddress.text;
+			
+			
+			submitWorkAuthForm.send(params);
+		}
+		
+		private function onSubmitWorkAuthForm(event:ResultEvent):void {
+        	if (submitWorkAuthForm.lastResult.name() == "SUCCESS") {
+        		Alert.show("Work authorization for account " + 
+        		"'" + this.accountName.text + "'"+
+        		 " has been submitted to " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) +
+        		 ".\n\n" + 
+        		 "After the account information is reviewed and approved, " +
+        		 "you will be notified by email that experiment " +
+        		 "requests can now be submitted against this account in GNomEx.");
+        		 PopUpManager.removePopUp(this);
+        	} else {
+        		Alert.show(submitWorkAuthForm.lastResult..ACTMESSAGE.@TEXT);
+        	}        	
+        }     
+
+	]]>
+</mx:Script>
+
+	<mx:VBox height="100%" width="100%" verticalGap="16">
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label text="Lab" width="120"/>
+			<mx:ComboBox width="500" id="labCombo"
+				labelField="@name" 
+				dataProvider="{parentApplication.promptedLabList}"></mx:ComboBox>
+		</mx:HBox>
+	    <mx:VBox verticalGap="0">
+	        <mx:HBox>
+	            <mx:Text text="Chartfield to be charged:" textAlign="left" width="120"/>
+	            <mx:VBox verticalGap="0">
+	            	<mx:Label text="Bus"/>
+	            	<mx:TextInput id="bus" width="40" maxChars="2"/>
+	            	<mx:Label text="2 digits" styleName="labelSmall"/>
+	            </mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="Org"/>
+					<mx:TextInput id="org" width="40" maxChars="5"/>
+					<mx:Label text="5 digits" styleName="labelSmall"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="Fund"/>
+					<mx:TextInput id="fund" width="40" maxChars="4"/>
+					<mx:Label text="4 digits" styleName="labelSmall"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="Activity"/>
+					<mx:TextInput id="activity" width="50" maxChars="5"/>
+					<mx:Label text="5 digits" styleName="labelSmall"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="Project"/>
+					<mx:TextInput id="project" width="60" maxChars="8"/>
+					<mx:Label text="8 digits" styleName="labelSmall"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="Account"/>
+					<mx:TextInput id="account" width="50" maxChars="5"/>
+					<mx:Label text="5 digits" styleName="labelSmall"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="A/U"/>
+					<mx:TextInput id="au" width="35" maxChars="1"/>
+					<mx:Label text="1 digit" styleName="labelSmall"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="Year"/>
+					<mx:TextInput id="year" width="40" maxChars="4"/>
+					<mx:Label text="4 digit" styleName="smallLabel"/>
+				</mx:VBox>
+		</mx:HBox>
+	    	
+	    </mx:VBox>
+        <mx:HBox width="100%" verticalAlign="middle">
+        	<mx:Label text="Title of Account" width="120"/>
+        	<mx:TextInput width="100%" id="accountName"></mx:TextInput>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle">
+        	<mx:Label text="Funding Agency" width="120"/>
+        	<mx:ComboBox width="500" id="fundingAgencyCombo"
+        		labelField="@display" 
+        		dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.FundingAgency').DictionaryEntry}">
+        	</mx:ComboBox>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle">
+        	<mx:Label text="Effective Until:" width="120"/>
+        	<mx:DateField id="expirationDatePicker"></mx:DateField>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle">
+        	<mx:Label text="Your email address" width="120"/>
+        	<mx:TextInput width="100%" id="emailAddress"></mx:TextInput>
+        </mx:HBox>
+        <mx:VBox verticalGap="0" width="100%">
+    	    <mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Microarray Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
+	        <mx:CheckBox label="I agree" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@idLab != '') &amp;&amp; this.expirationDatePicker.text != null &amp;&amp; this.emailAddress.text != ''}" id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="center"/>
+        </mx:VBox>
+    </mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@idLab != '') &amp;&amp; this.expirationDatePicker.text != null &amp;&amp; this.emailAddress.text != ''  &amp;&amp; this.agreeCheckbox.selected}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+
+	
+</mx:TitleWindow>

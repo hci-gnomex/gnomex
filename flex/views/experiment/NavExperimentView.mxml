@@ -227,7 +227,7 @@
 			this.browseView.checkSecurity();
 			if (parentApplication.hasPermission("canAccessAnyObject")) {
 				currentState = "AdminState";
-			} else if (parentApplication.isGuestMode()) {
+			} else if (parentApplication.currentState == "GuestState") {
 				currentState = "GuestState"; 
 			} else {
 				currentState = "";
