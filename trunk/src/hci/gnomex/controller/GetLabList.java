@@ -152,6 +152,8 @@ public class GetLabList extends GNomExCommand implements Serializable {
           lab.excludeMethodFromXML("getManagers");
 
           lab.excludeMethodFromXML("getBillingAccounts");
+          lab.excludeMethodFromXML("getApprovedBillingAccounts");
+          lab.excludeMethodFromXML("getPendingBillingAccounts");
           
           lab.excludeMethodFromXML("getProjects");
           
