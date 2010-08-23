@@ -232,24 +232,32 @@ public class WorkItemFilter extends DetailObject {
   private void addBaseQueryBody(StringBuffer queryBuf, int level) {
     
     queryBuf.append(" FROM                WorkItem wi ");
-    queryBuf.append(" JOIN                wi.request as req ");
-    queryBuf.append(" JOIN                req.appUser as appUser ");
       
     if (level == SAMPLE_LEVEL) {
+      queryBuf.append(" JOIN         wi.request as req ");
+      queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.sample s ");     
     } else if (level == LABELED_SAMPLE_LEVEL) {
+      queryBuf.append(" JOIN         wi.request as req ");
+      queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.labeledSample ls ");
       queryBuf.append(" JOIN         ls.sample s ");
     } else if (level == LANE_LEVEL) {
+      queryBuf.append(" JOIN         wi.request as req ");
+      queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.sequenceLane l ");
       queryBuf.append(" JOIN         l.sample s ");
     } else if (level == HYB_LEVEL) {
+      queryBuf.append(" JOIN         wi.request as req ");
+      queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.hybridization h ");      
       queryBuf.append(" LEFT JOIN    h.slide  slide ");
       queryBuf.append(" LEFT JOIN    h.arrayCoordinate ac ");
       queryBuf.append(" LEFT JOIN    h.slideDesign slideDesign ");
       queryBuf.append(" LEFT JOIN    req.slideProduct slideProduct ");
     } else if (level == FLOW_CELL_LEVEL) {
+      queryBuf.append(" LEFT JOIN    wi.request as req ");
+      queryBuf.append(" LEFT JOIN    req.appUser as appUser ");
       queryBuf.append(" LEFT JOIN    wi.flowCellChannel as ch ");
       queryBuf.append(" LEFT JOIN    ch.flowCell as fc ");
       queryBuf.append(" LEFT JOIN    ch.sequenceLanes as lane ");
