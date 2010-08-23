@@ -1,10 +1,11 @@
 GNomEx Release Notes
 
-4.6.8
+4.9 (Aug 23, 2010)
 ------------------------
 - Added ability for univ users (with or without GNomEx account) to submit work authorization forms in gnomex
 - Added ability for admins to approve pending billing accounts (from work auth forms)
 - Fix bug that was causing delete request to fail because of fk violation to seq lib treatments.
+- Fix bug introduced in 4.8.7 that was causing empty work list for sequencing run and sequencing data pipeline.
 
 4.8.7.1 (Aug 17, 2010)
 -------------------------
