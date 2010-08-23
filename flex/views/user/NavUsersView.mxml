@@ -157,10 +157,22 @@
 		  
 		  public var itemToSelect:Object = null;
 		  
+		  public var isInitialized:Boolean = false;
+		  
 		  
 		  private function init():void {
 			  checkSecurity();
-			  initializeData();	
+			  
+			  if (itemToSelect != null) {
+			  	this.navBar.selectedChild = this.groupsView;
+			  	this.groupDetailView.theTab.selectedChild = this.groupDetailView.billingAccountsTab;
+			  }
+			  
+			  if (!isInitialized) {
+				  initializeData();		  	
+			  }
+			  
+			  isInitialized = true;
 		  }
             		
 		  public function isDirty():Boolean {
@@ -412,7 +424,7 @@
               var emptyNode:XML = <Lab idLab='' name='' label=''/>;
               promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser));			
 
-              if (itemToSelect != null) {
+              if (itemToSelect != null  && itemToSelect.name() == "AppUser") {
 	              var item:Object = getAppUserList.lastResult.AppUser.(@idAppUser == itemToSelect.@id);
     	          if (item !== null && item is XMLList) {
 					this.usersGrid.selectedItem = item[0]; 
@@ -423,18 +435,20 @@
 					this.usersGrid.scrollToIndex(this.usersGrid.selectedIndex);    
 					userRowSelected(null);          	
             	  }
+            	  itemToSelect = null;
               }
              } else if (call.marker == "doneGetLabList") {
-             	if (itemToSelect != null) {
+             	if (itemToSelect != null && itemToSelect.name() == "Lab") {
 	              var labItem:Object = getLabList.lastResult.Lab.(@idLab == itemToSelect.@id);
     	          if (labItem !== null && labItem is XMLList) {
-					this.labsGrid.selectedItem = labItem[0];     
-					this.labsGrid.scrollToIndex(this.labsGrid.selectedIndex);
+					this.labsGrid.selectedItem = labItem[0];  
+					callLater(scrollToLab);
 					this.labRowSelected();          	
             	  } else if (item != null) {
             	  	this.labsGrid.selectedItem = labItem;
 					labRowSelected();          	
             	  }
+            	  itemToSelect = null;
               	}
 
             } if (call.marker == "doneGetLab") {
@@ -444,10 +458,13 @@
 
             } 
             
-            itemToSelect = null;
 
           }
           
+          
+          private function scrollToLab():void {
+			this.labsGrid.scrollToIndex(this.labsGrid.selectedIndex);
+          }
           
           
           private function onDeleteLab(event:ResultEvent):void {          	
