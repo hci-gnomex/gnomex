@@ -225,7 +225,7 @@
 	        </mx:HBox>
 	        <mx:Text  
 	        	styleName="welcome" id="text3">
-	        	<mx:htmlText><![CDATA[      -    Submit a work authorization form indicating the<br>           billing accounto be charged for work]]></mx:htmlText>
+	        	<mx:htmlText><![CDATA[      -    Submit a work authorization form indicating the<br>           billing accoun to be charged for work]]></mx:htmlText>
 	        </mx:Text>
    	
    </mx:VBox>
