@@ -189,7 +189,7 @@
 	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
 		<replace file="${build.dir}/${flexapp.name}.jsp"
     											 token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
-		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&quot;,"/>
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&quot;,"/>
 		<copy todir="${build.dir}/assets" overwrite="true">
 					<fileset dir="${flexapp.dir}/assets">
 						<include name="*.*" />
