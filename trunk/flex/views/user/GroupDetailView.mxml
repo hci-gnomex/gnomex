@@ -439,7 +439,7 @@
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
  
 		
-		<mx:TabNavigator width="100%" height="100%"  styleName="form" >
+		<mx:TabNavigator id="theTab" width="100%" height="100%"  styleName="form" >
 			<mx:VBox label="Group" width="100%" height="100%"  paddingTop="0">
 				
 				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
@@ -575,7 +575,7 @@
 						</mx:HBox>
 
 			</mx:VBox>
-			<mx:VBox label="Billing Accounts" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:HBox horizontalGap="12">
 					<mx:RadioButton label="Internal Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? false : true}" click="checkPricingChange()"/>
 					<mx:RadioButton id="isExternalPricingButton" label="External Pricing" groupName="pricingModel" selected="{parentDocument.fullLab.@isExternalPricing == 'Y' ? true : false}" click="checkPricingChange()"/>

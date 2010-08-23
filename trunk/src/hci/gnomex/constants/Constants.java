@@ -30,6 +30,7 @@ public class Constants {
   
   public static final String              WINDOW_TRACK_REQUESTS           = "ExperimentDetail";
   public static final String              WINDOW_FETCH_RESULTS            = "ExperimentDownload";
+  public static final String              WINDOW_BILLING_ACCOUNT_DETAIL   = "BillingAccountDetail";
 
   public static final String              WINDOW_NAME_TRACK_REQUESTS      = "Experiment Detail";
   public static final String              WINDOW_NAME_FETCH_RESULTS       = "Experiment Download";

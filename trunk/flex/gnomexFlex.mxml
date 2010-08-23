@@ -502,6 +502,30 @@
 				
 			}
 
+			public function showBillingAccountDetail(idLab:String):void {
+				var theLab:Object = this.getLabList.lastResult.Lab.(@idLab == idLab);
+				if (theLab is XMLList) {
+					theLab = theLab[0];
+				}
+				var labNode:XML = <Lab id=''/>;
+				labNode.@id = theLab.@idLab;
+				navUsersView.itemToSelect = labNode;
+				
+
+				// We have to make sure that the first time a lookup
+				// occurs after lauch, we refresh the lab list
+				// through show event (init()).  The next time
+				// through, we will make the call directly.
+				if (navUsersView.isInitialized) {
+					navUsersView.initializeData();
+				}
+
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navUsersView;
+				
+			}
+
 			public function showProtocol(idProtocol:Object, className:String):void {
 				protocolsView.lastSavedProtocolId = idProtocol;
 				protocolsView.lastSelectedProtocolClass = className; 
@@ -590,6 +614,15 @@
             		return false;
             	}
             }
+            public function launchBillingAccountDetail():Boolean {
+            	if (Application.application.parameters.launchWindow != null &&
+            	    Application.application.parameters.launchWindow == "BillingAccountDetail" &&
+            	    Application.application.parameters.idLab != null ) {
+       				return true;
+            	} else { 
+            		return false;
+            	}
+            }
             
             public function getLaunchRequestNumber():String {
             	if (Application.application.parameters.requestNumber != null) {
@@ -601,6 +634,14 @@
             public function getLaunchAnalysisNumber():String {
             	if (Application.application.parameters.analysisNumber != null) {
        				return Application.application.parameters.analysisNumber;
+            	} else {
+            		return "";
+            	}
+            }
+            
+            public function getLaunchIdLab():String {
+            	if (Application.application.parameters.idLab != null) {
+       				return Application.application.parameters.idLab;
             	} else {
             		return "";
             	}
@@ -888,6 +929,8 @@
 	        		this.showExperiment(getLaunchRequestNumber());
 	        	} else if (launchAnalysisDetail()) {
    					this.showAnalysisForNumber(getLaunchAnalysisNumber());
+	        	} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
+   					this.showBillingAccountDetail(this.getLaunchIdLab());
 	        	} 
 	        	 
 	        }

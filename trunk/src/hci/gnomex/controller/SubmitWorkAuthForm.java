@@ -118,6 +118,8 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
+    String launchBillingAccountDetail = this.launchAppURL + "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab();  
+    
     
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer coreNote= new StringBuffer();
@@ -147,7 +149,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
     coreNote.append("The following work authorization " +
         " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
-        " and is pending approval in GNomEx " + launchAppURL + ".");
+        " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
 
     body.append("\n");
     body.append("\n");
