@@ -184,7 +184,7 @@
 	        	
 	        </mx:HBox>
 	        <mx:Text  
-	        	text="      -     Download experiment results" styleName="welcome">
+	        	text="      -     Download experiment results" styleName="welcome" paddingTop="0">
 	        </mx:Text>
 	        <mx:Text  
 	        	text="      -     View experiment progress" styleName="welcome">
@@ -225,7 +225,7 @@
 	        </mx:HBox>
 	        <mx:Text  
 	        	styleName="welcome" id="text3">
-	        	<mx:htmlText><![CDATA[      -    Submit a work authorization form indicating the<br>           billing accoun to be charged for work]]></mx:htmlText>
+	        	<mx:htmlText><![CDATA[      -    Submit a work authorization form indicating the<br>           billing account to be charged for work]]></mx:htmlText>
 	        </mx:Text>
    	
    </mx:VBox>
