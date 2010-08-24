@@ -12,7 +12,7 @@
     <mx:HTTPService 
     id="getSlideProductList" 
     url="GetSlideProductList.gx"
-    showBusyCursor="false"
+    showBusyCursor="true"
     resultFormat="e4x"
     result="onGetSlideProductList(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to slide product list', event)"
@@ -54,7 +54,10 @@
 		
 		public function init():void {
 			this.searchView.checkSecurity();
-			this.getSlideProductList.send();
+			
+			if (!isInitialized) {
+				this.getSlideProductList.send();
+			}
 		}
 		
 		// Perform initialization after slide product list is returned
