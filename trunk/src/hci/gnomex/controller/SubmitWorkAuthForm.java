@@ -148,7 +148,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         "requests can now be submitted against this account in GNomEx.");
 
     coreNote.append("The following work authorization " +
-        " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
+        "has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) +  
         " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
 
     body.append("\n");
