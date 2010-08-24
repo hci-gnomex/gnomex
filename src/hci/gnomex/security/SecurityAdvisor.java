@@ -13,6 +13,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.HibernateGuestSession;
@@ -364,6 +365,28 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }     
     } 
+    // 
+    // SlideProduct
+    //
+    else if (object instanceof SlideProduct) {
+      // Admins can read all slide products
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        SlideProduct sp = (SlideProduct)object;
+        // Normal gnomex users can read any slide that is
+        // not custom
+        if (sp.getIdLab() == null) {
+          canRead = true;
+        } else if (isGroupIAmMemberOf(sp.getIdLab()) || 
+                    isGroupIManage(sp.getIdLab()) || 
+                    isGroupICollaborateWith(sp.getIdLab())) {
+          // Only lab members, collaborators, and managers can
+          // read slide products that are custom for their own lab
+          canRead = true;
+        }
+      }
+    }
     //
     // Dictionary
     //    
@@ -935,6 +958,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       lab.excludeMethodFromXML("getMembers");
       lab.excludeMethodFromXML("getCollaborators");
       lab.excludeMethodFromXML("getManagers");
+      
+      lab.excludeMethodFromXML("getBillingAccounts");
+      lab.excludeMethodFromXML("getApprovedBillingAccounts");
+      lab.excludeMethodFromXML("getPendingBillingAccounts");
       
       lab.excludeMethodFromXML("getIsMyLab");
       lab.excludeMethodFromXML("getCanSubmitRequests");
