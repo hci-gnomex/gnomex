@@ -338,6 +338,8 @@
 			public var promptedSubmitRequestLabList:PromptXMLListCollection;
 			[Bindable]
 			public var manageLabList:XMLListCollection;
+			[Bindable]
+			public var promptedWorkAuthLabList:PromptXMLListCollection;
 
 			private var properties:Object;
 
@@ -878,6 +880,18 @@
 	        	submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
 	        	promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 	        	manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
+	        	
+	       		// For submitting work auth forms online, a non-gnomex university user will
+	       		// select from a list of all labs.  A guest user doesn't have this feature.
+	       		// A normal gnomex user will select from a list of their labs. (Admins
+	       		// will have a full list since they can submit a request on behalf 
+	       		// of any lab.
+	        	if (this.isUniversityOnlyUser) {
+	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
+	        	} else if (this.isGuestMode()) {	        		
+	        	} else {
+	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
+	        	}
 	        	showProgress(30);
 	        	enableApp();
 	        }		

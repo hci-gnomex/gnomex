@@ -66,7 +66,7 @@
 			<mx:Label text="Lab" width="120"/>
 			<mx:ComboBox width="500" id="labCombo"
 				labelField="@name" 
-				dataProvider="{parentApplication.promptedLabList}"></mx:ComboBox>
+				dataProvider="{parentApplication.promptedWorkAuthLabList}"></mx:ComboBox>
 		</mx:HBox>
 	    <mx:VBox verticalGap="0">
 	        <mx:HBox>
