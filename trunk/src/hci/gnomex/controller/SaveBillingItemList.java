@@ -229,7 +229,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     String subject = emailFormatter.getSubject();
     
     boolean send = false;
-    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
       if (contactEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {

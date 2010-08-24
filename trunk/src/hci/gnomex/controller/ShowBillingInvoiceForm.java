@@ -308,7 +308,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     String note = "&nbsp";
     boolean send = false;
     if (contactEmail != null && !contactEmail.equals("")) {
-      if (serverName.equals(dh.getProperty(Property.PRODUCTION_SERVER))) {
+      if (dh.isProductionServer(serverName)) {
         send = true;
       } else {
         if (contactEmail.equals(dh.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {

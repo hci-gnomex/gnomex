@@ -311,7 +311,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     String submitterEmail = billingAccount.getSubmitterEmail();
     String coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
     boolean isTestEmail = false;
-    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
       if (submitterEmail.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {

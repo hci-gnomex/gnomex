@@ -200,7 +200,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
     boolean send = false;
-    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
       if (request.getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {

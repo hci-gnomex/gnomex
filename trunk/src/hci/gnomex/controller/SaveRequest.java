@@ -1226,7 +1226,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;
-    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
       if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {

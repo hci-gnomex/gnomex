@@ -207,7 +207,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     
     
     boolean send = false;
-    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
       if (request.getAppUser() != null  &&
