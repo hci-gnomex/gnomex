@@ -1,4 +1,4 @@
-GNomEx Release Notes
+﻿GNomEx Release Notes
 
 4.9 (Aug 23, 2010)
 ------------------------
@@ -6,6 +6,10 @@ GNomEx Release Notes
 - Added ability for admins to approve pending billing accounts (from work auth forms)
 - Fix bug that was causing delete request to fail because of fk violation to seq lib treatments.
 - Fix bug introduced in 4.8.7 that was causing empty work list for sequencing run and sequencing data pipeline.
+- Scrub out slide product, slide design list for guest users and non-gnomex university users
+- Scrub out all custom slides not belonging to user's lab
+- Don't show 'no slides' message before user has selected microarray app radio button on Microarray Submit Request window.
+- Show 'changes have not been saved' message when admin clicks on 'Approved' checkbox for pending billing account of Lab.
 
 4.8.7.1 (Aug 17, 2010)
 -------------------------
