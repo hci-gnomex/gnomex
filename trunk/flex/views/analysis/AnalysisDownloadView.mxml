@@ -278,7 +278,6 @@
     		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?"
     	}
 
-    	var call:Object = event.token;
 		Alert.show( message,
 						title,
 						(Alert.YES | Alert.NO), this, 
