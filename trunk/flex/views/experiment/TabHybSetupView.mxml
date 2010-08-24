@@ -134,9 +134,24 @@
         }
 
         public function checkForSlideProductWarning():void {
+        	if (currentState == "EditState") {
+        		return;
+        	}
+        	
         	if (this.slideProductCombo.dataProvider == null) {
         		return;
         	}
+        	slideProductCombo.dataProvider.refresh();
+        	
+        	// For submit requests, just show a blank slide product if the
+        	// user hasn't narrowed it down to a particular microarray app
+    		if (this.microarrayAppRadioGroup.selectedValue == null || this.microarrayAppRadioGroup.selectedValue == '') {
+        		this.slideProductCombo.selectedIndex = 0;
+        		slideProductStack.selectedIndex = 2;
+        		return;
+        	}
+        	
+        	
         	if (this.slideProductCombo.dataProvider.length == 1) {
         		slideProductStack.selectedIndex = 1;
         	} else {
@@ -363,7 +378,10 @@
 					<mx:Text  styleName="warningLabelMinor" width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + parentDocument.applicationName + ' slides are listed.  Please contact Brian Dalley about slide stock.'}">								
 					</mx:Text>						    	
 			    </mx:HBox>
-				
+				<mx:HBox width="100%"  borderStyle="none" verticalAlign="middle">
+					<mx:Text  styleName="warningLabelMinor" width="100%" text="">								
+					</mx:Text>						    	
+			    </mx:HBox>
 				
 			</mx:ViewStack>
 		</mx:HBox>

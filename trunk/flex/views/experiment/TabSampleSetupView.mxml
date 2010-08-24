@@ -421,7 +421,11 @@
 		
 		private function pickOrganism():void {
 			parentDocument.samplesView.initializeSamplesGrid();
-			parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;
+			
+			if (parentDocument.isMicroarrayState()) {
+				parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;				
+				parentDocument.hybSetupView.checkForSlideProductWarning();
+			}
 			propagateSampleOrganism();
 			checkSampleSetupCompleteness();
 
