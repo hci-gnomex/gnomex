@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.SlideProductFilter;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -48,20 +49,31 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
-    StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-    log.info("Query for GetSlideProductList: " + buf.toString());
-    List slideDesigns = (List)sess.createQuery(buf.toString()).list();
     
     Document doc = new Document(new Element("SlideProductList"));
-    for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
-      SlideProduct sp = (SlideProduct)i.next();
-      Hibernate.initialize(sp.getSlideDesigns());
-      Hibernate.initialize(sp.getApplications());
+    
+    // Only return a list of slide products if the user is a GNomEx user that participates
+    // in a group
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+
+      StringBuffer buf = filter.getQuery(this.getSecAdvisor());
+      log.info("Query for GetSlideProductList: " + buf.toString());
+      List slideProducts = (List)sess.createQuery(buf.toString()).list();
       
-      Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-      
-      doc.getRootElement().addContent(spNode);
-      
+      for(Iterator i = slideProducts.iterator(); i.hasNext();) {
+        SlideProduct sp = (SlideProduct)i.next();
+        Hibernate.initialize(sp.getSlideDesigns());
+        Hibernate.initialize(sp.getApplications());
+        
+        // Don't show any slide products user doesn't have permission to read
+        if (!this.getSecAdvisor().canRead(sp)) {
+          continue;
+        }
+        
+        Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        doc.getRootElement().addContent(spNode);
+        
+      }      
     }
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();

@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.SlideProductFilter;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -49,45 +50,57 @@ public class GetSlideList extends GNomExCommand implements Serializable {
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
-    StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-    log.info("Query for GetSlideProductList: " + buf.toString());
-    List slideDesigns = (List)sess.createQuery(buf.toString()).list();
-    
     Document doc = new Document(new Element("SlideList"));
     Element slideNode = null;
-    for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
-      SlideProduct sp = (SlideProduct)i.next();
-      Hibernate.initialize(sp.getSlideDesigns());
-      Iterator sdIter = sp.getSlideDesigns().iterator();
-      if (sp.getIsSlideSet().equals("Y")) {
-        slideNode = new Element("SlideProduct");
-        slideNode.setAttribute("name",sp.getName());
-        slideNode.setAttribute("id", sp.getIdSlideProduct().toString());
-        slideNode.setAttribute("isSlideSet",sp.getIsSlideSet());
-        slideNode.setAttribute("isActive", sp.getIsActive());
-        while (sdIter.hasNext()) {
-          SlideDesign sd = (SlideDesign) sdIter.next();
-          Element sdNode = new Element("SlideDesign");
-          sdNode.setAttribute("name", sd.getName());
-          sdNode.setAttribute("id", sd.getIdSlideDesign().toString());
-          sdNode.setAttribute("isActive", sd.getIsActive());
-          sdNode.setAttribute("isInSlideSet", sp.getIsSlideSet());
-          sdNode.setAttribute("slideSetName", sp.getName());
-          sdNode.setAttribute("idSlideProduct", sp.getIdSlideProduct().toString());
-          slideNode.addContent(sdNode);
+    // Only return a list of slide products if the user is a GNomEx user that participates
+    // in a group
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+      StringBuffer buf = filter.getQuery(this.getSecAdvisor());
+      log.info("Query for GetSlideProductList: " + buf.toString());
+      List slideDesigns = (List)sess.createQuery(buf.toString()).list();
+      
+      for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
+        SlideProduct sp = (SlideProduct)i.next();
+        
+        // Don't show any slides that user doesn't have read permission
+        // on.
+        if (!getSecAdvisor().canRead(sp)) {
+          continue;
         }
-      } else {
-        while (sdIter.hasNext()) {
-          SlideDesign sd = (SlideDesign) sdIter.next();
-          slideNode = new Element("SlideDesign");
-          slideNode.setAttribute("name", sd.getName());
-          slideNode.setAttribute("id", sd.getIdSlideDesign().toString());
-          slideNode.setAttribute("isActive", sd.getIsActive());
-          slideNode.setAttribute("isInSlideSet", "N");
+
+        
+        Hibernate.initialize(sp.getSlideDesigns());
+        Iterator sdIter = sp.getSlideDesigns().iterator();
+        if (sp.getIsSlideSet().equals("Y")) {
+          slideNode = new Element("SlideProduct");
+          slideNode.setAttribute("name",sp.getName());
+          slideNode.setAttribute("id", sp.getIdSlideProduct().toString());
+          slideNode.setAttribute("isSlideSet",sp.getIsSlideSet());
+          slideNode.setAttribute("isActive", sp.getIsActive());
+          while (sdIter.hasNext()) {
+            SlideDesign sd = (SlideDesign) sdIter.next();
+            Element sdNode = new Element("SlideDesign");
+            sdNode.setAttribute("name", sd.getName());
+            sdNode.setAttribute("id", sd.getIdSlideDesign().toString());
+            sdNode.setAttribute("isActive", sd.getIsActive());
+            sdNode.setAttribute("isInSlideSet", sp.getIsSlideSet());
+            sdNode.setAttribute("slideSetName", sp.getName());
+            sdNode.setAttribute("idSlideProduct", sp.getIdSlideProduct().toString());
+            slideNode.addContent(sdNode);
+          }
+        } else {
+          while (sdIter.hasNext()) {
+            SlideDesign sd = (SlideDesign) sdIter.next();
+            slideNode = new Element("SlideDesign");
+            slideNode.setAttribute("name", sd.getName());
+            slideNode.setAttribute("id", sd.getIdSlideDesign().toString());
+            slideNode.setAttribute("isActive", sd.getIsActive());
+            slideNode.setAttribute("isInSlideSet", "N");
+          }
         }
+        doc.getRootElement().addContent(slideNode);
       }
-      doc.getRootElement().addContent(slideNode);
-    }
+    } 
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
