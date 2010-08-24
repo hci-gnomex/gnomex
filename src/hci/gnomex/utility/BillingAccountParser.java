@@ -98,7 +98,7 @@ public class BillingAccountParser extends DetailObject implements Serializable {
       String isApproved = n.getAttributeValue("isApproved");
       
       // If we have toggled from not approved to approved, set the approved date
-      if (isApproved.equals("Y")) {
+      if (isApproved.equals("Y") && billingAccount.getIdBillingAccount() != null) {
         if (billingAccount.getIsApproved() == null || 
             billingAccount.getIsApproved().equals("") ||
             billingAccount.getIsApproved().equalsIgnoreCase("N")) {
