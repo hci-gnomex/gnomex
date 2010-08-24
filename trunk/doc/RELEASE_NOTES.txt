@@ -5,6 +5,10 @@
 ------------------------
 - When gnomex user is submitting a work auth form, show only labs he belong to in dropdown. 
 - Provide way to launch gnomex to automatically bring up Work Auth window. 
+- For advanced search, show only slides (in dropdown) that are used for public experiments when user is guest or univ-only user
+- Fix bug that was causing error on save after adding new Billing account to a lab.
+- Add info under 'Trouble downloading' to recommend users download files individually when over 2 GB.  Also, in prompt recommend indiv. file download when exceed 2 GB.\
+
 
 4.9 (Aug 23, 2010)
 ------------------------
