@@ -71,8 +71,19 @@
           	
 			this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 			
+			pendingBillingAccounts.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingPendingAccountChange);
+
 		}
 		
+		private function underlyingPendingAccountChange(event:CollectionEvent):void {
+			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				// ignore refresh and resets 
+				return;
+			}
+
+			dirty.setDirty();
+		}
+
 		public function promptToSaveDirty():void {
 			if (dirty.isDirty()) {
 				Alert.show("Your changes to group " + parentDocument.fullLab.@name + " have not been saved.  Save now?", 
