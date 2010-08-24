@@ -120,6 +120,7 @@
         	import views.util.CaptchaView;
         	import views.util.FileDownloadUtil;
         	import views.util.PromptXMLListCollection;
+        	import views.util.WorkAuthorizationWindow;
         	import mx.collections.Sort;
         	import mx.collections.XMLListCollection;
             import mx.controls.Alert;
@@ -527,6 +528,17 @@
 				theViews.selectedChild = navUsersView;
 				
 			}
+			
+			private function showWorkAuthWindow():void {
+				var workAuthWindow:WorkAuthorizationWindow = WorkAuthorizationWindow(PopUpManager.createPopUp(this.mainArea, WorkAuthorizationWindow, true));
+				PopUpManager.centerPopUp(workAuthWindow);
+				
+				workAuthWindow.emailAddress.text = getUserEmail();
+				if (workAuthWindow.labCombo.dataProvider.length == 2) {
+					workAuthWindow.labCombo.selectedIndex = 1;
+				}
+			}			       
+
 
 			public function showProtocol(idProtocol:Object, className:String):void {
 				protocolsView.lastSavedProtocolId = idProtocol;
@@ -626,6 +638,15 @@
             	}
             }
             
+            public function launchWorkAuthForm():Boolean {
+            	if (Application.application.parameters.launchWindow != null &&
+            	    Application.application.parameters.launchWindow == "WorkAuthForm") {
+            		return true;
+            	} else {
+            		return false;
+            	}
+            }
+            
             public function getLaunchRequestNumber():String {
             	if (Application.application.parameters.requestNumber != null) {
        				return Application.application.parameters.requestNumber;
@@ -703,7 +724,7 @@
             	}
             }
             
-            public function getUserEmail():Object {
+            public function getUserEmail():String {
             	if (isGuestMode()) {
             		return "";
             	} else {
@@ -945,6 +966,8 @@
    					this.showAnalysisForNumber(getLaunchAnalysisNumber());
 	        	} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
    					this.showBillingAccountDetail(this.getLaunchIdLab());
+	        	} else if (launchWorkAuthForm() && !isGuestMode()) {
+   					this.showWorkAuthWindow();
 	        	} 
 	        	 
 	        }
