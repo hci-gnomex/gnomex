@@ -1,19 +1,21 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.SlideProduct;
-import hci.gnomex.model.SlideProductFilter;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.SlideProduct;
+import hci.gnomex.model.SlideProductFilter;
+import hci.gnomex.model.Visibility;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -52,29 +54,59 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     
     Document doc = new Document(new Element("SlideProductList"));
     
-    // Only return a list of slide products if the user is a GNomEx user that participates
-    // in a group
+    StringBuffer buf = new StringBuffer();
+    List slideProducts = null;
+    TreeMap slideProductSortedMap = new TreeMap();
+    
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
-
-      StringBuffer buf = filter.getQuery(this.getSecAdvisor());
+      buf = filter.getQuery(this.getSecAdvisor());
       log.info("Query for GetSlideProductList: " + buf.toString());
-      List slideProducts = (List)sess.createQuery(buf.toString()).list();
-      
-      for(Iterator i = slideProducts.iterator(); i.hasNext();) {
-        SlideProduct sp = (SlideProduct)i.next();
-        Hibernate.initialize(sp.getSlideDesigns());
-        Hibernate.initialize(sp.getApplications());
-        
-        // Don't show any slide products user doesn't have permission to read
-        if (!this.getSecAdvisor().canRead(sp)) {
-          continue;
-        }
-        
-        Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        doc.getRootElement().addContent(spNode);
-        
-      }      
+      slideProducts = (List)sess.createQuery(buf.toString()).list();
+    } else {
+      slideProducts = new ArrayList();
     }
+    for(Iterator i = slideProducts.iterator(); i.hasNext();) {
+      SlideProduct sp = (SlideProduct)i.next();
+      slideProductSortedMap.put(sp.getName() + sp.getIdSlideProduct(), sp);
+    }
+    
+    // Figure out the slides that have public experiments on them.  All users
+    // can see these slides
+    buf = new StringBuffer();
+    buf.append("SELECT distinct sp ");
+    buf.append("FROM   Request r ");
+    buf.append("JOIN   r.slideProduct as sp ");
+    buf.append("WHERE  r.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+
+    log.info("Query for GetSlideProductList: " + buf.toString());
+    List publicSlideProducts = (List)sess.createQuery(buf.toString()).list();
+
+    // Indicate that this slides have public experiments on them
+    for(Iterator i = publicSlideProducts.iterator(); i.hasNext();) {
+      SlideProduct sp = (SlideProduct)i.next();
+      
+      sp.hasPublicExperiments(true);
+      slideProductSortedMap.put(sp.getName() + sp.getIdSlideProduct(), sp);
+    }
+
+    
+      
+    for(Iterator i = slideProductSortedMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      
+      SlideProduct sp = (SlideProduct)slideProductSortedMap.get(key);
+      Hibernate.initialize(sp.getSlideDesigns());
+      Hibernate.initialize(sp.getApplications());
+
+      // Don't show any custom slide products that user doesn't have read permission on.
+      if (!this.getSecAdvisor().canRead(sp)) {
+        continue;
+      }
+
+      Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      doc.getRootElement().addContent(spNode);
+
+    }      
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);

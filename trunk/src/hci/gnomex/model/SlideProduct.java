@@ -24,6 +24,9 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
   private Integer  idBillingSlideServiceClass;
   private Integer  idBillingSlideProductClass;
   
+  // Transient
+  private boolean hasPublicExperiments = false;
+  
   public void copyEditableDataFrom(SlideProduct sp) {
     this.setName(sp.getName());
     this.setIdOrganism(sp.getIdOrganism());
@@ -196,7 +199,13 @@ public class SlideProduct extends DictionaryEntry implements Serializable {
   }
 
   
- 
+  public boolean hasPublicExperiments() {
+    return this.hasPublicExperiments;
+  }
+  
+  public void hasPublicExperiments(boolean hasPublicExperiments) {
+    this.hasPublicExperiments = hasPublicExperiments;
+  }
  
   
  

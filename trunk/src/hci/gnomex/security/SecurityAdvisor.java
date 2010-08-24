@@ -372,10 +372,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Admins can read all slide products
       if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
         canRead = true;
-      } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      } else  {
         SlideProduct sp = (SlideProduct)object;
+        if (sp.hasPublicExperiments()){
+          // Allow anyone read access to slide product it if it
+          // it is used on public experiments.
+          canRead = true;
+        } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS))
         // Normal gnomex users can read any slide that is
-        // not custom
+        // not custom and can look at custom slides from their
+        // labs
         if (sp.getIdLab() == null) {
           canRead = true;
         } else if (isGroupIAmMemberOf(sp.getIdLab()) || 
@@ -384,7 +390,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           // Only lab members, collaborators, and managers can
           // read slide products that are custom for their own lab
           canRead = true;
-        }
+        } 
       }
     }
     //
