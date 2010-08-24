@@ -17,7 +17,6 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        CONTACT_EMAIL_SOFTWARE_BUGS         = "contact_email_software_bugs";
   public static final String        FLOWCELL_DIRECTORY_FLAG             = "flowcell_directory_flag";
   public static final String        QC_DIRECTORY                        = "qc_directory";
-  public static final String        PRODUCTION_SERVER                   = "production_server";
   public static final String        LUCENE_INDEX_DIRECTORY              = "lucene_index_directory";
   public static final String        LUCENE_EXPERIMENT_INDEX_DIRECTORY   = "lucene_experiment_index_directory";
   public static final String        LUCENE_PROTOCOL_INDEX_DIRECTORY     = "lucene_protocol_index_directory";
@@ -37,7 +36,9 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        BILLING_PO_ACCOUNT                  = "billing_po_account";
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
   
-  
+
+
+
   private Integer  idProperty;
   private String   propertyName;
   private String   propertyValue;

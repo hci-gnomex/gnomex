@@ -35,6 +35,7 @@ public class DictionaryHelper implements Serializable {
   private Map              seqLibTreatmentMap = new HashMap();
   private Map              slideDesignMap = new HashMap();
 
+  private static final String    PROPERTY_PRODUCTION_SERVER                   = "production_server";
   
   public DictionaryHelper() {    
   }
@@ -360,8 +361,17 @@ public class DictionaryHelper implements Serializable {
     }
   }
   
+  public boolean isProductionServer(String serverName) {
+    if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null &&
+        this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
   public String getAnalysisDirectory(String serverName) {
-    if (serverName.equals(this.getProperty(Property.PRODUCTION_SERVER))) {
+    if (isProductionServer(serverName)) {
       return this.getProperty(Property.ANALYSIS_DIRECTORY);
     } else {
       return this.getProperty(Property.ANALYSIS_TEST_DIRECTORY);
@@ -369,7 +379,7 @@ public class DictionaryHelper implements Serializable {
   }
   
   public String getFlowCellDirectory(String serverName) {
-    if (serverName.equals(this.getProperty(Property.PRODUCTION_SERVER))) {
+    if (isProductionServer(serverName)) {
       return this.getProperty(Property.FLOWCELL_DIRECTORY);
     } else {
       return this.getProperty(Property.FLOWCELL_TEST_DIRECTORY);
@@ -377,7 +387,7 @@ public class DictionaryHelper implements Serializable {
   }
 
   public String getMicroarrayDirectoryForWriting(String serverName) {
-    if (serverName.equals(this.getProperty(Property.PRODUCTION_SERVER))) {
+    if (isProductionServer(serverName)) {
       return this.getProperty(Property.EXPERIMENT_DIRECTORY);
     } else {
       return this.getProperty(Property.EXPERIMENT_TEST_DIRECTORY);

@@ -240,7 +240,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
     boolean send = false;
-    if (serverName.equals(dictionaryHelper.getProperty(Property.PRODUCTION_SERVER))) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
       if (request.getAppUser() != null  &&
