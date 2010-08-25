@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
         width="100%"
         creationPolicy="all" show="init()"
-        height="100%" xmlns:util="views.util.*" >
+        height="100%" xmlns:util="views.util.*">
 
 
  
