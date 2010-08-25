@@ -646,7 +646,11 @@ public class Request extends HibernateDetailObject {
 
  
   public static String getBaseRequestNumber(String requestNumber) {
+    // Get rid of extraneous #
+    requestNumber = requestNumber.replaceAll("#", "");
+    
     // Strip off revision number after "R"
+    requestNumber = requestNumber.toUpperCase();
     String[] tokens = requestNumber.split("R");
     if (tokens.length > 1) {
       return tokens[0] + "R";
@@ -654,5 +658,6 @@ public class Request extends HibernateDetailObject {
       return requestNumber;
     }
   }
+  
   
 }
