@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*">
+	xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
 <mx:Label id="titleLabel" styleName="titleLabel" text="{codeSequencingPlatform == 'GAIIX' ? 'Illumina GAIIx Flow Cells' : 'Illumina HiSeq 2000 Flow Cells'}"/>
 	 
    <mx:HTTPService  
@@ -15,6 +15,12 @@
     useProxy="false">
     <mx:request xmlns="">
     	<codeSequencingPlatform>{codeSequencingPlatform}</codeSequencingPlatform>
+    	<flowCellNumber>{lookupField.text.indexOf('FC') == 0 ? lookupField.text : ''}</flowCellNumber>
+    	<requestNumber>{lookupField.text.indexOf('R') > 0 ? lookupField.text : ''}</requestNumber>
+        <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
+        <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
+        <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
+        <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
     </mx:request>
   </mx:HTTPService> 
       
@@ -27,6 +33,10 @@
 		
 		[Bindable]
 		public var codeSequencingPlatform:String = "";
+		
+		private function init():void {
+			this.getFlowCellList.send();
+		}
 
     	private function getLaneRowNumber(item:Object,col:int):String
     	{
@@ -71,16 +81,78 @@
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
 		}
 		
+		public function toggleDateCheckboxes(checkBoxNumber:int):void {
+			this.lookupField.text = "";
+			if (checkBoxNumber == 1) {
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+			} else if (checkBoxNumber == 2) {
+				this.lastWeekCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+			} else if (checkBoxNumber == 3) {
+				this.lastWeekCheckbox.selected  = false;
+				this.lastMonthCheckbox.selected = false; 
+				this.lastYearCheckbox.selected  = false;
+			}  else if (checkBoxNumber == 4) {
+				this.lastWeekCheckbox.selected  = false;
+				this.lastMonthCheckbox.selected = false; 
+				this.lastThreeMonthsCheckbox.selected = false;
+			}   
+		} 			
+		
+		private function setDefaultButton():void {
+			if (this.lookupField.text != '') {
+				this.lastWeekCheckbox.selected = false;
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected = false;
+			} 		
+		}
 	
 	]]>
 </mx:Script>    	
-	<mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
-	 
+<mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
+
+      <mx:HBox id="filterBox"  horizontalGap="20" verticalAlign="middle">
+      	  <mx:Label text="Filter by"/>
+      	  <mx:HBox horizontalGap="0" verticalAlign="middle">
+      	      <mx:Label text="Flow Cell # or Experiment #" id="label1"/>
+          	  <mx:TextInput id="lookupField" width="60" change="{setDefaultButton()}"/>     
+		      <mx:Button id="lookupButton"  
+		              	fontFamily="Arial"  height="18" width="30"
+		               	color="#400040" click="{if (lookupField.text != '') this.getFlowCellList.send();}" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>
+      	  </mx:HBox>
+
+	      <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+	      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+	    		<mx:click>toggleDateCheckboxes(1);this.getFlowCellList.send();</mx:click>
+	    	</mx:CheckBox>
+	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+	    		<mx:click>toggleDateCheckboxes(2);this.getFlowCellList.send();</mx:click>
+	    	</mx:CheckBox>
+	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   selected="true">
+	    		<mx:click>toggleDateCheckboxes(3);this.getFlowCellList.send();</mx:click>
+	    	</mx:CheckBox>
+	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+	    		<mx:click>toggleDateCheckboxes(4);this.getFlowCellList.send();</mx:click>
+	    	</mx:CheckBox>
+		  </mx:HBox>          	  
+
+
+      	  
+
+      </mx:HBox>
+
 	<mx:VDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			<mx:VBox width="100%" height="100%" verticalGap="1">			
-				<mx:VBox width="100%" height="100%" verticalGap="1">			
-					<mx:Label text="Flow Cells" fontWeight="bold"/>
+				<mx:VBox width="100%" height="100%" verticalGap="1">		
+				    <mx:HBox width="100%" verticalAlign="bottom">
+				        <mx:Spacer width="100%"/>
+						<mx:Label text="{'(' + this.flowCells.length + ' flow cells)'}" fontWeight="normal"/>				    	
+				    </mx:HBox>	
 					<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" dataProvider="{flowCells}">
 						<mx:columns>
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
@@ -94,14 +166,14 @@
 				</mx:VBox>
 			</mx:VBox>
 		</mx:VBox>
-		<mx:VBox width="100%"  verticalGap="1">
-			<mx:HBox width="100%" verticalAlign="middle">
+		<mx:VBox width="100%" height="100%" verticalGap="1">
+			<mx:HBox width="100%" verticalAlign="middle" paddingTop="8">
 				<mx:Label text="{'Flow Cell ' + flowCellsGrid.selectedItem.@number}"  fontWeight="bold"/>
 				<mx:LinkButton label="Preparation report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintablePrepForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
 				<mx:LinkButton label="Run report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
 			</mx:HBox>
 
-			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="250" horizontalScrollPolicy="auto">	
+			<mx:DataGrid  id="flowCellLanesGrid" dataProvider="{flowCellsGrid.selectedItem.flowCellChannels.FlowCellChannel}" width="100%" height="100%" horizontalScrollPolicy="auto">	
 				<mx:columns>
 					<mx:DataGridColumn  headerText="Chan #" dataField="@number" width="50"/>
 					<mx:DataGridColumn width="50" headerText="Control" >
@@ -160,6 +232,8 @@
 			</mx:DataGrid>			
 		</mx:VBox>
 	</mx:VDividedBox>
+		
+	 
 	<mx:ControlBar horizontalAlign="right" width="100%">
 	    <mx:HBox width="100%" horizontalAlign="left">
 			<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
