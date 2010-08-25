@@ -15,7 +15,6 @@
 				<mx:value>(3) Select the desired number of sequencing cycles.</mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{label11}" name="text" value="(4) Do you want the sequence data to be aligned?"/>
-			<mx:SetProperty target="{label12}" name="text" value="(5) Provide any special analysis instructions."/>
 			<mx:SetProperty target="{label9}" name="width" value="340"/>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:SetProperty target="{label11}" name="width" value="340"/>
@@ -23,6 +22,9 @@
 			<mx:SetProperty target="{text1}" name="width" value="340"/>
 			<mx:SetProperty target="{text1}" name="text">
 				<mx:value>(6) Provide any special analysis instructions for bionformatics.</mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{label12}" name="text">
+				<mx:value>{'(5) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}</mx:value>
 			</mx:SetProperty>
 		</mx:State>
 	</mx:states>
