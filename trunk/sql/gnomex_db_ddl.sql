@@ -245,7 +245,12 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `accountNumberYear` VARCHAR(10) NULL,
   `idFundingAgency` INT(10) NULL,
   `isPO` CHAR(1) NULL,
-  PRIMARY KEY (`idBillingAccount`),
+  `isApproved` CHAR(1) NULL,
+  `approvedDate` DATETIME NULL,
+  `createDate` DATETIME NULL,
+  `submitterEmail` VARCHAR(200) NULL,
+  `submitterUID` VARCHAR(50) NULL,
+    PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
     ON DELETE NO ACTION
