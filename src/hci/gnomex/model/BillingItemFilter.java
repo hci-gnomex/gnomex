@@ -191,11 +191,7 @@ public class BillingItemFilter extends DetailObject {
         !requestNumber.equals("")){
       this.addWhereOrAnd();
       
-      String requestNumberBase = requestNumber;
-      String tokens[] = requestNumber.split("R");
-      if (tokens != null && tokens.length > 0) {
-        requestNumberBase = tokens[0] + "R";
-      }      
+      String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "') ");
     }     
     
