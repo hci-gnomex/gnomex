@@ -1,13 +1,14 @@
 ﻿GNomEx Release Notes
 
 
-4.9.1
+4.9.1 (Aug 24, 2010)
 ------------------------
 - When gnomex user is submitting a work auth form, show only labs he belong to in dropdown. 
 - Provide way to launch gnomex to automatically bring up Work Auth window. 
 - For advanced search, show only slides (in dropdown) that are used for public experiments when user is guest or univ-only user
 - Fix bug that was causing error on save after adding new Billing account to a lab.
-- Add info under 'Trouble downloading' to recommend users download files individually when over 2 GB.  Also, in prompt recommend indiv. file download when exceed 2 GB.\
+- Add info under 'Trouble downloading' to recommend users download files individually when over 2 GB.  Also, in prompt recommend indiv. file download when exceed 2 GB.
+- Allow more than one production server in property production_server when gnomex runs on more than one production server at the same time 
 
 
 4.9 (Aug 23, 2010)
