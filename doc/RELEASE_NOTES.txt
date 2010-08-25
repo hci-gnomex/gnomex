@@ -1,5 +1,8 @@
 ﻿GNomEx Release Notes
 
+4.9.2
+------------------------
+- Fix wording for core lib prep instructions label on Illumina Submit request (barcoded samples)
 
 4.9.1 (Aug 24, 2010)
 ------------------------
