@@ -81,15 +81,24 @@
         private function onTabChange():void {
         	if (this.navBar.selectedChild == this.solexaTab) {
         		this.flowCellView.codeSequencingPlatform = "GAIIX";
+        		this.flowCellView.lookupField.text = '';
+        		this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+        		this.flowCellView.toggleDateCheckboxes(3);
         		microarrayViews.selectedChild=blankMicroarray;
         		hiSeqViews.selectedChild=this.blankHiSeq;
+        		this.detailViews.selectedChild = this.solexaViews;
         	} else if (this.navBar.selectedChild == this.hiSeqTab) {
         		this.flowCellView.codeSequencingPlatform = "HISEQ";
+        		this.flowCellView.lookupField.text = '';
+        		this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+        		this.flowCellView.toggleDateCheckboxes(3);
 	        	solexaViews.selectedChild=blankSolexa;
     	    	microarrayViews.selectedChild=blankMicroarray;
+        		this.detailViews.selectedChild = this.hiSeqViews;
         	} else {
 	        	solexaViews.selectedChild=blankSolexa;
     	    	hiSeqViews.selectedChild=this.blankHiSeq;
+    	    	this.detailViews.selectedChild = this.microarrayViews;
         	}
         }
         ]]>
