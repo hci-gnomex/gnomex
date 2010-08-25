@@ -17,6 +17,7 @@ public class SequenceLane extends HibernateDetailObject {
   private Integer         idSample;
   private Sample          sample;
   private Integer         idRequest;
+  private Request         request;
   private Integer         idSeqRunType;
   private Integer         idNumberSequencingCycles;
   private Integer         idGenomeBuildAlignTo;
@@ -370,6 +371,7 @@ public class SequenceLane extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getFlowCellChannel");
     this.excludeMethodFromXML("getSample");
+    this.excludeMethodFromXML("getRequest");
   }
 
   
@@ -409,6 +411,16 @@ public class SequenceLane extends HibernateDetailObject {
   }
   public String getCanChangeGenomeBuildAlignTo() {
     return "Y";
+  }
+
+  
+  public Request getRequest() {
+    return request;
+  }
+
+  
+  public void setRequest(Request request) {
+    this.request = request;
   }
 
   

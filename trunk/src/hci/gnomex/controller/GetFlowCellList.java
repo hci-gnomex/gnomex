@@ -5,10 +5,12 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.FlowCellFilter;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,7 +18,6 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -27,18 +28,16 @@ public class GetFlowCellList extends GNomExCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetFlowCellList.class);
   
-  private String   codeSequencingPlatform;
+  private FlowCellFilter   filter;
   
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    if (request.getParameter("codeSequencingPlatform") != null && !request.getParameter("codeSequencingPlatform").equals("")) {
-      codeSequencingPlatform = request.getParameter("codeSequencingPlatform");
-    } else {
-      this.addInvalidField("codeSequencingPlatform", "Sequencing platform is required.");
-    }
+    filter = new FlowCellFilter();
+    HashMap errors = this.loadDetailObject(request, filter);
+    this.addInvalidFields(errors);
 
   }
 
@@ -50,9 +49,7 @@ public class GetFlowCellList extends GNomExCommand implements Serializable {
         
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
-        StringBuffer buf =  new StringBuffer("SELECT fc from FlowCell as fc ");
-        buf.append(" WHERE codeSequencingPlatform ='" + codeSequencingPlatform + "'");
-        buf.append(" ORDER by fc.createDate desc");
+        StringBuffer buf =  filter.getQuery();
         List flowCells = (List)sess.createQuery(buf.toString()).list();
         
         Document doc = new Document(new Element("FlowCellList"));
