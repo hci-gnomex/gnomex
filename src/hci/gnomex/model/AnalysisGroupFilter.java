@@ -138,7 +138,7 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(")");
     }
     
-    // Search for analysis craete in last week
+    // Search for analysis create in last week
     if (lastWeek.equals("Y")) {
 
       Calendar cal = Calendar.getInstance();
