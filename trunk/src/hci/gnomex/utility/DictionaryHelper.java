@@ -371,42 +371,107 @@ public class DictionaryHelper implements Serializable {
   }
   
   public String getAnalysisDirectory(String serverName) {
+    String property = "";
+    String propertyName = null;
+    
+    // If this is the production server, first try to get property that is 
+    // qualified by server name.  If that isn't found, get the property without
+    // any qualification.
+    // If this is not the production server, get the property for the analysis
+    // test path.  First use the property qualified by server name.  If
+    // it isn't found, get the property without any qualification.   
     if (isProductionServer(serverName)) {
-      return this.getProperty(Property.ANALYSIS_DIRECTORY);
+      propertyName = Property.ANALYSIS_DIRECTORY + "_" + serverName;
+      property = this.getProperty(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = Property.ANALYSIS_DIRECTORY;
+        property = this.getProperty(propertyName);
+      }
     } else {
-      return this.getProperty(Property.ANALYSIS_TEST_DIRECTORY);
+      propertyName = Property.ANALYSIS_TEST_DIRECTORY + "_" + serverName;
+      property = this.getProperty(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = Property.ANALYSIS_TEST_DIRECTORY;
+        property = this.getProperty(propertyName);
+      }
     }
+    
+    return property;
   }
   
   public String getFlowCellDirectory(String serverName) {
+    String property = "";
+    String propertyName = null;
+    
+    // If this is the production server, first try to get property that is 
+    // qualified by server name.  If that isn't found, get the property without
+    // any qualification.
+    // If this is not the production server, get the property for the flowcell
+    // test path.  First use the property qualified by server name.  If
+    // it isn't found, get the property without any qualification.   
     if (isProductionServer(serverName)) {
-      return this.getProperty(Property.FLOWCELL_DIRECTORY);
+      propertyName = Property.FLOWCELL_DIRECTORY + "_" + serverName;
+      property = this.getProperty(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = Property.FLOWCELL_DIRECTORY;
+        property = this.getProperty(propertyName);
+      }
     } else {
-      return this.getProperty(Property.FLOWCELL_TEST_DIRECTORY);
+      propertyName = Property.FLOWCELL_TEST_DIRECTORY + "_" + serverName;
+      property = this.getProperty(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = Property.FLOWCELL_TEST_DIRECTORY;
+        property = this.getProperty(propertyName);
+      }
     }
+    
+    return property;
   }
 
   public String getMicroarrayDirectoryForWriting(String serverName) {
+    String property = "";
+    String propertyName = null;
+    
+    // If this is the production server, first try to get property that is 
+    // qualified by server name.  If that isn't found, get the property without
+    // any qualification.
+    // If this is not the production server, get the property for the experiment
+    // test path.  First use the property qualified by server name.  If
+    // it isn't found, get the property without any qualification.   
     if (isProductionServer(serverName)) {
-      return this.getProperty(Property.EXPERIMENT_DIRECTORY);
+      propertyName = Property.EXPERIMENT_DIRECTORY + "_" + serverName;
+      property = this.getProperty(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = Property.EXPERIMENT_DIRECTORY;
+        property = this.getProperty(propertyName);
+      }
     } else {
-      return this.getProperty(Property.EXPERIMENT_TEST_DIRECTORY);
+      propertyName = Property.EXPERIMENT_TEST_DIRECTORY + "_" + serverName;
+      property = this.getProperty(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = Property.EXPERIMENT_TEST_DIRECTORY;
+        property = this.getProperty(propertyName);
+      }
     }
+    
+    return property;
   }
 
   public  String getMicroarrayDirectoryForReading(String serverName) {
-    return getProperty(Property.EXPERIMENT_DIRECTORY);
+    // First try to get property that is 
+    // qualified by server name.  If that isn't found, get the property without
+    // any qualification.
+    String property = "";
+    String propertyName = Property.EXPERIMENT_DIRECTORY + "_" + serverName;
+    property = this.getProperty(propertyName);
+    if (property == null || property.equals("")) {  
+      propertyName = Property.EXPERIMENT_DIRECTORY;
+      property = this.getProperty(propertyName);
+    }
+    return property;
+     
   }
-  
-  public  int getAnalysisDirectoryNameLength() {
-    return getProperty(Property.ANALYSIS_DIRECTORY).length();
-  }
-  public  int getMicroarrayDirectoryNameLength() {
-    return getProperty(Property.EXPERIMENT_DIRECTORY).length();
-  }
-  public  int getFlowCellDirectryNameLength() {
-    return getProperty(Property.FLOWCELL_DIRECTORY).length();
-  }
+
   
   public String getBarcodeSequence(Integer idOligoBarcode) {
     String barcodeSequence = null;
