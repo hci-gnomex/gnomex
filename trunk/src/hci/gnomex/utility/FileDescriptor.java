@@ -171,9 +171,9 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.zipEntryName = zipEntryName;
   }
   
-  public String getMainFolderName(DictionaryHelper dh) {
+  public String getMainFolderName(DictionaryHelper dh,String serverName) {
     if (fileName != null && !fileName.equals("")) {
-      return dh.parseMainFolderName(fileName);
+      return dh.parseMainFolderName(serverName, fileName);
     } else {
       return "";
     }

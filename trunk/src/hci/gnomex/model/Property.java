@@ -21,12 +21,6 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        LUCENE_EXPERIMENT_INDEX_DIRECTORY   = "lucene_experiment_index_directory";
   public static final String        LUCENE_PROTOCOL_INDEX_DIRECTORY     = "lucene_protocol_index_directory";
   public static final String        LUCENE_ANALYSIS_INDEX_DIRECTORY     = "lucene_analysis_index_directory";
-  public static final String        EXPERIMENT_DIRECTORY                = "experiment_directory";
-  public static final String        EXPERIMENT_TEST_DIRECTORY           = "experiment_test_directory";
-  public static final String        ANALYSIS_DIRECTORY                  = "analysis_directory";
-  public static final String        ANALYSIS_TEST_DIRECTORY             = "analysis_test_directory";
-  public static final String        FLOWCELL_DIRECTORY                  = "flowcell_directory";
-  public static final String        FLOWCELL_TEST_DIRECTORY             = "flowcell_test_directory";
   public static final String        BILLING_CORE_FACILITY_BUSINESS_UNIT = "billing_core_facility_business_unit"; 
   public static final String        BILLING_CORE_FACILITY_ACCOUNT       = "billing_core_facility_account";
   public static final String        BILLING_CORE_FACILITY_PO_ACCOUNT    = "billing_core_facility_po_account";
