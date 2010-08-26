@@ -44,6 +44,8 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
   private String    baseDir;
   private String    baseDirFlowCell;
   
+  private String    serverName = "";
+  
   public void validate() {
   }
   
@@ -53,6 +55,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     keysString = request.getParameter("resultKeys");
     baseDir         = request.getServerName();
     baseDirFlowCell = request.getServerName();
+    serverName = request.getServerName();
 
   }
 
@@ -123,13 +126,13 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
             boolean isValidFlowCell = false;
             for(Iterator i3 = request.getSequenceLanes().iterator(); i3.hasNext();) {
               SequenceLane lane = (SequenceLane)i3.next();
-              if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh))) {
+              if (lane.getFlowCellChannel() != null && lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh, serverName))) {
                 isValidFlowCell = true;
                 break;
               }
             }
             if (!isValidFlowCell) {
-              log.error("Bypassing flow cell " + fd.getMainFolderName(dh) + " for request " + request.getNumber() + ".  No lanes on request used this flow cell.");
+              log.error("Bypassing flow cell " + fd.getMainFolderName(dh, serverName) + " for request " + request.getNumber() + ".  No lanes on request used this flow cell.");
               continue;
             }
           

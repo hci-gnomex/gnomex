@@ -40,6 +40,8 @@ public class DownloadFileServlet extends HttpServlet {
   
   private ArchiveHelper archiveHelper = new ArchiveHelper();
   
+  private String serverName = "";
+  
 
   
   public void init() {
@@ -48,6 +50,8 @@ public class DownloadFileServlet extends HttpServlet {
     
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
+    
+    serverName = req.getServerName();
 
 
     // restrict commands to local host if request is not secure
@@ -154,20 +158,20 @@ public class DownloadFileServlet extends HttpServlet {
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
             String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-            if (!requestNumberBase.equalsIgnoreCase(fd.getMainFolderName(dh))) {
+            if (!requestNumberBase.equalsIgnoreCase(fd.getMainFolderName(dh, serverName))) {
               boolean isAuthorizedDirectory = false;
               // If this is a flow cell, make sure that that a sequence lane on this request has this flow cell
               for(Iterator i2 = request.getSequenceLanes().iterator(); i2.hasNext();) {
                 SequenceLane lane = (SequenceLane)i2.next();
                 if (lane.getFlowCellChannel() != null && 
-                    lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh))) {
+                    lane.getFlowCellChannel().getFlowCell().getNumber().equals(fd.getMainFolderName(dh, serverName))) {
                   isAuthorizedDirectory = true;
                   break;
                 }
                 
               }
               if (!isAuthorizedDirectory) {
-                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(dh) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
+                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(dh, serverName) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
                 continue;              
               }
             }

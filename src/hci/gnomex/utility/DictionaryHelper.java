@@ -37,6 +37,14 @@ public class DictionaryHelper implements Serializable {
 
   private static final String    PROPERTY_PRODUCTION_SERVER                   = "production_server";
   
+  private static final String    PROPERTY_EXPERIMENT_DIRECTORY                = "experiment_directory";
+  private static final String    PROPERTY_EXPERIMENT_TEST_DIRECTORY           = "experiment_test_directory";
+  private static final String    PROPERTY_ANALYSIS_DIRECTORY                  = "analysis_directory";
+  private static final String    PROPERTY_ANALYSIS_TEST_DIRECTORY             = "analysis_test_directory";
+  private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
+  private static final String    PROPERTY_FLOWCELL_TEST_DIRECTORY             = "flowcell_test_directory";
+
+  
   public DictionaryHelper() {    
   }
   
@@ -381,17 +389,17 @@ public class DictionaryHelper implements Serializable {
     // test path.  First use the property qualified by server name.  If
     // it isn't found, get the property without any qualification.   
     if (isProductionServer(serverName)) {
-      propertyName = Property.ANALYSIS_DIRECTORY + "_" + serverName;
+      propertyName = PROPERTY_ANALYSIS_DIRECTORY + "_" + serverName;
       property = this.getProperty(propertyName);
       if (property == null || property.equals("")) {  
-        propertyName = Property.ANALYSIS_DIRECTORY;
+        propertyName = PROPERTY_ANALYSIS_DIRECTORY;
         property = this.getProperty(propertyName);
       }
     } else {
-      propertyName = Property.ANALYSIS_TEST_DIRECTORY + "_" + serverName;
+      propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY + "_" + serverName;
       property = this.getProperty(propertyName);
       if (property == null || property.equals("")) {  
-        propertyName = Property.ANALYSIS_TEST_DIRECTORY;
+        propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY;
         property = this.getProperty(propertyName);
       }
     }
@@ -410,17 +418,17 @@ public class DictionaryHelper implements Serializable {
     // test path.  First use the property qualified by server name.  If
     // it isn't found, get the property without any qualification.   
     if (isProductionServer(serverName)) {
-      propertyName = Property.FLOWCELL_DIRECTORY + "_" + serverName;
+      propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
       property = this.getProperty(propertyName);
       if (property == null || property.equals("")) {  
-        propertyName = Property.FLOWCELL_DIRECTORY;
+        propertyName = PROPERTY_FLOWCELL_DIRECTORY;
         property = this.getProperty(propertyName);
       }
     } else {
-      propertyName = Property.FLOWCELL_TEST_DIRECTORY + "_" + serverName;
+      propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY + "_" + serverName;
       property = this.getProperty(propertyName);
       if (property == null || property.equals("")) {  
-        propertyName = Property.FLOWCELL_TEST_DIRECTORY;
+        propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY;
         property = this.getProperty(propertyName);
       }
     }
@@ -439,17 +447,17 @@ public class DictionaryHelper implements Serializable {
     // test path.  First use the property qualified by server name.  If
     // it isn't found, get the property without any qualification.   
     if (isProductionServer(serverName)) {
-      propertyName = Property.EXPERIMENT_DIRECTORY + "_" + serverName;
+      propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
       property = this.getProperty(propertyName);
       if (property == null || property.equals("")) {  
-        propertyName = Property.EXPERIMENT_DIRECTORY;
+        propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
         property = this.getProperty(propertyName);
       }
     } else {
-      propertyName = Property.EXPERIMENT_TEST_DIRECTORY + "_" + serverName;
+      propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY + "_" + serverName;
       property = this.getProperty(propertyName);
       if (property == null || property.equals("")) {  
-        propertyName = Property.EXPERIMENT_TEST_DIRECTORY;
+        propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY;
         property = this.getProperty(propertyName);
       }
     }
@@ -462,10 +470,10 @@ public class DictionaryHelper implements Serializable {
     // qualified by server name.  If that isn't found, get the property without
     // any qualification.
     String property = "";
-    String propertyName = Property.EXPERIMENT_DIRECTORY + "_" + serverName;
+    String propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) {  
-      propertyName = Property.EXPERIMENT_DIRECTORY;
+      propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
       property = this.getProperty(propertyName);
     }
     return property;
@@ -486,21 +494,18 @@ public class DictionaryHelper implements Serializable {
   
  
   
-  public String parseMainFolderName(String fileName) {
+  public String parseMainFolderName(String serverName, String fileName) {
     String mainFolderName = "";
     String baseDir = "";
     
-    if (fileName.indexOf(this.getProperty(Property.EXPERIMENT_DIRECTORY)) >= 0) {
-      baseDir = this.getProperty(Property.EXPERIMENT_DIRECTORY);
-    } else if (fileName.indexOf(getProperty(Property.EXPERIMENT_TEST_DIRECTORY)) >= 0) {
-      baseDir = getProperty(Property.EXPERIMENT_TEST_DIRECTORY);
-    } else if (fileName.indexOf(getProperty(Property.FLOWCELL_DIRECTORY)) >= 0) {
-      baseDir = getProperty(Property.FLOWCELL_DIRECTORY);
-    } else if (fileName.indexOf(getProperty(Property.FLOWCELL_TEST_DIRECTORY)) >= 0) {
-      baseDir = getProperty(Property.FLOWCELL_TEST_DIRECTORY);
-    }
-
-  
+    String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
+    String flowCellDirectory   = this.getFlowCellDirectory(serverName);
+    
+    if (fileName.indexOf(experimentDirectory) >= 0) {
+      baseDir = experimentDirectory;
+    } else if (fileName.indexOf(flowCellDirectory) >= 0) {
+      baseDir = flowCellDirectory;
+    } 
     
     String relativePath = fileName.substring(baseDir.length() + 5);
     String tokens[] = relativePath.split("/", 2);
