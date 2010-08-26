@@ -443,10 +443,10 @@
 		            	editorDataField="selected" sortable="false"
 		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
 		            </mx:DataGridColumn>
-		            <mx:DataGridColumn minWidth="45" width="45" headerText="#">
+		            <mx:DataGridColumn minWidth="48" width="48" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
+		                        <mx:HBox  horizontalGap="0" horizontalScrollPolicy="off">
 				                   <mx:Image   id="experimentImage" source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}">
                                    </mx:Image>    		                           
                                    <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
@@ -484,14 +484,14 @@
 		            	dataField="@isSelected" 
 		            	editorDataField="selected" 
 		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}"/>
-		            <mx:DataGridColumn width="14" headerText="#">
+		            <mx:DataGridColumn width="18" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
+		                        <mx:HBox  horizontalGap="0" horizontalScrollPolicy="off" >
 		                          <mx:Image id="experimentImage"  
 			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : parentApplication.iconFlask)) : '')}" >
 		                    	 </mx:Image> 
-		                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
+                                   <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
 		                           </mx:Label>
 		                        </mx:HBox>
 		                    </mx:Component>
