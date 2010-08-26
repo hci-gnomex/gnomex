@@ -3,6 +3,10 @@
 4.9.2
 ------------------------
 - Fix wording for core lib prep instructions label on Illumina Submit request (barcoded samples)
+- Filter flow cells by time period (last week, month, year, etc.) and provide lookup of flow cell by flow cell # or experiment #
+- Make work list window layout consistent.
+- Centralize code that parses request number into base request number
+- Support different experiment, analysis, and flowcell directory properties based on the server name
 
 4.9.1 (Aug 24, 2010)
 ------------------------
