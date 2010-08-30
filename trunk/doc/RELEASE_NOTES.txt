@@ -1,6 +1,14 @@
 ﻿GNomEx Release Notes
 
-4.9.2
+4.9.3
+------------------------
+- Fix icons for hiSeq experiments on Download grid
+- Insulate calls that directly reference property constants for 
+  experiment_directory, analysis_directory and flowcell_directory so that
+  downloads will parse main folder correctly from each server's property
+  for the filepaths
+
+4.9.2 (Aug 25, 2010)
 ------------------------
 - Fix wording for core lib prep instructions label on Illumina Submit request (barcoded samples)
 - Filter flow cells by time period (last week, month, year, etc.) and provide lookup of flow cell by flow cell # or experiment #
