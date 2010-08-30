@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" title="Email All Active GNomEx Users" 
+	width="652" height="430" 
+	initialize="init()"
+	defaultButton="{saveButton}" showCloseButton="true">
+    
+    <mx:HTTPService 
+    id="getUploadURL" 
+    url="UploadAndBroadcastEmailURLServlet.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetUploadURL(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get upload URL', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >  
+    
+        
+    <mx:HTTPService 
+    id="sendBroadcastEmail" 
+    url="UploadAndBroadcastEmailServlet.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSendBroadcastEmail(event)"
+    fault="this.faultHanlderSendBroadcastEmail('', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >  
+
+<mx:Script>
+	<![CDATA[
+		import mx.formatters.NumberFormatter;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import flash.net.URLVariables;
+		import flash.net.URLRequest;
+		    
+		private var fileRef:FileReference = null;
+		private var numberFormatter:NumberFormatter = new NumberFormatter();
+		private var uploadURLRequest:URLRequest = null;
+		
+		private function init():void {
+			getUploadURL.send();
+		}
+		
+		private function onGetUploadURL(event:ResultEvent):void {
+        	if (getUploadURL.lastResult.name() == "UploadAndBroadcastEmailServlet") {
+				uploadURLRequest = new URLRequest;
+	        	uploadURLRequest.method = "POST";  // this can also be set to "POST" depending on your needs 
+	        	uploadURLRequest.contentType = "multipart/form-data";
+        		uploadURLRequest.url = getUploadURL.lastResult.@url;
+        		
+        	}
+        }
+
+        private function selectFileToUpload():void {
+    		fileRef = new FileReference();
+        	fileRef.addEventListener(Event.SELECT, onFileRefSelect);
+        	fileRef.addEventListener(ProgressEvent.PROGRESS, onFileRefProgress);
+        	fileRef.addEventListener(Event.COMPLETE, onFileRefComplete);
+
+            fileRef.browse();
+        }
+
+        private function onFileRefSelect(evt:Event):void {
+            try {
+            	fileName.text = fileRef.name;
+                message.text = numberFormatter.format(fileRef.size) + " (bytes)" ;
+            } catch (err:Error) {
+                message.text = "ERROR: zero-byte file";
+            }
+        }
+
+        private function onFileRefProgress(evt:ProgressEvent):void {
+        }
+
+        private function onFileRefComplete(evt:Event):void {
+            Alert.show("Email message has been sent to all active GNomEx users with valid email accounts.");
+            PopUpManager.removePopUp(this);
+        }
+	
+		
+		
+		private function save():void {
+			if (fileRef != null) {
+				var postVariables:URLVariables = new URLVariables;
+				postVariables.subject = subject.text;
+				if (fileRef.name.toLowerCase().lastIndexOf('html') == fileRef.name.length - 4 || fileRef.name.toLowerCase().lastIndexOf('htm') == fileRef.name.length - 3) {
+					postVariables.format = "html";
+				} else {
+					postVariables.format = "text";
+				}
+				uploadURLRequest.data = postVariables;
+				fileRef.upload(uploadURLRequest);
+			}  else {
+			 	var params:Object = new Object();
+			 	params.subject = subject.text;
+			 	params.format = "text";
+			 	params.body = body.text;
+			 	this.sendBroadcastEmail.send(params);
+			}
+			
+		}
+		
+		private function onSendBroadcastEmail(event:ResultEvent):void {
+        	if (this.sendBroadcastEmail.lastResult.name() == "HTML") {
+				Alert.show(this.sendBroadcastEmail.lastResult..H3);
+            	PopUpManager.removePopUp(this);        		
+        	} else {
+        		Alert.show("A server error occurred.  Please contact GNomEx technical support.");
+        	}
+        }   
+        
+        public function faultHanlderSendBroadcastEmail(title:String, event:FaultEvent):void {
+        	if (event.message.body is String) {
+	        	var startPos:int = event.message.body.indexOf("H3");
+	        	var endPos:int   = event.message.body.indexOf("</H3>");
+	        	if (startPos != -1 && endPos != -1) {
+		        	Alert.show(event.message.body.toString().substring(startPos + 3, endPos), title);    		
+	            	PopUpManager.removePopUp(this);        		
+	        	} else {
+	        		Alert.show(event.message.body.toString(), title);
+	        	}        
+        		
+        	} else {
+        		Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, title);
+        	}
+        }
+
+	]]>
+</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%" horizontalGap="4" verticalAlign="middle">
+			<mx:Label text="Subject:" width="80"/>
+			<mx:TextInput width="100%" id="subject"/>
+		</mx:HBox>
+		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
+			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
+				<mx:RadioButtonGroup id="bodyRadioGroup"/>
+				<mx:Label text="Body:" width="80"/>
+				<mx:RadioButton label="Enter Text"  click="{bodyViewStack.selectedIndex = 0;}" groupName="bodyRadioGroup" selected="true"/>
+				<mx:RadioButton label="Upload File" click="{bodyViewStack.selectedIndex = 1;this.selectFileToUpload()}" groupName="bodyRadioGroup"/>
+			</mx:HBox>
+			<mx:ViewStack id="bodyViewStack" width="100%" height="100%">
+				<mx:Canvas label="textView" width="100%" height="100%"> 
+					<mx:TextArea width="100%" height="100%" id="body"/>
+				</mx:Canvas>
+				<mx:Canvas label="uploadView" width="100%" height="100%">
+				    <mx:HBox width="100%">
+				        <mx:Spacer width="80"/>
+				        <mx:Label id="fileName"/>
+						<mx:Text id="message"/>
+				    	
+				    </mx:HBox>
+				</mx:Canvas>
+			</mx:ViewStack>
+		</mx:VBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="true" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+
+	
+</mx:TitleWindow>
