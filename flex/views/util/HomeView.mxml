@@ -23,6 +23,9 @@
 			</mx:State>
 			<mx:State name="AdminState">
 				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
+				<mx:AddChild relativeTo="{hbox7}" position="lastChild">
+					<mx:Button label="Broadcast Email" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="242" height="60"/>
+				</mx:AddChild>
 			</mx:State>
 			<mx:State name="UserNonSubmitterState">
 				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
@@ -128,6 +131,11 @@
 				if (workAuthWindow.labCombo.dataProvider.length == 2) {
 					workAuthWindow.labCombo.selectedIndex = 1;
 				}
+			}			       
+
+			private function showBroadcastEmailWindow():void {
+				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this, BroadcastEmailWindow, true));
+				PopUpManager.centerPopUp(broadcastEmailWindow);
 			}			       
 
 	]]> 

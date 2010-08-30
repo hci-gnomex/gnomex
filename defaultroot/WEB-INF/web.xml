@@ -62,6 +62,17 @@
 		<servlet-name>UploadAnalysisURLServlet</servlet-name>
 		<servlet-class>hci.gnomex.controller.UploadAnalysisURLServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.UploadAndBroadcastEmailServlet</servlet-class>
+	</servlet>
+	
+		<servlet>
+		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.UploadAndBroadcastEmailURLServlet</servlet-class>
+	</servlet>
+	
 
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -94,9 +105,21 @@
 		<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
 	
+	
+  <servlet-mapping>
+		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
+		<url-pattern>UploadAndBroadcastEmailServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	
   <servlet-mapping>
 		<servlet-name>UploadAnalysisURLServlet</servlet-name>
 		<url-pattern>UploadAnalysisURLServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
+		<url-pattern>UploadAndBroadcastEmailURLServlet.gx</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>
@@ -142,6 +165,7 @@
 			<url-pattern>ShowBillingTotalByLabReport.gx</url-pattern>
 			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
+			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>
 
 		</web-resource-collection>
 		<auth-constraint>
