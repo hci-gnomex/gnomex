@@ -44,6 +44,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
   private static final int  STATUS_ERROR = 999;
   
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+    doPost(req, res);
   }
 
   /*
@@ -148,8 +149,10 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
       }
             
         
+      int userCount = 0;
       if (body != null && body.length() > 0) {
 
+        
         for (Iterator i = appUsers.iterator(); i.hasNext();) {
           AppUser appUser = (AppUser)i.next();
 
@@ -171,6 +174,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
                 subject,
                 body.toString(),
                 format.equalsIgnoreCase("HTML") ? true : false); 
+            userCount++;
 
           }
 
@@ -203,7 +207,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
       link.addAttribute("href", baseURL + "/css/message.css");
       Element body = root.addElement("BODY");
       Element h3 = body.addElement("H3");
-      h3.addCDATA("Broadcast email successfully sent");
+      h3.addCDATA("The email has been successfully sent to " + userCount + " GNomEx users.");
       body.addElement("BR");
       body.addElement("BR");
       writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);            
