@@ -1,6 +1,10 @@
 ﻿GNomEx Release Notes
 
-4.9.3
+4.9.4
+------------------------
+- Allow gnomex admins to send broadcast email to all active gnomex users.
+
+4.9.3 (Aug 26,2010)
 ------------------------
 - Fix icons for hiSeq experiments on Download grid
 - Insulate calls that directly reference property constants for 
