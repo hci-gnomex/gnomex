@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Enter Work Authorization" width="652" height="430" defaultButton="{saveButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Enter Work Authorization" width="652" height="430" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/work_auth_form.png')">
     
     <mx:HTTPService 
     id="submitWorkAuthForm" 
@@ -61,10 +61,10 @@
 	]]>
 </mx:Script>
 
-	<mx:VBox height="100%" width="100%" verticalGap="16">
+	<mx:VBox height="100%" width="100%" verticalGap="16" styleName="form" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
 			<mx:Label text="Lab" width="120"/>
-			<mx:ComboBox width="500" id="labCombo"
+			<mx:ComboBox width="492" id="labCombo"
 				labelField="@name" 
 				dataProvider="{parentApplication.promptedWorkAuthLabList}"></mx:ComboBox>
 		</mx:HBox>
@@ -120,7 +120,7 @@
         </mx:HBox>
         <mx:HBox width="100%" verticalAlign="middle">
         	<mx:Label text="Funding Agency" width="120"/>
-        	<mx:ComboBox width="500" id="fundingAgencyCombo"
+        	<mx:ComboBox width="492" id="fundingAgencyCombo"
         		labelField="@display" 
         		dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.FundingAgency').DictionaryEntry}">
         	</mx:ComboBox>

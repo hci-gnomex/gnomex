@@ -25,7 +25,7 @@
 			<mx:State name="AdminState">
 				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
 				<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-					<mx:Button label="Broadcast Email" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="242" height="60"/>
+					<mx:Button label="Send Email to all GNomEx Users" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="242" height="60"/>
 				</mx:AddChild>
 				<mx:SetStyle target="{hbox7}" name="horizontalGap" value="10"/>
 			</mx:State>
