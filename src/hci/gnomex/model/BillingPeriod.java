@@ -3,6 +3,7 @@ package hci.gnomex.model;
 import hci.dictionary.model.DictionaryEntry;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.Calendar;
 
 
 
@@ -83,9 +84,15 @@ public class BillingPeriod extends DictionaryEntry implements Serializable {
 
 
   public String getIsCurrentPeriod() {
+    
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(endDate);
+    cal.add(Calendar.DATE, 1);
+    java.sql.Date dayAfterEndDate = new java.sql.Date(cal.getTimeInMillis());
+    
     java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
     if (this.startDate.getTime() <= today.getTime() &&
-        this.endDate.getTime() >= today.getTime()) {
+        dayAfterEndDate.getTime() > today.getTime()) {
       return "Y";
     } else {
       return "N";
