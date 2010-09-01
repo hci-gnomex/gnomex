@@ -81,6 +81,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Document         requestDoc;
   private RequestParser    requestParser;
   
+  private BillingPeriod    billingPeriod;
+  
   private String           launchAppURL;
   private String           showRequestFormURLBase;
   private String           appURL;
@@ -154,9 +156,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   public Command execute() throws RollBackCommandException {
     
+    Session sess = null;
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
+      sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+      
+
+      // Get the current billing period
+      billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
+      if (billingPeriod == null) {
+        throw new Exception("Cannot find current billing period to create billing items");
+      }
+
+
       
       requestParser.parse(sess);
       
@@ -601,7 +613,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
     }finally {
       try {
-        HibernateSession.closeSession();        
+        if (sess != null) {
+          HibernateSession.closeSession();
+        }
       } catch(Exception e) {
         
       }
@@ -1140,13 +1154,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
 
 
-    // Get the current billing period
-    BillingPeriod billingPeriod = billingPeriod = dh.getCurrentBillingPeriod();
-    if (billingPeriod == null) {
-      throw new RollBackCommandException("Cannot find current billing period to create billing items for added services");
-    }
-
-
     
     // Find the appropriate price sheet
     PriceSheet priceSheet = null;
@@ -1164,7 +1171,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     if (priceSheet == null) {
-      throw new RollBackCommandException("Cannot find price sheet to create billing items for added services");
+      throw new Exception("Cannot find price sheet to create billing items for added services");
     }
     
      
