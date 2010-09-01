@@ -54,7 +54,27 @@ public class RequestParser implements Serializable {
  
   }
   
+  public void init() {
+    request = null;
+    isNewRequest = false;
+    otherCharacteristicLabel = null;
+    sampleIds = new ArrayList();
+    sampleMap = new HashMap();
+    characteristicsToApplyMap = new TreeMap();
+    seqLibTreatmentMap = new HashMap();
+    sampleAnnotationMap = new HashMap();
+    showTreatments = false;
+    sampleTreatmentMap = new HashMap();
+    sampleAnnotationCodeMap = new TreeMap();
+    hybInfos = new ArrayList();
+    sequenceLaneInfos = new ArrayList();
+    saveReuseOfSlides = false;
+    amendState = "";
+    
+  }
+  
   public void parse() throws Exception{
+    init();
     
     Element requestNode = this.requestDoc.getRootElement();
     request = new Request();
