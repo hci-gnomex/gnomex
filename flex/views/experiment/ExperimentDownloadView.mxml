@@ -500,7 +500,7 @@
 		            <mx:DataGridColumn width="18" headerText="Folder" >
 		                <mx:itemRenderer>
 		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" >
+		                        <mx:HBox  horizontalGap="0" horizontalScrollPolicy="off" >
 		                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? parentApplication.iconFolder : ''}">
 		                    	 </mx:Image> 
 		                           <mx:Label id="directoryName" text="{data.@showDirectoryName == 'Y' ? data.@directoryName : ''}">
