@@ -23,6 +23,13 @@
 		
 		
 		private function save():void {
+			// Make sure either project or activity filled in,
+			// but not both
+			if (this.project.text != '' && this.activity.text != '') {
+				Alert.show("Please fill in only one of the following, either project or activity.");
+				project.setFocus();
+				return;
+			}
 			var params:Object = new Object();
 			params.accountName = this.accountName.text;
 			params.expirationDate = this.expirationDatePicker.text;
@@ -135,11 +142,11 @@
         </mx:HBox>
         <mx:VBox verticalGap="0" width="100%">
     	    <mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Microarray Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
-	        <mx:CheckBox label="I agree" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@value != '') &amp;&amp; this.expirationDatePicker.text != null &amp;&amp; this.emailAddress.text != '' &amp;&amp; this.bus.text != '' &amp;&amp; this.org.text != '' &amp;&amp; this.fund.text != '' &amp;&amp;  (this.project.text != '' || this.activity.text != '') &amp;&amp;  this.account.text != '' &amp;&amp; this.au.text != '' &amp;&amp; this.year.text != ''}" id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="center"/>
+	        <mx:CheckBox label="I agree" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@value != '') &amp;&amp; this.expirationDatePicker.text != '' &amp;&amp; this.emailAddress.text != '' &amp;&amp; this.bus.text != '' &amp;&amp; this.org.text != '' &amp;&amp; this.fund.text != '' &amp;&amp;  (this.project.text != '' || this.activity.text != '') &amp;&amp;  this.account.text != '' &amp;&amp; this.au.text != '' &amp;&amp; this.year.text != ''}" id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="center"/>
         </mx:VBox>
     </mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@value != '') &amp;&amp; this.expirationDatePicker.text != null &amp;&amp; this.emailAddress.text != '' &amp;&amp; this.bus.text != '' &amp;&amp; this.org.text != '' &amp;&amp; this.fund.text != '' &amp;&amp;  (this.project.text != '' || this.activity.text != '') &amp;&amp;  this.account.text != '' &amp;&amp; this.au.text != '' &amp;&amp; this.year.text != '' &amp;&amp; this.agreeCheckbox.selected}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{(labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '') &amp;&amp; accountName.text != '' &amp;&amp; (fundingAgencyCombo.selectedItem != null &amp;&amp; fundingAgencyCombo.selectedItem.@value != '') &amp;&amp; this.expirationDatePicker.text != '' &amp;&amp; this.emailAddress.text != '' &amp;&amp; this.bus.text != '' &amp;&amp; this.org.text != '' &amp;&amp; this.fund.text != '' &amp;&amp;  (this.project.text != '' || this.activity.text != '') &amp;&amp;  this.account.text != '' &amp;&amp; this.au.text != '' &amp;&amp; this.year.text != '' &amp;&amp; this.agreeCheckbox.selected}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 
