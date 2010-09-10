@@ -192,6 +192,13 @@ public class BillingItem extends HibernateDetailObject {
       return "";
     }
   }
+  public String getAccountNumberDisplay() {
+    if (billingAccount != null) {
+      return billingAccount.getAccountNumberDisplay();
+    } else {
+      return "";
+    }
+  }
   public String getLabName() {
     if (lab != null) {
       return lab.getName();
