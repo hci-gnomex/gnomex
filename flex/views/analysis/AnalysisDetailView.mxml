@@ -4,6 +4,22 @@
 	height="100%"  paddingTop="6"
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*">
+	
+<mx:HTTPService  
+    id="cacheFileDownloadList" 
+    url="CacheAnalysisFileDownloadList.gx"
+    destination="cacheFileDownloadList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onCacheFileDownloadList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+    </mx:request>
+</mx:HTTPService>
+  
 <mx:Script>
 	<![CDATA[
 		import mx.managers.PopUpManager;
@@ -11,7 +27,13 @@
 		import mx.controls.Alert;
 		import views.analysis.AnalysisEditView;
 		import hci.flex.controls.DropdownLabel;
-	 
+		import mx.core.IFlexDisplayObject;
+		import views.util.DownloadHints;
+	    import hci.flex.controls.CheckBox;
+    	import mx.rpc.events.ResultEvent;
+    	import mx.collections.XMLListCollection;
+    	import views.experiment.ExperimentDownloadView;
+    	import views.experiment.DownloadProgressView;
 	
 		[Bindable]
 		private var analysisTypeName:String;
@@ -24,6 +46,12 @@
 		[Bindable] 
 		private var visibilityName:String;
 		
+		    
+	    [Bindable]
+	    private var selectedFileList:XMLListCollection;
+	    
+	    private var estimatedDownloadSize:Number;
+
 		public function checkSecurity():void {
 			if (parentApplication.isGuestMode()) {
 			}
@@ -149,8 +177,69 @@
 	    	parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
 	    }
 
-        
+        private function showDownloadHints():void {
+			var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this, DownloadHints, true));
+			PopUpManager.centerPopUp(hints);			 		
+		}
+		
+		public function downloadFiles():void {
+			var selectedFiles:XMLList = parentDocument.selectedAnalysis..AnalysisFileDescriptor.(@isSelected == "true");
+	    	selectedFileList = new XMLListCollection(selectedFiles);
+	    	
+	    	if (selectedFileList.length == 0) {
+	    		Alert.show("Please select the files to download.");
+	    	} else {
+		    	estimatedDownloadSize = 0;
+				for each (var item:Object in selectedFileList) {
+					estimatedDownloadSize += ExperimentDownloadView.getEstimatedCompressedSize(item);
+				}
+				
+				if (estimatedDownloadSize == 0) {
+					
+					Alert.show("At least one non-empty file must be selected in order for download to proceed.");
+					
+				} else {
+			
+			    	var call:Object = cacheFileDownloadList.send();
+		    		call.marker = estimatedDownloadSize;
+		
+				}
+	    	
+	    	}
+	 	}
 
+	    private function onCacheFileDownloadList(event:ResultEvent):void {
+	    	var call:Object = event.token;
+	    	var message:String = "";
+	    	var title:String = "";
+	    	var estimatedSize:Number = call.marker;
+	    	if (estimatedSize >= views.experiment.ExperimentDownloadView.RECOMMENDED_DOWNLOAD_SIZE) {
+	    		message =  "Approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data will be downloaded." +
+	    			"  It is recommended that each download not exceed 2 GB.\n\nWould you like to proceed with the download anyways?"
+	    		title = "Download exceeds recommended size"; 
+	    	} else {
+	    		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?"
+	    	}
+	
+			Alert.show( message,
+							title,
+							(Alert.YES | Alert.NO), this, 
+							onDownloadFiles,						
+							parentApplication.iconWarning);
+	    	
+	    }
+	    
+		private function onDownloadFiles(event:CloseEvent):void {
+			if (event.detail==Alert.YES) {
+		        
+		        var progressWindow:DownloadProgressView = new DownloadProgressView();
+		        
+		        var parms:URLVariables = new URLVariables();
+		        parms.mode = estimatedDownloadSize >= views.experiment.ExperimentDownloadView.ZIP_MAX_SIZE ? "tar" : "zip";
+	    		
+	    		progressWindow.init(this, AnalysisDownloadView.DOWNLOAD_FILES_URL, parms, this.downloadFilesButton, estimatedDownloadSize, AnalysisDownloadView.SUGGESTED_LOCAL_FILENAME);		
+			}
+		}    
 	]]>
 </mx:Script>
 
@@ -172,6 +261,10 @@
 		                   <mx:Label text="Submitted by"  width="81" fontWeight="bold"/>
 		                   <mx:Text text="{parentDocument.selectedAnalysis.@ownerName}" width="130"/> 
 		            </mx:HBox>
+		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+		                   <mx:Label text="Group"  width="81" fontWeight="bold"/>
+		                   <mx:Text text="{parentDocument.selectedAnalysis.@labName}" width="100%"/>
+		            </mx:HBox>
 	                <mx:HBox verticalGap="0" horizontalGap="0">
 	                  <mx:Label text="Submit Date"  width="81" fontWeight="bold"/>
 	                  <mx:Text text="{parentDocument.selectedAnalysis.@createDate}" width="130"/>
@@ -187,14 +280,7 @@
 		                <mx:Text  text="{genomeBuildName}" width="150" />
 		            </mx:HBox>
 		        	
-		        	 <mx:HBox verticalGap="0" horizontalGap="0">
-		        	       <mx:Label text="Analysis Type"  width="85" fontWeight="bold"/>
-		        	       <mx:Text text="{analysisTypeName}" width="150" />
-		        	   </mx:HBox>
-		            <mx:HBox verticalGap="0" horizontalGap="0">
-		                <mx:Label text="Protocol"  width="85" fontWeight="bold"/>
-		                <mx:Text  text="{analysisProtocolName}" width="150" />
-		            </mx:HBox>
+
 	        	</mx:VBox>
 	        	<mx:VBox width="100%" verticalGap="0">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -203,13 +289,16 @@
 		            </mx:HBox>
 		        	
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-		                   <mx:Label text="Group"  width="98" fontWeight="bold"/>
-		                   <mx:Text text="{parentDocument.selectedAnalysis.@labName}" width="100%"/>
-		            </mx:HBox>
-		        	
-		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Visibility"  width="98" fontWeight="bold"/>
 		                   <mx:Text text="{visibilityName}" width="100%"/>
+		            </mx:HBox>
+		            <mx:HBox verticalGap="0" horizontalGap="0">
+		        	       <mx:Label text="Analysis Type"  width="98" fontWeight="bold"/>
+		        	       <mx:Text text="{analysisTypeName}" width="150" />
+		        	   </mx:HBox>
+		            <mx:HBox verticalGap="0" horizontalGap="0">
+		                <mx:Label text="Protocol"  width="98" fontWeight="bold"/>
+		                <mx:Text  text="{analysisProtocolName}" width="150" />
 		            </mx:HBox>
 	        	</mx:VBox>
 	        </mx:HBox>
@@ -274,14 +363,31 @@
 				
 		    
 			<mx:VBox  label="Files" width="100%" height="100%" verticalGap="0" paddingTop="0" >
-				<mx:DataGrid id="filesGrid" dataProvider="{parentDocument.selectedAnalysis..AnalysisFile}" width="100%" height="100%">
+				<mx:DataGrid id="filesGrid" dataProvider="{parentDocument.selectedAnalysis..AnalysisFileDescriptor}" width="100%" height="100%">
 					<mx:columns>
-  					    <mx:DataGridColumn headerText="" width="25" labelFunction="getFilesGridRowNumber"/>
-						<mx:DataGridColumn headerText="File name" dataField="@fileName"/>
-						<mx:DataGridColumn headerText="Upload Date" width="80" dataField="@uploadDate"/>
-						<mx:DataGridColumn headerText="Comments" dataField="@comments"/>
+			            <mx:DataGridColumn headerText=" " 
+		            		editable="true"       
+		            		width="3"                 	
+		            		dataField="@isSelected" 
+		            		editorDataField="selected" sortable="false"
+		            		itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
+		            	</mx:DataGridColumn>				
+						<mx:DataGridColumn headerText="File name" width="30" dataField="@displayName"/>
+						<mx:DataGridColumn headerText="Comments"  width="30" dataField="@comments"/>
+						<mx:DataGridColumn headerText="Upload Date" width="10" dataField="@uploadDate"/>
+				    	<mx:DataGridColumn dataField="@type"           headerText="Type" width="5" />
+				    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="10" />
 					</mx:columns>
 				</mx:DataGrid>
+				<mx:HBox paddingTop="4" verticalGap="0" paddingLeft="4" paddingBottom="4">
+				    <mx:Button id="downloadFilesButton" 
+				    	click="downloadFiles()"
+				    	icon="@Embed('../../assets/icon_download.gif')" 
+				    	toolTip="Download selected folders"
+				    	label="Download" 
+				    	visible="true"/>
+				    <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
+				</mx:HBox>
 			</mx:VBox>
 
 			
@@ -300,7 +406,6 @@
 
 <mx:ControlBar width="100%">
     <mx:HBox width="100%" horizontalAlign="left">
-	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 	    <mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
 	        <mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        <mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>

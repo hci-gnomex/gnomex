@@ -80,9 +80,9 @@
     
     private var estimatedDownloadSize:Number;
     
-    private const DOWNLOAD_FOLDERS_URL:String = "DownloadAnalysisFolderServlet.gx"; 
-    private const DOWNLOAD_FILES_URL:String   = "DownloadAnalysisFileServlet.gx";  
-    private const SUGGESTED_LOCAL_FILENAME:String   = "gnomex-analysis";  
+    public static const DOWNLOAD_FOLDERS_URL:String = "DownloadAnalysisFolderServlet.gx"; 
+    public static const DOWNLOAD_FILES_URL:String   = "DownloadAnalysisFileServlet.gx";  
+    public static const SUGGESTED_LOCAL_FILENAME:String   = "gnomex-analysis";  
    
     public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
 
@@ -242,7 +242,7 @@
 	        parms.mode = estimatedDownloadSize >=  views.experiment.ExperimentDownloadView.ZIP_MAX_SIZE ? "tar" : "zip";
 
     		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
-    		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
+    		progressWindow.init(this, DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, SUGGESTED_LOCAL_FILENAME);
 		}
 
 	}        
@@ -259,7 +259,7 @@
 	        parms.mode = estimatedDownloadSize >=  views.experiment.ExperimentDownloadView.ZIP_MAX_SIZE ? "tar" : "zip";
 
     		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
-    		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
+    		progressWindow.init(this, DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, SUGGESTED_LOCAL_FILENAME);
 			
 		}
 
@@ -295,7 +295,7 @@
 	        var parms:URLVariables = new URLVariables();
 	        parms.mode = estimatedDownloadSize >= views.experiment.ExperimentDownloadView.ZIP_MAX_SIZE ? "tar" : "zip";
     		
-    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+    		progressWindow.init(this, DOWNLOAD_FILES_URL, parms, parentDocument.downloadFilesButton, estimatedDownloadSize, SUGGESTED_LOCAL_FILENAME);		
 		}
 	}    
     
@@ -371,7 +371,7 @@
 			            <mx:DataGridColumn   minWidth="28" width="28" headerText=""  sortCompareFunction="AnalysisBrowseView.sortAnalysisNumber">
 			                <mx:itemRenderer>
 			                    <mx:Component >
-			                        <mx:HBox  horizontalGap="0"  paddingLeft="4" >
+			                        <mx:HBox  horizontalGap="0"  horizontalScrollPolicy="off" paddingLeft="4" >
 			                          <mx:Image id="experimentImage"  
 			                          	source="{parentApplication.iconAnalysis}" >
 			                    	 </mx:Image> 
@@ -416,7 +416,7 @@
 		            <mx:DataGridColumn width="7" headerText="#">
 		                <mx:itemRenderer>
 		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0"  paddingLeft="4">
+		                        <mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off" paddingLeft="4">
 		                          <mx:Image id="experimentImage"  
 			                          	source="{(data.@showAnalysisNumber == 'Y' ? parentApplication.iconAnalysis : '')}" >
 		                    	 </mx:Image> 
