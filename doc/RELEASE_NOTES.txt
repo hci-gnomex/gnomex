@@ -1,6 +1,25 @@
 ﻿GNomEx Release Notes
 
-4.9.4
+4.9.5
+------------------------
+- Fix bug that was causing save error when submitting request on last day of month due to date boundary logic problem when getting current billing period.
+- Provide visibility to lock down experiment to owner and owner's lab manager(s)
+- Add 'collaborators' list to individual experiments and analysis.  These users are granted read access on the individual experiment/analysis regardless of visibility.
+- Add 'close' button on experiment detail window that pops up when user clicks on experiment tree on Analysis Edit window.
+- Only send email notifying of work authorization approval to submitter and PI (lab emails), not lab managers.
+- When user submitting work authorization form, require either project or activity, but not both.  Expiration date is also mandatory.
+- Default to show active billing accounts in 'Reassign billing accounts' popup window in billing. (Checkbox allows inactive billing accounts to be showns as well).
+- Rework 'Split billing accounts' window to use dropdowns for lab and billing account rather than editable grid, which had a bug 
+  that resulted in billing accounts not being properly refreshed based on selected lab.  Also, show active billing accounts by
+  default with ability to also show inactive accounts.
+- Get rid of horizontal scroll bars in 'folder' cell of Experiment downloads.
+- Disable double-click on Experiments tree so that second click event doesn't interfere with 'Download' click event already in progress.  
+  (This was causing view to switch back to Experiment detail view after 'Downloads' link was pressed.)
+- Provide download checkboxes and button on 'Files' tab of Analysis detail for more intuitive navigation to downloading analysis files.
+ 
+
+
+4.9.4 (Aug 31, 2010)
 ------------------------
 - Allow gnomex admins to send broadcast email to all active gnomex users.
 
