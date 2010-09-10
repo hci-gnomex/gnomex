@@ -4,10 +4,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
+import hci.dictionary.model.NullDictionaryEntry;
 import hci.hibernate3utils.HibernateDetailObject;
 
 
-public class AppUser extends HibernateDetailObject implements Serializable {
+public class AppUser extends HibernateDetailObject implements Serializable, Comparable {
   public static final String    MASKED_PASSWORD = "XXXX";
   
   private Integer idAppUser;
@@ -226,4 +227,17 @@ public class AppUser extends HibernateDetailObject implements Serializable {
     return name;
   }
   
+  @Override
+  public int compareTo(Object o) {
+    if (o instanceof AppUser) {
+      AppUser other = (AppUser)o;      
+      return this.getIdAppUser().compareTo(other.getIdAppUser());
+    } else if (o instanceof NullDictionaryEntry) {
+      return 1;
+    } else {
+      return -1;      
+    }
+  }  
+
+
 }

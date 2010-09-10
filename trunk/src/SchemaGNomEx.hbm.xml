@@ -56,6 +56,10 @@
 			<key column="idAnalysis"/>
 			<one-to-many class="hci.gnomex.model.AnalysisFile" />
 		</set>
+		<set name="collaborators" table="AnalysisCollaborator" lazy="true" cascade="none">
+			<key column="idAnalysis"/>
+			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+		</set>
 		
 	</class>
 	
@@ -426,6 +430,11 @@
 			<key column="idRequest"/>
 			<many-to-many column="idSeqLibTreatment" class="hci.gnomex.model.SeqLibTreatment"/>
 		</set>
+		<set name="collaborators" table="RequestCollaborator" lazy="true" cascade="none">
+			<key column="idRequest"/>
+			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
+		</set>
+		
 	</class>
 	
 	<!-- hci.gnomex.model.Sample -->

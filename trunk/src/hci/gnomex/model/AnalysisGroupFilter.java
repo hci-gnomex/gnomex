@@ -67,12 +67,15 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" FROM                AnalysisGroup as ag ");
     queryBuf.append(" JOIN                ag.lab as aglab ");
     queryBuf.append(" LEFT JOIN           ag.analysisItems as a ");
-    queryBuf.append(" LEFT JOIN           a.lab as alab ");
-    queryBuf.append(" LEFT JOIN           a.appUser as owner ");
     
     if (hasExperimentItemCriteria()) {
       queryBuf.append(" JOIN              a.experimentItems as ex ");
     }
+    
+    queryBuf.append(" LEFT JOIN           a.lab as alab ");
+    queryBuf.append(" LEFT JOIN           a.appUser as owner ");
+    queryBuf.append(" LEFT JOIN           a.collaborators as collab ");
+    
 
     addAnalysisCriteria();
     addExperimentItemCriteria();
@@ -210,8 +213,7 @@ public class AnalysisGroupFilter extends DetailObject {
    
       
     }  else {
-      addWhere = secAdvisor.addInheritedSecurityCriteria(queryBuf, "ag", addWhere, scopeToGroup, "a.codeVisibility", null);
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "a",           addWhere, scopeToGroup, true, "a.idAnalysis is NULL");      
+      addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis is NULL");
     }
     
 

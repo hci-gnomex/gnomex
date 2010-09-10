@@ -40,6 +40,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
     
     addRequestCriteria();
@@ -77,6 +78,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   public void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
 
@@ -136,6 +138,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" JOIN           l.sample as s ");
     queryBuf.append(" LEFT JOIN      l.flowCellChannel as ch ");
     queryBuf.append(" LEFT JOIN      ch.flowCell as fc ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
     addRequestCriteria();
     addSecurityCriteria();
@@ -166,6 +169,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     queryBuf.append(" JOIN           l.sample as s ");
     queryBuf.append(" LEFT JOIN      l.flowCellChannel as ch ");
     queryBuf.append(" LEFT JOIN      ch.flowCell as fc ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
     addRequestCriteria();
     addSecurityCriteria();

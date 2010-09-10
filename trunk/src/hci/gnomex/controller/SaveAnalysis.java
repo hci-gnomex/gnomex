@@ -7,9 +7,11 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroup;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AnalysisCollaboratorParser;
 import hci.gnomex.utility.AnalysisFileParser;
 import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,7 +67,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private Document              lanesDoc;
   private AnalysisLaneParser    laneParser;
 
-  private Analysis               analysisScreen;
+  private String                     collaboratorsXMLString;
+  private Document                   collaboratorsDoc;
+  private AnalysisCollaboratorParser collaboratorParser;
+
+  private Analysis              analysisScreen;
   private boolean              isNewAnalysis = false;
   private boolean              isNewAnalysisGroup = false;
   
@@ -147,6 +154,23 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       this.addInvalidField( "lanesXMLString", "Invalid lanesXMLString");
     }
     
+    if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
+      collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
+    }
+    reader = new StringReader(collaboratorsXMLString);
+    try {
+      SAXBuilder sax = new SAXBuilder();
+      collaboratorsDoc = sax.build(reader);
+      collaboratorParser = new AnalysisCollaboratorParser(collaboratorsDoc);
+    } catch (JDOMException je ) {
+      log.error( "Cannot parse collaboratorsXMLString", je );
+      this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
+    }
+
+    if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
+      lanesXMLString = request.getParameter("lanesXMLString");
+    }
+    
     if (request.getParameter("newAnalysisGroupName") != null && !request.getParameter("newAnalysisGroupName").equals("")) {
       newAnalysisGroupName = request.getParameter("newAnalysisGroupName");
       isNewAnalysisGroup = true;
@@ -154,14 +178,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     if (request.getParameter("newAnalysisGroupDescription") != null && !request.getParameter("newAnalysisGroupDescription").equals("")) {
       newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
     }    
-    
-    if (request.getParameter("codeVisibilityToUpdate") != null && !request.getParameter("codeVisibilityToUpdate").equals("")) {
-      this.codeVisibilityToUpdate = request.getParameter("codeVisibilityToUpdate");      
-    } else {
-      if (!this.isNewAnalysis) {
-        this.addInvalidField("visibilityRequired", "Visibility is required");        
-      }
-    }
     
   }
 
@@ -189,6 +205,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         analysisFileParser.parse(sess);
         hybParser.parse(sess);
         laneParser.parse(sess);
+        collaboratorParser.parse(sess);
         
               
         if (isNewAnalysis) {
@@ -208,7 +225,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           }
           
           analysis.setNumber("A" + analysis.getIdAnalysis().toString());
-          analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
           analysis.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
           sess.save(analysis);
 
@@ -343,6 +359,20 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           removeAnalysisFileFromFileSystem(baseDir, analysis, af);
         }
         
+        //
+        // Save collaborators
+        //
+        Set collaborators = new TreeSet();
+        for(Iterator i = collaboratorParser.getIdCollaboratorList().iterator(); i.hasNext();) {
+          Integer idAppUser = (Integer)i.next();
+          
+          // TODO (performance):  Would be better if app user was cached.
+          AppUser collaborator = (AppUser)sess.load(AppUser.class, idAppUser);
+          collaborators.add(collaborator);
+        }
+        analysis.setCollaborators(collaborators);
+           
+        
         sess.flush();
         
         
@@ -355,7 +385,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveLab ", e);
+      log.error("An exception has occurred in SaveAnalysis ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
@@ -378,6 +408,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdAnalysisType(analysisScreen.getIdAnalysisType());
     analysis.setIdOrganism(analysisScreen.getIdOrganism());
     analysis.setIdGenomeBuild(analysisScreen.getIdGenomeBuild());
+    analysis.setCodeVisibility(analysisScreen.getCodeVisibility());
   }
   
   

@@ -68,6 +68,8 @@ public class BuildSearchIndex extends DetailObject {
   private Map projectAnnotationMap;
   private Map analysisGroupMap;
   private Map sampleAnnotationMap;
+  private Map requestCollaboratorMap;
+  private Map analysisCollaboratorMap;
   private Map codeExperimentFactorMap;
   private Map codeExperimentDesignMap;
   private Map protocolMap;
@@ -193,6 +195,9 @@ public class BuildSearchIndex extends DetailObject {
     // Get sample annotations (sample characteristics)
     getSampleAnnotations(sess);
     
+    // Get collaborators 
+    getRequestCollaborators(sess);
+    
     //
     // Write Experiment Lucene Index.
     // (A document for each request)
@@ -245,6 +250,9 @@ public class BuildSearchIndex extends DetailObject {
 
     // Get analysis data
     getAnalysisData(sess);
+    
+    // Get collaborators of analysis
+    getAnalysisCollaborators(sess);
 
     
     //
@@ -300,7 +308,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate, ");
     buf.append("       s1.idSampleType, ");
-    buf.append("       slideProd.name ");
+    buf.append("       slideProd.name, ");
+    buf.append("       req.idAppUser ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -364,7 +373,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.codeVisibility, ");
     buf.append("       req.createDate, ");
     buf.append("       s1.idSampleType, ");
-    buf.append("       '' ");
+    buf.append("       '', ");
+    buf.append("       req.idAppUser ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -415,7 +425,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       a.idOrganism, ");
     buf.append("       a.idLab,  ");
     buf.append("       a.createDate, ");
-    buf.append("       a.codeVisibility ");
+    buf.append("       a.codeVisibility, ");
+    buf.append("       a.idAppUser  ");
     
     buf.append("FROM        AnalysisGroup as ag ");
     buf.append("LEFT JOIN   ag.lab as agLab ");
@@ -567,6 +578,54 @@ public class BuildSearchIndex extends DetailObject {
     }   
   }
   
+  
+  private void getRequestCollaborators(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT r.idRequest, ");
+    buf.append("       collab.idAppUser ");
+    buf.append("FROM   Request r ");
+    buf.append("JOIN   r.collaborators as collab ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    requestCollaboratorMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idRequest = (Integer)row[0];
+      
+      List rows = (List)requestCollaboratorMap.get(idRequest);
+      if (rows == null) {
+        rows = new ArrayList();
+        requestCollaboratorMap.put(idRequest, rows);
+      }
+      rows.add(row);
+    }   
+  }
+  
+  private void getAnalysisCollaborators(Session sess) throws Exception{
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT a.idAnalysis, ");
+    buf.append("       collab.idAppUser ");
+    buf.append("FROM   Analysis a ");
+    buf.append("JOIN   a.collaborators as collab ");
+    
+    List results = sess.createQuery(buf.toString()).list();
+    analysisCollaboratorMap = new HashMap();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idAnalysis = (Integer)row[0];
+      
+      List rows = (List)analysisCollaboratorMap.get(idAnalysis);
+      if (rows == null) {
+        rows = new ArrayList();
+        analysisCollaboratorMap.put(idAnalysis, rows);
+      }
+      rows.add(row);
+    }   
+  }
+
+  
   private void getProtocolData(Session sess) throws Exception {
     protocolMap = new HashMap();
 
@@ -687,6 +746,7 @@ public class BuildSearchIndex extends DetailObject {
     StringBuffer requestDisplayName = null;
     String       labProject = null;
     String       labRequest = null;
+    Integer      idAppUser = null;
     
     
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
@@ -746,6 +806,7 @@ public class BuildSearchIndex extends DetailObject {
       requestCodeVisibility    = (String) row[27];
       requestCreateDate        = (java.sql.Date) row[28];
       slideProduct             = (String) row[30];
+      idAppUser                = (Integer)row[31];
       
       slideProductOrganism     = idOrganismSlideProduct != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganismSlideProduct.toString()) : null;
       requestCategory          = getDictionaryDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
@@ -861,6 +922,18 @@ public class BuildSearchIndex extends DetailObject {
       
     }
     
+    // Obtain collaborators of request
+    StringBuffer collaborators = new StringBuffer();
+    if (idRequest != null) {
+      List requestCollaboratorRows = (List)requestCollaboratorMap.get(idRequest);
+      if (requestCollaboratorRows != null) {
+        for(Iterator i1 = requestCollaboratorRows.iterator(); i1.hasNext();) {
+          Object[] row = (Object[])i1.next();
+          collaborators.append(row[1] != null  ? " COLLAB-" + ((Integer)row[1]).toString() + "-COLLAB " : "");
+        }          
+      }
+    }
+    
 
     // Combine all text into one search field
     StringBuffer text = new StringBuffer();
@@ -925,6 +998,8 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.ID_LAB_PROJECT, idLabProject != null ? idLabProject.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_LAB_NAME, labProject);
     indexedFieldMap.put(ExperimentIndexHelper.ID_LAB, idLabRequest != null ? idLabRequest.toString() : null);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : null);
+    indexedFieldMap.put(ExperimentIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.LAB_NAME, labRequest);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_VISIBILITY, requestCodeVisibility);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_ANNOTATIONS, projectAnnotations.toString());
@@ -987,7 +1062,20 @@ public class BuildSearchIndex extends DetailObject {
     java.sql.Date createDate      = (java.sql.Date)row[19];
     String codeVisibility         = (String)row[20];
     String publicNote             = ""; 
+    Integer idAppUser             = (Integer)row[21];
     
+    // Obtain collaborators of analysis
+    StringBuffer collaborators = new StringBuffer();
+    if (idAnalysis != null) {
+      List analysisCollaboratorRows = (List)analysisCollaboratorMap.get(idAnalysis);
+      if (analysisCollaboratorRows != null) {
+        for(Iterator i1 = analysisCollaboratorRows.iterator(); i1.hasNext();) {
+          Object[] collabRow = (Object[])i1.next();
+          collaborators.append(collabRow[1] != null  ? " COLLAB-" + ((Integer)collabRow[1]).toString() + "-COLLAB " : "");
+        }          
+      }
+    }
+        
    
     
     String agLabName = Lab.formatLabName(agLabLastName, agLabFirstName);
@@ -1023,6 +1111,8 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, idAnalysisProtocol);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? getDictionaryDisplay("hci.gnomex.model.AnalysisProtocol", idAnalysisProtocol.toString()) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    indexedFieldMap.put(AnalysisIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
+    indexedFieldMap.put(AnalysisIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
 

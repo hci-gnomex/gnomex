@@ -36,6 +36,7 @@ public class RequestParser implements Serializable {
   private Map             sampleMap = new HashMap();
   private Map             characteristicsToApplyMap = new TreeMap();
   private Map             seqLibTreatmentMap = new HashMap();
+  private Map             collaboratorMap = new HashMap();
   private Map             sampleAnnotationMap = new HashMap();
   private boolean        showTreatments = false;
   private Map             sampleTreatmentMap = new HashMap();
@@ -62,6 +63,7 @@ public class RequestParser implements Serializable {
     sampleMap = new HashMap();
     characteristicsToApplyMap = new TreeMap();
     seqLibTreatmentMap = new HashMap();
+    collaboratorMap = new HashMap();
     sampleAnnotationMap = new HashMap();
     showTreatments = false;
     sampleTreatmentMap = new HashMap();
@@ -146,7 +148,7 @@ public class RequestParser implements Serializable {
       if (idRequest.intValue() == 0) {
         request = new Request();
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-        request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+        request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
         isNewRequest = true;
       } else {
         request = (Request)sess.load(Request.class, idRequest);
@@ -234,6 +236,11 @@ public class RequestParser implements Serializable {
     for (Iterator i1 = n.getChild("SeqLibTreatmentEntries").getChildren("SeqLibTreatment").iterator(); i1.hasNext();) {
       Element sltNode = (Element)i1.next();
       this.seqLibTreatmentMap.put(sltNode.getAttributeValue("value"), null);        
+    }
+    
+    for (Iterator i1 = n.getChild("collaborators").getChildren("AppUser").iterator(); i1.hasNext();) {
+      Element collaboratorNode = (Element)i1.next();
+      this.collaboratorMap.put(collaboratorNode.getAttributeValue("idAppUser"), null);        
     }
     
     // Figure out if the user intended to save sample treatments
@@ -785,6 +792,9 @@ public class RequestParser implements Serializable {
     return seqLibTreatmentMap;
   }
   
+  public Map getCollaboratorMap() {
+    return collaboratorMap;
+  }
   
   public boolean getShowTreatments() {
     return showTreatments;

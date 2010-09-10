@@ -112,6 +112,7 @@ public class RequestProgressFilter extends DetailObject {
     queryBuf.append(" JOIN           hyb.labeledSampleChannel1 as ls1 ");
     queryBuf.append(" JOIN           ls1.sample as s1 ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      hyb.labeledSampleChannel2 as ls2 ");
     queryBuf.append(" LEFT JOIN      ls2.sample as s2 ");
     
@@ -134,6 +135,7 @@ public class RequestProgressFilter extends DetailObject {
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
     
     addRequestCriteria();
@@ -305,7 +307,7 @@ public class RequestProgressFilter extends DetailObject {
       addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
       boolean scopeToGroup = true;
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup, true);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup);
     }
     
   }

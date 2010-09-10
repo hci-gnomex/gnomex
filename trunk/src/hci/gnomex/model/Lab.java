@@ -33,7 +33,6 @@ public class Lab extends HibernateDetailObject {
   private boolean canSubmitRequests = false;
   private boolean canManage = false;
   private boolean isMyLab = false;
-  private boolean hasPublicData = false;
   
   
   public String getContactAddress() {
@@ -212,20 +211,7 @@ public class Lab extends HibernateDetailObject {
     this.isMyLab = isMyLab;
   }
 
-  
-  public String getHasPublicData() {
-    if (hasPublicData) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-
-  
-  public void setHasPublicData(boolean hasPublicData) {
-    this.hasPublicData = hasPublicData;
-  }
-
+ 
   
   public String getIsCcsgMember() {
     return isCcsgMember;

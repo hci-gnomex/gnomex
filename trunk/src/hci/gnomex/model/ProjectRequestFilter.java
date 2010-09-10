@@ -130,6 +130,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN           req.lab as lab ");
     queryBuf.append(" LEFT JOIN           req.slideProduct as slideProduct ");
     queryBuf.append(" LEFT JOIN           req.samples as sample ");
+    queryBuf.append(" LEFT JOIN           req.collaborators as collab ");
 
     if (hasSlideProductCriteria()) {
       queryBuf.append(" JOIN           req.slideProduct as sp ");
@@ -179,6 +180,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append(" FROM                Request as req ");
     queryBuf.append(" JOIN                req.analysisExperimentItems as ax ");
     queryBuf.append(" JOIN                ax.analysis as a ");
+    queryBuf.append(" LEFT JOIN           req.collaborators as collab ");
 
     addRequestCriteria();
     
@@ -465,11 +467,8 @@ public class ProjectRequestFilter extends DetailObject {
 
     } else {
       boolean scopeToGroup = true;
-      if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      }  else {
-        addWhere = secAdvisor.addInheritedSecurityCriteria(queryBuf, "project", addWhere, scopeToGroup, "req.codeVisibility", null);
-        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, true, "req.idRequest is NULL");
-      }
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest is NULL");
+
     }
   }
 
@@ -478,11 +477,10 @@ public class ProjectRequestFilter extends DetailObject {
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
       secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
-      boolean scopeToGroup = true;
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
         
       }  else {
-        addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req",     addWhere, scopeToGroup, true);
+        addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
       }
     }
     

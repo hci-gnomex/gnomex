@@ -16,7 +16,7 @@ public class AppUserFilter extends DetailObject {
   private String                userFirstName;
   private Integer               idLab;
   private Integer               idAppUser;
-  private boolean              isUnbounded = false;
+
   
   private SecurityAdvisor       secAdvisor;
   
@@ -30,7 +30,7 @@ public class AppUserFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT user");
+    queryBuf.append(" SELECT distinct user");
     
     getQueryBody(queryBuf);
     
@@ -42,7 +42,9 @@ public class AppUserFilter extends DetailObject {
     
     queryBuf.append(" FROM           AppUser as user ");
     if (hasLabCriteria()) {
-      queryBuf.append(" JOIN           user.labs as lab ");      
+      queryBuf.append(" LEFT JOIN           user.labs as lab ");      
+      queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");      
+      queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");      
     }
     
     
@@ -50,9 +52,7 @@ public class AppUserFilter extends DetailObject {
     addUserCriteria();
     addLabCriteria();
     
-    if (!isUnbounded) {
-      addSecurityCriteria();      
-    }
+    addSecurityCriteria();      
     
     queryBuf.append(" order by user.lastName, user.firstName ");
   }
@@ -60,8 +60,7 @@ public class AppUserFilter extends DetailObject {
   
   private boolean hasLabCriteria() {
     // If we will add security criteria by authorized lab, join to lab
-    if (!secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) &&
-        secAdvisor.getGroupsIManage().isEmpty()) {
+    if (!secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       return true;
     }
     
@@ -116,18 +115,38 @@ public class AppUserFilter extends DetailObject {
     if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) ) {
       // No criteria needed if user can view all requests
       
-    } else if (!secAdvisor.getGroupsIManage().isEmpty()){
-      // No criterea for group mananagers - they need to see full
-      // user list in order to assign new members to groups
+    } else if (secAdvisor.getGroupsIManage().size() > 0) {
+      
+      // Lab managers must be able to add any user to his/her lab,
+      // so only criteria applied is to get active gnomex accounts
+      this.addWhereOrAnd();
+      queryBuf.append(" user.isActive = 'Y' ");
+      
       
     } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+      this.addWhereOrAnd();
+      queryBuf.append(" user.isActive = 'Y' ");
       
       if (this.secAdvisor.getAllMyGroups().size() > 0) {
         // Limit to users who are members of the authorized labs
         this.addWhereOrAnd();
+        
+        queryBuf.append(" ( ");
+        
+        
         queryBuf.append(" lab.idLab in ( ");
-        Set labs = this.secAdvisor.getAllMyGroups();
-        for(Iterator i = labs.iterator(); i.hasNext();) {
+        for(Iterator i =  this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
+          Lab theLab = (Lab)i.next();
+          queryBuf.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
+          }
+        }      
+        queryBuf.append(" )");  
+        
+        queryBuf.append(" OR ");
+        queryBuf.append(" collabLab.idLab in ( ");
+        for(Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
           Lab theLab = (Lab)i.next();
           queryBuf.append(theLab.getIdLab());
           if (i.hasNext()) {
@@ -135,8 +154,20 @@ public class AppUserFilter extends DetailObject {
           }
         }      
         queryBuf.append(" )");
+
+        queryBuf.append(" OR ");
+        queryBuf.append(" managerLab.idLab in ( ");            
+        for(Iterator i =  this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
+          Lab theLab = (Lab)i.next();
+          queryBuf.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
+          }
+        }      
+        queryBuf.append(" )");          
         
       }
+      queryBuf.append(")");
       
     } else {
       // Limit to this user only
@@ -218,15 +249,6 @@ public class AppUserFilter extends DetailObject {
     this.userLastName = userLastName;
   }
 
-  
-  public boolean isUnbounded() {
-    return isUnbounded;
-  }
-
-  
-  public void setUnbounded(boolean isUnbounded) {
-    this.isUnbounded = isUnbounded;
-  }
 
   
  
