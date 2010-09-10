@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	showCloseButton="true"
+	close="{PopUpManager.removePopUp(this)}"
+	xmlns:experiment="views.experiment.*" 
+	layout="vertical" width="500" height="400" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
+
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+	]]>
+</mx:Script>
+	<experiment:ExperimentDetailView id="experimentDetailView" width="100%" height="100%">		
+	</experiment:ExperimentDetailView>
+</mx:TitleWindow>

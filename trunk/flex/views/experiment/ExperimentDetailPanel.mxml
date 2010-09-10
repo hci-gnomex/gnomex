@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<util:PanelBox  xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" 
+	xmlns:util="views.util.*"
+	xmlns:experiment="views.experiment.*" >
+<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
+
+<mx:VBox width="100%" height="100%">
+  <experiment:ExperimentDetailView id="detail" width="100%" height="100%">
+  </experiment:ExperimentDetailView>
+	
+</mx:VBox>
+  
+  
+<mx:ControlBar  width="100%" id="buttonBar">
+	    <mx:HBox width="100%" horizontalAlign="left">
+		    <mx:LinkButton label="Downloads" click="detail.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
+		    <mx:LinkButton label="Printable form" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+		    <mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+		    	enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()">
+		    </mx:LinkButton>
+		    <mx:LinkButton label="Edit" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
+		        <mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+		        <mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+		    </mx:LinkButton>	
+		    <mx:Spacer width="30"/>			
+		    <mx:LinkButton label="Delete" click="detail.promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
+		        <mx:height>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
+		        <mx:visible>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
+		    </mx:LinkButton>
+	    </mx:HBox>
+</mx:ControlBar>
+
+</util:PanelBox>
