@@ -69,7 +69,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
     List analysisNumbers = new ArrayList<String>();
     getFileNamesToDownload(baseDir, keysString, analysisNumbers, analysisMap, directoryMap);
    
-    //  For each request number
+    //  For each analysis number
     for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {
       String analysisNumber = (String)i.next();
       
@@ -100,7 +100,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
         continue;
       }
 
-      // For each directory of request
+      // For each directory of analysis
       boolean firstDirForAnalysis = true;
       for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
         
