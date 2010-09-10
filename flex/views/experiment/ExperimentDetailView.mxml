@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"  
 	xmlns:util="views.util.*" >
-<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
    <mx:HTTPService  
     id="getProtocol" 
     url="GetProtocol.gx"
@@ -38,7 +38,7 @@
 		private var visibilityName:String;
 		
 		[Bindable]
-		private var selectedExperiment:Object;
+		public var selectedExperiment:Object;
 		
 		public function checkSecurity():void {
 			if (parentApplication.isGuestMode()) {
@@ -47,7 +47,10 @@
 				this.showExtFieldsCheckBox.visible = false;
 				this.showHybFieldsCheckBox.visible = false;
 				this.showQCFieldsCheckBox.visible = false;
-				this.requestFormButton.visible = false;
+				
+				if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
+					parentDocument.requestFormButton.visible = false;				
+				}
 			}
 		}
 	
@@ -72,12 +75,14 @@
 
 			}
 			
-			if (this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
-				this.analysisButton.enabled = true;
-			} else {
-				this.analysisButton.enabled = false;
+			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
+				if (this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+					parentDocument.analysisButton.enabled = true;
+				} else {
+					parentDocument.analysisButton.enabled = false;
+				}
 			}
-
+			
 
 			showQCFieldsCheckBox.selected = false;
 
@@ -187,7 +192,7 @@
 		}
 		
 		public function showDownloads():void {
-			parentDocument.showExperimentDownloads();
+			parentDocument.parentDocument.showExperimentDownloads();
 		}
 
 	  	public function promptToDeleteExperiment():void {
@@ -215,7 +220,7 @@
             }
       	}
 		private function deleteExperiment():void {
-			parentDocument.deleteExperiment();
+			parentDocument.parentDocument.deleteExperiment();
 		}
 		
 		public function showPrintableRequestForm():void {
@@ -223,7 +228,7 @@
 			navigateToURL(url, '_blank');			
 		}
 		
-		private function showEditExperimentWindow():void {
+		public function showEditExperimentWindow():void {
 			 // add this get request code b/c the edit window was freezing the second time 
 			 // the edit window was pressed.  by putting this extra call in, it seems to clear
 			 // out some weird state.
@@ -232,18 +237,18 @@
 			 //parentDocument.getRequest.send(parms);
            	 
            	 //parentDocument.editView.setupEditForm(this.selectedExperiment);
-           	 parentDocument.editView.request = this.selectedExperiment;
-           	 parentDocument.theViews.selectedChild = parentDocument.editView;
+           	 parentDocument.parentDocument.editView.request = this.selectedExperiment;
+           	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
            	 //parentDocument.editView.removeDataListeners();
            	 //parentDocument.editView.initializeData();
            	 //callLater(parentDocument.editView.setupDataListeners);
 		}
 		
 		public function refreshSavedExperiment(idRequest:Object):void {
-			 parentDocument.selectedIdRequest = idRequest;
+			 parentDocument.parentDocument.selectedIdRequest = idRequest;
 			 var parms:Object = new Object();
-			 parms.idRequest = parentDocument.selectedIdRequest;
-			 parentDocument.getRequest.send(parms);
+			 parms.idRequest = parentDocument.parentDocument.selectedIdRequest;
+			 parentDocument.parentDocument.getRequest.send(parms);
 			
 		}
 
@@ -584,27 +589,7 @@
 	
 </mx:VBox>
 
-<mx:ControlBar  width="100%" id="buttonBar">
-    <mx:HBox width="100%" horizontalAlign="left">
-	    <mx:LinkButton label="Downloads" click="showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
-	    <mx:LinkButton label="Printable form" click="showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
-	    <mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-	    	enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="showRelatedAnalysis()">
-	    </mx:LinkButton>
-	    <mx:LinkButton label="Edit" click="showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
-	        <mx:height>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-	        <mx:visible>{this.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-	    </mx:LinkButton>	
-	    <mx:Spacer width="30"/>			
-	    <mx:LinkButton label="Delete" click="promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
-	        <mx:height>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
-	        <mx:visible>{this.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
-	    </mx:LinkButton>
-	
-    </mx:HBox>
-</mx:ControlBar>
-
-<util:states>
+<mx:states>
 	<mx:State name="MicroarrayState">		 
 		<mx:AddChild relativeTo="{this.confirmContainer}" position="lastChild">
 			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
@@ -825,6 +810,6 @@
 			<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
 		</mx:AddChild>
 	</mx:State>
-</util:states>
+</mx:states>
 	
-</util:PanelBox>
+</mx:VBox>
