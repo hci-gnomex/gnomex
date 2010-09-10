@@ -76,6 +76,16 @@
     </mx:request>
     </mx:HTTPService >
          
+    <mx:HTTPService 
+    id="getAppUserList" 
+    url="GetAppUserList.gx"
+    showBusyCursor="false"
+    resultFormat="e4x"
+    result="onGetAppUserList(event)"
+	fault="onFailHttpRequest('Failed to get app user list', event)"
+    destination="getAppUserList"
+    useProxy="false">
+    </mx:HTTPService >
          
     <mx:HTTPService 
     id="getLabList" 
@@ -330,7 +340,9 @@
 	        
 	        
 	        public var downloadPopupCount:int = 0;
-	         
+	        
+	        [Bindable]
+		    public var promptedAppUserList:PromptXMLListCollection;
 			[Bindable]
 			public var promptedLabList:PromptXMLListCollection;
 			[Bindable]
@@ -458,7 +470,6 @@
 
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
-				navAnalysisView.checkSecurity();
 				theViews.selectedChild = navAnalysisView;
 				
 			}
@@ -814,7 +825,7 @@
             	}
 			    
 			    this.appProgressBar.currentState = "LoadingState";
-			    this.showProgress(30);
+			    this.showProgress(20);
 			    
 			    userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 			    isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
@@ -828,7 +839,9 @@
             	getExperimentDesignList.send();
             	getExperimentFactorList.send();
             	getLabList.send();
+            	getAppUserList.send();
             	getProjectList.send();
+
 
 				
             }
@@ -857,7 +870,7 @@
             	getLabList.send();
             	getProjectList.send();
             	
-            	showProgress(20);
+            	showProgress(30);
             }
  
             public function onDictionariesLoaded(event:Event):void {
@@ -870,7 +883,7 @@
             	}
             	pricingURL = getProperty(PROPERTY_PRICING_URL);
             	
-	        	showProgress(40);
+	        	showProgress(30);
 	        	enableApp();
             }
             
@@ -888,11 +901,18 @@
             
             private function onGetExperimentDesignList(event:ResultEvent):void {
 	        	showProgress(10);
-            	
+	        	enableApp();
 	        }		
 	        
 			private function onGetExperimentFactorList(event:ResultEvent):void {
 	        	showProgress(10);
+	        }
+	        
+	        private function onGetAppUserList(event:ResultEvent):void {
+			  	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
+              	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));			
+	          	showProgress(10);
+	        	enableApp();
 	        }
 	        
 	        private function onGetLabList(event:ResultEvent):void {
@@ -919,9 +939,7 @@
             
 	        
             private function onGetProjectList(event:ResultEvent):void {
-	        	
 	       	    showProgress(10);
-
 	        	enableApp();
 	        }
 	        
@@ -933,17 +951,24 @@
 	        		return;
 	        	}
 	        	
+	        	var done:Boolean = false;
 	        	if (dictionaryManager != null &&
 	        	    dictionaryManager.xml != null &&
 	        	    manageLabList != null &&
 	        	    promptedLabList != null ) {
 	        	    
-	        	    
+	        	    if (this.isGuestMode()) {
+	        	    	done = true;
+	        	    } else if (promptedAppUserList != null) {
+	        	    	done = true;
+	        	    }
+	        	} 
+	        	
+	        	if (done) {
 					appProgressBar.bar.setProgress(100, 100);
-
 		        	PopUpManager.removePopUp(appProgressBar);
 	    	    	currentState = "enabledState"; 
-	        	} 
+	        	}
 	        	
 	        }
 	        
