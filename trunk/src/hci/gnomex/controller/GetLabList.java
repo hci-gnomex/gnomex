@@ -71,17 +71,18 @@ public class GetLabList extends GNomExCommand implements Serializable {
       
       // If this is an unbounded list, run a query to find all
       // labs that have public experiments.
-      Map publicLabMap = new HashMap();
+      Map otherLabMap = new HashMap();
       if (labFilter.isUnbounded()) {
         StringBuffer buf = new StringBuffer();
         buf.append("SELECT distinct p.idLab  ");
         buf.append(" FROM      Project p ");
-        buf.append(" LEFT JOIN p.requests as r ");
-        buf.append(" WHERE r.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
-        List publicLabs = (List)sess.createQuery(buf.toString()).list();
-        for (Iterator i = publicLabs.iterator(); i.hasNext();) {
-          Integer idLabPublic = (Integer)i.next();
-          publicLabMap.put(idLabPublic, idLabPublic);        
+        buf.append(" LEFT JOIN p.requests as req ");
+        buf.append(" LEFT JOIN req.collaborators as collab ");
+        this.getSecAdvisor().buildSecurityCriteria(buf, "req", "collab", true, false);
+        List otherLabs = (List)sess.createQuery(buf.toString()).list();
+        for (Iterator i = otherLabs.iterator(); i.hasNext();) {
+          Integer idLabOther = (Integer)i.next();
+          otherLabMap.put(idLabOther, idLabOther);        
         }        
       }
       
@@ -126,16 +127,9 @@ public class GetLabList extends GNomExCommand implements Serializable {
         } else {
           lab.isMyLab(false);
         }
+
         
-        if (labFilter.isUnbounded()) {
-          if (publicLabMap.containsKey(lab.getIdLab())) {
-            lab.setHasPublicData(true);
-          } else {
-            lab.setHasPublicData(false);
-          }
-        }
-        
-        if (lab.getIsMyLab().equals("Y") || publicLabMap.containsKey(lab.getIdLab()) || activeLabMap.containsKey(lab.getIdLab())) {
+        if (lab.getIsMyLab().equals("Y") || otherLabMap.containsKey(lab.getIdLab()) || activeLabMap.containsKey(lab.getIdLab())) {
 
           lab.excludeMethodFromXML("getDepartment");
           lab.excludeMethodFromXML("getNotes");

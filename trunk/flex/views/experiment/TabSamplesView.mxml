@@ -456,8 +456,8 @@
     		} if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
     		} else {
-    			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-	    			parentDocument.confirmView.enabled = isComplete;
+    			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+    				parentDocument.visibilityView.enabled = isComplete;
     			}
     		}        	
     		parentDocument.enableNextButtons();
@@ -496,6 +496,7 @@
 	    			parentDocument.lanesView.enabled = false;
 	        	}
 	
+				parentDocument.visibilityView.enabled = false;
 	        	parentDocument.confirmView.enabled = false;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {

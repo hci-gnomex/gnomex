@@ -1652,6 +1652,9 @@
 			} else {
 				this.analysisButton.enabled = false;
 			}
+			
+			this.visibilityView.currentState = "EditState";
+			
 
 			this.getRequestCategoryName();
 			this.getBillingAccountName();
@@ -1800,6 +1803,10 @@
 				hybSetupView.coreSlideSourceCheckbox.selected = true;
 				
 			}			
+			if (isEditState()) {
+				visibilityView.visibilityRadioGroup.selectedValue = request.@codeVisibility;
+			} 
+			
 			
 			if (this.isAmendState() && theTab.contains(amendSetupView)) {
 				theTab.selectedChild = this.amendSetupView;
@@ -1808,12 +1815,6 @@
 			} else {
 				theTab.selectedChild = this.samplesView;
 			}
-			
-			if (isEditState()) {
-				visibilityCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', request.@codeVisibility);
-			} 
-			
-			
 			
 		}
 		
@@ -2169,6 +2170,15 @@
 				}
 			}			
 			
+			// Visibility
+			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
+			
+			// Collaborators
+			request.replace("collaborators", <collaborators></collaborators>);
+			for each(var collaborator:Object in visibilityView.collaborators) {
+				request.collaborators.appendChild(collaborator);
+		 	}
+			
 			// We need special field that tells us the way the
 			// request is being amended
 			if (this.isAmendState()) {
@@ -2219,8 +2229,17 @@
 				}
 			}		
 			
-
-			request.@codeVisibility = visibilityCombo.selectedItem.@value;
+			// Visibility
+			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
+			
+			// Collaborators
+			request.replace("collaborators", <collaborators></collaborators>);
+			for each(var collaborator:Object in visibilityView.collaborators) {
+				request.collaborators.appendChild(collaborator);
+		 	}
+			
+			
+			
 			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
 			request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
@@ -2389,7 +2408,7 @@
 
 			parentApplication.navExperimentView.showEditView = true;	
 			parentApplication.navExperimentView.refreshExperiments();
-		    parentApplication.navExperimentView.detailView.refreshSavedExperiment(request.@idRequest); 
+		    parentApplication.navExperimentView.detailView.detail.refreshSavedExperiment(request.@idRequest); 
 		}
 
 		private function showPrintableRequestForm():void {
@@ -2610,7 +2629,7 @@
 
 		private function showViewWindow():void {
 		     parentDocument.theViews.selectedChild = parentDocument.detailView;
-           	 parentDocument.detailView.setupForm(this.request);
+           	 parentDocument.detailView.detail.setupForm(this.request);
 		}
 		
 
@@ -3247,6 +3266,9 @@
 			<experiment:TabHybsView id="hybsView">				
 			</experiment:TabHybsView>
 			
+			<experiment:TabVisibilityView id="visibilityView">
+			</experiment:TabVisibilityView>
+			
 			<experiment:TabConfirmView id="confirmView">				
 			</experiment:TabConfirmView>
 		</mx:TabNavigator>
@@ -3289,10 +3311,10 @@
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%" horizontalAlign="right">
 			    <mx:HBox width="100%" horizontalAlign="left">
-			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
-					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
+					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
 					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.showRelatedAnalysis()">
+						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()">
 					</mx:LinkButton>
 			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
 			    	</mx:LinkButton>
@@ -3331,15 +3353,11 @@
     					   <mx:Text text="{this.request.@createDate}" width="180"/>
     					 </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					   <mx:Label text="Modified on"  width="102" fontWeight="bold"/>
-    					   <mx:Text text="{this.request.@lastModifyDate}" width="180"/>
-    					 </mx:HBox>
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
     					   <mx:Label width="102" text="Completed on" fontWeight="bold"/>
     					   <mx:Text  text="{this.request.@completedDate}" width="180" />
     					 </mx:HBox>
     				</mx:VBox>  
-     				<mx:VBox verticalGap="7" maxWidth="700" width="100%">
+     				<mx:VBox verticalGap="2" maxWidth="700" width="100%" id="vbox3">
     				    
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
     				           <mx:Label text="Group"  width="55" fontWeight="bold"/>
@@ -3359,7 +3377,7 @@
     				           	  enabled="true"
     				           	  width="100%"/>
     				    </mx:HBox>
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
     				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
     				        <mx:ComboBox id="requestEditProjectCombo"
     				           	  labelField="@name" 
@@ -3368,12 +3386,11 @@
     				           	  enabled="true"
     				           	  width="100%"/>
     				    </mx:HBox>
-    				       <mx:HBox width="100%" horizontalGap="0">
-    				       	<mx:Label width="55" text="Visibility" id="labelVisibility" fontWeight="bold"/>	
-    				       	<mx:ComboBox width="100%" id="visibilityCombo" labelField="@display" enabled="{this.request.@canUpdateVisibility == 'Y' ? true : false}" change="dirty.setDirty();">
-    				       		<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}</mx:dataProvider>
-    				       	</mx:ComboBox>
-    				       </mx:HBox>
+    				    <mx:HBox verticalGap="0" horizontalGap="0" id="hbox1">
+    				      <mx:Label text="Modified"  width="55" fontWeight="bold"/>
+    				      <mx:Text text="{this.request.@lastModifyDate}" width="180"/>
+    				    </mx:HBox>
+
     				</mx:VBox>
     				
     			</mx:HBox>

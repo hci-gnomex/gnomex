@@ -136,6 +136,22 @@ CREATE TABLE `gnomex`.`AnalysisGroupItem` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`AnalysisCollaborator`;
+CREATE TABLE `gnomex`.`AnalysisCollaborator` (
+  `idAnalysis` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+  PRIMARY KEY (`idAnalysis`, `idAppUser`),
+  CONSTRAINT `FK_AnalysisCollaborator_AppUser` FOREIGN KEY `FK_AnalysisCollaborator_AppUser` (`idAppUser`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_AnalysisCollaborator_Analysis` FOREIGN KEY `FK_AnalysisCollaborator_Analysis` (`idAnalysis`)
+    REFERENCES `gnomex`.`Analysis` (`idAnalysis`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`AnalysisProtocol`;
 CREATE TABLE `gnomex`.`AnalysisProtocol` (
   `idAnalysisProtocol` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1155,6 +1171,22 @@ CREATE TABLE `gnomex`.`RequestCategoryApplication` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_RequestCategoryApplication_Application` FOREIGN KEY `FK_RequestCategoryApplication_Application` (`codeApplication`)
     REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`RequestCollaborator`;
+CREATE TABLE `gnomex`.`RequestCollaborator` (
+  `idRequest` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+  PRIMARY KEY (`idRequest`, `idAppUser`),
+  CONSTRAINT `FK_RequestCollaborator_AppUser` FOREIGN KEY `FK_RequestCollaborator_AppUser` (`idAppUser`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCollaborator_Request` FOREIGN KEY `FK_RequestCollaborator_Request` (`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
