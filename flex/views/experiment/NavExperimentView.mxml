@@ -218,9 +218,11 @@
 		}
 		
 		public function refreshExperimentForLookupDownload():void {
-			var parms:Object = new Object();
-			parms.requestNumber = selectedRequestNumber;
-			this.getRequestForDownload.send(parms);
+			if (this.selectedRequestNumber != null) {
+				var parms:Object = new Object();
+				parms.requestNumber = selectedRequestNumber;
+				this.getRequestForDownload.send(parms);
+			}
 		}
 		
 		public function checkSecurity():void {
@@ -504,7 +506,9 @@
 				selectedIdProject = null;
 				selectedRequestNumber = null;
 				
-			} else {												
+			} else {		
+				selectedIdRequest = null;
+				selectedRequestNumber = null;										
 				selectedIdLab = browseTree.selectedItem.@idLab.toString();
 				
 				if (browseTree.selectedItem.name() == 'Project') {
@@ -544,24 +548,11 @@
 		}
 		
 		public function showExperimentDownloads():void {
-			
-			selectedIdProject = browseTree.selectedItem.parent().@idProject;
-			selectTreeNode();
-			
-			for each (var item:Object in requestNumbers) {
-				if (item.data == selectedExperiment.@number) {
-					browseView.requestNumberCombo.selectedItem = item;
-					break;
-				}
-			}
-			
-			
+			browseView.reloadDownloadList();
 			theViews.selectedChild = browseView;
 			browseView.theViews.selectedChild = browseView.downloadView;
 			browseView.downloadView.theTab.selectedChild = browseView.downloadView.folderView;
 			browseView.refreshButtonStack();
-			
-
 		}
 		
 		public function refreshRequestNumbers(experimentList:XMLListCollection):void {
@@ -690,7 +681,7 @@
 				showEditView = false;						
 			} else {
 			    theViews.selectedChild = detailView;
-				detailView.setupForm(this.selectedExperiment);
+				detailView.detail.setupForm(this.selectedExperiment);
 				
 			}
 
@@ -759,8 +750,12 @@
 				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {		
 					// If this experiment is not in user's lab, search
 					// other lab's public experiments.
-					params.publicExperimentsInOtherGroups = "Y";
-					this.publicExperimentsOtherGroupsCheckbox.selected = true;
+					if (selectedExperiment.@codeVisibility == 'PUBLIC') {
+						params.publicExperimentsInOtherGroups = "Y";
+						this.publicExperimentsOtherGroupsCheckbox.selected = true;
+					} else {
+						this.myLabsExperimentsCheckbox.selected = true;
+					}
 				} else if (parentApplication.getIdAppUser() != selectedExperiment.@idAppUser) {
 					// If this experiment is not owned by user, include
 					// all lab's experiments, not just user's experiments.
@@ -1150,13 +1145,15 @@
 	    <mx:HBox width="100%" id="hbox4"  horizontalGap="6"> 
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 		    	  <mx:RadioButtonGroup id="experimentRadioGroup"/>
-		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+		    	  <mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" selected="true" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted">
 		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
 		    	  <mx:RadioButton label="My lab's experiments" id="myLabsExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+		    	    <mx:toolTip>My lab's experiments and experiments I collaborate on</mx:toolTip>
 		    	    <mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
 		    	  <mx:RadioButton label="Other labs' public experiments" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+		    		    	<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
 		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
 		    	</mx:HBox>
@@ -1223,7 +1220,9 @@
 						<mx:Tree width="100%" height="100%" 
 							dataProvider="{getProjectRequestList.lastResult}" 
 							showRoot="false" 
-							id="browseTree" click="onBrowseTree();" 
+							id="browseTree" 
+							click="onBrowseTree();"
+							doubleClickEnabled="false" 
 							borderStyle="solid"
 							labelField="@label"
 							labelFunction="getTreeLabel" 
@@ -1266,8 +1265,8 @@
 	        <experiment:ExperimentBrowseView id="browseView"  width="100%" height="100%">
 	        </experiment:ExperimentBrowseView>
 
-	        <experiment:ExperimentDetailView id="detailView" width="100%" height="100%">
-	        </experiment:ExperimentDetailView>
+	        <experiment:ExperimentDetailPanel id="detailView" width="100%" height="100%">
+	        </experiment:ExperimentDetailPanel>
 	        
 			<experiment:ExperimentEditView id="editView" width="100%" height="100%">
 	        </experiment:ExperimentEditView>

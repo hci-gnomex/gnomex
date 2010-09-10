@@ -90,6 +90,7 @@
 			params.hybsXMLString = "<hybs/>";
 			params.lanesXMLString = "<lanes/>";
 			params.analysisFilesXMLString = "<analysisFiles/>";
+			params.collaboratorsXMLString = "<collaborators/>";
 			
 			saveAnalysis.send(params);
 		}

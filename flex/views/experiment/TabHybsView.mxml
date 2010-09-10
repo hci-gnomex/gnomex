@@ -193,17 +193,17 @@
         		}
         	}
         	if (parentDocument.hybs.length > 0 && completeCount == parentDocument.hybs.length) {
-        		if (parentDocument.theTab.contains(parentDocument.confirmView)){
-	        		parentDocument.confirmView.enabled = true;
+        		if (parentDocument.theTab.contains(parentDocument.visibilityView)){
+	        		parentDocument.visibilityView.enabled = true;
         		}
         		
         	} else if (parentDocument.isEditState()) {
-        		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
- 		       		parentDocument.confirmView.enabled = true;        			
+        		if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+ 		       		parentDocument.visibilityView.enabled = true;        			
         		}
         	} else {
-        		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-	        		parentDocument.confirmView.enabled = false;        			
+        		if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+	        		parentDocument.visibilityView.enabled = false;        			
         		}
         	}
         	parentDocument.enableNextButtons();
