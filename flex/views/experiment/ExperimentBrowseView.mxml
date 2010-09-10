@@ -151,7 +151,10 @@
     	}
     }
     
-   
+   	public function reloadDownloadList():void {
+		downloadView.getRequestDownloadList.send(getBrowseParameters());
+		downloadView.theTab.selectedChild = downloadView.folderView;			
+   	}
     
   	public function refreshDownloadList():void {
 		if (theViews.selectedChild == downloadView) {
@@ -184,6 +187,9 @@
 		var params:Object = new Object();
 		if (parentDocument.selectedIdProject != null) {
 			params.idProject = parentDocument.selectedIdProject;
+		}
+		if (parentDocument.selectedIdRequest != null) {
+			params.idRequest = parentDocument.selectedIdRequest;
 		}
 		params.idLab = parentDocument.selectedIdLab;
 		if (parentDocument.currentState == 'AdminState') {
