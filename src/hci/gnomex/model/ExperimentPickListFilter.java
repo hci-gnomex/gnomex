@@ -62,6 +62,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append(" JOIN           hyb.labeledSampleChannel1 as ls1 ");
     queryBuf.append(" JOIN           ls1.sample as s1 ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      hyb.labeledSampleChannel2 as ls2 ");
     queryBuf.append(" LEFT JOIN      ls2.sample as s2 ");
     queryBuf.append(" LEFT JOIN      hyb.slideDesign as slideDesign ");
@@ -117,6 +118,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN      lane.flowCellChannel as ch ");
     queryBuf.append(" LEFT JOIN      ch.flowCell as fc ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
 
     addRequestCriteria();
@@ -170,7 +172,7 @@ public class ExperimentPickListFilter extends DetailObject {
  
   
   private void addSecurityCriteria() {
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, true, true);
+    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
   }
     
   

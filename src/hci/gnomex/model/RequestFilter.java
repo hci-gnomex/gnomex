@@ -39,6 +39,7 @@ public class RequestFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
     
     addRequestCriteria();
     addSecurityCriteria();
@@ -87,7 +88,7 @@ public class RequestFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, false, true);
+    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false);
   }
     
   

@@ -25,6 +25,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
@@ -108,6 +109,35 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Hibernate.initialize(request.getAnalysisExperimentItems());
           Hibernate.initialize(request.getSeqLibTreatments());
           Hibernate.initialize(request.getBillingItems());
+         
+          
+          // If user can write request, show collaborators, 
+          // but cull out everything but collaborator name
+          if (this.getSecAdvisor().canUpdate(request)) {
+            Hibernate.initialize(request.getCollaborators());
+            for (Iterator i = request.getCollaborators().iterator(); i.hasNext();) {
+              AppUser collab = (AppUser)i.next();
+              collab.excludeMethodFromXML("getDepartment");
+              collab.excludeMethodFromXML("getCodeUserPermissionKind");
+              collab.excludeMethodFromXML("getEmail");
+              collab.excludeMethodFromXML("getuNID");
+              collab.excludeMethodFromXML("getUserNameExternal");
+              collab.excludeMethodFromXML("getInstitute");
+              collab.excludeMethodFromXML("getIsActive");
+              collab.excludeMethodFromXML("getJobTitle");
+              collab.excludeMethodFromXML("getPhone");
+              collab.excludeMethodFromXML("getIsAdminPermissionLevel");
+              collab.excludeMethodFromXML("getIsLabPermissionLevel");
+              collab.excludeMethodFromXML("getPasswordExternalEntered");
+              collab.excludeMethodFromXML("getPasswordExternal");
+              collab.excludeMethodFromXML("getIsExternalUser");
+              collab.excludeMethodFromXML("getLabs");
+              collab.excludeMethodFromXML("getCollaboratingLabs");
+              collab.excludeMethodFromXML("getManagingLabs");
+            }
+          } else {
+            request.excludeMethodFromXML("getCollaborators");
+          }
           
           if (!newRequest) {
             this.getSecAdvisor().flagPermissions(request);            

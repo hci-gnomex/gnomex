@@ -83,6 +83,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.isGNomExExternalUser = isGNomExExternalUser;
     this.isUniversityOnlyUser = isUniversityOnlyUser;
     
+
     validate();
     setGlobalPermissions();    
   }
@@ -233,23 +234,43 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         Request req = (Request)object;
         
-        // Request has membership visibility
-        if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-          if (isGroupIAmMemberOf(req.getIdLab()) || isGroupIManage(req.getIdLab())) {
+        // First, check to see if the user is a specified as a collaborator
+        // on this request.
+        for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
+          AppUser collaborator = (AppUser)i.next();
+          if (isLoggedInUser(collaborator.getIdAppUser())) {
             canRead = true;
-          }            
-        }
-        // Request has membership + collaborator visibility
-        else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-          if (isGroupIAmMemberOf(req.getIdLab()) || 
-              isGroupIManage(req.getIdLab()) || 
-              isGroupICollaborateWith(req.getIdLab())) {
+            break;
+          }
+        }        
+        
+        // Now look at the visibility and see if this user has access
+        if (!canRead) {
+          // Request has owner visibility
+          if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
+            // Is owner of request or manager of lab's request
+            if (isOwner(req.getIdAppUser()) || isGroupIManage(req.getIdLab())) {
+              canRead = true;
+            }            
+          }
+          // Request has membership visibility
+          else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+            if (isGroupIAmMemberOf(req.getIdLab()) || isGroupIManage(req.getIdLab())) {
+              canRead = true;
+            }            
+          }
+          // Request has membership + collaborator visibility
+          else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
+            if (isGroupIAmMemberOf(req.getIdLab()) || 
+                isGroupIManage(req.getIdLab()) || 
+                isGroupICollaborateWith(req.getIdLab())) {
+              canRead = true;
+            } 
+          }
+          // Request has public visibility
+          else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
             canRead = true;
-          } 
-        }
-        // Request has public visibility
-        else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
-          canRead = true;
+          }          
         }
       }
       // Guest users
@@ -273,25 +294,48 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Normal gnomex users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         Analysis a = (Analysis)object;
-        
-        // Analysis has membership visibility
-        if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-          if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getIdLab())) {
+
+        // First check to see if user is listed as a collabor on this specific
+        // analysis
+        for (Iterator i = a.getCollaborators().iterator(); i.hasNext();) {
+          AppUser collaborator = (AppUser)i.next();
+          if (this.isLoggedInUser(collaborator.getIdAppUser())) {
             canRead = true;
-          }            
+            break;
+          }
         }
-        // Analysis has membership + collaborator visiblity
-        else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-          if (isGroupIAmMemberOf(a.getIdLab()) || 
-              isGroupIManage(a.getIdLab()) || 
-              isGroupICollaborateWith(a.getIdLab())) {
+
+        // Next, look at visibility to find out if user has access to this
+        // analysis.
+        if (!canRead) {
+          // Analysis has owner visibility
+          if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
+            // Is owner of analysis or manager of lab's analysis
+            if (isOwner(a.getIdAppUser()) || isGroupIManage(a.getIdLab())) {
+              canRead = true;
+            }            
+          }        
+          // Analysis has membership visibility
+          else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+            if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getIdLab())) {
+              canRead = true;
+            }            
+          }
+          // Analysis has membership + collaborator visiblity
+          else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
+            if (isGroupIAmMemberOf(a.getIdLab()) || 
+                isGroupIManage(a.getIdLab()) || 
+                isGroupICollaborateWith(a.getIdLab())) {
+              canRead = true;
+            } 
+          }
+          // Analysis has public visibility
+          else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
             canRead = true;
-          } 
+          }
+          
         }
-        // Analysis has public visibility
-        else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
-          canRead = true;
-        }
+
       }
       // Guest users
       else {
@@ -920,10 +964,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return labs;
   }
   
+  public Set getGroupsIAmMemberOrManagerOf() {
+    TreeSet labs = new TreeSet(new LabComparator());
+    
+    labs.addAll(getGroupsIAmMemberOf());
+    labs.addAll(getGroupsIManage());
+    
+    return labs;
+  }
+
+  
   public Set getGroupsIAmMemberOf() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       return this.getAppUser().getLabs();
-    } else {
+    } else { 
       return new TreeSet();
     }
   }
@@ -950,6 +1004,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     List labs = new ArrayList();
     for(Iterator i = getGroupsIManage().iterator(); i.hasNext();) {
       Lab lab = (Lab)i.next();
+      
       lab.excludeMethodFromXML("getBillingAccounts");
       lab.excludeMethodFromXML("getDepartment");
       lab.excludeMethodFromXML("getNotes");
@@ -973,6 +1028,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       lab.excludeMethodFromXML("getCanSubmitRequests");
       lab.excludeMethodFromXML("getCanManage");
       lab.excludeMethodFromXML("getHasPublicData");
+      
       labs.add(lab);
     }
     
@@ -1047,12 +1103,22 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
     return isMyLab;
   }
-
   
   private boolean isOwner(Integer idAppUserOfObject) {
     if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
       return true;
     } else if (isGuest) {
+      return false;
+    } else if (this.isLoggedInUser(idAppUserOfObject)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  
+  private boolean isLoggedInUser(Integer idAppUserOfObject) {
+    if (isGuest) {
       return false;
     } else if (this.getIdAppUser().equals(idAppUserOfObject)) {
       return true;
@@ -1084,6 +1150,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.excludeMethodFromXML("getGroupsIManage");
     this.excludeMethodFromXML("getGroupsIAmMemberOf");
     this.excludeMethodFromXML("getGroupsICollaborateWith");
+    this.excludeMethodFromXML("getGroupsIAmMemberOrManagerOf");
   }
 
   
@@ -1100,44 +1167,131 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.appUser = appUser;
   }
   
-  public boolean addSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd, boolean scopeToGroup, boolean considerCodeVisibility ) {
-    return addSecurityCriteria(queryBuf, classShortName, addWhereOrAnd, scopeToGroup, considerCodeVisibility, null);
+  public boolean buildSpannedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, String classShortName, String collabClassShortName, boolean isFirstCriteria, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
+    if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      
+      // GNomex is not restricted
+      
+    } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      isFirstCriteria = false;
+      queryBuf.append(" ( ");
+      
+      boolean criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+
+      queryBuf.append(" ( ");
+      criteriaAdded = appendInheritedSecurityCriteria(queryBuf, inheritedClassShortName, scopeToGroup, visibilityField, null);
+      
+      queryBuf.append( !criteriaAdded ? "WHERE " : " AND ");
+      appendSecurityCriteria(queryBuf, classShortName, scopeToGroup, leftJoinExclusionCriteria);      
+      queryBuf.append(" ) ");
+
+      queryBuf.append(" ) ");
+    
+    } else {
+      // Guest or University only user cab access public objects
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      isFirstCriteria = false;
+      queryBuf.append(" ( ");
+
+      appendPublicCriteria(queryBuf, classShortName, false);        
+
+      queryBuf.append(" ) ");
+    }
+    return isFirstCriteria;
   }
+  
+  public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup) {
+    if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      
+      // GNomex is not restricted
+      
+    } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+      
+      // GNomex user can access public objects, objects he is listed as
+      // a collaborator or objects matching visibility
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      
+      isFirstCriteria = false;
+      queryBuf.append(" ( ");
+      
+      boolean criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      
+      queryBuf.append(" ( ");
+      appendSecurityCriteria(queryBuf, classShortName, scopeToGroup, null);
+      queryBuf.append(" ) ");
 
+      
+      queryBuf.append(" ) ");
+    } else {
+      
+      // Guest or University only user cab access public objects
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      isFirstCriteria = false;
+      queryBuf.append(" ( ");
 
-  public boolean addSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd, boolean scopeToGroup, boolean considerVisibility, String leftJoinExclusionCriteria ) {
+      appendPublicCriteria(queryBuf, classShortName, false);        
+
+      queryBuf.append(" ) ");
+       
+    }
+    
+    return isFirstCriteria;
+  }
+  
+  private boolean appendSecurityCollaboratorListCriteria(StringBuffer queryBuf, String collabClassShortName ) {
     // Admins
     if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
+      return false;
     }
     // GNomEx users
     else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
       
       queryBuf.append(" ( ");
       
-      if (considerVisibility) {
-        // Add criteria with member visibility
-        boolean addedCriteria = false;
-        addedCriteria = addMembershipCriteria(queryBuf, classShortName);
-
-        // Add critiera for objects with collaborator visibility
-        if (addedCriteria) {
-          queryBuf.append(" OR ");        
-        }
-        addedCriteria = addCollaborationCriteria(queryBuf, classShortName);
-              
-        // Add criteria for public objects
-        if (addedCriteria) {
-          queryBuf.append(" OR ");        
-        }
-        addPublicCriteria(queryBuf, classShortName, scopeToGroup);
-        
-      } else {
-        // Add criteria to check of object is in lab that user is member, collaborator or manager of
-        boolean addedCriteria = false;
-        addedCriteria = addGroupCriteria(queryBuf, classShortName);
-      }
+      // collaborator.idAppUser = logged in user
+      queryBuf.append(collabClassShortName);
+      queryBuf.append(".idAppUser = ");
+      queryBuf.append(this.getIdAppUser());
       
+      queryBuf.append(" ) ");
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+  private boolean appendSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroup, String leftJoinExclusionCriteria ) {
+    if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      
+      queryBuf.append(" ( ");
+      
+      
+      // Add criteria with owner visibility
+      boolean addedCriteria = false;
+      addedCriteria = appendOwnerCriteria(queryBuf, classShortName);
+
+      // Add criteria for objects with members visibility
+      if (addedCriteria) {
+        queryBuf.append(" OR ");        
+      }
+      addedCriteria = appendMembershipCriteria(queryBuf, classShortName);
+
+      // Add criteria for objects with collaborator visibility
+      if (addedCriteria) {
+        queryBuf.append(" OR ");        
+      }
+      addedCriteria = appendMembersAndCollaboratorsCriteria(queryBuf, classShortName);
+
+      // Add criteria for public objects
+      if (addedCriteria) {
+        queryBuf.append(" OR ");        
+      }
+      appendPublicCriteria(queryBuf, classShortName, scopeToGroup);
+ 
       
       // Add exclusion criteria
       if (leftJoinExclusionCriteria != null) {
@@ -1149,39 +1303,35 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
       
       queryBuf.append(" ) ");
+      return true;
+    } else {
+      return false;
     }
-    // Guest
-    else {
-      addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
-      addPublicCriteria(queryBuf, classShortName, false);        
-    }
-    
-    return addWhereOrAnd;
   }
   
 
 
-  public boolean addInheritedSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd, boolean scopeToGroup, String visibilityField, String leftJoinExclusionCriteria ) {
+  private boolean appendInheritedSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroup, String visibilityField, String leftJoinExclusionCriteria ) {
     // Admins
     if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
+      return false;
     }
     // GNomEx users
     else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
       
       queryBuf.append(" ( ");
       
      
       // Add criteria with member visibility
       boolean addedCriteria = false;
-      addedCriteria = this.addGroupCriteria(queryBuf, classShortName);
+      addedCriteria = this.appendGroupCriteria(queryBuf, classShortName);
 
-      // Add criteria for objects with collaborator visibility
+      // Add criteria for objects with member visibility
       if (addedCriteria) {
         queryBuf.append(" OR ");        
       }
 
-      addInheritedPublicCriteria(queryBuf, classShortName, visibilityField, scopeToGroup);
+      appendInheritedPublicCriteria(queryBuf, classShortName, visibilityField, scopeToGroup);
 
      
       
@@ -1198,11 +1348,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     // Guest
     else {
-      addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
-      addInheritedPublicCriteria(queryBuf, classShortName, visibilityField, false);        
+      appendInheritedPublicCriteria(queryBuf, classShortName, visibilityField, false);        
     }
     
-    return addWhereOrAnd;
+    return true;
   }
 
   public boolean addPublicOnlySecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd) {
@@ -1210,7 +1359,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
     queryBuf.append("(");
     
-    addPublicCriteria(queryBuf, classShortName, false);
+    appendPublicCriteria(queryBuf, classShortName, false);
 
     // Now exclude this users's groups
     Set labs = getAllMyGroups();
@@ -1234,11 +1383,53 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return addWhereOrAnd;
   }
   
-  
-  public boolean addMembershipCriteria(StringBuffer queryBuf, String classShortName ) {
-    Set labs = getGroupsIAmMemberOf();
+  private boolean appendOwnerCriteria(StringBuffer queryBuf, String classShortName ) {
     Set mgrLabs = getGroupsIManage();
-    labs.addAll(mgrLabs);
+
+    
+    queryBuf.append(" ( ");
+    
+    
+    queryBuf.append(" ( ");
+    // req.idAppUser
+    queryBuf.append(classShortName);
+    queryBuf.append(".idAppUser = ");
+    queryBuf.append(this.getIdAppUser());
+    
+    if (mgrLabs.size() > 0) {
+      queryBuf.append(" OR ");
+      
+      // req.idLab in labs I manage(....)
+      queryBuf.append(classShortName);
+      queryBuf.append(".idLab in ( ");
+      for(Iterator i = mgrLabs.iterator(); i.hasNext();) {
+        Lab theLab = (Lab)i.next();
+        queryBuf.append(theLab.getIdLab());
+        if (i.hasNext()) {
+          queryBuf.append(", ");
+        }
+      }      
+      queryBuf.append(" )");      
+    }
+    
+    queryBuf.append(" ) ");
+    
+    
+    
+    
+    // req.codeVisibility = 'visible to members'
+    queryBuf.append(" AND ");
+    queryBuf.append(classShortName);
+    queryBuf.append(".codeVisibility = '");
+    queryBuf.append(Visibility.VISIBLE_TO_OWNER);
+    queryBuf.append("'");
+    
+    queryBuf.append(" ) ");
+    return true;
+  }
+  
+  private boolean appendMembershipCriteria(StringBuffer queryBuf, String classShortName ) {
+    Set labs = getGroupsIAmMemberOrManagerOf();
     if (labs.isEmpty()) {
       return false;
     }
@@ -1269,7 +1460,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   
-  public  boolean addCollaborationCriteria(StringBuffer queryBuf, String classShortName ) {
+  private  boolean appendMembersAndCollaboratorsCriteria(StringBuffer queryBuf, String classShortName ) {
     Set labs = getAllMyGroups();
     if (labs.isEmpty()) {
       return false;
@@ -1299,8 +1490,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     return true;
   }
+
   
-  public boolean addGroupCriteria(StringBuffer queryBuf, String classShortName) {
+
+  
+  private boolean appendGroupCriteria(StringBuffer queryBuf, String classShortName) {
     Set labs = getAllMyGroups();
     if (labs.isEmpty()) {
       return false;
@@ -1332,7 +1526,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
 
   
-  public void addPublicCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroups) {
+  private void appendPublicCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroups) {
     queryBuf.append(" ( ");
 
     if (scopeToGroups) {
@@ -1371,7 +1565,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
   }
   
-  public void addInheritedPublicCriteria(StringBuffer queryBuf, String classShortName, String visibilityField, boolean scopeToGroups) {
+  private void appendInheritedPublicCriteria(StringBuffer queryBuf, String classShortName, String visibilityField, boolean scopeToGroups) {
     queryBuf.append(" ( ");
 
     if (scopeToGroups) {
@@ -1402,38 +1596,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
 
-  public void addPublicCriteriaExcludingMyGroups(StringBuffer queryBuf, String classShortName) {
-    queryBuf.append(" ( ");
-
-
-    // Exclude all requests that are already in user's 
-    Set labs = getAllMyGroups();
-    if (!labs.isEmpty()) {
-      queryBuf.append(classShortName);
-      queryBuf.append(".idLab NOT in ( ");
-      for (Iterator i = labs.iterator(); i.hasNext();) {
-        Lab theLab = (Lab) i.next();
-        queryBuf.append(theLab.getIdLab());
-        if (i.hasNext()) {
-          queryBuf.append(", ");
-        }
-      }
-      queryBuf.append(" )");
-      queryBuf.append(" AND ");
-    }
-
-    // req.codeVisibility is 'visible to collaborators and members'
-    queryBuf.append(classShortName);
-    queryBuf.append(".codeVisibility = '");
-    queryBuf.append(Visibility.VISIBLE_TO_PUBLIC);
-    queryBuf.append("'");
-    
-    queryBuf.append(" ) ");
-  }
 
 
   
-  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
+  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField,  String ownerField, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
     boolean addedFilter = false;
     
     // Admins
@@ -1443,20 +1609,25 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       searchText.append(" ( ");
       
+      boolean added = buildLuceneOwnershipFilter(searchText, labField, ownerField, visibilityField);
+
+      if (added) {
+        searchText.append(" OR ");
+      }
       boolean added1 = buildLuceneMembershipFilter(searchText, labField, visibilityField);
 
-      // Add critiera for objects with collaborator visiblity
+      // Add criteria for objects with collaborator visibility
       if (added1) {
         searchText.append(" OR ");        
       }
-      boolean added2 = addedFilter = buildLuceneCollaborationFilter(searchText, labField, visibilityField);
+      boolean added2 = addedFilter = buildLuceneMemberCollaboratorFilter(searchText, labField, visibilityField);
 
       // Add criteria for public objects
       if (added1 || added2) {
         searchText.append(" OR ");        
       }
       boolean added3 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup, null);
-      addedFilter = added1 || added2 || added3;        
+      addedFilter = added || added1 || added2 || added3;        
 
       searchText.append(" ) ");
       
@@ -1471,6 +1642,32 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Guest
     else {
       addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false, leftJoinExclusionCriteria);        
+    }
+    
+    return addedFilter;
+  }
+
+  
+  public boolean buildLuceneCollaboratorListFilter(StringBuffer searchText, String collaboratorField) {
+    boolean addedFilter = false;
+    
+    // Admins
+    if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
+    }
+    // GNomEx users
+    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      searchText.append(" ( ");
+      
+      // Get all objects this user is specified as a collaborator on.    
+      searchText.append(collaboratorField + ":");
+      searchText.append("COLLAB-" +  this.getIdAppUser() + "-COLLAB");
+      
+      searchText.append(" ) ");
+      
+      addedFilter = true;
+    }
+    // Guest
+    else {
     }
     
     return addedFilter;
@@ -1513,11 +1710,45 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     return addedFilter;
   }
-
-  public boolean buildLuceneMembershipFilter(StringBuffer searchText, String labField, String visibilityField ) {
-    Set labs = getGroupsIAmMemberOf();
+  
+  private boolean buildLuceneOwnershipFilter(StringBuffer searchText, String labField, String ownerField, String visibilityField ) {
     Set mgrLabs = getGroupsIManage();
-    labs.addAll(mgrLabs);
+    
+    searchText.append(" ( ");
+
+    // Get all objects owned by this user or objects belonging to lab managed by this user    
+    searchText.append(" ( ");
+    searchText.append(ownerField + ":");
+    searchText.append(this.getIdAppUser());
+    
+    if (!mgrLabs.isEmpty()) {
+      searchText.append(" OR ");
+      // req.idLab in (....)
+      searchText.append(labField);
+      searchText.append(":(");
+      for(Iterator i = mgrLabs.iterator(); i.hasNext();) {
+        Lab theLab = (Lab)i.next();
+        searchText.append(theLab.getIdLab());
+        if (i.hasNext()) {
+          searchText.append(" ");
+        }
+      }      
+      searchText.append(")");      
+    }
+    searchText.append(" ) ");
+
+    
+    // req.codeVisibility = 'visible to members'
+    searchText.append(" AND ");
+    searchText.append(visibilityField + ":");
+    searchText.append(Visibility.VISIBLE_TO_OWNER);
+    
+    searchText.append(" ) ");
+    return true;
+  }
+
+  private boolean buildLuceneMembershipFilter(StringBuffer searchText, String labField, String visibilityField ) {
+    Set labs = getGroupsIAmMemberOrManagerOf();
     if (labs.isEmpty()) {
       return false;
     }
@@ -1546,7 +1777,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
   
-  public boolean buildLuceneCollaborationFilter(StringBuffer searchText, String labField, String visibilityField ) {
+  private boolean buildLuceneMemberCollaboratorFilter(StringBuffer searchText, String labField, String visibilityField ) {
     Set labs = getAllMyGroups();
     if (labs.isEmpty()) {
       return false;
@@ -1574,11 +1805,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
   
-  public boolean buildLuceneGroupFilter(StringBuffer searchText, String labField) {
-    Set labs = getGroupsIAmMemberOf();
-    Set mgrLabs = getGroupsIManage();
-    labs.addAll(mgrLabs);
-    if (labs.isEmpty()) {
+  private boolean buildLuceneGroupFilter(StringBuffer searchText, String labField) {
+    if (getAllMyGroups().isEmpty()) {
       return false;
     }
     
@@ -1587,7 +1815,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // req.idLab in (....)
     searchText.append(labField);
     searchText.append(":(");
-    for(Iterator i = labs.iterator(); i.hasNext();) {
+    for(Iterator i = getAllMyGroups().iterator(); i.hasNext();) {
       Lab theLab = (Lab)i.next();
       searchText.append(theLab.getIdLab());
       if (i.hasNext()) {
@@ -1601,7 +1829,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
 
-  public boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups, String leftJoinExclusionCriteria) {
+  private boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups, String leftJoinExclusionCriteria) {
     searchText.append(" ( ");
 
     searchText.append(" ( ");

@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.FlowCellChannel;
@@ -517,6 +518,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         
         
+        // Set collaborators
+        Set collaborators = new TreeSet();
+        for(Iterator i = requestParser.getCollaboratorMap().keySet().iterator(); i.hasNext();) {
+          String key = (String)i.next();
+          Integer idAppUser = Integer.parseInt(key);
+          
+          // TODO (performance):  Would be better if app user was cached.
+          AppUser collaborator = (AppUser)sess.load(AppUser.class, idAppUser);
+          collaborators.add(collaborator);
+        }
+        this.requestParser.getRequest().setCollaborators(collaborators);
+               
         
         
         
@@ -632,7 +645,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if (requestParser.isNewRequest()) {
       request.setNumber(request.getIdRequest().toString() + "R");
-      request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
       sess.save(request);
     } 
     

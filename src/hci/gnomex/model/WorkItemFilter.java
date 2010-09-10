@@ -237,20 +237,24 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append(" JOIN         wi.request as req ");
       queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.sample s ");     
+      queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
     } else if (level == LABELED_SAMPLE_LEVEL) {
       queryBuf.append(" JOIN         wi.request as req ");
       queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.labeledSample ls ");
       queryBuf.append(" JOIN         ls.sample s ");
+      queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
     } else if (level == LANE_LEVEL) {
       queryBuf.append(" JOIN         wi.request as req ");
       queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.sequenceLane l ");
       queryBuf.append(" JOIN         l.sample s ");
+      queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
     } else if (level == HYB_LEVEL) {
       queryBuf.append(" JOIN         wi.request as req ");
       queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.hybridization h ");      
+      queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
       queryBuf.append(" LEFT JOIN    h.slide  slide ");
       queryBuf.append(" LEFT JOIN    h.arrayCoordinate ac ");
       queryBuf.append(" LEFT JOIN    h.slideDesign slideDesign ");
@@ -258,6 +262,7 @@ public class WorkItemFilter extends DetailObject {
     } else if (level == FLOW_CELL_LEVEL) {
       queryBuf.append(" LEFT JOIN    wi.request as req ");
       queryBuf.append(" LEFT JOIN    req.appUser as appUser ");
+      queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
       queryBuf.append(" LEFT JOIN    wi.flowCellChannel as ch ");
       queryBuf.append(" LEFT JOIN    ch.flowCell as fc ");
       queryBuf.append(" LEFT JOIN    ch.sequenceLanes as lane ");
@@ -310,7 +315,7 @@ public class WorkItemFilter extends DetailObject {
 
   
   private void addSecurityCriteria() {
-    secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, true, true);
+    secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
   }
     
   

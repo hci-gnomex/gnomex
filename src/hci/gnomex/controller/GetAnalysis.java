@@ -1,5 +1,7 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -9,9 +11,12 @@ import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +31,8 @@ import org.jdom.output.XMLOutputter;
 
 
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
@@ -40,6 +47,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   
   private Integer idAnalysis;
   private String  analysisNumber;
+  private String  serverName;
+  private String  baseDir;
 
   
   public void validate() {
@@ -58,6 +67,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     if (idAnalysis == null && analysisNumber == null) {
       this.addInvalidField("idAnalysi or analysisNumber", "Either idAnalysis or analysisNumber must be provided");
     }
+    serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
@@ -65,6 +75,10 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     try {
       
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = dh.getAnalysisDirectory(serverName);
+      
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {
         a = new Analysis();
@@ -96,9 +110,101 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
    
     
       if (isValid())  {
+        
+        // If user can write analysis, show collaborators, 
+        // but cull out everything but collaborator name
+        if (this.getSecAdvisor().canUpdate(a)) {
+          Hibernate.initialize(a.getCollaborators());
+          for (Iterator i = a.getCollaborators().iterator(); i.hasNext();) {
+            AppUser collab = (AppUser)i.next();
+            collab.excludeMethodFromXML("getDepartment");
+            collab.excludeMethodFromXML("getCodeUserPermissionKind");
+            collab.excludeMethodFromXML("getEmail");
+            collab.excludeMethodFromXML("getuNID");
+            collab.excludeMethodFromXML("getUserNameExternal");
+            collab.excludeMethodFromXML("getInstitute");
+            collab.excludeMethodFromXML("getIsActive");
+            collab.excludeMethodFromXML("getJobTitle");
+            collab.excludeMethodFromXML("getPhone");
+            collab.excludeMethodFromXML("getIsAdminPermissionLevel");
+            collab.excludeMethodFromXML("getIsLabPermissionLevel");
+            collab.excludeMethodFromXML("getPasswordExternalEntered");
+            collab.excludeMethodFromXML("getPasswordExternal");
+            collab.excludeMethodFromXML("getIsExternalUser");
+            collab.excludeMethodFromXML("getLabs");
+            collab.excludeMethodFromXML("getCollaboratingLabs");
+            collab.excludeMethodFromXML("getManagingLabs");
+          }
+          
+        } else {
+          a.excludeMethodFromXML("getCollaborators");
+        }
+        
+        
       
         Document doc = new Document(new Element("OpenAnalysisList"));
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        
+        
+        // Hash the know analysis files
+        Map knownAnalysisFileMap = new HashMap();
+        for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          knownAnalysisFileMap.put(af.getFileName(), af);
+        }
+
+        
+        // Now add in the files that exist on the file server
+        Element filesNode = new Element("ExpandedAnalysisFileList");
+        aNode.addContent(filesNode);
+        Map analysisMap = new TreeMap();
+        Map directoryMap = new TreeMap();
+        Map fileMap = new HashMap();
+        List analysisNumbers = new ArrayList<String>();
+        GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, a.getKey(), analysisNumbers, analysisMap, directoryMap);
+
+        
+        for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {
+          String analysisNumber = (String)i.next();
+          List directoryKeys   = (List)analysisMap.get(analysisNumber);
+
+          // For each directory of analysis
+          boolean firstDirForAnalysis = true;
+          for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+            
+            String directoryKey = (String)i1.next();
+            List   theFiles     = (List)directoryMap.get(directoryKey);
+            
+            // For each file in the directory
+            boolean firstFileInDir = true;
+            for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
+              AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+              
+              AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getDisplayName());
+              if (af != null) {
+                fd.setUploadDate(af.getUploadDate());
+                fd.setComments(af.getComments());
+              }
+              
+              filesNode.addContent(fd.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+              fileMap.put(fd.getDisplayName(), null);
+            }
+          }
+        }
+
+        // Add any files that are registered in the db, but not on the fileserver
+        for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
+          AnalysisFile af = (AnalysisFile)i.next();
+          
+          if (!fileMap.containsKey(af.getFileName())) {
+            AnalysisFileDescriptor fd = new AnalysisFileDescriptor();
+            fd.setDisplayName(af.getFileName() + " (FILE NOT FOUND)");
+            fd.setAnalysisNumber(a.getNumber());
+            fd.setUploadDate(af.getUploadDate());
+            fd.setComments(af.getComments());
+            filesNode.addContent(fd.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+          }
+        }
         
         
         

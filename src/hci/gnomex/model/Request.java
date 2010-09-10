@@ -52,6 +52,7 @@ public class Request extends HibernateDetailObject {
   private Set            analysisExperimentItems = new TreeSet();
   private Set            billingItems = new TreeSet();  
   private Set            seqLibTreatments = new TreeSet();
+  private Set            collaborators = new TreeSet();
     
   
   
@@ -657,6 +658,18 @@ public class Request extends HibernateDetailObject {
     } else {
       return requestNumber;
     }
+  }
+
+
+  
+  public Set getCollaborators() {
+    return collaborators;
+  }
+
+
+  
+  public void setCollaborators(Set collaborators) {
+    this.collaborators = collaborators;
   }
   
   

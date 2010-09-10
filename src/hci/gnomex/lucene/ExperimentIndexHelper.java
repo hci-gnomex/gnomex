@@ -41,6 +41,8 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       ID_LAB_PROJECT = "projectIdLab";
   public static final String       PROJECT_LAB_NAME = "projectLab";
   public static final String       ID_LAB = "requestIdLab";
+  public static final String       ID_APPUSER = "requestIdAppUser";
+  public static final String       COLLABORATORS = "requestCollaborators";
   public static final String       LAB_NAME = "requestLab";
   public static final String       CODE_VISIBILITY = "requestCodeVisibility";
   public static final String       CODE_EXPERIMENT_DESIGNS = "codeExperimentDesigns";

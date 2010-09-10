@@ -37,6 +37,7 @@ public class ProjectFilter extends DetailObject {
     
     queryBuf.append(" FROM        Project as proj ");
     queryBuf.append(" LEFT JOIN   proj.requests as req ");
+    queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
     
     addRequestCriteria();
     addSecurityCriteria();
@@ -66,8 +67,7 @@ public class ProjectFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    addWhere = this.secAdvisor.addInheritedSecurityCriteria(queryBuf, "proj",  addWhere, true, "req.codeVisibility", null);
-    addWhere = this.secAdvisor.addSecurityCriteria(queryBuf, "req",   addWhere, true, true, "req.idRequest is NULL");
+    secAdvisor.buildSpannedSecurityCriteria(queryBuf, "proj", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest is NULL");
   }
     
   

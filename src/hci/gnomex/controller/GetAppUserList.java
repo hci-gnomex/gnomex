@@ -55,14 +55,17 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
+    
+    Document doc = new Document(new Element(listKind));
+
     StringBuffer buf = filter.getQuery(this.getSecAdvisor());
     log.debug("App user query: " + buf.toString());
     List labs = (List)sess.createQuery(buf.toString()).list();
-    
-    Document doc = new Document(new Element(listKind));
+
+
     for(Iterator i = labs.iterator(); i.hasNext();) {
       AppUser user = (AppUser)i.next();
-      
+
       // Exclude user information from normal GNomEx users 
       if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         user.excludeMethodFromXML("getCodeUserPermissionKind");
@@ -79,12 +82,17 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
         user.excludeMethodFromXML("getIsLabPermissionLevel");
         user.excludeMethodFromXML("getLabs");
         user.excludeMethodFromXML("getCollaboratingLabs");
-        user.excludeMethodFromXML("getManagingLabs");        
+        user.excludeMethodFromXML("getManagingLabs");  
+        user.excludeMethodFromXML("getPasswordExternalEntered");
+        user.excludeMethodFromXML("getIsExternalUser");
+
       }
-      
+
       doc.getRootElement().addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
-      
+
     }
+
+
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);

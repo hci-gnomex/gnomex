@@ -17,6 +17,7 @@ public class RequestDownloadFilter extends DetailObject {
   
   // Criteria
   private String                requestNumber;
+  private Integer               idRequest;
   private Integer               idAppUser;
   private Integer               idLab;
   private Date                  createDateFrom;
@@ -99,6 +100,7 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append(" JOIN           hyb.labeledSampleChannel1 as ls1 ");
     queryBuf.append(" JOIN           ls1.sample as s1 ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      hyb.labeledSampleChannel2 as ls2 ");
     queryBuf.append(" LEFT JOIN      ls2.sample as s2 ");
 
@@ -117,6 +119,7 @@ public class RequestDownloadFilter extends DetailObject {
      
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
 
     
@@ -154,6 +157,7 @@ public class RequestDownloadFilter extends DetailObject {
     
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
 
     addRequestCriteria();
@@ -182,6 +186,7 @@ public class RequestDownloadFilter extends DetailObject {
   public void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
     queryBuf.append(" JOIN           l.flowCellChannel as ch ");
@@ -211,6 +216,7 @@ public class RequestDownloadFilter extends DetailObject {
   public void getSolexaFlowCellQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.flowCellChannel as ch ");
     queryBuf.append(" JOIN           ch.flowCell as fc ");
@@ -226,6 +232,7 @@ public class RequestDownloadFilter extends DetailObject {
   
   public boolean hasCriteria() {
     if ((requestNumber != null && !requestNumber.equals("")) ||
+        idRequest != null ||
         idLab != null ||
         idProject != null ||
         idAppUser != null ||
@@ -257,6 +264,12 @@ public class RequestDownloadFilter extends DetailObject {
       queryBuf.append(" req.number like '");
       queryBuf.append(requestNumber);
       queryBuf.append("%'");
+    } 
+    // Search by idRequest 
+    if (idRequest != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idRequest =");
+      queryBuf.append(idRequest);
     } 
     // Search by lab 
     if (idLab != null){
@@ -419,8 +432,7 @@ public class RequestDownloadFilter extends DetailObject {
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
       addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
     } else {
-      boolean scopeToGroup = true;
-      addWhere = secAdvisor.addSecurityCriteria(queryBuf, "req", addWhere, scopeToGroup, true);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, true);
     }
     
   }
@@ -639,6 +651,18 @@ public class RequestDownloadFilter extends DetailObject {
   
   public void setIsBioanalyzer(String isBioanalyzer) {
     this.isBioanalyzer = isBioanalyzer;
+  }
+
+
+  
+  public Integer getIdRequest() {
+    return idRequest;
+  }
+
+
+  
+  public void setIdRequest(Integer idRequest) {
+    this.idRequest = idRequest;
   }
 
 

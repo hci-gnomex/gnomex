@@ -347,24 +347,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
             submitterSubject, 
             submitterNote.toString() + body.toString(),
             false); 
-      
-      // Email lab managers
-      for (Iterator i = lab.getManagers().iterator(); i.hasNext();) {
-        AppUser manager = (AppUser)i.next();        
-        if (manager.getEmail() != null && !manager.getEmail().equals("")) {
-          String managerEmail = manager.getEmail();
-          if (isTestEmail) {
-            managerEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER);
-          }
-          // Email lab manager(s) for lab
-          MailUtil.send(managerEmail, 
-              null,
-              dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
-              isTestEmail ? submitterSubject + " (for lab manager" + manager.getEmail()+ ")": submitterSubject, 
-              submitterNote.toString() + body.toString(),
-              false); 
-        }
-      }
+
       
       // Email lab contact email address(es)
       if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {

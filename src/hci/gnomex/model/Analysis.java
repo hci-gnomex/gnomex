@@ -27,6 +27,8 @@ public class Analysis extends HibernateDetailObject {
   private Set       analysisGroups = new TreeSet();  
   private Set       experimentItems = new TreeSet();
   private Set       files = new TreeSet();
+  private Set       collaborators = new TreeSet();
+
     
   // permission field
   private boolean     canUpdateVisibility;
@@ -291,6 +293,31 @@ public class Analysis extends HibernateDetailObject {
     } else {
       return "";
     }
+  }
+
+
+
+  
+  public Set getCollaborators() {
+    return collaborators;
+  }
+
+
+
+  
+  public void setCollaborators(Set collaborators) {
+    this.collaborators = collaborators;
+  }
+  
+  public String getKey() {
+    String createDate    = this.formatDate(this.getCreateDate());
+    String tokens[] = createDate.split("/");
+    String createMonth = tokens[0];
+    String createDay   = tokens[1];
+    String createYear  = tokens[2];
+    String sortDate = createYear + createMonth + createDay;
+    String key = createYear + "-" + sortDate + "-" + this.getNumber();     
+    return key;
   }
 
  
