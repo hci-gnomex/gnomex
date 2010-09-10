@@ -1482,6 +1482,7 @@
 		   				 "<BillingAccount " + 
 	   			 	 	 " idBillingAccount='" + billingItem.@idBillingAccount + "'" +
 	   			 	 	 " accountName='" + billingItem.@accountNameAndNumber + "'" +
+	   			 	 	 " accountNumberDisplay='" + billingItem.@accountNumberDisplay + "'" +
 	   			 	 	 " idLab='" + billingItem.@idLab + "'" +
 	   			 	 	 " labName='" + billingItem.@labName + "'" +
 	   			 	 	 " percentage='" + billingItem.@percentageDisplay + "'" +
