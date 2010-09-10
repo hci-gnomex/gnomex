@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Reassign Account for Experiment ' + request.@requestNumber}" 
-	width="604" height="134" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')"> 
+	width="606" height="142" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')"> 
 
     <mx:HTTPService             
     id="getLab" 
@@ -67,7 +67,11 @@
 		
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab;
-			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
+			if (this.showInactiveAccountsCheckBox.selected) {
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y'));
+			} else {
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
+			}
 			var blankNode:XML = new XML("<BillingAccount idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);
 			
@@ -130,11 +134,18 @@
 		</mx:HBox>
 		<mx:HBox>
 			<mx:Label text="Account:"  width="80"/>
-			<mx:ComboBox id="billingAccountCombo"
-			   	  labelField="@accountNameAndNumber" 
-			   	  dataProvider="{billingAccounts}" 
-			   	  enabled="true"
-			   	  width="500"/>
+			<mx:VBox verticalGap="0">
+				<mx:ComboBox id="billingAccountCombo"
+				   	  labelField="@accountNumberDisplay" 
+				   	  dataProvider="{billingAccounts}" 
+				   	  enabled="true"
+			   		  width="500"/>
+	            <mx:CheckBox 
+	            	id="showInactiveAccountsCheckBox" 
+	            	label="Show inactive accounts" 
+	            	click="refreshLab()"
+	            	selected="false" paddingTop="0"/>
+			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
