@@ -26,6 +26,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   private String    zipEntryName;
   private String    directoryName;
   private List      children = new ArrayList();
+  private Date      uploadDate;
+  private String    comments;
   
   public AnalysisFileDescriptor() {    
   }
@@ -216,5 +218,25 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 
   public String getIsSelected() {
     return "false";
+  }
+
+  
+  public Date getUploadDate() {
+    return uploadDate;
+  }
+
+  
+  public void setUploadDate(Date uploadDate) {
+    this.uploadDate = uploadDate;
+  }
+
+  
+  public String getComments() {
+    return comments;
+  }
+
+  
+  public void setComments(String comments) {
+    this.comments = comments;
   }
 }
