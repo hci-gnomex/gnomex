@@ -178,7 +178,7 @@
 		
 		private function removeManager():void {
 			dirty.setDirty();
-			if (managerCombo.selectedIndex != -1) {
+			if (managersGrid.selectedIndex != -1) {
 				managers.removeItemAt(managersGrid.selectedIndex);
 			}
 		}
@@ -529,7 +529,7 @@
 				   <mx:VBox  width="100%" verticalGap="4" backgroundAlpha=".1" borderStyle="solid" height="100%" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" borderThickness="1">
 				       <mx:Label text="Managers"/>
 				   	   <mx:HBox width="100%" horizontalGap="6">
-					       <mx:ComboBox width="170" id="managerCombo" dataProvider="{parentDocument.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="170" id="managerCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 				   	   	   	   <mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedIndex > 0 ? true : false}</mx:enabled>
