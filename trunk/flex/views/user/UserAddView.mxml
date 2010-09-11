@@ -43,10 +43,11 @@
 		
 		private function onSaveAppUser(event:ResultEvent):void {
 			if (saveAppUser.lastResult.name() == "SUCCESS") {
+				parentApplication.getAppUserList.send();
 				parentApplication.navUsersView.getAppUserList.send();
 				savedIdAppUser = saveAppUser.lastResult.@idAppUser;
 				var params:Object = new Object();
-				params.idAppUser = savedIdAppUser;
+				params.idAppUser = savedIdAppUser; 
 	 			getAppUser.send(params);
 				PopUpManager.removePopUp(this);
 			} else {
