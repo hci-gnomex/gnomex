@@ -116,10 +116,8 @@ public class DownloadResultsServlet extends HttpServlet {
         response.setHeader("Content-Disposition", "attachment;filename=gnomexExperimentData.zip");
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
-        long time1 = System.currentTimeMillis();
         
-        
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
+        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         baseDirFlowCell = dh.getFlowCellDirectory(req.getServerName());
         baseDir = dh.getMicroarrayDirectoryForReading(req.getServerName());
@@ -222,7 +220,6 @@ public class DownloadResultsServlet extends HttpServlet {
           tarOut.finish();
         }
         
-        long time3 = System.currentTimeMillis();
 
         secAdvisor.closeReadOnlyHibernateSession();
 
