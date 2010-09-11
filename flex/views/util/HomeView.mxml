@@ -42,20 +42,13 @@
 				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
 				<mx:SetProperty target="{amendButton}" name="enabled" value="false"/>
 				<mx:SetStyle target="{amendButton}" name="disabledIcon" value="@Embed(source='../../assets/account_disable.png')"/>
-				<mx:SetStyle target="{hbox6}" name="paddingBottom" value="4"/>
-				<mx:SetStyle target="{hbox6}" name="paddingLeft" value="4"/>
-				<mx:SetStyle target="{hbox6}" name="paddingRight" value="4"/>
-				<mx:SetStyle target="{hbox6}" name="paddingTop" value="4"/>
 				<mx:SetStyle target="{titleLabel}" name="paddingTop"/>
 				<mx:SetProperty target="{text1}" name="htmlText">
-					<mx:value><![CDATA[      - Submit new work requests for Microarray, Next generation<br>        sequencing or quality control services (allowed by lab members)]]></mx:value>
+					<mx:value><![CDATA[      - Submit new work requests for Microarray, Next generation<br>        sequencing or quality control services (allowed by<br>        lab members)]]></mx:value>
 				</mx:SetProperty>
-				<mx:SetProperty target="{vbox2}" name="width" value="340"/>
 				<mx:SetProperty target="{text5}" name="htmlText">
 					<mx:value><![CDATA[Functionality descriptions for the GNomEx: ]]></mx:value>
 				</mx:SetProperty>
-				<mx:SetStyle target="{text5}" name="paddingBottom"/>
-				<mx:SetStyle target="{text5}" name="paddingTop" value="2"/>
 			</mx:State>
 			<mx:State name="UniversityOnlyUserState" basedOn="GuestState">
 				<mx:AddChild relativeTo="{hbox2}" position="before">
