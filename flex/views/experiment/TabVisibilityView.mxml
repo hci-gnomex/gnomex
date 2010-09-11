@@ -5,6 +5,8 @@
 	 width="100%" height="100%" show="init()" >
 	<mx:states>
 		<mx:State name="EditState">
+			<mx:SetProperty name="enabled" value="true"/>
+			<mx:RemoveChild target="{textarea1}"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
