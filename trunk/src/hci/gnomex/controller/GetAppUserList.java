@@ -66,28 +66,27 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
     for(Iterator i = labs.iterator(); i.hasNext();) {
       AppUser user = (AppUser)i.next();
 
-      // Exclude user information from normal GNomEx users 
-      if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
-        user.excludeMethodFromXML("getCodeUserPermissionKind");
-        user.excludeMethodFromXML("getuNID");
-        user.excludeMethodFromXML("getEmail");
-        user.excludeMethodFromXML("getDepartment");
-        user.excludeMethodFromXML("getInstitute");
-        user.excludeMethodFromXML("getJobTitle");
-        user.excludeMethodFromXML("getCodeUserPermissionKind");
-        user.excludeMethodFromXML("getUserNameExternal");
-        user.excludeMethodFromXML("getPasswordExternal");
-        user.excludeMethodFromXML("getPhone");
-        user.excludeMethodFromXML("getIsAdminPermissionLevel");
-        user.excludeMethodFromXML("getIsLabPermissionLevel");
-        user.excludeMethodFromXML("getLabs");
-        user.excludeMethodFromXML("getCollaboratingLabs");
-        user.excludeMethodFromXML("getManagingLabs");  
-        user.excludeMethodFromXML("getPasswordExternalEntered");
-        user.excludeMethodFromXML("getIsExternalUser");
+      // Exclude extra user information
+      user.excludeMethodFromXML("getCodeUserPermissionKind");
+      user.excludeMethodFromXML("getuNID");
+      user.excludeMethodFromXML("getEmail");
+      user.excludeMethodFromXML("getDepartment");
+      user.excludeMethodFromXML("getInstitute");
+      user.excludeMethodFromXML("getJobTitle");
+      user.excludeMethodFromXML("getCodeUserPermissionKind");
+      user.excludeMethodFromXML("getUserNameExternal");
+      user.excludeMethodFromXML("getPasswordExternal");
+      user.excludeMethodFromXML("getPhone");
+      user.excludeMethodFromXML("getIsAdminPermissionLevel");
+      user.excludeMethodFromXML("getIsLabPermissionLevel");
+      user.excludeMethodFromXML("getLabs");
+      user.excludeMethodFromXML("getCollaboratingLabs");
+      user.excludeMethodFromXML("getManagingLabs");  
+      user.excludeMethodFromXML("getPasswordExternalEntered");
+      user.excludeMethodFromXML("getIsExternalUser");
+      user.excludeMethodFromXML("getPasswordExternal");
 
-      }
-
+      
       doc.getRootElement().addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
 
     }
