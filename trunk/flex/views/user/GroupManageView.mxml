@@ -139,7 +139,7 @@
 				   <mx:VBox width="100%" verticalGap="4" height="100%">
 				       <mx:Label text="Collaborators"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="200" id="collaboratorCombo" dataProvider="{parentDocument.promptedAppUserList}" labelField="@displayName">			       	
+					       <mx:ComboBox width="200" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
 					       </mx:ComboBox>
 				   	   	   <mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" width="24" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{collaboratorCombo.selectedIndex &gt; 0}"/>
 				   	   	   <mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}"/>
