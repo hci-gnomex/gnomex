@@ -67,14 +67,26 @@
 			filteredGenomeBuildList.refresh();	
 			selectedIdLab = idLab;
 			selectedIdAnalysisGroup = idAnalysisGroup;
-			for each(var l:Object in labCombo.dataProvider) {
-				if (l.@idLab == selectedIdLab) {
-					labCombo.selectedItem = l;
-					var params:Object = new Object();
-					params.labKeys = l.@idLab;
-					getAnalysisGroupList.send(params);
-					break;
-				}
+			// Select the lab in the dropdown.  If no lab was
+			// selected in the nav analysis tree, just select
+			// the first lab;
+			var foundLab:Boolean = false;
+			if (selectedIdLab != null && selectedIdLab != '') {
+				for each(var l:Object in labCombo.dataProvider) {
+					if (l.@idLab == selectedIdLab) {
+						labCombo.selectedItem = l;
+						var params:Object = new Object();
+						params.labKeys = l.@idLab;
+						getAnalysisGroupList.send(params);
+						foundLab = true;
+						break;
+					}
+				}				
+			} 
+			
+			if (!foundLab) {
+				labCombo.selectedIndex = 0;
+				getAnalysisGroupList.send();
 			}
 			
 					
