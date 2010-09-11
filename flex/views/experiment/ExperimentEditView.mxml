@@ -2174,7 +2174,11 @@
 			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
 			
 			// Collaborators
-			request.replace("collaborators", <collaborators></collaborators>);
+			if (request.toString().indexOf("<collaborators>") >= 0) {
+				request.replace("collaborators", <collaborators></collaborators>);
+			} else{
+				request.appendChild("<collaborators></collaborators>");
+			}
 			for each(var collaborator:Object in visibilityView.collaborators) {
 				request.collaborators.appendChild(collaborator);
 		 	}
