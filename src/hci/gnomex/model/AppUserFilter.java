@@ -165,9 +165,17 @@ public class AppUserFilter extends DetailObject {
           }
         }      
         queryBuf.append(" )");          
+
+        queryBuf.append(")");
+
+      } else {
+        // We have a user that is not set up in any labs.  Just 
+        // Limit to this user only.
         
+        this.addWhereOrAnd();
+        queryBuf.append(" user.idAppUser = ");
+        queryBuf.append(secAdvisor.getIdAppUser());
       }
-      queryBuf.append(")");
       
     } else {
       // Limit to this user only
