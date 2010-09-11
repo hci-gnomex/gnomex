@@ -574,6 +574,7 @@
             
             public function showAdvancedSearch():void {
             	this.stateStack.selectedChild = this.navSearchView;
+            	theViews.selectedIndex = 0;
             }
             
             
@@ -788,6 +789,27 @@
             		return false;
             	}
             }
+            public function belongsToALab():Boolean {
+             	var hasLab:Boolean = false;
+            	for each(var lab:Object in getLabList.lastResult.Lab) {
+            		if (lab.@isMyLab == 'Y') {
+            			hasLab = true;
+            			break;
+            		}
+            	} 
+            	return hasLab;
+            }
+            
+            public function canSubmitRequestForALab():Boolean {
+             	var hasLab:Boolean = false;
+            	for each(var lab:Object in getLabList.lastResult.Lab) {
+            		if (lab.@canSubmitRequests == 'Y') {
+            			hasLab = true;
+            			break;
+            		}
+            	} 
+            	return hasLab;
+            }
             
             public function isMyLab(idLab:int):Boolean {
             	var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
@@ -806,7 +828,7 @@
 					currentState = "AdminState";
 				} else if (hasGroupsToManage()) {
 					currentState = "ManagerState";
-				} else if (hasPermission("canSubmitRequests")) {
+				} else if (hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) {
 					currentState = "UserState";
 				} else {
 					currentState = "UserNonSubmitterState";
@@ -930,8 +952,10 @@
 	        	if (this.isUniversityOnlyUser) {
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 	        	} else if (this.isGuestMode()) {	        		
-	        	} else {
+	        	} else if (this.canSubmitRequestForALab()) {
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
+	        	} else {
+	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab.(@isMyLab == 'Y')));
 	        	}
 	        	showProgress(30);
 	        	enableApp();
