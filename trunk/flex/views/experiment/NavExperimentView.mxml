@@ -696,6 +696,25 @@
 			selectedExperiment = getRequestForDownload.lastResult.Request.(@number == selectedRequestNumber);
 			
 			var params:Object = new Object();
+		    // For normal users, make sure we scope to the
+			// correct level to show the experiment just looked up.
+			if (currentState == null || currentState == "") {
+				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {		
+					// If this experiment is not in user's lab, search
+					// other lab's public experiments.
+					if (selectedExperiment.@codeVisibility == 'PUBLIC') {
+						params.publicExperimentsInOtherGroups = "Y";
+						this.publicExperimentsOtherGroupsCheckbox.selected = true;
+					} else {
+						this.myLabsExperimentsCheckbox.selected = true;
+					}
+				} else if (parentApplication.getIdAppUser() != selectedExperiment.@idAppUser) {
+					// If this experiment is not owned by user, include
+					// all lab's experiments, not just user's experiments.
+					params.showMyLabsAlways = "Y";
+					this.myLabsExperimentsCheckbox.selected = true;
+				}
+			} 
 			params.idProject = selectedExperiment.@idProject;
 			params.showSamples = "N";
 			params.showCategory = "N";
