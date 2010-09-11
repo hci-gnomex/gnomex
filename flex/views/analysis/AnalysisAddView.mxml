@@ -22,8 +22,24 @@
     resultFormat="e4x"
     result="onGetAnalysis(event)"
     fault="parentApplication.onFailHttpRequest('Unable to get analysis', event)"
-    useProxy="false">    
+    useProxy="false">   
+     
     </mx:HTTPService >    
+      <mx:HTTPService  
+    id="getAnalysisGroupList" 
+    url="GetAnalysisGroupList.gx"
+    destination="getAnalysisGroupList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysisGroupList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
+    method="POST"   
+    useProxy="false">
+    <mx:request>
+            <labKeys>{labCombo.selectedItem.@idLab}</labKeys> 
+    </mx:request> 
+   </mx:HTTPService>
+
 
 <mx:Script>
 	<![CDATA[
@@ -41,19 +57,44 @@
 		[Bindable]
 		private var analysisGroupList:XMLListCollection = new XMLListCollection();
 
+		private var selectedIdAnalysisGroup:Object;
+		private var selectedIdLab:Object;
 		
-		public function initializeData():void {
+		public function initializeData(idLab:Object, idAnalysisGroup:Object):void {
 			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;		
 			filteredGenomeBuildList.refresh();	
-								
+			selectedIdLab = idLab;
+			selectedIdAnalysisGroup = idAnalysisGroup;
+			for each(var l:Object in labCombo.dataProvider) {
+				if (l.@idLab == selectedIdLab) {
+					labCombo.selectedItem = l;
+					var params:Object = new Object();
+					params.labKeys = l.@idLab;
+					getAnalysisGroupList.send(params);
+					break;
+				}
+			}
+			
+					
 			
 		}
 		
+		
 		public function refreshAnalysisGroupForDropdown():void {
 			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '') {
-				analysisGroupList = new XMLListCollection(parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup.(@idLab == this.labCombo.selectedItem.@idLab));
+				analysisGroupList = new XMLListCollection(getAnalysisGroupList.lastResult..AnalysisGroup.(@idLab == this.labCombo.selectedItem.@idLab));
+				if (selectedIdAnalysisGroup != null) {
+					for each(var ag:Object in analysisGroupList) {
+						if (ag.@idAnalysisGroup == selectedIdAnalysisGroup) {
+							this.analysisGroupCombo.selectedItem = ag;
+							selectedIdAnalysisGroup = null;
+							break;
+						}
+					}
+					
+				}
 			} else {
 				analysisGroupList = new XMLListCollection();
 			}
@@ -178,8 +219,12 @@
 			}
 			parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
 			callLater(parentApplication.navAnalysisView.refreshAnalysis);
-			
+			getAnalysisGroupList.send();
 		}
+		
+		private function onGetAnalysisGroupList(event:ResultEvent): void {
+        	this.refreshAnalysisGroupForDropdown();		
+  		}
 		
         private function filterGenomeBuild(item:Object):Boolean {
         	if (item.@value == "") {
@@ -207,7 +252,7 @@
 				<mx:ComboBox id="labCombo" 
 				 labelField="@name"
 				 dataProvider="{parentApplication.submitRequestLabList}"
-				 visible="true" width="424" change="refreshAnalysisGroups();refreshAnalysisGroupForDropdown();checkCompleteness()">
+				 visible="true" width="424" change="refreshAnalysisGroups();checkCompleteness()">
 				</mx:ComboBox>
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">

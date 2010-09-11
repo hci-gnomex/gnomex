@@ -771,7 +771,6 @@
 			this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
 		 	PopUpManager.centerPopUp(this.analysisAddWindow);		
 		 	
-		 	analysisAddWindow.initializeData();
 		 
 		 	var selectedLabNode:Object = null;
 		 	if (this.selectedIdLab != null) {
@@ -789,10 +788,8 @@
 		 			
 		 		}
 		 	}
-		 	analysisAddWindow.labCombo.selectedItem = selectedLabNode;
-		 	analysisAddWindow.refreshAnalysisGroupForDropdown();
-		 	analysisAddWindow.selectAnalysisGroupDropdown(selectedIdAnalysisGroup);
-		 
+		 	
+		 	analysisAddWindow.initializeData(selectedLabNode != null ? selectedLabNode.@idLab : "", selectedIdAnalysisGroup);		 
 		}
 
 
