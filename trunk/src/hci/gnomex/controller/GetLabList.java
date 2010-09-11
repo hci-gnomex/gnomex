@@ -151,10 +151,8 @@ public class GetLabList extends GNomExCommand implements Serializable {
           
           lab.excludeMethodFromXML("getProjects");
           
-          if (this.getSecAdvisor().isUniversityOnlyUser()) {
-            lab.excludeMethodFromXML("getIsCcsgMember");
-            lab.excludeMethodFromXML("getIsExternalPricing");
-          }
+          lab.excludeMethodFromXML("getIsCcsgMember");
+          lab.excludeMethodFromXML("getIsExternalPricing");
           
           doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
         }
