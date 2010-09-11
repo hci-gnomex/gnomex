@@ -32,11 +32,19 @@
 		
 		
 		private function onLabChange():void {
-			parentApplication.navAnalysisView.selectedAnalysisGroup.@idLab = labCombo.selectedItem.@idLab;			
-						
-			parentApplication.navAnalysisView.browseLabCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == labCombo.selectedItem.@idLab)
+			if (parentApplication.navAnalysisView.currentState == "AdminState") {
+				for each(var l:Object in parentApplication.navAnalysisView.labList) {
+					if (l.@idLab == labCombo.selectedItem.@idLab) {
+						l.@isSelected = 'true';
+						parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
+						parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
+					} else {
+						l.@isSelected = 'false';
+					}
+				}
+			}
+			parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
 			callLater(parentApplication.navAnalysisView.refreshAnalysis);
-			
 		}
 
         public function save():void {
