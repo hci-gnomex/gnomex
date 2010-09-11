@@ -101,7 +101,7 @@ public class DownloadFileServlet extends HttpServlet {
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal().getName());
+        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         
         archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));
