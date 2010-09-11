@@ -253,7 +253,12 @@
 				currentState = "GuestState";
 			} else {
 				currentState = "";
+				// Only enable to new analysis, new analysis group link buttons
+				// if the user belongs to at least one lab
+				this.newAnalysisButton.enabled = parentApplication.canSubmitRequestForALab();
+				this.newAnalysisGroupButton.enabled = parentApplication.canSubmitRequestForALab();
 			}
+			
 		}
 
         private function getBrowseTreeLabel(item:Object):String {
@@ -738,7 +743,21 @@
 				 selectedAnalysisGroup.@idLab = selectedIdLab;
 				 this.analysisGroupWindow = AnalysisGroupWindow(PopUpManager.createPopUp(this, AnalysisGroupWindow, true));
 				 
-				 var selectedLabNode:Object = parentApplication.getLabList.lastResult.Lab.(@idLab == browseLabCombo.selectedItem.@idLab);
+				 var selectedLabNode:Object = null;
+				 if (this.selectedIdLab != null) {
+					selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
+		 		 } else {
+		 			if (currentState == 'AdminState') {
+		 				for each(var l:Object in labList) {
+		 					if (l.@isSelected == 'true') {
+								selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == l.@idLab);
+								break;		 			 					
+		 					}
+		 				}
+		 			} else {
+			 			selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@canSubmitRequests == "Y")[0];
+		 			}
+		 		 }
 				 this.analysisGroupWindow.labCombo.selectedItem = selectedLabNode;
 				 
 				 PopUpManager.centerPopUp(this.analysisGroupWindow);		
@@ -771,18 +790,8 @@
 		 		}
 		 	}
 		 	analysisAddWindow.labCombo.selectedItem = selectedLabNode;
-		 
-		 	if (selectedIdAnalysisGroup != null) {
-			 	var idx:int = 0;
-			 	for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
-			 		if (ag.@idAnalysisGroup == selectedIdAnalysisGroup) {
-			 			analysisAddWindow.analysisGroupCombo.selectedIndex = idx;
-			 			break;
-			 		}
-			 		idx++;
-			 	}
-		 		
-		 	}
+		 	analysisAddWindow.refreshAnalysisGroupForDropdown();
+		 	analysisAddWindow.selectAnalysisGroupDropdown(selectedIdAnalysisGroup);
 		 
 		}
 

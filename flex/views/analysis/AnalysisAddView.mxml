@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" width="368" height="374" 
+	title="Add Analysis" width="446" height="376" 
 	defaultButton="{saveButton}">
 	 
     <mx:HTTPService 
@@ -37,14 +37,35 @@
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
+		
+		[Bindable]
+		private var analysisGroupList:XMLListCollection = new XMLListCollection();
 
 		
 		public function initializeData():void {
 			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			genomeBuildCombo.dataProvider      = filteredGenomeBuildList;		
-			filteredGenomeBuildList.refresh();						
+			filteredGenomeBuildList.refresh();	
+								
 			
+		}
+		
+		public function refreshAnalysisGroupForDropdown():void {
+			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '') {
+				analysisGroupList = new XMLListCollection(parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup.(@idLab == this.labCombo.selectedItem.@idLab));
+			} else {
+				analysisGroupList = new XMLListCollection();
+			}
+		}
+		
+		public function selectAnalysisGroupDropdown(idAnalysisGroup:Object):void {
+			for each(var ag:Object in analysisGroupList) {
+				if (ag.@idAnalysisGroup == idAnalysisGroup) {
+					this.analysisGroupCombo.selectedItem = ag;
+					break;
+				}
+			}
 		}
 		
 
@@ -186,13 +207,13 @@
 				<mx:ComboBox id="labCombo" 
 				 labelField="@name"
 				 dataProvider="{parentApplication.submitRequestLabList}"
-				 visible="true" width="100%" change="refreshAnalysisGroups();checkCompleteness()">
+				 visible="true" width="424" change="refreshAnalysisGroups();refreshAnalysisGroupForDropdown();checkCompleteness()">
 				</mx:ComboBox>
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
 			<mx:Label text="Analysis group" id="label1"/>
-			<mx:ComboBox width="100%" id="analysisGroupCombo" 
-				dataProvider="{parentApplication.navAnalysisView.getAnalysisGroupList.lastResult..AnalysisGroup}" 
+			<mx:ComboBox width="424" id="analysisGroupCombo" 
+				dataProvider="{analysisGroupList}" 
 				labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
 			</mx:ComboBox>
 			<mx:HBox width="100%" horizontalAlign="right" id="hbox1">
@@ -206,14 +227,14 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Organism" width="100">
 			</mx:Label>
-			<mx:ComboBox  width="100%" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
+			<mx:ComboBox  width="424" id="organismCombo" labelField="@display"  change="filteredGenomeBuildList.refresh();checkCompleteness();">
 				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:Label text="Genome Build:" width="100">
 			</mx:Label>
-			<mx:ComboBox  width="100%" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
+			<mx:ComboBox  width="424" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
 				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuild').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:VBox>
