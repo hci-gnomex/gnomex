@@ -16,7 +16,8 @@
 - Disable double-click on Experiments tree so that second click event doesn't interfere with 'Download' click event already in progress.  
   (This was causing view to switch back to Experiment detail view after 'Downloads' link was pressed.)
 - Provide download checkboxes and button on 'Files' tab of Analysis detail for more intuitive navigation to downloading analysis files.
- 
+- Fix bug that was causing I/O error when guest attempted to download experiment or analysis files (caused by null pointer exception request.getUserPrincipal())
+- Fix bug on 'Add Analysis' window that was not filtering analysis group by lab selected in dropdown. 
 
 
 4.9.4 (Aug 31, 2010)
