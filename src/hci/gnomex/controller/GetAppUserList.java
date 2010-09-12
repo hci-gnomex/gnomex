@@ -60,10 +60,10 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
 
     StringBuffer buf = filter.getQuery(this.getSecAdvisor());
     log.debug("App user query: " + buf.toString());
-    List labs = (List)sess.createQuery(buf.toString()).list();
+    List users = (List)sess.createQuery(buf.toString()).list();
 
 
-    for(Iterator i = labs.iterator(); i.hasNext();) {
+    for(Iterator i = users.iterator(); i.hasNext();) {
       AppUser user = (AppUser)i.next();
 
       // Exclude extra user information
