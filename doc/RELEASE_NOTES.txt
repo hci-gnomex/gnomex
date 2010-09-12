@@ -18,7 +18,7 @@
 - Provide download checkboxes and button on 'Files' tab of Analysis detail for more intuitive navigation to downloading analysis files.
 - Fix bug that was causing I/O error when guest attempted to download experiment or analysis files (caused by null pointer exception request.getUserPrincipal())
 - Fix bug on 'Add Analysis' window that was not filtering analysis group by lab selected in dropdown. 
-
+- Add security filter so that users listed as collaborators on other lab's experiments or analysis don't see empty project or analysis group folders belonging to labs they are not members or managers of.
 
 4.9.4 (Aug 31, 2010)
 ------------------------
