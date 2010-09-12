@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -91,19 +92,21 @@ public class GetLab extends GNomExCommand implements Serializable {
       blockAppUserContent(theLab.getManagers());
       
       Document doc = new Document(new Element("OpenLabList"));
-      doc.getRootElement().addContent(theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+      Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      this.appendPossibleCollaborators(labNode, theLab);
+      doc.getRootElement().addContent(labNode);
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
       
-    } else if (this.getSecAdvisor().isGroupIAmMemberOf(lab.getIdLab()) || 
-                this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab())) {
+    } else if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab()) || 
+                this.getSecAdvisor().isGroupICollaborateWith(theLab.getIdLab())) {
       
       // For adding services to lab, lab member needs to be able to select
       // from list of other lab members.
-      if (this.getSecAdvisor().isGroupIAmMemberOf(lab.getIdLab())) {
+      if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab())) {
         Hibernate.initialize(theLab.getMembers());
-        blockAppUserContent(theLab.getMembers());        
+        blockAppUserContent(theLab.getMembers());
       }  else {
         theLab.excludeMethodFromXML("getProjects");
       }
@@ -112,8 +115,12 @@ public class GetLab extends GNomExCommand implements Serializable {
       theLab.excludeMethodFromXML("getPendingBillingAccounts");
       
       Document doc = new Document(new Element("OpenLabList"));
-      doc.getRootElement().addContent(theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
-      
+      Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
+        this.appendPossibleCollaborators(labNode, theLab);
+      }
+      doc.getRootElement().addContent(labNode);        
+          
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
       
@@ -160,30 +167,63 @@ public class GetLab extends GNomExCommand implements Serializable {
     return this;
   }
   
+  private void appendPossibleCollaborators(Element labNode, Lab theLab) throws Exception {
+    // Show all the members, collaborators, and mgr under this lab
+    // if the user can submit requests
+    Element possibleCollaboratorsNode = new Element("possibleCollaborators");
+    labNode.addContent(possibleCollaboratorsNode);
+    
+    TreeMap appUsers = new TreeMap();
+    for(Iterator i2 = theLab.getMembers().iterator(); i2.hasNext();) {
+      AppUser u = (AppUser)i2.next();
+      appUsers.put(u.getDisplayName(), u);
+    }
+    for(Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
+      AppUser u = (AppUser)i2.next();
+      appUsers.put(u.getDisplayName(), u);
+    }
+    for(Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
+      AppUser u = (AppUser)i2.next();
+      appUsers.put(u.getDisplayName(), u);
+    }
+    for (Iterator i2 = appUsers.keySet().iterator(); i2.hasNext();) {
+      String key = (String)i2.next();
+      AppUser user = (AppUser)appUsers.get(key);
+      this.blockAppUserContent(user);
+      
+      possibleCollaboratorsNode.addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());            
+    }
+  }    
+  
   private void blockAppUserContent(Set appUsers) {
     
     for(Iterator i1 = appUsers.iterator(); i1.hasNext();) {
       AppUser user = (AppUser)i1.next();
-      user.excludeMethodFromXML("getCodeUserPermissionKind");
-      user.excludeMethodFromXML("getuNID");
-      user.excludeMethodFromXML("getEmail");
-      user.excludeMethodFromXML("getDepartment");
-      user.excludeMethodFromXML("getInstitute");
-      user.excludeMethodFromXML("getJobTitle");
-      user.excludeMethodFromXML("getCodeUserPermissionKind");
-      user.excludeMethodFromXML("getUserNameExternal");
-      user.excludeMethodFromXML("getPasswordExternal");
-      user.excludeMethodFromXML("getPhone");
-      user.excludeMethodFromXML("getIsAdminPermissionLevel");
-      user.excludeMethodFromXML("getIsLabPermissionLevel");
-      user.excludeMethodFromXML("getLabs");
-      user.excludeMethodFromXML("getCollaboratingLabs");
-      user.excludeMethodFromXML("getManagingLabs");  
-      user.excludeMethodFromXML("getPasswordExternalEntered");
-      user.excludeMethodFromXML("getIsExternalUser");
-      user.excludeMethodFromXML("getPasswordExternal");   
+      blockAppUserContent(user);
     }
     
+  }
+  
+  private void blockAppUserContent(AppUser user) {
+    user.excludeMethodFromXML("getCodeUserPermissionKind");
+    user.excludeMethodFromXML("getuNID");
+    user.excludeMethodFromXML("getEmail");
+    user.excludeMethodFromXML("getDepartment");
+    user.excludeMethodFromXML("getInstitute");
+    user.excludeMethodFromXML("getJobTitle");
+    user.excludeMethodFromXML("getCodeUserPermissionKind");
+    user.excludeMethodFromXML("getUserNameExternal");
+    user.excludeMethodFromXML("getPasswordExternal");
+    user.excludeMethodFromXML("getPhone");
+    user.excludeMethodFromXML("getIsAdminPermissionLevel");
+    user.excludeMethodFromXML("getIsLabPermissionLevel");
+    user.excludeMethodFromXML("getLabs");
+    user.excludeMethodFromXML("getCollaboratingLabs");
+    user.excludeMethodFromXML("getManagingLabs");  
+    user.excludeMethodFromXML("getPasswordExternalEntered");
+    user.excludeMethodFromXML("getIsExternalUser");
+    user.excludeMethodFromXML("getPasswordExternal");   
+
   }
 
 }
