@@ -213,7 +213,7 @@ public class AnalysisGroupFilter extends DetailObject {
    
       
     }  else {
-      addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis is NULL");
+      addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis");
     }
     
 

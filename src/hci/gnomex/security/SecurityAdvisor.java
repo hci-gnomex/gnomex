@@ -1294,13 +1294,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
  
       
       // Add exclusion criteria
-      if (leftJoinExclusionCriteria != null) {
+      // Pick up projects or analysis groups that don't have any children but
+      // belong to same lab user is member or manager of.
+      if (leftJoinExclusionCriteria != null && this.getGroupsIAmMemberOrManagerOf().size() > 0) {
         queryBuf.append(" OR ");
         queryBuf.append(" ( ");
-        queryBuf.append(leftJoinExclusionCriteria);
+        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
         queryBuf.append(" ) ");
         
       }
+
       
       queryBuf.append(" ) ");
       return true;
@@ -1311,7 +1314,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
 
 
-  private boolean appendInheritedSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroup, String visibilityField, String leftJoinExclusionCriteria ) {
+  private boolean appendInheritedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, boolean scopeToGroup, String visibilityField, String leftJoinExclusionCriteria ) {
     // Admins
     if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
       return false;
@@ -1324,22 +1327,33 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
      
       // Add criteria with member visibility
       boolean addedCriteria = false;
-      addedCriteria = this.appendGroupCriteria(queryBuf, classShortName);
+      addedCriteria = this.appendGroupCriteria(queryBuf, inheritedClassShortName);
 
       // Add criteria for objects with member visibility
       if (addedCriteria) {
         queryBuf.append(" OR ");        
       }
 
-      appendInheritedPublicCriteria(queryBuf, classShortName, visibilityField, scopeToGroup);
+      appendInheritedPublicCriteria(queryBuf, inheritedClassShortName, visibilityField, scopeToGroup);
 
      
       
-      // Add exclusion criteria
-      if (leftJoinExclusionCriteria != null) {
+      // Pick up projects or analysis groups that don't have any children but
+      // belong to same lab user is member or manager of.
+      if (leftJoinExclusionCriteria != null && this.getGroupsIAmMemberOrManagerOf().size() > 0) {
         queryBuf.append(" OR ");
         queryBuf.append(" ( ");
-        queryBuf.append(leftJoinExclusionCriteria);
+        
+        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
+        queryBuf.append(" AND " + inheritedClassShortName + ".idLab in ( ");
+        for (Iterator i = this.getGroupsIAmMemberOrManagerOf().iterator(); i.hasNext();) {
+          Lab l = (Lab)i.next();
+          queryBuf.append(l.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
+          }
+        }
+        queryBuf.append(")");
         queryBuf.append(" ) ");
         
       }
@@ -1348,7 +1362,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     // Guest
     else {
-      appendInheritedPublicCriteria(queryBuf, classShortName, visibilityField, false);        
+      appendInheritedPublicCriteria(queryBuf, inheritedClassShortName, visibilityField, false);        
     }
     
     return true;
