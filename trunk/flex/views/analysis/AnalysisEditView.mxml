@@ -83,6 +83,21 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+  
+  <mx:HTTPService  
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{analysis.@idLab}</idLab>
+    </mx:request>
+  </mx:HTTPService>
      	 
 <mx:Script>
 	<![CDATA[
@@ -106,9 +121,14 @@
         import hci.flex.controls.DropdownLabel;
         import mx.events.CollectionEventKind;
         import mx.events.PropertyChangeEvent;
+        import views.util.PromptXMLListCollection;
+
         	
 	    [Bindable]
 		private var analysis:Object;
+		
+		[Bindable]
+		private var possibleCollaborators:PromptXMLListCollection;
 		
 		[Bindable]
 		public var selectedExperiment:Object; 
@@ -162,6 +182,7 @@
 
 			
 			this.analysis = theAnalysis;
+			getLab.send();
 
 			
 			// Build hybs & lanes collection.  Assign the idRequest to the Hybridization
@@ -850,6 +871,17 @@
 			}
 		}
 		
+		private function onGetLab(event:ResultEvent):void {
+			if (getLab.lastResult.name() == "OpenLabList") {
+				var emptyNode:XML = new XML("<AppUser " +
+				    " idAppUser=''" +
+				    " displayName=''"  +
+					"/>");
+				possibleCollaborators = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y')));
+			}
+		}
+
+		
 
 	]]>
 </mx:Script>
@@ -1130,7 +1162,7 @@
 		   <mx:VBox width="100%" height="100%" verticalGap="0">
 		   	<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis"/>
 		   	<mx:HBox width="100%" paddingLeft="20" horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-		   	 <mx:ComboBox width="300" dataProvider="{parentApplication.promptedAppUserList}" id="collaboratorCombo" labelField="@displayName">			       	
+		   	 <mx:ComboBox width="300" dataProvider="{possibleCollaborators}" id="collaboratorCombo" labelField="@displayName">			       	
 		   	 </mx:ComboBox>
 		   		   <mx:Button 
 		   		   	  enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
