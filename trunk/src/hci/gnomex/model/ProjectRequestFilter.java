@@ -467,7 +467,7 @@ public class ProjectRequestFilter extends DetailObject {
 
     } else {
       boolean scopeToGroup = true;
-      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest is NULL");
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest");
 
     }
   }
