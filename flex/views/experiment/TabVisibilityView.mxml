@@ -9,19 +9,42 @@
 			<mx:RemoveChild target="{textarea1}"/>
 		</mx:State>
 	</mx:states>
+	
+  <mx:HTTPService  
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{idLab}</idLab>
+    </mx:request>
+    	
+   </mx:HTTPService>
+	
 <mx:Script>
 	<![CDATA[
+		import views.util.PromptXMLListCollection;
 		import mx.controls.Spacer;
 		import mx.collections.XMLListCollection;
 		import mx.controls.RadioButton;
 		import mx.events.ListEvent;
 		import views.renderers.CheckBoxIsSelectedChipType;
 		import hci.flex.controls.CheckBox;
+		import mx.rpc.events.ResultEvent;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 		
-
+		[Bindable]
+		private var idLab:Object;
+		
+		[Bindable]
+		private var possibleCollaborators:PromptXMLListCollection;
 
 
 		public function init():void {
@@ -31,13 +54,28 @@
 			}
 			this.collaboratorCombo.selectedItem = null;
 			checkVisibilitySetupCompleteness();
+			
+			if (this.currentState == "EditState" || parentDocument.isAmendState()) {
+				idLab = parentDocument.request.@idLab;
+			} else {
+				idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+			}
+			getLab.send();
 		}
 		
 		public function checkSecurity():void {
 
 		}
 
-	 
+		private function onGetLab(event:ResultEvent):void {
+			if (getLab.lastResult.name() == "OpenLabList") {
+				var emptyNode:XML = new XML("<AppUser " +
+				    " idAppUser=''" +
+				    " displayName=''"  +
+					"/>");
+				possibleCollaborators = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).possibleCollaborators.AppUser.(@isActive == 'Y')));
+			}
+		}
 
         public function checkVisibilitySetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
@@ -99,7 +137,7 @@
 		   <mx:VBox width="100%" height="100%" verticalGap="0">
 		   	<mx:Text text="(2) Specify other individual collaborators allowed access to this experiment&#xa;"/>
 		   	<mx:HBox width="100%" paddingLeft="20" horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-		   	 <mx:ComboBox width="300" dataProvider="{parentApplication.promptedAppUserList}" id="collaboratorCombo" labelField="@displayName">			       	
+		   	 <mx:ComboBox width="300" dataProvider="{possibleCollaborators}" id="collaboratorCombo" labelField="@displayName">			       	
 		   	 </mx:ComboBox>
 		   		   <mx:Button 
 		   		   	  enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 

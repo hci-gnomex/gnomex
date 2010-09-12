@@ -206,6 +206,8 @@
 		[Bindable]
 		public var request:Object;
 		
+		[Bindable]
+		public var lab:Object;
 		
 		private var existingLanes:XMLList = null;
 		
@@ -1325,9 +1327,6 @@
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
 		
-		
-		
-		
 		public function cloneRequest(requestToClone:Object):void {
 			this.requestToClone = requestToClone;
 			getRequestToClone.send();
@@ -2409,7 +2408,7 @@
 		
 		private function onGetRequest(event:ResultEvent):void {
 			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
-
+			
 			parentApplication.navExperimentView.showEditView = true;	
 			parentApplication.navExperimentView.refreshExperiments();
 		    parentApplication.navExperimentView.detailView.detail.refreshSavedExperiment(request.@idRequest); 
