@@ -227,7 +227,6 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     return name;
   }
   
-  @Override
   public int compareTo(Object o) {
     if (o instanceof AppUser) {
       AppUser other = (AppUser)o;      
