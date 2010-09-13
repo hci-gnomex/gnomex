@@ -108,7 +108,7 @@ public class RequestHTMLFormatter {
     String phone = "";
     String email = "";
     if (appUser != null) {
-      userName = appUser.getFirstName() + " " + appUser.getLastName();
+      userName = (appUser.getFirstName() != null ? appUser.getFirstName() : "") + " " + (appUser.getLastName() != null ? appUser.getLastName() : "");
       phone    = appUser.getPhone();
       email    = appUser.getEmail();
     }
@@ -149,11 +149,40 @@ public class RequestHTMLFormatter {
     return table;
   }
  
-  public Element makeSampleTable(Set samples) {
-    return makeSampleTable(samples, null);
+  public void addSampleTable(Element parentNode, Set samples) {
+     addSampleTable(parentNode, samples, null);
   }
   
-  public Element makeSampleTable(Set samples, String captionStyle) {
+  public void addSampleTable(Element parentNode, Set samples, String captionStyle) {
+    
+    // If all of the prep instructions for the samples are the
+    // same, print instructions before the samples grid.
+    // Otherwise, we will show the instructions on each sample.
+    String prepInstructions = null;
+    boolean uniquePrepInstructions = false;
+    boolean showColPrepInstructions = true;
+    for(Iterator i = samples.iterator(); i.hasNext();) {
+      Sample s = (Sample)i.next();
+      if (prepInstructions != null && s.getPrepInstructions() != null && !s.getPrepInstructions().equals(prepInstructions)) {
+        uniquePrepInstructions = true;
+        break;
+      }
+      prepInstructions = s.getPrepInstructions();
+    }
+    
+    // Show 'samples' header
+    Element sampleHeader = new Element("H5");
+    sampleHeader.addContent("Samples");
+    parentNode.addContent(sampleHeader);
+    
+    // Show global instructions
+    if (!uniquePrepInstructions && prepInstructions != null && !prepInstructions.equals("")) {
+      Element prepHeader = new Element("H6");
+      prepHeader.addContent(prepInstructions);
+      parentNode.addContent(prepHeader);
+      showColPrepInstructions = false;
+    }
+    
     
     
     Element table = new Element("TABLE");
@@ -161,13 +190,6 @@ public class RequestHTMLFormatter {
     table.setAttribute("CELLPADDING", "5");
     table.setAttribute("CELLSPACING", "5");
  
-    Element caption = new Element("CAPTION");
-    if (captionStyle != null) {
-      caption.setAttribute("style", captionStyle);
-    }
-    caption.addContent("Samples");
-    table.addContent(caption);      
-    
     
     Element rowh = new Element("TR");
     table.addContent(rowh);
@@ -202,7 +224,9 @@ public class RequestHTMLFormatter {
       if (showSeqLibProtocol) {
           this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
       }
-      this.addHeaderCell(rowh, "Prep Instructions", rowSpan, new Integer(1));
+      if (showColPrepInstructions) {
+        this.addHeaderCell(rowh, "Prep Instructions", rowSpan, new Integer(1));        
+      }
     } 
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       
@@ -274,7 +298,9 @@ public class RequestHTMLFormatter {
         if (showSeqLibProtocol) {
         	this.addCell(row, sample.getIdSeqLibProtocol() != null ? dictionaryHelper.getSeqLibProtocol(sample.getIdSeqLibProtocol()) : "&nbsp;");
         }
-        this.addCell(row, sample.getPrepInstructions() != null && !sample.getPrepInstructions().equals("") ? sample.getPrepInstructions() : "&nbsp");
+        if (showColPrepInstructions) {
+          this.addInstructionsCell(row, sample.getPrepInstructions() != null && !sample.getPrepInstructions().equals("") ? sample.getPrepInstructions() : "&nbsp");          
+        }
       }
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {        
         this.addCell(row, dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()) == null || dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()).equals("") ? "&nbsp;" : 
@@ -308,7 +334,7 @@ public class RequestHTMLFormatter {
       }
     }
     
-    return table;
+    parentNode.addContent(table);
   }
   
   public Element makeSampleQualityTable(Set samples) {
@@ -573,6 +599,7 @@ public class RequestHTMLFormatter {
   
   public void addSequenceLaneTable(Element parentNode, Set lanes, String amendState, String captionStyle) {
 
+    
     // Group lanes by create Date
     TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator());
     for(Iterator i = lanes.iterator(); i.hasNext();) {
@@ -601,7 +628,7 @@ public class RequestHTMLFormatter {
         }
       }
 
-      parentNode.addContent(makeSequenceLaneTable(caption, theLanes, captionStyle));
+      addSequenceLaneTableSection(parentNode, caption, theLanes, captionStyle);
       
       // If the user just added lanes from the 'Add services' window,
       // just show the lanes just added, not all of the existing lanes.
@@ -619,19 +646,42 @@ public class RequestHTMLFormatter {
   }
     
     
-  private Element makeSequenceLaneTable(String caption, List lanes, String captionStyle) {
+  private void addSequenceLaneTableSection(Element parentNode, String caption, List lanes, String captionStyle) {
+
+    
+    // If all of the analysis instructions for the lanes are the
+    // same, print instructions before the lanes grid.
+    // Otherwise, we will show the instructions on each sample.
+    String analysisInstructions = null;
+    boolean uniqueInstructions = false;
+    boolean showColInstructions = true;
+    for(Iterator i = lanes.iterator(); i.hasNext();) {
+      SequenceLane l = (SequenceLane)i.next();
+      if (analysisInstructions != null && l.getAnalysisInstructions() != null && !l.getAnalysisInstructions().equals(analysisInstructions)) {
+        uniqueInstructions = true;
+        break;
+      }
+      analysisInstructions = l.getAnalysisInstructions();
+    }
+    
+    // Show 'Sequence Lanes' header
+    Element lanesHeader = new Element("H5");
+    lanesHeader.addContent(caption);
+    parentNode.addContent(lanesHeader);
+    
+    // Show global instructions
+    if (!uniqueInstructions && analysisInstructions != null && !analysisInstructions.equals("")) {
+      Element prepHeader = new Element("H6");
+      prepHeader.addContent(analysisInstructions);
+      parentNode.addContent(prepHeader);
+      showColInstructions = false;
+    }
+
+    
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
     table.setAttribute("CELLPADDING", "5");
     table.setAttribute("CELLSPACING", "5");
-
-    Element cap = new Element("CAPTION");
-    if (captionStyle != null) {
-      cap.setAttribute("style", captionStyle);
-    }
-    cap.addContent(caption);
-    table.addContent(cap);      
-
 
     Element rowh = new Element("TR");
     table.addContent(rowh);
@@ -641,7 +691,9 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Seq Run Type");
     this.addHeaderCell(rowh, "# Seq Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
-    this.addHeaderCell(rowh, "Analysis instructions");      
+    if (showColInstructions) {
+      this.addHeaderCell(rowh, "Analysis instructions");            
+    }
 
 
 
@@ -660,10 +712,12 @@ public class RequestHTMLFormatter {
       this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
       this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
       this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
-      this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
+      if (showColInstructions) {
+        this.addInstructionsCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
+      }
     }
 
-    return table;
+    parentNode.addContent(table);
   }
 
 
@@ -769,8 +823,13 @@ public class RequestHTMLFormatter {
     cell.setAttribute("CLASS", "gridleft");      
     cell.addContent(value);
     row.addContent(cell);
-}
-
+  }
+  private void addInstructionsCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "gridinstructions");      
+    cell.addContent(value);
+    row.addContent(cell);
+  }
   private void addCell(Element row, String value) {
       Element cell = new Element("TD");
       cell.setAttribute("CLASS", "grid");      

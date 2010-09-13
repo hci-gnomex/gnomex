@@ -116,6 +116,31 @@ h4 {
       line-height: 0;
 	  text-align: center;
 }
+
+h5
+{
+  font-size: 10pt;
+  font-weight: bold;
+  color: #8B7765;
+  text-align: left;
+  margin-top: 15;
+  margin-bottom: 5;
+}
+
+
+h6 {
+  font-size: 10pt;
+  font-weight: normal;
+  font-style: italic;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 10;
+  margin-right: 10;
+  padding: 10;
+  border: solid thin;
+  border-color: #D8D8D8 ;
+}
+
  
 caption
 {
@@ -153,7 +178,7 @@ td.label {
 th {
   font-size: 8pt;
   border-bottom: solid thin;
-  border-color: lightgray;
+  border-color: #D8D8D8  ;
   padding-left: 10px;
   padding-right: 10px;
   font-size: 8pt;
@@ -176,7 +201,7 @@ td {
  padding-right: 2px;
  border-bottom: solid thin;
  border-right: solid thin;
- border-color: lightgray;
+ border-color: #D8D8D8  ;
 }
 
 td.noborder {
@@ -185,7 +210,7 @@ td.noborder {
 
 td.gridleft {
   border-left: thin solid;
-  border-color: lightgray;
+  border-color: #D8D8D8  ;
 }
 
 td.gridempty {
@@ -207,6 +232,11 @@ td.gridSmall{
 td.gridreverse {
 	font-style: italic;
 	font-weight: bold;
+}
+
+
+td.gridinstructions {
+	font-style: italic;
 }
 
 li {

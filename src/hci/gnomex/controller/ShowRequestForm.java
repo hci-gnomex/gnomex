@@ -229,9 +229,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             maindiv.addContent(new Element("BR"));
             maindiv.addContent(formatter.makeRequestTable());
-
-            maindiv.addContent(formatter.makeSampleTable(request.getSamples()));
             
+            formatter.addSampleTable(maindiv, request.getSamples());
             
             if (!request.getHybridizations().isEmpty()) {
 
