@@ -663,7 +663,7 @@
 
 			if (selectedIdAnalysis != null) {
 				selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);			
-			} else {
+			} else if (selectedAnalysisNumber != null && selectedAnalysisNumber != '') {
 				selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
 				
 				var params:Object = new Object();

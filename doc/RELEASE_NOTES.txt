@@ -25,6 +25,7 @@
 - Adjusted field widths on Price Category grid. (Robb)
 - Added code to automatically add “R” on back end of nothing found in searching for experiment. (Robb)
 - Use JAVA_HOME environment variable when setting path in batch program index_gnomex.cmd.
+- Fix bug causing blank Analysis to show up when Analysis lookup, followed by Experiments, followed by another Analysis lookup (caused by re-selection bug).
 
 
 
