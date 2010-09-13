@@ -141,6 +141,7 @@
             import mx.rpc.events.FaultEvent;
             import mx.controls.dataGridClasses.DataGridColumn;
             import hci.flex.dictionary.DictionaryEvent;
+            import com.earthbrowser.ebutils.MacMouseWheelHandler;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -687,6 +688,9 @@
             	appProgressBar.currentState = "StartupState";
 			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
 				PopUpManager.centerPopUp(appProgressBar);
+				
+				// This is for handler to enable Mac MouseWheel
+				this.addEventListener(Event.ADDED_TO_STAGE, stage_init);
 
             	if (isGuestMode() ) { 
             		var captchaWindow:CaptchaView = new CaptchaView();
@@ -699,6 +703,11 @@
 	            	createSecurityAdvisor.send();
 				}
             } 
+            
+			public function stage_init(e:Event):void {		    
+				MacMouseWheelHandler.init(stage);
+			}            
+            
             public  function formatDate(date:Date):String {
 			    return date.getFullYear().toString() + 
                     '-' + (date.getMonth()+1).toString() + '-' + date.getDate();
