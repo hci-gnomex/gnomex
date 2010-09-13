@@ -19,6 +19,13 @@
 - Fix bug that was causing I/O error when guest attempted to download experiment or analysis files (caused by null pointer exception request.getUserPrincipal())
 - Fix bug on 'Add Analysis' window that was not filtering analysis group by lab selected in dropdown. 
 - Add security filter so that users listed as collaborators on other lab's experiments or analysis don't see empty project or analysis group folders belonging to labs they are not members or managers of.
+- For printable request form, if prep instructions for all of the samples are the same, print at top of samples list rather than as column.
+- Prompt user before removing price category. (Robb)
+- Added code to address Mac mouse wheel problem (this may not work. We’ll need to have David try it and I’ll remove it if it doesn’t help). (Robb)
+- Adjusted field widths on Price Category grid. (Robb)
+- Added code to automatically add “R” on back end of nothing found in searching for experiment. (Robb0
+
+
 
 4.9.4 (Aug 31, 2010)
 ------------------------
