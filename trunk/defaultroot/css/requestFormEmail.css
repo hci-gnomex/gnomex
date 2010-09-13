@@ -109,9 +109,36 @@ h4 {
       margin-bottom: 10;
       font-size: 10pt;
       font-weight: bold;
-	text-align: center;
+ 	text-align: center;
+}
+
+h5
+{
+  font-size: 10pt;
+  font-weight: bold;
+  color: #8B7765;
+  text-align: center;
+  margin-top: 15;
+  margin-bottom: 5;
+}
+
+
+h6 {
+  font-size: 10pt;
+  font-weight: normal;
+  font-style: italic;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 10;
+  margin-right: 10;
+  padding: 10;
+  border: solid thin;
+  border-color: #D8D8D8 ;
+  width: 650;
+  text-align: center;
 }
  
+
 caption
 {
   font-size: 10pt;
@@ -237,6 +264,18 @@ td.gridemptysmall {
   padding-bottom: 4;
   padding-right: 4;
   padding-left: 4; 
+}
+
+
+td.gridinstructions {
+   padding-top: 4;
+   font-size: 9pt;
+   font-style: italic;
+   border-top: solid thin;
+   border-color: #D8D8D8  ;
+   padding-bottom: 4;
+   padding-right: 4;
+   padding-left: 4; 
 }
 
 
