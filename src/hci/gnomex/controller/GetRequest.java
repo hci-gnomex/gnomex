@@ -90,6 +90,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
         StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "'");
         List requests = (List)sess.createQuery(buf.toString()).list();
+        if (requests.size() == 0 && requestNumberBase.indexOf("R") == -1) {
+        	// If nothing returned then try with "R" appended
+        	requestNumberBase = requestNumberBase + "R";
+            buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "'");
+            requests = (List)sess.createQuery(buf.toString()).list();
+        }
         if (requests.size() > 0) {
           request = (Request)requests.get(0);
         }
