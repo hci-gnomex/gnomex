@@ -1294,7 +1294,18 @@
 			this.getPriceCategory.send(params);
 		}
 
-		
+    	private function promptForRemovePricing():void {
+			if (this.pricingTree.selectedItem != null) {
+	    		var warningMessage:String = "Are you sure you want to remove (unlink) \"" + this.pricingTree.selectedItem.@display + "\" from the price sheet?";
+				Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForRemovePricing);				
+			}
+    	}
+    	
+    	private function onPromptForRemovePricing(event:CloseEvent):void {
+    		if (event.detail == Alert.YES) {
+    			removePricing()();
+    		}
+    	}		
 		private function removePricing():void {
 			if (this.pricingTree.selectedItem != null) {
 				// After the delete operation has finished,
@@ -1793,7 +1804,7 @@
 	  									<mx:icon>@Embed(source='../../assets/folder_money_add.png')</mx:icon>
 	  								</mx:LinkButton>
 	  								<mx:LinkButton label="New price" textDecoration="underline" click="showNewPriceView()"  textAlign="left" icon="@Embed(source='../../assets/money_add.png')"/>
-	  								<mx:LinkButton  enabled="{this.pricingTree.selectedItem != null}" label="Remove" textDecoration="underline" click="removePricing()" textAlign="left" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')"/>
+	  								<mx:LinkButton  enabled="{this.pricingTree.selectedItem != null}" label="Remove" textDecoration="underline" click="promptForRemovePricing()" textAlign="left" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')"/>
   								</mx:HBox>
   							</mx:VBox>
   					</mx:ControlBar>        		    
@@ -1823,10 +1834,10 @@
     				</mx:dataProvider> 
         			<mx:columns> 
         				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
-        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="10" wordWrap="true"/>
+        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
         				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@billingAccountName" editable="false" width="9" wordWrap="false" dataTipField="@billingAccountName"/>
-        				<mx:AdvancedDataGridColumn headerText="Billing period" dataField="@idBillingPeriod" editable="true" width="13"  wordWrap="false"
+        				<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="true" width="8"  wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"   
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
@@ -1840,14 +1851,14 @@
         				  rendererIsEditor="false"
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
 						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>                 
-        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="12" wordWrap="true">
+        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="18" wordWrap="true">
 			              <mx:itemRenderer>
 			                  <mx:Component>
 			                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
 			                  </mx:Component>
 			              </mx:itemRenderer>
         				</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="12" wordWrap="true">
+        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="18" wordWrap="true">
 			              <mx:itemRenderer>
 			                  <mx:Component>
 			                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
@@ -1882,7 +1893,7 @@
 			                  </mx:Component>
 			              </mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="18" wordWrap="false"
+        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="true" width="9" wordWrap="false"
         			      editorDataField="value"  
         				  rendererIsEditor="false"
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
