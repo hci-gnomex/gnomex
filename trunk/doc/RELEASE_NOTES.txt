@@ -1,6 +1,6 @@
 ﻿GNomEx Release Notes
 
-4.9.5
+4.9.5 (Sep 13, 2010)
 ------------------------
 - Fix bug that was causing save error when submitting request on last day of month due to date boundary logic problem when getting current billing period.
 - Provide visibility to lock down experiment to owner and owner's lab manager(s)
