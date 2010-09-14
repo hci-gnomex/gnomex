@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SeqRunType;
@@ -134,8 +135,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         
+        // The data files are always in the base request number folder,
+        // not the folder with the revision number.  (example: all
+        // files will be in 7633R even though request # is now 7633R1).
+        String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
+        
         // Now read the request directory to identify all its subdirectories
-        List folders = this.getRequestDownloadFolders(requestNumber, yearFormat.format((java.sql.Date)row[0]));
+        List folders = this.getRequestDownloadFolders(requestNumberBase, yearFormat.format((java.sql.Date)row[0]));
         for(Iterator i1 = folders.iterator(); i1.hasNext();) {
           String folderName = (String)i1.next();
           if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
@@ -152,7 +158,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       }
       
       buf = filter.getSolexaFlowCellQuery(this.getSecAdvisor());
-      log.debug("Query for get solexa flow cell: " + buf.toString());
+      log.debug("Query for get illumina flow cell: " + buf.toString());
       List flowCellRows = (List)sess.createQuery(buf.toString()).list();
       HashMap flowCellMap = new HashMap();
       for(Iterator i = flowCellRows.iterator(); i.hasNext();) {
@@ -188,7 +194,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createDay   = tokens[1];
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
-
         
         String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + this.QUALITY_CONTROL_DIRECTORY;
         

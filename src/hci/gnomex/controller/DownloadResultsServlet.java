@@ -326,7 +326,7 @@ public class DownloadResultsServlet extends HttpServlet {
             
             String zipEntryName;
             if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
-              zipEntryName = requestNumber + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
+              zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
             } else {
               zipEntryName = fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
             }
