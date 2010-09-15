@@ -1269,7 +1269,6 @@ VALUES (1, 'Agilent', 'Agilent', 'Y'),
 INSERT INTO `gnomex`.`Visibility`(`codeVisibility`, `visibility`)
 VALUES ('OWNER', 'Owner'),
   ('MEM', 'Members'),
-  ('MEMCOL', 'Members and Collaborators'),
   ('PUBLIC', 'Public');
 
 -- Re-enable foreign key checks
