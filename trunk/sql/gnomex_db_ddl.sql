@@ -1266,6 +1266,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `seqPrepStockFailed` CHAR(1) NULL,
   `seqPrepStockBypassed` CHAR(1) NULL,
   `prepInstructions` VARCHAR(2000) NULL,
+  `ccNumber` VARCHAR(20) NULL,
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)

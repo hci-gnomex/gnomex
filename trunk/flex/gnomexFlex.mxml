@@ -603,6 +603,10 @@
             	theViews.visible = true;
             	
             	currentView = theViews.selectedChild;
+            	if(currentView == submitRequestView) {
+            		// If new experiment then initialize ShowCCNumber checkbox
+            		currentView.showCCNumberColumn = "N";
+            	}
             }
                         
             

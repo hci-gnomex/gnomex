@@ -877,6 +877,9 @@
 					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>
+					<mx:DataGridColumn id="ccNumber" headerText="CCNumber" dataField="@ccNumber" editable="true" visible="{parentDocument.showCCNumberColumn == 'Y'}"
+						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                   itemEditor="{hci.flex.controls.TextInput.create('@ccNumber')}"/>
  	                   
 					<mx:DataGridColumn id="corePrepInstructionsCol" headerText="Core Prep Instructions" width="140" dataField="@prepInstructions"/> 
 					<mx:DataGridColumn headerText="Description" width="140" dataField="@description"/> 

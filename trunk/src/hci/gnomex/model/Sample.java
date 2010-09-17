@@ -62,6 +62,7 @@ public class Sample extends HibernateDetailObject {
   private String      seqPrepStockFailed;
   private String      seqPrepStockBypassed;
   private String      prepInstructions;
+  private String      ccNumber;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -587,7 +588,12 @@ public class Sample extends HibernateDetailObject {
     this.prepInstructions = prepInstructions;
   }
 
-
-
+  public String getCcNumber() {
+	return ccNumber;
+  }
+	
+  public void setCcNumber(String ccNumber) {
+	this.ccNumber = ccNumber;
+  }
 
 }

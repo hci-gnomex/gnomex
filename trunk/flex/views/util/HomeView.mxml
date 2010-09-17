@@ -105,6 +105,9 @@
 			
 			private function submitRequest():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
+				// If new experiment then initialize ShowCCNumber checkbox
+            	this.parentApplication.submitRequestView.showCCNumberColumn = "N";
+
 			}
 			private function amendRequest():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.amendRequestView;

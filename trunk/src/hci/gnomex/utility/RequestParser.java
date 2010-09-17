@@ -345,6 +345,12 @@ public class RequestParser implements Serializable {
     } else {
       sample.setPrepInstructions(null);
     }
+    if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
+      sample.setCcNumber(n.getAttributeValue("ccNumber"));
+    } else {
+      sample.setCcNumber(null);
+    }
+    
     
     
     
