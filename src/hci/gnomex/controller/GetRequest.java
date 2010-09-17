@@ -175,13 +175,18 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Show list of sample characteristic entries
           Element scParentNode = new Element("SampleCharacteristicEntries");
           requestNode.addContent(scParentNode);
+          boolean hasCCNumber = false;
           for(Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
             SampleCharacteristic sc = (SampleCharacteristic)i.next();
 
             Element scNode = new Element("SampleCharacteristicEntry");
             SampleCharacteristicEntry entry = null;
+            
             for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
               Sample sample = (Sample)i1.next();
+              if(sample.getCcNumber()!=null && sample.getCcNumber().length() > 0) {
+            	  hasCCNumber = true;
+              }
               for(Iterator i2 = sample.getSampleCharacteristicEntries().iterator(); i2.hasNext();) {
                 SampleCharacteristicEntry scEntry = (SampleCharacteristicEntry)i2.next();
                 if (scEntry.getCodeSampleCharacteristic().equals(sc.getCodeSampleCharacteristic())) {
@@ -198,6 +203,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             scParentNode.addContent(scNode);
             
           }
+          requestNode.setAttribute("hasCCNumber", hasCCNumber ? "Y":"N");
           
           // Show list of seq lib treatments
           Element stParentNode = new Element("SeqLibTreatmentEntries");

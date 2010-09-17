@@ -238,6 +238,9 @@
            	 
            	 //parentDocument.editView.setupEditForm(this.selectedExperiment);
            	 parentDocument.parentDocument.editView.request = this.selectedExperiment;
+           	 parentDocument.parentDocument.editView.showCCNumberColumn = this.selectedExperiment.@hasCCNumber == 'Y' ? "Y":"N";
+           	 parentDocument.parentDocument.editView.annotationView.cbShowCCNumber.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true: false;
+           	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
            	 //parentDocument.editView.removeDataListeners();
            	 //parentDocument.editView.initializeData();
@@ -567,6 +570,7 @@
 								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
 								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
 								<mx:DataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
+								<mx:DataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CCNumber" width="100" dataField="@ccNumber"/>
 
 								<mx:DataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
 								<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>

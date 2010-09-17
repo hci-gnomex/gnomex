@@ -261,6 +261,9 @@
 		public var userWarningsSampleSetup:String = "";
 		[Bindable]
 		public var userWarningsHybSetup:String = "";
+
+		[Bindable]
+		public var showCCNumberColumn:String="N";
 		
 		public var concentrationValidator:NumberValidator = new NumberValidator();
 		
@@ -289,7 +292,6 @@
         	    this.checkSecurity();
             	this.setupDataListeners();
             	
-
 
     			isInitialized = true;
 			}
