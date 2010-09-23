@@ -216,10 +216,10 @@
         		if (parentDocument.theTab.contains(parentDocument.confirmView)){
 	        		parentDocument.confirmView.enabled = true;
         		}
-        		if (parentDocument.theTab.contains(parentDocument.visibilityview)){
+        		if (parentDocument.theTab.contains(parentDocument.visibilityView)){
 	        		parentDocument.visibilityView.enabled = true;
         		}
-        		
+        		 
         	} else if (parentDocument.request.@idRequest != '0') {
         		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
  		       		parentDocument.confirmView.enabled = true;        			
