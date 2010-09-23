@@ -4,6 +4,7 @@
 ------------------------
 - Support uploading and downloading on GnomEx configured as http rather than https
 - Introduced cc number to Sample (hidden for now).  (Robb)
+- Fix bug that was causing actionscript error when editing Illumina request's sequence lane.
 
 
 4.9.5.1 (Sep 14, 2010)
