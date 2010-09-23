@@ -142,7 +142,7 @@
         
         private var dictionaryEditor:DictionaryEditor; 
         
-        private var protocolEditor:views.protocol.ProtocolsView;
+        private var protocolWindow:views.protocol.ProtocolEditWindow;
         
         private function onCloseWindow():void {
         	if (dirty.isDirty()) {
@@ -806,13 +806,10 @@
         // Edit analysis protocol dictionary
         //
 		private function editAnalysisProtocol():void {
-			protocolEditor = views.protocol.ProtocolsView(PopUpManager.createPopUp(parentApplication.mainArea, views.protocol.ProtocolsView, true));
-			protocolEditor.width = 800;
-			protocolEditor.height = 500;
-			//protocolEditor.bodyPanel.showCloseButton = true;
-			protocolEditor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
-			protocolEditor.initializeData('hci.gnomex.model.AnalysisProtocol');
-			PopUpManager.centerPopUp(protocolEditor);
+			protocolWindow = views.protocol.ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.mainArea, views.protocol.ProtocolEditWindow, true));
+			protocolWindow.editor.bodyPanel.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
+			protocolWindow.editor.initializeData('hci.gnomex.model.AnalysisProtocol');
+			PopUpManager.centerPopUp(protocolWindow);
 		}
 		
 		public function onCloseProtocolEditWindow(event:Event):void {
@@ -821,7 +818,7 @@
 		}
 		
 		public function onRefreshAnalysisProtocol(event:Event):void {
-			PopUpManager.removePopUp(protocolEditor);
+			PopUpManager.removePopUp(protocolWindow);
 			analysisProtocolCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisProtocol');							
 			analysisProtocolCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisProtocol', analysis.@idAnalysisProtocol);
 			parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onRefreshAnalysisProtocol);				

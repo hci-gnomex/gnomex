@@ -174,7 +174,7 @@
 				}
 				params.protocolDescription = description.text;
 				params.protocolUrl = url.text;
-				params.isActive = isActive.data;
+				params.isActive = isActive.selected ? "Y" : "N";
 				params.protocolClassName =  protocolClassName.text;
 				var call:Object = saveProtocol.send(params);
 				call.marker = "doneSaveProtocol";
@@ -447,7 +447,7 @@
 				</mx:ComboBox>
 			</mx:VBox>
 			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637" id="vbox2">
-				<hci:CheckBox id="isActive" data="{fullProtocol.isActive.toString()}" label="Active" click="dirty.setDirty()" checkedValue="Y" uncheckedValue="N"/>
+				<mx:CheckBox id="isActive" data="{fullProtocol.isActive.toString() == 'Y' ? true : false}" label="Active" click="dirty.setDirty()"/>
 			</mx:VBox>
 			</mx:HBox>
 			<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
