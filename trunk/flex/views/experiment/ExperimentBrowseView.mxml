@@ -252,7 +252,7 @@
 		selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);
 		parentDocument.selectedExperiment = selectedExperiment;
 		parentDocument.theViews.selectedChild = parentDocument.detailView;
-		parentDocument.detailView.setupForm(parentDocument.selectedExperiment);
+		parentDocument.detailView.detail.setupForm(parentDocument.selectedExperiment);
 	}
 
 	private function onViewSwitch():void {
