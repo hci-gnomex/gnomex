@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
@@ -55,7 +56,7 @@ public class DownloadFileServlet extends HttpServlet {
 
 
     // restrict commands to local host if request is not secure
-    if (!req.isSecure()) {
+    if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
       if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
           || req.getRemoteAddr().equals("127.0.0.1")) {
         log.debug("Requested from local host");
