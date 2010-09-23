@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+4.9.6.1 (Sep 23, 2010)
+------------------------
+- Fix bug that was causing actionscript error when double-clicking on experiments grid (due to refactoring of ExperimentDetailView).
+- Fix bug that was causing 'Please specify at least 1 additional search criteria' on old experiments that do not end with 'R'.
+- Provide way to close 'new/edit Analysis Protocol' window (from Analysis Edit).
+
 4.9.6 (Sep 23, 2010)
 ------------------------
 - Support uploading and downloading on GnomEx configured as http rather than https
@@ -29,6 +35,7 @@
 - Disable double-click on Experiments tree so that second click event doesn't interfere with 'Download' click event already in progress.  
   (This was causing view to switch back to Experiment detail view after 'Downloads' link was pressed.)
 - Provide download checkboxes and button on 'Files' tab of Analysis detail for more intuitive navigation to downloading analysis files.
+- Maintain selection of experiment/analysis tree when 'downloads' link pressed on individual experiment or analysis.  Accomplished this by filtering download list by id of request selected.
 - Fix bug that was causing I/O error when guest attempted to download experiment or analysis files (caused by null pointer exception request.getUserPrincipal())
 - Fix bug on 'Add Analysis' window that was not filtering analysis group by lab selected in dropdown. 
 - Add security filter so that users listed as collaborators on other lab's experiments or analysis don't see empty project or analysis group folders belonging to labs they are not members or managers of.
