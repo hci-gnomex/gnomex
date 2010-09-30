@@ -262,19 +262,32 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
           FileDescriptor fd = (FileDescriptor)i2.next();
           fd.setDirectoryName(dirTokens[1]);
           
-          String dirParm = fd.getDirectoryName() != null && !fd.getDirectoryName().equals("") ? "&dir=" + fd.getDirectoryName() : "";
-          String flowCellParm = idFlowCell != null  ? "&idFlowCell=" + idFlowCell : "";
-          Element downloadLink = new Element("A");
-          downloadLink.setAttribute("href", baseURL + "/DownloadSingleFileServlet.gx?idRequest=" + idRequest + "&fileName=" + fd.getDisplayName() + dirParm + flowCellParm);
-          downloadLink.addContent(fd.getDisplayName());
+          recurseAddFileRow(baseURL, tableNode, fd, idRequest, idFlowCell);
           
-          tableNode.addContent(makeRow(downloadLink, fd.getFileSizeText()));
         }
       }
     }
     
   }
   
+  private static void recurseAddFileRow(String baseURL, Element tableNode, FileDescriptor fd, Integer idRequest, Integer idFlowCell) {
+    if (fd.getChildren() != null && fd.getChildren().size() > 0) {
+      for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+        FileDescriptor childFd = (FileDescriptor)i.next();
+        recurseAddFileRow(baseURL, tableNode, childFd, idRequest, idFlowCell);
+      }      
+    } else {
+      String dirParm = fd.getDirectoryName() != null && !fd.getDirectoryName().equals("") ? "&dir=" + fd.getDirectoryName() : "";
+      String flowCellParm = idFlowCell != null  ? "&idFlowCell=" + idFlowCell : "";
+
+      Element downloadLink = new Element("A");
+      downloadLink.setAttribute("href", baseURL + "/DownloadSingleFileServlet.gx?idRequest=" + idRequest + "&fileName=" + fd.getDisplayName() + dirParm + flowCellParm);
+      downloadLink.addContent(fd.getDisplayName());
+      
+      tableNode.addContent(makeRow(downloadLink, fd.getFileSizeText()));
+    }
+    
+  }
   
   private static Element makeHeaderRow() {
     Element row = new Element("TR");

@@ -77,6 +77,8 @@ public class DownloadSingleFileServlet extends HttpServlet {
     // Get the fileName parameter
     if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
       fileName = req.getParameter("fileName");
+      // Change all backslash to forward slash for comparison
+      fileName = fileName.replaceAll("\\\\", "/");
     } 
     // Get the dir parameter
     if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
@@ -184,11 +186,14 @@ public class DownloadSingleFileServlet extends HttpServlet {
           List   theFiles     = (List)directoryMap.get(directoryKey);
           for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
             FileDescriptor fd = (FileDescriptor) i2.next();
-            if (fd.getFileName().endsWith(fileName) &&
-                (dir == null || dir.equals(theDirectory))) {
-              experimentFd = fd;
+            FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(fd, fileName, theDirectory);
+            if (matchingFd != null) {
+              experimentFd = matchingFd;
               break;
             }
+          }
+          if (experimentFd != null) {
+            break;
           }
         }
 
@@ -252,6 +257,28 @@ public class DownloadSingleFileServlet extends HttpServlet {
     }
 
   }    
+  
+  private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
+    // Change all backslash to forward slash for comparison
+    String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
+    
+    
+    if (fdFileName.endsWith(fileName) &&
+        (dir == null || dir.equals(theDirectory))) {
+      return fd;
+    } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
+      for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+        FileDescriptor childFd = (FileDescriptor)i.next();
+        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, theDirectory);
+        if (matchingFd != null) {
+          return matchingFd;
+        }
+      } 
+      return null;
+    } else {
+      return null;
+    }
+  }
   
   public static List getFlowCells(Session sess, Request experiment) {
     StringBuffer queryBuf = new StringBuffer();
