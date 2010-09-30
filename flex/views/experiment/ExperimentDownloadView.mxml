@@ -2,22 +2,6 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" xmlns:util="views.util.*">
 
  
-
-   <mx:HTTPService  
-    id="getExpandedFileList" 
-    url="GetExpandedFileList.gx"
-    destination="getExpandedFileList"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onGetExpandedFileList(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to get expanded file list', event)"
-    method="POST"
-    useProxy="false">
-    <mx:request>
-    	<resultKeys>{resultKeys}</resultKeys>
-    </mx:request>
-  </mx:HTTPService>
-
    <mx:HTTPService  
     id="cacheFileDownloadList" 
     url="CacheFileDownloadList.gx"
@@ -46,18 +30,6 @@
     useProxy="false">
     </mx:HTTPService >	
     
-    <mx:HTTPService  
-    id="getDownloadEstimatedSize" 
-    url="GetDownloadEstimatedSize.gx"
-    destination="getDownloadEstimatedSize"
-    resultFormat="e4x"
-    showBusyCursor="true"
-    result="onGetDownloadEstimatedSize(event)"
-	fault="parentApplication.onFailHttpRequest('Failed to get download estimated size', event)"
-    method="POST"
-    useProxy="false">
-    </mx:HTTPService>
-  
 
  <mx:Script>
  <![CDATA[
@@ -74,14 +46,19 @@
     import mx.events.ListEvent;
     import mx.controls.Alert;
     import hci.flex.controls.CheckBox;
+    import views.renderers.CheckBoxGroupedItem;
     
     public var downloadProgressWindow:DownloadProgressView;
 
 
  	[Bindable]
-    private var rowCountMessage:String = new String();
- 	[Bindable]
-    private var fileCountMessage:String = new String();
+    public var rowCountMessage:String = new String();
+    
+    [Bindable]
+    public var downloadSizeMessage:String = new String();
+    
+    [Bindable]
+    public var browseMessage:String = new String();
     
     [Bindable]
     private var selectedFileList:XMLListCollection;
@@ -95,11 +72,12 @@
     [Bindable]
     public var resultKeys:String;
     
+    private var fileExceedsMax:Boolean = false;
+    
   	private static const  KB:Number = Math.pow(2, 10);
   	private static const  MB:Number = Math.pow(2, 20);
   	private static const  GB:Number = Math.pow(2, 30);
-  	public static const   ZIP_MAX_SIZE:Number = (4 * GB);
-  	public static const   RECOMMENDED_DOWNLOAD_SIZE:Number = (2 * GB);
+  	public static const   MAX_DOWNLOAD_SIZE:Number = (4 * GB);
   	
   	public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
       
@@ -111,9 +89,19 @@
         	Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
         	return;
         }    	 
+        this.downloadTree.visible = true;
+        setFileCount();
+        callLater(expandNodes);
     	parentDocument.filterList();
     		
     }
+    
+    private function expandNodes():void {
+    	for each (var item3:Object in getRequestDownloadList.lastResult..FileDescriptor.(@type == "dir")) {
+    		downloadTree.expandItem(item3, false);
+    	}
+    }
+
     private function getSelectedFolders():void {
 		resultKeys = "";
     	for(var i:Number = 0; i < downloadList.length; i++) {
@@ -123,189 +111,84 @@
         }     	
     }
     
-    public function downloadFolders():void {
-    	getSelectedFolders();
-    	
-    	if (resultKeys == "") {
-    		Alert.show("Please select the folders to download.");
-    	} else {
-			var parms1:Object = new Object();
-    	    parms1.resultKeys = resultKeys;
-        	parms1.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
-        	parms1.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
-			parms1.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
-	    	getDownloadEstimatedSize.send(parms1);    		
-    	}
-
-    	
- 	}
-            
-
- 	public function downloadFiles():void {
-		var selectedFiles:XMLList = getExpandedFileList.lastResult..FileDescriptor.(@isSelected == "true");        	
+    
+ 	public function downloadExpandedFiles():void {
+		var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
     	selectedFileList = new XMLListCollection(selectedFiles);
     	
+    	fileExceedsMax = false;
     	if (selectedFileList.length == 0) {
 			Alert.show("Please select the files to download.");
     	} else {
 	    	estimatedDownloadSize = 0;
     		for each (var item:Object in selectedFileList) {
-				estimatedDownloadSize += getEstimatedCompressedSize(item);
+    			var size:Number = getEstimatedCompressedSize(item);
+    			if (size > MAX_DOWNLOAD_SIZE) {
+    				fileExceedsMax = true;
+    			}
+				estimatedDownloadSize += size;
 			}
     	
     		var call:Object = cacheFileDownloadList.send();
     		call.marker = estimatedDownloadSize;    		
     	}
  	}
+            
  	
- 	
- 	
- 	
- 	public function exploreFolders():void {
- 		getSelectedFolders();
-
-		if (resultKeys == "") {
- 			Alert.show("Please check folders to explore");
- 			callLater(selectFolderView);
+ 	private function getDownloadName(item:Object, col:int):String {
+ 		var empty:String = item.name() == "Request" && item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y" ? " (no downloads)" : "";
+ 		if (item.name() == "RequestDownload") {
+ 			if (item.hasOwnProperty("@itemNumber") && item.@itemNumber != '') {
+ 				return item.@itemNumber + " - " + item.@results + empty;
+ 			} else {
+		    	return item.@results + empty;
+ 			}
  		} else {
-	 		getExpandedFileList.send();
- 			exploreView.enabled = true;
- 			
- 		}  		
- 	}
- 	
- 	private function selectFolderView():void {
- 		theTab.selectedIndex = 0;
- 	}
- 	
- 	private function getRequestNumber(item:Object, col:int):String {
- 		if (item.@showRequestNumber == "Y") {
-	    	return item.@requestNumber;
- 		} else {
- 			return "";
- 		}
+ 			return item.@displayName + empty;
+ 		} 
     }
-    private function getDirectoryName(item:Object, col:int):String {
- 		if (item.@showDirectoryName == "Y") {
-	    	return item.@directoryName;
- 		} else {
- 			return "";
- 		}
-    }
-    
-    private function getFolderName(item:Object, col:int):String {
-    	if (item.@itemNumber != null && item.@itemNumber != '') {
-	    	return item.@itemNumber + ' - ' + item.@results;		
-    	} else {
-    		return item.@results;
-    	}
-    }
-    
 
-	public function setFileCount():void {
-		fileCountMessage = expandedFileList.length + " files found.";
-	}
-
-    
-    public function setResultsCount():void {
-    	rowCountMessage = downloadList.length + " folders found.";
-    }
-    
-    private function getGridRowNumber(item:Object,col:int):String
-    {
-       var x:int = downloadList.getItemIndex(item) + 1;
-       return String(x);
-    } 
-    
-    private function onGetExpandedFileList(event:ResultEvent):void {
-    	setFileCount();
-    	theTab.selectedIndex = 1;
-    } 
-    
-    private function onGetDownloadEstimatedSize(event:ResultEvent):void {
-    	if (getDownloadEstimatedSize.lastResult.@size == 0) {
-    		Alert.show("No data files exist in the selected folder(s).", "");
-    	} else {
-    		estimatedDownloadSize = getDownloadEstimatedSize.lastResult.@size;
-    		var message:String = "";
-    		var call:Object = event.token;
-    		
-    		if (estimatedDownloadSize >= RECOMMENDED_DOWNLOAD_SIZE) {
-    			message = "Approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(estimatedDownloadSize) + " of data will be downloaded." +
-    			"\nIt is recommended that each download not exceed 2 GB.\n\nWould you like to select individual files at a time to download?" 
-    			Alert.noLabel = "No, attempt download";
-    			Alert.buttonWidth = 160;
-
-				Alert.show( message,
-						"Download exceeds recommended size",
-						(Alert.YES | Alert.NO), this, 
-						onExploreOrDownloadFolders,						
-						parentApplication.iconWarning); 
+    public function setFileCount():void {
+    	rowCountMessage = getRequestDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s) found.";
     	
-    		} else {
-	    		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?" 
-
-				Alert.show( message,
-						"",
-						(Alert.YES | Alert.NO), this, 
-						onDownloadFolders,						
-						parentApplication.iconWarning); 
-    			
-    		}
-	    	
-    		
-    	}
+    	var downloadSize:Number = 0;
+	    for each (var item:Object in getRequestDownloadList.lastResult..FileDescriptor.(@type != 'dir')) {
+			downloadSize += getEstimatedCompressedSize(item);
+		}
+		downloadSizeMessage = "Estimated download size is " + views.experiment.ExperimentDownloadView.getFileSizeText(downloadSize);
     }
-
-	private function onDownloadFolders(event:CloseEvent):void {
-		if (event.detail==Alert.YES) {
-	        var parms:URLVariables = new URLVariables();
-	        parms.resultKeys = resultKeys;
-        	parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
-        	parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
-        	parms.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
-    		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
-    		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
-		}
-
-	}    
-	
-    private function onExploreOrDownloadFolders(event:CloseEvent):void {
-    	Alert.noLabel = "No";
-    	Alert.buttonWidth = ALERT_BUTTON_WIDTH;
-    	
-    	if (event.detail == Alert.YES) {
-    		theTab.selectedChild = exploreView;
-		} else if (event.detail == Alert.NO) {
-	        var parms:URLVariables = new URLVariables();
-	        parms.resultKeys = resultKeys;
-        	parms.includeTIF = parentApplication.navExperimentView.browseView.includeTIFFFilesCheckBox.selected ? "Y" : "N";
-        	parms.includeJPG = parentApplication.navExperimentView.browseView.includeJPEGFilesCheckBox.selected ? "Y" : "N";
-        	parms.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
-    		var progressWindow:DownloadProgressView = new DownloadProgressView();	        
-    		progressWindow.init(this, this.DOWNLOAD_FOLDERS_URL, parms, parentDocument.downloadFoldersButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);
-			
-		}
-
-	}  
+    
+    
     
     private function onCacheFileDownloadList(event:ResultEvent):void {
     	var call:Object = event.token;
     	var message:String = "";
     	var title:String = "";
     	var estimatedSize:Number = call.marker;
-    	if (estimatedSize >= RECOMMENDED_DOWNLOAD_SIZE) {
-    		message =  "Approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data will be downloaded." +
-    			"  It is recommended that each download not exceed 2 GB.\n\nWould you like to proceed with the download anyways?"
+    	if (fileExceedsMax) {
+    		message =  "Approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data has been selected to be downloaded." +
+    			"  A download file cannot exceed 4 GB.\n\n\n\nDo you want to be directed to the browser page for downloading large files individually?"
+    		title = "Download file exceeds maximum size"; 
+			Alert.show( message,
+				title,
+				(Alert.OK | Alert.CANCEL), this, 
+				onAlternateDownloadFiles,						
+				parentApplication.iconWarning);
+
+    	} else if (estimatedSize >= MAX_DOWNLOAD_SIZE) {
+    		message =  "Approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data has been selected to downloaded." +
+    			"  The total download size cannot exceed 4 GB.\n\n\n\nYou must unselect some files or download files individually."
     		title = "Download exceeds recommended size"; 
+			Alert.show( message, title);
+
     	} else {
     		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?";
+			Alert.show( message,
+						title,
+						(Alert.YES | Alert.NO), this, 
+						onDownloadFiles,						
+						parentApplication.iconWarning);
     	}
-		Alert.show( message,
-					title,
-					(Alert.YES | Alert.NO), this, 
-					onDownloadFiles,						
-					parentApplication.iconWarning);
 	
     	
     }
@@ -314,43 +197,19 @@
 	private function onDownloadFiles(event:CloseEvent):void {
 		if (event.detail==Alert.YES) {
 			var parms:URLVariables = new URLVariables();
-			parms.mode = estimatedDownloadSize >= ZIP_MAX_SIZE ? "tar" : "zip";
+			parms.mode =  "zip";
 	        var progressWindow:DownloadProgressView = new DownloadProgressView();
-    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+    		progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 		}
 	}    
 
-
-    private function onTabSwitch():void {
-    	if (theTab.selectedChild == exploreView) {
-    		exploreFolders();
-    		parentDocument.buttonStack.selectedChild = parentDocument.downloadFilesButtonView;
-    	} else {
-    		parentDocument.buttonStack.selectedChild = parentDocument.downloadFoldersButtonView;    		
-    	}
-    }
+	private function onAlternateDownloadFiles(event:CloseEvent):void {
+		if (event.detail==Alert.OK) {
+			parentDocument.showAlternateDownloadPage();	
+		} 		
+	}
     
-   	private function toggleFolderCheck(event:ListEvent):void {
-   		if (event.columnIndex == 0) {
-   			return;
-   		}
-   		if (folderGrid.selectedItem.@isSelected == "true") {
-			folderGrid.selectedItem.@isSelected = "false";
-		} else {
-			folderGrid.selectedItem.@isSelected = "true";
-		}
-	}
-
-   	private function toggleFileCheck(event:ListEvent):void {
-   		if (event.columnIndex == 0) {
-   			return;
-   		}
-		if (fileGrid.selectedItem.@isSelected == "true") {
-			fileGrid.selectedItem.@isSelected = "false";
-		} else {
-			fileGrid.selectedItem.@isSelected = "true";
-		}
-	}
+   
 
  	public static function getEstimatedCompressedSize(item:Object):Number {
  		var compressionRatio:Number = 1; 
@@ -412,114 +271,92 @@
     	}
     	return sizeTxt;
   	}
+  	public function getTreeIcon(item:Object):Class {
+		if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
+			return parentApplication.iconQC;
+		} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
+			return parentApplication.iconSolexa;
+		} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ") {
+			return parentApplication.iconHiSeq;
+		} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
+			return parentApplication.iconMicroarrayAffy;
+		}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
+			return parentApplication.iconMicroarray;
+		} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
+			return parentApplication.iconMicroarraySingleColor;
+		} else if (item.name() == "RequestDownload") {
+			if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+				return parentApplication.iconFolderDisabled;
+			} else {
+				return parentApplication.iconFolder;			
+			}
+		} else  {
+			return null;
+		}
+	}
+	
+	public function selectDownload(requestNumber:String):void {
+		var pos:int = -1;
+		for each(var r:Object in downloadList) {
+			if (r.@requestNumber == requestNumber) {
+				downloadTree.selectedItem = r;
+				break;
+			}
+			pos++;
+			for each(var rd:Object in r.RequestDownload) {
+				pos++;
+				for each(var fd:Object in rd.FileDescriptor) {
+					pos++;
+				}
+			}
+		}
+		
+		if (pos >= 0) {
+			downloadTree.scrollToIndex(pos);
+		}
+	}
+
 
     
  ]]>
  </mx:Script>
  
-    <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.RequestDownload}"/>
-    <mx:XMLListCollection id="expandedFileList" source="{getExpandedFileList.lastResult.RequestDirectory.Directory.FileDescriptor}"/>
+    <mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult.Request}"/>
 	
-	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-	    <mx:LinkBar id="linkBar" styleName="formLinkBar" dataProvider="{theTab}"/>
-		<mx:ViewStack id="theTab"  
-			width="100%" height="100%" 
-			change="onTabSwitch()" 
-			>
-			<mx:VBox id="folderView" 
-				label="Folders" width="100%" height="100%" 
-				paddingLeft="0" paddingRight="0" 
-				paddingTop="0" paddingBottom="0" verticalGap="0">
-		       <util:DataGridAlternatingGroup  
-		       	 sortableColumns="false" id="folderGrid"
-		       	dataProvider="{downloadList}"  
-		       	width="100%" height="100%"
-		       	  itemClick="toggleFolderCheck(event)">
-		         <util:columns>
-		            <mx:DataGridColumn headerText=" " 
-		            	width="10" 
-		            	editable="true"                        	
-		            	dataField="@isSelected" 
-		            	editorDataField="selected" sortable="false"
-		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
-		            </mx:DataGridColumn>
-		            <mx:DataGridColumn minWidth="48" width="48" headerText="#">
-		                <mx:itemRenderer>
-		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" horizontalScrollPolicy="off">
-				                   <mx:Image   id="experimentImage" source="{(data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}">
-                                   </mx:Image>    		                           
-                                   <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-		                           </mx:Label>
-		                        </mx:HBox>
-		                    </mx:Component>
-		                </mx:itemRenderer>
-		            </mx:DataGridColumn> 
-			       	<mx:DataGridColumn headerText="Folder" labelFunction="getFolderName"  width="150" dataField="@itemNumber"/>
-			       	<mx:DataGridColumn headerText="Status" width="40" dataField="@status"/>
-			       	<mx:DataGridColumn headerText="Date" width="42" dataField="@createDate"/>
-			        <mx:DataGridColumn headerText="Requester" width="40" dataField="@appUserName"/>
-			       	<mx:DataGridColumn headerText="Sample 1" width="50" dataField="@nameSample1"/>
-			       	<mx:DataGridColumn headerText="Sample 2" width="50" dataField="@nameSample2"/>
-		         </util:columns>
-		       </util:DataGridAlternatingGroup>
-			</mx:VBox>
-			
-			
-			<mx:VBox id="exploreView" label="Explore Files" width="100%" height="100%" 
-				enabled="true"
-				verticalGap="0" paddingLeft="0" paddingRight="0">
-			    <mx:HBox horizontalAlign="right" width="100%">
-			      <mx:Label id="fileCountLabel" width="100%" text="{fileCountMessage}" textAlign="right"/>
-			    </mx:HBox>
-			    <mx:DataGrid 
-			    	 width="100%" height="100%" 
-	   	 			sortableColumns="false"	
-			    	 dataProvider="{expandedFileList}" 
-			    	  itemClick="toggleFileCheck(event)" id="fileGrid">
-			       <mx:columns>
-		            <mx:DataGridColumn headerText=" " 
-		            	width="3" 
-		            	editable="true"           sortable="false"              	
-		            	dataField="@isSelected" 
-		            	editorDataField="selected" 
-		            	itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}"/>
-		            <mx:DataGridColumn width="18" headerText="#">
-		                <mx:itemRenderer>
-		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" horizontalScrollPolicy="off" >
-		                          <mx:Image id="experimentImage"  
-			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : parentApplication.iconFlask)) : '')}" >
-		                    	 </mx:Image> 
-                                   <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
-		                           </mx:Label>
-		                        </mx:HBox>
-		                    </mx:Component>
-		                </mx:itemRenderer>
-		            </mx:DataGridColumn>  
-		            <mx:DataGridColumn width="18" headerText="Folder" >
-		                <mx:itemRenderer>
-		                    <mx:Component >
-		                        <mx:HBox  horizontalGap="0" horizontalScrollPolicy="off" >
-		                          <mx:Image id="directoryImage" source="{data.@showDirectoryName == 'Y' ? parentApplication.iconFolder : ''}">
-		                    	 </mx:Image> 
-		                           <mx:Label id="directoryName" text="{data.@showDirectoryName == 'Y' ? data.@directoryName : ''}">
-		                           </mx:Label>
-		                        </mx:HBox>
-		                    </mx:Component>
-		                </mx:itemRenderer>
-		            </mx:DataGridColumn> 
-		              	<mx:DataGridColumn dataField="@displayName"    headerText="File"   width="70"/>
-			    	<mx:DataGridColumn dataField="@type"           headerText="Type"   width="12"/>
-			    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size"   width="12"/>
-			    	<mx:DataGridColumn dataField="@lastModifyDateDisplay" headerText="Date"   width="22"/>
-			      </mx:columns>	
-			    	
-			    </mx:DataGrid>
-			</mx:VBox>
-			
-	</mx:ViewStack>
-		
+	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="0">
+		<mx:HBox width="100%">
+			<mx:Label text="{rowCountMessage}"/>
+			<mx:Spacer width="10"/>
+			<mx:HBox width="100%" horizontalAlign="center" styleName="warningLabel">
+				<mx:Label text="{browseMessage}"/>			
+			</mx:HBox>
+			<mx:Spacer width="10"/>
+			<mx:Label text="{downloadSizeMessage}"/>
+		</mx:HBox>
+		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
+                 groupItemRenderer="views.renderers.CheckBoxGroupedItem"
+				 dropEnabled="false"  
+				 displayItemsExpanded="true"
+				 iconFunction="getTreeIcon"
+				 dragEnabled="false" 
+				 dragMoveEnabled="false"  
+				 showHeaders="true"  
+				 sortExpertMode="true" 
+				 sortableColumns="false"
+				 borderStyle="solid" 
+				 headerWordWrap="false" 
+				 resizableColumns="true">						
+	 	        <mx:dataProvider> 
+  				  <mx:HierarchicalData source="{downloadList}"/>
+		        </mx:dataProvider>						  
+		        <mx:columns>
+  				  <mx:AdvancedDataGridColumn dataField="@displayName"  labelFunction="getDownloadName"  headerText="Folder or File" width="250"/> 
+  				  <mx:AdvancedDataGridColumn dataField="@info" headerText="Info" width="80"/>
+  				  <mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 
+  				  <mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay"  headerText="Modified" width="50"/> 
+  			    </mx:columns>
+  			</mx:AdvancedDataGrid>
+
 	</mx:VBox>
 	
 
