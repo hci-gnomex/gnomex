@@ -27,7 +27,7 @@ import org.hibernate.Session;
 public class DictionaryHelper implements Serializable {
   private static DictionaryHelper theInstance;
   
-  private Map              propertyMap = new HashMap();
+  private PropertyHelper   propertyHelper;
   private Map              requestCategoryMap = new HashMap();
   private Map              oligoBarcodeMap = new HashMap();
   private Map              submissionInstructionMap = new HashMap();
@@ -35,16 +35,6 @@ public class DictionaryHelper implements Serializable {
   private Map              seqLibTreatmentMap = new HashMap();
   private Map              slideDesignMap = new HashMap();
 
-  private static final String    PROPERTY_PRODUCTION_SERVER                   = "production_server";
-  
-  private static final String    PROPERTY_EXPERIMENT_DIRECTORY                = "experiment_directory";
-  private static final String    PROPERTY_EXPERIMENT_TEST_DIRECTORY           = "experiment_test_directory";
-  private static final String    PROPERTY_ANALYSIS_DIRECTORY                  = "analysis_directory";
-  private static final String    PROPERTY_ANALYSIS_TEST_DIRECTORY             = "analysis_test_directory";
-  private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
-  private static final String    PROPERTY_FLOWCELL_TEST_DIRECTORY             = "flowcell_test_directory";
-
-  
   public DictionaryHelper() {    
   }
   
@@ -59,6 +49,7 @@ public class DictionaryHelper implements Serializable {
   
   public static synchronized DictionaryHelper reload(Session sess) {
     theInstance = new DictionaryHelper();
+    PropertyHelper.reload(sess);
     theInstance.loadDictionaries(sess);  
     return theInstance;
     
@@ -70,14 +61,10 @@ public class DictionaryHelper implements Serializable {
       theInstance = null;
       throw new RuntimeException("Please run ManagerDictionaries command first");
     }
-    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.Property").iterator(); i.hasNext();) {
-      Object de = i.next();
-      if (de instanceof NullDictionaryEntry) {
-        continue;
-      }
-      Property prop = (Property)de;
-      propertyMap.put(prop.getPropertyName(), prop.getPropertyValue());
-    }    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
+    
+    propertyHelper = PropertyHelper.getInstance(sess);
+    
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategory").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
@@ -359,128 +346,6 @@ public class DictionaryHelper implements Serializable {
     return submissionInstructionMap;
   }
 
-
-  public String getProperty(String name) {
-    String propertyValue = "";
-    if (name != null && !name.equals("")) {
-      return (String)propertyMap.get(name);
-    } else {
-      return "";
-    }
-  }
-  
-  public boolean isProductionServer(String serverName) {
-    if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null &&
-        this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  
-  public String getAnalysisDirectory(String serverName) {
-    String property = "";
-    String propertyName = null;
-    
-    // If this is the production server, first try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    // If this is not the production server, get the property for the analysis
-    // test path.  First use the property qualified by server name.  If
-    // it isn't found, get the property without any qualification.   
-    if (isProductionServer(serverName)) {
-      propertyName = PROPERTY_ANALYSIS_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_ANALYSIS_DIRECTORY;
-        property = this.getProperty(propertyName);
-      }
-    } else {
-      propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY;
-        property = this.getProperty(propertyName);
-      }
-    }
-    
-    return property;
-  }
-  
-  public String getFlowCellDirectory(String serverName) {
-    String property = "";
-    String propertyName = null;
-    
-    // If this is the production server, first try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    // If this is not the production server, get the property for the flowcell
-    // test path.  First use the property qualified by server name.  If
-    // it isn't found, get the property without any qualification.   
-    if (isProductionServer(serverName)) {
-      propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_FLOWCELL_DIRECTORY;
-        property = this.getProperty(propertyName);
-      }
-    } else {
-      propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY;
-        property = this.getProperty(propertyName);
-      }
-    }
-    
-    return property;
-  }
-
-  public String getMicroarrayDirectoryForWriting(String serverName) {
-    String property = "";
-    String propertyName = null;
-    
-    // If this is the production server, first try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    // If this is not the production server, get the property for the experiment
-    // test path.  First use the property qualified by server name.  If
-    // it isn't found, get the property without any qualification.   
-    if (isProductionServer(serverName)) {
-      propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
-        property = this.getProperty(propertyName);
-      }
-    } else {
-      propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-        propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY;
-        property = this.getProperty(propertyName);
-      }
-    }
-    
-    return property;
-  }
-
-  public  String getMicroarrayDirectoryForReading(String serverName) {
-    // First try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    String property = "";
-    String propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) {  
-      propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
-      property = this.getProperty(propertyName);
-    }
-    return property;
-     
-  }
-
-  
   public String getBarcodeSequence(Integer idOligoBarcode) {
     String barcodeSequence = null;
     if (idOligoBarcode != null) {
@@ -492,32 +357,32 @@ public class DictionaryHelper implements Serializable {
     return barcodeSequence;
   }
   
- 
-  
-  public String parseMainFolderName(String serverName, String fileName) {
-    String mainFolderName = "";
-    String baseDir = "";
-    
-    String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
-    String flowCellDirectory   = this.getFlowCellDirectory(serverName);
-    
-    if (fileName.indexOf(experimentDirectory) >= 0) {
-      baseDir = experimentDirectory;
-    } else if (fileName.indexOf(flowCellDirectory) >= 0) {
-      baseDir = flowCellDirectory;
-    } 
-    
-    String relativePath = fileName.substring(baseDir.length() + 5);
-    String tokens[] = relativePath.split("/", 2);
-    if (tokens == null || tokens.length == 1) {
-      tokens = relativePath.split("\\\\", 2);
-    }
-    if (tokens.length == 2) {
-      mainFolderName = tokens[0];
-    }
-    
-    return mainFolderName;
+  public String getProperty(String name) {
+    return propertyHelper.getProperty(name);
   }
   
+  public boolean isProductionServer(String serverName) {
+    return propertyHelper.isProductionServer(serverName);
+  }
+  
+  public String getAnalysisDirectory(String serverName) {
+    return propertyHelper.getAnalysisDirectory(serverName);
+  }
+  
+  public String getFlowCellDirectory(String serverName) {
+    return propertyHelper.getFlowCellDirectory(serverName);
+  }
+
+  public String getMicroarrayDirectoryForWriting(String serverName) {
+    return propertyHelper.getMicroarrayDirectoryForWriting(serverName);
+  }
+
+  public  String getMicroarrayDirectoryForReading(String serverName) {
+    return propertyHelper.getMicroarrayDirectoryForReading(serverName);
+     
+  }
+  public String parseMainFolderName(String serverName, String fileName) {
+    return propertyHelper.parseMainFolderName(serverName, fileName);
+  }
   
 }
