@@ -102,6 +102,12 @@ public class FlowCell extends HibernateDetailObject {
   public void setCodeSequencingPlatform(String codeSequencingPlatform) {
     this.codeSequencingPlatform = codeSequencingPlatform;
   }
-
+  
+  public String getCreateYear() {
+    String createDate    = this.formatDate(this.getCreateDate());
+    String tokens[] = createDate.split("/");
+    String createYear  = tokens[2];
+    return createYear;
+  }
     
 }

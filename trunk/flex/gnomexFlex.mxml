@@ -178,6 +178,10 @@
 	        [Bindable]
 	        [Embed(source="assets/folder.png")]
 	        public var iconFolder:Class;
+
+	        [Bindable]
+	        [Embed(source="assets/folder_disable.png")]
+	        public var iconFolderDisabled:Class;
 	        
 	        [Bindable]
 	        [Embed(source="assets/page.png")]

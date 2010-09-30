@@ -288,7 +288,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           getFileNames(theBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag);
         } else {
           boolean include = true;
-          if (fileName.toLowerCase().endsWith("thumbs.db")) {
+          if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {
             include = false;
           } 
           if (include) {

@@ -551,11 +551,23 @@ Label.titleLabel
 	paddingRight: 1;
 	
 }
-.dragAndDropHint
+.hintBox
 {
-	backgroundColor: #FFFEC3;
+	backgroundColor: #FFFFFF;
 	fontStyle: italic;
 	fontWeight: normal;
 	textDecoration: underline;
+	backgroundAlpha: 0.26;
+	borderStyle: solid;
+	backgroundSize: "100%";
+	cornerRadius: 4;
+}
+.hintLink
+{
+	fontSize: 9;
+	paddingLeft: 1;
+	paddingRight: 1;
+	paddingBottom: 1;
+	paddingTop: 1;
 }
 

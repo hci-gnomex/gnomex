@@ -551,7 +551,6 @@
 			browseView.reloadDownloadList();
 			theViews.selectedChild = browseView;
 			browseView.theViews.selectedChild = browseView.downloadView;
-			browseView.downloadView.theTab.selectedChild = browseView.downloadView.folderView;
 			browseView.refreshButtonStack();
 		}
 		
@@ -613,9 +612,7 @@
 		}
 
 		public function filterExperimentList(item:Object):Boolean {
-			var experimentDate:Date = new Date(item.@createDate.toString());
-			
-        	var keep:Boolean = true;
+			var keep:Boolean = true;
         	if (browseView.requestNumberCombo.selectedItem != null && browseView.requestNumberCombo.selectedItem.label != "") {
         		keep = false; 
         		if (item.@requestNumber == browseView.requestNumberCombo.selectedItem.label) {
@@ -1231,9 +1228,9 @@
 									<mx:LinkButton  label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseProjectNodes()}" textDecoration="underline" />					    	
 						        </mx:HBox>
 						    </mx:ViewStack>
-						   	<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4" id="vbox2">
+						   	<mx:VBox styleName="hintBox" id="vbox2">
 								<mx:LinkButton label="Drag-and-drop hint" 
-								click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1">
+								click="{Alert.show('Drag-and-drop experiment to move to another project.')}" id="linkbutton1" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
 								</mx:LinkButton>
 							</mx:VBox>
 					    </mx:HBox>
