@@ -131,7 +131,11 @@ public class GNomExFrontController extends HttpServlet {
     	  && (requestName.compareTo("ManageDictionaries") != 0 //You can reload dictionary cache without security
     			|| request.getParameter("action") == null || ! request.getParameter("action").equals("reload"))
         && (!requestName.startsWith("CreateSecurityAdvisor"))
-        && (!requestName.equals("ChangePasswordExternalUser"))) {
+        && (!requestName.equals("ChangePasswordExternalUser"))
+        && (!requestName.equals("ShowAnalysisDownloadForm"))
+        && (!requestName.equals("ShowAnalysisDownloadFormForGuest"))
+        && (!requestName.equals("ShowRequestDownloadForm"))
+        && (!requestName.equals("ShowRequestDownloadFormForGuest"))) {
     		
        commandInstance.addInvalidField("SecurityAdvisor", "You must create a SecurityAdvisor in order to run this command.");
     }

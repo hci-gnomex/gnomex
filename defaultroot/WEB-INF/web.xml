@@ -49,9 +49,20 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>DownloadSingleFileServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.DownloadSingleFileServlet</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<servlet-class>hci.gnomex.controller.DownloadAnalysisFileServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.DownloadAnalysisSingleFileServlet</servlet-class>
+	</servlet>
+	
 
 	<servlet>
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
@@ -94,10 +105,20 @@
 		<servlet-name>DownloadFileServlet</servlet-name>
 		<url-pattern>DownloadFileServlet.gx</url-pattern>
 	</servlet-mapping>
+
+  <servlet-mapping>
+		<servlet-name>DownloadSingleFileServlet</servlet-name>
+		<url-pattern>DownloadSingleFileServlet.gx</url-pattern>
+	</servlet-mapping>
 	
   <servlet-mapping>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<url-pattern>DownloadAnalysisFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+  <servlet-mapping>
+		<servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
+		<url-pattern>DownloadAnalysisSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
   <servlet-mapping>
@@ -159,10 +180,12 @@
 			<url-pattern>getPricingList.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
 			<url-pattern>MovePriceCategory.gx</url-pattern>
+			<url-pattern>ShowAnalysisDownloadForm.gx</url-pattern>
 			<url-pattern>ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>ShowBillingInvoiceForm.gx</url-pattern>
 			<url-pattern>ShowBillingMonthendReport.gx</url-pattern>
 			<url-pattern>ShowBillingTotalByLabReport.gx</url-pattern>
+			<url-pattern>ShowRequestDownloadForm.gx</url-pattern>
 			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>

@@ -549,6 +549,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getAppUser");
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getBillingAccount");
+    this.excludeMethodFromXML("getKey");
   }
   
   public String getOwnerName() {
@@ -672,5 +673,22 @@ public class Request extends HibernateDetailObject {
     this.collaborators = collaborators;
   }
   
+  public String getKey(String resultsDir) {
+    String createDate    = this.formatDate(this.getCreateDate());
+    String tokens[] = createDate.split("/");
+    String createMonth = tokens[0];
+    String createDay   = tokens[1];
+    String createYear  = tokens[2];
+    String sortDate = createYear + createMonth + createDay;
+    String key = createYear + "-" + sortDate + "-" + this.getNumber() + "-" + resultsDir;     
+    return key;
+  }
   
+  public String getCreateYear() {
+    String createDate    = this.formatDate(this.getCreateDate());
+    String tokens[] = createDate.split("/");
+    String createYear  = tokens[2];
+    return createYear;
+  }
+
 }

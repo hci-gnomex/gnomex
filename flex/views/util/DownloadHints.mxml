@@ -9,14 +9,11 @@
 	<mx:VBox verticalGap="20" fontSize="10" paddingTop="8" paddingLeft="8" width="100%" height="100%">
 		
 		<mx:VBox width="100%" verticalGap="2" height="100%">
-			<mx:Text text="Q:  I am having trouble downloading more than 2 GB at a time.  Is there another way to download the files?"  paddingBottom="1"/>
-			<mx:Text text="A:  It is not recommended to download more than 2 GB at a time.  Instead, select the folders of interest and click on the 'Explore Files' link.  Then check off individual files to download."  fontSize="10" paddingBottom="6" width="100%"/>
+			<mx:Text text="Q:  I am having trouble downloading more than 4 GB at a time.  Is there another way to download the files?"  paddingBottom="1"/>
+			<mx:Text text="A:  Files over 4GB can be downloaded using the web download page.  Click on the 'Download large files' link in the window."  fontSize="10" paddingBottom="6" width="100%"/>
 			<mx:HRule width="100%"/>
 			<mx:Text text="Q:  When I download the file(s) to a Windows workstation, the file does not save with the .zip extension"  paddingBottom="1"/>
 			<mx:Text text="A:  If the File Explorer folder options (Tools->Folder Options->View) have the property 'Hide extensions for know file types', the file chooser dialog will not show the default file name with .zip extension.  Just type in the .zip extension for the file name when selecting the location and filename for the download."  fontSize="10" paddingBottom="6" width="100%"/>
-			<mx:HRule width="100%"/>
-			<mx:Text text="Q:  The image files (JPEGs and TIFFs)are missing from my download. Why?"  paddingTop="6" paddingBottom="1"/>
-			<mx:Text text="A:  When downloading a folder, TIFF and JPEG images are not included (by default).  In order to download these files along with the other data files in the folder, click on the 'Explore Files' link.  Check the files of interest to download."  fontSize="10" paddingBottom="1" width="100%"/>
 			
 		</mx:VBox>
 	</mx:VBox>

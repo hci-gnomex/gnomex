@@ -141,7 +141,38 @@ h6 {
   border-color: #D8D8D8 ;
 }
 
- 
+h1.downloadHeader {
+
+      font-size: 10pt;
+      font-weight: bold;
+      padding-top: 10;
+      padding-bottom: 0;
+      line-height: 0;
+	text-align: center;
+}
+h2.downloadHeader {
+
+      font-size: 10pt;
+      font-weight: bold;
+      padding-top: 0;
+      padding-bottom: 5;
+      line-height: 0;
+	text-align: center;
+}
+
+h3.downloadHint {
+  font-size: 9pt;
+  font-weight: normal;
+  font-style: italic;
+  margin-top: 0;
+  margin-bottom: 10;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0;
+  border: none;
+  border-color: #D8D8D8 ;
+} 
+
 caption
 {
   font-size: 10pt;
