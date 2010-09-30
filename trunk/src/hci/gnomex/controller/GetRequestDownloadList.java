@@ -2,15 +2,18 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SeqRunType;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.FileDescriptor;
 
 import java.io.File;
 import java.io.Serializable;
@@ -22,7 +25,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +49,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private HashMap                        seqRunTypeMap = new HashMap();
   private static final String          QUALITY_CONTROL_DIRECTORY = "bioanalysis";
   
+  private String                         serverName;
   private String                         baseDir;
+  private String                         baseDirFlowCell;
   private SimpleDateFormat               yearFormat= new SimpleDateFormat("yyyy");
   
   public void validate() {
@@ -72,7 +80,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       this.addInvalidField("filterRequired", "Please enter at least one search criterion.");
     }
     
-    baseDir = request.getServerName();
+    serverName = request.getServerName();
 
   }
 
@@ -83,7 +91,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getMicroarrayDirectoryForReading(baseDir);
+      baseDir = dh.getMicroarrayDirectoryForReading(serverName);
+      baseDirFlowCell = dh.getFlowCellDirectory(serverName);
       
       List slideDesigns = sess.createQuery("SELECT sd from SlideDesign sd ").list();
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
@@ -141,7 +150,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
         
         // Now read the request directory to identify all its subdirectories
-        List folders = this.getRequestDownloadFolders(requestNumberBase, yearFormat.format((java.sql.Date)row[0]));
+        Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.sql.Date)row[0]));
         for(Iterator i1 = folders.iterator(); i1.hasNext();) {
           String folderName = (String)i1.next();
           if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
@@ -202,30 +211,58 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       
       boolean alt = false;
       String prevRequestNumber = "";
-      
+      Element requestNode = null;
       
     
       Document doc = new Document(new Element("RequestDownloadList"));
+      
       for(Iterator i = rowMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
+        String[] tokens = key.split("-");
+        String createYear = tokens[0];
+        
         Object[] row = (Object[])rowMap.get(key);
+        String codeRequestCategory = (String)row[2];
+        String hybNumber =  (String)row[5];
+        String createDate = this.formatDate((java.sql.Date)row[0]);
+        
+        String appUserName = "";
+        if (row[29] != null) {
+          appUserName = (String)row[29];
+        }
+        if (row[28] != null) {
+          if (appUserName.length() > 0) {
+            appUserName += ", ";            
+          }
+          appUserName += (String)row[28];
+        }
+        
         
         String requestNumber = (String)row[1];
         if (!requestNumber.equals(prevRequestNumber)) {
           alt = !alt;         
+
+          requestNode = new Element("Request");
+          requestNode.setAttribute("displayName", requestNumber);
+          requestNode.setAttribute("requestNumber", requestNumber);
+          requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
+          requestNode.setAttribute("isSelected", "false");
+          requestNode.setAttribute("state", "unchecked");
+          requestNode.setAttribute("isEmpty", "Y"); // will be set to yes if any files exist for downloading
+          requestNode.setAttribute("info", appUserName);
+          
+          doc.getRootElement().addContent(requestNode);
         }
-        String codeRequestCategory = (String)row[2];
-        String hybNumber =  (String)row[5];
-        
 
         
         Element n = new Element("RequestDownload");
         n.setAttribute("key", key);
         n.setAttribute("isSelected", "N");
+        n.setAttribute("state", "unchecked");        
         n.setAttribute("altColor", new Boolean(alt).toString());
         n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");
         n.setAttribute("idRequest", row[21].toString());
-        n.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
+        n.setAttribute("createDate", createDate);
         n.setAttribute("requestNumber", (String)row[1]);
         n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
         n.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
@@ -262,17 +299,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
         n.setAttribute("ownerFirstName", row[28] == null ? "" :  (String)row[28]);
         n.setAttribute("ownerLastName",  row[29] == null ? "" :  (String)row[29]);
-        
-        String appUserName = "";
-        if (row[29] != null) {
-          appUserName = (String)row[29];
-        }
-        if (row[28] != null) {
-          if (appUserName.length() > 0) {
-            appUserName += ", ";            
-          }
-          appUserName += (String)row[28];
-        }
         n.setAttribute("appUserName", appUserName);
 
         String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String)row[30];
@@ -328,10 +354,21 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           } else {
             n.setAttribute("status", "in progress");          
             n.setAttribute("hasResults","N");                       
-          }          
+          }     
+          String sampleInfo = n.getAttributeValue("nameSample1");
+          if (!n.getAttributeValue("nameSample2").equals("")) {
+            if (sampleInfo.length() > 0) {
+              sampleInfo += ", ";
+            }
+            sampleInfo += n.getAttributeValue("nameSample2");
+          }
+          n.setAttribute("info", sampleInfo);
         }
+        
+        requestNode.addContent(n);
 
-        doc.getRootElement().addContent(n);
+        addExpandedFileNodes(requestNode, n, requestNumber, key, codeRequestCategory, dh);
+
         
         
         // Add directories for flow cells
@@ -341,23 +378,25 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             for(Iterator i1 = flowCellNumbers.iterator(); i1.hasNext();) {
               FlowCellFolder fcFolder = (FlowCellFolder)i1.next();
               
-              String createDate    = this.formatDate((java.sql.Date)fcFolder.getCreateDate());
-              String tokens[] = createDate.split("/");
-              String createMonth = tokens[0];
-              String createDay   = tokens[1];
-              String createYear  = tokens[2];
-              String sortDate = createYear + createMonth + createDay;      
+              String theCreateDate    = this.formatDate((java.sql.Date)fcFolder.getCreateDate());
+              String dateTokens[] = theCreateDate.split("/");
+              String createMonth = dateTokens[0];
+              String createDay   = dateTokens[1];
+              String theCreateYear  = dateTokens[2];
+              String sortDate = theCreateYear + createMonth + createDay;      
 
-              String fcKey = createYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
+              String fcKey = theCreateYear + "-" + sortDate + "-" + fcFolder.getRequestNumber() + "-" + fcFolder.getFlowCellNumber() + "-" + dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
+              String fcCodeRequestCategory = row[2] == null ? "" : (String)row[2];
               
               Element n1 = new Element("RequestDownload");
               n1.setAttribute("key", fcKey);
               n1.setAttribute("isSelected", "N");
+              n1.setAttribute("state", "unchecked");
               n1.setAttribute("altColor", new Boolean(alt).toString());
               n1.setAttribute("idRequest", row[21].toString());
               n1.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
               n1.setAttribute("requestNumber", (String)row[1]);
-              n1.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
+              n1.setAttribute("codeRequestCategory", fcCodeRequestCategory);
               n1.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
               n1.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
               n1.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
@@ -366,7 +405,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               n1.setAttribute("status", "");
               n1.setAttribute("itemNumber", fcFolder.getFlowCellNumber());
               
-              doc.getRootElement().addContent(n1);
+              requestNode.addContent(n1);
+              
+              addExpandedFileNodes(requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory, dh);
             }
             // We only want to show the list of flow cells once
             // per request.
@@ -407,10 +448,72 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     return this;
   }
   
-  
-  private List getRequestDownloadFolders(String requestNumber, String createYear) {
+  private void addExpandedFileNodes(Element requestNode,
+      Element requestDownloadNode, 
+      String requestNumber, 
+      String key, 
+      String codeRequestCategory, 
+      DictionaryHelper dh) throws XMLReflectException {
+    //
+    // Get expanded file list
+    //
+    Map requestMap = new TreeMap();
+    Map directoryMap = new TreeMap();
+    List requestNumbers = new ArrayList<String>();
+    GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, key, requestNumbers, requestMap, directoryMap, dh.getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+    List directoryKeys   = (List)requestMap.get(requestNumber);
+    for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+      String directoryKey = (String)i1.next();
+      String[] dirTokens = directoryKey.split("-");
+      List   theFiles     = (List)directoryMap.get(directoryKey);
 
-    List folders = new ArrayList<String>();
+      // For each file in the directory
+      if (theFiles != null && theFiles.size() > 0) {
+        for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
+          FileDescriptor fd = (FileDescriptor) i2.next();
+          fd.setDirectoryName(dirTokens[1]);
+          fd.excludeMethodFromXML("getChildren");
+          
+          Element fdNode = fd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement();
+          fdNode.setAttribute("isSelected", "N");
+          fdNode.setAttribute("state", "unchecked");
+          recurseAddChildren(fdNode, fd);
+          
+          requestDownloadNode.addContent(fdNode);
+          requestDownloadNode.setAttribute("isEmpty", "N");
+          requestNode.setAttribute("isEmpty", "N");
+        }
+        
+      } else {
+        requestDownloadNode.setAttribute("isEmpty", "Y");
+      }
+    }
+    
+  }
+  
+  private void recurseAddChildren(Element fdNode, FileDescriptor fd) throws XMLReflectException {
+    for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+      FileDescriptor childFd = (FileDescriptor)i.next();
+      
+      childFd.excludeMethodFromXML("getChildren");
+      Element childFdNode = childFd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement();
+      childFdNode.setAttribute("isSelected", "N");
+      childFdNode.setAttribute("state", "unchecked");
+      
+      fdNode.addContent(childFdNode);
+      
+      
+      if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
+        recurseAddChildren(childFdNode, childFd);
+      }
+    }
+    
+  }
+  
+  
+  public static Set getRequestDownloadFolders(String baseDir, String requestNumber, String createYear) {
+
+    TreeSet folders = new TreeSet<String>(new FolderComparator());
     String directoryName = baseDir + createYear + "/" + requestNumber;
     File fd = new File(directoryName);
 
@@ -426,6 +529,58 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     }
     return folders;
     
+  }
+  
+  public static class  FolderComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      String key1 = (String)o1;
+      String key2 = (String)o2;
+      
+      Integer sorta1 = null;
+      Integer sorta2 = null;
+      if (key1.equals(QUALITY_CONTROL_DIRECTORY)) {
+        sorta1 = new Integer(0);
+      } else {
+        sorta1 = new Integer(1);
+      }
+      if (key2.equals(QUALITY_CONTROL_DIRECTORY)) {
+        sorta2 = new Integer(0);
+      } else {
+        sorta2 = new Integer(1);
+      }
+      
+      String sortb1 = "";
+      String sortb2 = "";
+      Integer sortc1 = null;
+      Integer sortc2 = null;
+      String tokens[] = key1.split("E");
+      if (tokens.length == 2) {
+        sortc1 = new Integer(tokens[1]);
+        sortb1 = tokens[0];
+      } else {
+        sortc1 = new Integer(0);
+        sortb1 = key1;
+      }
+      tokens = key2.split("E");
+      if (tokens.length == 2) {
+         sortc2 = new Integer(tokens[1]);
+         sortb2 = tokens[0];
+      } else {
+        sortc2 = new Integer(2);
+        sortb2 = key2;
+      }
+      
+      if (sorta1.equals(sorta2)) {
+        if (sortb1.equals(sortb2)) {
+          return  sortc1.compareTo(sortc2);
+        } else {
+          return sortb1.compareTo(sortb2);
+        }
+      } else {
+        return sorta1.compareTo(sorta2);
+      }
+      
+    }
   }
 
   public static class  HybSampleComparator implements Comparator, Serializable {
@@ -489,8 +644,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String splitLetter = null;
         if (hybNumber2.indexOf("E") >= 0) {
           splitLetter = "E";
-        } else if (hybNumber2.indexOf("X") >= 0) {
-          splitLetter = "X";
+        } else if (hybNumber2.indexOf("X") >= 0) {          splitLetter = "X";
         }
         
         if (splitLetter != null) {

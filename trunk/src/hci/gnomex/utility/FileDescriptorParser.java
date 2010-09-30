@@ -50,21 +50,24 @@ public class FileDescriptorParser extends DetailObject implements Serializable {
   }
   
   private void getChildrenFileDescriptors(Element parentNode, FileDescriptor parentFileDescriptor) {
-    
-    for(Iterator i = parentNode.getChild("children").getChildren("FileDescriptor").iterator(); i.hasNext();) {
-      Element node = (Element)i.next();      
-      String requestNumber = node.getAttributeValue("requestNumber");
-      FileDescriptor fd = initializeFileDescriptor(node);
-      
-      List fileDescriptors = (List)fileDescriptorMap.get(requestNumber);
-      if (fileDescriptors == null) {
-        fileDescriptors = new ArrayList();
-        fileDescriptorMap.put(requestNumber, fileDescriptors);
+
+    if (parentNode.getChildren("children") != null && parentNode.getChildren("children").size() > 0) {
+      for(Iterator i = parentNode.getChild("children").getChildren("FileDescriptor").iterator(); i.hasNext();) {
+        Element node = (Element)i.next();      
+        String requestNumber = node.getAttributeValue("requestNumber");
+        FileDescriptor fd = initializeFileDescriptor(node);
+        
+        List fileDescriptors = (List)fileDescriptorMap.get(requestNumber);
+        if (fileDescriptors == null) {
+          fileDescriptors = new ArrayList();
+          fileDescriptorMap.put(requestNumber, fileDescriptors);
+        }
+        
+        fileDescriptors.add(fd);
+        
+        getChildrenFileDescriptors(node, fd);
+        
       }
-      
-      fileDescriptors.add(fd);
-      
-      getChildrenFileDescriptors(node, fd);
       
     }
     

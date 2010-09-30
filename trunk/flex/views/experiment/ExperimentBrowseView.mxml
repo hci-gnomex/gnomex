@@ -152,14 +152,34 @@
     }
     
    	public function reloadDownloadList():void {
-		downloadView.getRequestDownloadList.send(getBrowseParameters());
-		downloadView.theTab.selectedChild = downloadView.folderView;			
+   		// Getting the download list is slow since we now show an expanded file
+   		// view by default.  Only show downloads at request or project level.
+   		if (parentDocument.selectedIdProject != null || 
+   		     parentDocument.selectedIdRequest != null) {
+			downloadView.getRequestDownloadList.send(getBrowseParameters());
+			downloadView.browseMessage = "";
+		} else {
+	   		downloadView.browseMessage = "Click on a project or request to narrow download selection.";
+			downloadView.downloadSizeMessage = "";
+			downloadView.rowCountMessage = "";
+			downloadView.downloadTree.visible = false;
+	   	}
    	}
     
   	public function refreshDownloadList():void {
 		if (theViews.selectedChild == downloadView) {
-			downloadView.getRequestDownloadList.send(getBrowseParameters());
-			downloadView.theTab.selectedChild = downloadView.folderView;			
+	   		// Getting the download list is slow since we now show an expanded file
+	   		// view by default.  Only show downloads at request or project level.
+	   		if (parentDocument.selectedIdProject != null || 
+	   		     parentDocument.selectedIdRequest != null) {
+				downloadView.getRequestDownloadList.send(getBrowseParameters());
+				downloadView.browseMessage = "";
+	   		} else {
+	   			downloadView.browseMessage = "Click on a project or request to narrow download selection.";
+				downloadView.downloadSizeMessage = "";
+				downloadView.rowCountMessage = "";
+				downloadView.downloadTree.visible = false;
+	   		}
 		}
 	}
 	
@@ -292,11 +312,7 @@
 		} else if (theViews.selectedChild == visibilityView) {
 			buttonStack.selectedChild = saveVisibilityButtonView;
 		} else if (theViews.selectedChild == downloadView) {
-			if (downloadView.theTab.selectedIndex == 0) {
-				buttonStack.selectedChild = downloadFoldersButtonView;			
-			} else {
-				buttonStack.selectedChild = downloadFilesButtonView;
-			}
+			buttonStack.selectedChild = this.downloadExpandedFilesButtonView;
 		}
 		
 	}
@@ -310,8 +326,9 @@
 			browseList.filterFunction = parentDocument.filterExperimentList;
 			browseList.refresh();
 		} else if (theViews.selectedChild == downloadView) {
-			downloadView.downloadList.filterFunction = parentDocument.filterExperimentList;
-			downloadView.downloadList.refresh();
+			if (this.requestNumberCombo.selectedItem != null && this.requestNumberCombo.selectedItem.data != '') {
+				this.downloadView.selectDownload(this.requestNumberCombo.selectedItem.data);				
+			}
 		} else if (theViews.selectedChild == this.trackView) {
 			trackView.progressList.filterFunction = parentDocument.filterExperimentList;
 			trackView.progressList.refresh();
@@ -382,6 +399,16 @@
 	private function showDownloadHints():void {
 		var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this, DownloadHints, true));
 		PopUpManager.centerPopUp(hints);			 		
+	}
+	
+	public function showAlternateDownloadPage():void {
+		if (parentDocument.selectedIdRequest != null) {
+			var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+				(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+				'.gx?idRequest=' + 
+				parentDocument.selectedIdRequest);
+			navigateToURL(url, '_blank');					
+		}
 	}
 
 
@@ -504,25 +531,16 @@
 		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for project and experiments">
 		        	      </mx:Button>
 	        	</mx:HBox>
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFoldersButtonView">
-		            <mx:Button id="downloadFoldersButton" 
-		            	click="downloadView.downloadFolders()" 
-		            	icon="@Embed('../../assets/icon_download.gif')" 
-		            	toolTip="Download selected folders"
-		            	label="Download" 
-		            	visible="true"/>
-		            <mx:CheckBox  id="includeJPEGFilesCheckBox" label="Include JPEG files" selected="true"/>
-		            <mx:CheckBox  id="includeTIFFFilesCheckBox" label="Include TIFF files" selected="false"/>
-		            <mx:Spacer width="20"/>
-		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
-	            </mx:HBox>		                    
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
-		            <mx:Button id="downloadFilesButton" 
-		             	click="downloadView.downloadFiles()" 
+	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
+		            <mx:Button id="downloadExpandedFilesButton" 
+		             	click="downloadView.downloadExpandedFiles()" 
 		             	icon="@Embed('../../assets/icon_download.gif')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
-		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
+		            <mx:LinkButton label="Download large (+4 GB) files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download.png')"/>
+		            <mx:VBox styleName="hintBox">
+			            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>		            	
+		            </mx:VBox>
 	            </mx:HBox>		                    
 	        </mx:ViewStack>
 		</mx:HBox>
