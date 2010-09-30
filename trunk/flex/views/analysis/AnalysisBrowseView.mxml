@@ -155,13 +155,7 @@
 			buttonStack.selectedChild = saveAnalysisGroupView;
 		} else if (theViews.selectedChild == visibilityView) {
 			buttonStack.selectedChild = saveVisibilityButtonView;
-		} else if (theViews.selectedChild == downloadView) {
-			if (downloadView.theTab.selectedIndex == 0) {
-				buttonStack.selectedChild = downloadFoldersButtonView;			
-			} else {
-				buttonStack.selectedChild = downloadFilesButtonView;
-			}
-		}
+		} 
 		
 	}
 		
@@ -370,12 +364,7 @@
 			         </mx:columns>
 			       </mx:DataGrid> 	    
 		       </mx:VBox>
-			       
-				<analysis:AnalysisDownloadView id="downloadView" 
-					label="Downloads" 
-					 borderStyle="none">
-				</analysis:AnalysisDownloadView>
-				
+			      
 				
 	 			<analysis:AnalysisVisibilityView id="visibilityView" label="Visibility">
 				</analysis:AnalysisVisibilityView>
@@ -414,23 +403,6 @@
 		        		click="visibilityView.save()"  visible="true" toolTip="Save visibility for analysis group">
 		        	      </mx:Button>
 	        	</mx:HBox>
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFoldersButtonView">
-		            <mx:Button id="downloadFoldersButton" 
-		            	click="downloadView.downloadFolders()" 
-		            	icon="@Embed('../../assets/icon_download.gif')" 
-		            	toolTip="Download selected folders"
-		            	label="Download" 
-		            	visible="true"/>
-		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
-	            </mx:HBox>		                    
-	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadFilesButtonView" height="100%">
-		            <mx:Button id="downloadFilesButton" 
-		             	click="downloadView.downloadFiles()" 
-		             	icon="@Embed('../../assets/icon_download.gif')" 
-		             	toolTip="Download selected files"
-		             	label="Download"/>
-		            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()"/>
-	            </mx:HBox>		                    
 	        </mx:ViewStack>
 		</mx:HBox>
 	</mx:ControlBar>

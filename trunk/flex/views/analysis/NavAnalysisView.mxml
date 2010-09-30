@@ -218,8 +218,7 @@
    			}
 			        	
         	if (this.shortcutToDownloadTab) {
-        		this.theViews.selectedChild = this.browseView;
-        		this.browseView.theViews.selectedChild = this.browseView.downloadView;
+        		this.theViews.selectedChild = this.detailView;
         	} else if (this.shortcutToAnalysisListTab) {
         		this.theViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
@@ -293,7 +292,6 @@
         	
         	if (this.shortcutToDownloadTab) {
         		this.theViews.selectedChild = this.browseView;
-        		this.browseView.theViews.selectedChild = this.browseView.downloadView;
         		this.shortcutToDownloadTab = false;
         		this.browseTree.selectedIndex = 0;
         	} else if (this.shortcutToAnalysisListTab) {
@@ -545,30 +543,7 @@
 			
 		}
 		
-		public function showAnalysisDownloads():void {
-			
-			selectedAnalysis = null;
-			var theAnalysisNumber:Object = browseTree.selectedItem.@number;
-			selectedAnalysisGroup = browseTree.selectedItem.parent();
-			selectedIdAnalysisGroup = selectedAnalysisGroup.@idAnalysisGroup;
-			selectTreeNode();
-			
-			for each (var item:Object in analysisNumbers) {
-				if (item.data == theAnalysisNumber) {
-					browseView.analysisNumberCombo.selectedItem = item;
-					browseView.filterList();
-					break;
-				}
-			}
-			
-			
-			theViews.selectedChild = browseView;
-			browseView.theViews.selectedChild = browseView.downloadView;
-			browseView.downloadView.theTab.selectedChild = browseView.downloadView.folderView;
-			browseView.refreshButtonStack();
-			
 
-		}
 		
 		public function refreshAnalysisNumbers(analysisList:XMLListCollection):void {
 	    	analysisNumbers.removeAll();
@@ -655,7 +630,6 @@
 
         	
 		    if (this.showDownloads) {
-		    	this.showAnalysisDownloads();
 		    	theViews.visible = true;
 		    	this.showDownloads = false;
 		    	return;
@@ -1022,15 +996,15 @@
           	  <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="linkbutton1"/>
           </mx:HBox>
       </util:PanelBox>
-	  <mx:HDividedBox height="100%" width="100%">
+	  <mx:HDividedBox height="100%" width="100%"> 
 			<util:PanelBox label="Analysis" width="278" height="100%" id="navPanel" >
 			    <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
 						<mx:HBox width="100%" horizontalGap="8" horizontalAlign="right">
-						<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
+						<mx:VBox styleName="hintBox">
 							<mx:LinkButton label="Drag-and-drop hint" 
-								click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2">
+								click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
 							</mx:LinkButton>
 						</mx:VBox>					    	
 						</mx:HBox>
