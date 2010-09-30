@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+4.9.7
+------------------------
+- Rework experiment download into a expanded file view.
+- Provide alternate browser-based downloads to support individual file downloads > 4GB.
+- Refactored DictionaryManager, separating out PropertyManager class.
+
 4.9.6.1 (Sep 23, 2010)
 ------------------------
 - Fix bug that was causing actionscript error when double-clicking on experiments grid (due to refactoring of ExperimentDetailView).
