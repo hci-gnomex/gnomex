@@ -46,6 +46,8 @@
 		[Bindable] 
 		private var visibilityName:String;
 		
+		private var filesExceedingMaxMessage:String = "";
+		
     	public static const DOWNLOAD_FILES_URL:String   = "DownloadAnalysisFileServlet.gx";  
     	public static const SUGGESTED_LOCAL_FILENAME:String   = "gnomex-analysis";
     	  		    
@@ -183,12 +185,21 @@
 		public function downloadFiles():void {
 			var selectedFiles:XMLList = parentDocument.selectedAnalysis..AnalysisFileDescriptor.(@isSelected == "true");
 	    	selectedFileList = new XMLListCollection(selectedFiles);
+		   	filesExceedingMaxMessage = "";
 	    	
 	    	if (selectedFileList.length == 0) {
 	    		Alert.show("Please select the files to download.");
 	    	} else {
 		    	estimatedDownloadSize = 0;
 				for each (var item:Object in selectedFileList) {
+					var size:Number = ExperimentDownloadView.getEstimatedCompressedSize(item);
+    				if (size > ExperimentDownloadView.MAX_DOWNLOAD_SIZE) {
+    					if (filesExceedingMaxMessage.length > 0) {
+    						filesExceedingMaxMessage += ", ";
+    					}
+    					filesExceedingMaxMessage += item.@displayName;
+    				}
+
 					estimatedDownloadSize += ExperimentDownloadView.getEstimatedCompressedSize(item);
 				}
 				
@@ -211,16 +222,23 @@
 	    	var message:String = "";
 	    	var title:String = "";
 	    	var estimatedSize:Number = call.marker;
-	    	if (estimatedSize >= views.experiment.ExperimentDownloadView.MAX_DOWNLOAD_SIZE) {
-	    		message =  "Approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data has been selected to download." +
-	    			"  Each download cannot exceed 4 GB.\n\nDo you want to be directed to the browser page for downloading large files instead?"
-	    		title = "Download exceeds recommended size"; 
+	    	if (filesExceedingMaxMessage != "") {
+	    		message =  
+	    			"The following files exceed the 4 GB maximum:\n" + this.filesExceedingMaxMessage + ".\n\nDo you want to be directed to the browser page for downloading large files individually?"
+	    		title = "Download file exceeds maximum size"; 
 				Alert.show( message,
-							title,
-							(Alert.OK | Alert.CANCEL), this, 
-							onAlternateDownloadFiles,						
-							parentApplication.iconWarning);
-			} else {
+					title,
+					(Alert.OK | Alert.CANCEL), this, 
+					onAlternateDownloadFiles,						
+					parentApplication.iconWarning);
+	
+	    	} else if (estimatedSize >= ExperimentDownloadView.MAX_DOWNLOAD_SIZE) {
+	    		message =  
+	    			"The total download size (" + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+	    		title = "Total download size exceeds maximum size"; 
+				Alert.show( message, title);
+	
+	    	} else {
 	    		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?"
 				Alert.show( message,
 							title,
@@ -460,7 +478,7 @@
 				    	toolTip="Download selected folders"
 				    	label="Download" 
 				    	visible="true"/>
-				    <mx:LinkButton label="Download large (+4 GB) files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download.png')"/>
+				    <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download.png')"/>
 				    <mx:VBox styleName="hintBox">
 					    <mx:LinkButton  label="Downloading help" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>
 				    </mx:VBox>
