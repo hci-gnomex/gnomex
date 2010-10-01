@@ -147,19 +147,24 @@ h1.downloadHeader {
       font-size: 10pt;
       font-weight: bold;
       padding-top: 0;
-      padding-bottom: 0;
+      padding-bottom: 10;
+      margin-top: 0;
+      margin-bottom: 10;
       line-height: 0;
-	text-align: left;
+	  text-align: left;
 }
 h2.downloadHeader {
 
       font-size: 10pt;
       font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 10;
       padding-top: 0;
-      padding-bottom: 5;
+      padding-bottom: 10;
       line-height: 0;
 	  text-align: left;
 }
+
 
 h3.downloadHint {
   font-size: 9pt;
