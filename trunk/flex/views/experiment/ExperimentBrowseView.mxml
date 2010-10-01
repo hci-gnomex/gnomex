@@ -407,7 +407,24 @@
 				(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
 				'.gx?idRequest=' + 
 				parentDocument.selectedIdRequest);
-			navigateToURL(url, '_blank');					
+			navigateToURL(url, '_blank');					 
+		} else if (this.theViews.selectedChild == this.downloadView) {
+			var requestNumbers:String = "";
+			for each(var dl:Object in this.downloadView.downloadList) {
+				if (requestNumbers.length > 0) {
+					requestNumbers += ":"
+				}
+				requestNumbers += dl.@requestNumber;
+			}
+			if (requestNumbers.length > 0) {
+				var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+						'.gx?requestNumbers=' + 
+						requestNumbers);
+				navigateToURL(url1, '_blank');					
+				
+			}
+			
 		}
 	}
 
