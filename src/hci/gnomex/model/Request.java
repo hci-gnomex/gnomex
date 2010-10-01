@@ -550,6 +550,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getLab");
     this.excludeMethodFromXML("getBillingAccount");
     this.excludeMethodFromXML("getKey");
+    this.excludeMethodFromXML("getCreateYear");
   }
   
   public String getOwnerName() {
@@ -674,21 +675,30 @@ public class Request extends HibernateDetailObject {
   }
   
   public String getKey(String resultsDir) {
-    String createDate    = this.formatDate(this.getCreateDate());
-    String tokens[] = createDate.split("/");
-    String createMonth = tokens[0];
-    String createDay   = tokens[1];
-    String createYear  = tokens[2];
-    String sortDate = createYear + createMonth + createDay;
-    String key = createYear + "-" + sortDate + "-" + this.getNumber() + "-" + resultsDir;     
-    return key;
+    if (this.getCreateDate() == null) {
+      return "";
+    } else {
+      String createDate    = this.formatDate(this.getCreateDate());
+      String tokens[] = createDate.split("/");
+      String createMonth = tokens[0];
+      String createDay   = tokens[1];
+      String createYear  = tokens[2];
+      String sortDate = createYear + createMonth + createDay;
+      String key = createYear + "-" + sortDate + "-" + this.getNumber() + "-" + resultsDir;     
+      return key;
+    }
   }
   
   public String getCreateYear() {
-    String createDate    = this.formatDate(this.getCreateDate());
-    String tokens[] = createDate.split("/");
-    String createYear  = tokens[2];
-    return createYear;
+    if (this.getCreateDate() == null) {
+      return "";
+    } else {
+      String createDate    = this.formatDate(this.getCreateDate());
+      String tokens[] = createDate.split("/");
+      String createYear  = tokens[2];
+      return createYear;
+      
+    }
   }
 
 }

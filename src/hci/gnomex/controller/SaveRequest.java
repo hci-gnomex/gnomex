@@ -444,7 +444,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 WorkItem workItem = new WorkItem();
                 workItem.setIdRequest(requestParser.getRequest().getIdRequest());
                 workItem.setSequenceLane(lane);
-                workItem.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
+                String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_CLUSTER_GEN : Step.HISEQ_CLUSTER_GEN;
+                workItem.setCodeStepNext(codeStepNext);
                 sess.save(workItem);
               }
 
