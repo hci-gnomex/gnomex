@@ -371,6 +371,7 @@
 		        </mx:dataProvider>						  
 		        <mx:columns>
   				  <mx:AdvancedDataGridColumn dataField="@displayName"  labelFunction="getDownloadName"  headerText="Folder or File" width="250"/> 
+  				  <mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
   				  <mx:AdvancedDataGridColumn dataField="@info" headerText="Info" width="80"/>
   				  <mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 
   				  <mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay"  headerText="Modified" width="50"/> 
