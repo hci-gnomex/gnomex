@@ -223,4 +223,24 @@ public class FileDescriptor extends DetailObject implements Serializable {
   public void setFlowCellIndicator(String flowCellIndicator) {
     this.flowCellIndicator = flowCellIndicator;
   }
+  
+  public String getViewURL() {
+    String viewURL = "";
+    // Only allow viewing on supported browser mime types
+    // TODO:  Use standard way of supported mime types instead of hardcoded list
+    if (fileName.toLowerCase().endsWith(".pdf") ||
+        fileName.toLowerCase().endsWith(".jpg") ||
+        fileName.toLowerCase().endsWith(".gif") ||
+        fileName.toLowerCase().endsWith(".rtf") ||
+        fileName.toLowerCase().endsWith(".txt") ||
+        fileName.toLowerCase().endsWith(".html") ||
+        fileName.toLowerCase().endsWith(".htm")) {
+      // Only allow viewing for files under 50 MB
+      if (this.fileSize < Math.pow(2, 20) * 50) {
+        String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+        viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
+      }
+    }
+    return viewURL;
+  }
 }
