@@ -40,6 +40,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
   public String SUCCESS_JSP = "/getHTML.jsp";
   
   private Integer          idRequest;
+  private String           requestNumbers;
   private String           serverName;
   private String           baseURL;
 
@@ -56,9 +57,15 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 
     if (request.getParameter("idRequest") != null) {
       idRequest = new Integer(request.getParameter("idRequest"));
-    } else {
-      this.addInvalidField("idRequest", "idRequest is required");
+    } 
+    if (request.getParameter("requestNumbers") != null) {
+      requestNumbers = request.getParameter("requestNumbers");
     }
+    
+    if (idRequest == null && requestNumbers == null) {
+      this.addInvalidField("requestNumbers or idRequest", "requestNumber or idRequest is required");
+    }
+      
     
     serverName = request.getServerName();
     
@@ -79,33 +86,27 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         createdSecurityAdvisor = true;
       }
 
-      // Get the experiment
-      Request experiment = (Request)sess.get(Request.class, idRequest);
-      if (experiment == null) {
+      // Get the experiment(s)
+      List experiments = getExperiments(sess, idRequest, requestNumbers);      
+      if (experiments == null  || experiments.size() == 0) {
         this.addInvalidField("no experiment", "Request not found");
       }
       
 
       if (this.isValid()) {
-        // Make sure the user can read the experiment
-        if (secAdvisor.canRead(experiment)) { 
+        // Format an HTML page with links to download the files
+        String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
+        String baseDirFlowCell = PropertyHelper.getInstance(sess).getFlowCellDirectory(serverName);
+        Document doc = formatDownloadHTML(sess, secAdvisor, experiments, baseDir, baseDirFlowCell, baseURL);
 
-          // Format an HTML page with links to download the files
-          String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForReading(serverName);
-          String baseDirFlowCell = PropertyHelper.getInstance(sess).getFlowCellDirectory(serverName);
-          Document doc = formatDownloadHTML(sess, experiment, baseDir, baseDirFlowCell, baseURL);
-          
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-          out.setOmitEncoding(true);
-          this.xmlResult = out.outputString(doc);
-          this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
-          this.xmlResult = this.xmlResult.replaceAll("�",     "&micro");
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        out.setOmitEncoding(true);
+        this.xmlResult = out.outputString(doc);
+        this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
+        this.xmlResult = this.xmlResult.replaceAll("�",     "&micro");
 
-        } else {
-          this.addInvalidField("Insufficient permissions", "Insufficient permission to show experiment download form.");
-        }
+      } 
 
-      }
 
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
@@ -113,7 +114,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         setResponsePage(this.ERROR_JSP);
       }
     
-    }catch (UnknownPermissionException e){
+    } catch (UnknownPermissionException e){
       log.error("An exception has occurred in ShowRequestDownloadForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -145,11 +146,34 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     return this;
   }
   
+  
+  public static List getExperiments(Session sess, Integer idRequest, String requestNumbers) {
+    List experiments = new ArrayList();
+    if (idRequest != null) {
+      Request experiment = (Request)sess.get(Request.class, idRequest);
+      experiments.add(experiment);
+    } else if (requestNumbers != null) {
+      String tokens[] = requestNumbers.split(":");
+      for(int x = 0; x < tokens.length; x++) {
+        String requestNumber = tokens[x];
+        String queryBuf = "";
+        if (requestNumber.toUpperCase().endsWith("R")) {
+          queryBuf = "SELECT r from Request as r where r.number like '" + Request.getBaseRequestNumber(requestNumber) +"%'";           
+        } else {
+          queryBuf = "SELECT r from Request as r where r.number = '" + requestNumber +"'";
+        }
+        List results = sess.createQuery(queryBuf).list();
+        experiments.addAll(results);
+      }
+    }    
+    return experiments;
+  }
+  
   /***
    * Format an HTML page showing download links for each of the files of this experiment
    * 
    */
-  public static Document formatDownloadHTML(Session sess, Request experiment, String baseDir, String baseDirFlowCell, String baseURL) {
+  public static Document formatDownloadHTML(Session sess, SecurityAdvisor secAdvisor, List experiments, String baseDir, String baseDirFlowCell, String baseURL) throws UnknownPermissionException {
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
@@ -163,7 +187,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     head.addContent(link);
 
     Element title = new Element("TITLE");
-    title.addContent("Download Files for Request - " + experiment.getNumber());
+    title.addContent("GNomEx Download Files");
     head.addContent(title);
 
     Element body = new Element("BODY");
@@ -181,62 +205,77 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     img.setAttribute("src", "images/navbar.png");
     maindiv.addContent(img);
     
-    Element h = new Element("h1");
-    h.setAttribute("class", "downloadHeader");
-    h.addContent("Download Experiment Files");
-    maindiv.addContent(h);
 
-    h = new Element("h2");
-    h.setAttribute("class", "downloadHeader");
-    h.addContent(experiment.getNumber());
-    maindiv.addContent(h);
+    Element hintBox = new Element("h3");
+    hintBox.setAttribute("class", "downloadHint");
+    hintBox.addContent("Note to Internet Explorer users: your browser is unable to download files over 4 gigabytes (IE 6 limit is 2 gigabytes). To download large files, switch to another browser like Firefox or Opera."); 
+    maindiv.addContent(hintBox);
 
-    h = new Element("h3");
-    h.setAttribute("class", "downloadHint");
-    h.addContent("Note to Internet Explorer users: your browser is unable to download files over 4 gigabytes (IE 6 limit is 2 gigabytes). To download large files, switch to another browser like Firefox or Opera."); 
-    maindiv.addContent(h);
     
-    // Now get the files that exist on the file server for this experiment
-    Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear());
-    for(Iterator i = folders.iterator(); i.hasNext();) {
-      String folder = (String)i.next();
-    
-      Map requestMap = new TreeMap();
-      Map directoryMap = new TreeMap();
-      Map fileMap = new HashMap();
-      List requestNumbers = new ArrayList<String>();
-      GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
-      addDownloadTable(baseURL, maindiv, folder, requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), null);
+    for(Iterator ie = experiments.iterator(); ie.hasNext();) {
+      Request experiment = (Request)ie.next();
+
+      // Make sure the user can read the experiment
+      if (!secAdvisor.canRead(experiment)) { 
+        throw new UnknownPermissionException("Insufficient permissions to show download form for experiment " + experiment.getNumber());
+      }
+      Element h = new Element("h1");
+      h.setAttribute("class", "downloadHeader");
+      h.addContent("Download Experiment Files for " + experiment.getNumber());
+      maindiv.addContent(h);
       
-      if (i.hasNext()) {
-        Element br = new Element("br");
+      // Now get the files that exist on the file server for this experiment
+      Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear());
+      for(Iterator i = folders.iterator(); i.hasNext();) {
+        String folder = (String)i.next();
+      
+        Map requestMap = new TreeMap();
+        Map directoryMap = new TreeMap();
+        Map fileMap = new HashMap();
+        List requestNumbers = new ArrayList<String>();
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+        addDownloadTable(baseURL, maindiv, folder, requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), null);
+        
+        if (i.hasNext()) {
+          Element br = new Element("br");
+          maindiv.addContent(br);
+        }
+      }
+      
+      Element br = new Element("br");
+      maindiv.addContent(br);
+      
+      for(Iterator i = DownloadSingleFileServlet.getFlowCells(sess, experiment).iterator(); i.hasNext();) {
+        FlowCell flowCell      =  (FlowCell)i.next();
+        
+        String theCreateDate    = flowCell.formatDate((java.sql.Date)flowCell.getCreateDate());
+        String dateTokens[] = theCreateDate.split("/");
+        String createMonth = dateTokens[0];
+        String createDay   = dateTokens[1];
+        String theCreateYear  = dateTokens[2];
+        String sortDate = theCreateYear + createMonth + createDay;    
+        
+        String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
+        
+        Map requestMap = new TreeMap();
+        Map directoryMap = new TreeMap();
+        Map fileMap = new HashMap();
+        List requestNumbers = new ArrayList<String>();
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+        addDownloadTable(baseURL, maindiv, flowCell.getNumber(), requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), flowCell.getIdFlowCell());
+        
+      }
+      if (ie.hasNext()) {
+        br = new Element("br");
+        maindiv.addContent(br);
+        br = new Element("br");
+        maindiv.addContent(br);
+        br = new Element("br");
         maindiv.addContent(br);
       }
+
     }
     
-    Element br = new Element("br");
-    maindiv.addContent(br);
-    
-    for(Iterator i = DownloadSingleFileServlet.getFlowCells(sess, experiment).iterator(); i.hasNext();) {
-      FlowCell flowCell      =  (FlowCell)i.next();
-      
-      String theCreateDate    = flowCell.formatDate((java.sql.Date)flowCell.getCreateDate());
-      String dateTokens[] = theCreateDate.split("/");
-      String createMonth = dateTokens[0];
-      String createDay   = dateTokens[1];
-      String theCreateYear  = dateTokens[2];
-      String sortDate = theCreateYear + createMonth + createDay;    
-      
-      String fcKey = flowCell.getCreateYear() + "-" + sortDate + "-" + experiment.getNumber() + "-" + flowCell.getNumber() + "-" + PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG);
-      
-      Map requestMap = new TreeMap();
-      Map directoryMap = new TreeMap();
-      Map fileMap = new HashMap();
-      List requestNumbers = new ArrayList<String>();
-      GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
-      addDownloadTable(baseURL, maindiv, flowCell.getNumber(), requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), flowCell.getIdFlowCell());
-      
-    }
     
 
     return doc;
@@ -247,9 +286,9 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     Element tableNode = new Element("table");
     maindiv.addContent(tableNode);
     Element caption = new Element("caption");
+    caption.setAttribute("class", "narrow");
     caption.addContent((idFlowCell != null ? "Flow Cell " : "") + folder);
     tableNode.addContent(caption);
-    tableNode.addContent(makeHeaderRow());
     
     FileDescriptor experimentFd = null;
     List directoryKeys   = (List)requestMap.get(requestNumber);
@@ -262,7 +301,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
           FileDescriptor fd = (FileDescriptor)i2.next();
           fd.setDirectoryName(dirTokens[1]);
           
-          recurseAddFileRow(baseURL, tableNode, fd, idRequest, idFlowCell);
+          recurseAddFileRow(baseURL, tableNode, fd, idRequest);
           
         }
       }
@@ -270,18 +309,17 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     
   }
   
-  private static void recurseAddFileRow(String baseURL, Element tableNode, FileDescriptor fd, Integer idRequest, Integer idFlowCell) {
+  private static void recurseAddFileRow(String baseURL, Element tableNode, FileDescriptor fd, Integer idRequest) {
     if (fd.getChildren() != null && fd.getChildren().size() > 0) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
         FileDescriptor childFd = (FileDescriptor)i.next();
-        recurseAddFileRow(baseURL, tableNode, childFd, idRequest, idFlowCell);
+        recurseAddFileRow(baseURL, tableNode, childFd, idRequest);
       }      
     } else {
       String dirParm = fd.getDirectoryName() != null && !fd.getDirectoryName().equals("") ? "&dir=" + fd.getDirectoryName() : "";
-      String flowCellParm = idFlowCell != null  ? "&idFlowCell=" + idFlowCell : "";
 
       Element downloadLink = new Element("A");
-      downloadLink.setAttribute("href", baseURL + "/DownloadSingleFileServlet.gx?idRequest=" + idRequest + "&fileName=" + fd.getDisplayName() + dirParm + flowCellParm);
+      downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?idRequest=" + idRequest + "&fileName=" + fd.getDisplayName() + dirParm);
       downloadLink.addContent(fd.getDisplayName());
       
       tableNode.addContent(makeRow(downloadLink, fd.getFileSizeText()));
@@ -307,11 +345,12 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     Element row = new Element("TR");
     
     Element cell = new Element("TD");
-    cell.setAttribute("class", "gridleft");
+    cell.setAttribute("class", "noborder");
     cell.addContent(link);
     row.addContent(cell);
 
     cell = new Element("TD");
+    cell.setAttribute("class", "noborderSmall");
     cell.addContent(fileSize);
     row.addContent(cell);
     

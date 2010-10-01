@@ -21,6 +21,7 @@ table {
    cell-padding: 10px;
    width: 700;
    border: none;
+   padding-top: 0;
 }
 table.gridHalf {
 	width: 345;
@@ -145,10 +146,10 @@ h1.downloadHeader {
 
       font-size: 10pt;
       font-weight: bold;
-      padding-top: 10;
+      padding-top: 0;
       padding-bottom: 0;
       line-height: 0;
-	text-align: center;
+	text-align: left;
 }
 h2.downloadHeader {
 
@@ -157,19 +158,19 @@ h2.downloadHeader {
       padding-top: 0;
       padding-bottom: 5;
       line-height: 0;
-	text-align: center;
+	  text-align: left;
 }
 
 h3.downloadHint {
   font-size: 9pt;
   font-weight: normal;
   font-style: italic;
-  margin-top: 0;
-  margin-bottom: 10;
-  margin-left: 0;
-  margin-right: 0;
-  padding: 0;
-  border: none;
+  margin-top: 10;
+  margin-bottom: 25;
+  margin-left: 25;
+  margin-right: 25;
+  padding: 10;
+  border: solid thin;
   border-color: #D8D8D8 ;
 } 
 
@@ -236,7 +237,32 @@ td {
 }
 
 td.noborder {
+ font-size: 9pt;
+ padding-left: 2px;
+ padding-top: 2px;
+ padding-bottom: 2px;
+ padding-right: 2px;
  border: none;
+}
+td.noborderSmall{
+ font-size: 9pt;
+ padding-left: 2px;
+ padding-top: 2px;
+ padding-bottom: 2px;
+ padding-right: 10px;
+ border: none;
+ width: 100;
+ text-align: right;
+}
+caption.narrow
+{
+  font-size: 10pt;
+  font-weight: bold;
+  color: #8B7765;
+  caption-side: top;
+  text-align: left;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 td.gridleft {
@@ -259,6 +285,7 @@ td.gridemptysmall {
 td.gridSmall{
      width: 40;
 }
+
 
 td.gridreverse {
 	font-style: italic;

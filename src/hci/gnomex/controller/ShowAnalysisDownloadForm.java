@@ -177,8 +177,13 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     Element img = new Element("img");
     img.setAttribute("src", "images/navbar.png");
     maindiv.addContent(img);
+
+    Element h = new Element("h3");
+    h.setAttribute("class", "downloadHint");
+    h.addContent("Note to Internet Explorer users: your browser is unable to download files over 4 gigabytes (IE 6 limit is 2 gigabytes). To download large files, switch to another browser like Firefox or Opera."); 
+    maindiv.addContent(h);
     
-    Element h = new Element("h1");
+    h = new Element("h1");
     h.setAttribute("class", "downloadHeader");
     h.addContent("Download Analysis Files");
     maindiv.addContent(h);
@@ -188,15 +193,9 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     h.addContent(analysis.getNumber() + " - " + analysis.getName());
     maindiv.addContent(h);
 
-    h = new Element("h3");
-    h.setAttribute("class", "downloadHint");
-    h.addContent("Note to Internet Explorer users: your browser is unable to download files over 4 gigabytes (IE 6 limit is 2 gigabytes). To download large files, switch to another browser like Firefox or Opera."); 
-    maindiv.addContent(h);
-
     
     Element tableNode = new Element("table");
     maindiv.addContent(tableNode);
-    tableNode.addContent(makeHeaderRow());
     
     
     // Hash the know analysis files
@@ -228,7 +227,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
         
         
         Element downloadLink = new Element("A");
-        downloadLink.setAttribute("href", baseURL + "/DownloadAnalysisSingleFileServlet.gx?idAnalysis=" + analysis.getIdAnalysis() + "&fileName=" + fd.getDisplayName());
+        downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysis.getIdAnalysis() + "&fileName=" + fd.getDisplayName());
         downloadLink.addContent(fd.getDisplayName());
         
         tableNode.addContent(makeRow(downloadLink, fd.getComments(), fd.getFileSizeText()));
@@ -260,15 +259,17 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     Element row = new Element("TR");
     
     Element cell = new Element("TD");
-    cell.setAttribute("class", "gridleft");
+    cell.setAttribute("class", "noborder");
     cell.addContent(link);
     row.addContent(cell);
     
     cell = new Element("TD");
+    cell.setAttribute("class", "noborder");
     cell.addContent(comment == null || comment.equals("") ? "&nbsp;" : comment);
     row.addContent(cell);
     
     cell = new Element("TD");
+    cell.setAttribute("class", "noborderSmall");
     cell.addContent(fileSize);
     row.addContent(cell);
     
