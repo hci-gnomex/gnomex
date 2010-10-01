@@ -49,6 +49,14 @@ public class DownloadSingleFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
     
+    idRequest = null;
+    baseDir = null;
+    baseDirFlowCell = null;
+    requestNumber = null;
+    fileName = null;
+    dir = null;
+    view = "N";
+    
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
       if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
@@ -117,13 +125,16 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
       if (secAdvisor != null) {
         
-        String mimeType = req.getSession().getServletContext().getMimeType(fileName);
-        response.setContentType(mimeType);
-        // Only set the content disposition if we are download (not view) mode.
-        if (view.equals("N")) {
+        // Set the content type and content disposition based on whether we
+        // want to serve the file to the browser or download it.
+        if (view.equals("Y")) {
+          String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+          response.setContentType(mimeType);
+        } else {
+          response.setContentType("application/x-download");
           response.setHeader("Content-Disposition", "attachment;filename=" + fileName);          
+          response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         }
-        response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
