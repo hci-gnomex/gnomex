@@ -4,6 +4,8 @@
 ------------------------
 - Rework experiment download into a expanded file view.
 - Provide alternate browser-based downloads to support individual file downloads > 4GB.
+- Provide 'view' links in Experiments download page.
+- Fixed bug that was causing Seq lanes to go to GAII cluster gen worklist rather than HiSeq worklist when 'Add Services to existing request' submitted (QC->HiSeq corePrep=N)
 - Refactored DictionaryManager, separating out PropertyManager class.
 
 4.9.6.1 (Sep 23, 2010)
