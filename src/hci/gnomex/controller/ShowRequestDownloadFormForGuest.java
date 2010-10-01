@@ -76,7 +76,7 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
 
       // Get the experiment(s)
       List experiments = ShowRequestDownloadForm.getExperiments(sess, idRequest, requestNumbers);      
-      if (experiments == null  || experiments.size() > 0) {
+      if (experiments == null  || experiments.size() == 0) {
         this.addInvalidField("no experiment", "Request not found");
       }
 
