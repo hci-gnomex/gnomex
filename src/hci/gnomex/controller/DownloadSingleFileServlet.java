@@ -36,9 +36,10 @@ public class DownloadSingleFileServlet extends HttpServlet {
   private String                          baseDir = null;
   private String                          baseDirFlowCell = null;
   private Integer                         idRequest = null;
+  private String                          requestNumber = null;
   private String                          fileName = null;
   private String                          dir = null;
-  private Integer                         idFlowCell = null;
+  private String                          view = "N";
   
   
   public void init() {
@@ -73,6 +74,8 @@ public class DownloadSingleFileServlet extends HttpServlet {
     // Get the idRequest parameter
     if (req.getParameter("idRequest") != null && !req.getParameter("idRequest").equals("")) {
       idRequest = new Integer(req.getParameter("idRequest"));
+    } else if (req.getParameter("requestNumber") != null && !req.getParameter("requestNumber").equals("")) {
+      requestNumber = req.getParameter("requestNumber");
     }
     // Get the fileName parameter
     if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
@@ -84,13 +87,12 @@ public class DownloadSingleFileServlet extends HttpServlet {
     if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
       dir = req.getParameter("dir");
     } 
-    // Get the idFlowCell parameter
-    if (req.getParameter("idFlowCell") != null && !req.getParameter("idFlowCell").equals("")) {
-      idFlowCell = new Integer(req.getParameter("idFlowCell"));
-    }
-    
-    if (idRequest == null || fileName == null) {
-      log.error("idRequest and fileName required");
+    // Get the view flag
+    if (req.getParameter("view") != null && !req.getParameter("view").equals("")) {
+      view = req.getParameter("view");
+    } 
+    if ((idRequest == null && requestNumber == null) || fileName == null) {
+      log.error("idRequest/requestNumber and fileName required");
       
       response.setContentType("text/html");
       response.getOutputStream().println(
@@ -114,8 +116,13 @@ public class DownloadSingleFileServlet extends HttpServlet {
      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
-        response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+        
+        String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+        response.setContentType(mimeType);
+        // Only set the content disposition if we are download (not view) mode.
+        if (view.equals("N")) {
+          response.setHeader("Content-Disposition", "attachment;filename=" + fileName);          
+        }
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
@@ -126,7 +133,22 @@ public class DownloadSingleFileServlet extends HttpServlet {
         baseDirFlowCell = PropertyHelper.getInstance(sess).getFlowCellDirectory(req.getServerName());
         
           
-        Request experiment = (Request)sess.load(Request.class, idRequest);
+        
+        Request experiment = null;
+        if (idRequest != null) {
+          experiment = (Request)sess.load(Request.class, idRequest);
+        } else if (requestNumber != null){
+          String queryBuf = "";
+          if (requestNumber.toUpperCase().endsWith("R")) {
+            queryBuf = "SELECT r from Request as r where r.number like '" + requestNumber +"%'";           
+          } else {
+            queryBuf = "SELECT r from Request as r where r.number = '" + requestNumber +"'";
+          }
+          List rows = sess.createQuery(queryBuf).list();
+          if (rows.size() > 0) {
+            experiment = (Request)rows.iterator().next();
+          }
+        }
 
 
         // If we can't find the experiment in the database, just bypass it.
