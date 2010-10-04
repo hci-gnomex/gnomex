@@ -31,6 +31,7 @@ public class RequestParser implements Serializable {
   private Document        requestDoc;
   private Request         request;
   private boolean        isNewRequest = false;
+  private boolean        reassignBillingAccount = false;
   private String          otherCharacteristicLabel;
   private List            sampleIds = new ArrayList();
   private Map             sampleMap = new HashMap();
@@ -215,9 +216,17 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("idSamplePrepMethodDefault") != null && !n.getAttributeValue("idSamplePrepMethodDefault").equals("")) {
       request.setIdSamplePrepMethodDefault(new Integer(n.getAttributeValue("idSamplePrepMethodDefault")));      
     }
+    
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
+      // If the billing account has been changed, we need to know so that any billing items can be revised as well.
+      if (!isNewRequest) {
+        if (request.getIdBillingAccount() == null || !request.getIdBillingAccount().equals(new Integer(n.getAttributeValue("idBillingAccount")))) {
+          reassignBillingAccount = true;        
+        }        
+      }
       request.setIdBillingAccount(new Integer(n.getAttributeValue("idBillingAccount")));      
     }
+    
     if (n.getAttributeValue("codeProtocolType") != null && !n.getAttributeValue("codeProtocolType").equals("")) {
       request.setCodeProtocolType(n.getAttributeValue("codeProtocolType"));
     }
@@ -1471,6 +1480,11 @@ public class RequestParser implements Serializable {
   
   public void setAmendState(String amendState) {
     this.amendState = amendState;
+  }
+
+  
+  public boolean isReassignBillingAccount() {
+    return reassignBillingAccount;
   }
 
   

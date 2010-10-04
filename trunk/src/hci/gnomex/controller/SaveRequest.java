@@ -5,6 +5,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Label;
@@ -573,7 +574,38 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         this.createBillingItems(sess, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
         sess.flush();
+
         
+        // If this is an existing request and the billing account has been reassigned,
+        // change the account on the billing items as well.
+        String billingAccountMessage = "";
+        int reassignCount =  0;
+        int unassignedCount = 0;
+        if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+          for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
+            BillingItem bi = (BillingItem)ib.next();
+            if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+              bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());   
+              reassignCount++;
+            } else  {
+              unassignedCount++;
+            }
+          }
+          if (unassignedCount > 0) {
+            billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
+          } 
+          if (billingAccountMessage.length() > 0) {
+            billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
+          } else {
+            billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+
+          }
+      
+        if (reassignCount > 0) {
+            sess.flush();
+          }
+
+        }
 
         // Create file server data directories for request.
         if (requestParser.isNewRequest()) {
@@ -591,6 +623,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
              "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
              "\" deleteHybCount=\"" + this.hybsDeleted.size() +
              "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +             
+             "\" billingAccountMessage = \"" + billingAccountMessage +
              "\"/>";
         
         if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
