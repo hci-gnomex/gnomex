@@ -2361,7 +2361,7 @@
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
 				showPrintableRequestForm();
-				// Just close the window when the request has been submitted
+				// Just close the window when the request has been submitte
 				// and show the submitted experiment in the Experiments view.
 				var theRequestNumber:String = this.submittedRequestNumber;
 				getNewRequest.send();  
@@ -2377,6 +2377,11 @@
 		private function onSaveExistingRequest(event:ResultEvent):void {
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 				dirty.resetDirty();
+				
+				// Inform if billing accounts reassigned on billing items
+				if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
+					Alert.show(saveExistingRequest.lastResult.@billingAccountMessage);
+				}
 				
 				// Warn if billing should be adjusted to take into account
 				// delete hybs or lanes
@@ -3386,8 +3391,8 @@
     				        <mx:ComboBox id="requestEditBillingAccountCombo"
     				           	  labelField="@accountName" 
     				           	  dataProvider="{billingAccounts}" 
-    				           	  change="this.dirty.setDirty()"
-    				           	  enabled="true"
+    				           	  change="{this.dirty.setDirty();}"
+    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
     				           	  width="100%"/>
     				    </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
