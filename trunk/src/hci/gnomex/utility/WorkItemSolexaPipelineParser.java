@@ -106,6 +106,11 @@ public class WorkItemSolexaPipelineParser implements Serializable {
     } else {
       channel.setPhiXErrorRate(null);
     } 
+    if (n.getAttributeValue("fileName") != null && !n.getAttributeValue("fileName").equals("")) {
+      channel.setFileName(n.getAttributeValue("fileName"));
+    } else {
+      channel.setFileName(null);
+    }
     
   }
 
