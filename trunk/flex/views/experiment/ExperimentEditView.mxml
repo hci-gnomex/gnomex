@@ -1912,8 +1912,9 @@
 			if (isEditState()) {
 				if (requestEditLabCombo.selectedItem == null || requestEditLabCombo.selectedItem.@idLab == '') {
 					errorMessage += "Lab must be specified.\n\n";
-				}
-				if (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+				} 
+				// Make sure the billing account is filled in on requests that already had an assigned billing account.
+				if (request.hasOwnProperty('@idBillingAccount') && request.@idBillingAccount != '' && (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '')) {
 					errorMessage += "Billing account must be specified.\n\n";
 				}
 				if (requestEditProjectCombo.selectedItem == null || requestEditProjectCombo.selectedItem.@idProject == '') {
@@ -2251,7 +2252,9 @@
 			
 			
 			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
-			request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+			if (requestEditBillingAccountCombo.selectedItem != null && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
+				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;				
+			}
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
 
 			var params:Object = new Object();
