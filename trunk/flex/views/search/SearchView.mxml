@@ -367,11 +367,11 @@
             </mx:HBox>
     	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
     	    <mx:HBox width="100%" id="hbox1">
-    	         <mx:VBox verticalGap="0">
+    	         <mx:HBox horizontalGap="0">
 		        	<mx:RadioButtonGroup id="radiogroup1"/>
 		        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
 		        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
-    	         </mx:VBox>
+    	         </mx:HBox>
 	        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
 	        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
 	        		</mx:CheckBox>
