@@ -117,19 +117,18 @@
         		if (parentDocument.isEditState()) {
 					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.request.@idSampleTypeDefault);
 					var sampleTypeName:String = sampleType.@display.toString();
-        			mx.controls.Alert.show( 'Sample type ' + sampleTypeName + 
-	        		  ' cannot be used for ' + parentDocument.applicationName + 
-	        		  ' experiments.  Please change the microarray application.',
-	        		  'Warning');
+        			// This warning message is bothersome when old requests were
+        			// submitted with incompatible sample type for the microarray
+        			// application.  Don't show a warning message.
         			
         		} else {
 	        		this.parentDocument.userWarningsHybSetup += 'Sample type ' + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@display + 
 	        		' cannot be used for ' + parentDocument.applicationName + 
 	        		' experiments.  Please change the sample type or microarray application.';
+	        		this.slideProductCombo.selectedIndex = 0;
         			
         		} 
 
-        		this.slideProductCombo.selectedIndex = 0;
         	} 
         }
 
