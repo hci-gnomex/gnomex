@@ -1793,10 +1793,15 @@
 				var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
 				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', theSlideProduct.@idOrganism);
 
+				if (theSlideProduct.@isCustom == 'Y') {
+					hybSetupView.isCustomRadio.selected = true;				
+				} else {
+					hybSetupView.isCatalogRadio.selected = true;
+				}
+
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 				hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;
-				hybSetupView.checkForSampleTypeCompatibility();
-
+				
 				hybSetupView.initializeSlideProductCombo();
 				hybSetupView.slideProductValidator.validate();
 				initializeSlideDesigns();
