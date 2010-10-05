@@ -178,7 +178,7 @@
 		import mx.validators.ValidationResult;
 		import mx.events.ValidationResultEvent;
         import views.util.PromptXMLListCollection;
-        
+        import views.experiment.ConvertIlluminaRequestWindow;
         
 		[Bindable]
 		private var errorMessage:String = "";
@@ -3229,8 +3229,13 @@
 				}
 				
 			}
-		}			
-
+		}	
+		
+		public function showConvertIlluminaRequest():void {
+   			var convertWindow:ConvertIlluminaRequestWindow = ConvertIlluminaRequestWindow(PopUpManager.createPopUp(DisplayObject(this), ConvertIlluminaRequestWindow, false));
+   			PopUpManager.centerPopUp(convertWindow);
+   			convertWindow.init(this.request);
+    	}
 
 		]]>
 	</mx:Script>
@@ -3328,7 +3333,7 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%" horizontalAlign="right">
-			    <mx:HBox width="100%" horizontalAlign="left">
+			    <mx:HBox  horizontalAlign="left">
 			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
 					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
@@ -3336,8 +3341,10 @@
 					</mx:LinkButton>
 			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
 			    	</mx:LinkButton>
+   		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'Change to HiSeq' : 'Change to GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}" >    	        
+			    	</mx:LinkButton>
 			    </mx:HBox>
-
+                <mx:Spacer width="100%"/>
 	 	        <util:DirtyNote id="dirty"/>
  				<mx:Button id="saveButton" label="Save" 
 	            	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveRequest()">

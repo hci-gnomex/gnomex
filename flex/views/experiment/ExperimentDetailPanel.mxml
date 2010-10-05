@@ -9,7 +9,7 @@
   <experiment:ExperimentDetailView id="detail" width="100%" height="100%">
   </experiment:ExperimentDetailView>
 	
-</mx:VBox>
+</mx:VBox> 
   
   
 <mx:ControlBar  width="100%" id="buttonBar">
@@ -23,7 +23,8 @@
 		        <mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 		        <mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 		    </mx:LinkButton>	
-		    <mx:Spacer width="30"/>			
+		    <mx:LinkButton label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'Change to HiSeq' : 'Change to GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline" >    	        
+		    </mx:LinkButton>
 		    <mx:LinkButton label="Delete" click="detail.promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
 		        <mx:height>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
 		        <mx:visible>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
