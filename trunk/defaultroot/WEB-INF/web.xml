@@ -180,6 +180,7 @@
 			<url-pattern>getPricingList.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
 			<url-pattern>MovePriceCategory.gx</url-pattern>
+			<url-pattern>Reassign*.gx</url-pattern>
 			<url-pattern>ShowAnalysisDownloadForm.gx</url-pattern>
 			<url-pattern>ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>ShowBillingInvoiceForm.gx</url-pattern>

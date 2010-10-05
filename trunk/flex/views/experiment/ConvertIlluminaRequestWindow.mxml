@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical"
+	title="{'Convert Illumina Request ' + experiment.@number}" 
+	width="782" height="330">
+
+  <mx:HTTPService  
+    id="reassignIlluminaRequestCategory" 
+    url="ReassignIlluminaRequestCategory.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onReassignIlluminaRequestCategory(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to reassign experiment category', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import mx.managers.PopUpManager;
+        import hci.flex.controls.DropdownLabel;
+        import mx.rpc.events.ResultEvent; 
+
+		
+		[Bindable]
+		private var  experiment:Object;
+		
+		[Bindable]
+		private var  numberSequencingCycles:XMLListCollection = new XMLListCollection();
+		
+		[Bindable]
+		private var  seqRunTypes:XMLList;
+		
+		private var codeRequestCategory:String;
+		
+		public function init(experiment:Object):void {
+   			this.experiment = experiment;
+   			this.codeRequestCategory = experiment.@codeRequestCategory == 'SOLEXA' ? 'HISEQ' : 'SOLEXA';
+   			
+			seqRunTypes            = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y' && @value != '');
+			numberSequencingCycles.removeAll();
+			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')) {
+				var xrefList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry.(@value != '' && @idNumberSequencingCycles == item.@value.toString());
+	    	   	for each (var xref:Object in xrefList) {
+	    	   		if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
+		    	   		numberSequencingCycles.addItem(item.copy()); 
+	    	   		}
+	    	   	}
+			}
+		}
+		
+		private function save():void {
+			var params:Object = new Object();
+			params.codeRequestCategory = codeRequestCategory;
+			params.idRequest = experiment.@idRequest;
+			params.idNumberSequencingCycles = this.numberSequencingCyclesRadioGroup.selectedValue;
+			params.idSeqRunType = this.seqRunTypeRadioGroup.selectedValue;
+			this.reassignIlluminaRequestCategory.send(params);
+		}
+		
+		private function onReassignIlluminaRequestCategory(event:ResultEvent):void {
+			if (reassignIlluminaRequestCategory.lastResult.name() == 'SUCCESS') {
+				var parms:Object = new Object();
+			 	parms.idRequest = experiment.@idRequest;
+			 	parentApplication.navExperimentView.getRequest.send(parms);
+			 	PopUpManager.removePopUp(this);
+				mx.controls.Alert.show(this.reassignIlluminaRequestCategory.lastResult.@message);			 	
+			}else {
+				mx.controls.Alert.show(reassignIlluminaRequestCategory.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
+
+		
+		
+	]]>
+</mx:Script>
+	<mx:HDividedBox width="100%" height="100%" horizontalGap="12">
+		<mx:VBox height="100%" paddingRight="10" styleName="form" paddingTop="10" paddingLeft="10" paddingBottom="10" verticalGap="12">
+			<mx:HBox width="100%">
+				<mx:Label text="{experiment.@codeRequestCategory == 'SOLEXA' ? 'From GAIIx' : 'From HiSeq'}" fontWeight="bold"/>	        
+				<mx:Image>
+					<mx:source>{experiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : parentApplication.iconHiSeq}</mx:source>
+				</mx:Image>			
+			</mx:HBox>
+				<mx:DataGrid width="290" height="100%" id="lanesGrid"  editable="false" 
+					dataProvider="{experiment.sequenceLanes.SequenceLane}" 
+					sortableColumns="false"  
+					horizontalScrollPolicy="auto"  alpha="0" showHeaders="true">
+					<mx:columns>
+					    <mx:DataGridColumn editable="false" headerText="Lane"   resizable="false" width="80" dataField="@number"/>
+			             <mx:DataGridColumn  width="140" headerText="Seq Run Type"  editable="true" dataField="@idSeqRunType"
+			             	rendererIsEditor="true" 
+			             	itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"/>
+			             <mx:DataGridColumn  headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+			             	  rendererIsEditor="true"  
+           	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value','@idNumberSequencingCycles', true)}"/>
+					</mx:columns>
+				</mx:DataGrid>
+			
+		</mx:VBox>
+		
+		<mx:VBox width="100%" height="100%" paddingLeft="10" styleName="form" paddingBottom="10" paddingRight="10" paddingTop="10" verticalGap="12">
+			<mx:HBox width="100%">
+				<mx:Label text="{experiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}" fontWeight="bold"/>	        
+				<mx:Image>
+					<mx:source>{experiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}</mx:source>
+				</mx:Image>			
+			</mx:HBox>
+			<mx:VBox id="seqRunTypeContainer" width="100%" verticalGap="0">
+			    <mx:Label text="Sequencing run type"/>
+				<mx:VBox verticalGap="0" id="seqRunTypeBox" paddingLeft="10">
+				    <mx:RadioButtonGroup id="seqRunTypeRadioGroup"/>
+					<mx:Repeater id="seqRunRepeater" dataProvider="{seqRunTypes}"> 
+					   	<mx:RadioButton  label="{seqRunRepeater.currentItem.@display}" 
+					   		paddingLeft="1" paddingRight="1"
+					   		value="{seqRunRepeater.currentItem.@value}"
+					   	    groupName="seqRunTypeRadioGroup"/>
+					</mx:Repeater>
+				</mx:VBox>
+			
+			</mx:VBox>
+			<mx:VBox id="numberOfCyclesContainer" width="100%" verticalGap="0">
+			    <mx:Label text="Number of cycles"/>
+				<mx:VBox verticalGap="0" paddingLeft="10" id="numberSequencingCyclesBox" width="100%">
+				    <mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
+						<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{numberSequencingCycles}"> 
+						    <mx:HBox verticalAlign="middle" width="100%">
+						    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
+						    		paddingLeft="0" paddingRight="1"
+						    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
+						    	    groupName="numberSequencingCyclesRadioGroup" width="55"/>
+						    	<mx:Text  text="{numberSequencingCyclesRepeater.currentItem.@notes}"  fontSize="9" width="100%" textAlign="left" fontStyle="italic"/>
+						    </mx:HBox>
+						</mx:Repeater>
+				    	
+				</mx:VBox>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+	<mx:ControlBar>
+        <mx:Spacer width="100%"/>
+ 		<mx:Button id="saveButton" label="Save"  
+ 			enabled="{numberSequencingCyclesRadioGroup.selectedValue != null &amp;&amp; seqRunTypeRadioGroup.selectedValue != null}"
+ 			click="save()"
+        	icon="@Embed('../../assets/action_save.gif')" 
+        	disabledIcon="@Embed(source='../../assets/save_disable.png')">
+        </mx:Button>
+		<mx:Button label="Cancel" click="{PopUpManager.removePopUp(this)}">			
+		</mx:Button>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

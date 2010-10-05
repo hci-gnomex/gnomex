@@ -1,6 +1,18 @@
 ﻿GNomEx Release Notes
 
-4.9.7
+4.9.8
+-----------------------
+- Allow Illumina experiments to be converted from GAIIx -> HiSeq and vice versa.
+- Fixed bug so that custom vs catalog slide radio button is correctly set when editing a microarray experiment
+- Only allow gnomex admins to change billing account on Edit screen.  GNomEx will automatically reassign billing account on pending or completed billing items.
+
+
+4.9.7.1 (Oct 3, 2010)
+-----------------------
+- Fix bugs in 'Views' link that was caused by leftover values in idRequest
+- Allow folder name to be saved on Illumina worklist.
+
+4.9.7 (Oct 1, 2010)
 ------------------------
 - Rework experiment download into a expanded file view.
 - Provide alternate browser-based downloads to support individual file downloads > 4GB.

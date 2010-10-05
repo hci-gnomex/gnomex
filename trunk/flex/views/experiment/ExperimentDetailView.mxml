@@ -24,6 +24,7 @@
 		import views.experiment.ExperimentEditView;
 		import hci.flex.controls.DropdownLabel; 
 		import mx.rpc.events.ResultEvent;
+		import views.experiment.ConvertIlluminaRequestWindow;
 		
 		
 		
@@ -428,6 +429,12 @@
    			PopUpManager.centerPopUp(protocolWindow);
    			protocolWindow.title = getProtocol.lastResult.name;
    			protocolWindow.protocolDescription.text = getProtocol.lastResult.description;
+    	}
+    	
+    	public function showConvertIlluminaRequest():void {
+   			var convertWindow:ConvertIlluminaRequestWindow = ConvertIlluminaRequestWindow(PopUpManager.createPopUp(DisplayObject(this), ConvertIlluminaRequestWindow, false));
+   			PopUpManager.centerPopUp(convertWindow);
+   			convertWindow.init(this.selectedExperiment);
     	}  
 	]]>
 </mx:Script>

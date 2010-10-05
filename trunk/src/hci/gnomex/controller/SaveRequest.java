@@ -572,7 +572,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
           samplesAdded.addAll(requestParser.getRequest().getSamples());
         }
-        this.createBillingItems(sess, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
+        createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
         sess.flush();
 
         
@@ -1192,13 +1192,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return sequenceLane;
   }
   
+
   
-  private void createBillingItems(Session sess, DictionaryHelper dh, Set<Sample> samples, 
+  
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, 
       Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes) throws Exception {
     
     List billingItems = new ArrayList<BillingItem>();
-    
-
 
     
     // Find the appropriate price sheet
@@ -1208,7 +1208,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       PriceSheet ps = (PriceSheet)i.next();
       for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
         RequestCategory requestCategory = (RequestCategory)i1.next();
-        if(requestCategory.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())) {
+        if(requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
           priceSheet = ps;
           break;
         }
@@ -1230,6 +1230,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
         continue;
       }
+      
 
       // Instantiate plugin for billing category
       BillingPlugin plugin = null;
@@ -1244,7 +1245,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
       // Get the billing items
       if (plugin != null) {
-        List billingItemsForCategory = plugin.constructBillingItems(sess, requestParser.getAmendState(), billingPeriod, priceCategory, requestParser.getRequest(), samples, labeledSamples, hybs, lanes);
+        List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);    
+        
         billingItems.addAll(billingItemsForCategory);                
       }
     }
@@ -1254,7 +1256,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       BillingItem bi = (BillingItem)i.next();
       sess.save(bi);
     }
-        
   }
   
   
