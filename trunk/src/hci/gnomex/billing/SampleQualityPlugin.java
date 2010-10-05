@@ -74,11 +74,11 @@ public class SampleQualityPlugin implements BillingPlugin {
       if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
        
         
-        if (request.getCodeApplication().equals(Application.CHIP_SEQ_CATEGORY)) {
+        if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.CHIP_SEQ_CATEGORY)) {
           filter1 = Application.QUBIT_PICOGREEN_QC;
-        } else if (request.getCodeApplication().indexOf("DNA") >= 0) {
+        } else if (request.getCodeApplication() != null && request.getCodeApplication().indexOf("DNA") >= 0) {
           filter1 = Application.DNA_GEL_QC;
-        } else if (request.getCodeApplication().indexOf("RNA") >= 0) {
+        } else if (request.getCodeApplication() != null && request.getCodeApplication().indexOf("RNA") >= 0) {
           filter2 = BioanalyzerChipType.RNA_NANO;
         } else  {
           filter1 = Application.DNA_GEL_QC;
