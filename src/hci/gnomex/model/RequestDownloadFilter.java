@@ -408,7 +408,13 @@ public class RequestDownloadFilter extends DetailObject {
 
   private void addSolexaCriteria() {
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory = 'SOLEXA'");
+    queryBuf.append(" req.codeRequestCategory IN (");
+    queryBuf.append("'");
+    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
+    queryBuf.append("', '");
+    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+    queryBuf.append("' ");
+    queryBuf.append(") ");
   }
 
   private void addQualityControlCriteria() {
