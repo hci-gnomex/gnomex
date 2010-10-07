@@ -50,7 +50,7 @@ public class MicroarrayPlugin implements BillingPlugin {
         totalQtyBilled += bi.getQty().intValue();
       }
     }
-    if (totalQtyBilled >= request.getHybridizations().size()) {
+    if (totalQtyBilled > 0 && totalQtyBilled >= request.getHybridizations().size()) {
       return billingItems;
     }
     

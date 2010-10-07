@@ -159,6 +159,17 @@
     </mx:request>
     </mx:HTTPService >
 
+   <mx:HTTPService  
+    id="createBillingItems" 
+    url="CreateBillingItems.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onCreateBillingItems(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get estimated billing', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
+  
 	<mx:Script>
 		<![CDATA[
 		import mx.events.PropertyChangeEvent;
@@ -2081,6 +2092,36 @@
 		
 		private function submitRequest():void { 
 		 	
+			initializeRequestXML();
+
+			var params:Object = new Object();
+			params.requestXMLString = request.toXMLString();
+			
+			if (!isAmendState()) {
+				params.idProject = setupView.projectCombo.selectedItem.@idProject;				
+			}
+			saveNewRequest.send(params);			
+			
+		}
+		
+		public function getEstimatedBilling():void {
+			initializeRequestXML();
+			
+			var params:Object = new Object();
+			params.requestXMLString = request.toXMLString();
+			
+			createBillingItems.send(params);
+		}
+		
+		private function onCreateBillingItems(event:ResultEvent):void {
+			if (createBillingItems.lastResult.name() == "NewBilling") {
+			} else {
+				Alert.show(createBillingItems.lastResult..ACTMESSAGE.@TEXT, "Unable to get estimated billing items"); 
+			}
+		}
+
+		
+		private function initializeRequestXML():void {
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			
 			if (this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
@@ -2195,14 +2236,6 @@
 			if (this.isAmendState()) {
 				request.@amendState = currentState.toString();
 			}
-
-			var params:Object = new Object();
-			params.requestXMLString = request.toXMLString();
-			
-			if (!isAmendState()) {
-				params.idProject = setupView.projectCombo.selectedItem.@idProject;				
-			}
-			saveNewRequest.send(params);			
 			
 		}
 
@@ -3458,11 +3491,14 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
             <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
-				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%" paddingTop="4">
 						<mx:Label id="laneGridLabel" text="{lanes.length + ' Sequencing Lanes'}" paddingTop="4"/>
-						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  paddingTop="5" editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  
+							editable="false" dataProvider="{lanes}"  
+							rollOverColor="#C0C0C0" selectionColor="#FFFFB9"
+							alpha=".7" fontSize="9" rowHeight="19" 
+							horizontalScrollPolicy="auto">
 						<mx:columns>
-						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
 						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
 				            <mx:DataGridColumn  width="200" id="seqRunTypeCol" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
 	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
