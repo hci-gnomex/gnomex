@@ -10,10 +10,14 @@ import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +30,8 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
@@ -114,12 +120,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Hibernate.initialize(request.getHybridizations());
           Hibernate.initialize(request.getAnalysisExperimentItems());
           Hibernate.initialize(request.getSeqLibTreatments());
-          Hibernate.initialize(request.getBillingItems());
+         
+          request.excludeMethodFromXML("getBillingItems");
          
           
           // If user can write request, show collaborators, 
-          // but cull out everything but collaborator name
+          // but cull out everything but collaborator name.
           if (this.getSecAdvisor().canUpdate(request)) {
+            
             Hibernate.initialize(request.getCollaborators());
             for (Iterator i = request.getCollaborators().iterator(); i.hasNext();) {
               AppUser collab = (AppUser)i.next();
@@ -290,6 +298,45 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolNode.setAttribute("label", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
               break;
             }
+          }
+          
+          // If user has write permission, show billing items for this request
+          // Organize split accounts by lab
+          if (this.getSecAdvisor().canUpdate(request)) {
+            Element billingItemsNode = new Element("billingItems");
+            requestNode.addContent(billingItemsNode);
+            TreeMap billingItemMap = new TreeMap();
+            for(Iterator i = request.getBillingItems().iterator(); i.hasNext();) {
+              BillingItem bi = (BillingItem)i.next();
+              String key = bi.getLabName() + "_%%%_" + bi.getAccountName();
+              List billingItems = (List)billingItemMap.get(key);
+              if (billingItems == null) {
+                billingItems = new ArrayList();
+                billingItemMap.put(key, billingItems);
+              }
+              billingItems.add(bi);
+            }
+            for(Iterator i = billingItemMap.keySet().iterator(); i.hasNext();) {
+              String key = (String)i.next();
+              String keyTokens[] = key.split("_%%%_");
+              List billingItems = (List)billingItemMap.get(key);
+              Element billingLabNode = new Element("BillingLab");
+              billingItemsNode.addContent(billingLabNode);
+              billingLabNode.setAttribute("labName", keyTokens[0]);
+              billingLabNode.setAttribute("accountName", keyTokens[1]);
+              
+              
+              BigDecimal labTotalPrice = new BigDecimal(0);
+              for(Iterator i2 = billingItems.iterator(); i2.hasNext();) {
+                BillingItem theBillingItem = (BillingItem)i2.next();
+                theBillingItem.excludeMethodFromXML("getLabName");
+                theBillingItem.excludeMethodFromXML("getAccountName");
+                billingLabNode.addContent(theBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement());
+                labTotalPrice = labTotalPrice.add(theBillingItem.getTotalPrice());
+              }
+              billingLabNode.setAttribute("totalPrice", NumberFormat.getCurrencyInstance().format(labTotalPrice.doubleValue()));
+            }
+            
           }
           
 
