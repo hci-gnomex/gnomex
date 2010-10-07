@@ -42,6 +42,7 @@
 		public var selectedExperiment:Object;
 		
 		public function checkSecurity():void {
+			
 			if (parentApplication.isGuestMode()) {
 				this.showCy3LabelingFieldsCheckBox.visible = false;
 				this.showCy5LabelingFieldsCheckBox.visible = false;
@@ -53,13 +54,34 @@
 					parentDocument.requestFormButton.visible = false;				
 				}
 			}
+			
+			
 		}
 	
 		public function setupForm(selectedExperiment:Object):void {
 			this.selectedExperiment = selectedExperiment;
 			
+			if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
+				if (!theTab.contains(this.billingTab)) {
+					theTab.addChild(billingTab);
+				}
+			} else {
+				if (theTab.contains(this.billingTab)) {
+					theTab.removeChild(billingTab);
+				}
+			}
+			if (this.protocolsBox.visible) {
+				if (!this.headerBox.contains(this.protocolsBox)) {
+					this.headerBox.addChild(this.protocolsBox);
+				} 
+			} else {
+				if (this.headerBox.contains(this.protocolsBox)) {
+					this.headerBox.removeChild(this.protocolsBox);
+				} 
+			}
+			
 			this.currentState = '';						
-			this.theViews.selectedIndex = 0;
+			this.theTab.selectedIndex = 0;
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
 			} else if (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
@@ -439,173 +461,231 @@
 	]]>
 </mx:Script>
 
+<mx:XMLListCollection id="billingItems" source="{selectedExperiment.billingItems.BillingLab}"/>
+
 <mx:VBox width="100%" height="100%"  styleName="form"  id="vbox2">
-	
-		
-	<mx:ViewStack id="theViews"  width="100%" height="100%" >
+    <mx:VBox height="100%"  width="100%" verticalGap="0">
+        <mx:HBox width="100%" paddingTop="4" paddingBottom="0" horizontalGap="6" paddingLeft="4" paddingRight="4">
+        	<mx:VBox verticalGap="0">
+	        	 
+	        	 <mx:HBox verticalGap="0" horizontalGap="0">
+	        	       <mx:Label text="Request Type"  width="83" fontWeight="bold"/>
+	        	       <mx:Text text="{requestCategoryName}" width="160" />
+	        	   </mx:HBox>
+	            <mx:HBox verticalGap="0" horizontalGap="0">
+	                <mx:Label text="Application"  width="83" fontWeight="bold"/>
+	                <mx:Text  text="{experimentCategoryName}" width="160" />
+	            </mx:HBox>
+        	       <mx:HBox verticalGap="0" horizontalGap="0">
+        	         <mx:Label text="Submit Date"  width="83" fontWeight="bold"/>
+        	         <mx:Text text="{this.selectedExperiment.@createDate}" width="160"/>
+        	       </mx:HBox>
+        	</mx:VBox>
+        	<mx:VBox verticalGap="0">
+        		 <mx:HBox verticalGap="0" horizontalGap="0">
+        		   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
+        		   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
+        		 </mx:HBox>
+        	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+        	           <mx:Label text="Group"  width="85" fontWeight="bold"/>
+        	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
+        	       </mx:HBox>
+                  <mx:HBox verticalGap="0" horizontalGap="0">
+                    <mx:Label width="85" text="Completed on" fontWeight="bold"/>
+                    <mx:Text  text="{this.selectedExperiment.@completedDate}" width="130" />
+                  </mx:HBox>
+        	</mx:VBox>
+        	<mx:VBox width="100%" verticalGap="0">
+	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+	                <mx:Label text="Project"  width="55" fontWeight="bold"/>
+	                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
+	            </mx:HBox>
+	        	
+	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+	                <mx:Label text="Account"  width="55" fontWeight="bold"/>
+	                <mx:Text text="{this.selectedExperiment.@billingAccountName}" width="100%" />
+	            </mx:HBox>
+	            <mx:HBox width="100%">
+		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+		                <mx:Label width="55" text="Visibility" fontWeight="bold"/>
+		                <mx:Text text="{visibilityName}" width="100%" />
+		            </mx:HBox>
 
-		<mx:VBox width="100%" height="100%" verticalGap="0">
-		    <mx:VBox height="100%"  width="100%" verticalGap="0">
-		        <mx:HBox width="100%" paddingTop="4" paddingBottom="4" horizontalGap="6" paddingLeft="6" paddingRight="6">
-		        	<mx:VBox verticalGap="0">
-			        	
-			        	 <mx:HBox verticalGap="0" horizontalGap="0">
-			        	       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
-			        	       <mx:Text text="{requestCategoryName}" width="160" />
-			        	   </mx:HBox>
-			            <mx:HBox verticalGap="0" horizontalGap="0">
-			                <mx:Label text="Application"  width="102" fontWeight="bold"/>
-			                <mx:Text  text="{experimentCategoryName}" width="160" />
-			            </mx:HBox>
-			             <mx:HBox verticalGap="0" horizontalGap="0">
-			                <mx:Spacer width="102"/>
-			                <mx:Text text="{seqLibTreatments}"  width="160" />
-			             </mx:HBox>
-		        	</mx:VBox>
-		        	<mx:VBox verticalGap="0">
-		        		 <mx:HBox verticalGap="0" horizontalGap="0">
-		        		   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
-		        		   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
-		        		 </mx:HBox>
-		        	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-		        	           <mx:Label text="Group"  width="85" fontWeight="bold"/>
-		        	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
-		        	       </mx:HBox>
-		        	       <mx:HBox verticalGap="0" horizontalGap="0">
-		        	         <mx:Label text="Submit Date"  width="85" fontWeight="bold"/>
-		        	         <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
-		        	       </mx:HBox>
-		                  <mx:HBox verticalGap="0" horizontalGap="0">
-		                    <mx:Label width="85" text="Completed on" fontWeight="bold"/>
-		                    <mx:Text  text="{this.selectedExperiment.@completedDate}" width="130" />
-		                  </mx:HBox>
-		        	</mx:VBox>
-		        	<mx:VBox width="100%" verticalGap="0">
-			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Project"  width="55" fontWeight="bold"/>
-			                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
-			            </mx:HBox>
-			        	
-			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Account"  width="55" fontWeight="bold"/>
-			                <mx:Text text="{this.selectedExperiment.@billingAccountName}" width="100%" />
-			            </mx:HBox>
-			            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-			                <mx:Label text="Visibility"  width="55" fontWeight="bold"/>
-			                <mx:Text text="{visibilityName}" width="100%" />
-			            </mx:HBox>
-		                  <mx:HBox verticalGap="0" horizontalGap="0">
-		                    <mx:Label width="55" text="Modified" fontWeight="bold"/>
-		                    <mx:Text  text="{this.selectedExperiment.@lastModifyDate}" width="130" />
-		                  </mx:HBox>
-		        	</mx:VBox>
-		        	
-		        </mx:HBox>
-		        
-		        <mx:HBox horizontalGap="0"  horizontalAlign="left" verticalAlign="middle" >
-		            <mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="6"/>
-		        	<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-				    	<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
-				    		paddingLeft="1" paddingRight="1"
-				    		click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"/>
-  					</mx:Repeater>
-		        </mx:HBox>
-	
-				<mx:VBox   width="100%" height="100%" verticalGap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
-			    <mx:HRule width="100%"/>
-					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
-						<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
-							<mx:Label text="{'Samples (' + samplesGridConfirm.dataProvider.length + ')'}" fontWeight="bold"/>
-							<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" id="hbox1">
-								<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
-							</mx:HBox>
-								
-						</mx:HBox>
-						<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" horizontalScrollPolicy="auto" height="100%">
-							<mx:columns>
-								<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-								<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
-								<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
-				                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
-				                <mx:DataGridColumn id="barcodeCol" visible="{true}" headerText="Barcode"  width="80" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode')}"/>
-					            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
-					            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
-					            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-					            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
-				                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
-								
+	            </mx:HBox>
+        	</mx:VBox>
+        	
+        </mx:HBox>
 
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
-				                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
-					 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
-								<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
+		<mx:VBox id="headerBox" width="100%">
+	        <mx:HBox width="100%" id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
+       		<mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="4"/>
+        	<mx:Tile horizontalGap="0" width="100%" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
+        		<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+		    		<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
+		    		paddingLeft="1" paddingRight="1"
+		    		click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
+  				</mx:Repeater>
+        	</mx:Tile>
 
-				                <mx:DataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
-				                <mx:DataGridColumn  visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
-	                  				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"/>
-								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
-								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
-								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
-								<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
-
-								
-								<mx:DataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
-								<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{this.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!this.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{this.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{this.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{this.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{this.selectedExperiment.@DOSE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{this.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{this.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{this.selectedExperiment.@INDIV == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{this.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{this.selectedExperiment.@SEX == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!this.selectedExperiment.@TEMP == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
-								<mx:DataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
-								<mx:DataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CCNumber" width="100" dataField="@ccNumber"/>
-
-								<mx:DataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
-								<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
-							</mx:columns>
-						</mx:DataGrid>
-		        <mx:Spacer height="4"/>
-					</mx:VBox>
-					<mx:HRule width="100%"/>
-				</mx:VBox>
-		    </mx:VBox>
-			
+	        </mx:HBox>	  
 		</mx:VBox>
-	    
-	     
+            
+        <mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2">
+			<mx:TabNavigator    width="100%" height="100%" verticalGap="5" id="theTab" paddingRight="0" paddingLeft="0" paddingBottom="0" paddingTop="0">
 
-
-
-		
-	</mx:ViewStack>
+				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
+					<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
+						<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" id="hbox1">
+							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
+						</mx:HBox>
+							
+					</mx:HBox>
+					<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" horizontalScrollPolicy="auto" height="100%">
+						<mx:columns>
+							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+							<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+							<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
+			                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
+			                <mx:DataGridColumn id="barcodeCol" visible="{true}" headerText="Barcode"  width="80" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode')}"/>
+				            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
+				            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
+				            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
+				            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
+			                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
+							
 	
+							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
+							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+			                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
+				 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
+							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
+							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
+	
+			                <mx:DataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
+			                <mx:DataGridColumn  visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"/>
+							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
+							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
+							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
+							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
+	
+							
+							<mx:DataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
+							<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{this.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!this.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{this.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{this.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{this.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{this.selectedExperiment.@DOSE == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{this.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{this.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{this.selectedExperiment.@INDIV == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{this.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{this.selectedExperiment.@SEX == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!this.selectedExperiment.@TEMP == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
+							<mx:DataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
+							<mx:DataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CCNumber" width="100" dataField="@ccNumber"/>
+	
+							<mx:DataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
+							<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+				
+    			<mx:Canvas label="Billing" id="billingTab" width="100%" height="100%">
+    			 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingBottom="0" paddingTop="0" paddingRight="0" paddingLeft="0" id="billingContainer" >
+					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
+					displayItemsExpanded="true"  
+        			editable="false" 
+        			sortExpertMode="true" 
+        			sortableColumns="false"
+					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+					fontSize="9">
+						<mx:dataProvider>   
+      						<mx:HierarchicalData source="{billingItems}"/> 
+    					</mx:dataProvider> 
+        				<mx:columns> 
+	        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="70" wordWrap="false"/>
+	        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="100" wordWrap="false" />
+	        				<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="false" width="70"  wordWrap="false"
+							  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"/>
+	        				<mx:AdvancedDataGridColumn  headerText="Price Category" wordWrap="true" dataField="@category" editable="false" width="200">
+				              <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+	        				</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Description" wordWrap="true" dataField="@description" editable="false" width="200">
+				              <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+	        				</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="100" wordWrap="true">
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="false" textAlign="right" width="50" >
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="right" text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="false" width="65" > 
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="right" text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="false" textAlign="right" width="50" wordWrap="false"
+	        				  rendererIsEditor="false"
+							  itemRenderer="views.renderers.LabelPercentage" />                             
+	        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPriceDisplay" textAlign="right" width="105" editable="false" >
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="false" width="70" wordWrap="false"
+							  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"/>                 
+	        			</mx:columns>
+	        		</mx:AdvancedDataGrid>
+				</mx:VBox>
+    			</mx:Canvas>
+				
+
+			</mx:TabNavigator>
+            	
+        </mx:VBox>      
+	
+	</mx:VBox>
 </mx:VBox>
 
 <mx:states>
 	<mx:State name="MicroarrayState">		 
-		<mx:AddChild relativeTo="{this.confirmContainer}" position="lastChild">
-			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer">
+		<mx:AddChild relativeTo="{this.samplesTab}" position="after" >
+			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer" label="Hybs">
 				<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
-					<mx:Label text="{'Hybridizations (' + hybsGridConfirm.dataProvider.length + ')' }" fontWeight="bold"/>
 					<mx:HBox width="100%"  horizontalAlign="right" paddingRight="4">
 						<mx:CheckBox id="showCy3LabelingFieldsCheckBox" label="Show Cy3 Labeling columns" click="showCy3LabelCols(showCy3LabelingFieldsCheckBox.selected)"/>
 						<mx:CheckBox id="showCy5LabelingFieldsCheckBox" label="Cy5 Labeling" click="showCy5LabelCols(showCy5LabelingFieldsCheckBox.selected)"/>
@@ -752,9 +832,8 @@
 	<mx:State name="QCState">		
 	</mx:State>
 	<mx:State name="SolexaState">
-		<mx:AddChild relativeTo="{this.confirmContainer}">
-				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%">
-						<mx:Label text="{'Sequencing Lanes (' + lanesConfirmGrid.dataProvider.length + ')'}"  fontWeight="bold"/>
+		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
+				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
 						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{this.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
 						<mx:columns>
 							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
@@ -820,6 +899,9 @@
 		<mx:AddChild relativeTo="{hbox1}" position="lastChild">
 			<mx:CheckBox id="showSeqPrepFieldsCheckBox" label="Illumina Lib Prep" visible="true" click="showHideColumns()"/>
 		</mx:AddChild>
+		<mx:SetProperty target="{tile1}" name="tileHeight"/>
+		<mx:SetProperty target="{tile1}" name="width"/>
+		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
 	</mx:State>
 </mx:states>
 	

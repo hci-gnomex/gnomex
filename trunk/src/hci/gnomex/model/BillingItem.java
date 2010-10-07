@@ -71,6 +71,10 @@ public class BillingItem extends HibernateDetailObject {
     this.unitPrice = unitPrice;
   }
   
+  public String getTotalPriceDisplay() {
+    return "$" + totalPrice;
+  }
+
   public BigDecimal getTotalPrice() {
     return totalPrice;
   }

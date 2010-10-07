@@ -86,7 +86,7 @@ Tree {
 AdvancedDataGrid {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
-
+	headerStyleName: dataGridHeader;
 } 
 
 
