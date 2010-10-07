@@ -115,222 +115,231 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
-        if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
           
-          List billingItems = new ArrayList<BillingItem>();
- 
-          DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-          NumberFormat nf = NumberFormat.getCurrencyInstance();
-          HashMap labelMap = new HashMap();
-          
-          // Get microarray labels
-          List labels = sess.createQuery("SELECT label from Label label").list();
-          for(Iterator i = labels.iterator(); i.hasNext();) {
-            Label l = (Label)i.next();
-            labelMap.put(l.getLabel(), l.getIdLabel());
-          }
+      List billingItems = new ArrayList<BillingItem>();
 
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      NumberFormat nf = NumberFormat.getCurrencyInstance();
+      HashMap labelMap = new HashMap();
 
-          // Get the current billing period
-          BillingPeriod billingPeriod = null;
-          if (idBillingPeriod == null) {
-            billingPeriod = dh.getCurrentBillingPeriod();
-          } else {
-            billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-          }
-          if (billingPeriod == null) {
-            throw new RollBackCommandException("Cannot find current billing period in dictionary");
-          }
-
-          // Read the experiment
-          Request request = null;
-          Set hybs = null;
-          Set samples = null;
-          Set lanes = null;
-          Set labeledSamples = null;
-          int x = 0;
-
-          Map labeledSampleChannel1Map = new HashMap();
-          Map labeledSampleChannel2Map = new HashMap();
-          if (idRequest != null) {
-            request = (Request)sess.get(Request.class, idRequest);
-            
-            samples = request.getSamples();
-            hybs = request.getHybridizations();
-            lanes = request.getSequenceLanes();
-          } else {
-            requestParser.parse(sess);
-            request = requestParser.getRequest();
-            request.setIdRequest(new Integer(0));
-            request.setNumber("");
-
-            
-            // Plugin assumes slide product initialized on request
-            if (request.getIdSlideProduct() != null) {
-              SlideProduct slideProduct = (SlideProduct)sess.load(SlideProduct.class, request.getIdSlideProduct());
-              request.setSlideProduct(slideProduct);
-            }
-
-            
-            hybs = new TreeSet(new HybComparator());
-            samples = new TreeSet(new SampleComparator());
-            lanes = new TreeSet(new LaneComparator());
-            labeledSamples = new TreeSet(new LabeledSampleComparator());
-
-            
-            // Parse the samples
-            x = 0;
-            for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-              String idSampleString = (String)i.next();
-              Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-              sample.setIdSample(new Integer(x++));
-              samples.add(sample);
-            }
-            
-            // Parse the hybs. Plugin just need a thinly initialized Hyb for count purposes in the
-            x = 0;
-            for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
-              RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
-              Hybridization hyb = new Hybridization();
-              hyb.setIdHybridization(new Integer(x++));
-              if (hybInfo.getIdSampleChannel1String() != null && !hybInfo.getIdSampleChannel1String().equals("") && !hybInfo.getIdSampleChannel1String().equals("0")) {
-                labeledSampleChannel1Map.put(hybInfo.getIdSampleChannel1String(), null);                
-              }
-              if (hybInfo.getIdSampleChannel2String() != null && !hybInfo.getIdSampleChannel2String().equals("") && !hybInfo.getIdSampleChannel2String().equals("0") ) {
-                labeledSampleChannel2Map.put(hybInfo.getIdSampleChannel2String(), null);       
-              }
-              hybs.add(hyb);
-            }
-            
-            // Use the hybs to initalize the set if labeled samples.
-            // Plugin just need number of labeled samples
-            x = 0;
-            for(Iterator i = labeledSampleChannel1Map.keySet().iterator(); i.hasNext();) {
-              Object key = i.next();
-              LabeledSample ls = new LabeledSample();
-              ls.setIdLabeledSample(new Integer(x++));
-              ls.setIdLabel((Integer)labelMap.get("Cy3"));
-              ls.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
-              ls.setNumberOfReactions(new Integer(1));
-              labeledSamples.add(ls);
-            }
-            for(Iterator i = labeledSampleChannel2Map.keySet().iterator(); i.hasNext();) {
-              Object key = i.next();
-              LabeledSample ls = new LabeledSample();
-              ls.setIdLabeledSample(new Integer(x++));
-              ls.setIdLabel((Integer)labelMap.get("Cy5"));
-              ls.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
-              ls.setNumberOfReactions(new Integer(1));
-              labeledSamples.add(ls);
-            }
-            
-            // Parse the sequence lanes
-            x = 0;
-            for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
-              RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
-              SequenceLane lane = new SequenceLane();
-              lane.setIdSequenceLane(new Integer(x++));
-              lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());
-              lane.setIdSeqRunType(laneInfo.getIdSeqRunType());              
-              lanes.add(lane);
-            }
-              
-            
-          }
-          
-          
-          // Find the appropriate price sheet
-          PriceSheet priceSheet = null;
-          List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
-          for(Iterator i = priceSheets.iterator(); i.hasNext();) {
-            PriceSheet ps = (PriceSheet)i.next();
-            for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
-              RequestCategory requestCategory = (RequestCategory)i1.next();
-              if(requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
-                priceSheet = ps;
-                break;
-              }
-              
-            }
-          }
-          
-          if (priceSheet != null) {
-            
-            
-            for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
-              PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
-              PriceCategory priceCategory = priceCategoryX.getPriceCategory();
-              
-              // Ignore inactive price categories
-              if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
-                continue;
-              }
-
-              
-              // Instantiate plugin for billing category
-              BillingPlugin plugin = null;
-              if (priceCategory.getPluginClassName() != null) {
-                try {
-                  plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-                } catch(Exception e) {
-                  log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
-                }
-                
-              }
-              
-              // Get the billing items
-              if (plugin != null) {
-                List billingItemsForCategory = plugin.constructBillingItems(sess, null, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);
-                billingItems.addAll(billingItemsForCategory);                
-              }
-            }
-            
-          }
-          
-            
-          Document doc = new Document(new Element("NewBilling"));
-          
-          
-          Element requestNode = new Element("Request");
-          requestNode.setAttribute("idRequest", request.getIdRequest().toString());
-          requestNode.setAttribute("idBillingAccount", request.getIdBillingAccount().toString());
-          requestNode.setAttribute("requestNumber", request.getNumber());
-          requestNode.setAttribute("idLab", request.getIdLab().toString());
-          requestNode.setAttribute("label", request.getNumber());
-          requestNode.setAttribute("submitter", request.getAppUser() != null ? request.getAppUser().getDisplayName() : "");
-          requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());        
-          requestNode.setAttribute("billingLabName", request.getLabName());        
-          requestNode.setAttribute("billingAccountName", request.getBillingAccount() != null ? request.getBillingAccount().getAccountName() : "");        
-          requestNode.setAttribute("status", BillingStatus.NEW);
-          requestNode.setAttribute("isDirty", "Y");
-          doc.getRootElement().addContent(requestNode);          
-
-          
-          BigDecimal grandTotalPrice = new BigDecimal(0);
-          for(Iterator i = billingItems.iterator(); i.hasNext();) {
-            BillingItem bi = (BillingItem)i.next();
-            Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
-            if (bi.getTotalPrice() != null) {
-              grandTotalPrice = grandTotalPrice.add(bi.getTotalPrice());
-              billingItemNode.setAttribute("totalPrice", nf.format(bi.getTotalPrice().doubleValue()));        
-            }            
-            requestNode.addContent(billingItemNode);
-          }
-
-          requestNode.setAttribute("totalPrice", nf.format(grandTotalPrice.doubleValue()));
-      
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-          this.xmlResult = out.outputString(doc);
-      
-          setResponsePage(this.SUCCESS_JSP);
-          
-          // We don't want to save anything;
-          sess.clear();
-          
-      
-        } else {
-        this.addInvalidField("insufficient permission", "Insufficient permission to create billing items");
+      // Get microarray labels
+      List labels = sess.createQuery("SELECT label from Label label").list();
+      for(Iterator i = labels.iterator(); i.hasNext();) {
+        Label l = (Label)i.next();
+        labelMap.put(l.getLabel(), l.getIdLabel());
       }
+
+
+      // Get the current billing period
+      BillingPeriod billingPeriod = null;
+      if (idBillingPeriod == null) {
+        billingPeriod = dh.getCurrentBillingPeriod();
+      } else {
+        billingPeriod = dh.getBillingPeriod(idBillingPeriod);
+      }
+      if (billingPeriod == null) {
+        throw new RollBackCommandException("Cannot find current billing period in dictionary");
+      }
+
+      // Read the experiment
+      Request request = null;
+      Set hybs = null;
+      Set samples = null;
+      Set lanes = null;
+      Set labeledSamples = null;
+      int x = 0;
+
+      Map labeledSampleChannel1Map = new HashMap();
+      Map labeledSampleChannel2Map = new HashMap();
+      if (idRequest != null) {
+        request = (Request)sess.get(Request.class, idRequest);
+
+        // Only admins can create billing items for existing requests
+        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
+          throw new RollBackCommandException("Insufficient permission to create new billing items");
+        }
+
+
+        samples = request.getSamples();
+        hybs = request.getHybridizations();
+        lanes = request.getSequenceLanes();
+      } else {
+        requestParser.parse(sess);
+        request = requestParser.getRequest();
+
+        // Admins and users authorized to submit requests can view estimated
+        // charges            
+        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING) &&
+            !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab())) {
+          throw new RollBackCommandException("Insufficient permission to view estimated charges");
+        }
+
+        request.setIdRequest(new Integer(0));
+        request.setNumber("");
+
+
+        // Plugin assumes slide product initialized on request
+        if (request.getIdSlideProduct() != null) {
+          SlideProduct slideProduct = (SlideProduct)sess.load(SlideProduct.class, request.getIdSlideProduct());
+          request.setSlideProduct(slideProduct);
+        }
+
+
+        hybs = new TreeSet(new HybComparator());
+        samples = new TreeSet(new SampleComparator());
+        lanes = new TreeSet(new LaneComparator());
+        labeledSamples = new TreeSet(new LabeledSampleComparator());
+
+
+        // Parse the samples
+        x = 0;
+        for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+          String idSampleString = (String)i.next();
+          Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+          sample.setIdSample(new Integer(x++));
+          samples.add(sample);
+        }
+
+        // Parse the hybs. Plugin just need a thinly initialized Hyb for count purposes in the
+        x = 0;
+        for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
+          RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
+          Hybridization hyb = new Hybridization();
+          hyb.setIdHybridization(new Integer(x++));
+          if (hybInfo.getIdSampleChannel1String() != null && !hybInfo.getIdSampleChannel1String().equals("") && !hybInfo.getIdSampleChannel1String().equals("0")) {
+            labeledSampleChannel1Map.put(hybInfo.getIdSampleChannel1String(), null);                
+          }
+          if (hybInfo.getIdSampleChannel2String() != null && !hybInfo.getIdSampleChannel2String().equals("") && !hybInfo.getIdSampleChannel2String().equals("0") ) {
+            labeledSampleChannel2Map.put(hybInfo.getIdSampleChannel2String(), null);       
+          }
+          hybs.add(hyb);
+        }
+
+        // Use the hybs to initalize the set if labeled samples.
+        // Plugin just need number of labeled samples
+        x = 0;
+        for(Iterator i = labeledSampleChannel1Map.keySet().iterator(); i.hasNext();) {
+          Object key = i.next();
+          LabeledSample ls = new LabeledSample();
+          ls.setIdLabeledSample(new Integer(x++));
+          ls.setIdLabel((Integer)labelMap.get("Cy3"));
+          ls.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
+          ls.setNumberOfReactions(new Integer(1));
+          labeledSamples.add(ls);
+        }
+        for(Iterator i = labeledSampleChannel2Map.keySet().iterator(); i.hasNext();) {
+          Object key = i.next();
+          LabeledSample ls = new LabeledSample();
+          ls.setIdLabeledSample(new Integer(x++));
+          ls.setIdLabel((Integer)labelMap.get("Cy5"));
+          ls.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
+          ls.setNumberOfReactions(new Integer(1));
+          labeledSamples.add(ls);
+        }
+
+        // Parse the sequence lanes
+        x = 0;
+        for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
+          RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
+          SequenceLane lane = new SequenceLane();
+          lane.setIdSequenceLane(new Integer(x++));
+          lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());
+          lane.setIdSeqRunType(laneInfo.getIdSeqRunType());              
+          lanes.add(lane);
+        }
+
+
+      }
+
+
+      // Find the appropriate price sheet
+      PriceSheet priceSheet = null;
+      List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
+      for(Iterator i = priceSheets.iterator(); i.hasNext();) {
+        PriceSheet ps = (PriceSheet)i.next();
+        for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
+          RequestCategory requestCategory = (RequestCategory)i1.next();
+          if(requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
+            priceSheet = ps;
+            break;
+          }
+
+        }
+      }
+
+      if (priceSheet != null) {
+
+
+        for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
+          PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
+          PriceCategory priceCategory = priceCategoryX.getPriceCategory();
+
+          // Ignore inactive price categories
+          if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
+            continue;
+          }
+
+
+          // Instantiate plugin for billing category
+          BillingPlugin plugin = null;
+          if (priceCategory.getPluginClassName() != null) {
+            try {
+              plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
+            } catch(Exception e) {
+              log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+            }
+
+          }
+
+          // Get the billing items
+          if (plugin != null) {
+            List billingItemsForCategory = plugin.constructBillingItems(sess, null, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);
+            billingItems.addAll(billingItemsForCategory);                
+          }
+        }
+
+      }
+
+
+      Document doc = new Document(new Element("NewBilling"));
+
+
+      Element requestNode = new Element("Request");
+      requestNode.setAttribute("idRequest", request.getIdRequest().toString());
+      requestNode.setAttribute("idBillingAccount", request.getIdBillingAccount().toString());
+      requestNode.setAttribute("requestNumber", request.getNumber());
+      requestNode.setAttribute("idLab", request.getIdLab().toString());
+      requestNode.setAttribute("label", request.getNumber());
+      requestNode.setAttribute("submitter", request.getAppUser() != null ? request.getAppUser().getDisplayName() : "");
+      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());        
+      requestNode.setAttribute("billingLabName", request.getLabName());        
+      requestNode.setAttribute("billingAccountName", request.getBillingAccount() != null ? request.getBillingAccount().getAccountName() : "");        
+      requestNode.setAttribute("status", BillingStatus.NEW);
+      requestNode.setAttribute("isDirty", "Y");
+      doc.getRootElement().addContent(requestNode);          
+
+
+      BigDecimal grandTotalPrice = new BigDecimal(0);
+      for(Iterator i = billingItems.iterator(); i.hasNext();) {
+        BillingItem bi = (BillingItem)i.next();
+        Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+        if (bi.getTotalPrice() != null) {
+          grandTotalPrice = grandTotalPrice.add(bi.getTotalPrice());
+          billingItemNode.setAttribute("totalPrice", nf.format(bi.getTotalPrice().doubleValue()));        
+        }            
+        requestNode.addContent(billingItemNode);
+      }
+
+      requestNode.setAttribute("totalPrice", nf.format(grandTotalPrice.doubleValue()));
+
+      XMLOutputter out = new org.jdom.output.XMLOutputter();
+      this.xmlResult = out.outputString(doc);
+
+      setResponsePage(this.SUCCESS_JSP);
+
+      // We don't want to save anything;
+      sess.clear();
+
     }catch (NamingException e){
       log.error("An exception has occurred in CreateBillingItems ", e);
       e.printStackTrace();

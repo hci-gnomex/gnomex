@@ -3,12 +3,21 @@
 	width="100%" height="100%" 
 	xmlns:util="views.util.*"
 	xmlns:experiment="views.experiment.*" >
-<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
+<mx:HBox width="100%">
+	<mx:Image source="{(detail.selectedExperiment.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : detail.selectedExperiment.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : detail.selectedExperiment.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : detail.selectedExperiment.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : detail.selectedExperiment.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
+	<mx:Spacer width="100%"/>
+   	<mx:HBox verticalGap="0" horizontalGap="0">
+    	<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
+    	<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
+    </mx:HBox>
+	
+</mx:HBox>
 
 <mx:VBox width="100%" height="100%">
-  <experiment:ExperimentDetailView id="detail" width="100%" height="100%">
-  </experiment:ExperimentDetailView>
-	
+	 <experiment:ExperimentDetailView id="detail" width="100%" height="100%">
+  	</experiment:ExperimentDetailView>
+ 	
 </mx:VBox> 
   
   

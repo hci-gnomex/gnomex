@@ -1,6 +1,11 @@
 ﻿GNomEx Release Notes
 
-4.9.8.1
+4.9.9
+-----------------------
+- Show estimated charges on Submit Request confirm tab.
+
+
+4.9.8.1 (Oct 6, 2010)
 -----------------------
 - Fix bug that was ignoring HiSeq illumina request folders for downloads.
 

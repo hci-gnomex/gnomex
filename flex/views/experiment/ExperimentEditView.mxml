@@ -2103,7 +2103,6 @@
 			saveNewRequest.send(params);			
 			
 		}
-		
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
 			
@@ -2114,12 +2113,19 @@
 		}
 		
 		private function onCreateBillingItems(event:ResultEvent):void {
-			if (createBillingItems.lastResult.name() == "NewBilling") {
+			if (createBillingItems.lastResult.name() == "NewBilling") { 
+				if (theTab.contains(this.confirmView)) {
+					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
+					if (billingItems.length() == 0) {
+						this.confirmView.currentState == "NoBillingState"
+					} else {
+						this.confirmView.currentState == "";
+					}
+				}
 			} else {
 				Alert.show(createBillingItems.lastResult..ACTMESSAGE.@TEXT, "Unable to get estimated billing items"); 
 			}
 		}
-
 		
 		private function initializeRequestXML():void {
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
@@ -3282,6 +3288,7 @@
 
 	<mx:XMLListCollection id="hybs" source="{request.hybridizations.Hybridization}" />
 
+ 	<mx:XMLListCollection id="billingItems" source="{request.billingItems.BillingLab}"/>
 
 	<mx:Sort id="laneSorter" compareFunction="sortLanes"/>
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}" sort="{laneSorter}"/>
@@ -3388,6 +3395,7 @@
  		</mx:ViewStack>
  	   	
  	   </mx:ControlBar>
+ 	   
 	
     <util:states>
     	<mx:State name="EditState">
@@ -3454,6 +3462,76 @@
     			</mx:HBox>
     		</mx:AddChild>
     		<mx:RemoveChild target="{seqSetup1View}"/>
+    		<mx:AddChild relativeTo="{theTab}" position="lastChild">
+    			<mx:Canvas label="Billing" width="100%" height="100%">
+    			 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
+					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
+					displayItemsExpanded="true"  
+        			editable="false" 
+        			sortExpertMode="true" 
+        			sortableColumns="false"
+					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+					fontSize="9">
+						<mx:dataProvider>   
+      						<mx:HierarchicalData source="{billingItems}"/> 
+    					</mx:dataProvider> 
+        				<mx:columns> 
+	        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="70" wordWrap="false"/>
+	        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="100" wordWrap="false" />
+	        				<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="false" width="70"  wordWrap="false"
+							  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"/>
+	        				<mx:AdvancedDataGridColumn  headerText="Price Category" wordWrap="true" dataField="@category" editable="false" width="200">
+				              <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+	        				</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Description" wordWrap="true" dataField="@description" editable="false" width="200">
+				              <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+	        				</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="100" wordWrap="true">
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="false" textAlign="right" width="50" >
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="right" text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="false" width="65" > 
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="right" text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="%" dataField="@percentageDisplay" editable="false" textAlign="right" width="50" wordWrap="false"
+	        				  rendererIsEditor="false"
+							  itemRenderer="views.renderers.LabelPercentage" />                             
+	        				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@totalPriceDisplay" textAlign="right" width="105" editable="false" >
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+	        				<mx:AdvancedDataGridColumn headerText="Status" dataField="@codeBillingStatus" editable="false" width="70" wordWrap="false"
+							  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"/>                 
+	        			</mx:columns>
+	        		</mx:AdvancedDataGrid>
+				</mx:VBox>
+    			</mx:Canvas>
+    		</mx:AddChild>
     	</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
