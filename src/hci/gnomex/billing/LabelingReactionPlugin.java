@@ -57,7 +57,9 @@ public class LabelingReactionPlugin implements BillingPlugin {
       if (notes.length() > 0) {
         notes += ",";
       }
-      notes += dh.getLabel(ls.getIdLabel()) + "-" + ls.getSample().getNumber();
+      if (ls.getSample() != null && ls.getSample().getNumber() != null) {
+        notes += dh.getLabel(ls.getIdLabel()) + "-" + ls.getSample().getNumber();        
+      }
     }
     
     Integer idBillingSlideServiceClass = request.getSlideProduct().getIdBillingSlideServiceClass();

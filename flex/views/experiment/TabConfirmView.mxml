@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Confirm" width="100%" height="100%" enabled="false">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	label="Confirm" width="100%" 
+	height="100%" 
+	enabled="false"
+	show="init()">
+	
+	
 <mx:Script>	
 	<![CDATA[
 		import views.util.AnnotationDataGridColumn;
 		import hci.flex.controls.ComboBox;
-		import hci.flex.controls.DropdownLabel; 
+		import hci.flex.controls.DropdownLabel;
+		
+		private function init():void {
+			parentDocument.getEstimatedBilling();
+		} 
 		
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
@@ -47,50 +57,48 @@
 					if (col is views.util.AnnotationDataGridColumn) {
 						col.visible = false;
 					}
-				}
+				} 
 			}
-  						
+  						 
         }
 		
 	]]>
 </mx:Script>
 	<mx:VBox id="confirmHeaderContainer"  width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0">
-  		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" width="100%">
-  			  <mx:TextArea styleName="instructionBox" width="770" wordWrap="true" height="80" id="textarea1">
-  			  	  <mx:htmlText><![CDATA[Instructions<br>  1.  This page provides a summary about the information collected for your experiment request.  Please confirm that all information<br>       has been correctly enteredon this page. Modifications can be made by clicking the “Back” button at the bottom of the page or by<br>       clicking on the appropriate tab under “Submit Request”.<br>  2.  After reviewing this page, you may approve the work request by clicking the “Submit” button at the bottom of the page.]]></mx:htmlText>
-			  </mx:TextArea>
-		</mx:VBox>
 		<mx:VBox   width="100%" height="100%" backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="0" id="confirmContainer">
-			<mx:HBox width="100%" horizontalGap="20">
+			<mx:HBox width="100%" horizontalGap="4">
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Experiment" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel"/>
-					<mx:Text text="{parentDocument.applicationName}" id="appLabel"/>
+					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
+					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" width="140"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Project" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}" width="200" height="100%"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}" width="250"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
+				<mx:Spacer width="100%"/>
+				<mx:TextArea styleName="instructionBox" right="0" top="0" width="350" wordWrap="true" id="textarea1" height="62">
+					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>    clicking the “Back” button or by clicking on a tab.<br>2.  Approve the work request by clicking the “Submit” button.]]></mx:htmlText>
+				</mx:TextArea>
 			</mx:HBox>
-			<mx:Text text="{parentDocument.seqLibTreatmentsDisplay}" id="seqLibTreatments"/>
 			
-			<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesConfirmContainer" paddingTop="5">
+			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="2" height="100%">
 				<mx:Label text="{parentDocument.samples.length + ' Samples'}" id="label1"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 
 					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="auto" height="100%"
-					sortableColumns="false">
+					sortableColumns="false" alpha=".7" fontSize="9" rowHeight="19">
 					<mx:columns>
-					    <mx:DataGridColumn editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+						<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name">				    
+						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
@@ -136,14 +144,13 @@
 				</mx:DataGrid>				
 			</mx:VBox>
 			
-			<mx:VBox width="100%" height="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="5">
+			<mx:VBox width="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="4" height="100%">
 				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}"/>
 				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" 
 					editable="false" dataProvider="{parentDocument.hybs}"  
 					backgroundAlpha="0" borderStyle="solid" 
-					sortableColumns="false">
+					sortableColumns="false" alpha=".7" fontSize="9" rowHeight="19">
 					<mx:columns>
-					    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="70" labelFunction="parentDocument.getHybsGridRowNumber"/>
 					    <mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" labelFunction="parentDocument.getSampleChannel1Name"/>
 					    <mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" labelFunction="parentDocument.getSampleChannel2Name"/>
 					     <mx:DataGridColumn headerText="Slide"  width="182" 
@@ -155,6 +162,69 @@
 				
 			</mx:VBox>
 			
+			<mx:VBox width="100%" height="100%" verticalGap="0" id="billingContainer" paddingTop="4">
+				<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@totalPrice}"/>
+				<mx:VBox paddingLeft="20" width="100%" height="100%">
+					<mx:DataGrid height="100%" id="billingConfirmGrid"  
+						editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
+						backgroundAlpha="0" borderStyle="none"  showHeaders="false" 
+						sortableColumns="false" horizontalGridLines="false" verticalGridLines="false" rowHeight="19" fontSize="9">
+						<mx:columns>
+	        				<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
+				              <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+	        				</mx:DataGridColumn>
+	        				<mx:DataGridColumn headerText="Description" dataField="@description" editable="false" width="200">
+				              <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+	        				</mx:DataGridColumn>
+	        				<mx:DataGridColumn headerText="Qty" dataField="@qty" editable="false" textAlign="right" width="50" >
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="right" text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:DataGridColumn>
+	        				<mx:DataGridColumn headerText=""   textAlign="center" editable="false" width="10" > 
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="center" text="X" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:DataGridColumn>
+	        				<mx:DataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="false" width="65" > 
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="right" text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:DataGridColumn>
+	        				<mx:DataGridColumn headerText=""   textAlign="left" editable="false" width="10" > 
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text  textAlign="left" text="=" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:DataGridColumn>
+	        				<mx:DataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="105" editable="false" >
+	        				  <mx:itemRenderer>
+				                  <mx:Component>
+				                  <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+				                  </mx:Component>
+				              </mx:itemRenderer>
+							</mx:DataGridColumn>
+	        			</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+				
+			</mx:VBox>
+
 		</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>
