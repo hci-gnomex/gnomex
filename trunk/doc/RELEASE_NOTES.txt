@@ -14,7 +14,7 @@
 - Allow Illumina experiments to be converted from GAIIx -> HiSeq and vice versa.
 - Fixed bug so that custom vs catalog slide radio button is correctly set when editing a microarray experiment
 - Only allow gnomex admins to change billing account on Edit screen.  GNomEx will automatically reassign billing account on pending or completed billing items.
-
+- Email core facility billing addresses (property-driven) when work authorization is submitted
 
 4.9.7.1 (Oct 3, 2010)
 -----------------------

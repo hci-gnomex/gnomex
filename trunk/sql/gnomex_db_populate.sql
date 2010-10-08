@@ -644,7 +644,8 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (41,'temp_directory','/temp','The temp directory where temp files are created', 'Y'),
  (42,'illumina_barcoding_note','','Illumina sample barcoding instructions', 'N'),
  (43,'workauth2_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to an alternalte work authorization document.', 'N'),
- (44,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N');
+ (44,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N');\,
+ (45,'contact_email_core_facility_workauth','first.last@somwhere.edu','Core facility\'s email adresses to for notification when work authorization submitted', 'N');
 
 
 
