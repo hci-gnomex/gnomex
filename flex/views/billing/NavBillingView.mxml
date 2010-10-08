@@ -232,7 +232,7 @@
         private var grandTotalPrice:String = "";
         
         private var requestTabWidth:Number = 220;
-        private var priceTabWidth:Number = 420;
+        private var priceTabWidth:Number = 440;
         
         private var pricingNodeToSelect:String = null;
         private var pricingIdToSelect:Object = null;
@@ -1759,7 +1759,7 @@
 						</mx:Repeater>
   									<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
   										<mx:LinkButton label="Drag-and-drop hint" 
-  											click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1">
+  											click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')">
   										</mx:LinkButton>
   									</mx:VBox>
 					</mx:Tile>
