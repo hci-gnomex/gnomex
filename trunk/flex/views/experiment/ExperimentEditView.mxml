@@ -2117,15 +2117,23 @@
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
 					if (billingItems.length() == 0) {
-						this.confirmView.currentState == "NoBillingState"
+						this.confirmView.currentState = "";
 					} else {
-						this.confirmView.currentState == "";
+						this.confirmView.currentState = "BillingState"
 					}
 				}
 			} else {
 				Alert.show(createBillingItems.lastResult..ACTMESSAGE.@TEXT, "Unable to get estimated billing items"); 
 			}
 		}
+		public function getBillingTreeIcon(item:Object):Class {
+			if (item.name() == "BillingLab") {
+				return parentApplication.iconGroup;
+			} else {
+				return parentApplication.iconBilling; 
+			}  
+		}   
+		
 		
 		private function initializeRequestXML():void {
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
@@ -3471,7 +3479,7 @@
         			sortExpertMode="true" 
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
-					fontSize="9">
+					fontSize="9" iconFunction="getBillingTreeIcon">
 						<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItems}"/> 
     					</mx:dataProvider> 
@@ -3569,8 +3577,8 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
             <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
-				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%" paddingTop="4">
-						<mx:Label id="laneGridLabel" text="{lanes.length + ' Sequencing Lanes'}" paddingTop="4"/>
+				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%" paddingTop="4" >
+						<mx:Label id="laneGridLabel" text="{lanes.length + ' Sequencing Lanes'}" textDecoration="underline" paddingTop="4"/>
 						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  
 							editable="false" dataProvider="{lanes}"  
 							rollOverColor="#C0C0C0" selectionColor="#FFFFB9"

@@ -5,11 +5,73 @@
 	enabled="false"
 	show="init()">
 	<mx:states>
-		<mx:State name="NoBillingState">
-			<mx:RemoveChild target="{label2}"/>
-			<mx:RemoveChild target="{billingConfirmGrid}"/>
-			<mx:RemoveChild target="{vbox1}"/>
-			<mx:RemoveChild target="{billingContainer}"/>
+		<mx:State name="BillingState">
+			<mx:AddChild relativeTo="{confirmContainer}" position="lastChild">
+				<mx:VBox width="100%" height="100%" verticalGap="0" id="billingContainer" paddingTop="6">
+					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@totalPrice}" id="label2" textDecoration="underline"/>
+					<mx:VBox paddingLeft="20" width="100%" height="100%" id="vbox1">
+						<mx:DataGrid height="100%" id="billingConfirmGrid"  
+							editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
+							backgroundAlpha="0" borderStyle="none"  showHeaders="false" 
+							sortableColumns="false" horizontalGridLines="false" verticalGridLines="false" rowHeight="19" fontSize="9">
+							<mx:columns>
+							   				<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
+							   				     <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer>
+							   				</mx:DataGridColumn>
+							   				<mx:DataGridColumn headerText="Description" dataField="@description" editable="false" width="200">
+							   				     <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer>
+							   				</mx:DataGridColumn>
+							   				<mx:DataGridColumn headerText="Qty" dataField="@qty" editable="false" textAlign="right" width="50" >
+							   				  <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text  textAlign="right" text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer>
+							   				</mx:DataGridColumn>
+							   				<mx:DataGridColumn headerText=""   textAlign="center" editable="false" width="10" > 
+							   				  <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text  textAlign="center" text="X" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer>
+							   				</mx:DataGridColumn>
+							   				<mx:DataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="false" width="65" > 
+							   				  <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text  textAlign="right" text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer>
+							   				</mx:DataGridColumn>
+							   				<mx:DataGridColumn headerText=""   textAlign="left" editable="false" width="10" > 
+							   				  <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text  textAlign="left" text="=" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer>
+							   				</mx:DataGridColumn>
+							   				<mx:DataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="105" editable="false" >
+							   				  <mx:itemRenderer>
+							   				         <mx:Component>
+							   				         <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+							   				         </mx:Component>
+							   				     </mx:itemRenderer> 
+							   				</mx:DataGridColumn>
+							   			</mx:columns>
+						</mx:DataGrid>
+					</mx:VBox>
+					
+				</mx:VBox>
+			</mx:AddChild>
+			<mx:SetStyle target="{label1}" name="textDecoration" value="underline"/>
+			<mx:SetStyle target="{label3}" name="textDecoration" value="underline"/>
 		</mx:State>
 	</mx:states>
 	
@@ -153,7 +215,7 @@
 			</mx:VBox>
 			
 			<mx:VBox width="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="4" height="100%">
-				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}"/>
+				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}" id="label3"/>
 				<mx:DataGrid width="100%" height="100%" id="hybsGridConfirm" 
 					editable="false" dataProvider="{parentDocument.hybs}"  
 					backgroundAlpha="0" borderStyle="solid" 
@@ -167,69 +229,6 @@
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>
 					</mx:columns>
 				</mx:DataGrid>
-				
-			</mx:VBox>
-			
-			<mx:VBox width="100%" height="100%" verticalGap="0" id="billingContainer" paddingTop="4">
-				<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@totalPrice}" id="label2"/>
-				<mx:VBox paddingLeft="20" width="100%" height="100%" id="vbox1">
-					<mx:DataGrid height="100%" id="billingConfirmGrid"  
-						editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
-						backgroundAlpha="0" borderStyle="none"  showHeaders="false" 
-						sortableColumns="false" horizontalGridLines="false" verticalGridLines="false" rowHeight="19" fontSize="9">
-						<mx:columns>
-	        				<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
-				              <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-	        				</mx:DataGridColumn>
-	        				<mx:DataGridColumn headerText="Description" dataField="@description" editable="false" width="200">
-				              <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-	        				</mx:DataGridColumn>
-	        				<mx:DataGridColumn headerText="Qty" dataField="@qty" editable="false" textAlign="right" width="50" >
-	        				  <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text  textAlign="right" text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-							</mx:DataGridColumn>
-	        				<mx:DataGridColumn headerText=""   textAlign="center" editable="false" width="10" > 
-	        				  <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text  textAlign="center" text="X" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-							</mx:DataGridColumn>
-	        				<mx:DataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="false" width="65" > 
-	        				  <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text  textAlign="right" text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-							</mx:DataGridColumn>
-	        				<mx:DataGridColumn headerText=""   textAlign="left" editable="false" width="10" > 
-	        				  <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text  textAlign="left" text="=" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-							</mx:DataGridColumn>
-	        				<mx:DataGridColumn headerText="Total price" dataField="@totalPrice" textAlign="right" width="105" editable="false" >
-	        				  <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text text="{data.@totalPrice}"  textAlign="right" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-							</mx:DataGridColumn>
-	        			</mx:columns>
-					</mx:DataGrid>
-				</mx:VBox>
 				
 			</mx:VBox>
 

@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.billing.BillingPlugin;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.SaveRequest.LabeledSampleComparator;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -174,8 +175,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           throw new RollBackCommandException("Insufficient permission to view estimated charges");
         }
 
-        request.setIdRequest(new Integer(0));
-        request.setNumber("");
+        if (request.getIdRequest() == null) {
+          request.setIdRequest(new Integer(0));
+          request.setNumber("");          
+        }
 
 
         // Plugin assumes slide product initialized on request
@@ -191,13 +194,19 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         labeledSamples = new TreeSet(new LabeledSampleComparator());
 
 
-        // Parse the samples
+        // Parse the samples.   Consider samples for billing if this
+        // is a new request or a qc request being converted to a microarray
+        // or next gen sequencing request
         x = 0;
-        for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-          String idSampleString = (String)i.next();
-          Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-          sample.setIdSample(new Integer(x++));
-          samples.add(sample);
+        if (!requestParser.isAmendRequest() || requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
+          for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+            String idSampleString = (String)i.next();
+            Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+            if (sample.getIdSample() == null) {
+              sample.setIdSample(new Integer(x++));
+            }
+            samples.add(sample);
+          }          
         }
 
         // Parse the hybs. Plugin just need a thinly initialized Hyb for count purposes in the
@@ -205,7 +214,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
           RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
           Hybridization hyb = new Hybridization();
-          hyb.setIdHybridization(new Integer(x++));
+          if (hyb.getIdHybridization() == null) {
+            hyb.setIdHybridization(new Integer(x++));
+          }
           if (hybInfo.getIdSampleChannel1String() != null && !hybInfo.getIdSampleChannel1String().equals("") && !hybInfo.getIdSampleChannel1String().equals("0")) {
             labeledSampleChannel1Map.put(hybInfo.getIdSampleChannel1String(), null);                
           }
@@ -221,7 +232,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         for(Iterator i = labeledSampleChannel1Map.keySet().iterator(); i.hasNext();) {
           Object key = i.next();
           LabeledSample ls = new LabeledSample();
-          ls.setIdLabeledSample(new Integer(x++));
+          if (ls.getIdLabeledSample() == null) {
+            ls.setIdLabeledSample(new Integer(x++));
+          }
           ls.setIdLabel((Integer)labelMap.get("Cy3"));
           ls.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
           ls.setNumberOfReactions(new Integer(1));
@@ -230,7 +243,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         for(Iterator i = labeledSampleChannel2Map.keySet().iterator(); i.hasNext();) {
           Object key = i.next();
           LabeledSample ls = new LabeledSample();
-          ls.setIdLabeledSample(new Integer(x++));
+          if (ls.getIdLabeledSample() == null) {
+            ls.setIdLabeledSample(new Integer(x++));
+          }
           ls.setIdLabel((Integer)labelMap.get("Cy5"));
           ls.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
           ls.setNumberOfReactions(new Integer(1));
@@ -242,10 +257,19 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
           RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
           SequenceLane lane = new SequenceLane();
-          lane.setIdSequenceLane(new Integer(x++));
-          lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());
-          lane.setIdSeqRunType(laneInfo.getIdSeqRunType());              
-          lanes.add(lane);
+          
+          boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+          
+          if (isNewLane) {
+            if (lane.getIdSequenceLane() == null) {
+              lane.setIdSequenceLane(new Integer(x++));
+              lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());            
+            }
+            lane.setIdSeqRunType(laneInfo.getIdSeqRunType());       
+            
+            lanes.add(lane);
+            
+          }
         }
 
 
@@ -293,7 +317,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Get the billing items
           if (plugin != null) {
-            List billingItemsForCategory = plugin.constructBillingItems(sess, null, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);
+            List billingItemsForCategory = plugin.constructBillingItems(sess, requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);
             billingItems.addAll(billingItemsForCategory);                
           }
         }
