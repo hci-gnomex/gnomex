@@ -129,7 +129,10 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
-    String coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    String coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
+    if (coreEmail == null || coreEmail.equals("")) {
+      coreEmail = dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -179,12 +182,17 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
       
       // Email core facility
-      MailUtil.send(coreEmail, 
-          null,
-          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY),
-          coreSubject,
-          coreNote.toString() + body.toString(),
-          false);      
+      if (dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY) != null &&
+          !dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY).equals("")) {
+        MailUtil.send(coreEmail, 
+            null,
+            dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY),
+            coreSubject,
+            coreNote.toString() + body.toString(),
+            false);           
+      }
+      
+     
 
     }
     
