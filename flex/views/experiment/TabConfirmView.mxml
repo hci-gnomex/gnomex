@@ -8,7 +8,9 @@
 		<mx:State name="BillingState">
 			<mx:AddChild relativeTo="{confirmContainer}" position="lastChild">
 				<mx:VBox width="100%" height="100%" verticalGap="0" id="billingContainer" paddingTop="6">
-					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@totalPrice}" id="label2" textDecoration="underline"/>
+				    <mx:HBox width="100%" id="chargesHeaderBox">
+	 					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@totalPrice}" id="label2" textDecoration="underline"/>								    	
+				    </mx:HBox>
 					<mx:VBox paddingLeft="20" width="100%" height="100%" id="vbox1">
 						<mx:DataGrid height="100%" id="billingConfirmGrid"  
 							editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
@@ -73,6 +75,17 @@
 			<mx:SetStyle target="{label1}" name="textDecoration" value="underline"/>
 			<mx:SetStyle target="{label3}" name="textDecoration" value="underline"/>
 		</mx:State>
+		<mx:State name="BillingExceedState" basedOn="BillingState">
+			<mx:AddChild relativeTo="{chargesHeaderBox}" position="lastChild">
+			    <mx:HBox borderStyle="solid" borderColor="#000000" borderThickness="1" id="hbox1">
+					<mx:Text text="{'Total charges exceed balance remaining on billing account by ' + parentDocument.createBillingItems.lastResult.Request.@exceededDollarAmount + '. Experiment request cannot be submitted.'}" styleName="warningLabelSevere"/>			    	
+			    </mx:HBox>
+			</mx:AddChild>
+			<mx:SetStyle target="{chargesHeaderBox}" name="verticalAlign" value="middle"/>
+			<mx:AddChild relativeTo="{hbox1}" position="before">
+				<mx:Spacer width="10"/>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 	
 	
@@ -85,7 +98,7 @@
 		private function init():void {
 			parentDocument.getEstimatedBilling();
 		} 
-		
+
         public function showHideColumns():void {
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = true;
@@ -156,8 +169,8 @@
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
 				<mx:Spacer width="100%"/>
-				<mx:TextArea styleName="instructionBox" right="0" top="0" width="350" wordWrap="true" id="textarea1" height="62">
-					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>    clicking the “Back” button or by clicking on a tab.<br>2.  Approve the work request by clicking the “Submit” button.]]></mx:htmlText>
+				<mx:TextArea styleName="instructionBox" right="0" top="0" width="268" wordWrap="true" id="textarea1" height="78">
+					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>    clicking the “Back” button or by clicking on a tab.<br>2.  Approve the work request by clicking the<br>     “Submit” button.]]></mx:htmlText>
 				</mx:TextArea>
 			</mx:HBox>
 			

@@ -4,7 +4,7 @@
       <mx:State name="AdminState">
          <mx:AddChild relativeTo="{accountBox}" position="before">
             <mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
-                   <mx:Text width="200">
+                   <mx:Text width="180">
                           <mx:htmlText>(2) Verify your name.</mx:htmlText>
 					</mx:Text>
             		<mx:ComboBox dataProvider="{appUsers}" 
@@ -17,9 +17,8 @@
          <mx:SetProperty target="{text1}" name="htmlText" value="(3) Pick the account to be &lt;br&gt; billed."/>
          <mx:SetProperty target="{label11}" name="text" value="(4) Select a service."/>
          <mx:SetProperty target="{text2}" name="htmlText">
-            <mx:value>(5) Select a project folder for organizing experiment information and data linked to this request.</mx:value>
+            <mx:value>(5) Select a project folder for organizing experiment information and data files.</mx:value>
          </mx:SetProperty>
-         <mx:SetProperty target="{text2}" name="width" value="200"/>
          <mx:SetProperty target="{requestTypeBox}" name="width" value="100%"/>
          <mx:SetProperty target="{text3}" name="width" value="230"/>
          <mx:SetStyle target="{label1}" name="paddingTop"/>
@@ -439,14 +438,14 @@
           
 
 		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
-  		  <mx:TextArea styleName="instructionBox" width="302" wordWrap="true" height="120">
+  		  <mx:TextArea styleName="instructionBox" width="275" wordWrap="true" height="120">
 			<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will<br>       be electronically billed following completion<br>       of the work.]]></mx:htmlText>
 		  </mx:TextArea>
 		</mx:VBox>
      	
 		<mx:VBox width="100%" height="100%" verticalGap="15" paddingTop="2" id="vbox1" enabled="true">
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-				<mx:Label text="(1) Verify your lab group." width="198"/>
+				<mx:Label text="(1) Verify your lab group." width="180"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
 					width="340"
@@ -455,13 +454,16 @@
 			</mx:HBox>
 			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
 				<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top">
-					<mx:Text  width="200"  id="text1">
+					<mx:Text  width="180"  id="text1">
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
-						<mx:ComboBox labelField="@accountNameAndNumber" width="470" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
-							<mx:dataProvider>{billingAccounts}</mx:dataProvider>
-						</mx:ComboBox>
+						<mx:HBox verticalAlign="middle">
+							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
+							</mx:ComboBox>
+							<mx:Text text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel"/>
+						</mx:HBox>
 						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
 						</mx:Text>
 						
@@ -484,7 +486,7 @@
 				
 			</mx:VBox>
 			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="12">
-				<mx:Label text="(3) Select a service category." width="200" id="label11"/>
+				<mx:Label text="(3) Select a service category." width="180" id="label11"/>
 				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="1" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="100%">
 					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 					    <mx:Text text="Service" width="200" fontWeight="normal" textDecoration="underline" fontStyle="normal" id="text3"/>
@@ -556,8 +558,8 @@
 				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top">
-				<mx:Text width="200" id="text2">
-					<mx:htmlText>(4) Select a project folder for organizing experiment information and data linked to this request.</mx:htmlText>
+				<mx:Text width="180" id="text2">
+					<mx:htmlText>(4) Select a project folder for organizing experiment information and data files.</mx:htmlText>
 				</mx:Text>
 				<mx:HBox verticalGap="2" horizontalGap="4">
 				    <mx:VBox verticalGap="2" id="vbox2">

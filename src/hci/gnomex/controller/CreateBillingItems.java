@@ -6,6 +6,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.SaveRequest.LabeledSampleComparator;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
@@ -353,8 +354,26 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         }            
         requestNode.addContent(billingItemNode);
       }
+      
 
-      requestNode.setAttribute("totalPrice", nf.format(grandTotalPrice.doubleValue()));
+      StringBuffer buf = new StringBuffer();
+      buf.append("SELECT sum(bi.totalPrice) from BillingItem bi where bi.idBillingAccount = " + request.getIdBillingAccount());
+      List rows = sess.createQuery(buf.toString()).list();
+      BigDecimal totalChargesToDate = new BigDecimal(0);
+      if (rows.size() == 1) {
+        totalChargesToDate = (BigDecimal)rows.iterator().next();
+        if (totalChargesToDate == null) {
+          totalChargesToDate = new BigDecimal(0);
+        }
+      }
+      totalChargesToDate = totalChargesToDate.add(grandTotalPrice);
+      
+      BillingAccount billingAccount = (BillingAccount)sess.load(BillingAccount.class, request.getIdBillingAccount());
+      billingAccount.setTotalChargesToDate(totalChargesToDate);
+      
+      requestNode.setAttribute("totalPrice", NumberFormat.getCurrencyInstance().format(grandTotalPrice.doubleValue()));
+      requestNode.setAttribute("exceedsBillingAccountBalance", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ? "Y" : "N");
+      requestNode.setAttribute("exceededDollarAmount", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ?  NumberFormat.getCurrencyInstance().format(billingAccount.getTotalDollarAmountRemaining().abs()) : "N");
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);

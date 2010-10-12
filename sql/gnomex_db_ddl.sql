@@ -266,6 +266,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `createDate` DATETIME NULL,
   `submitterEmail` VARCHAR(200) NULL,
   `submitterUID` VARCHAR(50) NULL,
+  `totalDollarAmount` DECIMAL(12,2) NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)

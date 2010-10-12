@@ -1,6 +1,8 @@
 package hci.gnomex.model;
 
+import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.NumberFormat;
 import java.util.Set;
 
 import hci.hibernate3utils.HibernateDetailObject;
@@ -8,28 +10,32 @@ import hci.hibernate3utils.HibernateDetailObject;
 
 public class BillingAccount extends HibernateDetailObject {
  
-  private Integer idBillingAccount;
-  private String  accountName;
-  private Date    expirationDate;
-  private Integer idLab;
-  private String  accountNumberBus;
-  private String  accountNumberOrg;
-  private String  accountNumberFund;
-  private String  accountNumberActivity;
-  private String  accountNumberProject;
-  private String  accountNumberAccount;
-  private String  accountNumberAu;
-  private String  accountNumberYear;
-  private Integer idFundingAgency;
-  private String  isPO;
-  private String  isApproved;
-  private Date    approvedDate;
-  private Date    createDate;
-  private String  submitterEmail;
-  private String  submitterUID;
+  private Integer    idBillingAccount;
+  private String     accountName;
+  private Date       expirationDate;
+  private Integer    idLab;
+  private String     accountNumberBus;
+  private String     accountNumberOrg;
+  private String     accountNumberFund;
+  private String     accountNumberActivity;
+  private String     accountNumberProject;
+  private String     accountNumberAccount;
+  private String     accountNumberAu;
+  private String     accountNumberYear;
+  private Integer    idFundingAgency;
+  private String     isPO;
+  private String     isApproved;
+  private Date       approvedDate;
+  private Date       createDate;
+  private String     submitterEmail;
+  private String     submitterUID;
+  private BigDecimal totalDollarAmount;
   
   // transient field used to keep track of billing accounts just approved
   private boolean isJustApproved = false;
+  
+  // transient field use to keep track of total charges to date
+  private BigDecimal totalChargesToDate;
   
   
   public String getAccountNumber() {
@@ -306,5 +312,55 @@ public class BillingAccount extends HibernateDetailObject {
   public boolean isJustApproved() {
     return isJustApproved;
   }
+
+  
+  public BigDecimal getTotalDollarAmount() {
+    return totalDollarAmount;
+  }
+
+  
+  public void setTotalDollarAmount(BigDecimal totalDollarAmount) {
+    this.totalDollarAmount = totalDollarAmount;
+  }
+
+  public String getTotalDollarAmountDisplay() {
+    if (totalDollarAmount != null) {
+      return NumberFormat.getCurrencyInstance().format(totalDollarAmount);
+    } else {
+      return "";
+    }
+  }
+  
+
+  public void setTotalChargesToDate(BigDecimal totalChargesToDate) {
+    this.totalChargesToDate = totalChargesToDate;
+  }
+  
+  
+  public String getTotalChargesToDateDisplay() {
+    if (totalChargesToDate != null) {
+      return NumberFormat.getCurrencyInstance().format(totalChargesToDate);
+    } else {
+      return "";
+    }
+  }
+
+  
+  public BigDecimal getTotalDollarAmountRemaining() {
+    if (totalDollarAmount != null && totalChargesToDate != null) {
+      return totalDollarAmount.subtract(totalChargesToDate);
+    } else {
+      return null;
+    }
+  }
+  
+  public String getTotalDollarAmountRemainingDisplay() {
+    if (totalDollarAmount != null && totalChargesToDate != null) {
+      return NumberFormat.getCurrencyInstance().format(totalDollarAmount.subtract(totalChargesToDate));
+    } else {
+      return null;
+    }
+  }
+
   
 }
