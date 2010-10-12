@@ -9,6 +9,7 @@ import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,6 +28,7 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
 
 
@@ -91,10 +93,29 @@ public class GetLab extends GNomExCommand implements Serializable {
       blockAppUserContent(theLab.getCollaborators());
       blockAppUserContent(theLab.getManagers());
       
+      // Get the total charges to date on all billing accounts
+      StringBuffer buf = new StringBuffer("SELECT bi.idBillingAccount, sum(bi.totalPrice) ");
+      buf.append(" FROM  BillingItem bi");
+      buf.append(" WHERE bi.idLab = " + lab.getIdLab());
+      buf.append(" GROUP BY bi.idBillingAccount ");
+      List rows = sess.createQuery(buf.toString()).list();
+      HashMap totalChargesMap = new HashMap();
+      for(Iterator i = rows.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        totalChargesMap.put(row[0], row[1]);
+      }
+      for(Iterator i = theLab.getBillingAccounts().iterator(); i.hasNext();) {
+        BillingAccount ba = (BillingAccount)i.next();
+        ba.setTotalChargesToDate((BigDecimal)totalChargesMap.get(ba.getIdBillingAccount()));
+      }
+
+      
+      
       Document doc = new Document(new Element("OpenLabList"));
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       this.appendPossibleCollaborators(labNode, theLab);
       doc.getRootElement().addContent(labNode);
+      
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -113,6 +134,17 @@ public class GetLab extends GNomExCommand implements Serializable {
       
       theLab.excludeMethodFromXML("getApprovedBillingAccounts");
       theLab.excludeMethodFromXML("getPendingBillingAccounts");
+
+      // Block details about total dollar amount on billing accounts
+      for(Iterator i = theLab.getBillingAccounts().iterator(); i.hasNext();) {
+        BillingAccount ba = (BillingAccount)i.next();
+        ba.excludeMethodFromXML("getTotalDollarAmount");
+        ba.excludeMethodFromXML("getTotalDollarAmountDisplay");
+        ba.excludeMethodFromXML("getTotalDollarAmountRemaining");
+        ba.excludeMethodFromXML("getTotalDollarAmountRemainingDisplay");
+        ba.excludeMethodFromXML("getTotalChargesToDateDisplay");
+      }
+
       
       Document doc = new Document(new Element("OpenLabList"));
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();

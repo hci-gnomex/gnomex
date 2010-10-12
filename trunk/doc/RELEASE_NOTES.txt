@@ -1,9 +1,13 @@
 ﻿GNomEx Release Notes
 
-4.9.9
+4.9.9.1 
+----------------------
+- Added total dollar amount to billing account.
+- User is prevented from submitting experiment request if total charges on billing account (including estimated charges for new request) exceed billing account's total dollar amount.
+
+4.9.9 (Oct 10, 2010)
 -----------------------
 - Show estimated charges on Submit Request confirm tab.
-
 
 4.9.8.1 (Oct 6, 2010)
 -----------------------

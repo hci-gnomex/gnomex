@@ -626,6 +626,8 @@
 							editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 						   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
     	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
+						<mx:DataGridColumn headerText="Total $ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="80"/>
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
 						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
 						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>
@@ -665,6 +667,7 @@
 							editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 						   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
     	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+						<mx:DataGridColumn headerText="Total $ amt" textAlign="right" dataField="@totalDollarAmountDisplay" width="80"/>
 						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30"/>
 						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50"/>
 						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50"/>

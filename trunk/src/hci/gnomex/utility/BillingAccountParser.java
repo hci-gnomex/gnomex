@@ -4,6 +4,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -94,6 +95,14 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     } else {
       billingAccount.setIsPO("N");
     }
+    
+    if (n.getAttributeValue("totalDollarAmountDisplay") != null && !n.getAttributeValue("totalDollarAmountDisplay").equals("")) {
+      String totalDollarAmount = n.getAttributeValue("totalDollarAmountDisplay");
+      totalDollarAmount = totalDollarAmount.replaceAll("\\$", "");
+      totalDollarAmount = totalDollarAmount.replaceAll(",", "");
+      billingAccount.setTotalDollarAmount(new BigDecimal(totalDollarAmount));
+    }
+        
     if (n.getAttributeValue("isApproved") != null && !n.getAttributeValue("isApproved").equals("")) {
       String isApproved = n.getAttributeValue("isApproved");
       

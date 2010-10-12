@@ -18,6 +18,7 @@ import hci.gnomex.utility.RequestEmailBodyFormatter;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,6 +59,13 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     billingAccount = new BillingAccount();
     HashMap errors = this.loadDetailObject(request, billingAccount);
     this.addInvalidFields(errors);
+    
+    if (request.getParameter("totalDollarAmountDisplay") != null && !request.getParameter("totalDollarAmountDisplay").equals("")) {
+      String tda = request.getParameter("totalDollarAmountDisplay");
+      tda = tda.replaceAll("\\$", "");
+      tda = tda.replaceAll(",", "");
+      billingAccount.setTotalDollarAmount(new BigDecimal(tda));
+    }
     
     try {
       launchAppURL = this.getLaunchAppURL(request);  
@@ -156,13 +164,14 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
     body.append("\n");
     body.append("\n");
-    body.append("Lab:               " + lab.getName() + "\n");
-    body.append("Account:           " + billingAccount.getAccountName() + "\n");
-    body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
-    body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
-    body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
-    body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
-    body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
+    body.append("Lab:                 " + lab.getName() + "\n");
+    body.append("Account:             " + billingAccount.getAccountName() + "\n");
+    body.append("Chartfield:          " + billingAccount.getAccountNumber() + "\n");
+    body.append("Funding Agency:      " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
+    body.append("Effective until:     " + billingAccount.getExpirationDateOther() + "\n");
+    body.append("Total Dollar Amount: " + billingAccount.getTotalDollarAmountDisplay() + "\n");
+    body.append("Submitter UID:       " + billingAccount.getSubmitterUID() + "\n");
+    body.append("Submitter Email:     " + billingAccount.getSubmitterEmail() + "\n");
     
 
     if (send) {

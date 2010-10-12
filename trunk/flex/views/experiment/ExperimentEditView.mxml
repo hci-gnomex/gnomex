@@ -2113,18 +2113,28 @@
 		}
 		
 		private function onCreateBillingItems(event:ResultEvent):void {
+			var readyToSubmit:Boolean = true;
 			if (createBillingItems.lastResult.name() == "NewBilling") { 
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
 					if (billingItems.length() == 0) {
-						this.confirmView.currentState = "";
+						this.confirmView.currentState = "";						
 					} else {
-						this.confirmView.currentState = "BillingState"
+						if (createBillingItems.lastResult.Request.@exceedsBillingAccountBalance == 'Y' ) {
+							this.confirmView.currentState = "BillingExceedState";
+							readyToSubmit = false;
+						} else {
+							this.confirmView.currentState = "BillingState"
+						}
 					}
+				} else {
+					readyToSubmit = false;
 				}
 			} else {
-				Alert.show(createBillingItems.lastResult..ACTMESSAGE.@TEXT, "Unable to get estimated billing items"); 
+				Alert.show(createBillingItems.lastResult..ACTMESSAGE.@TEXT, "Unable to get estimated billing items");
+				readyToSubmit = false;
 			}
+			this.submitButton.enabled = readyToSubmit;
 		}
 		public function getBillingTreeIcon(item:Object):Class {
 			if (item.name() == "BillingLab") {
