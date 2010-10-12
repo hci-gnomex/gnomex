@@ -402,7 +402,7 @@
     <mx:VBox width="100%" height="100%" verticalGap="0">
 
   		<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" width="100%">
-  			  <mx:TextArea styleName="instructionBox" width="840" wordWrap="true" height="64" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off" editable="false">
+  			  <mx:TextArea styleName="instructionBox" width="730" wordWrap="true" height="60" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off" editable="false">
   			  	  <mx:htmlText><![CDATA[Instructions<br>  1.  Pairwise combinations of samples to be hybridized to microarrays are defined on this page. These combinations are designated by dragging<br>       a Cy3 sample to an appropriate cell in the green column and the corresponding Cy5 sample to an adjacent cell in the red column.<br>  2.  After defining the microarray hybrid pairs on this screen, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 		</mx:VBox>
