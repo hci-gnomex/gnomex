@@ -328,7 +328,7 @@
         minValue="1" />         
     
 	<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1" right="0" top="0">
-  		  <mx:TextArea styleName="instructionBox" width="400" wordWrap="true" height="80" id="textarea1">
+  		  <mx:TextArea styleName="instructionBox" width="360" wordWrap="true" height="75" id="textarea1">
 			<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>       bottom of the page to proceed.]]></mx:htmlText>
 		  </mx:TextArea>
 	</mx:VBox>

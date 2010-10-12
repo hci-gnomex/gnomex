@@ -470,6 +470,7 @@ TextArea {
 .instructionBox
 {
 	backgroundColor: #FFFEC3;
+	fontSize: 9;
 }
 
 Text.welcome
@@ -541,6 +542,12 @@ Label.titleLabel
 {
 	color: #17871C;
 	fontWeight: normal;
+}
+.warningLabelSevere
+{
+	color: #EE2525;
+	fontWeight: bold;
+	fontSize: 10;
 }
 .navLinkButtonSmall
 {

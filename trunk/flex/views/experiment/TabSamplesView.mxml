@@ -702,7 +702,7 @@
 
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 	        <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1" width="100%">
-  			  <mx:TextArea styleName="instructionBox" width="700" wordWrap="true" height="98" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+  			  <mx:TextArea styleName="instructionBox" width="590" wordWrap="true" height="88" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 			</mx:VBox>
