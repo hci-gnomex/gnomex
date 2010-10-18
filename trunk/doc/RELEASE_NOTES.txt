@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.0.0
+----------------------
+- Allow external experiments to be submitted to GNomEx
+
+
 4.9.9.1 
 ----------------------
 - Added total dollar amount to billing account.

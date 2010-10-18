@@ -361,22 +361,23 @@
 
 			private var properties:Object;
 
-	        public var PROPERTY_WORKAUTH_INSTRUCTIONS:String          = "workauth_instructions";
-	        public var PROPERTY_WORKAUTH1_URL:String                  = "workauth1_url";
-	        public var PROPERTY_WORKAUTH1_NAME:String                 = "workauth1_name";
-	        public var PROPERTY_WORKAUTH2_URL:String                  = "workauth2_url";
-	        public var PROPERTY_WORKAUTH2_NAME:String                 = "workauth2_name";
-	        public var PROPERTY_QC_INSTRUCTIONS:String                = "qc_instructions";
-			public var PROPERTY_CORE_FACILITY_NAME:String             = "core_facility_name";
-	        public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String     = "contact_name_core_facility";
-	        public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String    = "contact_email_core_facility";
-	        public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String     = "contact_name_software_bugs";
-	        public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String    = "contact_email_software_bugs";
-			public var PROPERTY_HELP_URL:String                       = "help_url";
-			public var PROPERTY_PRICING_URL:String                    = "pricing_url";
-			public var PROPERTY_UNIVERSITY_USER_AUTHENTICATION:String = "university_user_authentication";  
-			public var PROPERTY_GENERATE_GL_INTERFACE:String          = "generate_general_ledger_interface";
-			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String        = "illumina_barcoding_note";
+	        public var PROPERTY_WORKAUTH_INSTRUCTIONS:String              = "workauth_instructions";
+	        public var PROPERTY_WORKAUTH1_URL:String                      = "workauth1_url";
+	        public var PROPERTY_WORKAUTH1_NAME:String                     = "workauth1_name";
+	        public var PROPERTY_WORKAUTH2_URL:String                      = "workauth2_url";
+	        public var PROPERTY_WORKAUTH2_NAME:String                     = "workauth2_name";
+	        public var PROPERTY_QC_INSTRUCTIONS:String                    = "qc_instructions";
+			public var PROPERTY_CORE_FACILITY_NAME:String                 = "core_facility_name";
+	        public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String         = "contact_name_core_facility";
+	        public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String        = "contact_email_core_facility";
+	        public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String         = "contact_name_software_bugs";
+	        public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String        = "contact_email_software_bugs";
+			public var PROPERTY_HELP_URL:String                           = "help_url";
+			public var PROPERTY_PRICING_URL:String                        = "pricing_url";
+			public var PROPERTY_UNIVERSITY_USER_AUTHENTICATION:String     = "university_user_authentication";  
+			public var PROPERTY_GENERATE_GL_INTERFACE:String              = "generate_general_ledger_interface";
+			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String            = "illumina_barcoding_note";
+			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 			
             public	var fileDownloadUtil:FileDownloadUtil;
 
@@ -620,6 +621,18 @@
             	} else {
             		return false;
             	}
+             }
+             
+             public function defaultToInternalExperimentSubmission():Boolean {
+             	if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) != null &&
+             	    this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'INTERNAL') {
+             		return true;
+             	} else if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE)!= null &&
+             	        this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'EXTERNAL') {
+             		return false;
+             	} else {
+             		return true;
+             	}
              }
 
             public function launchExperimentDownloads():Boolean {

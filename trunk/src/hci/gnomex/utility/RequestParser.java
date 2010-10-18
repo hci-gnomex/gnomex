@@ -177,7 +177,11 @@ public class RequestParser implements Serializable {
   
   
   private void initializeRequest(Element n, Request request) throws Exception {
-    
+
+    if (n.getAttributeValue("isExternal") != null && !n.getAttributeValue("isExternal").equals("")) {
+      request.setIsExternal(n.getAttributeValue("isExternal"));      
+    }
+
     if (n.getAttributeValue("amendState") != null && !n.getAttributeValue("amendState").equals("")) {
       amendState = n.getAttributeValue("amendState");      
     }
@@ -1414,6 +1418,10 @@ public class RequestParser implements Serializable {
   
   public boolean isNewRequest() {
     return isNewRequest;
+  }
+  
+  public boolean isExternalExperiment() {
+    return request.getIsExternal() != null && request.getIsExternal().equalsIgnoreCase("Y");
   }
 
   public boolean isAmendRequest() {

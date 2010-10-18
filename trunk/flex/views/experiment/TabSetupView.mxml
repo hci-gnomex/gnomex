@@ -24,6 +24,27 @@
          <mx:SetStyle target="{label1}" name="paddingTop"/>
          <mx:SetStyle target="{vbox1}" name="verticalGap" value="12"/>
       </mx:State>
+      <mx:State name="ExternalExperimentState">
+         <mx:SetProperty target="{textarea1}" name="htmlText">
+            <mx:value><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.]]></mx:value>
+         </mx:SetProperty>
+         <mx:SetProperty target="{textarea1}" name="height" value="74"/>
+         <mx:RemoveChild target="{hbox5}"/>
+         <mx:RemoveChild target="{accountBox}"/>
+         <mx:SetProperty target="{label11}" name="text" value="(2) Select a experiment category."/>
+         <mx:SetProperty target="{label12}" name="width" value="200"/>
+         <mx:SetProperty target="{label11}" name="width" value="200"/>
+         <mx:SetProperty target="{text2}" name="width" value="200"/>
+         <mx:SetStyle target="{vbox1}" name="verticalGap" value="20"/>
+      </mx:State>
+      <mx:State name="AdminExternalExperimentState" basedOn="AdminState">
+         <mx:RemoveChild target="{hbox5}"/>
+         <mx:RemoveChild target="{accountBox}"/>
+         <mx:SetProperty target="{textarea1}" name="htmlText">
+            <mx:value><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.]]></mx:value>
+         </mx:SetProperty>
+          <mx:SetProperty target="{textarea1}" name="height" value="74"/>        
+      </mx:State>
    </mx:states>
    
 
@@ -129,10 +150,18 @@
 		
 		public function checkSecurity():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				this.currentState = "AdminState";
+				if (parentApplication.defaultToInternalExperimentSubmission()) {
+					this.currentState = "AdminState";
+				} else {
+					this.currentState = "AdminExternalExperimentState";
+				}
 				idAppUser = '';
 			} else {
-				this.currentState = "";
+				if (parentApplication.defaultToInternalExperimentSubmission()) {
+					this.currentState = "";				
+				} else {
+					this.currentState = "ExternalExperimentState";
+				}
 				idAppUser = parentApplication.getIdAppUser();
 			}			
 			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
@@ -338,9 +367,17 @@
         	} else if (idAppUser != null &&  idAppUser != '' &&
         	    this.requestTypeGroup.selectedValue != null &&
         	    this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' &&
-        	    this.billingAccountCombo.selectedItem != null && 
         	    this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '') {
-        	    isComplete = true;
+        	    	
+        	    // Billing account is not required on external experiment submissions
+        	    if (this.currentState == "" || this.currentState == "AdminState") {
+        	    	if (this.billingAccountCombo.selectedItem != null) {
+		        	    isComplete = true;
+        	    		
+        	    	} 	    
+        	    } else {
+        	    	isComplete = true;
+        	    }
         	    	
         	} 
         	
@@ -438,14 +475,14 @@
           
 
 		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
-  		  <mx:TextArea styleName="instructionBox" width="275" wordWrap="true" height="120">
+  		  <mx:TextArea styleName="instructionBox" width="275" wordWrap="true" height="120" id="textarea1">
 			<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will<br>       be electronically billed following completion<br>       of the work.]]></mx:htmlText>
 		  </mx:TextArea>
 		</mx:VBox>
      	
 		<mx:VBox width="100%" height="100%" verticalGap="15" paddingTop="2" id="vbox1" enabled="true">
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-				<mx:Label text="(1) Verify your lab group." width="180"/>
+				<mx:Label text="(1) Verify your lab group." width="180" id="label12"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
 					width="340"
@@ -453,21 +490,21 @@
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
-				<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top">
+				<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5">
 					<mx:Text  width="180"  id="text1">
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
-					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%">
-						<mx:HBox verticalAlign="middle">
+					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%" id="vbox3">
+						<mx:HBox verticalAlign="middle" id="hbox3">
 							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 							</mx:ComboBox>
-							<mx:Text text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel"/>
+							<mx:Text text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel" id="text4"/>
 						</mx:HBox>
 						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
 						</mx:Text>
 						
-						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0">
+						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
 							<mx:LinkButton  label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>showWorkAuthForm()</mx:click>
 							</mx:LinkButton>

@@ -34,6 +34,7 @@
 		    </mx:LinkButton>	
 		    <mx:LinkButton label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'Change to HiSeq' : 'Change to GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline" >    	        
 		    </mx:LinkButton>
+		    <mx:LinkButton label="Upload files" visible="{detail.selectedExperiment.@isExternal == 'Y'}" click="{ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
 		    <mx:LinkButton label="Delete" click="detail.promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
 		        <mx:height>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
 		        <mx:visible>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>

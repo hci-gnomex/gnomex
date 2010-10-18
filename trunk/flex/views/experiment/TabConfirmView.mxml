@@ -86,6 +86,16 @@
 				<mx:Spacer width="10"/>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="ExternalExperimentState">
+			<mx:RemoveChild target="{vbox2}"/>
+			<mx:SetProperty target="{text1}" name="width" value="300"/>
+			<mx:SetProperty target="{text2}" name="width" value="200"/>
+			<mx:SetProperty target="{requestKindLabel}" name="width" value="160"/>
+			<mx:SetProperty target="{appLabel}" name="width" value="160"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText">
+				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the “Back” button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the “Submit” button.]]></mx:value>
+			</mx:SetProperty>
+		</mx:State>
 	</mx:states>
 	
 	
@@ -157,13 +167,13 @@
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" width="140"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" width="140" id="text2"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0">
 					<mx:Label text="Project" textDecoration="underline" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}" width="200" height="100%"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}" width="200" height="100%" id="text1"/>
 				</mx:VBox>
-				<mx:VBox height="100%" verticalGap="0">
+				<mx:VBox height="100%" verticalGap="0" id="vbox2">
 					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}" width="250"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>

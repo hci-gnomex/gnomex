@@ -44,6 +44,7 @@ public class Request extends HibernateDetailObject {
   private Date           lastModifyDate;
   private String         isArrayINFORequest;
   private String         codeVisibility;
+  private String         isExternal;  
   private Set            samples = new TreeSet();
   private Set            labeledSamples = new TreeSet();
   private Set            hybridizations = new TreeSet();
@@ -699,6 +700,18 @@ public class Request extends HibernateDetailObject {
       return createYear;
       
     }
+  }
+
+
+  
+  public String getIsExternal() {
+    return isExternal;
+  }
+
+
+  
+  public void setIsExternal(String isExternal) {
+    this.isExternal = isExternal;
   }
 
 }

@@ -137,11 +137,21 @@ public class RequestHTMLFormatter {
     table.addContent(makeRow("Date", request.formatDate(request.getCreateDate()),
                              "Phone",        phone));
 
-    table.addContent(makeRow("Account",     accountName, 
-                    "Email",        email));      
+    if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
+      table.addContent(makeRow("Account",     accountName, 
+          "Email",        email));      
 
-    table.addContent(makeRow("", accountNumber,
-                     (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
+      table.addContent(makeRow("", accountNumber,
+           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
+      
+    } else {
+      table.addContent(makeRow("External Submission",     "&nbsp;", 
+          "Email",        email));      
+
+      table.addContent(makeRow("", "&nbsp;",
+           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
+      
+    }
 
     
     
