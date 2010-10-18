@@ -191,6 +191,8 @@
         import views.util.PromptXMLListCollection;
         import views.experiment.ConvertIlluminaRequestWindow;
         
+
+        
 		[Bindable]
 		private var errorMessage:String = "";
 		[Bindable]
@@ -305,6 +307,11 @@
             	
 
     			isInitialized = true;
+			}
+			
+			// Always perform checkSecurity on setupView
+			if (this.theTab.contains(setupView)) {
+				setupView.checkSecurity();
 			}
 			
 			
