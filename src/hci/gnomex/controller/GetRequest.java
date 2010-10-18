@@ -29,6 +29,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
@@ -51,6 +52,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
   
   private Integer idRequest;
   private String  requestNumber;
+  private String  showUploads = "N";
+  private String  serverName;
+  private String  baseDir;
 
   
   public void validate() {
@@ -64,6 +68,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
     if (request.getParameter("requestNumber") != null && !request.getParameter("requestNumber").equals("")) {
       requestNumber = request.getParameter("requestNumber");
     } 
+    if (request.getParameter("showUploads") != null && !request.getParameter("showUploads").equals("")) {
+      showUploads = request.getParameter("showUploads");
+    } 
+    
+    serverName = request.getServerName();
     
     
     if (idRequest == null && requestNumber == null) {
@@ -78,6 +87,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      baseDir = dh.getMicroarrayDirectoryForWriting(serverName);
  
       // Find request
       boolean newRequest = false;
@@ -339,8 +349,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
             
           }
           
-
-
+          // Show files uploads that are in the staging area.
+          // Only show these files if user has write permissions.
+          if (showUploads.equals("Y") && this.getSecAdvisor().canUpdate(request)) {
+            Element requestUploadNode = new Element("RequestUpload");
+            requestNode.addContent(requestUploadNode);
+            String key = request.getKey(Constants.UPLOAD_STAGING_DIR);
+            GetRequestDownloadList.addExpandedFileNodes(baseDir, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh);
+          }
 
           doc.getRootElement().addContent(requestNode);
         

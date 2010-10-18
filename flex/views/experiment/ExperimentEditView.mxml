@@ -2106,10 +2106,21 @@
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
 			
-			var params:Object = new Object();
-			params.requestXMLString = request.toXMLString();
+			if (request.@isExternal == 'Y') {
+				// This is an external experiment submission.  Don't
+				// attempt to get estimated charges.
+				submitButton.enabled = true;
+				if (theTab.contains(this.confirmView)) {
+					this.confirmView.currentState = "ExternalExperimentState";
+				}
+			} else {
+				// This is a new experiment request. Get the estimated
+				// charnges for this request.
+				var params:Object = new Object();
+				params.requestXMLString = request.toXMLString();
+				createBillingItems.send(params);
+			}
 			
-			createBillingItems.send(params);
 		}
 		
 		private function onCreateBillingItems(event:ResultEvent):void {
@@ -2144,8 +2155,23 @@
 			}  
 		}   
 		
+		public function isExternalExperimentSubmission():Boolean {
+			if (!this.isEditState() && !this.isAmendState()) {
+				if (this.setupView.currentState == "ExternalExperimentState" || this.setupView.currentState == "AdminExternalExperimentState") {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}			
+		}
 		
-		private function initializeRequestXML():void {
+		
+		private function initializeRequestXML():void {			
+			// Determine if this is an external experiment submission
+			request.@isExternal = isExternalExperimentSubmission() ? "Y" : "N";
+			
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			
 			if (this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
@@ -2162,7 +2188,9 @@
 				// from the setup tab
 				request.@idLab = setupView.labCombo.selectedItem.@idLab;
 				request.@idAppUser = setupView.idAppUser;
-				request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
+				if (request.@isExternal == 'N') {
+					request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
+				}
 				request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 				if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
@@ -2398,17 +2426,18 @@
 
 				var message:String = "";
 				var title:String = ""; 
-				if (this.isAmendState()) {
-					message = 'Request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
-					title = "Services added to Request";			
+				if (this.isExternalExperimentSubmission()) {
+					ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);
 				} else {
-					message = 'Request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
-					title = "Request Submitted";			
+					if (this.isAmendState()) {
+						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
+						title = "Services added to Request";			
+					} else {
+						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
+						title = "Request Submitted";			
+					}
+					Alert.show(message, title, 0, this, onNotifySubmitRequest);
 				}
-				Alert.show(message, title, 0, this, onNotifySubmitRequest);
-				
-
-				
 			} else {
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -2462,7 +2491,7 @@
 								deleteTarget += " and ";								
 							}
 							deleteTarget += "Sequence Lanes";
-						} 
+						} 					
 					
 						Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
 						"Warning");				
@@ -3293,6 +3322,13 @@
    			PopUpManager.centerPopUp(convertWindow);
    			convertWindow.init(this.request);
     	}
+    	
+    	public static function showExperimentUploadWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.init(idRequest, requestNumber);
+    		
+    	}
 
 		]]>
 	</mx:Script>
@@ -3391,16 +3427,17 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%" horizontalAlign="right">
-			    <mx:HBox  horizontalAlign="left">
+			    <mx:HBox  horizontalAlign="left" id="hbox6">
 			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
 					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
 					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()">
 					</mx:LinkButton>
-			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
+			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2">    	        
 			    	</mx:LinkButton>
-   		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'Change to HiSeq' : 'Change to GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}" >    	        
+   		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3">    	        
 			    	</mx:LinkButton>
+			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1"/>
 			    </mx:HBox>
                 <mx:Spacer width="100%"/>
 	 	        <util:DirtyNote id="dirty"/>
@@ -3550,6 +3587,15 @@
 				</mx:VBox>
     			</mx:Canvas>
     		</mx:AddChild>
+    		<mx:SetStyle target="{linkbutton1}" name="icon" value="@Embed(source='../../assets/upload.png')"/>
+    		<mx:SetStyle target="{hbox6}" name="horizontalGap" value="6"/>
+    		<mx:SetStyle target="{downloadExperimentButton}" name="paddingLeft" value="0"/>
+    		<mx:SetStyle target="{requestFormButton}" name="paddingLeft" value="0"/>
+    		<mx:SetStyle target="{analysisButton}" name="paddingLeft" value="0"/>
+    		<mx:SetStyle target="{linkbutton2}" name="paddingLeft" value="0"/>
+    		<mx:SetStyle target="{linkbutton3}" name="paddingLeft" value="0"/>
+    		<mx:SetStyle target="{linkbutton1}" name="paddingLeft" value="0"/>
+    		<mx:SetStyle target="{linkbutton1}" name="textDecoration" value="underline"/>
     	</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>

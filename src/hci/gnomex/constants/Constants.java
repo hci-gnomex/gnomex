@@ -48,6 +48,7 @@ public class Constants {
   public static final String              AMEND_QC_TO_SEQ                 = "SolexaBaseAmendState";
   public static final String              AMEND_ADD_SEQ_LANES             = "SolexaLaneAmendState";
   
+  public static final String              UPLOAD_STAGING_DIR              = "upload_staging";
   
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");
 

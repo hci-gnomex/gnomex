@@ -235,49 +235,51 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           
 
           // if this is a new request, create QC work items for each sample
-          if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
-            WorkItem workItem = new WorkItem();
-            workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-            if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+          if (!requestParser.isExternalExperiment()) {
+            if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
+              WorkItem workItem = new WorkItem();
+              workItem.setIdRequest(requestParser.getRequest().getIdRequest());
+              if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
 
-              if (requestParser.isQCAmendRequest() && !isNewSample) {
-                String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
-                // QC->Solexa request....
-                // Place samples on Seq Prep worklist.
-                workItem.setCodeStepNext(codeStepNext);
-                if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
-                  sample.setQualBypassed( "Y");
-                  sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));                  
-                }
-              } else {
-                // New request....
-                // For Solexa samples to be prepped by core, place on Solexa QC worklist.
-                // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
-                // will be recorded.
-                if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
-                  String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_QC : Step.HISEQ_QC;
-                  workItem.setCodeStepNext(codeStepNext);
-                } else {
+                if (requestParser.isQCAmendRequest() && !isNewSample) {
                   String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
+                  // QC->Solexa request....
+                  // Place samples on Seq Prep worklist.
                   workItem.setCodeStepNext(codeStepNext);
-                  sample.setQualBypassed("Y");
-                  sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
-                }                
-              } 
-              
-            } else {
-                if (requestParser.isNewRequest() || isNewSample) {
-                  // New Microarray request or new Sample Quality request...
-                  // Place samples on QC work list
-                  workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);                  
-                }
-            }
-            if (workItem.getCodeStepNext() != null) {
-              workItem.setSample(sample);
-              workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-              sess.save(workItem);
-              
-            }
+                  if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
+                    sample.setQualBypassed( "Y");
+                    sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));                  
+                  }
+                } else {
+                  // New request....
+                  // For Solexa samples to be prepped by core, place on Solexa QC worklist.
+                  // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
+                  // will be recorded.
+                  if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
+                    String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_QC : Step.HISEQ_QC;
+                    workItem.setCodeStepNext(codeStepNext);
+                  } else {
+                    String codeStepNext = requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY) ? Step.SEQ_PREP : Step.HISEQ_PREP;
+                    workItem.setCodeStepNext(codeStepNext);
+                    sample.setQualBypassed("Y");
+                    sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
+                  }                
+                } 
+                
+              } else {
+                  if (requestParser.isNewRequest() || isNewSample) {
+                    // New Microarray request or new Sample Quality request...
+                    // Place samples on QC work list                  
+                    workItem.setCodeStepNext(Step.QUALITY_CONTROL_STEP);                  
+                  }
+              }
+              if (workItem.getCodeStepNext() != null) {
+                workItem.setSample(sample);
+                workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+                sess.save(workItem);
+                
+              }
+            }            
           }
           
           sampleCount++;
@@ -363,7 +365,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
             Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
 
-            if (!isNewSample) {
+            // Create work items for labeling step if experiment modified
+            if (!requestParser.isExternalExperiment() && !isNewSample) {
               StringBuffer buf = new StringBuffer();
               buf.append("SELECT  ls ");
               buf.append(" from LabeledSample ls ");
@@ -440,8 +443,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
 
               // if this is a not a new request, but these is a new sequence lane,
-              // create a work item for the Cluster Gen (Assemble) worklist.
-              if ((!requestParser.isNewRequest()  && isNewLane)) {
+              // create a work item for the Cluster Gen (Assemble) worklist.              
+              if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest()  && isNewLane)) {
                 WorkItem workItem = new WorkItem();
                 workItem.setIdRequest(requestParser.getRequest().getIdRequest());
                 workItem.setSequenceLane(lane);
@@ -565,46 +568,51 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         
         
-        // Create the billing items
-        sess.refresh(requestParser.getRequest());
-        // We need to include the samples even though they were not added
-        // b/c we need to perform lib prep on them.
-        if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
-          samplesAdded.addAll(requestParser.getRequest().getSamples());
-        }
-        createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
-        sess.flush();
-
-        
-        // If this is an existing request and the billing account has been reassigned,
-        // change the account on the billing items as well.
         String billingAccountMessage = "";
-        int reassignCount =  0;
-        int unassignedCount = 0;
-        if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
-          for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
-            BillingItem bi = (BillingItem)ib.next();
-            if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-              bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());   
-              reassignCount++;
-            } else  {
-              unassignedCount++;
+        if (!requestParser.isExternalExperiment()) {
+          sess.refresh(requestParser.getRequest());
+
+          // Create the billing items
+          // We need to include the samples even though they were not added
+          // b/c we need to perform lib prep on them.
+          if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
+            samplesAdded.addAll(requestParser.getRequest().getSamples());
+          }
+          createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded);
+          sess.flush();
+
+          
+          // If this is an existing request and the billing account has been reassigned,
+          // change the account on the billing items as well.
+          int reassignCount =  0;
+          int unassignedCount = 0;
+          if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+            for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
+              BillingItem bi = (BillingItem)ib.next();
+              if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());   
+                reassignCount++;
+              } else  {
+                unassignedCount++;
+              }
             }
-          }
-          if (unassignedCount > 0) {
-            billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
-          } 
-          if (billingAccountMessage.length() > 0) {
-            billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
-          } else {
-            billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+            if (unassignedCount > 0) {
+              billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
+            } 
+            if (billingAccountMessage.length() > 0) {
+              billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
+            } else {
+              billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+
+            }
+        
+          if (reassignCount > 0) {
+              sess.flush();
+            }
 
           }
-      
-        if (reassignCount > 0) {
-            sess.flush();
-          }
 
+          
         }
 
         // Create file server data directories for request.
@@ -1266,18 +1274,32 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-    if (requestParser.isNewRequest()) {
-      introNote.append("Request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
-      ".  You will receive email notification when the experiment is complete.");   
+    if (requestParser.isExternalExperiment()) {
+      if (requestParser.isNewRequest()) {
+        introNote.append("Experiment " + requestParser.getRequest().getNumber() + " has been submitted to GNomEx.");   
+      } else {
+        introNote.append("Additional services have been added to experiment " + originalRequestNumber + ".");   
+        
+      }
+      introNote.append("<br><br>To view the experiment details, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+      
     } else {
-      introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
-      ".  You will receive email notification when the experiment is complete.");   
+      if (requestParser.isNewRequest()) {
+        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+        ".  You will receive email notification when the experiment is complete.");   
+      } else {
+        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + dictionaryHelper.getProperty(Property.CORE_FACILITY_NAME) + 
+        ".  You will receive email notification when the experiment is complete.");   
+        
+      }
+      introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
       
     }
-    introNote.append("<br><br>To track progress on the request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), samples, hybs, sequenceLanes, introNote.toString());
-    String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + " Request " + requestParser.getRequest().getNumber() + " submitted";
+    String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + 
+                  (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") + 
+                  requestParser.getRequest().getNumber() + " submitted";
     
     boolean send = false;
     if (dictionaryHelper.isProductionServer(serverName)) {
@@ -1292,7 +1314,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (send) {
       MailUtil.send(requestParser.getRequest().getAppUser().getEmail(), 
           null,
-          dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
+          (requestParser.isExternalExperiment() ? dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_BUGS) : dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY)), 
           subject, 
           emailFormatter.format(),
           true);      

@@ -84,6 +84,15 @@
 		<servlet-class>hci.gnomex.controller.UploadAndBroadcastEmailURLServlet</servlet-class>
 	</servlet>
 	
+	<servlet>
+		<servlet-name>UploadExperimentFileServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.UploadExperimentFileServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadExperimentURLServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.UploadExperimentURLServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -142,6 +151,18 @@
 		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
 		<url-pattern>UploadAndBroadcastEmailURLServlet.gx</url-pattern>
 	</servlet-mapping>
+
+
+  <servlet-mapping>
+		<servlet-name>UploadExperimentFileServlet</servlet-name>
+		<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	
+  <servlet-mapping>
+		<servlet-name>UploadExperimentURLServlet</servlet-name>
+		<url-pattern>UploadExperimentURLServlet.gx</url-pattern>
+	</servlet-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -180,6 +201,7 @@
 			<url-pattern>getPricingList.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
 			<url-pattern>MovePriceCategory.gx</url-pattern>
+			<url-pattern>OrganizeExperimentUploadFiles.gx</url-pattern>
 			<url-pattern>Reassign*.gx</url-pattern>
 			<url-pattern>ShowAnalysisDownloadForm.gx</url-pattern>
 			<url-pattern>ShowBillingGLInterface.gx</url-pattern>
@@ -189,6 +211,7 @@
 			<url-pattern>ShowRequestDownloadForm.gx</url-pattern>
 			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
+			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>
 
 		</web-resource-collection>

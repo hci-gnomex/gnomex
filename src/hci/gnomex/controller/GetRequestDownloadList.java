@@ -304,7 +304,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String)row[30];
         
         if (idSlideDesign == null && (hybNumber == null || hybNumber.equals(""))) {
-            n.setAttribute("results", "bioanalyzer");
+            n.setAttribute("results", "sample quality");
         } else {
           if (idSlideDesign != null) {
             n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
@@ -367,7 +367,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         
         requestNode.addContent(n);
 
-        addExpandedFileNodes(requestNode, n, requestNumber, key, codeRequestCategory, dh);
+        addExpandedFileNodes(baseDir, baseDirFlowCell, requestNode, n, requestNumber, key, codeRequestCategory, dh);
 
         
         
@@ -407,7 +407,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               
               requestNode.addContent(n1);
               
-              addExpandedFileNodes(requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory, dh);
+              addExpandedFileNodes(baseDir, baseDirFlowCell, requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory, dh);
             }
             // We only want to show the list of flow cells once
             // per request.
@@ -448,7 +448,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     return this;
   }
   
-  private void addExpandedFileNodes(Element requestNode,
+  public static void addExpandedFileNodes(String baseDir,
+      String baseDirFlowCell,
+      Element requestNode,
       Element requestDownloadNode, 
       String requestNumber, 
       String key, 
@@ -474,7 +476,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           fd.setDirectoryName(dirTokens[1]);
           fd.excludeMethodFromXML("getChildren");
           
-          Element fdNode = fd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement();
+          Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
           fdNode.setAttribute("isSelected", "N");
           fdNode.setAttribute("state", "unchecked");
           recurseAddChildren(fdNode, fd);
@@ -491,12 +493,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
   }
   
-  private void recurseAddChildren(Element fdNode, FileDescriptor fd) throws XMLReflectException {
+  private static void recurseAddChildren(Element fdNode, FileDescriptor fd) throws XMLReflectException {
     for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
       FileDescriptor childFd = (FileDescriptor)i.next();
       
       childFd.excludeMethodFromXML("getChildren");
-      Element childFdNode = childFd.toXMLDocument(null, this.DATE_OUTPUT_ALTIO).getRootElement();
+      Element childFdNode = childFd.toXMLDocument(null, childFd.DATE_OUTPUT_ALTIO).getRootElement();
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
       

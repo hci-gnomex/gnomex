@@ -256,22 +256,24 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             // Append the submission instructions to the printabe form
             // for non-guest users.
             String instructions = "";
-            if (!this.getSecAdvisor().isGuest()) {
-              instructions = this.getInstructions();
-              if (instructions != null) {
-                
+            if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
+              if (!this.getSecAdvisor().isGuest()) {
+                instructions = this.getInstructions();
+                if (instructions != null) {
+                  
 
-                Element instructDiv = new Element("DIV");
-                instructDiv.setAttribute("id", "containerInstruction");
-                outerDiv.addContent(instructDiv);
+                  Element instructDiv = new Element("DIV");
+                  instructDiv.setAttribute("id", "containerInstruction");
+                  outerDiv.addContent(instructDiv);
 
-                instructDiv.addContent(new Element("BR"));
-                formatter.makePageBreak(instructDiv);
-                
-                instructDiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
-                // Convert degree and micro symbols to html escape codes
-                instructions = instructions.replaceAll("\\xB0", "&#176;");
-                instructions = instructions.replaceAll("\\xB5", "&#181;");              
+                  instructDiv.addContent(new Element("BR"));
+                  formatter.makePageBreak(instructDiv);
+                  
+                  instructDiv.addContent("SUBMISSION_INSTRUCTIONS_GO_HERE");
+                  // Convert degree and micro symbols to html escape codes
+                  instructions = instructions.replaceAll("\\xB0", "&#176;");
+                  instructions = instructions.replaceAll("\\xB5", "&#181;");              
+                }              
               }              
             }
           
@@ -282,7 +284,10 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             this.xmlResult = this.xmlResult.replaceAll("�",     "&micro");
             // Add the submission instructions to the end of the request
             // form.
-            this.xmlResult = this.xmlResult.replaceAll("SUBMISSION_INSTRUCTIONS_GO_HERE", instructions);
+            if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
+              this.xmlResult = this.xmlResult.replaceAll("SUBMISSION_INSTRUCTIONS_GO_HERE", instructions);              
+            }
+
             
             // Injust the <script> for java script handling of alternate style sheets
             this.xmlResult = this.xmlResult.replaceAll("JAVASCRIPT_GOES_HERE", "<script type=\"text/javascript\" src=\"switchPrintStyleSheet.js\"></script>");
