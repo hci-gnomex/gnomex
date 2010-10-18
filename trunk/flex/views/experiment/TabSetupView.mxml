@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Experiment setup" width="100%" height="100%" xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
+<mx:Canvas label="Experiment setup" 
+	width="100%" height="100%"
+	xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml">
    <mx:states>
       <mx:State name="AdminState">
          <mx:AddChild relativeTo="{accountBox}" position="before">
@@ -150,14 +152,14 @@
 		
 		public function checkSecurity():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				if (parentApplication.defaultToInternalExperimentSubmission()) {
+				if (parentApplication.submitInternalExperiment()) {
 					this.currentState = "AdminState";
 				} else {
 					this.currentState = "AdminExternalExperimentState";
 				}
 				idAppUser = '';
 			} else {
-				if (parentApplication.defaultToInternalExperimentSubmission()) {
+				if (parentApplication.submitInternalExperiment()) {
 					this.currentState = "";				
 				} else {
 					this.currentState = "ExternalExperimentState";
@@ -475,7 +477,7 @@
           
 
 		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
-  		  <mx:TextArea styleName="instructionBox" width="275" wordWrap="true" height="120" id="textarea1">
+  		  <mx:TextArea styleName="instructionBox" width="282" wordWrap="true" height="120" id="textarea1">
 			<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will<br>       be electronically billed following completion<br>       of the work.]]></mx:htmlText>
 		  </mx:TextArea>
 		</mx:VBox>
@@ -485,7 +487,7 @@
 				<mx:Label text="(1) Verify your lab group." width="180" id="label12"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					selectedIndex="-1" labelField="@name" 
-					width="340"
+					width="345"
 					 change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" id="labCombo">
 				</mx:ComboBox>
 			</mx:HBox>
