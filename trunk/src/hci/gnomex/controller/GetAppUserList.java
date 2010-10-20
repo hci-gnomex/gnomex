@@ -5,6 +5,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
@@ -87,7 +88,7 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
       user.excludeMethodFromXML("getPasswordExternal");
 
       
-      doc.getRootElement().addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+      doc.getRootElement().addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement());
 
     }
 
