@@ -5,6 +5,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
@@ -154,7 +155,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
           lab.excludeMethodFromXML("getIsCcsgMember");
           lab.excludeMethodFromXML("getIsExternalPricing");
           
-          doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+          doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement());
         }
       }
     }

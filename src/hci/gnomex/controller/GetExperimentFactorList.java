@@ -5,6 +5,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
@@ -129,7 +130,7 @@ public class GetExperimentFactorList extends GNomExCommand implements Serializab
   private void generateXML(Document doc, List factors, String isUsed) throws XMLReflectException {
     for(Iterator i = factors.iterator(); i.hasNext();) {
       ExperimentFactor ef = (ExperimentFactor)i.next();
-      Element node = ef.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      Element node = ef.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
       node.setAttribute("isUsed", isUsed);
       node.setAttribute("isSelected", "false");
       doc.getRootElement().addContent(node);      

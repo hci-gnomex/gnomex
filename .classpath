@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="/hciEnv/lib/hibernate2.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/Hibernate2Utils.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/hibernate3.jar"/>
-	<classpathentry kind="lib" path="/hciEnv/lib/Hibernate3Utils.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/itext-1.4.4.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/ITS.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/jacc-1_0-fr.jar"/>
@@ -44,5 +43,8 @@
 	<classpathentry kind="lib" path="/hciEnv/lib/PersonResearch.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/proxool-0.8.3.jar"/>
 	<classpathentry kind="lib" path="/hciEnv/lib/swarmcache-1.0rc2.jar"/>
+	<classpathentry kind="lib" path="/hciEnv/lib/BSTX.jar"/>
+	<classpathentry kind="lib" path="/hciEnv/lib/Hibernate3Utils.jar" sourcepath="/Hibernate3Utils/src"/>
+	<classpathentry kind="lib" path="/hciEnv/lib/XGNOMX.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>
