@@ -169,10 +169,10 @@
       <mx:HBox id="hbox3" horizontalGap="10">
         <util:MultiLineButton label="Submit Experiment Request"  click="submitRequest()"  
         		icon="@Embed(source='../../assets/flask_add.png')"  styleName="dashboardButton" id="button1" width="166" height="70"/>
-        <util:MultiLineButton label="Register External Experiment"  click="submitExternalExperiment()"  
-        		icon="@Embed(source='../../assets/flask_add.png')"  styleName="dashboardButton" id="submitExternalExperimentButton" width="166" height="70"/>
         <util:MultiLineButton label="Add services to Experiment Request"  click="amendRequest()" 
         		icon="@Embed(source='../../assets/flask_edit.png')"  styleName="dashboardButton" id="amendButton" width="166" height="70"/>
+        <util:MultiLineButton label="Register External Experiment"  click="submitExternalExperiment()"  
+        		icon="@Embed(source='../../assets/experiment_register.png')"  styleName="dashboardButton" id="submitExternalExperimentButton" width="166" height="70"/>
       </mx:HBox>
       <mx:HBox id="hbox2" horizontalGap="10">
         <util:MultiLineButton label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" id="button2" width="166" height="70"/>

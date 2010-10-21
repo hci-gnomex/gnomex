@@ -3442,8 +3442,8 @@
 					<mx:Button label="Cancel" id="cancelButton" click="promptToCancelRequest()"/>
 				</mx:HBox>
 	 	    </mx:HBox>
-	 	    <mx:Canvas width="100%" >
-			    <mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" paddingLeft="0" left="3" height="22" y="3">
+	 	    <mx:HBox width="100%" >
+			    <mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="4" paddingLeft="0" left="3" height="22" y="3">
 			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" paddingLeft="0" paddingRight="0"/>
 					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" paddingRight="0"/>
 					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
@@ -3455,13 +3455,14 @@
 			    	</mx:LinkButton>
 			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" paddingRight="0"/>
 			    </mx:HBox>
-                <mx:Spacer width="100%"/>
-	 	        <util:DirtyNote id="dirty" right="70" bottom="0"/>
+			    <mx:Spacer width="100%"/>
+	 	        <util:DirtyNote id="dirty" />
  				<mx:Button id="saveButton" label="Save" 
-	            	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveRequest()" right="0" bottom="2">
+	            	icon="@Embed('../../assets/action_save.gif')" 
+	            	click="validateAndSaveRequest()">
 	            </mx:Button>
 
-	 	    </mx:Canvas>
+	 	    </mx:HBox>
  			
  		</mx:ViewStack>
  	   	
@@ -3503,19 +3504,8 @@
     				           	  change="this.dirty.setDirty();refreshLab()" 
     				           	  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
     				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-    				           	  width="100%"/>
+    				           	  width="400"/>
     				       </mx:HBox>
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				        <mx:Label text="{this.request.@isExternal == 'Y' ? '(External Experiment)' : 'Account'}"  
-    				        	width="{this.request.@isExternal == 'Y' ? 200 : 55}" fontWeight="bold"/>
-    				        <mx:ComboBox id="requestEditBillingAccountCombo"
-    				           	  labelField="@accountName" 
-    				           	  dataProvider="{billingAccounts}" 
-    				           	  change="{this.dirty.setDirty();}"
-    				           	  visible="{this.request.@isExternal != 'Y'}"
-    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"
-    				           	  width="100%"/>
-    				    </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
     				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
     				        <mx:ComboBox id="requestEditProjectCombo"
@@ -3523,7 +3513,20 @@
     				           	  change="this.dirty.setDirty()"
     				           	  dataProvider="{projects}" 
     				           	  enabled="true"
-    				           	  width="100%"/>
+    				           	  width="400"/>
+    				    </mx:HBox>
+    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+    				        <mx:Label text="{this.request.@isExternal == 'Y' ? 'External Experiment' : 'Account'}"  
+    				        	width="{this.request.@isExternal == 'Y' ? 200 : 55}" 
+    				        	fontStyle="{this.request.@isExternal == 'Y' ? 'italic' : 'normal'}"
+    				        	fontWeight="bold"/>
+    				        <mx:ComboBox id="requestEditBillingAccountCombo"
+    				           	  labelField="@accountName" 
+    				           	  dataProvider="{billingAccounts}" 
+    				           	  change="{this.dirty.setDirty();}"
+    				           	  visible="{this.request.@isExternal != 'Y'}"
+    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"
+    				           	  width="{this.request.@isExternal == 'Y' ? 0 : 400}"/>
     				    </mx:HBox>
     				    <mx:HBox verticalGap="0" horizontalGap="0" id="hbox1">
     				      <mx:Label text="Modified"  width="55" fontWeight="bold"/>
@@ -3540,7 +3543,7 @@
     			 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
-        			editable="false" 
+        			editable="false"  horizontalScrollPolicy="auto"
         			sortExpertMode="true" 
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
@@ -3606,7 +3609,6 @@
     			</mx:Canvas>
     		</mx:AddChild>
     		<mx:SetStyle target="{linkbutton1}" name="icon" value="@Embed(source='../../assets/upload.png')"/>
-    		<mx:SetStyle target="{hbox6}" name="horizontalGap" value="6"/>
     		<mx:SetStyle target="{downloadExperimentButton}" name="paddingLeft" value="0"/>
     		<mx:SetStyle target="{requestFormButton}" name="paddingLeft" value="0"/>
     		<mx:SetStyle target="{analysisButton}" name="paddingLeft" value="0"/>
@@ -3614,6 +3616,8 @@
     		<mx:SetStyle target="{linkbutton3}" name="paddingLeft" value="0"/>
     		<mx:SetStyle target="{linkbutton1}" name="paddingLeft" value="0"/>
     		<mx:SetStyle target="{linkbutton1}" name="textDecoration" value="underline"/>
+    		<mx:SetStyle target="{dirty}" name="fontSize" value="9"/>
+    		<mx:SetProperty target="{dirty}" name="label" value="Changes have not been saved"/>
     	</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
