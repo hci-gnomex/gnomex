@@ -1276,7 +1276,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
     if (requestParser.isExternalExperiment()) {
       if (requestParser.isNewRequest()) {
-        introNote.append("Experiment " + requestParser.getRequest().getNumber() + " has been submitted to GNomEx.");   
+        introNote.append("Experiment " + requestParser.getRequest().getNumber() + " has been registered in the GNomEx repository.");   
       } else {
         introNote.append("Additional services have been added to experiment " + originalRequestNumber + ".");   
         
@@ -1299,7 +1299,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), samples, hybs, sequenceLanes, introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + 
                   (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") + 
-                  requestParser.getRequest().getNumber() + " submitted";
+                  requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
     
     boolean send = false;
     if (dictionaryHelper.isProductionServer(serverName)) {
