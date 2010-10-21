@@ -4,6 +4,7 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   
   protected Document   doc;
   protected Map        fileNameMap = new HashMap();
+  protected List       newDirectoryNames = new ArrayList();
   
   public FileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -26,6 +28,8 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   }
   
   public void parse() throws Exception{
+    fileNameMap = new HashMap();
+    newDirectoryNames = new ArrayList();
     
     Element root = this.doc.getRootElement();
     
@@ -36,21 +40,68 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       String []keyTokens = folderNode.getAttributeValue("key").split("-");
       String directoryName = keyTokens[3];
       
-      for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
-        Element fileNode = (Element)i1.next();
-        if (fileNode.getAttributeValue("directoryName").equals(Constants.UPLOAD_STAGING_DIR)) {
-          List fileNames = (List)fileNameMap.get(directoryName);
-          if (fileNames == null) {
-            fileNames = new ArrayList();
-            fileNameMap.put(directoryName, fileNames);
-          }
-          fileNames.add(fileNode.getAttributeValue("displayName"));
-        }
-      }
+      // Keep track of all new folders
+      recurseDirectories(folderNode, null);
+      
       
     }
-    
    
+  }
+  
+  private void recurseDirectories(Element folderNode, String parentDir) {
+    String directoryName = null;
+    if (folderNode.getName().equals("RequestDownload")) {
+      String []keyTokens = folderNode.getAttributeValue("key").split("-");
+      directoryName = keyTokens[3];
+      
+    } else {
+      if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir"))
+      directoryName = folderNode.getAttributeValue("displayName");
+    }
+    
+    if (directoryName == null) {
+      return;
+    }
+
+    String qualifiedDir = parentDir != null ? parentDir  + File.separator + directoryName : directoryName;
+    if (folderNode.getAttributeValue("isNew") != null && folderNode.getAttributeValue("isNew").equals("Y")) {
+      newDirectoryNames.add(qualifiedDir);
+    }
+    
+    // Get the files to be moved
+    for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
+      Element fileNode = (Element)i1.next();
+
+      // Ignore directories here.
+      if (fileNode.getAttributeValue("type") != null && fileNode.getAttributeValue("type").equals("dir")) {
+        continue;
+      }
+      
+      String fileName = fileNode.getAttributeValue("fileName");
+      
+      List fileNames = (List)fileNameMap.get(qualifiedDir);
+      if (fileNames == null) {
+        fileNames = new ArrayList();
+        fileNameMap.put(qualifiedDir, fileNames);
+      }
+      fileNames.add(fileName);
+    }
+
+    
+    for(Iterator i = folderNode.getChildren("RequestDownload").iterator(); i.hasNext();) {
+      Element childFolderNode = (Element)i.next();
+      recurseDirectories(childFolderNode, qualifiedDir);
+    }
+    
+    for(Iterator i = folderNode.getChildren("FileDescriptor").iterator(); i.hasNext();) {
+      Element childFolderNode = (Element)i.next();
+      recurseDirectories(childFolderNode, qualifiedDir);
+    }
+    
+  }
+  
+  public List getNewDirectoryNames() {
+    return newDirectoryNames;
   }
   
   public List parseFilesToRemove() throws Exception {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="868" 
+	layout="vertical" width="824" 
 	xmlns:util="views.util.*"
-	height="418" creationPolicy="all"
+	height="408" creationPolicy="all"
 	showCloseButton="true"
 	close="{mx.managers.PopUpManager.removePopUp(this)}" 
 	title="{'Upload Files for Experiment ' + requestNumber}" >
@@ -65,7 +65,7 @@
 		
 		[Bindable]
 		private var idRequest:Object;
-		
+
 		[Bindable]
 		private var requestNumber:Object;
 		
@@ -147,6 +147,7 @@
 	   private function onGetRequest(event:ResultEvent): void {
 			if (getRequest.lastResult.name() == "OpenRequestList") {
 				this.theTab.selectedIndex = 1;
+				newFolderButton.enabled =getRequest.lastResult.Request.@codeRequestCategory == 'SOLEXA' || getRequest.lastResult.Request.@codeRequestCategory == 'HISEQ';
 			}
 	   }
        
@@ -203,7 +204,9 @@
 				return parentApplication.iconMicroarraySingleColor;
 			} else if (item.name() == "RequestDownload") {
 				return parentApplication.iconFolder;			
-			} else  {
+			} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
+				return parentApplication.iconFolder;
+			} else {
 				return null;
 			}
 		}
@@ -217,13 +220,49 @@
 	 		var info:String = item.name() == "RequestDownload" && item.hasOwnProperty("@info") && item.@info != "" ? " - " + item.@info : "";
 	 		if (item.name() == "RequestDownload") {
 	 			if (item.hasOwnProperty("@itemNumber") && item.@itemNumber != '') {
-	 				return item.@itemNumber + " - " + item.@results + info;
+	 				var results:String = item.hasOwnProperty("@results") && item.@results != '' ? " - " + item.@results : '';
+	 				return item.@itemNumber + results + info;
 	 			} else {
 			    	return item.@results + info;
 	 			}
 	 		} else {
 	 			return item.@displayName + info;
 	 		} 
+	    }
+	    
+	    public function showAddFolderWindow():void {
+	    	if (this.downloadTree.selectedItem == null) {
+	    		 this.downloadTree.selectedIndex = 0;
+	    	}
+	    	
+	    	var addFolderWindow:FolderAddWindow = FolderAddWindow(PopUpManager.createPopUp(DisplayObject(parentApplication.theBody), FolderAddWindow, true));
+	    	PopUpManager.centerPopUp(addFolderWindow);
+	    	addFolderWindow.uploadWindow = this;
+	    	addFolderWindow.folderName.setFocus();
+	    }
+	    
+	    public function addDownloadFolder(folderName:String):void {
+		    var parent:XML = null;
+	    	if (this.downloadTree.selectedItem.name() == 'FileDescriptor') {
+	    		parent = XML(downloadTree.selectedItem).parent();
+	    	} else {
+	    		parent = XML(downloadTree.selectedItem);
+	    	}
+	    	
+	    	var folder:XML = new XML("<RequestDownload isNew='Y' " +
+	    	                         "key='X-X-X-" + folderName + "' " +
+	    	                         "itemNumber='" + folderName + "' " +
+	    	                         "info='' />");
+		    if (parent.children().length() > 0) {
+		    	var firstChild:XML = parent.children()[0];
+				parent.insertChildBefore(firstChild, folder);	 		    	
+		    } else {
+		    	parent.appendChild(folder);
+		    }	    	                         
+			this.downloadTree.expandItem(parent, true);
+			this.downloadTree.selectedItem = null;
+			this.downloadTree.selectedItem = folder;
+			this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex); 	                          
 	    }
 
 		
@@ -397,12 +436,14 @@
 	<mx:XMLListCollection id="uploadedFiles" source="{getRequest.lastResult..RequestUpload.FileDescriptor}"/>
 	<mx:XMLListCollection id="filesToRemove"/>
     <mx:Canvas width="100%" height="100%">
+		<mx:TextArea width="594" height="20" 
+			styleName="instructionBox" visible="{theTab.selectedIndex == 1}" text="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
 		<mx:TabNavigator id="theTab" change="onTabChange()" width="100%" paddingTop="0" height="100%" styleName="form">
 			<mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 			          <mx:HBox  width="100%">
 			              <mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" enabled="false"/>
 			              <mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" enabled="false"/>
-			              <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_blue.png')" textDecoration="underline" enabled="false"/>
+			              <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
 			              <mx:HBox width="100%"  horizontalAlign="right">
 			                  <mx:VRule height="20"/>
 			              </mx:HBox>
@@ -411,15 +452,22 @@
 				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
 				</mx:DataGrid>				
 			</mx:VBox>
-			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:TextArea width="600" height="20" 
-					styleName="instructionBox" text="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting."/>
+			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+			    <mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
+			    <mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Remove file"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
+			    <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.name() == 'FileDescriptor')}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
+			    <mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
+			    	
+			    </mx:HBox>
 
 				<mx:HDividedBox width="100%" height="100%">
-					<mx:VBox width="300" height="100%" verticalGap="2" >
+					<mx:VBox width="300" height="100%" verticalGap="0" styleName="form" >
+					    <mx:HBox width="100%"  backgroundColor="#C9BEC0" backgroundAlpha="0.22" >
+							<mx:Label text="Uploaded Files"/>
+					    </mx:HBox>
 						<mx:DataGrid id="filesGrid"  
 							dragEnabled="true"
-							showHeaders="true" 
+							showHeaders="false" 
 						    allowMultipleSelection="true"
 							width="100%" height="100%"
 							dataProvider="{uploadedFiles}" dragMoveEnabled="true" itemClick="{this.downloadTree.selectedItem = null;}">
@@ -428,23 +476,26 @@
 							</mx:columns>
 						</mx:DataGrid>
 					</mx:VBox>
-					<mx:VBox width="50%" height="100%">
-					<mx:Tree id="downloadTree"
-						width="100%" height="100%"
-						iconFunction="getTreeIcon"
-						dataProvider="{downloadList}"
-		                borderStyle="solid" 
-					    labelFunction="{getDownloadName}"
-						dropEnabled="true"  		                
-						dragEnabled="true"
-						dragMoveEnabled="true" 
-						allowMultipleSelection="true" 
-						dragDrop="onDragDropFile(event)"
-						dragOver="doDragOver(event)"
-			            dragEnter="doDragEnter(event)"
-			            dragExit="doDragExit(event)"
-			            itemClick="{this.filesGrid.selectedItem = null;}">						
-					</mx:Tree>		
+					<mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
+						<mx:HBox width="100%"  backgroundColor="#C9BEC0" backgroundAlpha="0.22" >
+							<mx:Label text="Experiment Folders"/>
+					    </mx:HBox>
+						<mx:Tree id="downloadTree"
+							width="100%" height="100%"
+							iconFunction="getTreeIcon"
+							dataProvider="{downloadList}"
+			                borderStyle="solid" 
+						    labelFunction="{getDownloadName}"
+							dropEnabled="true"  		                
+							dragEnabled="true"
+							dragMoveEnabled="true" 
+							allowMultipleSelection="true" 
+							dragDrop="onDragDropFile(event)"
+							dragOver="doDragOver(event)"
+				            dragEnter="doDragEnter(event)"
+				            dragExit="doDragExit(event)"
+				            itemClick="{this.filesGrid.selectedItem = null;}">						
+						</mx:Tree>		
 					</mx:VBox>
 				</mx:HDividedBox>
 			</mx:VBox>
@@ -457,8 +508,6 @@
 			 <mx:Button label="Upload files" id="uploadButton"  enabled="false" visible="true" disabledIcon="@Embed(source='../../assets/upload_disable.png')" icon="@Embed(source='../../assets/upload.png')"/>	      	
 	      </mx:HBox>
 	      <mx:HBox width="100%">
-			 <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || this.downloadTree.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()"/>
-			 <mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 			 <mx:Spacer  width="100%" height="10"/>		
 			 <util:DirtyNote id="dirty"/>
 			 <mx:Button label="Save" id="saveButton"  enabled="true" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')"/>	      	

@@ -471,6 +471,9 @@ TextArea {
 {
 	backgroundColor: #FFFEC3;
 	fontSize: 9;
+	backgroundAlpha: 0.8;
+	borderStyle: solid;
+	cornerRadius: 4;
 }
 
 Text.welcome

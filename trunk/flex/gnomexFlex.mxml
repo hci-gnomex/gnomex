@@ -13,7 +13,7 @@
 	xmlns:billing="views.billing.*"
 	xmlns:util="views.util.*"
 	 backgroundGradientColors="[#7E7C7C, #7E7C7C]" 
-	 paddingBottom="3" paddingLeft="2" paddingRight="2" paddingTop="2" 
+	 paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
 	 backgroundGradientAlphas="[1.0, 1.0]" creationComplete="init()">
 
 
@@ -190,6 +190,15 @@
 	        [Bindable]
 	        [Embed(source="assets/flask.png")]
 	        public var iconFlask:Class;  
+
+	        [Bindable]
+	        [Embed(source="assets/flask_add.png")]
+	        public var iconSubmitExperiment:Class;
+	        
+	        [Bindable]
+	        [Embed(source="assets/experiment_register.png")]
+	        public var iconAddExternalExperiment:Class;
+	        
 	
 	        [Bindable]
 	        [Embed(source="assets/microarray_small.png")]
@@ -1192,10 +1201,10 @@
 			        </mx:HBox>
 			      </mx:HBox>
 			      
-			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="2" paddingRight="2" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
+			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
 			 			<mx:LinkBar id="linkButtonBar" 
 			 				 dataProvider="{initViews}" width="100%"
-			 			            enabled="false" visible="false"   paddingBottom="0"
+			 			            enabled="false" visible="false"   paddingBottom="0" paddingLeft="0"
 			 			            verticalAlign="middle" 
 			 			            itemClick="onViewSelection()"  horizontalAlign="left" >
 			 			</mx:LinkBar>
@@ -1229,11 +1238,11 @@
 					<util:HomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:HomeView>  
 		
-				    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'New Experiment Request' : 'New Experiment'}" 
-				    	icon="@Embed('assets/flask_add.png')"  width="100%" height="100%">
+				    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register Experiment'}" 
+				    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 
-				    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Experiment Request" 
+				    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Request" 
 				    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
 		            </experiment:ExperimentEditView>
 		            		
@@ -1305,6 +1314,8 @@
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
 	 		<mx:SetProperty target="{amendRequestView}" name="label" value="Add services" /> 
 	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
+	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
+	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="Submit Request"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingLeft" value="0"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="paddingRight" value="0"/>

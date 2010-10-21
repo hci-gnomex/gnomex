@@ -104,6 +104,20 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         if (this.getSecAdvisor().canUpdate(request)) {
           parser.parse();
           
+          // Add new directories to the file system
+          for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
+            String directoryName = (String)i.next();
+            File dir = new File(baseDir + File.separator + directoryName);
+            if (!dir.exists()) {
+              boolean success = dir.mkdirs();
+              if (!success) { 
+                // File was not successfully deleted
+                throw new Exception("Unable to create directory " + directoryName);
+              }
+              
+            }
+          }
+          
           
           // Move files to designated folder
           for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
@@ -113,12 +127,23 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String)i1.next();
               
-              String uploadDirectoryName = baseDir + "/" + Constants.UPLOAD_STAGING_DIR;
-              File uploadFile = new File(uploadDirectoryName + "/" + fileName);
-              String targetDirName = baseDir + "/" + directoryName;
+              File sourceFile = new File(fileName);
+              String targetDirName = baseDir + File.separator + directoryName;
               File targetDir = new File(targetDirName);
               
-              boolean success = uploadFile.renameTo(new File(targetDir, uploadFile.getName()));
+              // Don't try to move if the file is in the same directory
+              String td = targetDirName.replaceAll("\\\\", "_");
+              td = td.replaceAll("/", "_");
+              td = td.replaceAll("__", "_");
+              String spath = sourceFile.getAbsolutePath().replaceAll("\\\\", "_");
+              spath = spath.replaceAll("/", "_");
+              spath = spath.replaceAll("__", "_");
+              
+              if (spath.startsWith(td)) {
+                continue;
+              }
+              
+              boolean success = sourceFile.renameTo(new File(targetDir, sourceFile.getName()));
               if (!success) {
                 // File was not successfully moved
                 throw new Exception("Unable to move file " + fileName + " to " + targetDirName);

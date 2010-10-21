@@ -2433,18 +2433,21 @@
 
 				var message:String = "";
 				var title:String = ""; 
-				if (this.isExternalExperimentSubmission()) {
-					ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);
+				if (this.isAmendState()) {
+					message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
+					title = "Services added to Request";			
 				} else {
-					if (this.isAmendState()) {
-						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
-						title = "Services added to Request";			
+					if (this.isExternalExperimentSubmission()) {
+						message = 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
+						title = "Experiment Registered";			
+						
 					} else {
 						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
 						title = "Request Submitted";			
+						
 					}
-					Alert.show(message, title, 0, this, onNotifySubmitRequest);
 				}
+				Alert.show(message, title, 0, this, onNotifySubmitRequest);
 			} else {
 				Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
@@ -2453,13 +2456,18 @@
 		
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
-				showPrintableRequestForm();
+				if (this.isExternalExperimentSubmission()) {
+					ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);
+				} else {
+					showPrintableRequestForm();
+				}
 				// Just close the window when the request has been submitte
 				// and show the submitted experiment in the Experiments view.
 				var theRequestNumber:String = this.submittedRequestNumber;
 				getNewRequest.send();  
 				initializeSubmitForm();
 				parentApplication.showExperiment(theRequestNumber);
+				
 
 			} else {
 				
@@ -2526,6 +2534,7 @@
 			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
 			navigateToURL(url, '_blank');	
 		}
+
 		
 		private function underlyingHybDataChange(event:CollectionEvent):void {
 			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
@@ -3357,7 +3366,7 @@
  
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
-  	<mx:Label id="titleLabel" styleName="titleLabel" text="New Experiment Request"/>
+  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
 
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
@@ -3398,7 +3407,7 @@
 		</mx:TabNavigator>
 	</mx:VBox>
 	
- 	   <mx:ControlBar width="100%">
+ 	   <mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1">
  		<mx:ViewStack id="buttonStack" width="100%">
 	 	    <mx:HBox width="100%"  verticalAlign="middle">
 				<mx:Button label="Back" enabled="false" visible="true" id="backButton" click="previousTab()" disabledIcon="@Embed(source='../../assets/arrow_left_disabled.png')" icon="@Embed(source='../../assets/arrow_left.png')" fontWeight="normal"/>
@@ -3433,26 +3442,26 @@
 					<mx:Button label="Cancel" id="cancelButton" click="promptToCancelRequest()"/>
 				</mx:HBox>
 	 	    </mx:HBox>
-	 	    <mx:HBox width="100%" horizontalAlign="right">
-			    <mx:HBox  horizontalAlign="left" id="hbox6">
-			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/icon_download.gif')" id="downloadExperimentButton" textDecoration="underline"/>
-					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+	 	    <mx:Canvas width="100%" >
+			    <mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" paddingLeft="0" left="3" height="22" y="3">
+			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" paddingLeft="0" paddingRight="0"/>
+					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" paddingRight="0"/>
 					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()">
+						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" paddingRight="0">
 					</mx:LinkButton>
-			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2">    	        
+			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingRight="0">    	        
 			    	</mx:LinkButton>
-   		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3">    	        
+   		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" paddingRight="0">    	        
 			    	</mx:LinkButton>
-			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1"/>
+			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" paddingRight="0"/>
 			    </mx:HBox>
                 <mx:Spacer width="100%"/>
-	 	        <util:DirtyNote id="dirty"/>
+	 	        <util:DirtyNote id="dirty" right="70" bottom="0"/>
  				<mx:Button id="saveButton" label="Save" 
-	            	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveRequest()">
+	            	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveRequest()" right="0" bottom="2">
 	            </mx:Button>
 
-	 	    </mx:HBox>
+	 	    </mx:Canvas>
  			
  		</mx:ViewStack>
  	   	
@@ -3497,12 +3506,14 @@
     				           	  width="100%"/>
     				       </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				        <mx:Label text="Account"  width="55" fontWeight="bold"/>
+    				        <mx:Label text="{this.request.@isExternal == 'Y' ? '(External Experiment)' : 'Account'}"  
+    				        	width="{this.request.@isExternal == 'Y' ? 200 : 55}" fontWeight="bold"/>
     				        <mx:ComboBox id="requestEditBillingAccountCombo"
     				           	  labelField="@accountName" 
     				           	  dataProvider="{billingAccounts}" 
     				           	  change="{this.dirty.setDirty();}"
-    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+    				           	  visible="{this.request.@isExternal != 'Y'}"
+    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"
     				           	  width="100%"/>
     				    </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">

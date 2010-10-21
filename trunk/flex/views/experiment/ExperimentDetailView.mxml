@@ -511,7 +511,7 @@
 	        	
 	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 	                <mx:Label text="Account"  width="55" fontWeight="bold"/>
-	                <mx:Text text="{this.selectedExperiment.@billingAccountName}" width="100%" />
+	                <mx:Text text="{this.selectedExperiment.@isExternal ? '(External Experiment)' : this.selectedExperiment.@billingAccountName}" width="100%" />
 	            </mx:HBox>
 	            <mx:HBox width="100%">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">

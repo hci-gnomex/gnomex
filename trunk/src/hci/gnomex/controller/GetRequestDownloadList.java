@@ -156,6 +156,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
             continue;
           }
+          if (folderName.equals(Constants.UPLOAD_STAGING_DIR)) {
+            continue;
+          }
           String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + folderName;
           Object[] newRow = new Object[row.length];
           for(int x = 0; x < row.length; x++) {
@@ -467,13 +470,16 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
       String directoryKey = (String)i1.next();
       String[] dirTokens = directoryKey.split("-");
+      String directoryName = dirTokens[1];
+
+      
       List   theFiles     = (List)directoryMap.get(directoryKey);
 
       // For each file in the directory
       if (theFiles != null && theFiles.size() > 0) {
         for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
           FileDescriptor fd = (FileDescriptor) i2.next();
-          fd.setDirectoryName(dirTokens[1]);
+          fd.setDirectoryName(directoryName);
           fd.excludeMethodFromXML("getChildren");
           
           Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
