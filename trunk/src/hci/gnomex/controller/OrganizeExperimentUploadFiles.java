@@ -101,75 +101,80 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         String baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForWriting(serverName);
         baseDir += "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
         
+        
         if (this.getSecAdvisor().canUpdate(request)) {
-          parser.parse();
           
-          // Add new directories to the file system
-          for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
-            String directoryName = (String)i.next();
-            File dir = new File(baseDir + File.separator + directoryName);
-            if (!dir.exists()) {
-              boolean success = dir.mkdirs();
-              if (!success) { 
-                // File was not successfully deleted
-                throw new Exception("Unable to create directory " + directoryName);
-              }
-              
-            }
-          }
-          
-          
-          // Move files to designated folder
-          for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
-            String directoryName = (String)i.next();
-            List fileNames = (List)parser.getFileNameMap().get(directoryName);
+          if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+            parser.parse();
             
-            for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
-              String fileName = (String)i1.next();
-              
-              File sourceFile = new File(fileName);
-              String targetDirName = baseDir + File.separator + directoryName;
-              File targetDir = new File(targetDirName);
-              
-              // Don't try to move if the file is in the same directory
-              String td = targetDirName.replaceAll("\\\\", "_");
-              td = td.replaceAll("/", "_");
-              td = td.replaceAll("__", "_");
-              String spath = sourceFile.getAbsolutePath().replaceAll("\\\\", "_");
-              spath = spath.replaceAll("/", "_");
-              spath = spath.replaceAll("__", "_");
-              
-              if (spath.startsWith(td)) {
-                continue;
+            // Add new directories to the file system
+            for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
+              String directoryName = (String)i.next();
+              File dir = new File(baseDir + File.separator + directoryName);
+              if (!dir.exists()) {
+                boolean success = dir.mkdirs();
+                if (!success) { 
+                  // File was not successfully deleted
+                  throw new Exception("Unable to create directory " + directoryName);
+                }
+                
               }
-              
-              boolean success = sourceFile.renameTo(new File(targetDir, sourceFile.getName()));
-              if (!success) {
-                // File was not successfully moved
-                throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
-              }
-              
             }
             
-          }
-          
-          // Remove files from file system
-          if (filesToRemoveParser != null) {
-            for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
-              String fileName = (String)i.next();
-              boolean success = new File(fileName).delete();
-              if (!success) { 
-                // File was not successfully deleted
-                throw new Exception("Unable to delete file " + fileName);
+            
+            // Move files to designated folder
+            for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
+              String directoryName = (String)i.next();
+              List fileNames = (List)parser.getFileNameMap().get(directoryName);
+              
+              for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
+                String fileName = (String)i1.next();
+                
+                File sourceFile = new File(fileName);
+                String targetDirName = baseDir + File.separator + directoryName;
+                File targetDir = new File(targetDirName);
+                
+                // Don't try to move if the file is in the same directory
+                String td = targetDirName.replaceAll("\\\\", "_");
+                td = td.replaceAll("/", "_");
+                td = td.replaceAll("__", "_");
+                String spath = sourceFile.getAbsolutePath().replaceAll("\\\\", "_");
+                spath = spath.replaceAll("/", "_");
+                spath = spath.replaceAll("__", "_");
+                
+                if (spath.startsWith(td)) {
+                  continue;
+                }
+                
+                boolean success = sourceFile.renameTo(new File(targetDir, sourceFile.getName()));
+                if (!success) {
+                  // File was not successfully moved
+                  throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                }
+                
+              }
+              
+            }
+            
+            // Remove files from file system
+            if (filesToRemoveParser != null) {
+              for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
+                String fileName = (String)i.next();
+                boolean success = new File(fileName).delete();
+                if (!success) { 
+                  // File was not successfully deleted
+                  throw new Exception("Unable to delete file " + fileName);
+                }
               }
             }
+            XMLOutputter out = new org.jdom.output.XMLOutputter();
+            this.xmlResult = "<SUCCESS/>";
+            setResponsePage(this.SUCCESS_JSP);          
+            
+          } else {
+            this.addInvalidField("Not external experiment", "This command is only valid for external experiments");
+            setResponsePage(this.ERROR_JSP);           
           }
-
-          
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
-          this.xmlResult = "<SUCCESS/>";
-          
-          setResponsePage(this.SUCCESS_JSP);          
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to organize uploaded files");
           setResponsePage(this.ERROR_JSP);
