@@ -509,10 +509,7 @@
 	                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
 	            </mx:HBox>
 	        	
-	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-	                <mx:Label text="Account"  width="55" fontWeight="bold"/>
-	                <mx:Text text="{this.selectedExperiment.@isExternal ? '(External Experiment)' : this.selectedExperiment.@billingAccountName}" width="100%" />
-	            </mx:HBox>
+
 	            <mx:HBox width="100%">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                <mx:Label width="55" text="Visibility" fontWeight="bold"/>
@@ -520,6 +517,16 @@
 		            </mx:HBox>
 
 	            </mx:HBox>
+	            
+	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+	                <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'External Experiment' : 'Account'}"  
+	                	width="{this.selectedExperiment.@isExternal == 'Y' ? 200 : 55}" 
+	                	fontWeight="bold"
+	                	fontStyle="{this.selectedExperiment.@isExternal == 'Y' ? 'italic' : 'normal'}"/>
+	                <mx:Text text="{this.selectedExperiment.@billingAccountName}" 
+	                	visible="{this.selectedExperiment.@isExternal == 'Y' ? false : true}" 
+	                	width="100%" />
+	            </mx:HBox>	            
         	</mx:VBox>
         	
         </mx:HBox>

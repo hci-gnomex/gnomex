@@ -464,7 +464,7 @@
     <mx:HBox width="100%" horizontalAlign="left" verticalAlign="bottom">
         <mx:ViewStack id="downloadButtonStack" width="100%">
 			<mx:HBox  horizontalCenter="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
-			    <mx:LinkButton label="Show Downloads" click="{theTab.selectedChild = filesView}" icon="@Embed(source='../../assets/icon_download.gif')" textDecoration="underline">
+			    <mx:LinkButton label="Show Downloads" click="{theTab.selectedChild = filesView}" icon="@Embed(source='../../assets/download.png')" textDecoration="underline">
 	    		</mx:LinkButton>				
 			    <mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
 			        <mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
@@ -474,11 +474,11 @@
         	<mx:HBox horizontalGap="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
 				    <mx:Button id="downloadFilesButton" 
 				    	click="downloadFiles()"
-				    	icon="@Embed('../../assets/icon_download.gif')" 
+				    	icon="@Embed('../../assets/download.png')" 
 				    	toolTip="Download selected folders"
 				    	label="Download" 
 				    	visible="true"/>
-				    <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download.png')"/>
+				    <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 				    <mx:VBox styleName="hintBox">
 					    <mx:LinkButton  label="Downloading help" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>
 				    </mx:VBox>
