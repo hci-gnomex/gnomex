@@ -145,7 +145,7 @@ public class RequestHTMLFormatter {
            (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
       
     } else {
-      table.addContent(makeRow("External Submission",     "&nbsp;", 
+      table.addContent(makeRow("&nbsp;",     "&nbsp;", 
           "Email",        email));      
 
       table.addContent(makeRow("", "&nbsp;",

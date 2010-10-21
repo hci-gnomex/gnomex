@@ -199,7 +199,13 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     return this;
   }
   
+  
   public static void getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag) {
+    getFileNamesToDownload(baseDir, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, flowCellDirectoryFlag, false); 
+  }
+
+  
+  public static void getFileNamesToDownload(String baseDir, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag, boolean flattenSubDirs) {
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
@@ -240,7 +246,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       }
       
       List theFiles = new ArrayList();    
-      getFileNames(theBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator, flowCellDirectoryFlag);
+      getFileNames(theBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
       
       // Hash the list of file names (by directory name)
       directoryMap.put(directoryKey, theFiles);
@@ -256,7 +262,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     }
   }      
       
-  public static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag) {
+  public static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs) {
     File fd = new File(directoryName);
     
 
@@ -268,7 +274,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         
         // Show the subdirectory in the name if we are not at the main folder level
         String displayName = "";
-        if (subDirName != null) {
+        if (flattenSubDirs && subDirName != null) {
           displayName = subDirName + "/" + fileList[x];
         } else {
           displayName = f1.getName();        
@@ -282,10 +288,10 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
         }
         
         if (f1.isDirectory()) {
-          FileDescriptor dirFileDescriptor = new FileDescriptor(requestNumber, f1.getName() + "/", f1, zipEntryName);
+          FileDescriptor dirFileDescriptor = new FileDescriptor(requestNumber, f1.getName(), f1, zipEntryName);
           dirFileDescriptor.setType("dir");
           theFiles.add(dirFileDescriptor);
-          getFileNames(theBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag);
+          getFileNames(theBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
         } else {
           boolean include = true;
           if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {

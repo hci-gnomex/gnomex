@@ -293,7 +293,9 @@
 			} else {
 				return parentApplication.iconFolder;			
 			}
-		} else  {
+		} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
+				return parentApplication.iconFolder;
+		} else {
 			return null;
 		}
 	}

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox  xmlns:mx="http://www.adobe.com/2006/mxml"
 	visible="{isDirtyFlag}" backgroundColor="#ffff99"  
-	horizontalAlign="right" paddingTop="1" 
-	paddingBottom="1" paddingLeft="4" paddingRight="4"  
+	horizontalAlign="right" paddingTop="2" 
+	paddingBottom="2" paddingLeft="2" paddingRight="2"  
 	cornerRadius="4" 
-	borderStyle="solid" 
+	borderStyle="solid"  
 	fontStyle="normal" fontWeight="normal">
 	
 	<mx:Script>

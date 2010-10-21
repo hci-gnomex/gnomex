@@ -477,8 +477,8 @@
           
 
 		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
-  		  <mx:TextArea styleName="instructionBox" width="282" wordWrap="true" height="120" id="textarea1">
-			<mx:htmlText><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.<br>  3.  The account selected from this work request will<br>       be electronically billed following completion<br>       of the work.]]></mx:htmlText>
+  		  <mx:TextArea styleName="instructionBox" width="272" wordWrap="true" height="120" id="textarea1">
+			<mx:htmlText><![CDATA[Instructions<br> 1.  Select the appropriate dropdown or radio<br>      button options for each line.<br> 2. After completing all line items, click the 'Next'<br>      button at the bottom of the page to proceed.<br> 3.  The account selected from this work request will<br>      be electronically billed following completion<br>      of the work.]]></mx:htmlText>
 		  </mx:TextArea>
 		</mx:VBox>
      	
@@ -497,7 +497,7 @@
 						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%" id="vbox3">
-						<mx:HBox verticalAlign="middle" id="hbox3">
+						<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1">
 							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 							</mx:ComboBox>

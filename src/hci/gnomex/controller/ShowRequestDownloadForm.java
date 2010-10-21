@@ -233,7 +233,8 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+        boolean flattenSubDirs = true;
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, folder, requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), null);
         
         if (i.hasNext()) {
@@ -261,7 +262,8 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
-        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG));
+        boolean flattenSubDirs = true;
+        GetExpandedFileList.getFileNamesToDownload(baseDir, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyHelper.getInstance(sess).getProperty(Property.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, flowCell.getNumber(), requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), flowCell.getIdFlowCell());
         
       }

@@ -551,10 +551,10 @@
 	            <mx:HBox  verticalAlign="middle" horizontalAlign="left" id="downloadExpandedFilesButtonView" height="100%">
 		            <mx:Button id="downloadExpandedFilesButton" 
 		             	click="downloadView.downloadExpandedFiles()" 
-		             	icon="@Embed('../../assets/icon_download.gif')" 
+		             	icon="@Embed('../../assets/download.png')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
-		            <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download.png')"/>
+		            <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 		            <mx:VBox styleName="hintBox">
 			            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>		            	
 		            </mx:VBox>
