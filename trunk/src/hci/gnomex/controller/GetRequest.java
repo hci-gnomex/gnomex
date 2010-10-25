@@ -342,7 +342,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 theBillingItem.excludeMethodFromXML("getLabName");
                 theBillingItem.excludeMethodFromXML("getAccountName");
                 billingLabNode.addContent(theBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement());
-                labTotalPrice = labTotalPrice.add(theBillingItem.getTotalPrice());
+                labTotalPrice = labTotalPrice.add(theBillingItem.getTotalPrice() != null ? theBillingItem.getTotalPrice() : new BigDecimal(0));
               }
               billingLabNode.setAttribute("totalPrice", NumberFormat.getCurrencyInstance().format(labTotalPrice.doubleValue()));
             }
