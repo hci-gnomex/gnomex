@@ -168,16 +168,12 @@ public class RequestHTMLFormatter {
     // If all of the prep instructions for the samples are the
     // same, print instructions before the samples grid.
     // Otherwise, we will show the instructions on each sample.
-    String prepInstructions = null;
-    boolean uniquePrepInstructions = false;
-    boolean showColPrepInstructions = true;
+    HashMap prepInstructionMap = new HashMap();
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample s = (Sample)i.next();
-      if (prepInstructions != null && s.getPrepInstructions() != null && !s.getPrepInstructions().equals(prepInstructions)) {
-        uniquePrepInstructions = true;
-        break;
-      }
-      prepInstructions = s.getPrepInstructions();
+      String sp = s.getPrepInstructions() == null ? "" : s.getPrepInstructions();
+      
+      prepInstructionMap.put(sp, null);
     }
     
     // Show 'samples' header
@@ -186,15 +182,16 @@ public class RequestHTMLFormatter {
     parentNode.addContent(sampleHeader);
     
     // Show global instructions
-    if (!uniquePrepInstructions && prepInstructions != null && !prepInstructions.equals("")) {
-      Element prepHeader = new Element("H6");
-      prepHeader.addContent(prepInstructions);
-      parentNode.addContent(prepHeader);
-      showColPrepInstructions = false;
+    if (prepInstructionMap.size() == 1) {
+      String globalPrepInstructions = (String)prepInstructionMap.keySet().iterator().next();
+      if (!globalPrepInstructions.equals("")) {
+        Element prepHeader = new Element("H6");
+        prepHeader.addContent(globalPrepInstructions);
+        parentNode.addContent(prepHeader);
+      }
     }
-    
-    
-    
+
+
     Element table = new Element("TABLE");
     table.setAttribute("CLASS", "grid");
     table.setAttribute("CELLPADDING", "5");
@@ -234,7 +231,7 @@ public class RequestHTMLFormatter {
       if (showSeqLibProtocol) {
           this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
       }
-      if (showColPrepInstructions) {
+      if (prepInstructionMap.size()  > 1) {
         this.addHeaderCell(rowh, "Prep Instructions", rowSpan, new Integer(1));        
       }
     } 
@@ -308,8 +305,8 @@ public class RequestHTMLFormatter {
         if (showSeqLibProtocol) {
         	this.addCell(row, sample.getIdSeqLibProtocol() != null ? dictionaryHelper.getSeqLibProtocol(sample.getIdSeqLibProtocol()) : "&nbsp;");
         }
-        if (showColPrepInstructions) {
-          this.addInstructionsCell(row, sample.getPrepInstructions() != null && !sample.getPrepInstructions().equals("") ? sample.getPrepInstructions() : "&nbsp");          
+        if (prepInstructionMap.size() > 1) {
+          this.addInstructionsCell(row, sample.getPrepInstructions() != null && !sample.getPrepInstructions().trim().equals("") ? sample.getPrepInstructions() : "&nbsp;");          
         }
       }
       if (request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {        
