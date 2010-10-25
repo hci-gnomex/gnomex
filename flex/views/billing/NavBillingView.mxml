@@ -1303,7 +1303,7 @@
     	
     	private function onPromptForRemovePricing(event:CloseEvent):void {
     		if (event.detail == Alert.YES) {
-    			removePricing()();
+    			removePricing();
     		}
     	}		
 		private function removePricing():void {
