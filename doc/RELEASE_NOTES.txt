@@ -8,6 +8,7 @@
 - Reworked home page.
 - Performance improvements to toXMLDocument in commands called during initialization (Robb).
 - Prevent null pointer exception on GetRequest when billing item has null total price.
+- Fix bug that was causing Prep instructions column to show up on printable form even though they are blank
 
 
 4.9.9.1 
