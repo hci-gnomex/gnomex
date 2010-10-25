@@ -45,13 +45,13 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       
       String key = seqLane.getIdNumberSequencingCycles() + "-" + seqLane.getIdSeqRunType();
       
-      // Determine the qty 
-      Integer seqLaneCount = (Integer)seqLaneMap.get(key);
-      if (seqLaneCount == null) {
-        seqLaneCount = new Integer(0);
+      // Keep track of the lanes for # cycles/seq run type
+      List theLanes = (List)seqLaneMap.get(key);
+      if (theLanes == null) {
+        theLanes = new ArrayList();
+        seqLaneMap.put(key, theLanes);
       }
-      seqLaneCount = new Integer(seqLaneCount.intValue() + 1);
-      seqLaneMap.put(key, seqLaneCount);
+      theLanes.add(seqLane);
       
       // Show the seq lane numbers in the notes for the billing item
       String notes = (String)seqLaneNoteMap.get(key);
@@ -73,7 +73,9 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       String idNumberSequencingCycles = tokens[0];
       String idSeqRunType             = tokens[1];
       
-      Integer qty = (Integer)seqLaneMap.get(key);
+      List theLanes = (List)seqLaneMap.get(key);
+      
+      Integer qty = getMultiplexedLaneQty(theLanes);
       String notes = (String)seqLaneNoteMap.get(key);
       
       // Find the billing price 
@@ -131,6 +133,43 @@ public class IlluminaSeqPlugin implements BillingPlugin {
     
     
     return billingItems;
+  }
+  
+  private Integer getMultiplexedLaneQty(List seqLanes) {
+    int maxQty = 0;
+    HashMap seqTagMap = new HashMap();
+    for(Iterator i = seqLanes.iterator(); i.hasNext();) {
+      SequenceLane theLane = (SequenceLane)i.next();
+      Integer idOligoBarcode = theLane.getSample().getIdOligoBarcode();
+      if (idOligoBarcode == null) {
+        idOligoBarcode = Integer.valueOf(-99);
+      }
+      List theLanes = (List)seqTagMap.get(idOligoBarcode);
+      if (theLanes == null) {
+        theLanes = new ArrayList();
+        seqTagMap.put(idOligoBarcode, theLanes);
+      }
+      theLanes.add(theLane);
+    }
+    
+    // To determine the number of lanes, we find the highest number
+    // of sequence lanes with the same sequence tag (or no tag).  
+    // For example, if there are 3 unique seq tag AAA, GGG, TTT
+    // and there are 3 lanes with AAA, 3 lanes with GGG, and 4 lanes
+    // with TTT, there are a total of 4 multiplexed lanes.  In the
+    // case where there are no sequence tags, the qty will equal
+    // the total number of lanes.
+    for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
+      Integer idOligoBarcode = (Integer)i.next();
+      List theLanes = (List)seqTagMap.get(idOligoBarcode);
+      
+      if (theLanes.size() > maxQty) {
+        maxQty = theLanes.size();
+      }
+    }
+    
+    
+    return Integer.valueOf(maxQty);
   }
 
 
