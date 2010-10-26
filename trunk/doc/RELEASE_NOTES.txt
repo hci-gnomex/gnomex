@@ -1,6 +1,11 @@
 ﻿GNomEx Release Notes
 
-5.0.0
+5.0.1
+---------------------
+- Categorize sequence tag schemes (oligo barcode scheme) by Illumina platform (request category)
+- Add sortOrder to sequence tags (oligo barcode)
+
+5.0.0 (Oct 25, 2010)
 ----------------------
 - Allow external experiments to be submitted to GNomEx.  
 - Provide window to upload and organize files for external experiments.
