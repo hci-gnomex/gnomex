@@ -134,7 +134,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     
     Element title = new Element("TITLE");
-    title.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber());
+    title.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request") + request.getNumber());
     head.addContent(title);
 
     Element style = new Element("style");
@@ -166,8 +166,15 @@ public class RequestEmailBodyFormatter extends DetailObject{
     Element h2 = new Element("H2");
     h2.addContent(formatter.makeRequestCategoryImage(appURL));
     h2.addContent("&nbsp;&nbsp;&nbsp;" + request.getNumber() + "&nbsp;&nbsp;&nbsp;");
-    h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request");
+    h2.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request"));
     center.addContent(h2);
+    
+    if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+      Element he = new Element("H4");
+      he.addContent("External Experiment");
+      center.addContent(he);              
+    }
+
     
     Element center1 = new Element("CENTER");
     body.addContent(center1);
