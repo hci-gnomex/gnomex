@@ -30,7 +30,7 @@
          <mx:SetProperty target="{textarea1}" name="htmlText">
             <mx:value><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.]]></mx:value>
          </mx:SetProperty>
-         <mx:SetProperty target="{textarea1}" name="height" value="74"/>
+         <mx:SetProperty target="{textarea1}" name="height" value="80"/>
          <mx:RemoveChild target="{hbox5}"/>
          <mx:RemoveChild target="{accountBox}"/>
          <mx:SetProperty target="{label11}" name="text" value="(2) Select a experiment category."/>

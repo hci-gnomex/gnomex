@@ -477,33 +477,33 @@
         	<mx:VBox verticalGap="0">
 	        	 
 	        	 <mx:HBox verticalGap="0" horizontalGap="0">
-	        	       <mx:Label text="Request Type"  width="83" fontWeight="bold"/>
+	        	       <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'External Experiment' :  'Experiment'}"  width="128" fontWeight="bold"/>
 	        	       <mx:Text text="{requestCategoryName}" width="160" />
-	        	   </mx:HBox>
+	        	 </mx:HBox>
 	            <mx:HBox verticalGap="0" horizontalGap="0">
-	                <mx:Label text="Application"  width="83" fontWeight="bold"/>
+	                <mx:Label width="128" fontWeight="bold"/>
 	                <mx:Text  text="{experimentCategoryName}" width="160" />
 	            </mx:HBox>
-        	       <mx:HBox verticalGap="0" horizontalGap="0">
-        	         <mx:Label text="Submit Date"  width="83" fontWeight="bold"/>
-        	         <mx:Text text="{this.selectedExperiment.@createDate}" width="160"/>
-        	       </mx:HBox>
         	</mx:VBox>
         	<mx:VBox verticalGap="0">
         		 <mx:HBox verticalGap="0" horizontalGap="0">
-        		   <mx:Label text="Submitted by"  width="85" fontWeight="bold"/>
+        		   <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submited by'}" width="100" fontWeight="bold"/>
         		   <mx:Text text="{this.selectedExperiment.@ownerName}" width="130" />
         		 </mx:HBox>
-        	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-        	           <mx:Label text="Group"  width="85" fontWeight="bold"/>
-        	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
+        	       <mx:HBox verticalGap="0" horizontalGap="0">
+        	         <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submited on'}"  width="100" fontWeight="bold"/>
+        	         <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
         	       </mx:HBox>
                   <mx:HBox verticalGap="0" horizontalGap="0">
-                    <mx:Label width="85" text="Completed on" fontWeight="bold"/>
+                    <mx:Label width="100" text="Completed" fontWeight="bold"/>
                     <mx:Text  text="{this.selectedExperiment.@completedDate}" width="130" />
                   </mx:HBox>
         	</mx:VBox>
         	<mx:VBox width="100%" verticalGap="0">
+        	    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+        	           <mx:Label text="Group"  width="55" fontWeight="bold"/>
+        	           <mx:Text text="{this.selectedExperiment.@labName}" width="130"/>
+        	     </mx:HBox>
 	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 	                <mx:Label text="Project"  width="55" fontWeight="bold"/>
 	                <mx:Text  text="{this.selectedExperiment.@projectName}" width="100%"/>
@@ -518,15 +518,6 @@
 
 	            </mx:HBox>
 	            
-	            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-	                <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'External Experiment' : 'Account'}"  
-	                	width="{this.selectedExperiment.@isExternal == 'Y' ? 200 : 55}" 
-	                	fontWeight="bold"
-	                	fontStyle="{this.selectedExperiment.@isExternal == 'Y' ? 'italic' : 'normal'}"/>
-	                <mx:Text text="{this.selectedExperiment.@billingAccountName}" 
-	                	visible="{this.selectedExperiment.@isExternal == 'Y' ? false : true}" 
-	                	width="100%" />
-	            </mx:HBox>	            
         	</mx:VBox>
         	
         </mx:HBox>
@@ -620,7 +611,7 @@
 				</mx:VBox>
 				
     			<mx:Canvas label="Billing" id="billingTab" width="100%" height="100%">
-    			 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingBottom="0" paddingTop="0" paddingRight="0" paddingLeft="0" id="billingContainer" >
+    			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="0" paddingTop="0" paddingRight="0" paddingLeft="0" id="billingContainer" >
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
         			editable="false" 

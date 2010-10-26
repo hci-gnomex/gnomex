@@ -1672,8 +1672,7 @@
 				this.analysisButton.enabled = false;
 			}
 			
-			this.visibilityView.currentState = "EditState";
-			
+			this.visibilityView.currentState = "EditState";			
 
 			this.getRequestCategoryName();
 			this.getBillingAccountName();
@@ -1695,6 +1694,16 @@
 				hybsView.checkHybsCompleteness();
 			}
 			
+			// Only show billing tab if it is is not an external experiment
+			if (this.request.@isExternal == 'Y') {
+				if (theTab.contains(this.billingTab)) {
+					theTab.removeChild(billingTab);
+				}
+			} else {
+				if (!theTab.contains(this.billingTab)) {
+					theTab.addChild(billingTab);
+				}
+			}
 			
 			this.dirty.resetDirty();
 		}
@@ -3366,7 +3375,11 @@
  
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
-  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
+  	<mx:HBox id="hbox7">
+		<mx:Image source="{(request.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : request.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : request.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : request.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : request.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}"/>
+	  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
+  		<mx:Spacer width="100%"/>
+  	</mx:HBox>
 
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
@@ -3472,65 +3485,45 @@
     <util:states>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
-    			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="4" paddingRight="4">
+    			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
     				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					       <mx:Label text="Request Type"  width="102" fontWeight="bold"/>
-    					       <mx:Text text="{requestCategoryName}" width="180" />
+    					       <mx:Text text="{request.@isExternal == 'Y' ? 'External Experiment ' : 'Experiment '}" width="128"  fontWeight="bold"/>
+    					       <mx:Text text="{requestCategoryName}" width="200"  fontWeight="normal"/>
     					   </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					     <mx:Label text="Application"  width="102" fontWeight="bold"/>
-    					    <mx:Text  text="{experimentCategoryName}" width="180" />
+    					    <mx:Spacer width="128"/>
+    					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="200"/>
     					 </mx:HBox>
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					   <mx:Label text="Submitted by"  width="102" fontWeight="bold"/>
-    					   <mx:Text text="{this.request.@ownerName}" width="180" />
-    					 </mx:HBox>
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					   <mx:Label text="Submit Date"  width="102" fontWeight="bold"/>
-    					   <mx:Text text="{this.request.@createDate}" width="180"/>
-    					 </mx:HBox>
-    					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					   <mx:Label width="102" text="Completed on" fontWeight="bold"/>
-    					   <mx:Text  text="{this.request.@completedDate}" width="180" />
-    					 </mx:HBox>
+		    			<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
+		    			  <mx:Text text="{(this.request.@isExternal == 'Y' ? 'Registered by' : 'Submitted by')}"  fontWeight="bold" width="128"/>
+		    			  <mx:Text text="{this.request.@ownerName}" />
+		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
+		    			</mx:HBox>
     				</mx:VBox>  
      				<mx:VBox verticalGap="2" maxWidth="700" width="100%" id="vbox3">
     				    
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				           <mx:Label text="Group"  width="55" fontWeight="bold"/>
+    				           <mx:Label text="Group"  width="70" fontWeight="bold"/>
     				           <mx:ComboBox id="requestEditLabCombo"
     				           	  labelField="@name" 
     				           	  change="this.dirty.setDirty();refreshLab()" 
     				           	  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
     				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-    				           	  width="400"/>
+    				           	  width="350"/>
     				       </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
-    				        <mx:Label text="Project"  width="55" fontWeight="bold"/>
+    				        <mx:Label text="Project"  width="70" fontWeight="bold"/>
     				        <mx:ComboBox id="requestEditProjectCombo"
     				           	  labelField="@name" 
     				           	  change="this.dirty.setDirty()"
     				           	  dataProvider="{projects}" 
     				           	  enabled="true"
-    				           	  width="400"/>
+    				           	  width="350"/>
     				    </mx:HBox>
-    				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				        <mx:Label text="{this.request.@isExternal == 'Y' ? 'External Experiment' : 'Account'}"  
-    				        	width="{this.request.@isExternal == 'Y' ? 200 : 55}" 
-    				        	fontStyle="{this.request.@isExternal == 'Y' ? 'italic' : 'normal'}"
-    				        	fontWeight="bold"/>
-    				        <mx:ComboBox id="requestEditBillingAccountCombo"
-    				           	  labelField="@accountName" 
-    				           	  dataProvider="{billingAccounts}" 
-    				           	  change="{this.dirty.setDirty();}"
-    				           	  visible="{this.request.@isExternal != 'Y'}"
-    				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"
-    				           	  width="{this.request.@isExternal == 'Y' ? 0 : 400}"/>
-    				    </mx:HBox>
-    				    <mx:HBox verticalGap="0" horizontalGap="0" id="hbox1">
-    				      <mx:Label text="Modified"  width="55" fontWeight="bold"/>
-    				      <mx:Text text="{this.request.@lastModifyDate}" width="180"/>
+    				    <mx:HBox>
+	    				    <mx:Text visible="{this.request.@completedDate != ''}" text="{'Completed'}" width="70"  fontWeight="bold"/>    				       
+	    				    <mx:Text visible="{this.request.@completedDate != ''}" text="{this.request.@completedDate}"/>
     				    </mx:HBox>
 
     				</mx:VBox>
@@ -3539,11 +3532,24 @@
     		</mx:AddChild>
     		<mx:RemoveChild target="{seqSetup1View}"/>
     		<mx:AddChild relativeTo="{theTab}" position="lastChild">
-    			<mx:Canvas label="Billing" width="100%" height="100%">
-    			 <mx:VBox width="100%" height="100%" verticalGap="0"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
+    			<mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
+    			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
+					<mx:HBox verticalGap="0" width="100%" horizontalGap="2" verticalAlign="middle">
+					    <mx:Label text="Account"  
+					    	fontStyle="normal"
+					       	 visible="{this.request.@isExternal != 'Y'}"
+					    	fontWeight="bold"/>
+					    <mx:ComboBox id="requestEditBillingAccountCombo"
+					       	  labelField="@accountName" 
+					       	  dataProvider="{billingAccounts}" 
+					       	  change="{this.dirty.setDirty();}"
+					       	  visible="{this.request.@isExternal != 'Y'}"
+					       	  enabled="{parentApplication.hasPermission('canWriteAnyObject')}"
+/>
+					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
-        			editable="false"  horizontalScrollPolicy="auto"
+        			editable="false"  
         			sortExpertMode="true" 
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
@@ -3618,6 +3624,10 @@
     		<mx:SetStyle target="{linkbutton1}" name="textDecoration" value="underline"/>
     		<mx:SetStyle target="{dirty}" name="fontSize" value="9"/>
     		<mx:SetProperty target="{dirty}" name="label" value="Changes have not been saved"/>
+    		<mx:AddChild relativeTo="{hbox7}" position="lastChild">
+    			<mx:Text visible="{this.request.@lastModifyDate != ''}" text="{'Last modified  ' + this.request.@lastModifyDate}" />
+    		</mx:AddChild>
+    		<mx:SetProperty target="{hbox7}" name="width" value="100%"/>
     	</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
