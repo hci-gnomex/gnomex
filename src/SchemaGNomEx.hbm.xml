@@ -858,6 +858,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="barcodeSequence" column="barcodeSequence" type="string"/>		
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idOligoBarcodeScheme" column="idOligoBarcodeScheme" type="integer"/>
 		<many-to-one name="oligoBarcodeScheme"  column="idOligoBarcodeScheme" class="hci.gnomex.model.OligoBarcodeScheme" cascade="none" insert="false" update="false" />
@@ -874,6 +875,17 @@
 		<property name="isActive" column="isActive" type="string"/>
 	</class>
 		
+	<!-- hci.gnomex.model.OligoBarcodeSchemeAllowed -->
+	<class name="hci.gnomex.model.OligoBarcodeSchemeAllowed" table="OligoBarcodeSchemeAllowed">
+		<id name="idOligoBarcodeSchemeAllowed" column="idOligoBarcodeSchemeAllowed" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idOligoBarcodeScheme" column="idOligoBarcodeScheme" type="integer"/>
+		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<many-to-one name="oligoBarcodeScheme"  column="idOligoBarcodeScheme" class="hci.gnomex.model.OligoBarcodeScheme" cascade="none" insert="false" update="false" />
+		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
+	</class>	
+
 	<!-- hci.gnomex.model.Organism -->
 	<class name="hci.gnomex.model.Organism" table="Organism">
 		<id name="idOrganism" column="idOrganism" type="integer">

@@ -30,12 +30,15 @@
 	</mx:states>
 <mx:Script>
 	<![CDATA[
+		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		
 		private var barcodes:XMLListCollection = null;
 	
 		[Bindable]
 		private var maxSamplesPerChannel:int = 2;
+		
+		private var barcodesSort:Sort = null;
 		
        	public function propagateSeqRunType():void {
 
@@ -176,12 +179,32 @@
         
         private function initializeBarcodes():void {
         	barcodes = new XMLListCollection();
+
         	var bestFitBarcodeCount:int = 99;
         	if (this.currentState == 'BarcodeState') {
 	        	for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
+    	    		// Only use scheme if it is allowed for this request category
+    	    		var keepScheme:Boolean = false;
+    	    		for each (var x:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idOligoBarcodeScheme == barcodeScheme.@idOligoBarcodeScheme)) {
+    	    			if (x.@codeRequestCategory == parentDocument.getRequestCategory().@codeRequestCategory.toString()) {
+    	    				keepScheme = true;
+    	    				break;
+    	    			}
+    	    		}
+    	    		if (!keepScheme) {
+    	    			continue;
+    	    		}
+    	    		
+    	    		
     	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
     	    		if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
     	    		   	if (theBarcodes.length < bestFitBarcodeCount) {
+    	    		   		// Sort barcodes by sortOrder
+    	    		   		barcodesSort = new Sort();
+	        				barcodesSort.compareFunction = this.sortBarcodes;
+	        				theBarcodes.sort = barcodesSort;
+	        				theBarcodes.refresh();
+    	    		   		
     	    		   		barcodes = theBarcodes;
     	    		   		bestFitBarcodeCount = theBarcodes.length;
     	    		   	}
@@ -194,6 +217,34 @@
         		barcodes = new XMLListCollection();
         	}
         }
+        
+        private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:int = obj1.@sortOrder;
+				var order2:int = obj2.@sortOrder;
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		}			
+
         
         public function pickBarcodeScheme():void {
         	if (parentDocument.sampleSetupView.radioYesBarcoding.selected) {

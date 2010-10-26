@@ -983,6 +983,7 @@ CREATE TABLE `gnomex`.`OligoBarcode` (
   `idOligoBarcode` INT(10) NOT NULL AUTO_INCREMENT,
   `barcodeSequence` VARCHAR(20) NOT NULL,
   `idOligoBarcodeScheme` INT(10) NOT NULL,
+  `sortOrder` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idOligoBarcode`),
   CONSTRAINT `FK_OligoBarcode_OligoBarcodeScheme` FOREIGN KEY `FK_OligoBarcode_OligoBarcodeScheme` (`idOligoBarcodeScheme`)
@@ -991,6 +992,24 @@ CREATE TABLE `gnomex`.`OligoBarcode` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`OligoBarcodeSchemeAllowed`;
+CREATE TABLE `gnomex`.`OligoBarcodeSchemeAllowed` (
+  `idOligoBarcodeSchemeAllowed` INT(10) NOT NULL AUTO_INCREMENT,
+  `idOligoBarcodeScheme` INT(10) NOT NULL,
+  `codeRequestCategory` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idOligoBarcodeSchemeAllowed`),
+  CONSTRAINT `FK_OligoBarcodeSchemeAllowed_RequestCategory` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_RequestCategory` (`codeRequestCategory`)
+    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_OligoBarcodeSchemeAllowed_idOligoBarcodeScheme` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_idOligoBarcodeScheme` (`idOligoBarcodeScheme`)
+    REFERENCES `gnomex`.`OligoBarcodeScheme` (`idOligoBarcodeScheme`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 
 
 DROP TABLE IF EXISTS `gnomex`.`Organism`;
