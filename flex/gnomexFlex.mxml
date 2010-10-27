@@ -588,6 +588,7 @@
             	if (this.navSearchView.searchView != null) {
             		this.navSearchView.init();
             	}
+            	
             }
             
             public function showAdvancedSearch():void {

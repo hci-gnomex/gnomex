@@ -57,6 +57,10 @@
 			
 			if (!isInitialized) {
 				this.getSlideProductList.send();
+			} else {
+				if (simpleSearchText != null) {
+					performSimpleSearch(simpleSearchText);
+				}
 			}
 		}
 		
