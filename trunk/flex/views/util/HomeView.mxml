@@ -22,49 +22,48 @@
 				<mx:RemoveChild target="{button5}"/>
 				<mx:AddChild relativeTo="{button6}" position="before" target="{button5}"/>
 				<mx:RemoveChild target="{button6}"/>
-				<mx:AddChild relativeTo="{button7}" position="before" target="{button6}"/>
+				<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{button6}"/>
 				<mx:RemoveChild target="{button8}"/>
+				<mx:RemoveChild target="{button7}"/>
+				<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{button7}"/>
 			</mx:State>
 			<mx:State name="AdminState">
 				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
-				<mx:AddChild relativeTo="{hbox5}" position="lastChild">
-					<util:MultiLineButton label="Send Email to all GNomEx Users" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="166" height="60"/>
-				</mx:AddChild>
 				<mx:SetStyle target="{submitExternalExperimentButton}" name="icon">
 					<mx:value>@Embed(source='../../assets/experiment_register.png')</mx:value>
 				</mx:SetStyle>
 				<mx:SetProperty target="{vbox2}" name="height"/>
 				<mx:SetProperty target="{vbox3}" name="height"/>
 				<mx:SetStyle target="{hbox10}" name="paddingTop" value="4"/>
+				<mx:RemoveChild target="{button7}"/>
+				<mx:AddChild relativeTo="{hbox4}" position="lastChild" target="{button7}"/>
+				<mx:RemoveChild target="{hbox5}"/>
+				<mx:SetProperty target="{hbox8}" name="width"/>
+				<mx:RemoveChild target="{button8}"/>
+				<mx:AddChild relativeTo="{hbox3}" position="lastChild" target="{button8}"/>
+				<mx:RemoveChild target="{button4}"/>
+				<mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{button4}"/>
+				<mx:RemoveChild target="{button5}"/>
+				<mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{button5}"/>
+				<mx:AddChild relativeTo="{button7}" position="before">
+					<util:MultiLineButton label="Send Email to all GNomEx Users" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="166" height="60"/>
+				</mx:AddChild>
+				<mx:RemoveChild target="{button6}"/>
+				<mx:AddChild relativeTo="{broadcastEmailButton}" position="before" target="{button6}"/>
 			</mx:State>
 			<mx:State name="UserNonSubmitterState">
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetStyle target="{button1}" name="disabledIcon" value="@Embed(source='../../assets/account_disable.png')"/>
 				<mx:SetProperty target="{text2}" name="text" value="New Experiment, Add services to Experiment"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="enabled" value="false"/>
-				<mx:SetProperty target="{amendButton}" name="enabled" value="false"/>
-				<mx:SetStyle target="{amendButton}" name="disabledIcon" value="@Embed(source='../../assets/account_disable.png')"/>
 				<mx:SetProperty target="{text1}" name="htmlText">
 					<mx:value><![CDATA[      - Submit new work requests for Microarray, Next generation<br>        sequencing or quality control services (allowed by<br>        lab members)]]></mx:value>
 				</mx:SetProperty>
-				<mx:SetProperty target="{submitExternalExperimentButton}" name="enabled" value="false"/>
-				<mx:SetProperty target="{button1}" name="label" value="New Experiment Request"/>
-				<mx:SetProperty target="{submitExternalExperimentButton}" name="label" value="New External Experiment"/>
-				<mx:SetProperty target="{amendButton}" name="label" value="Add services to Experiment Request"/>
-
-				<mx:SetStyle target="{submitExternalExperimentButton}" name="disabledIcon">
-					<mx:value>@Embed(source='../../assets/folder_add_disable.png')</mx:value>
-				</mx:SetStyle>
-				<mx:SetStyle target="{hbox10}" name="paddingBottom"/>
 				<mx:RemoveChild target="{vbox3}"/>
 				<mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
 				<mx:SetProperty target="{vbox2}" name="height"/>
+				<mx:RemoveChild target="{button1}"/>
+				<mx:RemoveChild target="{amendButton}"/>
+				<mx:RemoveChild target="{submitExternalExperimentButton}"/>
+				<mx:RemoveChild target="{hbox3}"/>
+				<mx:RemoveChild target="{hbox5}"/>
 			</mx:State>
 			<mx:State name="UniversityOnlyUserState" basedOn="GuestState">
 				<mx:SetStyle target="{hbox6}" name="paddingBottom" value="2"/>
@@ -78,6 +77,10 @@
 					<util:MultiLineButton label="Submit Work Authorization" click="showWorkAuthForm()" icon="@Embed(source='../../assets/work_auth_form.png')"  styleName="dashboardButton" id="button0" width="166" height="60"/>
 				</mx:AddChild>
 				<mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
+				<mx:RemoveChild target="{button7}"/>
+				<mx:AddChild relativeTo="{hbox4}" position="lastChild" target="{button7}"/>
+				<mx:SetStyle target="{vbox1}" name="horizontalAlign" value="center"/>
+				<mx:RemoveChild target="{hbox5}"/>
 			</mx:State>
 		</util:states>
 <mx:Script>
@@ -167,7 +170,7 @@
 	]]> 
 </mx:Script>
   <mx:VBox styleName="form" height="100%" width="100%"  verticalGap="10" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4" verticalAlign="middle">
-  <mx:HBox width="100%" horizontalAlign="center" id="hbox10">
+  <mx:HBox width="100%" horizontalAlign="center" id="hbox10" paddingBottom="14">
   	<mx:Image source="assets/gnomex_title.png"/>
   </mx:HBox>
   <mx:HBox verticalGap="0"    verticalAlign="middle" horizontalAlign="center" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="2" width="100%" horizontalGap="30" id="hbox6">
@@ -189,13 +192,13 @@
         <util:MultiLineButton label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton"  id="button4" width="166" height="60"/>
         <util:MultiLineButton label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/download.png')" styleName="dashboardButton"  id="button5" width="166" height="60"/>
         <util:MultiLineButton label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" styleName="dashboardButton"  id="button6" width="166" height="60"/>
+        <util:MultiLineButton label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" styleName="dashboardButton"  id="button7" width="166" height="60"  />
       </mx:HBox>
       <mx:HBox  id="hbox5" horizontalGap="10">
-		<util:MultiLineButton label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" styleName="dashboardButton"  id="button7" width="166" height="60"  />
       </mx:HBox>
     </mx:VBox>
   </mx:HBox>
-    <mx:HBox horizontalAlign="center" verticalAlign="top" verticalGap="0" height="100%" width="100%" id="vbox2" horizontalGap="2">
+    <mx:HBox horizontalAlign="center" verticalAlign="top" verticalGap="0" width="100%" id="vbox2" horizontalGap="2">
 	       <mx:VBox height="100%" id="vbox3" verticalGap="1">
 		        <mx:HBox id="hbox1" verticalAlign="top" height="34">
 			        <mx:Image source="assets/flask_add.png" id="image1"/>
@@ -206,12 +209,12 @@
 		        	
 		        </mx:HBox>
 		        <mx:Text 
-		        	styleName="welcome" id="text1">
+		        	styleName="welcome" id="text1" paddingTop="0">
 		        	<mx:htmlText><![CDATA[      - Submit new work requests for <br>         Microarray, Next generation<br>        sequencing or quality control<br>        services]]></mx:htmlText>
 		        </mx:Text>
 	        </mx:VBox>
 		    <mx:VBox verticalGap="1">
-		        <mx:HBox width="100%" verticalAlign="top" paddingTop="2" height="34">
+		        <mx:HBox width="100%" verticalAlign="top" paddingTop="2">
 			        <mx:Image source="assets/flask.png"/>
 			        <mx:Text  
 			        	text="Experiments" styleName="welcome">
@@ -225,7 +228,7 @@
 	       	
 	       </mx:VBox> 
 	       <mx:VBox verticalGap="1">
-		        <mx:HBox width="100%" paddingTop="2" id="hbox8" paddingBottom="0" verticalAlign="top" height="34">
+		        <mx:HBox width="100%" paddingTop="2" id="hbox8" paddingBottom="0" verticalAlign="top">
 		         <mx:Image source="assets/work_auth_form.png"/>
 		         <mx:Text  
 		         	text="Work Authorization Form" styleName="welcome" paddingBottom="0">
@@ -238,7 +241,7 @@
 		       	
 	       </mx:VBox>
 	       <mx:VBox verticalGap="1">
-		        <mx:HBox width="100%" paddingTop="2" verticalAlign="top" id="hbox9" height="34">
+		        <mx:HBox width="100%" paddingTop="2" verticalAlign="top" id="hbox9">
 			        <mx:Image source="assets/map.png"/>
 			        <mx:Text   
 			        	text="Analysis" styleName="welcome" >
@@ -250,7 +253,7 @@
 		        </mx:Text>
 	       </mx:VBox>
 	       <mx:VBox verticalGap="1">
-		        <mx:HBox paddingTop="2" verticalAlign="top" height="34">
+		        <mx:HBox paddingTop="2" verticalAlign="top">
 			        <mx:Image source="assets/bricks.png"/>
 			        <mx:Text  
 			        	text="Materials &amp; Methods" styleName="welcome">
