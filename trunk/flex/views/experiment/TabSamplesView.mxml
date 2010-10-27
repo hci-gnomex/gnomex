@@ -42,6 +42,7 @@
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 					" seqPrepByCore = 'N'" +
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+					" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
 					" idSeqLibProtocol='" + parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value + "'" +				
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
@@ -70,6 +71,7 @@
 					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
 					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+					" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
@@ -96,6 +98,7 @@
 				" codeBioanalyzerChipType='" + parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() + "'" +
 				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+				" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
 				" treatment='" + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 				"/>");
 			
@@ -116,6 +119,7 @@
 				" codeConcentrationUnit='ng/ul'" + 
 				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
 				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
+				" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
 				" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
 				" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 				"/>");
@@ -215,6 +219,7 @@
 					" description='" + sampleToCopy.@description + "'" + 
 					" idSampleType='" + sampleToCopy.@idSampleType + "'" +
 					" idSamplePrepMethod='" + sampleToCopy.@idSamplePrepMethod + "'" +				
+					" otherSamplePrepMethod='" + sampleToCopy.@otherSamplePrepMethod + "'" +				
 					" idSeqLibProtocol='" + sampleToCopy.@idSeqLibProtocol + "'" +				
 					" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
 					" concentration='" + sampleToCopy.@concentration + "'" +				
@@ -884,10 +889,11 @@
 					<mx:DataGridColumn id="corePrepInstructionsCol" headerText="Core Prep Instructions" width="140" dataField="@prepInstructions"/> 
 					<mx:DataGridColumn headerText="Description" width="140" dataField="@description"/> 
 
-                    <mx:DataGridColumn id="samplePrepMethodCol" headerText="Sample Prep Method" visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
+                    <mx:DataGridColumn id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', true)}"                
 	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', '@canChangeSamplePrepMethod', true)}"/>
+					<mx:DataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." width="140" dataField="@otherSamplePrepMethod"/> 
 	                 <mx:DataGridColumn id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="120"   dataField="@idSampleType" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true)}"                 

@@ -560,8 +560,9 @@
 				            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
 				            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-				            <mx:DataGridColumn id="samplePrepCol" headerText="Sample Prep Method"   visible="{true}" width="200" 
+				            <mx:DataGridColumn id="samplePrepCol" headerText="Nucl. acid extraction meth."   visible="{true}" width="100" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
+							<mx:DataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
 			                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 							

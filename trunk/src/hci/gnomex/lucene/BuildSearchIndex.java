@@ -158,6 +158,7 @@ public class BuildSearchIndex extends DetailObject {
     cacheDictionary("hci.gnomex.model.Application", "Application");
     cacheDictionary("hci.gnomex.model.AnalysisType", "AnalysisType");
     cacheDictionary("hci.gnomex.model.AnalysisProtocol", "AnalysisProtocol");
+    cacheDictionary("hci.gnomex.model.SamplePrepMethod", "SamplePrepMethod");
     
   }
   
@@ -309,7 +310,11 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.createDate, ");
     buf.append("       s1.idSampleType, ");
     buf.append("       slideProd.name, ");
-    buf.append("       req.idAppUser ");
+    buf.append("       req.idAppUser, ");
+    buf.append("       s1.idSamplePrepMethod, ");
+    buf.append("       s1.otherSamplePrepMethod, ");
+    buf.append("       s2.idSamplePrepMethod, ");
+    buf.append("       s2.otherSamplePrepMethod ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -374,8 +379,12 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.createDate, ");
     buf.append("       s1.idSampleType, ");
     buf.append("       '', ");
-    buf.append("       req.idAppUser ");
-    
+    buf.append("       req.idAppUser, ");
+    buf.append("       s1.idSamplePrepMethod, ");
+    buf.append("       s1.otherSamplePrepMethod, ");
+    buf.append("       '', ");
+    buf.append("       '' ");
+        
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
@@ -718,6 +727,7 @@ public class BuildSearchIndex extends DetailObject {
     StringBuffer hybNotes = new StringBuffer();
     StringBuffer sampleNames = new StringBuffer();
     StringBuffer sampleDescriptions = new StringBuffer();
+    StringBuffer samplePrepMethods = new StringBuffer();
     StringBuffer sampleOrganisms = new StringBuffer();
     HashMap      idOrganismSampleMap = new HashMap();
     HashMap      idSampleTypeMap = new HashMap();
@@ -747,6 +757,9 @@ public class BuildSearchIndex extends DetailObject {
     String       labProject = null;
     String       labRequest = null;
     Integer      idAppUser = null;
+    Integer      idSamplePrepMethod = null;
+    String       otherSamplePrepMethod = null;
+    String       samplePrepMethod = null;
     
     
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
@@ -761,11 +774,17 @@ public class BuildSearchIndex extends DetailObject {
       String hybNote = (String) row[5];
       hybNotes.append(hybNote          != null ? hybNote + " " : "");
 
+      //
       // sample 1
+      //
       String  sampleName      = (String) row[6];
       String  sampleDesc      = (String) row[7];
       Integer idOrganism      = (Integer)row[8];
-      Integer idSampleType   = (Integer)row[29];
+      Integer idSampleType    = (Integer)row[29];
+      idSamplePrepMethod      = (Integer)row[32];
+      otherSamplePrepMethod   = (String)row[33];
+      
+      
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
@@ -773,15 +792,36 @@ public class BuildSearchIndex extends DetailObject {
       if (idSampleType != null) {
         idSampleTypeMap.put(idSampleType, null);
       }      
+      
+      if (idSamplePrepMethod != null) {
+        samplePrepMethod = getDictionaryDisplay("hci.gnomex.model.SamplePrepMethod", idSamplePrepMethod.toString());        
+        if (samplePrepMethod.equals("Other")) {
+          samplePrepMethod = otherSamplePrepMethod;
+        }
+      }
+
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
+      samplePrepMethods.append(samplePrepMethod    != null ? samplePrepMethod + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) + " " : "");
       sampleTypes.append(     idSampleType != null    ? getDictionaryDisplay("hci.gnomex.model.SampleType", idSampleType.toString()) + " " : "");
 
+      //
       // sample 2
-      sampleName      = (String) row[10];
-      sampleDesc      = (String) row[11];
-      idOrganism      = row[12] instanceof Integer ? (Integer)row[12] : null;
+      //
+      sampleName           = (String) row[10];
+      sampleDesc           = (String) row[11];
+      idOrganism           = row[12] instanceof Integer ? (Integer)row[12] : null;
+      idSamplePrepMethod   = row[34] instanceof Integer ? (Integer)row[34] : null;
+      otherSamplePrepMethod = (String)row[35];
+
+      if (idSamplePrepMethod != null) {
+        samplePrepMethod = getDictionaryDisplay("hci.gnomex.model.SamplePrepMethod", idSamplePrepMethod.toString());        
+        if (samplePrepMethod.equals("Other")) {
+          samplePrepMethod = otherSamplePrepMethod;
+        }
+      }
+
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
@@ -789,6 +829,7 @@ public class BuildSearchIndex extends DetailObject {
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       sampleOrganisms.append(   idOrganism != null    ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) + " " : "");
+      samplePrepMethods.append(samplePrepMethod    != null ? samplePrepMethod + " " : "");
       
       // more request data
       idSlideProduct           = row[14] instanceof Integer ? (Integer)row[14] : null;
@@ -953,6 +994,8 @@ public class BuildSearchIndex extends DetailObject {
     text.append(" ");        
     text.append(sampleOrganisms.toString());
     text.append(" ");        
+    text.append(samplePrepMethods.toString());
+    text.append(" ");        
     text.append(sampleSources.toString());
     text.append(" ");        
     text.append(slideProduct);
@@ -984,6 +1027,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_NAMES, sampleNames.toString());
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_DESCRIPTIONS, sampleDescriptions.toString());
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_ORGANISMS, sampleOrganisms.toString());
+    indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_PREP_METHODS, samplePrepMethods.toString());
     indexedFieldMap.put(ExperimentIndexHelper.ID_ORGANISM_SAMPLE, idOrganismSamples.toString());
     indexedFieldMap.put(ExperimentIndexHelper.SAMPLE_SOURCES, sampleSources.toString());
     indexedFieldMap.put(ExperimentIndexHelper.ID_SAMPLE_TYPES, idSampleTypes.toString());
