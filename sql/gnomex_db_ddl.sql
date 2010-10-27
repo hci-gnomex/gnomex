@@ -1257,6 +1257,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `idOrganism` INT(10) NULL,
   `idSampleSource` INT(10) NULL,
   `idSamplePrepMethod` INT(10) NULL,
+  `otherSamplePrepMethod` VARCHAR(300) NULL,
   `idSeqLibProtocol` INT(10) NULL,
   `codeBioanalyzerChipType` VARCHAR(10) NULL,
   `idOligoBarcode` INT(10) NULL,

@@ -33,6 +33,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     idOrganism;
   private Integer     idSampleType;
   private Integer     idSamplePrepMethod;
+  private String      otherSamplePrepMethod;
   private Integer     idSeqLibProtocol;
   private String      codeBioanalyzerChipType;
   private Integer     idOligoBarcode;
@@ -594,6 +595,16 @@ public class Sample extends HibernateDetailObject {
 	
   public void setCcNumber(String ccNumber) {
 	this.ccNumber = ccNumber;
+  }
+
+  
+  public String getOtherSamplePrepMethod() {
+    return otherSamplePrepMethod;
+  }
+
+  
+  public void setOtherSamplePrepMethod(String otherSamplePrepMethod) {
+    this.otherSamplePrepMethod = otherSamplePrepMethod;
   }
 
 }

@@ -223,7 +223,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
-    this.addHeaderCell(rowh, "Sample Prep Method", rowSpan, new Integer(1), new Integer(300));
+    this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
     if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (showBarcodeTag) {
         this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));        
@@ -297,7 +297,7 @@ public class RequestHTMLFormatter {
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
-      this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
+      this.addCell(row, getSamplePrepMethod(sample));
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         if (showBarcodeTag) {
           this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");          
@@ -369,7 +369,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample #", new Integer(2), new Integer(1), "left");
     this.addHeaderCell(rowh, "Sample Name", new Integer(2), new Integer(1));;
     this.addHeaderCell(rowh, "Sample Type", new Integer(2), new Integer(1));;
-    this.addHeaderCell(rowh, "Sample Prep Method", new Integer(2), new Integer(1));;
+    this.addHeaderCell(rowh, "Nucl. acid Extraction Method", new Integer(2), new Integer(1));;
     this.addHeaderCell(rowh, "Conc.", new Integer(2), new Integer(1));;
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       this.addHeaderCell(rowh, "Chip Type", new Integer(2), new Integer(1));;
@@ -417,7 +417,7 @@ public class RequestHTMLFormatter {
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-      this.addCell(row, sample.getIdSamplePrepMethod() == null ? "&nbsp;" : dictionaryHelper.getSamplePrepMethod(sample));
+      this.addCell(row, getSamplePrepMethod(sample));
       this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
         this.addCell(row, dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()) == null || dictionaryHelper.getChipTypeName(sample.getCodeBioanalyzerChipType()).equals("") ? "&nbsp;" : 
@@ -437,6 +437,17 @@ public class RequestHTMLFormatter {
     }
     
     return table;
+  }
+  
+  private String getSamplePrepMethod(Sample sample) {
+   
+    String spm = null;
+    if (dictionaryHelper.getSamplePrepMethod(sample).equals("Other")) {
+      spm = sample.getOtherSamplePrepMethod();
+    } else {
+      spm = dictionaryHelper.getSamplePrepMethod(sample); 
+    }
+    return spm != null && !spm.trim().equals("") ? spm : "&nbsp;";
   }
   
   public Element makeLabeledSampleTable(Element container, Set labeledSamples) {

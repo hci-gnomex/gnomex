@@ -1,6 +1,13 @@
 ﻿GNomEx Release Notes
 
-5.0.1
+
+5.0.2
+--------------------
+- Allow user to enter alternate text to describe nucleic acid extraction method when dropdown options don't describe method.
+- Fix bug that was causing subsequent text searches (on Nav bar) to not be performed.
+
+
+5.0.1 (Oct 26, 2010)
 ---------------------
 - Categorize sequence tag schemes (oligo barcode scheme) by Illumina platform (request category)
 - Add sortOrder to sequence tags (oligo barcode)

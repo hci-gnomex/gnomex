@@ -52,6 +52,13 @@
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
+		private function propagateOtherSamplePrepMethod():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@otherSamplePrepMethod = otherSamplePrepMethod.text;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+			
+		}
        	private function propagateSeqLibProtocol():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState') {
@@ -209,7 +216,7 @@
         	} else if (currentState == 'MicroarrayAmendState') {
 	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
+	        	    hasSamplePrepMethod()) {
 		        	isComplete = true;
 	        	 }
         	
@@ -217,7 +224,7 @@
 	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
 	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' && 
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
+	        	    hasSamplePrepMethod()) {
 	        	    	
 	        	    if (currentState == 'SolexaAmendPreppedState') {
  						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
@@ -234,7 +241,7 @@
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
 	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' && 
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '') {
+	        	    hasSamplePrepMethod()) {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
  						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
@@ -249,7 +256,7 @@
         	} else if (parentDocument.isQCState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+	        	    hasSamplePrepMethod()) {
 	        	    	
 	        	   	// Only need to check if chip type selected if this is 
 	        	   	// a bioanalyzer qc request.
@@ -268,7 +275,7 @@
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 	        	    this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' &&
-	        	    this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' ) {
+	        	    hasSamplePrepMethod()) {
 					isComplete = true;	        	    	
 	        	}
         	}
@@ -293,6 +300,16 @@
         	
     		return isComplete;
     	    	
+        }
+        
+        private function hasSamplePrepMethod():Boolean {
+        	if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@display == 'Other' && this.otherSamplePrepMethod.text != '') {
+        		return true;
+        	} else if (this.samplePrepMethodCombo.selectedItem != null && this.samplePrepMethodCombo.selectedItem.@value != '' && this.samplePrepMethodCombo.selectedItem.@display != 'Other') {
+        		return true;
+        	} else {
+        		return false;
+        	}
         }
         
         private function postSampleSetupCompleteness(isComplete:Boolean):void {
@@ -440,6 +457,12 @@
 		}
 		
 		private function pickSamplePrepMethod():void {
+			// Clear other otherSamplePrepMethod if non 'Other' selected
+			if (samplePrepMethodCombo.selectedItem == null || samplePrepMethodCombo.selectedItem.@display != 'Other') {
+				otherSamplePrepMethod.text = '';
+				propagateOtherSamplePrepMethod();
+			}
+			
 			parentDocument.samplesView.initializeSamplesGrid();
 			propagateSamplePrepMethod();
 			checkSampleSetupCompleteness();
@@ -489,6 +512,8 @@
 
     <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
          required="true" allowNegative="false" domain="int" maxValue="100" />
+    <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
+         required="true" />
     <mx:NumberValidator id="organismValidator"
         source="{this.sampleOrganismCombo}"
         lowerThanMinError="This field is required."
@@ -513,7 +538,7 @@
 				<mx:Label text="(1) How many samples will you be submitting?" width="310"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
 					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
->
+ change="checkSampleSetupCompleteness()">
 					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
@@ -527,12 +552,18 @@
 				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="pickOrganism()">							
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
-				</mx:ComboBox>
+				</mx:ComboBox> 
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer">
+			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer" paddingRight="4">
 				<mx:Label text="(4) Select the nucleic acid extraction method." width="310" id="label2"/>
 				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}">															
 				</mx:ComboBox>
+				<mx:Label text="Please specify" paddingLeft="6">
+					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
+				</mx:Label>
+				<mx:TextInput width="100%" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="300">
+					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
+				</mx:TextInput>
 			</mx:HBox>
 			
 		</mx:VBox>

@@ -571,17 +571,31 @@ VALUES
   (4, 6, 'HISEQ');
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
-VALUES (1, '3 base code', '3 base code scheme, allows for 2-4 samples per flowcell channel', 'Y');
+VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
+       (2, 'HiSeq 12 sequence tag scheme', 'HiSeq 12 sequence tag scheme, allows for 2-12 samples per flowcell channel', 'Y');
 
 INSERT INTO `gnomex`.`OligoBarcodeSchemeAllowed`(`idOligoBarcodeSchemeAllowed`, `idOligoBarcodeScheme`, `codeRequestCategory`)
-VALUES (1, 'GAII'),
-       (2, 'HISEQ');
+VALUES (1, 1, 'SOLEXA'),
+       (2, 2, 'HISEQ');
 
 INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`, `sortOrder`)
 VALUES (1, 'AAT', 1, 'Y', 1),
        (2, 'CCT', 1, 'Y', 2),
        (3, 'GGT', 1, 'Y', 3),
-       (4, 'TTT', 1, 'Y', 4);
+       (4, 'TTT', 1, 'Y', 4),
+	   (5,	'CGTGAT', 2, 'Y' 1),
+	   (6,	'ACATCG', 2, 'Y' 2),
+	   (7,	'GCCTAA', 2, 'Y' 3),
+	   (8,	'TGGTCA', 2, 'Y' 4),
+	   (9,	'CACTGT', 2, 'Y' 5),
+	   (10,	'ATTGGC', 2, 'Y' 6),
+	   (11,	'GATCTG', 2, 'Y' 7),
+	   (12,	'TCAAGT', 2, 'Y' 8),
+	   (13,	'CTGATC', 2, 'Y' 9),
+	   (14,	'AAGCTA', 2, 'Y' 10),
+	   (15,	'GTAGCC', 2, 'Y' 11),
+	   (16,	'TACAAG', 2, 'Y' 12);
+
 
 INSERT INTO `gnomex`.`Organism`(`idOrganism`, `organism`, `abbreviation`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
 VALUES (1, 'Human', NULL, 'HUMAN', NULL, 'Y', NULL),

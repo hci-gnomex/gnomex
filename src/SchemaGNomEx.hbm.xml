@@ -453,6 +453,7 @@
 		<property name="idOrganism" column="idOrganism" type="integer"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
+		<property name="otherSamplePrepMethod" column="otherSamplePrepMethod" type="string"/>
 		<property name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer"/>
 		<property name="codeBioanalyzerChipType" column="codeBioanalyzerChipType" type="string"/>
 		<property name="idOligoBarcode" column="idOligoBarcode" type="integer"/>
