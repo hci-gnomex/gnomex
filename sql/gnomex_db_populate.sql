@@ -573,11 +573,15 @@ VALUES
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
 VALUES (1, '3 base code', '3 base code scheme, allows for 2-4 samples per flowcell channel', 'Y');
 
-INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`)
-VALUES (1, 'AAT', 1, 'Y'),
-       (2, 'CCT', 1, 'Y'),
-       (3, 'GGT', 1, 'Y'),
-       (4, 'TTT', 1, 'Y');
+INSERT INTO `gnomex`.`OligoBarcodeSchemeAllowed`(`idOligoBarcodeSchemeAllowed`, `idOligoBarcodeScheme`, `codeRequestCategory`)
+VALUES (1, 'GAII'),
+       (2, 'HISEQ');
+
+INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`, `sortOrder`)
+VALUES (1, 'AAT', 1, 'Y', 1),
+       (2, 'CCT', 1, 'Y', 2),
+       (3, 'GGT', 1, 'Y', 3),
+       (4, 'TTT', 1, 'Y', 4);
 
 INSERT INTO `gnomex`.`Organism`(`idOrganism`, `organism`, `abbreviation`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
 VALUES (1, 'Human', NULL, 'HUMAN', NULL, 'Y', NULL),
