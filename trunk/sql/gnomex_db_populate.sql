@@ -583,18 +583,18 @@ VALUES (1, 'AAT', 1, 'Y', 1),
        (2, 'CCT', 1, 'Y', 2),
        (3, 'GGT', 1, 'Y', 3),
        (4, 'TTT', 1, 'Y', 4),
-	   (5,	'CGTGAT', 2, 'Y' 1),
-	   (6,	'ACATCG', 2, 'Y' 2),
-	   (7,	'GCCTAA', 2, 'Y' 3),
-	   (8,	'TGGTCA', 2, 'Y' 4),
-	   (9,	'CACTGT', 2, 'Y' 5),
-	   (10,	'ATTGGC', 2, 'Y' 6),
-	   (11,	'GATCTG', 2, 'Y' 7),
-	   (12,	'TCAAGT', 2, 'Y' 8),
-	   (13,	'CTGATC', 2, 'Y' 9),
-	   (14,	'AAGCTA', 2, 'Y' 10),
-	   (15,	'GTAGCC', 2, 'Y' 11),
-	   (16,	'TACAAG', 2, 'Y' 12);
+	   (5,	'CGTGAT', 2, 'Y', 1),
+	   (6,	'ACATCG', 2, 'Y', 2),
+	   (7,	'GCCTAA', 2, 'Y', 3),
+	   (8,	'TGGTCA', 2, 'Y', 4),
+	   (9,	'CACTGT', 2, 'Y', 5),
+	   (10,	'ATTGGC', 2, 'Y', 6),
+	   (11,	'GATCTG', 2, 'Y', 7),
+	   (12,	'TCAAGT', 2, 'Y', 8),
+	   (13,	'CTGATC', 2, 'Y', 9),
+	   (14,	'AAGCTA', 2, 'Y', 10),
+	   (15,	'GTAGCC', 2, 'Y', 11),
+	   (16,	'TACAAG', 2, 'Y', 12);
 
 
 INSERT INTO `gnomex`.`Organism`(`idOrganism`, `organism`, `abbreviation`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
@@ -625,7 +625,7 @@ VALUES (1, 'Human', NULL, 'HUMAN', NULL, 'Y', NULL),
   (25, 'Asteromyia carbonifera', 'AC', NULL, NULL, 'Y', NULL),
   (26, 'Aspergillus fumigatus', 'Af', NULL, NULL, 'Y', NULL);
 
-INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES 
+INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
  (1,'workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
  (2,'qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),
  (3,'workauth1_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
@@ -662,9 +662,9 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (41,'temp_directory','/temp','The temp directory where temp files are created', 'Y'),
  (42,'illumina_barcoding_note','','Illumina sample barcoding instructions', 'N'),
  (43,'workauth2_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to an alternalte work authorization document.', 'N'),
- (44,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N');\,
+ (44,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N'),
  (45,'contact_email_core_facility_workauth','first.last@somwhere.edu','Core facility\'s email adresses to for notification when work authorization submitted', 'N'),
- (46, 'experiment_submission_default_mode', 'INTERNAL', 'INTERNAL if new experiment request to core facility, EXTERNAL if external experiment submission'); 
+ (46, 'experiment_submission_default_mode', 'INTERNAL', 'INTERNAL if new experiment request to core facility, EXTERNAL if external experiment submission', 'N'); 
 
 
 
