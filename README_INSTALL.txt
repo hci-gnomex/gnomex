@@ -133,14 +133,18 @@ By default, GNomEx is configured to run from a non-secure (http:) web-site.
 To run GNomEx from a secure web-site (https:), rebuild GNomEx, modify the orion 
 configuration, and set up a server certificate. 
    
-1. Rebuild GNomEx to enforce that only secure connections are allowed.
 
-   a. Edit the source file /path/to/GNomEx_$VERSION/gnomex/src/hci/gnomex/constants/Constants.java
+1. Checkout the GNomEx source code from the SourceForge SVN repository (https://gnomex.svn.sourceforge.net/svnroot/gnomex)
+   to /path/to/gnomex
+      
+2. Rebuild GNomEx to enforce that only secure connections are allowed.
+
+   a. Edit the source file /path/to/gnomex/src/hci/gnomex/constants/Constants.java
       - Set the following constant to false
         public static final boolean            REQUIRE_SECURE_REMOTE           = false; 
    b. Recompile GNomEx (see detailed instructions 'Build Instructions').
 
-2. Modify the Orion configuration:
+3. Modify the Orion configuration:
 
    a. Modify /path/to/orion/config/server.xml
       - Uncomment <web-site path="./secure-web-site.xml" />  
@@ -150,7 +154,7 @@ configuration, and set up a server certificate.
       - Uncomment the <ssl-config> entry
    
    
-3. Configure Orion for SSL.  (See detailed instructions and troubleshooting guide 
+4. Configure Orion for SSL.  (See detailed instructions and troubleshooting guide 
    at http://www.orionserver.com/docs/ssl.html.)
    
    a. Create a keystore.  Use the JDK or JRE installed on your server.   
@@ -205,13 +209,13 @@ Build Instructions
      (http://www.adobe.com/support/documentation/en/flex/3/releasenotes_flex3_sdk.html#Datavisualization)
      
 
-2. Modify build.properties
+2. Modify /path/to/gnomex/build.properties
    - Set FLEX_HOME to the directory containing the Flex SDK.
    - Set orion.dir to the directory of orion
 
    
 3. Run Ant build on build.xml with target=ALL
-   >cd path/to/gnomex_source
+   >cd path/to/gnomex
    >ant all
 
 4. A new gnomex.ear file will be placed in path/to/orion/applications.  
