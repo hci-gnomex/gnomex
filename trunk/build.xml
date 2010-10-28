@@ -292,7 +292,12 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<!-- Delete all files in opensource directory -->
-		<delete dir="${opensource.base.dir}"/>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${opensource.dir}">
+		    <include name="*/**"/>
+			</fileset>
+    </delete>
+		
 		
 		<!-- Copy README_INSTALL.txt and stick in actual version number into document -->				
 		<copy todir="${opensource.dir}" file="${basedir}/README_INSTALL.txt"/>
@@ -313,7 +318,7 @@
 		         eol="lf" eof="remove" />		
 
 		<!-- Copy gnomex source, leaving out hci installation specific files -->
-	  <copy todir="${opensource.dir}/gnomex">
+	  <copy todir="${opensource.dir}">
 	  	 <fileset dir="${basedir}">
 		    	<include name="build.properties"/>
 		    	<include name="build.xml"/>
@@ -337,7 +342,7 @@
 	  </copy>
 
 		<!-- We only copy the gnomex/defaultroot/docs that start with blank in the file name -->	
-		<copy todir="${opensource.dir}/gnomex/defaultroot/doc">
+		<copy todir="${opensource.dir}/defaultroot/doc">
 	    <fileset dir="${basedir}/defaultroot/doc">
 	      <include name="**/blank*.*"/>
 	    </fileset>
@@ -346,65 +351,65 @@
 		<!-- By default, gnomex will run unsecure (http: instead of https).
 		     Change the Constants.java file so that the front controller
 		     will not reject unsecure (http:) requests. -->
-		<replaceregexp  file="${opensource.dir}/gnomex/src/hci/gnomex/constants/Constants.java"
+		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
 				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
 		         replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
 
 		<!-- Change realm name in web.xml from hciEnv to gnomex.  -->
-		<replace file="${opensource.dir}/gnomex/defaultroot/WEB-INF/web.xml"
+		<replace file="${opensource.dir}/defaultroot/WEB-INF/web.xml"
 				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
       	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
 		</replace>
 		
 		<!-- Remove all references to hciEnv and hciFlex in build files and scripts -->
-		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
+		<replaceregexp  file="${opensource.dir}/build.properties"
 				     match="lib\.hcienv\.dir=(.*)"
 		         replace="">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
+		<replaceregexp  file="${opensource.dir}/build.properties"
 				     match="hcienv\.dir=(.*)"
 		         replace="">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/gnomex/build.properties"
+		<replaceregexp  file="${opensource.dir}/build.properties"
 				     match="hciflex\.dir=(.*)"
 		         replace="">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/gnomex/build.xml"
+		<replaceregexp  file="${opensource.dir}/build.xml"
 				     match="&lt;fileset(.*)dir=&quot;(.*)lib.hcienv.dir}(.*)"
 		         replace="">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/gnomex/build.xml"
+		<replaceregexp  file="${opensource.dir}/build.xml"
 			       match="&lt;source-path\s+path-element=&quot;(.*)hciflex.dir(.*)"
 		         replace="">
 		</replaceregexp>		
-		<replaceregexp  file="${opensource.dir}/gnomex/index_gnomex.sh"
+		<replaceregexp  file="${opensource.dir}/index_gnomex.sh"
 			       match="HIBERNATE_HOME=\$ORION_HOME/applications/hciEnv"
              replace="HIBERNATE_HOME=$$ORION_HOME/applications/gnomex">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/gnomex/index_gnomex.cmd"
+		<replaceregexp  file="${opensource.dir}/index_gnomex.cmd"
 			       match="HIBERNATE_HOME=\%ORION_HOME\%\\applications\\hciEnv"
              replace="HIBERNATE_HOME=\%ORION_HOME\%\\\\applications\\\\gnomex">
 		</replaceregexp>
 		
 		<!-- Use UNIX eol convention for .sh files -->
-		<fixcrlf srcdir="${opensource.dir}/gnomex" includes="index_gnomex.sh"
+		<fixcrlf srcdir="${opensource.dir}" includes="index_gnomex.sh"
 		         eol="lf" eof="remove" />		
 
 		<!-- Get rid of proxy and change to MySQL jdbc driver in hibernate.cfg.xml files -->
-		<replace dir="${opensource.dir}/gnomex/lib"
+		<replace dir="${opensource.dir}/lib"
 		         token="&lt;property name=&quot;connection.provider_class&quot;&gt;com.opensourceconnections.msjdbcproxy.HibernateProvider&lt;/property&gt;"
 		         value="">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
-		<replace dir="${opensource.dir}/gnomex/lib"
+		<replace dir="${opensource.dir}/lib"
 				     token="SQLServerDialect"
 		         value="MySQLDialect">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
 
 		<!-- Copy jar files normally in hciEnv directly to gnomex/lib -->
-	  <copy todir="${opensource.dir}/gnomex/lib">
+	  <copy todir="${opensource.dir}/lib">
 	    <fileset dir="${hcienv.dir}/lib">
 	      <include name="antlr-2.7.6rc1.jar"/>
 	      <include name="asm.jar"/>
@@ -424,18 +429,18 @@
 		<!-- Create a special lite version of altio_cod.jar from hciEnv/lib,
 		     omitting util classes (CODPanel, CODWindow) -->
 		<unzip src="${hcienv.dir}/lib/altio_cod.jar"
-		       dest="${opensource.dir}/gnomex/dist/altio_cod_lite">
+		       dest="${opensource.dir}/dist/altio_cod_lite">
 		    <patternset>
   	        <include name="**/META-INF/*.*"/>
 		        <include name="**/*.class"/>
 		        <exclude name="**/util/*.class"/>
 		    </patternset>
 		</unzip>
-	  <jar destfile="${opensource.dir}/gnomex/lib/altio_cod_lite.jar" basedir="${opensource.dir}/gnomex/dist/altio_cod_lite"/>
-	  <delete dir="${opensource.dir}/gnomex/dist/altio_cod_lite"/>
+	  <jar destfile="${opensource.dir}/lib/altio_cod_lite.jar" basedir="${opensource.dir}/dist/altio_cod_lite"/>
+	  <delete dir="${opensource.dir}/dist/altio_cod_lite"/>
 		
 		<!-- Copy flex files normally in hciFlex2 directly to gnomex/flex -->
-	  <copy todir="${opensource.dir}/gnomex/flex">
+	  <copy todir="${opensource.dir}/flex">
 	    <fileset dir="${hciflex.dir}">
 	      <include name="assets/**"/>
 	      <include name="hci/**"/>
@@ -448,7 +453,7 @@
 		
 		
     <!-- Set the default security manager in orion-application.xml to SecurityManagerGNomEx -->
-    <replaceregexp  file="${opensource.dir}/gnomex/META-INF/ear/orion-application.xml"
+    <replaceregexp  file="${opensource.dir}/META-INF/ear/orion-application.xml"
 					       match="&lt;user-manager\s+class=&quot;(.*)hci.gnomex.security.SecurityManager&quot;(.*)&gt;"
                  replace="&lt;user-manager class=&quot;hci.gnomex.security.SecurityManagerGNomEx&quot;&gt;"
 			           byline="true">
@@ -457,15 +462,15 @@
 		
 		<!-- All files have been customized for open source.  Now call the target to build the gnomex ear for open source -->
 		<subant target="ear">
-		   <fileset dir="${opensource.dir}/gnomex" includes="build.xml"/>
+		   <fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
 		
 		<!-- Get rid of local directory properties in build.properties.  Set back to default -->
-		<replace file="${opensource.dir}/gnomex/build.properties"
+		<replace file="${opensource.dir}/build.properties"
 				     token="c:/orion"
 		         value="/path/to/orion">
 		</replace>
-		<replace file="${opensource.dir}/gnomex/build.properties"
+		<replace file="${opensource.dir}/build.properties"
 				     token="c:/flex_sdk"
 		         value="/path/to/flex_sdk">
 		</replace>
@@ -554,11 +559,16 @@
 
 		
 		<!-- Create the zip file -->
-		<zip destfile="${opensource.dir}/../${opensource.name}.zip" basedir="${opensource.dir}/..">
-			<include name="${opensource.name}/gnomex/**" />
-			<include name="${opensource.name}/orion/**" />
-			<include name="${opensource.name}/README_INSTALL.txt" />
+   	<mkdir dir="${opensource.dir}/release/" />
+		<zip destfile="${opensource.dir}/release/${opensource.name}.zip" >
+			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
+			<zipfileset dir="${opensource.dir}" includes="gnomex_db_ddl.sql" prefix="${opensource.name}/gnomex"/>
+			<zipfileset dir="${opensource.dir}" includes="gnomex_db_populate.sql" prefix="${opensource.name}/gnomex"/>
+			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
+			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
 		</zip>
+	
 	</target>
 
 
