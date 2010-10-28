@@ -278,7 +278,6 @@
         	}
 			parentDocument.samplePrepMethodList.refresh();
 			if (!parentDocument.isAmendState()) {
-				parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
 				parentDocument.samplesView.initializeSamplesGrid();
 			}
 			this.propagateSeqRunType();
@@ -293,7 +292,6 @@
         	}
 			parentDocument.samplePrepMethodList.refresh();
 			if (!parentDocument.isAmendState()) {
-				parentDocument.sampleSetupView.selectDefaultSamplePrepMethod();
 				parentDocument.samplesView.initializeSamplesGrid();
 			}
    		    this.propagateNumberSequencingCycles();				

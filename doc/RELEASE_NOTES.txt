@@ -1,7 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.0.2.1 (Oct 28, 2010)
+---------------------
+- Fix bug that was causing Sample prep method to revert back to default on Illumina requests
 
-5.0.2
+5.0.2 (Oct 27, 2010)
 --------------------
 - Allow user to enter alternate text to describe nucleic acid extraction method when dropdown options don't describe method.
 - Fix bug that was causing subsequent text searches (on Nav bar) to not be performed.
