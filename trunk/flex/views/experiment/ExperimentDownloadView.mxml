@@ -148,7 +148,8 @@
  		var empty:String = item.name() == "Request" && item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y" ? " (no downloads)" : "";
  		if (item.name() == "RequestDownload") {
  			if (item.hasOwnProperty("@itemNumber") && item.@itemNumber != '') {
- 				return item.@itemNumber + " - " + item.@results + empty;
+ 				var results:String = item.hasOwnProperty("@results") && item.@results != '' ? " - " + item.@results : '';
+ 				return item.@itemNumber + results + empty;
  			} else {
 		    	return item.@results + empty;
  			}

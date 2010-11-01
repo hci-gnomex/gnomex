@@ -312,8 +312,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           if (idSlideDesign != null) {
             n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
           } else if (isSolexaRequest){
-            n.setAttribute("results", "sequencing reads" +
-            		"");
+            n.setAttribute("results", "");
           } else {
             n.setAttribute("results", "");
           }
@@ -333,7 +332,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             n.setAttribute("status", "in progress");            
             n.setAttribute("hasResults","N");
           }
-        } else if (n.getAttributeValue("results").equals("sequencing")) {
+        } else if (isSolexaRequest) {
           n.setAttribute("hasResults", "Y"); 
           n.setAttribute("status", "");
         } else {
