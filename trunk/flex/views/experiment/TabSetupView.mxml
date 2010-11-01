@@ -158,7 +158,7 @@
 				} else {
 					this.currentState = "AdminExternalExperimentState";
 				}
-				idAppUser = '';
+				idAppUser = this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@value != '' ? this.appUserCombo.selectedItem.@value : '';
 			} else {
 				if (parentApplication.submitInternalExperiment()) {
 					this.currentState = "";				
