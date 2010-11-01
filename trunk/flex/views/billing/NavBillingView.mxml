@@ -902,7 +902,7 @@
        				 " codeBillingChargeKind='" + dragNode.@codeBillingChargeKind + "'" +
        			 	 " category='" + dragNode.@category + "'" +
        			 	 " description='" + dragNode.@name + "'" +
-       			 	 " unitPrice='" + dragNode.@unitPrice + "'" +	
+       			 	 " unitPrice='" + (dropRequestNode.@isExternalPricing == 'Y' ? dragNode.@unitPriceExternal : dragNode.@unitPrice) + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
        			 	 " idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
        			 	 " idPriceCategory='" +	dragNode.parent().@idPriceCategory + "'" +
