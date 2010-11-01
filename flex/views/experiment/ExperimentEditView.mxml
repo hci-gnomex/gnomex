@@ -589,10 +589,11 @@
         }
         
 
-		public function setupSubmitForm():void {
-			getNewRequest.send();
-			buttonStack.selectedIndex = 0;
-				
+		private function setupSubmitForm():void {
+			if (request == null) {
+				getNewRequest.send();
+				buttonStack.selectedIndex = 0;
+			}
 		}
 		
 		
