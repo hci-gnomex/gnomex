@@ -11,6 +11,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
@@ -181,13 +182,20 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           request.setNumber("");          
         }
 
+        
+        // Plugin assumes lab is initialized on request
+        if (request.getIdLab() != null) {
+          request.setLab((Lab)sess.load(Lab.class, request.getIdLab()));
+        }
+
+
 
         // Plugin assumes slide product initialized on request
         if (request.getIdSlideProduct() != null) {
           SlideProduct slideProduct = (SlideProduct)sess.load(SlideProduct.class, request.getIdSlideProduct());
           request.setSlideProduct(slideProduct);
         }
-
+        
 
         hybs = new TreeSet(new HybComparator());
         samples = new TreeSet(new SampleComparator());
