@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.0.3
+---------------------
+- Fix bug that was causing 'Next' button to be disabled when switching to another main link during 'Submit Request'.  GNomEx was forced to reselect app user from dropdown to continue.
+- Get rid of horizontal separator when dragging uploaded files to folders for external experiments. Expand tree node of folder after upload file drop operation.
+- Fix bug so that external price charged when price dragged onto experiment billing for lab marked as 'External pricing'.
+
 5.0.2.1 (Oct 28, 2010)
 ---------------------
 - Fix bug that was causing Sample prep method to revert back to default on Illumina requests
