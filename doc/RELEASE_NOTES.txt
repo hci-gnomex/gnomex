@@ -6,6 +6,7 @@
 - Get rid of horizontal separator when dragging uploaded files to folders for external experiments. Expand tree node of folder after upload file drop operation.
 - Fix bug so that external price charged when price dragged onto experiment billing for lab marked as 'External pricing'.
 - Get rid of suffix " - sequencing reads" on Illumina download folders.
+- Fix bug that was showing internal prices for estimated charges on Submit Request for lab with external pricing.
 
 5.0.2.1 (Oct 28, 2010)
 ---------------------
