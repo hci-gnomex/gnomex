@@ -326,7 +326,11 @@
        		} else if (dropNode.name() == "FileDescriptor") {
        			dropFolderNode = dropNode.parent();
        			siblingDropNode = dropNode;
-       		}
+       		} else if (dropNode.name() == "Request") {
+	       		if (dropNode.children().length() > 0) {
+		       		dropFolderNode = dropNode.children()[0];
+	       		}
+			}
 	       	
 	       	// Don't allow drag operation if nothing no drop folder node
        		// found
@@ -364,6 +368,7 @@
 	       			} else {
 	       				dropFolderNode.appendChild(fileNode);
 	       			}
+	       			downloadTree.expandItem(dropFolderNode, true);
 	       			
 	       			// We have to manually remove the file when we are
 	       			// dragging within the download tree.
@@ -401,14 +406,46 @@
 		    DragManager.acceptDragDrop(Tree(event.target));
 		    // hide the "drop line" that is shown in Tree control
 		    // when dropping in a Tree
-		    downloadTree.showDropFeedback(event);
+		    //downloadTree.showDropFeedback(event);
 		}
 		
 		private function doDragOver(event:DragEvent):void
 		{
 		    // Show the default "drop line" in the Tree control
-		    downloadTree.showDropFeedback(event);
+		    //downloadTree.showDropFeedback(event);
 		    // Cancel default behavious
+		    
+		    
+		    var r:int = downloadTree.calculateDropIndex(event);
+	       	if (r > 0) { 
+    	   		r--;
+       		}
+       		downloadTree.selectedIndex = r;
+       		var dropNode:XML = downloadTree.selectedItem as XML;
+       		var dropFolderNode:XML = null;
+       		if (dropNode != null) {
+    	   		if (dropNode.name() == "RequestDownload") {
+	       			dropFolderNode = dropNode;
+       			} else if (dropNode.name() == "FileDescriptor") {
+       				dropFolderNode = dropNode.parent();
+	       		} else if (dropNode.name() == "Request") {
+	       			if (dropNode.children().length() > 0) {
+		       			dropFolderNode = dropNode.children()[0];
+	       			}
+	       		}
+       		}
+       		if (dropFolderNode != null) {
+	       		downloadTree.selectedItem = dropFolderNode;
+       		}
+       		
+		    
+		    
+		    
+		    
+		    
+		    
+		    
+		    
 		    event.preventDefault();
 		}
 		
