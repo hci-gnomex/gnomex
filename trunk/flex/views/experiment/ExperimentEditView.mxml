@@ -276,7 +276,7 @@
 		public var userWarningsHybSetup:String = "";
 
 		[Bindable]
-		public var showCCNumberColumn:String="N";
+		public var showCCNumberColumn:Boolean = true;
 		
 		public var concentrationValidator:NumberValidator = new NumberValidator();
 		

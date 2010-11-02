@@ -1,6 +1,10 @@
 ﻿GNomEx Release Notes
 
-5.0.3
+5.0.4
+--------------------
+- Make GNomEx sample linkage to BST property driven. (Won't show up for non-HCI installs.)
+
+5.0.3 (Nov 1, 2010)
 ---------------------
 - Fix bug that was causing 'Next' button to be disabled when switching to another main link during 'Submit Request'.  GNomEx was forced to reselect app user from dropdown to continue.
 - Get rid of horizontal separator when dragging uploaded files to folders for external experiments. Expand tree node of folder after upload file drop operation.

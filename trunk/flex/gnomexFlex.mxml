@@ -343,6 +343,9 @@
 	        [Bindable]
 	        public var isInternalExperimentSubmission:Boolean = true;
 	        
+	        [Bindable]
+	        public var isBSTLinkageSupported:Boolean = false;
+	        
 	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 
@@ -390,6 +393,7 @@
 			public var PROPERTY_GENERATE_GL_INTERFACE:String              = "generate_general_ledger_interface";
 			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String            = "illumina_barcoding_note";
 			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
+			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
 			
             public	var fileDownloadUtil:FileDownloadUtil;
 
@@ -622,10 +626,6 @@
             	theViews.visible = true;
             	
             	currentView = theViews.selectedChild;
-            	if(currentView == submitRequestView) {
-            		// If new experiment then initialize ShowCCNumber checkbox
-            		currentView.showCCNumberColumn = "N";
-            	}
             }
                         
             
@@ -951,6 +951,13 @@
             	}
             	pricingURL = getProperty(PROPERTY_PRICING_URL);
             	setDefaultSubmissionState();
+            	
+            	if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
+            	    this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) == 'Y') {
+            		this.isBSTLinkageSupported = true;
+            	} else {
+            		this.isBSTLinkageSupported = false;
+            	}
             	
 	        	showProgress(30);
 	        	enableApp();
