@@ -195,7 +195,10 @@
 						<mx:DataGridColumn headerText="Conc." width="65" dataField="@concentration"/>
 		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
-	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Barcode" width="60" dataField="@idOlogiBarcode" 
+	                    <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber"
+	                       visible="{parentDocument.samplesView.showCCNumberCheckbox.selected ? true : false}" width="60"/>
+
+	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Barcode" width="66" dataField="@idOlogiBarcode" 
 	                      editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
 	                      visible="false"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode')}" />

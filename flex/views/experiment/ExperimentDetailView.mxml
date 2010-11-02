@@ -261,8 +261,7 @@
            	 
            	 //parentDocument.editView.setupEditForm(this.selectedExperiment);
            	 parentDocument.parentDocument.editView.request = this.selectedExperiment;
-           	 parentDocument.parentDocument.editView.showCCNumberColumn = this.selectedExperiment.@hasCCNumber == 'Y' ? "Y":"N";
-           	 parentDocument.parentDocument.editView.annotationView.cbShowCCNumber.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true: false;
+           	 parentDocument.parentDocument.editView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
            	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
            	 //parentDocument.editView.removeDataListeners();

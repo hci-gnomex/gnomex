@@ -701,19 +701,31 @@
 				return true;
 			}
 		}
+		
+		private function toggleShowCCNumber():void {
+			if (!this.showCCNumberCheckbox.selected) {
+				for each(var s:XML in parentDocument.samples) {
+					s.@ccNumber = '';
+				}
+			}
+		}
         
 	]]>
 </mx:Script>	
 
 	<mx:VBox width="100%" height="100%" verticalGap="2">
-	        <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1" width="100%">
+	        <mx:HBox  horizontalAlign="center" paddingLeft="4" id="vbox1" width="100%" verticalAlign="middle"> 
   			  <mx:TextArea styleName="instructionBox" width="590" wordWrap="true" height="88" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
-			</mx:VBox>
+			</mx:HBox>
 			<mx:Spacer width="8"/>
 			<mx:HBox id="buttonsContainer">
-				<mx:Label id="samplesTitle" text="Samples:" height="100%" paddingTop="2"/>
+				<mx:CheckBox id="showCCNumberCheckbox" 
+					click="toggleShowCCNumber()" 
+					visible="{parentApplication.isBSTLinkageSupported}"
+					width="{parentApplication.isBSTLinkageSupported ? 250 : 0}" 
+					label="Link to BST samples using CC Number" />
 				<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
@@ -744,6 +756,10 @@
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit', true)}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true)}"/>
+	                <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" visible="{showCCNumberCheckbox.selected ? true : false}"
+						width="76"
+						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+ 	                    itemEditor="{hci.flex.controls.TextInput.create('@ccNumber')}"/>
 	                <mx:DataGridColumn id="barcodeColumn" visible="{!showQCFieldsCheckBox.selected &amp;&amp; parentDocument.isSolexaState() ? false : true}" headerText="Barcode" width="60" dataField="@idOlogiBarcode" 
 	                   editorDataField="value" sortable="false" editable="{parentApplication.hasPermission('canWriteAnyObject')}" rendererIsEditor="false" 
  	                   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode', true)}"                
@@ -882,9 +898,6 @@
 					<mx:DataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>
-					<mx:DataGridColumn id="ccNumber" headerText="CCNumber" dataField="@ccNumber" editable="true" visible="{parentDocument.showCCNumberColumn == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@ccNumber')}"/>
  	                   
 					<mx:DataGridColumn id="corePrepInstructionsCol" headerText="Core Prep Instructions" width="140" dataField="@prepInstructions"/> 
 					<mx:DataGridColumn headerText="Description" width="140" dataField="@description"/> 
@@ -966,7 +979,6 @@
 		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
 			<mx:RemoveChild target="{addSampleButton}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
-			<mx:SetProperty target="{samplesTitle}" name="text" value="Samples"/>
 
 		</mx:State>
 
