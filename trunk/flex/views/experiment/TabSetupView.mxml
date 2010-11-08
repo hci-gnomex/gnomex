@@ -298,8 +298,7 @@
 		private function getMembersOfLab():void {			
 			if (this.labCombo.selectedItem.@idLab != null) {
 				if (lab == null || labCombo.selectedItem.@idLab != lab.@idLab) {
-					if (parentApplication.hasPermission("canWriteAnyObject") && 
-					    this.labCombo.selectedItem.@idLab != '') {
+					if (currentState == "AdminState" || currentState == "AdminExternalExperimentState") {
 					    idAppUser = null;
 					}
 					getLab.send();				
@@ -322,7 +321,7 @@
 	        appUsers.sort = appUserSort;
 	        appUsers.refresh();
 	        
-	        if (this.currentState == "AdminState") {
+	        if (this.currentState == "AdminState" || this.currentState == "AdminExternalExperimentState") {
 		        this.appUserCombo.selectedIndex = 0;
 	        }
 
