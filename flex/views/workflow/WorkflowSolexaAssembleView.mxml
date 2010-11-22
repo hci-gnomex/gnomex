@@ -62,7 +62,7 @@
     useProxy="false">
     </mx:HTTPService >    
 
-    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
+    <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.Request}"/>
     <mx:XMLListCollection id="dirtyChannelWorkList" />
     <mx:XMLListCollection id="dirtyStatusWorkList" />
     <mx:XMLListCollection id="nextWorkList" source="{getNextWorkList.lastResult.WorkItem}"/>
@@ -95,6 +95,7 @@
 		private function onGetWorkList(event:ResultEvent):void {
 			if (event.result.name() == "WorkItemList") {
     	    	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+    	    	this.pendingLanesGrid.validateNow();
         	} else {
         		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
         	}
@@ -346,7 +347,11 @@
 	       }    		
 
     	}
- 	
+    	
+ 		public function getPendingTreeIcon(item:Object):Class {
+			return null;  
+		}   
+
     	
     	private function moveAssembleLaneUp():void {
     		var pos:int = this.assembleLanesGrid.selectedIndex;
@@ -384,11 +389,25 @@
     		
     		assembleLanesGrid.selectedItem = item; 
     	}   	
+    	
+    	private function mergeSamples():void {
+    		var prevChannelCount:int = getChannelCount();
+    		for each(var workItem:XML in this.assembleLanesGrid.selectedItems) {
+    			workItem.@multiplexGroupNumber = "";
+    		}
+    		this.reassignChannelNumbers();
+    		if (prevChannelCount > getChannelCount()) {
+    			Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
+    		} else {
+    			Alert.show("Unable to combine samples into one channel.  Samples must belong to same request, have unique barcodes, and be adjacent to each other on the flowcell grid.");
+    		}
+    	}
 	  	private function onDragDropLane(event:DragEvent) : void
 		{
 	       // retrieve the data associated with the "items" format. This will be the data that
 	       // the dragInitiator has copied into the DragSource.
-	       var items:Array = event.dragSource.dataForFormat("items") as Array;
+	       var draggedFormat:String = event.dragSource.formats[0];
+		   var items:Array  = event.dragSource.dataForFormat(draggedFormat) as Array;	
 	
 	       // determine where in the grid the drop occurs and select that node by the index; followed by 
 	       // retrieving the node itself. 
@@ -398,7 +417,7 @@
 	        
 
 	       // Disallow operation if seq run is of different type
-	       for each (var dragItem:Object in items) {
+	       for each (var dragItem:XML in items) {
 	       		if (dragItem.name() == "DictionaryEntry") {
 	       			continue;
     	   		}
@@ -409,15 +428,26 @@
 		       		DragManager.showFeedback(DragManager.NONE);
        				return;
        			}
-	       		for each (var item:Object in dirtyChannelWorkList) {
-	       			if (item.name() == "WorkItem") {	       				
-		       			if (dragItem.@idSeqRunType != item.@idSeqRunType) {
-		       				Alert.show("Warning - Incompatible sequence run type.");
-				       		event.preventDefault();
-				       		event.target.hideDropFeedback(event);
-				       		DragManager.showFeedback(DragManager.NONE);
-							return;	       	  	
-		       			} 
+	       		for each (var channelItem:XML in dirtyChannelWorkList) {
+	       			if (channelItem.name() == "WorkItem") {
+	       				if (dragItem.name() == "WorkItem") {
+			       			if (!checkCompatibleSeqRun(dragItem, channelItem, event)) {
+			       				return;
+			       			} 					
+	       				} else if (dragItem.name() == "MultiplexLane") {
+	       					for each(var n:XML in dragItem.children()) {
+	       						if (!checkCompatibleSeqRun(n, channelItem, event)) {
+	       							return;
+	       						}
+	       					}
+	       				} else if (dragItem.name() == "Request") {
+	       					var multiplexLaneNode:XML = dragItem.children()[0];
+	       					for each(var n1:XML in multiplexLaneNode.children()) {
+	       						if (!checkCompatibleSeqRun(n1, channelItem, event)) {
+	       							return;
+	       						}
+	       					}
+	       				}	       				
 		       		}
 	       		}
 	       }
@@ -428,17 +458,28 @@
 	       // taking all of the items in the DragSouce, move to work items
 	       // to the dirtyWorkItems list
 	       for(var i:Number=0; i < items.length; i++) {
-	       	if (items[i].name() == "WorkItem") {
-	       		items[i].@sampleConcentrationpM = '';
-		    	dirtyChannelWorkList.addItemAt(items[i], row);
-		    	workList.removeItemAt(workList.getItemIndex(items[i]));	       			
-	       	} else if (items[i].name() == "DictionaryEntry") {
-	       		items[i].@sampleConcentrationpM = '';
-	       		var newItem:Object = new XML(XML(items[i]).toXMLString());
-	       		newItem.@isControl = 'true';
-		    	dirtyChannelWorkList.addItemAt(newItem, row); 
-	       	} 
-	       }
+		       	var dragNode:XML = items[i] as XML;
+		       	if (dragNode.name() == "MultiplexLane") {
+		       		for each(var workItemNode:XML in dragNode.children()) {
+		       			dragWorkItem(workItemNode, row);
+		       		}
+		       	} else if (dragNode.name() == "Request") {
+		       		var firstMultiplexLaneNode:XML = dragNode.children()[0];
+		       		for each(var workItemNode1:XML in firstMultiplexLaneNode.children()) {
+		       			dragWorkItem(workItemNode1, row);
+		       		}
+		       	} else if (dragNode.name() == "WorkItem") {
+			    	
+					dragWorkItem(dragNode, row);		    	
+			    	
+			    		       			
+		       	} else if (dragNode.name() == "DictionaryEntry") {
+		       		dragNode.@sampleConcentrationpM = '';
+		       		var newItem:Object = dragNode.copy();
+		       		dragNode.@isControl = 'true';
+			    	dirtyChannelWorkList.addItemAt(newItem, row); 
+		       	}
+	       } 
 	       
 	       // Reassign channel numbers based based on any multiplexing.
 	       reassignChannelNumbers();
@@ -459,17 +500,76 @@
 		   DragManager.showFeedback(DragManager.NONE);
 		}
 		
+		private function checkCompatibleSeqRun(dragNode:XML, channelNode:XML, event:DragEvent):Boolean {
+			if (dragNode.@idSeqRunType != channelNode.@idSeqRunType) {
+   				Alert.show("Warning - Incompatible sequence run type.");
+	       		event.preventDefault();
+	       		event.target.hideDropFeedback(event);
+	       		DragManager.showFeedback(DragManager.NONE);
+				return false;	       	  	
+   			} else {
+   				return true;
+   			} 	      			
+		}
+		
+		private function dragWorkItem(dragNode:XML, row:int):void {
+       		dragNode.@sampleConcentrationpM = '';
+	    	dirtyChannelWorkList.addItemAt(dragNode, row);
+	    	
+	    	var multiplexLaneNode:XML = dragNode.parent();
+	    	var requestNode:XML = multiplexLaneNode.parent();
+	    	var x:int = 0;
+	    	for each(var child:XML in multiplexLaneNode.children()) {
+	    		if (child.@number == dragNode.@number) {
+		    		delete multiplexLaneNode.children()[x];
+		    		break;
+	    		}
+	    		x++;
+	    	}
+	    	
+	    	
+	    	if (multiplexLaneNode.children().length() == 0) {
+	    		x = 0;
+	    		for each(var laneNode:XML in requestNode.children()) {
+	    			if (laneNode.@number == multiplexLaneNode.@number) {
+		    			delete requestNode.children()[x];
+		    			break;
+		    		}
+		    		x++;
+		    	}
+	    	}
+
+	    	if (requestNode.children().length() == 0) {
+	    		this.workList.removeItemAt(workList.getItemIndex(requestNode));
+	    	}
+			
+		}
+		
+		private function getChannelCount():int {
+			if (dirtyChannelWorkList.length > 0) {
+				return dirtyChannelWorkList.getItemAt(dirtyChannelWorkList.length - 1).@channelNumber;			
+			} else {
+				return 0;
+			}
+		}
+		
 		private function reassignChannelNumbers():void {
 			var channelNumber:int = 0;
 			var prevBarcodes:XMLListCollection = new XMLListCollection();
 			var altColor:Boolean = true;
+			var prevRequestNumber:String = "%%%";
+			var prevMultiplexNumber:String = "%%%";
 			for each(var wi:Object in dirtyChannelWorkList) {
 				var nextChannel:Boolean = true;
-				if (wi.hasOwnProperty('@idOligoBarcode') && wi.@idOligoBarcode != null && wi.@idOligoBarcode != '') {
+				if (wi.@requestNumber != prevRequestNumber) {
+					nextChannel = true
+				} else if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
+					nextChannel = true;
+				} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
 					if (prevBarcodes.length > 0) {
 						nextChannel = false;
 						for each(var bc:Object in prevBarcodes) {
-							if (wi.@idOligoBarcode == bc.@idOligoBarcode) {
+							if (wi.@barcodeSequence == bc.@barcodeSequence) {
 								nextChannel = true;
 								break;
 							}
@@ -489,9 +589,11 @@
 				}
 				wi.@channelNumber = channelNumber;
 				wi.@altColor = altColor;
-				if (wi.hasOwnProperty('@idOligoBarcode') && wi.@idOligoBarcode != null && wi.@idOligoBarcode != '') {
+				if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
 					prevBarcodes.addItem(wi);
 				}
+				prevRequestNumber = wi.@requestNumber;
+				prevMultiplexNumber = wi.@multiplexGroupNumber;
 			}
 		}
 		
@@ -523,37 +625,53 @@
 		//
 		// Need to use these label functions instead of LabelDictionary item renderer because drag image is blank otherwise.
 		//
-        private function lookupOrganism(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', item.@idOrganism);
-        	if (d != null) {
-        		return d.@display;
-        	} else {
-        		return ""; 
-        	}
-        }		
-        private function lookupSeqRunType(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
-        	if (d != null) {
-        		return d.@display;
+        private function lookupOrganism(item:Object, col:Object):String {
+        	if (item != null  && item.hasOwnProperty("@idOrganism")) {
+	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', item.@idOrganism);
+	        	if (d != null) {
+	        		return d.@display;
+	        	} else {
+	        		return ""; 
+	        	}
         	} else {
         		return "";
         	}
         }		
-        private function lookupNumberSequencingCycles(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
-        	if (d != null) {
-        		return d.@display; 
+        private function lookupSeqRunType(item:Object, col:Object):String {
+        	if (item != null  && item.hasOwnProperty("@idSeqRunType")) {
+	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
+	        	if (d != null) {
+	        		return d.@display;
+	        	} else {
+	        		return "";
+	        	}
         	} else {
         		return "";
         	}
         }		
-        private function lookupOligoBarcode(item:Object, col:DataGridColumn):String {
-        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', item.@idOligoBarcode);
-        	if (d != null) {
-        		return d.@barcodeSequence;
+        private function lookupNumberSequencingCycles(item:Object, col:Object):String {
+        	if (item != null  && item.hasOwnProperty("@idNumberSequencingCycles")) {
+	        	var d:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
+	        	if (d != null) {
+	        		return d.@display; 
+	        	} else {
+	        		return "";
+	        	}
         	} else {
         		return "";
         	}
+        }		
+        private function lookupOligoBarcode(item:Object, col:Object):String {
+        	if (item != null && item.hasOwnProperty("@idOligoBarcode")) {
+        		if (item.@idOligoBarcode != '') {
+		        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+        		} else {
+	        		return item.@barcodeSequence;
+	        	}
+	        } else {
+	        	return "";
+	        }
+	        
         }		
         
         
@@ -582,23 +700,22 @@
 						</mx:Button>						
 					</mx:HBox>
 			    </mx:HBox>
-				<util:DataGridAlternatingGroup id="pendingLanesGrid" width="100%" height="100%" 
-					dataProvider="{workList}" 
-					dragEnabled="true" 
+				<mx:AdvancedDataGrid id="pendingLanesGrid" width="100%" height="100%" 
+					dragEnabled="true"  
+					sortExpertMode="true"
+				    sortableColumns="false"
+				    displayItemsExpanded="true"
 					editable="true"
+					iconFunction="getPendingTreeIcon"
 					allowMultipleSelection="true">
-					<util:columns>
-						<mx:DataGridColumn  dataField="@laneNumber" editable="false" headerText="Flow Cell Sample #" width="40">
-							<mx:headerRenderer > 
-							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								    <mx:Label text="Flow Cell"/>
-								    <mx:Label text="Sample #"/>
-								</mx:VBox> 
-							</mx:Component>
-							</mx:headerRenderer>
-	  					</mx:DataGridColumn>	
-	  					<mx:DataGridColumn  dataField="@idOligoBarcode" editable="false" headerText="Sample Barcode"   width="28" labelFunction="lookupOligoBarcode">
+					<mx:dataProvider>
+						<mx:HierarchicalData source="{workList}"/>
+					</mx:dataProvider>
+				 	
+					<mx:columns>
+						<mx:AdvancedDataGridColumn  dataField="@number" editable="false" headerText="#" width="60">
+	  					</mx:AdvancedDataGridColumn>	
+	  					<mx:AdvancedDataGridColumn  dataField="@idOligoBarcode" editable="false" headerText="Sample Barcode"   width="28" labelFunction="lookupOligoBarcode">
 							<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
@@ -607,8 +724,8 @@
 								</mx:VBox>
 							</mx:Component>
 							</mx:headerRenderer>
-						</mx:DataGridColumn>	
-						<mx:DataGridColumn  dataField="@idSeqRunType" editable="false" headerText="Paired/Single"   width="35" labelFunction="lookupSeqRunType">
+						</mx:AdvancedDataGridColumn>	
+						<mx:AdvancedDataGridColumn  dataField="@idSeqRunType" editable="false" headerText="Paired/Single"   width="25" labelFunction="lookupSeqRunType">
 							<mx:headerRenderer > 
 							  <mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -618,18 +735,18 @@
 							  </mx:Component>
 							</mx:headerRenderer>                     
 						
-						</mx:DataGridColumn>
-	                    <mx:DataGridColumn  dataField="@idOrganism"   editable="false" headerText="Organism"   width="35"  labelFunction="lookupOrganism"/>
-						<mx:DataGridColumn  dataField="@idNumberSequencingCycles"  editable="false" headerText="# Cycles"   width="32"  labelFunction="lookupNumberSequencingCycles"/>
-						<mx:DataGridColumn headerText="Status"  width="39" dataField="@assembleStatus" 
+						</mx:AdvancedDataGridColumn>
+	                    <mx:AdvancedDataGridColumn  dataField="@idOrganism"   editable="false" headerText="Organism"   width="25"  labelFunction="lookupOrganism"/>
+						<mx:AdvancedDataGridColumn  dataField="@idNumberSequencingCycles"  editable="false" headerText="# Cycles"   width="32"  labelFunction="lookupNumberSequencingCycles"/>
+						<mx:AdvancedDataGridColumn headerText="Status"  width="39" dataField="@assembleStatus" 
 	                	    editorDataField="value" 
 	                	    editable="true"
 	                        rendererIsEditor="false" 
 	                        itemRenderer="mx.controls.Label"  
  	                        itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@assembleStatus', false, false, false, false, true)}">
-					</mx:DataGridColumn>
-					</util:columns>				
-				</util:DataGridAlternatingGroup>		
+					</mx:AdvancedDataGridColumn>
+					</mx:columns>				
+				</mx:AdvancedDataGrid>		
 			</mx:VBox> 
 			
 	    	
@@ -643,13 +760,17 @@
 	    </mx:VBox>
 		<mx:VBox width="50%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
 			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4" height="100%">
-					<mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
+			        <mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
+			        <mx:HBox>
+				    	<mx:Label text="Barcode:"/>
+				    	<mx:TextInput id="flowCellBarcode" width="100%"/>
+				    	<mx:Label text="Cluster Gen Date:"/>
+				    	<mx:DateField id="flowCellDate" showToday="true"/>
+					 	
+				    </mx:HBox>
 					<mx:HBox width="100%" horizontalGap="2">
-						<mx:Label text="Barcode:"/>
-						<mx:TextInput id="flowCellBarcode" width="100%"/>
-						<mx:Label text="Cluster Gen Date:"/>
-						<mx:DateField id="flowCellDate" showToday="true"/>
-						<mx:HBox width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" horizontalGap="4">
+						<mx:HBox width="100%" horizontalAlign="left" paddingTop="0" paddingBottom="0" horizontalGap="4">
+							<mx:Button click="mergeSamples()"  label="Combine" toolTip="Combine samples from a request into one channel"/>
 							<mx:Button click="moveAssembleLaneUp();reassignChannelNumbers()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
 							<mx:Button click="moveAssembleLaneDown();reassignChannelNumbers()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
 							<mx:VRule height="20"/>
@@ -659,18 +780,24 @@
 						</mx:HBox> 
 						 
 					</mx:HBox> 
-			<util:DataGridAlternatingGroup  id="assembleLanesGrid" sortableColumns="false" dataProvider="{dirtyChannelWorkList}" width="100%" height="100%" 
-				 dropEnabled="true" editable="true" dragDrop="onDragDropLane(event)"	>	 
-				<util:columns>
-			        <mx:DataGridColumn headerText="Control" 
+			<mx:AdvancedDataGrid  id="assembleLanesGrid" 
+				 sortableColumns="false"
+				 sortExpertMode="false"
+				 dataProvider="{dirtyChannelWorkList}" width="100%" height="100%" 
+				 dropEnabled="true" 
+				 editable="true" 
+				 dragDrop="onDragDropLane(event)"	 
+				 selectionMode="multipleRows">	 
+				<mx:columns>
+			        <mx:AdvancedDataGridColumn headerText="Control" 
 			        	width="30"        
 			        	editable="false"             	
 			        	dataField="@isControl" 
 			        	editorDataField="selected"
 			        	itemRenderer="views.renderers.CheckBoxFlowCellIsControl" >
-			        </mx:DataGridColumn>
-					<mx:DataGridColumn editable="false" headerText="Chan #"  dataField="@channelNumberDisplay" width="30" showDataTips="true" />
-					<mx:DataGridColumn  editable="false" dataField="@laneNumber" width="45" headerText="Flow Cell Sample #" showDataTips="true" >
+			        </mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn editable="false" headerText="Chan #"  dataField="@channelNumberDisplay" width="30" showDataTips="true" />
+					<mx:AdvancedDataGridColumn  editable="false" dataField="@laneNumber" width="45" headerText="Flow Cell Sample #" showDataTips="true" >
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"  >
@@ -679,8 +806,8 @@
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
-					</mx:DataGridColumn>	
-					<mx:DataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"  editable="false" width="25" labelFunction="lookupOligoBarcode">
+					</mx:AdvancedDataGridColumn>	
+					<mx:AdvancedDataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"  editable="false" width="25" labelFunction="lookupOligoBarcode">
 						<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
@@ -689,8 +816,8 @@
 								</mx:VBox>
 							</mx:Component>
 							</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn  editable="false"  dataField="@idSeqRunType" headerText="Paired/Single" width="25" 
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idSeqRunType" headerText="Paired/Single" width="25" 
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}">
 						<mx:headerRenderer > 
@@ -701,11 +828,11 @@
 							</mx:VBox>
 						  </mx:Component>
 						</mx:headerRenderer>                     
-                    </mx:DataGridColumn>                 											
-					<mx:DataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="35"  
+                    </mx:AdvancedDataGridColumn>                 											
+					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="35"  
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
-					<mx:DataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="32" 
+					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="32" 
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}">
 						<mx:headerRenderer > 
@@ -716,9 +843,9 @@
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
-					</mx:DataGridColumn>					
+					</mx:AdvancedDataGridColumn>					
 
-                     <mx:DataGridColumn dataField="@sampleConcentrationpM" 
+                     <mx:AdvancedDataGridColumn dataField="@sampleConcentrationpM" 
                      	showDataTips="true"
                      	headerText="Sample conc. (pM)" width="45"
                      	rendererIsEditor="false" 
@@ -732,9 +859,9 @@
 							</mx:VBox>
 						</mx:Component>
 						</mx:headerRenderer>
-                    </mx:DataGridColumn>                 											
-				</util:columns>			
-			</util:DataGridAlternatingGroup>		 
+                    </mx:AdvancedDataGridColumn>                 											
+				</mx:columns>			
+			</mx:AdvancedDataGrid>		 
 			    </mx:VBox> 
 			<mx:Spacer height="10"/>
 		</mx:VBox>

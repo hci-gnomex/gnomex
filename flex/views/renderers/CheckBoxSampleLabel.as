@@ -161,8 +161,8 @@ package views.renderers
         private function setMandatoryBackground():void {
           	var g:Graphics = this.graphics;
           	g.clear();
-             		  
-          	if (!data.hasOwnProperty("@label") || data.@label == '') {
+             		   
+          	if (data != null && (!data.hasOwnProperty("@label") || data.@label == '')) {
 	        	g.beginFill(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND);
 	        	g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
 	            	        RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER);          	

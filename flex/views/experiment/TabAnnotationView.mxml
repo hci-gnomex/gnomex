@@ -11,7 +11,7 @@
 <mx:Script>
 	<![CDATA[
 		import views.util.AnnotationDataGridColumn;
-		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
 		import hci.flex.dictionary.DictionaryEditor;
@@ -230,7 +230,7 @@
         
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
-       		var col:DataGridColumn;
+       		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
        		for each(annotation in parentDocument.sampleCharacteristicEntries) {
 				exists = false;

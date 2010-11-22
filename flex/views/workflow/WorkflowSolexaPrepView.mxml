@@ -41,7 +41,9 @@
     </mx:HTTPService >
     
     <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
-    
+
+    <mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
+    <mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 
 
     <mx:Script>
@@ -74,6 +76,7 @@
         
         
         private function init():void {
+        	barcodes.refresh();
         }
         
         private function refreshWorkList():void {
@@ -251,10 +254,57 @@
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);
         }
+		private function getOligoBarcodeName(item:Object,col:DataGridColumn):String
+        {
+        	if (item.@idOligoBarcode != '') {
+	        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+        	} else {
+        		return item.@barcodeSequence;
+        	}
+        }
 		private function getSampleType(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
         }
+        
+        private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var scheme1:String = obj1.@oligoBarcodeSchemeDisplay;
+				var scheme2:String = obj2.@oligoBarcodeSchemeDisplay;
+				
+				if (scheme1 < scheme2) {
+					return -1;
+				} else if (scheme1 > scheme2) {
+					return 1;
+				} else {
+					var order1:int = obj1.@sortOrder;
+					var order2:int = obj2.@sortOrder;
+					
+					if (obj1.@value == '') {
+						return -1;
+					} else if (obj2.@value == '') {
+						return 1;
+					} else {
+						if (order1 < order2) {
+							return -1;
+						} else if (order1 > order2) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}
+					
+				}
+				
+			}			
+		}			
+
         ]]>
     </mx:Script> 
     
@@ -287,9 +337,28 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn editable="false" width="15" dataField="@idSampleType"  
+					<mx:DataGridColumn editable="false" width="25" dataField="@idSampleType"  
 						headerText="Sample Type" labelFunction="getSampleType">
 					</mx:DataGridColumn>
+					<mx:DataGridColumn editable="false" width="10" dataField="@multiplexGroupNumber"  
+						headerText="Multiplex Group" >
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox  horizontalScrollPolicy="off"  verticalGap="0">
+									<mx:Label text="Multiplex"/>
+									<mx:Label text="Group"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn> 
+					<mx:DataGridColumn headerText="Barcode tag"  width="25" 
+					dataField="@idOligoBarcode" 
+					   editorDataField="value"
+		               editable="true"  
+		               rendererIsEditor="false" 
+		               itemRenderer="mx.controls.Label"		
+		               labelFunction="getOligoBarcodeName"                
+					   itemEditor="{views.renderers.ComboBoxOligoBarcode.create()}"/>		                
 					<mx:DataGridColumn headerText="Seq Library Protocol"  width="45" 
 					dataField="@idSeqLibProtocol" 
 					   editorDataField="value"
