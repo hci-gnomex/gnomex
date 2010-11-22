@@ -395,6 +395,9 @@
 			} else {
 				this.barcodeRadioBox.styleName = 'requiredBox';				
 			}
+			if (this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue == 'N') {
+				this.clearBarcodingFields();				
+			}
 			this.checkSampleSetupCompleteness();
 			this.parentDocument.seqSetup1View.pickBarcodeScheme();
 		}
@@ -484,6 +487,17 @@
 			
 		}
 		
+		private function clearBarcodingFields():void {
+			if (parentDocument.isEditState() || parentDocument.isAmendState()) {
+				return;
+			}
+			for each(var s:Object in parentDocument.samples) {
+				s.@idOligoBarocode = '';
+				s.@multiplexGroupNumber = '';
+				s.@barcodeSequence = '';
+			}
+		}
+		
 		
 		private function pickSeqPrepState():void {
 			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
@@ -502,6 +516,7 @@
 			this.propagateSeqPrepByCore();
 			pickDefaultSeqLibProtocol();
 			propagateSeqLibProtocol();
+			clearBarcodingFields();
 			parentDocument.seqLibProtocolList.refresh();
 			checkSampleSetupCompleteness();
 			parentDocument.samplesView.showHideColumns();
@@ -685,6 +700,14 @@
             <mx:SetProperty target="{samplesAlreadyPreppedCheckbox}" name="label">
                 <mx:value>No, library has already been prepped using kit</mx:value>
             </mx:SetProperty>
+            <mx:SetProperty target="{label13}" name="text">
+                <mx:value>(6) Are sequencing libraries constructed with barcode tags for multiplexing capability?</mx:value>
+            </mx:SetProperty>
+            <mx:AddChild relativeTo="{radioNoBarcoding}" position="before">
+                <mx:RadioButton groupName="barcodeRadioGroup" value="C" id="radioYesCustomBarcoding" label="Yes, samples tagged with custom barcode sequence" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()">
+                </mx:RadioButton>
+            </mx:AddChild>
+            <mx:SetProperty target="{radioYesBarcoding}" name="label" value="Yes, samples tagged with Illumina multiplexing mequencing primers "/>
         </mx:State>
         <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
              <mx:AddChild relativeTo="{hbox4}" position="lastChild">

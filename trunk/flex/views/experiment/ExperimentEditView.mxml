@@ -169,6 +169,17 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+
+   <mx:HTTPService  
+    id="getMultiplexLaneList" 
+    url="GetMultiplexLaneList.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetMultiplexLaneList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get multiplex sequence lane list', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService>
   
 	<mx:Script>
 		<![CDATA[
@@ -974,6 +985,9 @@
         }
 		public function getLaneSampleName(item:Object,col:int):String
         {
+        	if (item == null || !item.hasOwnProperty("@idSample")) {
+        		return '';
+        	}
         	var sampleName:String = "";
     		for each(var sample:Object in samples) {
     			if (sample.@idSample == item.@idSample) {
@@ -2120,6 +2134,23 @@
 			saveNewRequest.send(params);			
 			
 		}
+		
+		public function getMultiplexLanes():void {
+			initializeRequestXML();
+			var params:Object = new Object();
+			params.requestXMLString = request.toXMLString();
+			getMultiplexLaneList.send(params);
+			
+		}
+		private function onGetMultiplexLaneList(event:ResultEvent):void {
+			var readyToSubmit:Boolean = true;
+			if (getMultiplexLaneList.lastResult.name() != "MultiplexLaneList") { 
+				Alert.show(getMultiplexLaneList.lastResult..ACTMESSAGE.@TEXT, "Unable to get multiplex lane info");
+				readyToSubmit = false;
+			}
+			this.submitButton.enabled = readyToSubmit;
+		}		
+		
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
 			
@@ -2152,9 +2183,11 @@
 							this.confirmView.currentState = "BillingExceedState";
 							readyToSubmit = false;
 						} else {
-							this.confirmView.currentState = "BillingState"
+							this.confirmView.currentState = ""
 						}
 					}
+					this.confirmView.billingConfirmGrid.rowCount = billingItems.length() > 1 ? billingItems.length() - 1 : billingItems.length();
+					this.confirmView.billingConfirmGrid.validateNow();
 				} else {
 					readyToSubmit = false;
 				}
@@ -2184,6 +2217,37 @@
 			}			
 		}
 		
+		private function getIdAppUserSubmitter():Object {
+			var idAppUserSubmitter:Object = null;
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.currentState != "AdminState")) {
+				// If a non-admin user is converting a QC request
+				// to a microarray or sequencing request, make the user the 
+				//  submitter of
+				// the request, as he/she may be amending a request
+				// originally submitted by someone else.
+				idAppUserSubmitter = parentApplication.getIdAppUser();				
+			} else if (!this.isAmendState()) {
+				idAppUserSubmitter = this.setupView.idAppUser;
+			} else {
+				idAppUserSubmitter = request.@idAppUser;
+			}
+			return idAppUserSubmitter;
+		}
+		
+		public function getSubmitterName():String {
+			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (parentApplication.currentState != "AdminState")) {
+				// If a non-admin user is converting a QC request
+				// to a microarray or sequencing request, make the user the 
+				//  submitter of
+				// the request, as he/she may be amending a request
+				// originally submitted by someone else.
+				return parentApplication.getAppUserName();
+			} else if (!isAmendState()) {
+				return setupView.getAppUserName();
+			} else {
+				return request.@ownerName.toString();
+			} 
+		}
 		
 		private function initializeRequestXML():void {			
 			// Determine if this is an external experiment submission
@@ -2191,20 +2255,12 @@
 			
 			request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 			
-			if (this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") {
-				// If a non-admin user is converting a QC request
-				// to a microarray or sequencing request, make the user the 
-				//  submitter of
-				// the request, as he/she may be amending a request
-				// originally submitted by someone else.
-				if (parentApplication.currentState != "AdminState") {
-					request.@idAppUser = parentApplication.getIdAppUser();				
-				}
-			} else if (!this.isAmendState()) {
+			request.@idAppUser = this.getIdAppUserSubmitter();
+			
+			if (!this.isAmendState()) {
 				// If we are submitting a new request, grab the lab, billing, project
 				// from the setup tab
 				request.@idLab = setupView.labCombo.selectedItem.@idLab;
-				request.@idAppUser = setupView.idAppUser;
 				if (request.@isExternal == 'N') {
 					request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
 				}
@@ -3124,8 +3180,6 @@
 			
 			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',request.@codeApplication);
 			applicationName = application.@display.toString();
-
-
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				
@@ -3355,6 +3409,67 @@
 			uploadWindow.init(idRequest, requestNumber);
     		
     	}
+    	
+    	public function showSampleBarcodes():Boolean {
+    		var show:Boolean = false;
+    		if (this.isSolexaState()) {
+    			if (currentState == "SolexaLaneAmendState" ) {
+					for each(var s:Object in samples) {
+						if (s.@idOligoBarcode != '') {
+							show = true;
+							break;		
+						}
+					}
+				} else if (this.isEditState()) {
+    				return true;
+    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
+					show = true;
+				} 	
+    		}
+    		return show;
+    	}
+    	
+    	public function showSampleCustomBarcodes():Boolean {
+    		var show:Boolean = false;
+    		if (this.isSolexaState()) {
+				if (currentState == "SolexaLaneAmendState") {
+					for each(var s:Object in samples) {
+						if (s.@barcodeSequence != '' && s.@idOligoBarcode == '') {
+							show = true;
+							break;		
+						}
+					}
+				} else if (this.isEditState()) {
+					return true;
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'C') {
+					show = true;
+				}	
+    		}
+    		return show;
+    	}
+    	
+    	
+    	public function showSampleMultiplexGroup():Boolean {
+    		var show:Boolean = false;
+    		if (this.isSolexaState()) {
+	    		if (currentState == "SolexaLaneAmendState") {
+					for each(var s:Object in samples) {
+						if (s.@multiplexGroupNumber != '') {
+							show = true;
+							break;		
+						}
+					}
+				} else if (this.isEditState()) {
+					return true;
+				} else if (sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N') {
+					return true;
+				}	
+    		}
+    		return show;
+    	}
+    	
+     		
+
 
 		]]>
 	</mx:Script>
@@ -3373,9 +3488,11 @@
 	<mx:Sort id="laneSorter" compareFunction="sortLanes"/>
 	<mx:XMLListCollection id="lanes" source="{request.sequenceLanes.SequenceLane}" sort="{laneSorter}"/>
 	
+	<mx:XMLListCollection id="multiplexLanes" source="{getMultiplexLaneList.lastResult..MultiplexLane}"/>
  
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
+
   	<mx:HBox id="hbox7">
 		<mx:Image source="{(request.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : request.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : request.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : request.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : request.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}"/>
 	  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
@@ -3664,53 +3781,10 @@
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
-            <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
-				<mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%" height="100%" paddingTop="4" >
-						<mx:Label id="laneGridLabel" text="{lanes.length + ' Sequencing Lanes'}" textDecoration="underline" paddingTop="4"/>
-						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  
-							editable="false" dataProvider="{lanes}"  
-							rollOverColor="#C0C0C0" selectionColor="#FFFFB9"
-							alpha=".7" fontSize="9" rowHeight="19" 
-							horizontalScrollPolicy="auto">
-						<mx:columns>
-						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
-				            <mx:DataGridColumn  width="200" id="seqRunTypeCol" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
-				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
-				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
-							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
-						</mx:columns>
-					</mx:DataGrid>
-					
-				</mx:VBox>	
-            </mx:AddChild>
          </mx:State>
         <mx:State name="SolexaBaseAmendState" basedOn="AmendState">
         	<mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
-            <mx:AddChild relativeTo="{confirmView.samplesConfirmContainer}" position="after">
-				<mx:VBox  id="lanesAmendConfirmContainer"  verticalGap="0"  paddingTop="4" width="100%" height="100%">
-						<mx:Label id="laneGridLabel1" text="{lanes.length + ' Sequencing Lanes'}"/>
-						<mx:DataGrid width="100%" height="100%" id="lanesAmendConfirmGrid"  paddingTop="5" editable="false" dataProvider="{lanes}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
-						<mx:columns>
-						    <mx:DataGridColumn editable="false" headerText=""   resizable="false" width="25" labelFunction="getLanesGridRowNumber"/>
-						    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="getLaneSampleName" editable="false"/>
-				            <mx:DataGridColumn  width="200" id="seqRunTypeAmendCol" headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
-				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesAmendCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
-				            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
-	                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
-							<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
-						</mx:columns>
-					</mx:DataGrid>
-					
-				</mx:VBox>	
-            </mx:AddChild>
         </mx:State>
         <mx:State name="QCEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>

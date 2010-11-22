@@ -6,7 +6,7 @@
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="340"/>
 					<mx:NumericStepper id="numberSamplesPerChannel" minimum="2" value="2" stepSize="1" maximum="{this.maxSamplesPerChannel}">
-						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.propagateBarcode();this.checkSeqSetup1Completeness();</mx:change>
+						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.checkSeqSetup1Completeness();</mx:change>
 					</mx:NumericStepper>
 				</mx:HBox>
 			</mx:AddChild>
@@ -57,22 +57,7 @@
 				callLater(parentDocument.samplesView.checkSamplesCompleteness);
 				
 			}
-		}
-       	public function propagateBarcode():void {
-       		var x:int = 0;
-			for each (var sample:Object in parentDocument.samples) {
-				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
-					if (x == this.numberSamplesPerChannel.value) {
-						x = 0;
-					}
-					sample.@idOligoBarcode = barcodes.getItemAt(x).@value;
-					x++;
-				} else {
-					sample.@idOligoBarcode = '';
-				}
-			} 
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
+		}  
        	public function propagateGenomeBuild():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.genomeBuildCombo.selectedItem != null) {
@@ -216,6 +201,7 @@
         	} else {
         		barcodes = new XMLListCollection();
         	}
+        	
         }
         
         private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -247,7 +233,7 @@
 
         
         public function pickBarcodeScheme():void {
-        	if (parentDocument.sampleSetupView.radioYesBarcoding.selected) {
+        	if (parentDocument.sampleSetupView.radioYesBarcoding.selected || (parentDocument.currentState == "SolexaPreppedState" && parentDocument.sampleSetupView.radioYesCustomBarcoding.selected)) {
         		currentState = 'BarcodeState';
         		for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
     	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
@@ -257,17 +243,40 @@
     	    		   	}
     	    		}
         		}
-	        	this.parentDocument.samplesView.barcodeColumn.visible = true;
-	        	this.parentDocument.samplesView.barcodeColumn.editable = false;    			
-	        	this.parentDocument.confirmView.barcodeColumn.visible = true;
         	} else {
         		currentState = '';
-        		this.parentDocument.samplesView.barcodeColumn.visible = false;
-	        	this.parentDocument.samplesView.barcodeColumn.editable = false;    			
-    	    	this.parentDocument.confirmView.barcodeColumn.visible = false;        			        		
         	}
         	this.initializeBarcodes();
-		    this.propagateBarcode();
+        }
+        public function propagateBarcode():void {
+        	if (parentDocument == null || parentDocument.currentState == "SolexaLaneAmendState" || parentDocument.isEditState()) {
+        		return;
+        	}
+       		var x:int = 0;
+       		var multiplexGroupNumber:int = 1;
+			for each (var sample:Object in parentDocument.samples) {
+				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
+					if (x == this.numberSamplesPerChannel.value) {
+						x = 0;
+						multiplexGroupNumber++;
+					}
+					if (parentDocument.showSampleMultiplexGroup()) {
+						sample.@multiplexGroupNumber = multiplexGroupNumber;
+					} else {
+						sample.@multiplexGroupNumber = '';
+					}
+					x++;
+				} else {
+					sample.@idOligoBarcode = '';
+					sample.@multiplexGroupNumber = '';
+					sample.@barcodeSequence = '';
+				}
+			} 
+			if (parentDocument.samplesView.sampleGroupingCollection != null) {
+				parentDocument.samplesView.sampleGroupingCollection.refresh();
+				parentDocument.samplesView.samplesGrid.validateNow();
+			}
+        	
         }
         
         private function pickSeqRunType():void {

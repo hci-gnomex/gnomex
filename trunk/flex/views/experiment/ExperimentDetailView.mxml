@@ -2,7 +2,7 @@
 <mx:VBox
     xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:views="views.*"  
+	xmlns:views="views.*"   creationPolicy="all"
 	xmlns:util="views.util.*" >
    <mx:HTTPService  
     id="getProtocol" 
@@ -25,8 +25,11 @@
 		import hci.flex.controls.DropdownLabel; 
 		import mx.rpc.events.ResultEvent;
 		import views.experiment.ConvertIlluminaRequestWindow;
+		import mx.collections.GroupingField;
+		import mx.collections.Grouping;
+		import mx.collections.GroupingCollection;
 		
-		
+		public var sampleGroupingCollection:GroupingCollection = null;		
 		
 	
 		[Bindable]
@@ -116,8 +119,54 @@
 			getVisibilityName();
 			callLater(showHideColumns);
 			this.addNonStandardSampleColumns();
-			
 		}
+		
+		public function initializeBarcoding():void {
+			var showSampleMultiplexGroup:Boolean = false;
+			var showSampleBarcode:Boolean = false;
+			var showSampleCustomBarcode:Boolean = false;
+			for each (var s:Object in samples) {
+				if (s.@multiplexGroupNumber != '') {
+					showSampleMultiplexGroup = true;
+				}
+				if (s.@idOligoBarcode != '' ) {
+					showSampleBarcode = true;
+				}else if (s.@barcodeSequence != '' ) {
+					showSampleCustomBarcode = true;
+				}
+			}
+			
+        	if (showSampleMultiplexGroup) {
+
+        		this.samplesGridConfirm.dataProvider = null;
+        		sampleGroupingCollection = new GroupingCollection();
+        		sampleGroupingCollection.source = this.samples;
+        		var group:Grouping = new Grouping();
+        		var gf:GroupingField = new GroupingField();
+        		gf.name = "@multiplexGroupNumber";
+        		group.fields = [gf];
+        		sampleGroupingCollection.grouping  = group;
+        		sampleGroupingCollection.refresh();
+        		this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
+       
+        		this.multiplexGroupNumberColumn.visible = true;
+
+        	} else {
+        		sampleGroupingCollection = null;
+        		this.samplesGridConfirm.dataProvider = this.samples;
+        		
+        		this.multiplexGroupNumberColumn.visible = false;
+
+        	}
+        		
+        	this.barcodeCol.visible = showSampleBarcode;
+        	this.customBarcodeCol.visible = showSampleCustomBarcode;
+        	this.laneBarcodeCol.visible = showSampleBarcode;
+        	this.laneCustomBarcodeCol.visible = showSampleCustomBarcode;
+        	
+			this.samplesGridConfirm.validateNow();
+		}
+
 		
 		private function showCy3LabelCols(isVisible:Boolean):void {
 			labelCol1.visible = isVisible;
@@ -282,32 +331,7 @@
            var x:int = this.lanesConfirmGrid.dataProvider.getItemIndex(item) + 1;
            return String(x);     		
         }
-		public function getLaneSampleName(item:Object,col:int):String
-        {
-        	var sampleName:String = "";
-    		for each(var sample:Object in this.samplesGridConfirm.dataProvider) {
-    			if (sample.@idSample == item.@idSample) {
-    				sampleName = sample.@name;
-    				break;
-    			}
-    		}
-        	return sampleName;
-        }
-        
-
-        
-       
-		public function getLaneSampleNumber(item:Object,col:int):String
-        {
-        	var sampleNumber:String = "";
-    		for each(var sample:Object in this.samplesGridConfirm.dataProvider) {
-    			if (sample.@idSample == item.@idSample) {
-    				sampleNumber = sample.@number;
-    				break;
-    			}
-    		}
-        	return sampleNumber;
-        }
+	
         
         private function showHideColumns():void {
        	if (this.showQCFieldsCheckBox.selected) {
@@ -317,7 +341,6 @@
 				preppedByLabCol.visible = false;
 				samplePrepCol.visible = false;
 				chipTypeCol.visible = false;
-				barcodeCol.visible = false;
 				concentrationUnitCol.visible = false;
 				prepInstructionsCol.visible = false;
 
@@ -367,7 +390,6 @@
 					preppedByLabCol.visible = true;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
-					barcodeCol.visible = true;
 					concentrationUnitCol.visible = false;
 				    prepInstructionsCol.visible = true;
 	        		
@@ -378,7 +400,6 @@
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
-					barcodeCol.visible = false;
 					concentrationUnitCol.visible = true;
 				    prepInstructionsCol.visible = false;
 	        		
@@ -389,11 +410,11 @@
 					preppedByLabCol.visible = false;
 					samplePrepCol.visible = true;
 					chipTypeCol.visible = false;
-					barcodeCol.visible = false;
 					concentrationUnitCol.visible = false;        		
 				    prepInstructionsCol.visible = false;
         		}
         	} 
+        	this.initializeBarcoding();
         }
         
         public function showRelatedAnalysis():void {
@@ -402,7 +423,7 @@
         
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
-       		var col:DataGridColumn;
+       		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
        		for each(annotation in this.selectedExperiment.SampleCharacteristicEntries.SampleCharacteristicEntry) {
 				exists = false;
@@ -414,7 +435,7 @@
        			}
        			if (!exists) {
        				
-       				var newCol:DataGridColumn = new DataGridColumn();
+       				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
        				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
        				newCol.headerText = annotation.@sampleCharacteristic;
        				newCol.visible    = annotation.@isSelected == "true" ? true : false;
@@ -465,10 +486,23 @@
 				return parentApplication.iconBilling; 
 			}  
 		}   
+		
+		public function getSampleTreeIcon(item:Object):Class {
+			if (item == null) {
+				return parentApplication.iconGroup;
+			} else {
+				return null; 
+			}  
+		}   
+		public function getLaneTreeIcon(item:Object):Class {
+			return null; 
+		}   
 	]]>
 </mx:Script>
 
 <mx:XMLListCollection id="billingItems" source="{selectedExperiment.billingItems.BillingLab}"/>
+<mx:XMLListCollection id="samples" source="{selectedExperiment.samples.Sample}"/>
+<mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 
 <mx:VBox width="100%" height="100%"  styleName="form"  id="vbox2">
     <mx:VBox height="100%"  width="100%" verticalGap="0">
@@ -541,73 +575,112 @@
 				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
 					<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 						<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" id="hbox1">
+							<mx:Button label="Button" click="initializeBarcoding()" id="button1"/>
 							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
 						</mx:HBox>
 							
 					</mx:HBox>
-					<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{this.selectedExperiment.samples.Sample}" backgroundAlpha="0" borderStyle="solid" horizontalScrollPolicy="auto" height="100%">
+					<mx:AdvancedDataGrid width="100%" id="samplesGridConfirm"  
+						editable="false" 
+						backgroundAlpha="0" borderStyle="solid"
+						sortableColumns="false"
+						sortExpertMode="true"
+						defaultLeafIcon="{null}" 	
+						iconFunction="getSampleTreeIcon"					 
+						displayItemsExpanded="true"
+						horizontalScrollPolicy="auto" height="100%">
 						<mx:columns>
-							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-							<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
-							<mx:DataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
-			                <mx:DataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
+			                <mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
+								width="54">
+								<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
+											<mx:Label text="Multiplex"/>
+											<mx:Label text="Group"/>
+										</mx:VBox> 
+									</mx:Component> 
+								</mx:headerRenderer> 
+						    </mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="ID" width="60" dataField="@number"/>
+							<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
+							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
+			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
-			                <mx:DataGridColumn id="barcodeCol" visible="{true}" headerText="Barcode"  width="80" 
-	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@barcodeSequence', '@value', '@idOligoBarcode')}"/>
-				            <mx:DataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
+			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Barcode"  width="75" visible="{true}"  
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
+			                   <mx:headerRenderer>
+			                   	  <mx:Component>
+			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+			                   	    	<mx:Label text="Illumina"/>
+			                   	    	<mx:Label text="Barcode"/>
+			                   	    </mx:VBox>
+			                   	  </mx:Component>
+			                   </mx:headerRenderer>
+			                </mx:AdvancedDataGridColumn>
+			                <mx:AdvancedDataGridColumn id="customBarcodeCol" headerText="Barcode" width="65" visible="true"  dataField="@barcodeSequence">
+			                   <mx:headerRenderer>
+			                   	  <mx:Component>
+			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+			                   	    	<mx:Label text="Custom"/>
+			                   	    	<mx:Label text="Barcode"/>
+			                   	    </mx:VBox>
+			                   	  </mx:Component>
+			                   </mx:headerRenderer>
+			                </mx:AdvancedDataGridColumn>
+			                <mx:AdvancedDataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
-				            <mx:DataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
+				            <mx:AdvancedDataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
-				            <mx:DataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-				            <mx:DataGridColumn id="samplePrepCol" headerText="Nucl. acid extraction meth."   visible="{true}" width="100" 
+				            <mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
+				            <mx:AdvancedDataGridColumn id="samplePrepCol" headerText="Nucl. acid extraction meth."   visible="{true}" width="100" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>
-							<mx:DataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
-			                <mx:DataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
+							<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
+			                <mx:AdvancedDataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 							
 	
-							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
-							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
-			                <mx:DataGridColumn  visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
+							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
+							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
+			                <mx:AdvancedDataGridColumn  visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
-				 			<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
-							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
-							<mx:DataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
+				 			<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
+							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected &amp;&amp; currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
+							<mx:AdvancedDataGridColumn visible="{showQCFieldsCheckBox.selected}" headerText="QC Status" width="90" dataField="@qualStatus"/>
 	
-			                <mx:DataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" 
+			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
-			                <mx:DataGridColumn  visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
+			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"/>
-							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
-							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
-							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
-							<mx:DataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (from)" width="90" dataField="@seqPrepGelFragmentSizeFrom"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Gel size (to)" width="90" dataField="@seqPrepGelFragmentSizeTo"/>
+							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 	
 							
-							<mx:DataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
-							<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{this.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!this.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{this.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{this.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{this.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{this.selectedExperiment.@DOSE == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{this.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{this.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{this.selectedExperiment.@INDIV == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{this.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{this.selectedExperiment.@SEX == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!this.selectedExperiment.@TEMP == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
-							<mx:DataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
-							<mx:DataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CCNumber" width="100" dataField="@ccNumber"/>
+							<mx:AdvancedDataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
+							<mx:AdvancedDataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{this.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!this.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{this.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{this.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{this.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{this.selectedExperiment.@DOSE == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{this.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{this.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{this.selectedExperiment.@INDIV == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{this.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{this.selectedExperiment.@SEX == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!this.selectedExperiment.@TEMP == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
+							<mx:AdvancedDataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
+							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CCNumber" width="100" dataField="@ccNumber"/>
 	
-							<mx:DataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
-							<mx:DataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
+							<mx:AdvancedDataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
+							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
 						</mx:columns>
-					</mx:DataGrid>
+					</mx:AdvancedDataGrid>
 				</mx:VBox>
 				
     			<mx:Canvas label="Billing" id="billingTab" width="100%" height="100%">
@@ -840,19 +913,51 @@
 	<mx:State name="SolexaState">
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
 				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
-						<mx:DataGrid width="100%" height="100%" id="lanesConfirmGrid"  editable="false" dataProvider="{this.selectedExperiment.sequenceLanes.SequenceLane}"  rollOverColor="#C0C0C0" selectionColor="#FFFFB9" horizontalScrollPolicy="auto">
+						<mx:AdvancedDataGrid width="100%" 
+							height="100%" id="lanesConfirmGrid"
+							displayItemsExpanded="true"
+							sortExpertMode="true"
+							sortableColumns="false"  
+							editable="false"
+							iconFunction="getLaneTreeIcon"
+							rollOverColor="#C0C0C0" selectionColor="#FFFFB9" 
+							horizontalScrollPolicy="auto">
+							<mx:dataProvider>   
+      							<mx:HierarchicalData source="{multiplexLanes}"/> 
+    						</mx:dataProvider> 							
 						<mx:columns>
-							<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
-						    <mx:DataGridColumn  headerText="Sample Name"  width="100" labelFunction="getLaneSampleName" editable="false"/>
-						    <mx:DataGridColumn  headerText="Sample ID"  width="68" labelFunction="getLaneSampleNumber" editable="false"/>
-				            <mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
+							<mx:AdvancedDataGridColumn headerText="ID" width="90" dataField="@number"/>
+						    <mx:AdvancedDataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
+						    <mx:AdvancedDataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
+			                <mx:AdvancedDataGridColumn id="laneBarcodeCol" headerText="Barcode"  width="75" visible="{true}"  
+	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@sampleIdOligoBarcode')}">
+			                   <mx:headerRenderer>
+			                   	  <mx:Component>
+			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+			                   	    	<mx:Label text="Illumina"/>
+			                   	    	<mx:Label text="Barcode"/>
+			                   	    </mx:VBox>
+			                   	  </mx:Component>
+			                   </mx:headerRenderer>
+			                </mx:AdvancedDataGridColumn>
+			                <mx:AdvancedDataGridColumn id="laneCustomBarcodeCol" headerText="Barcode" width="65" visible="true"  dataField="@sampleBarcodeSequence">
+			                   <mx:headerRenderer>
+			                   	  <mx:Component>
+			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+			                   	    	<mx:Label text="Custom"/>
+			                   	    	<mx:Label text="Barcode"/>
+			                   	    </mx:VBox>
+			                   	  </mx:Component>
+			                   </mx:headerRenderer>
+			                </mx:AdvancedDataGridColumn>
+				            <mx:AdvancedDataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
-				            <mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+				            <mx:AdvancedDataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"/>                 											
-							<mx:DataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
-				            <mx:DataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
-				            <mx:DataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
-				            <mx:DataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
+							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
+				            <mx:AdvancedDataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
+				            <mx:AdvancedDataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
+				            <mx:AdvancedDataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>
 							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -861,8 +966,8 @@
 					    			</mx:VBox>
 							    </mx:Component>
 							   </mx:headerRenderer>
-						    </mx:DataGridColumn>
-				            <mx:DataGridColumn  width="90" headerText="Clusters per Tile"  editable="false" dataField="@clustersPerTile"> 						             						             
+						    </mx:AdvancedDataGridColumn>
+				            <mx:AdvancedDataGridColumn  width="90" headerText="Clusters per Tile"  editable="false" dataField="@clustersPerTile"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>
 							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -871,8 +976,8 @@
 					    			</mx:VBox>
 							    </mx:Component>
 							   </mx:headerRenderer>
-						    </mx:DataGridColumn>
-				            <mx:DataGridColumn  width="90" headerText="PhiX Error Rate"  editable="false" dataField="@phiXErrorRate"> 						             						             
+						    </mx:AdvancedDataGridColumn>
+				            <mx:AdvancedDataGridColumn  width="90" headerText="PhiX Error Rate"  editable="false" dataField="@phiXErrorRate"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>
 							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -881,9 +986,9 @@
 					    			</mx:VBox>
 							    </mx:Component>
 							   </mx:headerRenderer>
-						    </mx:DataGridColumn>
-				            <mx:DataGridColumn  width="90"  headerText="File name"  editable="false" dataField="@fileName"/> 						             						             
-							<mx:DataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
+						    </mx:AdvancedDataGridColumn>
+				            <mx:AdvancedDataGridColumn  width="90"  headerText="File name"  editable="false" dataField="@fileName"/> 						             						             
+							<mx:AdvancedDataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
 							   <mx:headerRenderer > 
 							    <mx:Component>
 							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -892,12 +997,12 @@
 					    			</mx:VBox>
 							    </mx:Component>
 							   </mx:headerRenderer>
-						    </mx:DataGridColumn>
-				            <mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+						    </mx:AdvancedDataGridColumn>
+				            <mx:AdvancedDataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
-							<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+							<mx:AdvancedDataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 						</mx:columns> 
-					</mx:DataGrid>
+					</mx:AdvancedDataGrid>
 					
 				</mx:VBox>					        			
 		
@@ -908,6 +1013,7 @@
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
 		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
+		<mx:RemoveChild target="{button1}"/>
 	</mx:State>
 </mx:states>
 	

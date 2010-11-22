@@ -58,7 +58,7 @@ package views.renderers
     	      		this.selected = false;
         	  	}
         	  	
-        	  	if (data['@editable'] == 'true') {
+        	  	if (_data != null && _data.hasOwnProperty("@editable") && _data['@editable'] == 'true') {
 		  			this.visible = true;
 		  		} else {
 		  			this.visible = false;
