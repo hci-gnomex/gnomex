@@ -11,6 +11,7 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
@@ -40,6 +41,7 @@ import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
 import hci.gnomex.utility.RequestParser.HybInfo;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -231,7 +233,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           String idSampleString = (String)i.next();
           boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
           Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-          saveSample(idSampleString, sample, sess, sampleCount);
+          saveSample(idSampleString, sample, sess, sampleCount, dictionaryHelper);
           
 
           // if this is a new request, create QC work items for each sample
@@ -696,7 +698,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   
-  private void saveSample(String idSampleString, Sample sample, Session sess, int sampleCount) throws Exception {
+  private void saveSample(String idSampleString, Sample sample, Session sess, int sampleCount, DictionaryHelper dh) throws Exception {
 
     sample.setIdRequest(requestParser.getRequest().getIdRequest());
     sess.save(sample);
@@ -751,6 +753,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       entry.setIdSample(sample.getIdSample());
       entry.setTreatment(treatment);
       sess.save(entry);
+    }
+    
+    
+    // Set the barcodeSequence if  idOligoBarcodeSequence is filled in
+    if (sample.getIdOligoBarcode() != null) {
+      sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
     }
         
     

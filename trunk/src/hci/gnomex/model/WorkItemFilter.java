@@ -194,7 +194,10 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.seqPrepFailed, ");
       queryBuf.append("    s.seqPrepBypassed, ");
       queryBuf.append("    s.idSampleType, ");
-      queryBuf.append("    req.codeApplication ");
+      queryBuf.append("    req.codeApplication, ");
+      queryBuf.append("    s.idOligoBarcode, ");
+      queryBuf.append("    s.barcodeSequence, ");
+      queryBuf.append("    s.multiplexGroupNumber ");
     }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.seqPrepStockLibVol, ");
@@ -209,7 +212,9 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    l.idSeqRunType, ");
       queryBuf.append("    s.idOrganism, ");
       queryBuf.append("    l.idNumberSequencingCycles, ");
-      queryBuf.append("    s.idOligoBarcode ");
+      queryBuf.append("    s.idOligoBarcode, ");
+      queryBuf.append("    s.barcodeSequence, ");
+      queryBuf.append("    s.multiplexGroupNumber ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
                 this.codeStepNext.equals(Step.HISEQ_RUN)) {
       queryBuf.append("      , ");

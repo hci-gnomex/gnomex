@@ -114,6 +114,12 @@ public class WorkItemSolexaPrepParser implements Serializable {
     } else {
       sample.setIdSeqLibProtocol(null);
     }    
+    if (n.getAttributeValue("idOligoBarcode") != null && !n.getAttributeValue("idOligoBarcode").equals("")) {
+      sample.setIdOligoBarcode(new Integer(n.getAttributeValue("idOligoBarcode")));
+    } else {
+      sample.setIdOligoBarcode(null);
+    }     
+
     
   }
 

@@ -146,9 +146,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+            String multiplexGroupNumber = row[22] != null ? ((Integer)row[22]).toString() : "";
             // Sort the 'On hold' items so they are at the bottom of the list
             // for cluster gen
-            key = (status != null && !status.equals("") ? status : " ") + "," + requestNumber + "," + itemNumber;
+            key = (status != null && !status.equals("") ? status : " ") + "," + requestNumber + "," + multiplexGroupNumber + "," + itemNumber;
           }else {
             key = requestNumber + "," + itemNumber;
           }
@@ -191,6 +192,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         
         DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
         
+        TreeMap clusterGenMap = new TreeMap();
       
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
@@ -245,9 +247,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           n.setAttribute("idHybridization",        row[11] == null ? "" :  ((Integer)row[11]).toString());
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
-            n.setAttribute("laneNumber",             row[12] == null ? "" :  (String)row[12]);  
+            n.setAttribute("laneNumber",           row[12] == null ? "" :  (String)row[12]);              
+            n.setAttribute("number",               row[12] == null ? "" :  (String)row[12]);  
           } else {
-            n.setAttribute("hybNumber",              row[12] == null ? "" :  (String)row[12]);
+            n.setAttribute("hybNumber",            row[12] == null ? "" :  (String)row[12]);
           }
           n.setAttribute("workItemCreateDate",     row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
           
@@ -388,6 +391,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
                 n.setAttribute("idSeqLibProtocol", idSeqLibProtocolDefault.toString());
               }              
             }
+            n.setAttribute("idOligoBarcode",                      row[27] == null ? "" :  ((Integer)row[27]).toString());
+            n.setAttribute("barcodeSequence",                     row[28] == null ? "" :  ((String)row[28]));
+            n.setAttribute("multiplexGroupNumber",                row[29] == null ? "" :  ((Integer)row[29]).toString());
 
             String seqPrepStatus = "";
             if (!n.getAttributeValue("seqPrepDate").equals("")) {
@@ -427,6 +433,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
             n.setAttribute("idNumberSequencingCycles",     row[19] == null ? "" :  ((Integer)row[19]).toString());
             n.setAttribute("idOligoBarcode",               row[20] == null ? "" :  ((Integer)row[20]).toString());
+            n.setAttribute("barcodeSequence",              row[21] == null ? "" :  ((String)row[21]));
+            n.setAttribute("multiplexGroupNumber",         row[22] == null ? "" :  ((Integer)row[22]).toString());
             n.setAttribute("isControl",                    "false");            
             n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
             
@@ -544,9 +552,25 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
 
 
-
+          // Cluster gen work items are organized in a hiearchical fashion
+          if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
+              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+            List nodes = (List)clusterGenMap.get(requestNumber);
+            
+            if (nodes == null) {
+              nodes = new ArrayList();
+              clusterGenMap.put(requestNumber, nodes);              
+            }
+            nodes.add(n);
+            
+            
+          } else {
+            // All other work items are in a flat XML list
+            doc.getRootElement().addContent(n);
+            
+          }
           
-          doc.getRootElement().addContent(n);
+          
           
           prevRequestNumber = requestNumber;
           if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
@@ -556,6 +580,39 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             prevFlowCellNumber = flowCellNumber;
           }
           
+        }
+        
+        // Organize cluster gen workitems
+        if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
+            filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+          for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
+            String requestNumber = (String)i.next();
+            
+            List theWorkItemNodes = (List)clusterGenMap.get(requestNumber);
+            Element requestNode = new Element("Request");
+            requestNode.setAttribute("number", requestNumber);
+            doc.getRootElement().addContent(requestNode);
+            
+            HashMap seqTags = new HashMap();
+            Element multiplexLaneNode = null;
+            int multiplexLaneIdx = 1;
+            String prevMultiplexGroupNumber = "%%%%%";
+            for (Iterator i1 = theWorkItemNodes.iterator(); i1.hasNext();) {
+              Element n = (Element)i1.next();
+              String barcodeSequence = n.getAttributeValue("barcodeSequence");
+              String multiplexGroupNumber = n.getAttributeValue("multiplexGroupNumber");
+              if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
+                multiplexLaneNode = new Element("MultiplexLane");
+                multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
+                requestNode.addContent(multiplexLaneNode);
+                seqTags.clear();
+              }
+              
+              multiplexLaneNode.addContent(n);
+              seqTags.put(barcodeSequence, null);
+              prevMultiplexGroupNumber = multiplexGroupNumber;
+            }
+          }
         }
       
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -571,16 +628,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
    
     }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetWorkItemList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetWorkItemList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      log.error("An exception has occurred in GetWorkItemList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
@@ -666,14 +723,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
       
       
-      String status1       = tokens1[0];
-      String reqNumber1    = tokens1[1];
-      String itemNumber1   = tokens1[2];
+      String status1             = tokens1[0];
+      String reqNumber1          = tokens1[1];
+      String multiplexNumber1    = tokens1[2];
+      String itemNumber1         = tokens1[3];
       
-      String status2       = tokens2[0];
-      String reqNumber2    = tokens2[1];
-      String itemNumber2   = tokens2[2];
 
+      String status2             = tokens2[0];
+      String reqNumber2          = tokens2[1];
+      String multiplexNumber2    = tokens2[2];
+      String itemNumber2         = tokens2[3];
      
       
       String sampleNumber1;
@@ -708,11 +767,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
       if (status1.equals(status2)) {
         if (reqNumber1.equals(reqNumber2)) {
-          if (sampleNumber1.equals(sampleNumber2)) {
-            return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+          if (multiplexNumber1.equals(multiplexNumber2)) {
+            if (sampleNumber1.equals(sampleNumber2)) {
+              return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
+            } else {
+              return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
+            }              
+            
           } else {
-            return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
-          }              
+            return multiplexNumber1.compareTo(multiplexNumber2);
+          }
         } else {
           return reqNumber1.compareTo(reqNumber2);
         }        

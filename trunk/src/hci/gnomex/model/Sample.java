@@ -64,6 +64,8 @@ public class Sample extends HibernateDetailObject {
   private String      seqPrepStockBypassed;
   private String      prepInstructions;
   private String      ccNumber;
+  private Integer     multiplexGroupNumber;
+  private String      barcodeSequence;
   private Set         sampleCharacteristicEntries;
   private Set         treatmentEntries;
   private Set         labeledSamples;
@@ -236,6 +238,7 @@ public class Sample extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getSampleCharacteristicEntries");
     this.excludeMethodFromXML("getTreatmentEntries");
+    this.excludeMethodFromXML("getLabeledSamples");
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
@@ -605,6 +608,26 @@ public class Sample extends HibernateDetailObject {
   
   public void setOtherSamplePrepMethod(String otherSamplePrepMethod) {
     this.otherSamplePrepMethod = otherSamplePrepMethod;
+  }
+
+  
+  public Integer getMultiplexGroupNumber() {
+    return multiplexGroupNumber;
+  }
+
+  
+  public void setMultiplexGroupNumber(Integer multiplexGroupNumber) {
+    this.multiplexGroupNumber = multiplexGroupNumber;
+  }
+
+  
+  public String getBarcodeSequence() {
+    return barcodeSequence;
+  }
+
+  
+  public void setBarcodeSequence(String barcodeSequence) {
+    this.barcodeSequence = barcodeSequence;
   }
 
 }

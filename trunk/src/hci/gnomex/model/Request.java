@@ -1,19 +1,24 @@
 package hci.gnomex.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.hibernate3utils.HibernateDetailObject;
 import java.sql.Date;
 
 import org.jdom.Document;
+import org.jdom.Element;
 
 
 public class Request extends HibernateDetailObject {
@@ -713,5 +718,8 @@ public class Request extends HibernateDetailObject {
   public void setIsExternal(String isExternal) {
     this.isExternal = isExternal;
   }
+  
+
+
 
 }

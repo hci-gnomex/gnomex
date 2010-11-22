@@ -89,6 +89,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
     if (workItemXMLString != null) {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
@@ -96,6 +97,11 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
           for(Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem)i.next();
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
+            
+            // Set the barcodeSequence if  idOligoBarcodeSequence is filled in
+            if (sample.getIdOligoBarcode() != null) {
+              sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
+            }
             
             // No further processing required for On Hold or In Progress work items
             if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {

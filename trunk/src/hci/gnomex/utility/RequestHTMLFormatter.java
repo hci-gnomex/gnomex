@@ -15,6 +15,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.SlideSource;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jdom.Document;
@@ -176,6 +178,15 @@ public class RequestHTMLFormatter {
       prepInstructionMap.put(sp, null);
     }
     
+    boolean showMultiplexGroup = false;
+    for(Iterator i = samples.iterator(); i.hasNext();) {
+      Sample s = (Sample)i.next();
+      if (s.getMultiplexGroupNumber() != null) {
+        showMultiplexGroup = true;
+        break;
+      }
+    }
+    
     // Show 'samples' header
     Element sampleHeader = new Element("H5");
     sampleHeader.addContent("Samples");
@@ -208,25 +219,30 @@ public class RequestHTMLFormatter {
     
     boolean showSeqLibProtocol = false;
     boolean showBarcodeTag = false;
+    String barcodeHeader = "Barcode Sequence";
     for(Iterator i = samples.iterator(); i.hasNext();) {
     	Sample s = (Sample)i.next();
     	if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equalsIgnoreCase("N")) {
     		showSeqLibProtocol = true;
+    		barcodeHeader = "Custom Barcode Sequence";
     	}
-    	if (s.getIdOligoBarcode() != null) {
+    	if (s.getIdOligoBarcode() != null || (s.getBarcodeSequence() != null && !s.getBarcodeSequence().trim().equals(""))) {
     	  showBarcodeTag = true;
     	}
     }
     
-    
-    this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), "left");
+    if (showMultiplexGroup) {
+      this.addHeaderCell(rowh, "Multiplex Group", rowSpan, new Integer(1), "left");
+    }
+    this.addHeaderCell(rowh, "Sample #", rowSpan, new Integer(1), showMultiplexGroup ? "normal" : "left");
     this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
     this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
     this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
     if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (showBarcodeTag) {
-        this.addHeaderCell(rowh, "Barcode Tag", rowSpan, new Integer(1));        
+        
+        this.addHeaderCell(rowh, barcodeHeader, rowSpan, new Integer(1));        
       }
       if (showSeqLibProtocol) {
           this.addHeaderCell(rowh, "Seq Lib Protocol", rowSpan, new Integer(1));    	  
@@ -266,8 +282,10 @@ public class RequestHTMLFormatter {
 
     }
 
-    for(Iterator i = samples.iterator(); i.hasNext();) {
-      Sample sample = (Sample)i.next();
+    Integer prevMultiplexGroup = Integer.valueOf(-1);
+    Object[] sampleList = samples.toArray();
+    for(int x = 0; x < samples.size(); x++) {
+      Sample sample = (Sample)sampleList[x];
       
       Element row = new Element("TR");
       table.addContent(row);
@@ -293,6 +311,23 @@ public class RequestHTMLFormatter {
         qualFragmentSizeRange += "&nbsp;";
       }
       
+      Integer multiplexGroup = sample.getMultiplexGroupNumber() == null ? Integer.valueOf(-99) : sample.getMultiplexGroupNumber();
+      if (showMultiplexGroup) {        
+        if (!prevMultiplexGroup.equals(multiplexGroup)) {
+          this.addBlankCell(row, sample.getMultiplexGroupNumber().toString());          
+        } else {
+          Sample nextSample = null;
+          int next = x + 1;
+          if (next < samples.size()) {
+            nextSample = (Sample)sampleList[next];
+          }
+          if (nextSample == null || !nextSample.getMultiplexGroupNumber().equals(sample.getMultiplexGroupNumber())) {
+            this.addBottomBlankCell(row);
+          } else {
+            this.addBlankCell(row);            
+          }
+        }
+      } 
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
       this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
@@ -300,7 +335,7 @@ public class RequestHTMLFormatter {
       this.addCell(row, getSamplePrepMethod(sample));
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
         if (showBarcodeTag) {
-          this.addCell(row, sample.getIdOligoBarcode() != null ? dictionaryHelper.getBarcodeSequence(sample.getIdOligoBarcode()) : "&nbsp;");          
+          this.addCell(row, sample.getIdOligoBarcode() != null ? DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString()) : (sample.getBarcodeSequence() != null && !sample.getBarcodeSequence().equals("") ? sample.getBarcodeSequence() : "&nbsp;"));          
         }
         if (showSeqLibProtocol) {
         	this.addCell(row, sample.getIdSeqLibProtocol() != null ? dictionaryHelper.getSeqLibProtocol(sample.getIdSeqLibProtocol()) : "&nbsp;");
@@ -339,6 +374,8 @@ public class RequestHTMLFormatter {
           }
         }
       }
+      
+      prevMultiplexGroup =  multiplexGroup;
     }
     
     parentNode.addContent(table);
@@ -665,7 +702,6 @@ public class RequestHTMLFormatter {
     
     
   private void addSequenceLaneTableSection(Element parentNode, String caption, List lanes, String captionStyle) {
-
     
     // If all of the analysis instructions for the lanes are the
     // same, print instructions before the lanes grid.
@@ -703,7 +739,8 @@ public class RequestHTMLFormatter {
 
     Element rowh = new Element("TR");
     table.addContent(rowh);
-    this.addHeaderCell(rowh, "#", "left");
+    this.addHeaderCell(rowh, "Lane", "left");
+    this.addHeaderCell(rowh, "#" );
     this.addHeaderCell(rowh, "Sample name"    );
     this.addHeaderCell(rowh, "Status"    );
     this.addHeaderCell(rowh, "Seq Run Type");
@@ -713,27 +750,49 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Analysis instructions");            
     }
 
+    SortedMap multiplexLaneMap = SequenceLane.getMultiplexLaneMap(lanes, null);
+    
+
+    for(Iterator i = multiplexLaneMap.keySet().iterator(); i.hasNext();) { 
+      String key = (String)i.next();
+      List theLanes = (List)multiplexLaneMap.get(key);
+      
+      // Print a row for each sequence lane in multiplex lane
+      boolean firstLaneInMultiplex = true;
+      for(Iterator i1 = theLanes.iterator(); i1.hasNext();) {
+        SequenceLane lane = (SequenceLane)i1.next();
+
+        Element row = new Element("TR");
+        table.addContent(row);
 
 
-    // How show all remaining lanes
-    for(Iterator i = lanes.iterator(); i.hasNext();) {
-      SequenceLane lane = (SequenceLane)i.next();
 
-      Element row = new Element("TR");
-      table.addContent(row);
+        // If this is the last lane in the multiplex lane, show a bottom border
+        if (i1.hasNext()) {
+          this.addBlankCell(row, firstLaneInMultiplex ? key : "&nbsp;");            
+        } else {
+          this.addBottomBlankCell(row, firstLaneInMultiplex ? key : "&nbsp;");
+        }
 
 
-
-      this.addLeftCell(row, lane.getNumber());
-      this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-      this.addCell(row, lane.getWorkflowStatusAbbreviated().equals("") ? "&nbsp;" : lane.getWorkflowStatusAbbreviated());
-      this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-      this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
-      this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
-      if (showColInstructions) {
-        this.addInstructionsCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
+        this.addLeftCell(row, lane.getNumber());
+        this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
+        this.addCell(row, lane.getWorkflowStatusAbbreviated().equals("") ? "&nbsp;" : lane.getWorkflowStatusAbbreviated());
+        this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+        this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+        this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
+        if (showColInstructions) {
+          this.addInstructionsCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
+        }
+        
+        firstLaneInMultiplex = false;
       }
+      
+
+      
     }
+
+
 
     parentNode.addContent(table);
   }
@@ -877,6 +936,36 @@ public class RequestHTMLFormatter {
     cell.addContent("&nbsp;");
     row.addContent(cell);
   }
+  
+  private void addBlankCell(Element row) {
+    Element cell = new Element("TD");
+    cell.setAttribute("class", "gridblank");
+    cell.addContent("&nbsp;");
+    row.addContent(cell);
+  }
+
+  private void addBottomBlankCell(Element row) {
+    Element cell = new Element("TD");
+    cell.setAttribute("class", "gridbottomblank");
+    cell.addContent("&nbsp;");
+    row.addContent(cell);
+  }
+
+
+  private void addBottomBlankCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("class", "gridbottomblank");
+    cell.addContent(value);
+    row.addContent(cell);
+  }
+
+  private void addBlankCell(Element row, String value) {
+    Element cell = new Element("TD");
+    cell.setAttribute("class", "gridblank");
+    cell.addContent(value);
+    row.addContent(cell);
+  }
+  
   
   private void addSmallEmptyCell(Element row) {
     Element cell = new Element("TD");
