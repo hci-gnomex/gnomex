@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.naming.NamingException;
@@ -189,6 +190,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
+          // Show sequence lanes, organized by multiplex group or flow cell channel
+          if (request.getSequenceLanes().size() > 0) {
+            Element multiplexLanesNode = new Element("multiplexSequenceLanes");
+            requestNode.addContent(multiplexLanesNode);
+            SequenceLane.addMultiplexLaneNodes(multiplexLanesNode, request.getSequenceLanes(), request.getCreateDate());
+          }
           
           // Show list of sample characteristic entries
           Element scParentNode = new Element("SampleCharacteristicEntries");

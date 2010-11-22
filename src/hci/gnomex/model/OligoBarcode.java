@@ -9,6 +9,7 @@ public class OligoBarcode extends DictionaryEntry implements Serializable {
 
 
   private Integer idOligoBarcode;
+  private String  name;
   private String  barcodeSequence;
   private String  isActive;
   private Integer sortOrder;
@@ -16,8 +17,7 @@ public class OligoBarcode extends DictionaryEntry implements Serializable {
   private OligoBarcodeScheme oligoBarcodeScheme;
   
   public String getDisplay() {
-    String display = (this.getOligoBarcodeScheme() != null ? this.getOligoBarcodeScheme().getOligoBarcodeScheme() : "") + " - " + this.getBarcodeSequence();
-    return display;
+    return name;
   }
 
   public String getBarcodeSequenceDisplay() {
@@ -87,6 +87,24 @@ public class OligoBarcode extends DictionaryEntry implements Serializable {
   
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  
+  public String getName() {
+    return name;
+  }
+
+  
+  public void setName(String name) {
+    this.name = name;
+  }
+  
+  public String getOligoBarcodeSchemeDisplay() {
+    if (this.getOligoBarcodeScheme() != null) {
+      return this.getOligoBarcodeScheme().getDisplay();
+    } else {
+      return "";
+    }
   }
   
 

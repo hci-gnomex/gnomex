@@ -338,6 +338,16 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdOligoBarcode(null);
     }
+    if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
+      sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+    } else {
+      sample.setMultiplexGroupNumber(null);
+    }    
+    if (n.getAttributeValue("barcodeSequence") != null && !n.getAttributeValue("barcodeSequence").equals("")) {
+      sample.setBarcodeSequence(n.getAttributeValue("barcodeSequence"));
+    } else {
+      sample.setBarcodeSequence(null);
+    }    
     if (n.getAttributeValue("idSeqLibProtocol") != null && !n.getAttributeValue("idSeqLibProtocol").trim().equals("")) {
       sample.setIdSeqLibProtocol(new Integer(n.getAttributeValue("idSeqLibProtocol")));
     } else {

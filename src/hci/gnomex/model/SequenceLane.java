@@ -1,10 +1,21 @@
 package hci.gnomex.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
+import org.jdom.Element;
+
+import hci.framework.model.DetailObject;
+import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
 
@@ -335,6 +346,20 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }
+  public String getSampleBarcodeSequence() {
+    if (sample != null) {
+      return sample.getBarcodeSequence();
+    } else {
+      return "";
+    }
+  }
+  public Integer getSampleIdOligoBarcode() {
+    if (sample != null) {
+      return sample.getIdOligoBarcode();
+    } else {
+      return null;
+    }
+  }
   
   public Integer getIdOrganism() {
     if (sample != null) {
@@ -422,7 +447,166 @@ public class SequenceLane extends HibernateDetailObject {
   public void setRequest(Request request) {
     this.request = request;
   }
-
   
+  public static boolean hasBarcodeTags(Set seqLanes) {
+    int tagCount = 0;
+    for(Iterator i = seqLanes.iterator(); i.hasNext();) {
+      SequenceLane theLane = (SequenceLane)i.next();
+      String tag = theLane.getSample().getBarcodeSequence();
+      
+      if (tag != null && !tag.equals("")) {
+        tagCount++;
+      }
+    }
+    return  seqLanes.size() > 0 && seqLanes.size() == tagCount;
+  }
+  
+  public static void addMultiplexLaneNodes(Element parentNode, Collection sequenceLanes, Date requestDate) throws XMLReflectException {
+    SortedMap multiplexLaneMap = getMultiplexLaneMap(sequenceLanes, requestDate);
+    
+    for(Iterator i1 = multiplexLaneMap.keySet().iterator(); i1.hasNext();) {
+      String key = (String)i1.next();
+      List theLanes = (List)multiplexLaneMap.get(key);
+      
+      if (key.equals("")) {
+        for(Iterator i2 = theLanes.iterator(); i2.hasNext();) {
+          SequenceLane l = (SequenceLane)i2.next();
+          Element multiplexLaneNode = l.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+          multiplexLaneNode.setName("MultiplexLane");
+          parentNode.addContent(multiplexLaneNode);
+        }
+      } else {
+        Element multiplexLaneNode = new Element("MultiplexLane");
+        multiplexLaneNode.setAttribute("number", key);
+        parentNode.addContent(multiplexLaneNode);
+        
+        for(Iterator i2 = theLanes.iterator(); i2.hasNext();) {
+          SequenceLane l = (SequenceLane)i2.next();
+          multiplexLaneNode.addContent(l.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+        }
+      }
+    }
+  }
+  
+  
+  public static SortedMap getMultiplexLaneMap(Collection sequenceLanes, Date requestCreateDate) {
+    TreeMap laneMap = new TreeMap();
+    for(Iterator i = sequenceLanes.iterator(); i.hasNext();) {
+      SequenceLane lane = (SequenceLane)i.next();
+
+      String key = "";
+      if (lane.getIdFlowCellChannel() != null) {
+        key = "0-" + lane.getFlowCellChannel().getFlowCell().getNumber() + "-" + lane.getFlowCellChannel().getNumber();
+      } else if (lane.getSample().getMultiplexGroupNumber() != null) {
+        // Only consider the multiplex group of the sample if the lane was
+        // created on the same date that the request was submitted.
+        // When lanes are added at a later date, we will just group
+        // according to the sequence tags.
+        key =  lane.getIdSeqRunType()  + "-" + lane.getIdNumberSequencingCycles() + " " + lane.getSample().getMultiplexGroupNumber().toString() + " ";   
+        if (lane.getCreateDate() == null || requestCreateDate == null || lane.getCreateDate().equals(requestCreateDate)) {
+          key =  "1-" + key;                
+        } else {
+          key =  "2-" + key;                
+        }
+      }
+
+      List theLanes = (List)laneMap.get(key);
+      if (theLanes == null) {
+        theLanes = new ArrayList();
+        laneMap.put(key, theLanes);
+      }
+      theLanes.add(lane);    
+    }
+
+    TreeMap multiplexLaneMap = new TreeMap();
+    int idx = 1;
+    for (Iterator i = laneMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      List theLanes = (List)laneMap.get(key);
+      
+      List laneGroups = SequenceLane.getMultiplexLaneGroups(theLanes);
+      
+      for(Iterator i1 = laneGroups.iterator(); i1.hasNext();) {
+        List lanesInGroup = (List)i1.next();
+        if (key.equals("")) {
+          List laneList = (List)multiplexLaneMap.get(key);
+          if (laneList == null) {
+            laneList = lanesInGroup;
+            multiplexLaneMap.put(key, laneList);
+          } else {
+            laneList.addAll(lanesInGroup);
+          }
+          
+        } else {
+          String multiplexLaneID = "";
+          if (key.startsWith("0-")) {
+            multiplexLaneID = key.substring(2);
+          } else {
+            multiplexLaneID = Integer.valueOf(idx++).toString();
+          }
+          multiplexLaneMap.put(multiplexLaneID, lanesInGroup);
+          
+        }
+      }
+    }
+    return multiplexLaneMap;
+    
+  }
+  
+  private static List getMultiplexLaneGroups(List seqLanes) {
+    List laneGroups = new ArrayList();
+
+    // First create a hash map key=barcode sequence, value=list of lanes holding this sequence
+    HashMap seqTagMap = new HashMap();
+    for(Iterator i = seqLanes.iterator(); i.hasNext();) {
+      SequenceLane theLane = (SequenceLane)i.next();
+      String tag = theLane.getSample().getBarcodeSequence();
+      if (tag == null && theLane.getSample().getMultiplexGroupNumber() != null) {
+        tag = theLane.getSample().getIdSample().toString();
+      } else if (tag == null && theLane.getSample().getMultiplexGroupNumber() == null) {
+        tag = "";
+      }
+      List theLanes = (List)seqTagMap.get(tag);
+      if (theLanes == null) {
+        theLanes = new ArrayList();
+        seqTagMap.put(tag, theLanes);
+      }
+      theLanes.add(theLane);
+    }
+    
+    int maxTagCount = 0;
+    // To determine the number of lanes, we find the highest number
+    // of sequence lanes with the same sequence tag (or no tag).  
+    // For example, if there are 3 unique seq tag AAA, GGG, TTT
+    // and there are 3 lanes with AAA, 3 lanes with GGG, and 4 lanes
+    // with TTT, there are a total of 4 multiplexed lanes.  In the
+    // case where there are no sequence tags, the qty will equal
+    // the total number of lanes.
+    for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
+      String tag = (String)i.next();
+      List theLanes = (List)seqTagMap.get(tag);
+      
+      if (theLanes.size() > maxTagCount) {
+        maxTagCount = theLanes.size();
+      }
+    }
+
+    
+    for (int x = 0; x < maxTagCount; x++) {
+      List laneGroup = new ArrayList();
+      for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
+        String tag = (String)i.next();
+        List theLanes = (List)seqTagMap.get(tag);
+        
+        if (x < theLanes.size()) {
+          SequenceLane l = (SequenceLane)theLanes.get(x);
+          laneGroup.add(l);
+        }
+      }
+      laneGroups.add(laneGroup);
+      
+    }
+    return laneGroups;
+  }
     
 }
