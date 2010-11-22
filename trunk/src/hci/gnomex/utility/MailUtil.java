@@ -1,12 +1,16 @@
 package hci.gnomex.utility;
 
 import java.util.Date;
+import java.util.Properties;
 
 import javax.activation.DataHandler;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.URLName;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -17,7 +21,8 @@ import javax.naming.NamingException;
 
 public class MailUtil
 {
-    //~ Static fields/initializers ---------------------------------------------
+
+  //~ Static fields/initializers ---------------------------------------------
     public static final String MAIL_SESSION = "mail/MailSession";
 
     //~ Methods ----------------------------------------------------------------
@@ -33,7 +38,34 @@ public class MailUtil
 
         InitialContext ic = new InitialContext(  );
         Session session = ( Session ) ic.lookup( MAIL_SESSION );
+        
+        
+        if (session.getProperty("mail.smtp.auth") != null && session.getProperty("mail.smtp.auth").equals("true")) {
+          // Fetch user and password
+          PasswordAuthentication auth=
+            new PasswordAuthentication(
+                session.getProperty("mail.smtp.user"),
+                session.getProperty("mail.smtp.password"));
+
+          
+          
+          // Build URL for the session's password cache
+          URLName url=
+            new URLName(
+              session.getProperty("mail.transport.protocol"),
+              session.getProperty("mail.smtp.host"),
+              -1,
+              null,
+              session.getProperty("mail.smtp.user"),
+              null);
+          // Fill password cache
+          session.setPasswordAuthentication(url,auth);
+          
+        }
+        
+        
         javax.mail.Message msg = new MimeMessage( session );
+        
 
         msg.setFrom( new InternetAddress( from ) );
         msg.setRecipients( javax.mail.Message.RecipientType.TO, InternetAddress.parse( to, false ) );
