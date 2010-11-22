@@ -233,6 +233,24 @@ td.gridright {
       padding-left: 4; 
 }
 
+td.gridblank {
+      font-size: 9pt;
+      border-top: thin solid;
+      border-color: #CDCDC1;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4; 
+}
+td.gridbottomblank {
+      font-size: 9pt;
+      border-top: thin solid;
+      border-color: #FFFFFF;
+      padding-top: 4;
+      padding-bottom: 4;
+      padding-right: 4;
+      padding-left: 4; 
+}
 td.gridSmall{
   width: 40;
   font-size: 9pt;
@@ -244,6 +262,7 @@ td.gridSmall{
   padding-left: 4; 
 
 }
+
 td.gridempty {
   width: 150;
   font-size: 9pt;

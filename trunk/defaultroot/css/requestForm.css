@@ -271,7 +271,7 @@ caption.narrow
 }
 
 td.gridleft {
-  border-left: thin solid;
+  border-left:  solid thin;
   border-color: #D8D8D8  ;
 }
 
@@ -280,7 +280,34 @@ td.gridempty {
   padding-top: 10px;
   padding-bottom: 10px;
 }  
-  
+
+td.gridempty {
+  width: 150;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}  
+
+
+td.gridblank {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-left: solid thin;
+  border-right: none;
+  border-bottom: none;
+  border-top: none;
+  border-color: #D8D8D8  ;
+}  
+
+td.gridbottomblank {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: none;
+  border-right: none;
+  border-left: solid thin;
+  border-bottom: solid thin;
+  border-color: #D8D8D8  ;
+}    
+
 td.gridemptysmall {
      padding-top: 10px;
      padding-bottom: 10px;
