@@ -1,8 +1,13 @@
 ﻿GNomEx Release Notes
 
-5.0.4
+5.0.4 
 --------------------
 - Make GNomEx sample linkage to BST property driven. (Won't show up for non-HCI installs.)
+- Allow user to arrange multiplex groups of samples for Illumina experiments.  
+- Allow user to specify custom barcode sequence when lab preps own library
+- Fix bug that was causing error on 'New Project' when app user not selected from dropdown on new requests.
+- Fixed auto-email to work with SMTP servers that require authentication (e.g. gmail smtp server).
+- Fixed bug that was causing idAppUser to be blank on Submit Request when admin switched between Submit Request and another main link (like Workflow or Experiments)
 
 5.0.3 (Nov 1, 2010)
 ---------------------
