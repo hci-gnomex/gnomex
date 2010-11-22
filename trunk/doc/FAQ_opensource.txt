@@ -59,3 +59,33 @@ When you select the experiment, then click the ‘Download’ link at the bottom
 you should see the experiment downloads folder.  Check the folder and then click 
 on ‘Explore files’.  This will display all of the files sitting in the experiment directory ready for download.  
  
+ 
+Q:  How do I configure GNomEx to use GMail's SMTP mail server?
+
+A:  You will need to set the <mail-session> properties in /path/to/orion/config.xml.  Here
+    is an example of how properties:
+    
+    <mail-session location="mail/MailSession" smtp-host="smtp.gmail.com">
+               <property name="mail.smtp.starttls.enable" value="true" />
+               <property name="mail.transport.protocol" value="smtp" />
+               <property name="mail.smtp.port" value="465" />
+               <property name="mail.smtp.auth" value="true" />
+               <property name="mail.smtp.user" value="first.last@gmail.com" />
+               <property name="mail.smtp.password" value="gmail_password_goes_here" />
+               <property name="mail.smtp.debug" value="true" />
+               <property name="mail.smtp.socketFactory.class" value="javax.net.ssl.SSLSocketFactory"/>
+               <property name="mail.smtp.socketFactory.port" value="465"/>
+               <property name="mail.smtp.socketFactory.fallback" value="false"/>
+   </mail-session>
+   
+Q:  I get a Java heap space error when I try to build GNomEx using the ant build.  How
+    do I increase the Java heap space to get the flex compile target to work?
+    
+A:  Set the environment variable before running the ant build:
+
+		set ANT_OPTS=-Xms512m -Xmx512m  (Windows)
+		export ANT_OPTS="-Xms512m -Xmx512m"  (ksh/bash)
+		setenv ANT_OPTS "-Xms512m -Xmx512m"  (tcsh/csh)
+		
+
+
