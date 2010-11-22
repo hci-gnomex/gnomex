@@ -773,6 +773,13 @@
             		return createSecurityAdvisor.lastResult.@idAppUser;
             	}
             }
+            public function getAppUserName():Object {
+            	if (isGuestMode()) {
+            		return "guest";
+            	} else {
+            		return createSecurityAdvisor.lastResult.@userLastName + (createSecurityAdvisor.lastResult.@userLastName != "" ? (", " + createSecurityAdvisor.lastResult.@userFirstName) : "");
+            	}
+            }
             
             public function getUNID():Object {
             	if (isGuestMode()) {
