@@ -157,12 +157,13 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
           AppUser appUser = (AppUser)i.next();
 
           boolean send = false;
+          String theSubject = subject;
           if (dh.isProductionServer(req.getServerName())) {
             send = true;
           } else {
             if (appUser.getEmail().equals(dh.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
               send = true;
-              subject = "TEST - " + subject;
+              theSubject = "TEST - " + subject;
             }
           }
 
@@ -171,7 +172,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
             MailUtil.send(appUser.getEmail(), 
                 null,
                 dh.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY),
-                subject,
+                theSubject,
                 body.toString(),
                 format.equalsIgnoreCase("HTML") ? true : false); 
             userCount++;

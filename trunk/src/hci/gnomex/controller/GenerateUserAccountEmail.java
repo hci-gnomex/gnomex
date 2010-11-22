@@ -184,12 +184,14 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     
    
     boolean send = false;
+    String theSubject = "";
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
+      theSubject = subject;
     } else {
       if (sendTo.equals(dictionaryHelper.getProperty(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
-        subject = "TEST - " + subject;
+        theSubject = "TEST - " + subject;
       }
     }
     
@@ -197,7 +199,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       MailUtil.send(sendTo, 
           ccTo,
           dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
-          subject, 
+          theSubject, 
           emailBody,
           true);
       emailCount++;
