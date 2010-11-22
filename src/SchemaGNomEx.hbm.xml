@@ -484,6 +484,8 @@
 		<property name="seqPrepStockEBVol" column="seqPrepStockEBVol" type="big_decimal"/>
 		<property name="prepInstructions" column="prepInstructions" type="string"/>
 		<property name="ccNumber" column="ccNumber" type="string" />
+		<property name="multiplexGroupNumber" column="multiplexGroupNumber" type="integer"/>
+		<property name="barcodeSequence" column="barcodeSequence" type="string" />
 		<set name="sampleCharacteristicEntries" table="SampleCharacteristicEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicEntry" />
@@ -858,6 +860,7 @@
 		<id name="idOligoBarcode" column="idOligoBarcode" type="integer">
 			<generator class="native"/>
 		</id>
+		<property name="name" column="name" type="string"/>		
 		<property name="barcodeSequence" column="barcodeSequence" type="string"/>		
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
