@@ -972,6 +972,7 @@ DROP TABLE IF EXISTS `gnomex`.`OligoBarcodeScheme`;
 CREATE TABLE `gnomex`.`OligoBarcodeScheme` (
   `idOligoBarcodeScheme` INT(10) NOT NULL AUTO_INCREMENT,
   `oligoBarcodeScheme` VARCHAR(200) NULL,
+  `name` VARCHAR(50) NULL,
   `description` VARCHAR(2000) NULL,
   `isActive` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idOligoBarcodeScheme`)
@@ -1289,6 +1290,8 @@ CREATE TABLE `gnomex`.`Sample` (
   `seqPrepStockBypassed` CHAR(1) NULL,
   `prepInstructions` VARCHAR(2000) NULL,
   `ccNumber` VARCHAR(20) NULL,
+  `multiplexGroupNumber` INT(10) NULL,
+  `barcodeSequence` VARCHAR(20) NULL,
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
