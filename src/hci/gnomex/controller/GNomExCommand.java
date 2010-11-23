@@ -11,8 +11,6 @@ import javax.ejb.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import sun.jdbc.rowset.*;
-import hci.utility.server.JNDILocator;
 import hci.framework.control.*;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.*;
