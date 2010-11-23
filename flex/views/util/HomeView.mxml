@@ -11,21 +11,18 @@
 				<mx:RemoveChild target="{hbox2}"/>
 				<mx:AddChild relativeTo="{hbox4}" position="before" target="{hbox2}"/>
 				<mx:RemoveChild target="{hbox4}"/>
-				<mx:AddChild relativeTo="{hbox5}" position="before" target="{hbox4}"/>
-				<mx:SetStyle target="{vbox1}" name="horizontalAlign" value="left"/>
+				<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{hbox4}"/>
 				<mx:RemoveChild target="{text1}"/>
 				<mx:RemoveChild target="{hbox1}"/>
 				<mx:RemoveChild target="{hbox3}"/>
 				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
-				<mx:SetProperty target="{hbox5}" name="width" value="100%"/>
-				<mx:SetStyle target="{hbox5}" name="horizontalAlign" value="center"/>
 				<mx:RemoveChild target="{button5}"/>
-				<mx:AddChild relativeTo="{button6}" position="before" target="{button5}"/>
-				<mx:RemoveChild target="{button6}"/>
-				<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{button6}"/>
+				<mx:AddChild relativeTo="{hbox4}" position="lastChild" target="{button5}"/>
 				<mx:RemoveChild target="{button8}"/>
-				<mx:RemoveChild target="{button7}"/>
-				<mx:AddChild relativeTo="{hbox5}" position="lastChild" target="{button7}"/>
+				<mx:RemoveChild target="{hbox5}"/>
+				<mx:RemoveChild target="{vbox5}"/>
+				<mx:RemoveChild target="{button6}"/>
+				<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button6}"/>
 			</mx:State>
 			<mx:State name="AdminState">
 				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
@@ -34,9 +31,6 @@
 				</mx:SetStyle>
 				<mx:SetProperty target="{vbox2}" name="height"/>
 				<mx:SetProperty target="{vbox3}" name="height"/>
-				<mx:SetStyle target="{hbox10}" name="paddingTop" value="4"/>
-				<mx:RemoveChild target="{button7}"/>
-				<mx:AddChild relativeTo="{hbox4}" position="lastChild" target="{button7}"/>
 				<mx:RemoveChild target="{hbox5}"/>
 				<mx:SetProperty target="{hbox8}" name="width"/>
 				<mx:RemoveChild target="{button8}"/>
@@ -45,11 +39,18 @@
 				<mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{button4}"/>
 				<mx:RemoveChild target="{button5}"/>
 				<mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{button5}"/>
-				<mx:AddChild relativeTo="{button7}" position="before">
-					<util:MultiLineButton label="Send Email to all GNomEx Users" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="166" height="60"/>
-				</mx:AddChild>
+				<mx:SetProperty target="{text1}" name="htmlText">
+					<mx:value><![CDATA[- Submit new work requests for <br>  Microarray, Next generation<br>  sequencing or quality control<br>  services]]></mx:value>
+				</mx:SetProperty>
+				<mx:RemoveChild target="{button2}"/>
+				<mx:AddChild relativeTo="{hbox3}" position="lastChild" target="{button2}"/>
 				<mx:RemoveChild target="{button6}"/>
-				<mx:AddChild relativeTo="{broadcastEmailButton}" position="before" target="{button6}"/>
+				<mx:AddChild relativeTo="{hbox2}" position="lastChild" target="{button6}"/>
+				<mx:AddChild relativeTo="{hbox2}" position="lastChild">
+					<util:MultiLineButton label="Send Email to all GNomEx Users" click="showBroadcastEmailWindow()" icon="@Embed(source='../../assets/email_go.png')"  styleName="dashboardButton" id="broadcastEmailButton" width="156" height="60"/>
+				</mx:AddChild>
+				<mx:RemoveChild target="{hbox4}"/>
+				<mx:SetStyle target="{vbox4}" name="backgroundAlpha" value="1.0"/>
 			</mx:State>
 			<mx:State name="UserNonSubmitterState">
 				<mx:SetProperty target="{text2}" name="text" value="New Experiment, Add services to Experiment"/>
@@ -64,6 +65,7 @@
 				<mx:RemoveChild target="{submitExternalExperimentButton}"/>
 				<mx:RemoveChild target="{hbox3}"/>
 				<mx:RemoveChild target="{hbox5}"/>
+				<mx:SetProperty target="{button2}" name="label" value="Show Experiments"/>
 			</mx:State>
 			<mx:State name="UniversityOnlyUserState" basedOn="GuestState">
 				<mx:SetStyle target="{hbox6}" name="paddingBottom" value="2"/>
@@ -74,13 +76,25 @@
 				<mx:RemoveChild target="{button2}"/>
 				<mx:AddChild relativeTo="{button3}" position="before" target="{button2}"/>
 				<mx:AddChild relativeTo="{hbox2}" position="lastChild">
-					<util:MultiLineButton label="Submit Work Authorization" click="showWorkAuthForm()" icon="@Embed(source='../../assets/work_auth_form.png')"  styleName="dashboardButton" id="button0" width="166" height="60"/>
+					<util:MultiLineButton label="Submit Work Authorization" click="showWorkAuthForm()" icon="@Embed(source='../../assets/work_auth_form.png')"  styleName="dashboardButton" id="button0" width="156" height="60"/>
 				</mx:AddChild>
 				<mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
-				<mx:RemoveChild target="{button7}"/>
-				<mx:AddChild relativeTo="{hbox4}" position="lastChild" target="{button7}"/>
 				<mx:SetStyle target="{vbox1}" name="horizontalAlign" value="center"/>
-				<mx:RemoveChild target="{hbox5}"/>
+				<mx:AddChild relativeTo="{vbox6}" position="before">
+					<mx:VBox verticalGap="1" id="vbox0">
+					  <mx:HBox paddingTop="2" id="hbox0" paddingBottom="0" verticalAlign="top">
+					   <mx:Image source="assets/work_auth_form.png"/>
+					   <mx:Text  
+					   	text="Work Authorization Form" styleName="welcome" paddingBottom="0">
+					   </mx:Text>
+					  </mx:HBox>
+					  <mx:Text  
+					  	styleName="welcome" id="text0">
+					  	<mx:htmlText><![CDATA[- Submit a work authorization form <br>   indicating the billing account to<br>   be charged for work]]></mx:htmlText>
+					  </mx:Text>
+					 	
+					</mx:VBox>
+				</mx:AddChild>
 			</mx:State>
 		</util:states>
 <mx:Script>
@@ -169,30 +183,26 @@
 
 	]]> 
 </mx:Script>
-  <mx:VBox styleName="form" height="100%" width="100%"  verticalGap="10" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4" verticalAlign="middle">
-  <mx:HBox width="100%" horizontalAlign="center" id="hbox10" paddingBottom="14">
-  	<mx:Image source="assets/gnomex_title.png"/>
-  </mx:HBox>
+  <mx:VBox styleName="form" height="100%" width="100%"  verticalGap="40" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4" verticalAlign="middle" id="vbox4">
   <mx:HBox verticalGap="0"    verticalAlign="middle" horizontalAlign="center" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="2" width="100%" horizontalGap="30" id="hbox6">
     <mx:VBox height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1" verticalGap="8">
       <mx:HBox id="hbox3" horizontalGap="10">
         <util:MultiLineButton label="Submit Experiment Request"  click="submitRequest()"  
-        		icon="@Embed(source='../../assets/flask_add.png')"  styleName="dashboardButton" id="button1" width="166" height="60"/>
+        		icon="@Embed(source='../../assets/flask_add.png')"  styleName="dashboardButton" id="button1" width="156" height="60"/>
         <util:MultiLineButton label="Add services to Experiment Request"  click="amendRequest()" 
-        		icon="@Embed(source='../../assets/flask_edit.png')"  styleName="dashboardButton" id="amendButton" width="166" height="60"/>
+        		icon="@Embed(source='../../assets/flask_edit.png')"  styleName="dashboardButton" id="amendButton" width="156" height="60"/>
         <util:MultiLineButton label="Register External Experiment"  click="submitExternalExperiment()"  
-        		icon="@Embed(source='../../assets/experiment_register.png')"  styleName="dashboardButton" id="submitExternalExperimentButton" width="166" height="60"/>
+        		icon="@Embed(source='../../assets/experiment_register.png')"  styleName="dashboardButton" id="submitExternalExperimentButton" width="156" height="60"/>
       </mx:HBox>
       <mx:HBox id="hbox2" horizontalGap="10">
-        <util:MultiLineButton label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" id="button2" width="166" height="60"/>
-        <util:MultiLineButton label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/download.png')"   styleName="dashboardButton"  id="button3" width="166" height="60"/>
-        <util:MultiLineButton label="Submit Work Authorization" click="showWorkAuthForm()" icon="@Embed(source='../../assets/work_auth_form.png')"  styleName="dashboardButton" id="button8" width="166" height="60"/>
+        <util:MultiLineButton label="Show my Experiments" click="showExperiments()" icon="@Embed(source='../../assets/flask.png')"  styleName="dashboardButton" id="button2" width="156" height="60"/>
+        <util:MultiLineButton label="Download Experiment Results" click="showExperimentDownloads()" icon="@Embed(source='../../assets/download.png')"   styleName="dashboardButton"  id="button3" width="156" height="60"/>
+        <util:MultiLineButton label="Submit Work Authorization" click="showWorkAuthForm()" icon="@Embed(source='../../assets/work_auth_form.png')"  styleName="dashboardButton" id="button8" width="156" height="60"/>
       </mx:HBox>
       <mx:HBox  id="hbox4" horizontalGap="10">
-        <util:MultiLineButton label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton"  id="button4" width="166" height="60"/>
-        <util:MultiLineButton label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/download.png')" styleName="dashboardButton"  id="button5" width="166" height="60"/>
-        <util:MultiLineButton label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" styleName="dashboardButton"  id="button6" width="166" height="60"/>
-        <util:MultiLineButton label="Advanced Search"   click="showAdvancedSearch()" icon="@Embed(source='../../assets/magnifier.png')" styleName="dashboardButton"  id="button7" width="166" height="60"  />
+        <util:MultiLineButton label="Show Analysis" click="showAnalysis()"  icon="@Embed(source='../../assets/map.png')" styleName="dashboardButton"  id="button4" width="156" height="60"/>
+        <util:MultiLineButton label="Download Analyzed data files" click="showAnalysisDownloads()" icon="@Embed(source='../../assets/download.png')" styleName="dashboardButton"  id="button5" width="156" height="60"/>
+        <util:MultiLineButton label="Materials &amp; Methods"   click="showProtocols()" icon="@Embed(source='../../assets/bricks.png')" styleName="dashboardButton"  id="button6" width="156" height="60"/>
       </mx:HBox>
       <mx:HBox  id="hbox5" horizontalGap="10">
       </mx:HBox>
@@ -210,7 +220,7 @@
 		        </mx:HBox>
 		        <mx:Text 
 		        	styleName="welcome" id="text1" paddingTop="0">
-		        	<mx:htmlText><![CDATA[      - Submit new work requests for <br>         Microarray, Next generation<br>        sequencing or quality control<br>        services]]></mx:htmlText>
+		        	<mx:htmlText><![CDATA[- Submit new work requests for <br>   Microarray, Next generation<br>  sequencing or quality control<br>  services]]></mx:htmlText>
 		        </mx:Text>
 	        </mx:VBox>
 		    <mx:VBox verticalGap="1">
@@ -223,11 +233,11 @@
 		        </mx:HBox>
 		        <mx:Text  
 		        	styleName="welcome" paddingTop="0">
-		            <mx:htmlText><![CDATA[      - Download experiment results<br>      - View experiment progress<br>      - Review project description and <br>        design parameters<br>      - Review experiment and sample<br>        annotations]]></mx:htmlText>
+		            <mx:htmlText><![CDATA[- Download experiment results<br>- View experiment progress<br>- Review project description and <br>  design parameters<br>- Review experiment and sample<br>  annotations]]></mx:htmlText>
 		        </mx:Text>
 	       	
 	       </mx:VBox> 
-	       <mx:VBox verticalGap="1">
+	       <mx:VBox verticalGap="1" id="vbox5">
 		        <mx:HBox width="100%" paddingTop="2" id="hbox8" paddingBottom="0" verticalAlign="top">
 		         <mx:Image source="assets/work_auth_form.png"/>
 		         <mx:Text  
@@ -236,11 +246,11 @@
 		        </mx:HBox>
 		        <mx:Text  
 		        	styleName="welcome" id="text3">
-		        	<mx:htmlText><![CDATA[      - Submit a work authorization form <br>         indicating the billing account to<br>         be charged for work]]></mx:htmlText>
+		        	<mx:htmlText><![CDATA[- Submit a work authorization form <br>   indicating the billing account to<br>   be charged for work]]></mx:htmlText>
 		        </mx:Text>
 		       	
 	       </mx:VBox>
-	       <mx:VBox verticalGap="1">
+	       <mx:VBox verticalGap="1" id="vbox6">
 		        <mx:HBox width="100%" paddingTop="2" verticalAlign="top" id="hbox9">
 			        <mx:Image source="assets/map.png"/>
 			        <mx:Text   
@@ -249,7 +259,7 @@
 		        </mx:HBox>
 		        <mx:Text  
 		        	styleName="welcome">
-		        	<mx:htmlText><![CDATA[      - View analysis description<br>      - Download analyzed data files]]></mx:htmlText>
+		        	<mx:htmlText><![CDATA[- View analysis description<br>- Download analyzed data files]]></mx:htmlText>
 		        </mx:Text>
 	       </mx:VBox>
 	       <mx:VBox verticalGap="1">
@@ -261,7 +271,7 @@
 		        </mx:HBox>
 		        <mx:Text  
 		        	styleName="welcome">
-		        	<mx:htmlText><![CDATA[      - View a description of the<br>         protocols used during experiment<br>         processing]]></mx:htmlText>
+		        	<mx:htmlText><![CDATA[- View a description of the<br>   protocols used during experiment<br>   processing]]></mx:htmlText>
 		        </mx:Text>
 	       	
 	       </mx:VBox>
