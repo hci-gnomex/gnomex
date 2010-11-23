@@ -295,6 +295,10 @@
 		<delete includeEmptyDirs="true">
 			<fileset dir="${opensource.dir}">
 		    <include name="*/**"/>
+				<exclude name=".project"/>
+				<exclude name=".classpath"/>
+				<exclude name=".actionScriptProperties"/>
+				<exclude name=".flexProperties"/>
 			</fileset>
     </delete>
 		
