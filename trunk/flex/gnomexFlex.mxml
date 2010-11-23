@@ -1139,6 +1139,12 @@
 
             
         public function onFailHttpRequest(title:String, event:FaultEvent):void {
+        	    Alert.show(" event.message.toString() " + event.message.toString(), title);
+        	    Alert.show(" event.fault.toString() " + event.fault.toString(), title);
+        	    Alert.show(" event.fault.errorID " + event.fault.errorID, title);
+        		Alert.show(" fault.fault.message " + event.fault.message, title );
+        		Alert.show(" fault.faultString " + event.fault.faultString, title );
+        		
         	if (event.message.body is String) {
 	        	var startPos:int = event.message.body.indexOf("TEXT=");
 	        	var endPos:int   = event.message.body.indexOf("TYPE=");
@@ -1149,8 +1155,7 @@
 	        	}        
         		
         	} else {
-        		Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, title);
-        		
+        		Alert.show(event.message.toString(), title + " event.message");
         	}
         }
         
@@ -1179,8 +1184,8 @@
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"> 
 			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0"  styleName="catalogPanel" 
-			      	paddingBottom="4" id="hbox1" 
-			      	paddingTop="4" 
+			      	paddingBottom="6" id="hbox1" 
+			      	paddingTop="6" 
 			      	paddingLeft="4" paddingRight="4">
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" 
 			        	horizontalGap="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
@@ -1219,7 +1224,7 @@
 			      <mx:HBox width="100%" id="linkButtonBarBox" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  backgroundImage="@Embed(source='assets/menubar.png')" backgroundSize="100%" borderStyle="none" cornerRadius="4" visible="false">
 			 			<mx:LinkBar id="linkButtonBar" 
 			 				 dataProvider="{initViews}" width="100%"
-			 			            enabled="false" visible="false"   paddingBottom="0" paddingLeft="0"
+			 			            enabled="false" visible="false"   paddingBottom="2" paddingTop="2"
 			 			            verticalAlign="middle" 
 			 			            itemClick="onViewSelection()"  horizontalAlign="left" >
 			 			</mx:LinkBar>
@@ -1238,7 +1243,7 @@
         
 	    <mx:VBox id="mainArea" width="100%" 
 	    	height="100%" paddingTop="3" paddingBottom="0" paddingLeft="0" 
-	    	paddingRight="0" horizontalCenter="0" verticalGap="6">
+	    	paddingRight="0" horizontalCenter="0" verticalGap="0">
 	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 				
     	     
@@ -1337,6 +1342,8 @@
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontFamily" value="Verdana"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontSize" value="11"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
+	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
+	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>

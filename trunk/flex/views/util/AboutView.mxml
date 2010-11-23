@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="800" height="500" 
+	layout="vertical" width="790" height="524" 
 	xmlns:views="views.*"
 	showCloseButton="true" 
 	close="{PopUpManager.removePopUp(this)}" 
 	title="{'GNomEx ' + parentApplication.version }" 
 	backgroundColor="#ffffff" fontSize="12">
-	<mx:VBox width="100%" verticalGap="20" height="100%" fontSize="10" paddingTop="8" paddingLeft="8">
-		
+	<mx:VBox width="100%" verticalGap="15" height="100%" fontSize="10" paddingTop="8" paddingLeft="8">
+		<mx:HBox width="100%" horizontalAlign="center" id="hbox10">
+  			<mx:Image source="assets/gnomex_title.png"/>
+  		</mx:HBox>
+
 		<mx:VBox width="100%" verticalGap="2">
 			<mx:Text text="Functionality" fontWeight="bold" fontSize="11" paddingBottom="1"/>
 			<mx:HBox horizontalGap="0" width="100%">
