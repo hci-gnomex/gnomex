@@ -442,7 +442,7 @@
        				
        				var columns:Array = samplesGridConfirm.columns;
        				// Pop the description; we want it to be the last column
-       				var descCol:DataGridColumn = DataGridColumn(columns.pop());
+       				var descCol:AdvancedDataGridColumn = AdvancedDataGridColumn(columns.pop());
        				columns.push(newCol);
        				columns.push(descCol);
        				samplesGridConfirm.columns = columns;

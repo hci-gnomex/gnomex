@@ -1,8 +1,8 @@
 package views.util
 {
-	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.controls.dataGridClasses.DataGridColumn;
 	 
-	public class AnnotationDataGridColumn extends AdvancedDataGridColumn
+	public class AnnotationDataGridColumn extends DataGridColumn
 	{
 		public function AnnotationDataGridColumn()
 		{

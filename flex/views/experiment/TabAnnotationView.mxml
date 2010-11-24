@@ -11,6 +11,7 @@
 <mx:Script>
 	<![CDATA[
 		import views.util.AnnotationDataGridColumn;
+		import views.util.AnnotationAdvancedDataGridColumn;
 		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
@@ -48,7 +49,7 @@
 				return;
 			}
 			for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
-				var dc:DataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
+				var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
 				if ( dc.dataField == "@" + codeSampleCharacteristic) {
 					dc.visible = show;
 					break;					
@@ -242,7 +243,7 @@
        			}
        			if (!exists) {
        				
-       				var newCol:AnnotationDataGridColumn = new AnnotationDataGridColumn();
+       				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn();
        				var fieldName:String = "@" + annotation.@codeSampleCharacteristic;
        				newCol.dataField  = fieldName;
        				newCol.headerText = annotation.@sampleCharacteristic;
@@ -253,7 +254,7 @@
        				 
        				var columns:Array = parentDocument.samplesView.samplesGrid.columns;
        				var newColumns:Array = new Array();
-       				for each(var column:DataGridColumn in columns) {
+       				for each(var column:AdvancedDataGridColumn in columns) {
        					if (column.dataField == "@description") {
        						newColumns.push(newCol);
        					}
