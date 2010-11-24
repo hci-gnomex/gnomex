@@ -15,8 +15,15 @@ import java.util.Comparator;
 
       String[] tokens2 = s2.getNumber().split("X");
       String number2 = tokens2[tokens2.length - 1];
+      
+      String multiplexKey1 = s1.getMultiplexGroupNumber() != null ? s1.getMultiplexGroupNumber().toString() : "";
+      String multiplexKey2 = s2.getMultiplexGroupNumber() != null ? s2.getMultiplexGroupNumber().toString() : "";
 
-      return new Integer(number1).compareTo(new Integer(number2));
+      if (multiplexKey1.equals(multiplexKey2)) {
+        return new Integer(number1).compareTo(new Integer(number2));        
+      } else {
+        return multiplexKey1.compareTo(multiplexKey2);
+      }
       
     }
   }
