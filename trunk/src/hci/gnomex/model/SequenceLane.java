@@ -11,12 +11,14 @@ import java.util.Set;
 import java.util.Date;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.jdom.Element;
 
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.hibernate3utils.HibernateDetailObject;
 
 
@@ -466,7 +468,7 @@ public class SequenceLane extends HibernateDetailObject {
     
     for(Iterator i1 = multiplexLaneMap.keySet().iterator(); i1.hasNext();) {
       String key = (String)i1.next();
-      List theLanes = (List)multiplexLaneMap.get(key);
+      Collection theLanes = (Collection)multiplexLaneMap.get(key);
       
       if (key.equals("")) {
         for(Iterator i2 = theLanes.iterator(); i2.hasNext();) {
@@ -488,7 +490,21 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }
   
+  public static int getMultiplexLaneCount(Collection sequenceLanes, Date requestCreateDate) {
+    Map multiplexLaneMap = getMultiplexLaneMap(sequenceLanes, requestCreateDate);
+    int laneCount = 0;
+    for(Iterator i = multiplexLaneMap.keySet().iterator(); i.hasNext();) {
+      String key = (String)i.next();
+      Collection theLanes = (Collection)multiplexLaneMap.get(key);
+      if (key.equals("")) {
+        laneCount += theLanes.size();
+      } else {
+        laneCount++;
+      }
+    }
+    return laneCount;
   
+  }
   public static SortedMap getMultiplexLaneMap(Collection sequenceLanes, Date requestCreateDate) {
     TreeMap laneMap = new TreeMap();
     for(Iterator i = sequenceLanes.iterator(); i.hasNext();) {
@@ -527,15 +543,18 @@ public class SequenceLane extends HibernateDetailObject {
       List laneGroups = SequenceLane.getMultiplexLaneGroups(theLanes);
       
       for(Iterator i1 = laneGroups.iterator(); i1.hasNext();) {
-        List lanesInGroup = (List)i1.next();
+        Set lanesInGroup = (Set)i1.next();
         if (key.equals("")) {
-          List laneList = (List)multiplexLaneMap.get(key);
+          Collection laneList = (Collection)multiplexLaneMap.get(key);
           if (laneList == null) {
             laneList = lanesInGroup;
             multiplexLaneMap.put(key, laneList);
-          } else {
-            laneList.addAll(lanesInGroup);
+          } 
+          for (Iterator i2 = lanesInGroup.iterator(); i2.hasNext();) {
+            SequenceLane l = (SequenceLane)i2.next();
+            laneList.add(l);
           }
+          
           
         } else {
           String multiplexLaneID = "";
@@ -593,7 +612,7 @@ public class SequenceLane extends HibernateDetailObject {
 
     
     for (int x = 0; x < maxTagCount; x++) {
-      List laneGroup = new ArrayList();
+      Set laneGroup = new TreeSet(new SequenceLaneNumberComparator());
       for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
         String tag = (String)i.next();
         List theLanes = (List)seqTagMap.get(tag);

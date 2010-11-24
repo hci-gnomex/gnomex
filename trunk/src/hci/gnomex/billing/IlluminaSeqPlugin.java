@@ -75,7 +75,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       
       List theLanes = (List)seqLaneMap.get(key);
       
-      Integer qty = SequenceLane.getMultiplexLaneMap(theLanes, request.getCreateDate()).size();
+      int qty = SequenceLane.getMultiplexLaneCount(theLanes, request.getCreateDate());
       String notes = (String)seqLaneNoteMap.get(key);
       
       // Find the billing price 
@@ -107,11 +107,11 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
         billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
         billingItem.setDescription(price.getName());
-        billingItem.setQty(qty);
+        billingItem.setQty(Integer.valueOf(qty));
         billingItem.setUnitPrice(theUnitPrice);
         billingItem.setPercentagePrice(new BigDecimal(1));        
-        if (qty.intValue() > 0 && theUnitPrice != null) {
-          billingItem.setTotalPrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));          
+        if (qty > 0 && theUnitPrice != null) {
+          billingItem.setTotalPrice(theUnitPrice.multiply(new BigDecimal(qty)));          
         }
         billingItem.setCodeBillingStatus(BillingStatus.PENDING);
         billingItem.setIdRequest(request.getIdRequest());
