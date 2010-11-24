@@ -349,7 +349,19 @@
     	}
     	
  		public function getPendingTreeIcon(item:Object):Class {
-			return null;  
+ 			if (item == null) {
+				return null;  				
+ 			} else if (item.name() == "Request") {
+ 				if (item.@codeRequestCategory == "SOLEXA") {
+ 					return parentApplication.iconSolexa;
+ 				} else if (item.@codeRequestCategory == "HISEQ") {
+ 					return parentApplication.iconHiSeq;
+ 				} else {
+ 					return null;
+ 				}
+ 			} else {
+ 				return null;
+ 			}
 		}   
 
     	
@@ -681,7 +693,7 @@
 	    <mx:VDividedBox width="50%" height="100%"  >
 			<mx:VBox width="100%" height="74"   verticalGap="0">	
 			
-				<mx:HBox width="100%" verticalAlign="bottom" paddingBottom="1">
+				<mx:HBox verticalAlign="bottom" paddingBottom="1">
 					<mx:Label text="Controls" fontWeight="bold"/>
 			    </mx:HBox>
 				<mx:DataGrid id="controlsGrid" width="100%" height="100%" dragEnabled="true" showHeaders="false">
@@ -693,12 +705,6 @@
 			<mx:VBox width="100%" height="100%"   verticalGap="0">	
 			    <mx:HBox paddingTop="8" width="100%" verticalAlign="bottom" paddingBottom="1">
 					<mx:Label text="{'Pending Sequence Requests (' + workList.length + ')' }" fontWeight="bold"/>
-
-					<mx:HBox width="100%" horizontalAlign="right">
-						<mx:Button id="removePendingLaneButton" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="promptForRemove()">
-							<mx:enabled>{pendingLanesGrid.selectedItem != null ? true : false}</mx:enabled>
-						</mx:Button>						
-					</mx:HBox>
 			    </mx:HBox>
 				<mx:AdvancedDataGrid id="pendingLanesGrid" width="100%" height="100%" 
 					dragEnabled="true"  
@@ -758,10 +764,9 @@
 	        <mx:Image source="assets/arrow_right.png"/>
 	    	 
 	    </mx:VBox>
-		<mx:VBox width="50%" height="100%" verticalGap="1" borderColor="#4E7C9C">			
-			    <mx:VBox width="100%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4" height="100%">
+			    <mx:VBox width="60%" paddingTop="3" paddingBottom="4" borderStyle="outset" cornerRadius="10" borderColor="#466D88" paddingLeft="4" paddingRight="4" height="100%">
 			        <mx:Label text="Flow Cell to Assemble" fontWeight="bold" color="#153A64"/>
-			        <mx:HBox>
+			        <mx:HBox width="100%">
 				    	<mx:Label text="Barcode:"/>
 				    	<mx:TextInput id="flowCellBarcode" width="100%"/>
 				    	<mx:Label text="Cluster Gen Date:"/>
@@ -769,7 +774,7 @@
 					 	
 				    </mx:HBox>
 					<mx:HBox width="100%" horizontalGap="2">
-						<mx:HBox width="100%" horizontalAlign="left" paddingTop="0" paddingBottom="0" horizontalGap="4">
+						<mx:HBox horizontalAlign="left" paddingTop="0" paddingBottom="0" horizontalGap="4">
 							<mx:Button click="mergeSamples()"  label="Combine" toolTip="Combine samples from a request into one channel"/>
 							<mx:Button click="moveAssembleLaneUp();reassignChannelNumbers()" icon="@Embed(source='../../assets/arrow_up.png')" width="24" toolTip="Move sample up a lane"/>
 							<mx:Button click="moveAssembleLaneDown();reassignChannelNumbers()" width="24" icon="@Embed(source='../../assets/arrow_down.png')" toolTip="Move sample down a lane"/>
@@ -782,7 +787,7 @@
 					</mx:HBox> 
 			<mx:AdvancedDataGrid  id="assembleLanesGrid" 
 				 sortableColumns="false"
-				 sortExpertMode="false"
+				 sortExpertMode="true"
 				 dataProvider="{dirtyChannelWorkList}" width="100%" height="100%" 
 				 dropEnabled="true" 
 				 editable="true" 
@@ -790,13 +795,30 @@
 				 selectionMode="multipleRows">	 
 				<mx:columns>
 			        <mx:AdvancedDataGridColumn headerText="Control" 
-			        	width="30"        
+			        	width="15"        
 			        	editable="false"             	
 			        	dataField="@isControl" 
 			        	editorDataField="selected"
 			        	itemRenderer="views.renderers.CheckBoxFlowCellIsControl" >
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"  >
+							    <mx:Label text="Con"/>
+							    <mx:Label text="trol"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
 			        </mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn editable="false" headerText="Chan #"  dataField="@channelNumberDisplay" width="30" showDataTips="true" />
+					<mx:AdvancedDataGridColumn editable="false" headerText="Chan #"  dataField="@channelNumberDisplay" width="20" showDataTips="true">
+						<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"  >
+							    <mx:Label text="Chan"/>
+							    <mx:Label text="#"/>
+							</mx:VBox>
+						</mx:Component>
+						</mx:headerRenderer>
+			        </mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn  editable="false" dataField="@laneNumber" width="45" headerText="Flow Cell Sample #" showDataTips="true" >
 						<mx:headerRenderer > 
 						<mx:Component>
@@ -807,7 +829,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn>	
-					<mx:AdvancedDataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"  editable="false" width="25" labelFunction="lookupOligoBarcode">
+					<mx:AdvancedDataGridColumn  dataField="@idOligoBarcode" headerText="Sample Barcode"  editable="false" width="35" labelFunction="lookupOligoBarcode">
 						<mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
@@ -832,7 +854,7 @@
 					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idOrganism" headerText="Organism" width="35"  
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry,'@display', '@value', '@idOrganism')}"/>                 											
-					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="32" 
+					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idNumberSequencingCycles" headerText="# Cycles"  width="25" 
 					 showDataTips="true" 
                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}">
 						<mx:headerRenderer > 
@@ -863,8 +885,6 @@
 				</mx:columns>			
 			</mx:AdvancedDataGrid>		 
 			    </mx:VBox> 
-			<mx:Spacer height="10"/>
-		</mx:VBox>
 	</mx:HDividedBox>
 	<mx:ControlBar horizontalAlign="right" width="100%">
 	    <mx:HBox width="100%" horizontalAlign="left">
