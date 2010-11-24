@@ -1,6 +1,15 @@
 ﻿GNomEx Release Notes
 
-5.0.4 
+5.0.4.1
+--------------------
+- Fix sort order of lanes in multiplex lane
+- Fix sort order of samples (when multiple group number no sequential with sample numbers)
+- Fixed bug so that correct qty calculated for sequencing billing item (number of lanes).
+- Fixed printable request form for non-multiplexed lanes
+- Fixed bug causing error when bringing up Labeling work list
+- Adjust screen layout for Cluster gen work list for more sensible use of horizontal.
+
+5.0.4 (Nov 23, 1010)
 --------------------
 - Make GNomEx sample linkage to BST property driven. (Won't show up for non-HCI installs.)
 - Allow user to arrange multiplex groups of samples for Illumina experiments.  
