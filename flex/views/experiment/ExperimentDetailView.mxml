@@ -161,8 +161,11 @@
         		
         	this.barcodeCol.visible = showSampleBarcode;
         	this.customBarcodeCol.visible = showSampleCustomBarcode;
-        	this.laneBarcodeCol.visible = showSampleBarcode;
-        	this.laneCustomBarcodeCol.visible = showSampleCustomBarcode;
+        	
+        	if (currentState == "SolexaState") {
+	        	this.laneBarcodeCol.visible = showSampleBarcode;
+    	    	this.laneCustomBarcodeCol.visible = showSampleCustomBarcode;
+        	}
         	
 			this.samplesGridConfirm.validateNow();
 		}
