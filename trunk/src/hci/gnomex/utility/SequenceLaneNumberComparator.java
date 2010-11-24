@@ -10,6 +10,14 @@ import java.util.Comparator;
       SequenceLane l1 = (SequenceLane)o1;
       SequenceLane l2 = (SequenceLane)o2;
       
+      if (l1.getNumber() == null && l2.getNumber() == null) {
+        return l1.getIdSequenceLane().compareTo(l2.getIdSequenceLane());
+      } else if (l1.getNumber() == null) {
+        return 1;
+      } else if (l2.getNumber() == null) {
+        return -1;
+      }
+      
       String sampleNumber1;
       String seqNumber1 = "";
       // Deal with old (ex. 6142L1) and new (ex. 6142F1_1) naming scheme

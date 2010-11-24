@@ -19,6 +19,7 @@ import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -753,9 +754,10 @@ public class RequestHTMLFormatter {
     SortedMap multiplexLaneMap = SequenceLane.getMultiplexLaneMap(lanes, null);
     
 
+    int nonMulitplexedLaneCount = 1;
     for(Iterator i = multiplexLaneMap.keySet().iterator(); i.hasNext();) { 
       String key = (String)i.next();
-      List theLanes = (List)multiplexLaneMap.get(key);
+      Collection theLanes = (Collection)multiplexLaneMap.get(key);
       
       // Print a row for each sequence lane in multiplex lane
       boolean firstLaneInMultiplex = true;
@@ -768,14 +770,18 @@ public class RequestHTMLFormatter {
 
 
         // If this is the last lane in the multiplex lane, show a bottom border
-        if (i1.hasNext()) {
+        if (key.equals("")) {
+          this.addLeftCell(row, Integer.valueOf(nonMulitplexedLaneCount++).toString());
+          this.addCell(row, lane.getNumber());
+        } else if (i1.hasNext()) {
           this.addBlankCell(row, firstLaneInMultiplex ? key : "&nbsp;");            
+          this.addLeftCell(row, lane.getNumber());
         } else {
           this.addBottomBlankCell(row, firstLaneInMultiplex ? key : "&nbsp;");
+          this.addLeftCell(row, lane.getNumber());
         }
 
 
-        this.addLeftCell(row, lane.getNumber());
         this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
         this.addCell(row, lane.getWorkflowStatusAbbreviated().equals("") ? "&nbsp;" : lane.getWorkflowStatusAbbreviated());
         this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
@@ -787,6 +793,7 @@ public class RequestHTMLFormatter {
         
         firstLaneInMultiplex = false;
       }
+
       
 
       
