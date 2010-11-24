@@ -1139,11 +1139,7 @@
 
             
         public function onFailHttpRequest(title:String, event:FaultEvent):void {
-        	    Alert.show(" event.message.toString() " + event.message.toString(), title);
-        	    Alert.show(" event.fault.toString() " + event.fault.toString(), title);
-        	    Alert.show(" event.fault.errorID " + event.fault.errorID, title);
-        		Alert.show(" fault.fault.message " + event.fault.message, title );
-        		Alert.show(" fault.faultString " + event.fault.faultString, title );
+        	Alert.show(event.fault.toString(), title );
         		
         	if (event.message.body is String) {
 	        	var startPos:int = event.message.body.indexOf("TEXT=");
