@@ -15,7 +15,7 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import hci.flex.controls.Label; 
-		import views.util.AnnotationDataGridColumn;
+		import views.util.AnnotationAdvancedDataGridColumn;
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
 		import mx.events.ValidationResultEvent;		
@@ -754,7 +754,7 @@
 			if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
-					if (col is views.util.AnnotationDataGridColumn) {
+					if (col is views.util.AnnotationAdvancedDataGridColumn) {
 						col.visible = false;
 					}
 				}
