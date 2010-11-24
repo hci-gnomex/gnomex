@@ -225,6 +225,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             }
             
           }
+          
+          String codeRequestCategory = row[3] == null ? "" :  (String)row[3];
             
           
           Element n = new Element("WorkItem");
@@ -299,7 +301,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
             n.setAttribute("labelingDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
             n.setAttribute("labelingCompleted",          row[16] == null ? "N" : "Y");
-            n.setAttribute("labelingFailed",             row[17] == null ? "" :  (String)row[15]).toString();
+            n.setAttribute("labelingFailed",             row[17] == null ? "" :  (String)row[17]).toString();
             n.setAttribute("labelingYield",              row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
             n.setAttribute("idLabel",                    row[19] == null ? "" :  ((Integer)row[19]).toString());
             n.setAttribute("idLabelingProtocol",         row[20] == null ? "" :  ((Integer)row[20]).toString());
@@ -555,11 +557,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           // Cluster gen work items are organized in a hiearchical fashion
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
-            List nodes = (List)clusterGenMap.get(requestNumber);
+            String clusterGenKey = requestNumber + "-" + codeRequestCategory;
+            List nodes = (List)clusterGenMap.get(clusterGenKey);
             
             if (nodes == null) {
               nodes = new ArrayList();
-              clusterGenMap.put(requestNumber, nodes);              
+              clusterGenMap.put(clusterGenKey, nodes);              
             }
             nodes.add(n);
             
@@ -586,11 +589,15 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
           for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
-            String requestNumber = (String)i.next();
+            String clusterGenKey = (String)i.next();
+            String [] tokens = clusterGenKey.split("-");
+            String requestNumber = tokens[0];
+            String codeRequestCategory = tokens[1];
             
-            List theWorkItemNodes = (List)clusterGenMap.get(requestNumber);
+            List theWorkItemNodes = (List)clusterGenMap.get(clusterGenKey);
             Element requestNode = new Element("Request");
             requestNode.setAttribute("number", requestNumber);
+            requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
             doc.getRootElement().addContent(requestNode);
             
             HashMap seqTags = new HashMap();
