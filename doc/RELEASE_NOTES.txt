@@ -1,6 +1,14 @@
 ﻿GNomEx Release Notes
 
-5.0.4.1
+5.0.5
+---------------------
+- Rename Sequence Lane to Sample Sequence Run in UI
+- Fix samples grid in Edit Experiment window to always show flat view, allowing user to edit multiplex group number
+- Don't highlight missing required fields on Edit window
+- Fix Analysis Edit files tab so that unregistered files show and can be saved with comment
+- Fix bug that was preventing samples from being organized by multiplex group number for custom barcoded samples (lab prepping own samples)
+
+5.0.4.1 (Nov 24, 2010)
 --------------------
 - Fix sort order of lanes in multiplex lane
 - Fix sort order of samples (when multiple group number no sequential with sample numbers)
@@ -9,7 +17,7 @@
 - Fixed bug causing error when bringing up Labeling work list
 - Adjust screen layout for Cluster gen work list for more sensible use of horizontal.
 
-5.0.4 (Nov 23, 1010)
+5.0.4 (Nov 23, 2010)
 --------------------
 - Make GNomEx sample linkage to BST property driven. (Won't show up for non-HCI installs.)
 - Allow user to arrange multiplex groups of samples for Illumina experiments.  
