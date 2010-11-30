@@ -57,6 +57,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
   private String                analysisFilesXMLString;
   private Document              analysisFilesDoc;
+  private String                analysisFilesToDeleteXMLString;
+  private Document              analysisFilesToDeleteDoc;
   private AnalysisFileParser    analysisFileParser;
   
   private String                hybsXMLString;
@@ -101,6 +103,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       analysisGroupsXMLString = request.getParameter("analysisGroupsXMLString");
     }
     
+    
     StringReader reader = new StringReader(analysisGroupsXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
@@ -115,12 +118,19 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     if (request.getParameter("analysisFilesXMLString") != null && !request.getParameter("analysisFilesXMLString").equals("")) {
       analysisFilesXMLString = request.getParameter("analysisFilesXMLString");
     }
+    if (request.getParameter("analysisFilesToDeleteXMLString") != null && !request.getParameter("analysisFilesToDeleteXMLString").equals("")) {
+      analysisFilesToDeleteXMLString = request.getParameter("analysisFilesToDeleteXMLString");
+    }
     
     reader = new StringReader(analysisFilesXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
       analysisFilesDoc = sax.build(reader);
-      analysisFileParser = new AnalysisFileParser(analysisFilesDoc);
+
+      reader = new StringReader(analysisFilesToDeleteXMLString);
+      analysisFilesToDeleteDoc = sax.build(reader);
+      
+      analysisFileParser = new AnalysisFileParser(analysisFilesDoc, analysisFilesToDeleteDoc);
     } catch (JDOMException je ) {
       log.error( "Cannot parse analysisFilesXMLString", je );
       this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
@@ -335,32 +345,18 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             sess.save(af);
           }
         }
-        // Get rid of removed analysis files
         
-        /* COMMENTED OUT - CHANGE TO MAKE DELETES DRIVEN FROM EXPLICIT LIST!!
-        ArrayList filesToRemove = new ArrayList();
-        for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
-          AnalysisFile af = (AnalysisFile)i.next();
-          boolean found = false;
-          for(Iterator i1 = analysisFileParser.getAnalysisFileMap().values().iterator(); i1.hasNext();) {
-            AnalysisFile afAdded = (AnalysisFile)i1.next();
-            if (afAdded.getFileName().equals(af.getFileName())) {
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            filesToRemove.add(af);
-          }
-        }
-        for(Iterator i = filesToRemove.iterator(); i.hasNext();) {
-          AnalysisFile af = (AnalysisFile)i.next();
+        // Get rid of removed analysis files
+        for(Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
+          String idAnalysisFileString = (String)i.next();
+          AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileToDeleteMap().get(idAnalysisFileString);
+          
           sess.delete(af);
           analysis.getFiles().remove(af);
 
           removeAnalysisFileFromFileSystem(baseDir, analysis, af);
         }
-        */
+
         
         //
         // Save collaborators

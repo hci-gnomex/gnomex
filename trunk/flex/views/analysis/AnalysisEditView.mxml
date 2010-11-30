@@ -377,6 +377,7 @@
 		private function removeAnalysisFile():void {
 			dirty.setDirty();
 			if (this.filesGrid.selectedIndex != -1) {
+				filesToDelete.addItem(filesGrid.selectedItem);
 				files.removeItemAt(filesGrid.selectedIndex);
 			}
 		}
@@ -465,7 +466,8 @@
 			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
 			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
 			params.analysisFilesXMLString = "<analysisFiles>" +  files.toXMLString() + "</analysisFiles>";
-			 
+			params.analysisFilesToDeleteXMLString = "<analysisFilesToDelete>" +  filesToDelete.toXMLString() + "</analysisFilesToDelete>";
+			
 			
 			// Collaborators
 			params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
@@ -506,12 +508,14 @@
 
 		private function onGetAnalysis(event:ResultEvent):void {
 			analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
+			filesToDelete.removeAll();
 		}
 
 		private function onGetAnalysisAfterUpload(event:ResultEvent):void {
 			analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).files;
 			analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).ExpandedAnalysisFileList;
 			files.source = analysis..AnalysisFileDescriptor;
+			filesToDelete.removeAll();
 		}
 		        
         private function validateAndSubmitAnalysis():void {        	
@@ -890,6 +894,7 @@
 <mx:XMLListCollection  id="hybs"           /> 
 <mx:XMLListCollection  id="lanes"         />
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
+<mx:XMLListCollection  id="filesToDelete"  />
 <mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AppUser}"/>
  
 <mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
@@ -1136,6 +1141,8 @@
 						<mx:DataGridColumn headerText="File name"  editable="false" dataField="@displayName"/>
 						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@lastModifyDateDisplay"/>
 						<mx:DataGridColumn headerText="Comments" editable="true" dataField="@comments"/>
+				    	<mx:DataGridColumn dataField="@type"           headerText="Type" width="20" />
+				    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="20"/>
 					</mx:columns>
 				</mx:DataGrid>
 			</mx:VBox>
