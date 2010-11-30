@@ -28,6 +28,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   private List      children = new ArrayList();
   private Date      uploadDate;
   private String    comments;
+  private Integer   idAnalysis;
+  private String    idAnalysisFileString;
   
   public AnalysisFileDescriptor() {    
   }
@@ -239,4 +241,27 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public void setComments(String comments) {
     this.comments = comments;
   }
+
+  
+  public String getIdAnalysisFileString() {
+    return idAnalysisFileString;
+  }
+
+  
+  public void setIdAnalysisFileString(String idAnalysisFileString) {
+    this.idAnalysisFileString = idAnalysisFileString;
+  }
+
+  
+  public Integer getIdAnalysis() {
+    return idAnalysis;
+  }
+
+  
+  public void setIdAnalysis(Integer idAnalysis) {
+    this.idAnalysis = idAnalysis;
+  }
+
+  
+
 }

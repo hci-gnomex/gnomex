@@ -886,9 +886,9 @@
 <mx:XMLListCollection  id="filteredGenomeBuildList"/>
 <mx:XMLListCollection  id="analysisGroups" source="{analysis..AnalysisGroup}"/>
 <mx:XMLListCollection  id="experimentItems" />
-<mx:XMLListCollection  id="hybs"           />
+<mx:XMLListCollection  id="hybs"           /> 
 <mx:XMLListCollection  id="lanes"         />
-<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFile}"/>
+<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
 <mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AppUser}"/>
  
 <mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
@@ -1132,7 +1132,7 @@
 				<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
 					<mx:columns>
 					    <mx:DataGridColumn headerText="" width="25" editable="false" labelFunction="getFilesGridRowNumber"/>
-						<mx:DataGridColumn headerText="File name"  editable="false" dataField="@fileName"/>
+						<mx:DataGridColumn headerText="File name"  editable="false" dataField="@displayName"/>
 						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@uploadDate"/>
 						<mx:DataGridColumn headerText="Comments" editable="true" dataField="@comments"/>
 					</mx:columns>

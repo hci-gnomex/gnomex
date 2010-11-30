@@ -28,12 +28,19 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
     Element root = this.doc.getRootElement();
     
     
-    for(Iterator i = root.getChildren("AnalysisFile").iterator(); i.hasNext();) {
+    for(Iterator i = root.getChildren("AnalysisFileDescriptor").iterator(); i.hasNext();) {
       Element node = (Element)i.next();
       
-      String idAnalysisFileString = node.getAttributeValue("idAnalysisFile");
+      String idAnalysisFileString = node.getAttributeValue("idAnalysisFileString");
 
-      AnalysisFile af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idAnalysisFileString));
+      AnalysisFile af = null;
+      if (!idAnalysisFileString.startsWith("AnalysisFile")) {
+        af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idAnalysisFileString));
+      } else {
+        af = new AnalysisFile();
+        af.setFileName(node.getAttributeValue("displayName"));
+        af.setIdAnalysis(Integer.valueOf(node.getAttributeValue("idAnalysis")));
+      }
       af.setComments(node.getAttributeValue("comments"));
       
       
