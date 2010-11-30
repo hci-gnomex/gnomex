@@ -439,7 +439,7 @@
 		            	</mx:DataGridColumn>				
 						<mx:DataGridColumn headerText="File name"  dataField="@displayName"/>
 						<mx:DataGridColumn headerText="Comments"   dataField="@comments"/>
-						<mx:DataGridColumn headerText="Upload Date"  dataField="@uploadDate" width="30"/>
+						<mx:DataGridColumn headerText="Upload Date"  dataField="@lastModifyDateDisplay" width="30"/>
 				    	<mx:DataGridColumn dataField="@type"           headerText="Type" width="20" />
 				    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="20"/>
 					</mx:columns>

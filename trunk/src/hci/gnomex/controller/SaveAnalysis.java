@@ -336,6 +336,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           }
         }
         // Get rid of removed analysis files
+        
+        /* COMMENTED OUT - CHANGE TO MAKE DELETES DRIVEN FROM EXPLICIT LIST!!
         ArrayList filesToRemove = new ArrayList();
         for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
@@ -358,6 +360,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
           removeAnalysisFileFromFileSystem(baseDir, analysis, af);
         }
+        */
         
         //
         // Save collaborators

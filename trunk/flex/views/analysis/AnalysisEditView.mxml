@@ -510,7 +510,8 @@
 
 		private function onGetAnalysisAfterUpload(event:ResultEvent):void {
 			analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).files;
-			files.source = analysis..AnalysisFile;
+			analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).ExpandedAnalysisFileList;
+			files.source = analysis..AnalysisFileDescriptor;
 		}
 		        
         private function validateAndSubmitAnalysis():void {        	
@@ -1133,7 +1134,7 @@
 					<mx:columns>
 					    <mx:DataGridColumn headerText="" width="25" editable="false" labelFunction="getFilesGridRowNumber"/>
 						<mx:DataGridColumn headerText="File name"  editable="false" dataField="@displayName"/>
-						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@uploadDate"/>
+						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@lastModifyDateDisplay"/>
 						<mx:DataGridColumn headerText="Comments" editable="true" dataField="@comments"/>
 					</mx:columns>
 				</mx:DataGrid>
