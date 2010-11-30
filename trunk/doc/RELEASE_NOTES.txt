@@ -1,6 +1,12 @@
 ﻿GNomEx Release Notes
 
-5.0.5
+5.0.6
+----------------------
+- Use explicit XML list to drive deletes of analysis file
+- Show final sample conc. pM on Experiment Detail sample seq runs tab
+- Make initialization http service requests synchronous to observe if Windows 7/Flash player launch problem persists
+
+5.0.5 (Nov 29,2010)
 ---------------------
 - Rename Sequence Lane to Sample Sequence Run in UI
 - Fix samples grid in Edit Experiment window to always show flat view, allowing user to edit multiplex group number
