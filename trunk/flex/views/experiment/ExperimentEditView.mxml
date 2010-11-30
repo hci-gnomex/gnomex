@@ -1590,7 +1590,7 @@
 			var prevSelectedTab:Container = theTab.selectedChild;			
 			
 			annotationView.enabled = true;
-			samplesView.enabled = true;			
+			samplesView.enabled = true;		
 
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
@@ -1862,6 +1862,8 @@
 				theTab.selectedChild = this.setupView;			
 			} else {
 				theTab.selectedChild = this.samplesView;
+				samplesView.initializeBarcoding();	
+
 			}
 			
 		}
@@ -3452,16 +3454,16 @@
     	public function showSampleMultiplexGroup():Boolean {
     		var show:Boolean = false;
     		if (this.isSolexaState()) {
-	    		if (currentState == "SolexaLaneAmendState") {
+	    		if (currentState == "SolexaLaneAmendState" ) {
 					for each(var s:Object in samples) {
 						if (s.@multiplexGroupNumber != '') {
 							show = true;
 							break;		
 						}
 					}
-				} else if (this.isEditState()) {
-					return true;
-				} else if (sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N') {
+				} else if (isEditState()) {
+					return false;
+				}else if (sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N') {
 					return true;
 				}	
     		}
