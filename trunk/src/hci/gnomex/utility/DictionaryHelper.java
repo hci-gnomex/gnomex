@@ -59,7 +59,7 @@ public class DictionaryHelper implements Serializable {
   private void loadDictionaries(Session sess)  {
     if (!ManageDictionaries.isLoaded) {
       theInstance = null;
-      throw new RuntimeException("Please run ManagerDictionaries command first");
+      throw new RuntimeException("Please run ManageDictionaries command first");
     }
     
     propertyHelper = PropertyHelper.getInstance(sess);
