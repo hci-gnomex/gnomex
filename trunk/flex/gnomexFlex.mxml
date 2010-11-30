@@ -57,7 +57,7 @@
     showBusyCursor="false"
     destination="getExperimentDesignList"
     result="onGetExperimentDesignList(event)"
-	fault="onFailHttpRequest('Failed to get experiment design list', event)"
+	fault="onFailHttpRequestVerbose('Failed to get experiment design list', event)"
     useProxy="false">
     <mx:request>
     </mx:request>
@@ -69,7 +69,7 @@
     resultFormat="e4x"
     showBusyCursor="false"
     result="onGetExperimentFactorList(event)"
-	fault="onFailHttpRequest('Failed to get experiment factor list', event)"
+	fault="onFailHttpRequestVerbose('Failed to get experiment factor list', event)"
     destination="getExperimentFactorList"
     useProxy="false">
     <mx:request>
@@ -82,7 +82,7 @@
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetAppUserList(event)"
-	fault="onFailHttpRequest('Failed to get app user list', event)"
+	fault="onFailHttpRequestVerbose('Failed to get app user list', event)"
     destination="getAppUserList"
     useProxy="false">
     </mx:HTTPService >
@@ -93,7 +93,7 @@
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetLabList(event)"
-	fault="onFailHttpRequest('Failed to get lab list', event)"
+	fault="onFailHttpRequestVerbose('Failed to get lab list', event)"
     destination="getLabList"
     useProxy="false">
     <mx:request>
@@ -108,7 +108,7 @@
     resultFormat="e4x"
     result="onGetProjectList(event)"
     destination="getProjectList"
-	fault="onFailHttpRequest('Failed to project list', event)"
+	fault="onFailHttpRequestVerbose('Failed to get project list', event)"
     showBusyCursor="false"
     useProxy="false">
     <mx:request>
@@ -910,12 +910,7 @@
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
 			    
-				
-            	getExperimentDesignList.send();
-            	getExperimentFactorList.send();
-            	getLabList.send();
-            	getAppUserList.send();
-            	getProjectList.send();
+
 
 
 				
@@ -929,7 +924,7 @@
             	    getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
             		Alert.show("You must launch GNomEx from guest page.");  
             		return;	
-            	}
+            	} 
             	userName.text = "(guest)";
 			    version = getSecurityAdvisorForGuest.lastResult.@version;
 			    isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
@@ -938,12 +933,6 @@
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			    dictionaryManager.call("load", "");
-
-
-            	getExperimentDesignList.send();
-            	getExperimentFactorList.send();
-            	getLabList.send();
-            	getProjectList.send();
             	
             	showProgress(30);
             }
@@ -966,6 +955,9 @@
             		this.isBSTLinkageSupported = false;
             	}
             	
+            					
+            	getExperimentDesignList.send();
+            	
 	        	showProgress(30);
 	        	enableApp();
             }
@@ -983,17 +975,25 @@
             }
             
             private function onGetExperimentDesignList(event:ResultEvent):void {
+	        	getExperimentFactorList.send();
+            	
 	        	showProgress(10);
 	        	enableApp();
 	        }		
 	        
 			private function onGetExperimentFactorList(event:ResultEvent):void {
+	        	getLabList.send();
+            	
+	        	
 	        	showProgress(10);
 	        }
 	        
 	        private function onGetAppUserList(event:ResultEvent):void {
 			  	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
-              	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));			
+              	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
+              	
+              	getProjectList.send();
+            				
 	          	showProgress(10);
 	        	enableApp();
 	        }
@@ -1018,6 +1018,9 @@
 	        	} else {
 	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab.(@isMyLab == 'Y')));
 	        	}
+	        	
+	        	getAppUserList.send();
+            	
 	        	showProgress(30);
 	        	enableApp();
 	        }		
@@ -1136,10 +1139,28 @@
 			}
 		}
 		
+		public function onFailHttpRequestVerbose(title:String, event:FaultEvent):void {
+			var sandboxMessage:String = "";
+			switch (Security.sandboxType) {
+                case Security.LOCAL_TRUSTED:
+                    sandboxMessage += " (Local trusted)";
+                    break;
+                case Security.LOCAL_WITH_FILE:
+                    sandboxMessage += " (Local with file)";
+                    break;
+                case Security.LOCAL_WITH_NETWORK:
+                    sandboxMessage += " (Local with network)";
+                    break;
+                case Security.REMOTE:
+                    sandboxMessage += " (Remote)";
+                    break;
+            }
+        	Alert.show("SandboxType=" + sandboxMessage + "\n" + event.fault.toString(), title );
+		}
+		
 
             
         public function onFailHttpRequest(title:String, event:FaultEvent):void {
-        	Alert.show(event.fault.toString(), title );
         		
         	if (event.message.body is String) {
 	        	var startPos:int = event.message.body.indexOf("TEXT=");
