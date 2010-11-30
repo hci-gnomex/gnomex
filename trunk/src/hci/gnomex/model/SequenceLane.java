@@ -420,6 +420,14 @@ public class SequenceLane extends HibernateDetailObject {
   public void setFlowCellChannel(FlowCellChannel flowCellChannel) {
     this.flowCellChannel = flowCellChannel;
   }
+  
+  public String getFlowCellChannelSampleConcentrationPmDisplay() {
+    if (this.getFlowCellChannel() != null) {
+      return this.getFlowCellChannel().getSampleConcentrationpMDisplay();
+    } else {
+      return "";
+    }
+  }
 
   
   public String getCanChangeSeqRunType() {

@@ -959,10 +959,20 @@
 							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				            <mx:AdvancedDataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 				            <mx:AdvancedDataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
+				            <mx:AdvancedDataGridColumn  width="90" headerText="Channel sample conc. pM"  editable="false" dataField="@flowCellChannelSampleConcentrationPmDisplay"> 						             						             
+							   <mx:headerRenderer > 
+							    <mx:Component>
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
+								        <mx:Label text="Channel Sample"/>
+								        <mx:Label text="conc. pM"/>
+					    			</mx:VBox>
+							    </mx:Component>
+							   </mx:headerRenderer>
+						    </mx:AdvancedDataGridColumn>
 				            <mx:AdvancedDataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>
-							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    	<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
 								        <mx:Label text="# Seq Cycles"/>
 								        <mx:Label text="(actual)"/>
 					    			</mx:VBox>
@@ -972,7 +982,7 @@
 				            <mx:AdvancedDataGridColumn  width="90" headerText="Clusters per Tile"  editable="false" dataField="@clustersPerTile"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>
-							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 								        <mx:Label text="Clusters per"/>
 								        <mx:Label text="Tile"/>
 					    			</mx:VBox>
@@ -982,7 +992,7 @@
 				            <mx:AdvancedDataGridColumn  width="90" headerText="PhiX Error Rate"  editable="false" dataField="@phiXErrorRate"> 						             						             
 							   <mx:headerRenderer > 
 							    <mx:Component>
-							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    	<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 								        <mx:Label text="PhiX"/>
 								        <mx:Label text="Error Rate"/>
 					    			</mx:VBox>
@@ -993,7 +1003,7 @@
 							<mx:AdvancedDataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
 							   <mx:headerRenderer > 
 							    <mx:Component>
-							    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
+							    	<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 								        <mx:Label text="Last Cycle"/>
 								        <mx:Label text="Status"/>
 					    			</mx:VBox>
