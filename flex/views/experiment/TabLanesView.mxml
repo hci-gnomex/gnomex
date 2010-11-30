@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequencing Lanes" enabled="false" width="100%" height="100%">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sample Sequencing Runs" enabled="false" width="100%" height="100%">
 <mx:Script>	
 	<![CDATA[
 		import mx.events.CloseEvent;
@@ -418,16 +418,16 @@
 			<mx:AddChild relativeTo="{lanesGrid}"  position="before">
 					<mx:HBox width="100%" verticalAlign="middle" paddingLeft="4" paddingTop="4" id="buttonContainer">
 						<mx:HBox>
-							<mx:LinkButton textDecoration="underline" label="Add lane" click="addLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addLaneButton" toolTip="Add lane" />
-							<mx:LinkButton textDecoration="underline" label="Copy lane" click="copyLane();checkLanesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyLaneButton" toolTip="Copy lane" />
-							<mx:LinkButton textDecoration="underline" label="Delete lane" click="deleteLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteLaneButton" toolTip="Delete lane(s)" />
+							<mx:LinkButton textDecoration="underline" label="Add sample seq run" click="addLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addLaneButton" toolTip="Add lane" />
+							<mx:LinkButton textDecoration="underline" label="Copy sample seq run" click="copyLane();checkLanesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyLaneButton" toolTip="Copy lane" />
+							<mx:LinkButton textDecoration="underline" label="Delete sample seq run" click="deleteLane();checkLanesCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteLaneButton" toolTip="Delete lane(s)" />
 						</mx:HBox>
 						
 					</mx:HBox>
 			</mx:AddChild>
 
 			<mx:AddChild relativeTo="{buttonContainer}" position="before">
-			    <mx:Label id="lanesTitle" text="Sequencing Lanes (to assign sample to lane, drag sample onto lane)"/>				
+			    <mx:Label id="lanesTitle" text="Sample Sequencing Runs (to assign sample to lane, drag sample to right-hand grid)"/>				
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="LanesAdminState" basedOn="LanesEditState">			

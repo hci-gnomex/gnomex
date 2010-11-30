@@ -327,7 +327,7 @@
 				 
 			</mx:VBox>
             <mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%"  paddingTop="4" >
-			  <mx:Label id="laneGridLabel" text="{parentDocument.multiplexLanes.length + ' Sequencing Lanes'}" textDecoration="underline" paddingTop="10"/>
+			  <mx:Label id="laneGridLabel" text="{'Sample Sequencing Runs' + ' (' + parentDocument.multiplexLanes.length + ' lanes)'}" textDecoration="underline" paddingTop="10"/>
 					<mx:AdvancedDataGrid width="100%"  id="lanesConfirmGrid" 
 						rollOverColor="#C0C0C0" 
 						editable="false"
