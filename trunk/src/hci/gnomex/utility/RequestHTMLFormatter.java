@@ -674,7 +674,7 @@ public class RequestHTMLFormatter {
       Date createDate = (Date)i.next();
       List<SequenceLane> theLanes = laneDateMap.get(createDate);
 
-      String caption = "Sequence Lanes";
+      String caption = "Sample Sequencing Runs";
       if (laneDateMap.size() > 1 || 
           (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES))) {
         if (sectionCount == 0) {
@@ -813,7 +813,7 @@ public class RequestHTMLFormatter {
     table.setAttribute("CELLSPACING", "0");
 
     Element caption = new Element("CAPTION");
-    caption.addContent("Sequence Lanes");
+    caption.addContent("Flow Cell Channels");
     table.addContent(caption);
 
 

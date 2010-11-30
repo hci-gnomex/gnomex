@@ -915,7 +915,7 @@
 	</mx:State>
 	<mx:State name="SolexaState">
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
-				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
+				<mx:VBox  id="lanesConfirmContainer" label="Sample Sequencing Runs"  verticalGap="0" width="100%" height="100%">
 						<mx:AdvancedDataGrid width="100%" 
 							height="100%" id="lanesConfirmGrid"
 							displayItemsExpanded="true"
