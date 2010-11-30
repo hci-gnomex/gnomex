@@ -170,6 +170,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
 
           // For each directory of analysis
           boolean firstDirForAnalysis = true;
+          int unregisteredFileCount = 0;
           for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
             
             String directoryKey = (String)i1.next();
@@ -184,6 +185,11 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
               if (af != null) {
                 fd.setUploadDate(af.getUploadDate());
                 fd.setComments(af.getComments());
+                fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+                fd.setIdAnalysis(a.getIdAnalysis());
+              } else {
+                fd.setIdAnalysisFileString("AnalysisFile" + unregisteredFileCount++);
+                fd.setIdAnalysis(a.getIdAnalysis());
               }
               
               filesNode.addContent(fd.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
