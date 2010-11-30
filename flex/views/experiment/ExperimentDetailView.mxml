@@ -578,7 +578,6 @@
 				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
 					<mx:HBox width="100%" horizontalGap="2" paddingTop="4">
 						<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" id="hbox1">
-							<mx:Button label="Button" click="initializeBarcoding()" id="button1"/>
 							<mx:CheckBox id="showQCFieldsCheckBox" label="Show QC columns" visible="true" click="showHideColumns()"/>
 						</mx:HBox>
 							
@@ -1016,7 +1015,6 @@
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
 		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
-		<mx:RemoveChild target="{button1}"/>
 	</mx:State>
 </mx:states>
 	
