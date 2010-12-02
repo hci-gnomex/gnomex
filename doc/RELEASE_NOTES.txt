@@ -1,6 +1,13 @@
 ﻿GNomEx Release Notes
 
-5.0.6
+5.0.7
+---------------------
+- Make experiment category on Submit Request window dictionary driven
+- Add field icon, type to RequestCategory dictionary
+- Centralize code for getting tree icons
+
+
+5.0.6 (Nov 30,2010)
 ----------------------
 - Use explicit XML list to drive deletes of analysis file
 - Show final sample conc. pM on Experiment Detail sample seq runs tab
