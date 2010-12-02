@@ -1029,6 +1029,8 @@
 		<property name="numberOfChannels" column="numberOfChannels" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="notes" column="notes" type="string"/>
+		<property name="icon" column="icon" type="string"/>
+		<property name="type" column="type" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->

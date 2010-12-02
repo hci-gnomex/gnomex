@@ -1,7 +1,9 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestProgressFilter;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -51,7 +53,8 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-    
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+      
       StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor());
       log.info(buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
@@ -94,7 +97,11 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
           alt = !alt;
         }
         
-        
+    
+        String codeRequestCategory = row[2] == null ? "" : (String)row[2];
+        RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
+          
+          
         
         Element n = new Element("RequestProgress");
         n.setAttribute("key", key);
@@ -104,7 +111,9 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
         n.setAttribute("idRequest", row[19].toString());
         n.setAttribute("createDate", this.formatDate((java.sql.Date)row[0]));
         n.setAttribute("requestNumber", (String)row[1]);
-        n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
+        n.setAttribute("codeRequestCategory", codeRequestCategory);
+        n.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+        n.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
         n.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
         n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
         n.setAttribute("hybNumber", row[5] == null ? "" : (String)row[5]);

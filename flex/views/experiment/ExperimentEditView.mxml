@@ -203,6 +203,8 @@
         import views.experiment.ConvertIlluminaRequestWindow;
         
 
+		[Bindable]
+		private var requestIcon:String = '';
         
 		[Bindable]
 		private var errorMessage:String = "";
@@ -642,14 +644,6 @@
 			setupView.selectDefaultLab();
 			setupView.projectCombo.selectedIndex = -1;
 			setupView.requestTypeGroup.selectedValue = '';
-			setupView.requestRadioAffy.selected = false;
-			setupView.requestRadioAgilent.selected = false;
-			setupView.requestRadioQC.selected = false;
-			setupView.requestRadioSolexa.selected = false;
-			setupView.requestRadioAffy.setStyle(   "fontWeight", "normal");	
-			setupView.requestRadioAgilent.setStyle("fontWeight", "normal");	
-			setupView.requestRadioQC.setStyle(     "fontWeight", "normal");	
-			setupView.requestRadioSolexa.setStyle( "fontWeight", "normal");	
 
 
 			samplesView.enabled = false;			
@@ -761,29 +755,19 @@
 		
 		public function setRequestCategoryName():void {
 			var requestCategory:Object = getRequestCategory();
+			requestIcon = requestCategory.@icon;
 			requestCategoryName = requestCategory.@display.toString();
-			this.setupView.requestRadioAgilentSingleColor.setStyle("fontWeight",this.setupView.requestRadioAgilentSingleColor.selected    == true ?  "bold" : "normal");	
-			this.setupView.requestRadioAffy.setStyle(   "fontWeight",this.setupView.requestRadioAffy.selected    == true ?  "bold" : "normal");	
-			this.setupView.requestRadioAgilent.setStyle("fontWeight",this.setupView.requestRadioAgilent.selected == true ?  "bold" : "normal");	
-			this.setupView.requestRadioQC.setStyle(     "fontWeight",this.setupView.requestRadioQC.selected      == true ?  "bold" : "normal");	
-			this.setupView.requestRadioSolexa.setStyle( "fontWeight",this.setupView.requestRadioSolexa.selected  == true ?  "bold" : "normal");	
-			this.setupView.requestRadioHiSeq.setStyle( "fontWeight",this.setupView.requestRadioHiSeq.selected  == true ?  "bold" : "normal");	
 			
 			this.confirmView.barcodeColumn.visible = false;        	
 	
 			
-			if (this.setupView.requestRadioAffy.selected ||
-			    this.setupView.requestRadioAgilent.selected ||
-			    this.setupView.requestRadioQC.selected ||
-			    this.setupView.requestRadioSolexa.selected ||
-			    this.setupView.requestRadioHiSeq.selected) {
+			if (this.setupView.requestTypeGroup.selectedValue != null && this.setupView.requestTypeGroup.selectedValue != '' ) {
 				this.setupView.requestTypeBox.styleName = "normalBox";
 			} else {
 				this.setupView.requestTypeBox.styleName = "requiredBox";
 			}
 
-			if (setupView.requestTypeGroup.selectedValue == 'SOLEXA' || 
-			    setupView.requestTypeGroup.selectedValue == 'HISEQ') {
+			if (requestCategory.@type == parentApplication.TYPE_ILLUMINA) {
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 				this.samplesView.currentState = 'SolexaSamplesState';
@@ -817,7 +801,7 @@
 				this.samplesView.checkSamplesCompleteness();
 			
 			} else {						
-				if (setupView.requestTypeGroup.selectedValue == "QC") {
+				if (requestCategory.@type == parentApplication.TYPE_QC) {
 					this.currentState = 'QCState';
 					this.sampleSetupView.currentState = 'QCSetupState';
 
@@ -832,7 +816,7 @@
 					
 					
 
-				} else {
+				} else if (requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 								
 					this.currentState = 'MicroarrayState';
 					this.sampleSetupView.currentState = '';
@@ -877,7 +861,7 @@
 					
 					this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
 
-	
+	 
 					this.samplesView.checkSamplesCompleteness();	
 					
 					if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
@@ -1583,7 +1567,7 @@
 
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
-			
+			requestIcon = requestCategory.@icon;
 
 			buttonStack.selectedIndex = 1;
 			
@@ -2199,13 +2183,6 @@
 			}
 			this.submitButton.enabled = readyToSubmit;
 		}
-		public function getBillingTreeIcon(item:Object):Class {
-			if (item.name() == "BillingLab") {
-				return parentApplication.iconGroup;
-			} else {
-				return parentApplication.iconBilling; 
-			}  
-		}   
 		
 		public function isExternalExperimentSubmission():Boolean {
 			if (!this.isEditState() && !this.isAmendState()) {
@@ -3004,30 +2981,6 @@
   			this.setAmendTitle();
 		}        		    
 
-		public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Lab") {
-					return parentApplication.iconGroup;
-				} else if (item.name() == "Project") {
-					return parentApplication.iconProject;
-				} else if (item.name() == "RequestCategory") {
-					return parentApplication.iconCategory;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
-					return parentApplication.iconQC;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA" ) {
-					return parentApplication.iconSolexa;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ" ) {
-					return parentApplication.iconHiSeq;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
-					return parentApplication.iconMicroarrayAffy;
-				}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
-					return parentApplication.iconMicroarray;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
-					return parentApplication.iconMicroarraySingleColor;
-				} else {
-					return parentApplication.iconProject;
-				}
-		}
-
 		public function getTreeLabel(item:Object):String {
 				if (item.name() == "Request") {
 					return item.@displayName;
@@ -3496,7 +3449,7 @@
   	<mx:XMLListCollection id="projects" />
 
   	<mx:HBox id="hbox7">
-		<mx:Image source="{(request.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : request.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : request.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : request.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : request.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}"/>
+		<mx:Image source="{requestIcon}"/>
 	  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
   		<mx:Spacer width="100%"/>
   	</mx:HBox>
@@ -3672,7 +3625,7 @@
         			sortExpertMode="true" 
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
-					fontSize="9" iconFunction="getBillingTreeIcon">
+					fontSize="9" iconFunction="parentApplication.getTreeIcon">
 						<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItems}"/> 
     					</mx:dataProvider> 
@@ -3947,7 +3900,7 @@
                 			borderStyle="solid"
                 			labelField="@label"
                 			labelFunction="getTreeLabel" 
-                			iconFunction="getTreeIcon" 
+                			iconFunction="parentApplication.getTreeIcon" 
                 			backgroundAlpha="1" dropShadowEnabled="true">
                 			</mx:Tree>
                 		</mx:VBox>

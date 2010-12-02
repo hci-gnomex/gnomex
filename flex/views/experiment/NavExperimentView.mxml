@@ -799,30 +799,6 @@
 
 		}
 
-		public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Lab") {
-					return parentApplication.iconGroup;
-				} else if (item.name() == "Project") {
-					return parentApplication.iconProject;
-				} else if (item.name() == "RequestCategory") {
-					return parentApplication.iconCategory;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
-					return parentApplication.iconQC;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
-					return parentApplication.iconSolexa;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ") {
-					return parentApplication.iconHiSeq;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
-					return parentApplication.iconMicroarrayAffy;
-				}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
-					return parentApplication.iconMicroarray;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
-					return parentApplication.iconMicroarraySingleColor;
-				} else {
-					return parentApplication.iconMicroarrayOther;
-				}
-		}
-
 		public function getTreeLabel(item:Object):String {
 				if (item.name() == "Request") {
 					return item.@requestNumber;
@@ -1248,7 +1224,7 @@
 					        dropEnabled="true" 
 					        dragMoveEnabled="true"
 							dragDrop="onDragDrop(event);" 
-							iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
+							iconFunction="parentApplication.getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
 						 
 					</mx:VBox>
      

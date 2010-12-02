@@ -1028,8 +1028,7 @@
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								    <mx:Label text="Additional"/> 
-								    <mx:Label text="# Lanes to"/> 
-								    <mx:Label text="Sequence"/>
+								    <mx:Label text="# Seq Runs"/> 
 								</mx:VBox> 
 							</mx:Component>
 						 </mx:headerRenderer>

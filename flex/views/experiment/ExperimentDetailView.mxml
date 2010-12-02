@@ -481,14 +481,7 @@
    			PopUpManager.centerPopUp(convertWindow);
    			convertWindow.init(this.selectedExperiment);
     	}  
-    	
-		public function getBillingTreeIcon(item:Object):Class {
-			if (item.name() == "BillingLab") {
-				return parentApplication.iconGroup;
-			} else {
-				return parentApplication.iconBilling; 
-			}  
-		}   
+    	 
 		
 		public function getSampleTreeIcon(item:Object):Class {
 			if (item == null) {
@@ -693,7 +686,7 @@
         			sortExpertMode="true" 
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
-					fontSize="9" iconFunction="getBillingTreeIcon">
+					fontSize="9" iconFunction="parentApplication.getTreeIcon">
 						<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItems}"/> 
     					</mx:dataProvider> 

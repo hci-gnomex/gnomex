@@ -767,18 +767,6 @@
 		}
 
 
-		public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Lab") {
-					return parentApplication.iconGroup;
-				} else if (item.name() == "AnalysisGroup") {
-					return parentApplication.iconProject;
-				} else if (item.name() == "Analysis") {
-					return parentApplication.iconAnalysis;
-				} else {
-					return parentApplication.iconAnalysis;
-				}
-		}
-
 		public function getTreeLabel(item:Object):String {
 				if (item.name() == "Analysis") { 
 					return item.@number + " (" + item.@name + ")";
@@ -1018,7 +1006,7 @@
 							borderStyle="solid"
 							labelField="@label"
 							labelFunction="getTreeLabel"
-							iconFunction="getTreeIcon" 
+							iconFunction="parentApplication.getTreeIcon" 
 							backgroundAlpha="1"
 							dragDrop="browseTreeDrop(event);" mouseDown="browseTreeMouseDown(event);" 
 							dragEnabled="true" 

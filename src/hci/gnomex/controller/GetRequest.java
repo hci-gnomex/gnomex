@@ -38,6 +38,7 @@ import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
@@ -190,6 +191,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
+          // Initialize attributes from request category
+          if (request.getCodeRequestCategory() != null && !request.getCodeRequestCategory().equals("")) {
+            RequestCategory requestCategory = dh.getRequestCategoryObject(request.getCodeRequestCategory());
+            requestNode.setAttribute("icon", requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+            requestNode.setAttribute("type", requestCategory.getType() != null ? requestCategory.getType() : "");            
+          }
+          
           // Show sequence lanes, organized by multiplex group or flow cell channel
           if (request.getSequenceLanes().size() > 0) {
             Element multiplexLanesNode = new Element("multiplexSequenceLanes");

@@ -6,6 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -143,6 +144,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           }
         }
         
+        RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+        
         // Create the new request node
         requestNode = new Element("Request");
         requestNode.setAttribute("idRequest", idRequest.toString());
@@ -150,6 +153,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("requestNumber", requestNumber);
         requestNode.setAttribute("label", requestNumber);
         requestNode.setAttribute("codeRequestCategory", codeRequestCategory);        
+        requestNode.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+        requestNode.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
         requestNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
         requestNode.setAttribute("billingLabName", labName);        
         requestNode.setAttribute("billingAccountName", billingItem.getBillingAccount().getAccountNameAndNumber());       

@@ -8,6 +8,7 @@ import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -119,11 +120,15 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           toolTip += ", completed  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
         }
         
+        RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+        
         Element node = new Element("Request");
         node.setAttribute("idRequest", idRequest.toString());
         node.setAttribute("requestNumber", requestNumber);
         node.setAttribute("label", requestNumber);
         node.setAttribute("codeRequestCategory", codeRequestCategory);
+        node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+        node.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
         node.setAttribute("idBillingAccount", idBillingAccount);
         node.setAttribute("labName", labName != null ? labName : "");
         node.setAttribute("toolTip", toolTip);
@@ -235,12 +240,17 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }
       
       
+      
+      RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+     
       Element node = new Element("Request");
       node.setAttribute("idRequest", idRequest.toString());
       node.setAttribute("label", requestNumber);        
       node.setAttribute("requestNumber", requestNumber);        
       node.setAttribute("toolTip", toolTip);
       node.setAttribute("codeRequestCategory", codeRequestCategory);
+      node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+      node.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
       node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
       node.setAttribute("labBillingName", labBillingName);
       node.setAttribute("idLab", idLab != null ? idLab.toString() : "");

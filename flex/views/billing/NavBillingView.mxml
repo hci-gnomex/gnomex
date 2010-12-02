@@ -366,43 +366,7 @@
 		}
 		
       	  
-		public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Status" ){ 
-					return parentApplication.iconProject;
-				} else if (item.name() == "Request") {
-					if (item.@codeRequestCategory == "SOLEXA") {
-						return parentApplication.iconSolexa;
-					} else if (item.@codeRequestCategory == "HISEQ") {
-						return parentApplication.iconHiSeq; 
-					} else if (item.@codeRequestCategory == "AFFY") {
-						return parentApplication.iconMicroarrayAffy; 
-					} else if (item.@codeRequestCategory == "AGIL") {
-						return parentApplication.iconMicroarray;
-					} else if (item.@codeRequestCategory == "AGIL1") {
-						return parentApplication.iconMicroarraySingleColor;
-					} else if (item.@codeRequestCategory == "QC") {
-						return parentApplication.iconQC; 
-					} else {
-						return parentApplication.iconFlask;
-					}
-				} else if (item.name() == "PriceSheet") {
-				    return parentApplication.iconPriceSheet;
-				} else if (item.name() == "PriceCategory" ) {
-					return parentApplication.iconBillingFolder;
-				} else if (item.name() == "Price" ) {
-					if (item.@isActive == "N") {
-						return parentApplication.iconBillingDisabled;
-					} else {
-						return parentApplication.iconBilling;
-					} 
-				} else if (item.name() == "PriceCriteria") {
-					return parentApplication.iconPriceCriteria;
-				} else if (item.name() == "Lab") {
-					return parentApplication.iconGroup;
-				} else {
-					return parentApplication.iconBilling; 
-				}  
-		}   
+		
 		
 		public function getTreeLabel(item:Object, column:AdvancedDataGridColumn):String {
 			if (item.name() == "Request" && item.parent().name() == "Status" && item.parent().@status == "PENDING") {
@@ -1734,7 +1698,7 @@
 						displayItemsExpanded="true" 
 						dragEnabled="true" 
 						itemClick="onRequestNodeSelected()"
-						iconFunction="getTreeIcon"  
+						iconFunction="parentApplication.getTreeIcon"  
 						labelFunction="getTreeLabel"
 						showDataTips="true"
 						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="true">
@@ -1766,7 +1730,7 @@
 					
 					<mx:AdvancedDataGrid id="pricingTree" width="100%" height="100%" 
 						 displayItemsExpanded="true" 
-						 iconFunction="getTreeIcon" 
+						 iconFunction="parentApplication.getTreeIcon" 
 						 dropEnabled="true"  
 						 dragEnabled="true" 
 						 dragMoveEnabled="true" 
@@ -1823,7 +1787,7 @@
         			dropEnabled="true"  
         			dragDrop="onDragDropBillingItemGrid(event)"
                     allowMultipleSelection="false" 
-                    iconFunction="getTreeIcon" 
+                    iconFunction="parentApplication.getTreeIcon" 
                     wordWrap="true" 
                     showDataTips="true"
                     headerWordWrap="true" 

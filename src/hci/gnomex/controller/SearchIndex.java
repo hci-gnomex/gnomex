@@ -12,6 +12,7 @@ import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.lucene.ProtocolFilter;
 import hci.gnomex.lucene.ProtocolIndexHelper;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -176,15 +177,15 @@ public class SearchIndex extends GNomExCommand implements Serializable {
              hits = searcher.search(query, filter);
           }  
           
-          processHits(hits, searchText);
+          processHits(hits, searchText, dh);
           
         } else {
           if (securitySearchText != null) {
             Query query = new QueryParser("text", new StandardAnalyzer()).parse(securitySearchText);     
             Hits hits = searcher.search(query);
-            processHits(hits, securitySearchText);
+            processHits(hits, securitySearchText, dh);
           } else {
-            buildProjectRequestMap(indexReader);
+            buildProjectRequestMap(indexReader, dh);
           }
         }
         
@@ -309,13 +310,13 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void processHits(Hits hits, String searchText) throws Exception {
+  private void processHits(Hits hits, String searchText, DictionaryHelper dh) throws Exception {
     
     // Show hits
     showExperimentHits(hits, searchText);
     
     // Map search results
-    this.buildProjectRequestMap(hits);
+    this.buildProjectRequestMap(hits, dh);
     
   }
   
@@ -335,7 +336,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     this.buildAnalysisGroupMap(hits);
     
   }
-  private void buildProjectRequestMap(Hits hits) throws Exception{
+  private void buildProjectRequestMap(Hits hits, DictionaryHelper dh) throws Exception{
     
     labMap        = new HashMap();
     projectMap    = new HashMap();
@@ -349,12 +350,12 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     for (int i = 0; i < hits.length(); i++) {
       org.apache.lucene.document.Document doc = hits.doc(i);
       float score = hits.score(i);
-      mapDocument(doc, i, score);
+      mapDocument(doc, i, score, dh);
       
     }
   }
   
-  private void buildProjectRequestMap(IndexReader indexReader) throws Exception{
+  private void buildProjectRequestMap(IndexReader indexReader, DictionaryHelper dh) throws Exception{
     
     labMap        = new HashMap();
     projectMap    = new HashMap();
@@ -367,7 +368,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     for (int i = 0; i < indexReader.numDocs(); i++) {
       org.apache.lucene.document.Document doc = indexReader.document(i);
-      mapDocument(doc, -1, -1);      
+      mapDocument(doc, -1, -1, dh);      
     }
   }
   
@@ -453,7 +454,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     rankedProtocolNodes.add(node);
   }
   
-  private void mapDocument(org.apache.lucene.document.Document doc, int rank, float score) {
+  private void mapDocument(org.apache.lucene.document.Document doc, int rank, float score, DictionaryHelper dh) {
     
     Integer idProject = new Integer(doc.get(ExperimentIndexHelper.ID_PROJECT));
     Integer idLab     = new Integer(doc.get(ExperimentIndexHelper.ID_LAB_PROJECT));
@@ -509,8 +510,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       if (requestNode == null) {
         Element node = new Element("RequestNode");
         Element node1 = new Element("Request");
-        buildRequestNode(node, idRequest, codeRequestCategory, codeApplication, doc, score, rank);
-        buildRequestNode(node1, idRequest, codeRequestCategory, codeApplication, doc, score, rank);
+        buildRequestNode(node, idRequest, codeRequestCategory, codeApplication, doc, score, rank, dh);
+        buildRequestNode(node1, idRequest, codeRequestCategory, codeApplication, doc, score, rank, dh);
         
         requestMap.put(idRequest, node);
         rankedRequestNodes.add(node1);
@@ -632,7 +633,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   }
   
-  private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeApplication, Document doc, float score, int rank) {
+  private void buildRequestNode(Element node, Integer idRequest, String codeRequestCategory, String codeApplication, Document doc, float score, int rank, DictionaryHelper dh) {
+    RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+    
     node.setAttribute("idRequest", idRequest.toString());
     node.setAttribute("requestNumber", doc.get(ExperimentIndexHelper.REQUEST_NUMBER));
     node.setAttribute("requestCreateDate", doc.get(ExperimentIndexHelper.CREATE_DATE));
@@ -645,6 +648,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("ownerLastName", doc.get(ExperimentIndexHelper.OWNER_LAST_NAME) != null ? doc.get(ExperimentIndexHelper.OWNER_LAST_NAME) : "");
     node.setAttribute("slideProductName", doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.SLIDE_PRODUCT) : "");
     node.setAttribute("codeRequestCategory", codeRequestCategory != null ? codeRequestCategory : "");
+    node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+    node.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
     node.setAttribute("codeApplication", codeApplication != null ? codeApplication : "");
     node.setAttribute("requestLabName", doc.get(ExperimentIndexHelper.LAB_NAME) != null ? doc.get(ExperimentIndexHelper.LAB_NAME) : "");
     node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");

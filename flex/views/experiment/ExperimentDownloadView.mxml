@@ -275,31 +275,7 @@
     	}
     	return sizeTxt;
   	}
-  	public function getTreeIcon(item:Object):Class {
-		if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
-			return parentApplication.iconQC;
-		} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
-			return parentApplication.iconSolexa;
-		} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ") {
-			return parentApplication.iconHiSeq;
-		} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
-			return parentApplication.iconMicroarrayAffy;
-		}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
-			return parentApplication.iconMicroarray;
-		} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
-			return parentApplication.iconMicroarraySingleColor;
-		} else if (item.name() == "RequestDownload") {
-			if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
-				return parentApplication.iconFolderDisabled;
-			} else {
-				return parentApplication.iconFolder;			
-			}
-		} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
-				return parentApplication.iconFolder;
-		} else {
-			return null;
-		}
-	}
+
 	
 	public function selectDownload(requestNumber:String):void {
 		var pos:int = -1;
@@ -360,7 +336,7 @@
                  groupItemRenderer="views.renderers.CheckBoxGroupedItem"
 				 dropEnabled="false"  
 				 displayItemsExpanded="true"
-				 iconFunction="getTreeIcon"
+				 iconFunction="parentApplication.getTreeIcon"
 				 dragEnabled="false" 
 				 dragMoveEnabled="false"  
 				 showHeaders="true"  

@@ -8,6 +8,7 @@ import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SlideDesign;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -67,6 +68,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       List slideDesigns = sess.createQuery("SELECT sd from SlideDesign sd ").list();
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
@@ -159,12 +161,12 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         if (!projectName.equals(prevProjectName)) {
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
-            addRequestNode(row);          
+            addRequestNode(row, dh);          
             addItemNode(row);
           }
         } else if (idRequest.intValue() != prevIdRequest.intValue()) {
           if (idRequest.intValue() != -2) {
-            addRequestNode(row);          
+            addRequestNode(row, dh);          
             addItemNode(row);
           }
         } else {
@@ -212,13 +214,18 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     rootNode.addContent(projectNode);
   }
   
-  private void addRequestNode(Object[] row) {
+  private void addRequestNode(Object[] row, DictionaryHelper dh) {
+    String codeRequestCategory = row[4] == null ? "" : ((String)row[4]).toString();
+    RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+    
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[1] == null ? ""  : ((Integer)row[1]).toString());
     requestNode.setAttribute("createDate",             row[2] == null ? ""  : this.formatDate((java.sql.Date)row[2], this.DATE_OUTPUT_ALTIO));
     requestNode.setAttribute("createDateDisplay",      row[2] == null ? ""  : this.formatDate((java.sql.Date)row[2], this.DATE_OUTPUT_SQL));
     requestNode.setAttribute("number",                 row[3] == null ? ""  : (String)row[3]);
-    requestNode.setAttribute("codeRequestCategory",    row[4] == null ? "" : ((String)row[4]).toString());
+    requestNode.setAttribute("codeRequestCategory",    codeRequestCategory);
+    requestNode.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+    requestNode.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
     requestNode.setAttribute("codeApplication", row[5] == null ? "" : ((String)row[5]).toString());
     requestNode.setAttribute("slideProduct",           row[6] == null ? ""  : ((String)row[6]).toString());
     requestNode.setAttribute("isSlideSet",             row[7] == null ? ""  : ((String)row[7]).toString());
