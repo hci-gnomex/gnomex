@@ -37,7 +37,7 @@
 			showRoot="false" 
 			id="browseTree" 
 			labelField="@label"
-			iconFunction="parentApplication.navExperimentView.getTreeIcon" 
+			iconFunction="parentApplication.getTreeIcon" 
 			selectionColor="#FBF5B5" 
 			 doubleClick="onNodeSelected()"
 			rollOverColor="#CECECE" doubleClickEnabled="true">

@@ -243,12 +243,18 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         
         String requestNumber = (String)row[1];
         if (!requestNumber.equals(prevRequestNumber)) {
-          alt = !alt;         
+          alt = !alt;    
+          
+          
+          RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+
 
           requestNode = new Element("Request");
           requestNode.setAttribute("displayName", requestNumber);
           requestNode.setAttribute("requestNumber", requestNumber);
           requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
+          requestNode.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+          requestNode.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
           requestNode.setAttribute("isSelected", "false");
           requestNode.setAttribute("state", "unchecked");
           requestNode.setAttribute("isEmpty", "Y"); // will be set to yes if any files exist for downloading

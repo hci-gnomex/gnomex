@@ -231,7 +231,7 @@
 	        	        
 	        [Bindable]
 	        [Embed(source="assets/flask.png")]
-	        public var iconMicroarrayOther:Class; 
+	        public var iconExperimentOther:Class; 
 	        
 	        [Bindable]
 	        [Embed(source="assets/basket.png")]
@@ -375,6 +375,10 @@
 			public var promptedWorkAuthLabList:PromptXMLListCollection;
 
 			private var properties:Object;
+			
+			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
+			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
+			public  var TYPE_QC:String            = 'QC';
 
 	        public var PROPERTY_WORKAUTH_INSTRUCTIONS:String              = "workauth_instructions";
 	        public var PROPERTY_WORKAUTH1_URL:String                      = "workauth1_url";
@@ -1176,7 +1180,67 @@
         	}
         }
         
-        
+		public function getTreeIcon(item:Object):Class {
+				if (item.name() == "Lab" || item.name() == "BillingLab") {
+					return this.iconGroup;
+				} else if (item.name() == "Project" || item.name() == "AnalysisGroup" || item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList" || item.name() == "Status" ) {
+					return iconProject;
+				} else if (item.name() == "Protocol") {
+					return iconProtocol;
+				} else if (item.name() == "AnalysisNode" || item.name() == "Analysis") {
+					return iconAnalysis;
+				} else if (item.name() == "RequestCategory") {
+					return this.iconCategory;
+				} else if (item.name() == "BillingItem") {
+				    return iconBilling;
+				} else if (item.name() == "PriceSheet") {
+				    return iconPriceSheet;
+				} else if (item.name() == "PriceCategory" ) {
+					return iconBillingFolder;
+				} else if (item.name() == "Price" ) {
+					if (item.@isActive == "N") {
+						return iconBillingDisabled;
+					} else {
+						return iconBilling;
+					} 
+				} else if (item.name() == "PriceCriteria") {
+					return iconPriceCriteria;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "SOLEXA") {
+					return this.iconSolexa;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "HISEQ") {
+					return this.iconHiSeq;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "AFFY") {
+					return this.iconMicroarrayAffy;
+				}else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "AGIL") {
+					return this.iconMicroarray;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "AGIL1") {
+					return this.iconMicroarraySingleColor;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_QC) {
+					return this.iconQC;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_MICROARRAY) {
+					return this.iconMicroarray;
+				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_ILLUMINA) {
+					return this.iconSolexa;
+				} else if (item.name() == "RequestDownload") {
+					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+						return iconFolderDisabled;
+					} else {
+						return iconFolder;			
+					}
+				} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
+						return iconFolder;
+				} else if (item.name() == "Request" || item.name() == "RequestNode") {
+					return this.iconFlask;
+				} else if (item.name() == "Item") {
+					return iconGreenBullet;
+				} else {
+					return null;
+				}
+		}
+		
+		
+		
+
         ]]>
     </mx:Script>
     

@@ -18,6 +18,12 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   NIMBLEGEN_MICROARRAY_REQUEST_CATEGORY = "NIMBLE";
   public static final String   INHOUSE_MICROARRAY_REQUEST_CATEGORY = "INHOUSE";
   public static final String   OTHER_MICROARRAY_REQUEST_CATEGORY = "OTHER";
+  
+  
+  
+  public static final String   TYPE_MICROARRAY    = "MICROARRAY";
+  public static final String   TYPE_QC            = "QC";
+  public static final String   TYPE_ILLUMINA      = "ILLUMINA";
 
   
   private String   codeRequestCategory;
@@ -26,6 +32,8 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   isActive;
   private Integer  numberOfChannels;
   private String   notes;
+  private String   icon;
+  private String   type;
 
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
@@ -49,6 +57,33 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
       return false;
     }
   }
+  
+  public boolean isMicroarrayRequestCategory() {
+    if (this.type != null && !this.type.equals("")) {
+      return type.equals(TYPE_MICROARRAY);
+    } else {
+      return isMicroarrayRequestCategory(this.getCodeRequestCategory());
+    }
+  }
+  
+  public boolean isIlluminaRequestCategory() {
+    if (this.type != null && !this.type.equals("")) {
+      return type.equals(TYPE_ILLUMINA);
+    } else {
+      return isIlluminaRequestCategory(this.getCodeRequestCategory());
+    }
+  }
+  
+  
+  public boolean isQCRequestCategory() {
+    if (this.type != null && !this.type.equals("")) {
+      return type.equals(TYPE_QC);
+    } else {
+      return codeRequestCategory.equals(this.QUALITY_CONTROL_REQUEST_CATEGORY);
+    }
+  }
+
+  
   public String getDisplay() {
     String display = this.getNonNullString(getRequestCategory());
     return display;
@@ -127,6 +162,26 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     } else {
       return -1;
     }
+  }
+
+  
+  public String getIcon() {
+    return icon;
+  }
+
+  
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
+
+  
+  public String getType() {
+    return type;
+  }
+
+  
+  public void setType(String type) {
+    this.type = type;
   }
   
 

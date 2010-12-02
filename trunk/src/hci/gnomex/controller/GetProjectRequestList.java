@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -302,6 +303,9 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
 
     
+    String codeRequestCategory =  row[15] == null ? "" : ((String)row[15]).toString();
+    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
+    
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);
@@ -312,8 +316,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("idSlideProduct",         row[9] == null ? ""  : ((Integer)row[9]).toString());
     requestNode.setAttribute("idLab",                  row[12] == null ? "" : ((Integer)row[12]).toString());
     requestNode.setAttribute("idAppUser",              row[14] == null ? "" : ((Integer)row[14]).toString());
-    requestNode.setAttribute("codeRequestCategory",    row[15] == null ? "" : ((String)row[15]).toString());
-    requestNode.setAttribute("codeApplication", row[16] == null ? "" : ((String)row[16]).toString());
+    requestNode.setAttribute("codeRequestCategory",    codeRequestCategory);
+    requestNode.setAttribute("icon",                   requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+    requestNode.setAttribute("type",                   requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
+    requestNode.setAttribute("codeApplication",        row[16] == null ? "" : ((String)row[16]).toString());
     requestNode.setAttribute("labName",                labName);
     requestNode.setAttribute("slideProductName",       row[19] == null ? "" : (String)row[19]);
     requestNode.setAttribute("projectLabName",         projectLabName);

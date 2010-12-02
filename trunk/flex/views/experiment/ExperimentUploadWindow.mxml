@@ -189,27 +189,6 @@
 	        	refreshFiles();
 	        } 	 
 	    }
-	  	public function getTreeIcon(item:Object):Class {
-			if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
-				return parentApplication.iconQC;
-			} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
-				return parentApplication.iconSolexa;
-			} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ") {
-				return parentApplication.iconHiSeq;
-			} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
-				return parentApplication.iconMicroarrayAffy;
-			}else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
-				return parentApplication.iconMicroarray;
-			} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
-				return parentApplication.iconMicroarraySingleColor;
-			} else if (item.name() == "RequestDownload") {
-				return parentApplication.iconFolder;			
-			} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
-				return parentApplication.iconFolder;
-			} else {
-				return null;
-			}
-		}
    	 	private function getFilesGridRowNumber(item:Object,col:int):String
 	    {
 	    	var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
@@ -519,7 +498,7 @@
 					    </mx:HBox>
 						<mx:Tree id="downloadTree"
 							width="100%" height="100%"
-							iconFunction="getTreeIcon"
+							iconFunction="parentApplication.getTreeIcon"
 							dataProvider="{downloadList}"
 			                borderStyle="solid" 
 						    labelFunction="{getDownloadName}"

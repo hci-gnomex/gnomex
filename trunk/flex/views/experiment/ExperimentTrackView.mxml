@@ -95,7 +95,7 @@
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
 			                          <mx:Image id="experimentImage"  
-			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask)) : '')}" >
+			                          	source="{data.@showRequestNumber == 'Y' ? data.@icon : ''}" >
 			                    	 </mx:Image> 
 			                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
 			                           </mx:Label>
@@ -182,7 +182,7 @@
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
 			                          <mx:Image id="experimentImage"  
-			                          	source="{(data.@showRequestNumber == 'Y' ? (data.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (data.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : data.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : data.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : data.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : data.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask)) : '')}" >
+			                          	source="{data.@showRequestNumber == 'Y' ? data.@icon : ''}" >
 			                    	 </mx:Image> 
 			                           <mx:Label id="requestNumber" text="{data.@showRequestNumber == 'Y' ? data.@requestNumber : ''}">
 			                           </mx:Label>

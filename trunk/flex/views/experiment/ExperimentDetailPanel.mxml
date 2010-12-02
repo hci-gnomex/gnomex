@@ -4,7 +4,7 @@
 	xmlns:util="views.util.*"
 	xmlns:experiment="views.experiment.*" >
 <mx:HBox width="100%">
-	<mx:Image source="{(detail.selectedExperiment.@codeRequestCategory == 'QC' ? parentApplication.iconQC : (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconSolexa : detail.selectedExperiment.@codeRequestCategory == 'HISEQ' ? parentApplication.iconHiSeq : detail.selectedExperiment.@codeRequestCategory == 'AFFY' ? parentApplication.iconMicroarrayAffy : detail.selectedExperiment.@codeRequestCategory == 'AGIL' ? parentApplication.iconMicroarray : detail.selectedExperiment.@codeRequestCategory == 'AGIL1' ? parentApplication.iconMicroarraySingleColor : parentApplication.iconFlask))}"/>
+	<mx:Image source="{detail.selectedExperiment.@icon}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
 	<mx:Spacer width="100%"/>
    	<mx:HBox verticalGap="0" horizontalGap="0">

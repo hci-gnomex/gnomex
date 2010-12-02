@@ -1174,6 +1174,8 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isActive` CHAR(1) NULL,
   `numberOfChannels` INT(10) NULL,
   `notes` VARCHAR(500) NULL,
+  `icon` VARCHAR(200) NULL,
+  `type` VARCHAR(10) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)

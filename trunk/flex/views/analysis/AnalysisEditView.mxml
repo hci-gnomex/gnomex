@@ -521,30 +521,7 @@
         private function validateAndSubmitAnalysis():void {        	
         }   	
         
-        public function getExperimentTreeIcon(item:Object):Class { 
-				if (item.name() == "Lab") {
-					return parentApplication.iconGroup;
-				} else if (item.name() == "Project") {
-					return parentApplication.iconProject;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "QC") {
-					return parentApplication.iconQC;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AFFY") {
-					return parentApplication.iconMicroarrayAffy;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL") {
-					return parentApplication.iconMicroarray;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "AGIL1") {
-					return parentApplication.iconMicroarraySingleColor;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "SOLEXA") {
-					return parentApplication.iconSolexa;
-				} else if (item.name() == "Request" && item.@codeRequestCategory == "HISEQ") {
-					return parentApplication.iconHiSeq;
-				} else if (item.name() == "Request" ) {
-					return parentApplication.iconFlask;
-				} else {
-					return parentApplication.iconGreenBullet;
-				}
-		}
-
+      
 		public function getExperimentTreeLabel(item:Object):String { 
 			return item.@label;
 		}
@@ -1018,7 +995,7 @@
 		<mx:Canvas label="Experiments" width="100%" height="100%">
 			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:VBox width="230" height="100%">
-					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sequence lanes onto grid">						
+					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sample sequencing runs onto grid">						
 					</mx:Text>
 					<mx:ComboBox 
 						id="expLabCombo" 
@@ -1032,7 +1009,7 @@
 						dragEnabled="true"
 						dropEnabled="false"
 						dragMoveEnabled="false"
-						iconFunction="getExperimentTreeIcon" 
+						iconFunction="parentApplication.getTreeIcon" 
 						labelField="@label" 
 						labelFunction="getExperimentTreeLabel" doubleClickEnabled="true" itemDoubleClick="showExperimentDetailWindow()">						
 					</mx:Tree>
@@ -1078,7 +1055,7 @@
 					     	</mx:DataGrid>
 					     	
 					     	</mx:Canvas>
-					     	<mx:Canvas label="Illumina Sequence Lanes" width="100%" height="100%" id="lanesView">
+					     	<mx:Canvas label="Illumina Sample Sequence Runs" width="100%" height="100%" id="lanesView">
 					     		<mx:DataGrid width="100%" height="100%" dataProvider="{lanes}" id="lanesGrid"
 					     			dragEnabled="true"  
 							        dragEnter="onDragEnter(event)"
