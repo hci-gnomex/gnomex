@@ -46,9 +46,8 @@ public class RequestParser implements Serializable {
   private List            sequenceLaneInfos = new ArrayList();
   private boolean        saveReuseOfSlides = false;
   private String          amendState = "";
-  
+  private List<String>    ccNumberList = new ArrayList<String>();
 
-  
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestDoc = requestDoc;
@@ -73,6 +72,7 @@ public class RequestParser implements Serializable {
     sequenceLaneInfos = new ArrayList();
     saveReuseOfSlides = false;
     amendState = "";
+    ccNumberList =  new ArrayList<String>();
     
   }
   
@@ -374,7 +374,11 @@ public class RequestParser implements Serializable {
       sample.setPrepInstructions(null);
     }
     if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
-      sample.setCcNumber(n.getAttributeValue("ccNumber"));
+      String ccNumber = n.getAttributeValue("ccNumber");
+      sample.setCcNumber(ccNumber);
+      if(!ccNumberList.contains(ccNumber)) {
+        ccNumberList.add(ccNumber);
+      }
     } else {
       sample.setCcNumber(null);
     }
@@ -1508,6 +1512,10 @@ public class RequestParser implements Serializable {
   
   public boolean isReassignBillingAccount() {
     return reassignBillingAccount;
+  }
+
+  public List<String> getCcNumberList() {
+    return ccNumberList;
   }
 
   
