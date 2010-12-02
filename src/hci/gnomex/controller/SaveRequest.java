@@ -48,6 +48,9 @@ import hci.framework.control.RollBackCommandException;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -161,6 +164,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     
     Session sess = null;
+    Session sessGuest = null;
+    Connection con = null;
+    
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -176,7 +182,60 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
       requestParser.parse(sess);
       
+      // The following code makes sure any ccNumbers that have been entered actually exist
+      boolean hasCCNumbers = false;
+      List<String> ccNumberList = requestParser.getCcNumberList();
+      StringBuffer buf = new StringBuffer("select ccNumber from BST.dbo.Sample WHERE ccNumber in (");   
+      Iterator<String> itStr = ccNumberList.iterator();
+      boolean firstTime = true;
+      while(itStr.hasNext()) {
+        hasCCNumbers = true;
+        String thisKey = itStr.next();
+        if (!firstTime)
+          buf.append(",");
+        else
+          firstTime = false;
+        buf.append("'" + thisKey + "'");
+      }
+      buf.append(")");
       
+      if(hasCCNumbers) {
+        Statement stmt = null;
+        ResultSet rs = null;
+        
+        // Use guest session for validating ccNumbers because it has read permissions on BST
+        sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+
+        con = sessGuest.connection();      
+        stmt = con.createStatement();
+        rs = stmt.executeQuery(buf.toString());
+
+        List<String> ccNumbersRetreivedList = new ArrayList<String>();
+        while (rs.next()) {
+          ccNumbersRetreivedList.add(rs.getString("ccNumber"));
+        }
+        rs.close();
+        stmt.close();
+        
+        buf = new StringBuffer();
+        // Now check to see if any ccNumbers weren't found
+        itStr = ccNumberList.iterator();
+        firstTime = true;
+        while(itStr.hasNext()) {
+          String thisKey = itStr.next();
+          if(!ccNumbersRetreivedList.contains(thisKey)) {
+            if (!firstTime)
+              buf.append(", ");
+            else
+              firstTime = false;
+            buf.append("'" + thisKey + "'");          
+          }
+        }
+        if(buf.toString().length() > 0) {
+          this.addInvalidField("InvalidCCNumber", "The following CC Numbers do not exist in BST: " + buf.toString());                         
+        }        
+      }
+  
       if (requestParser.isNewRequest()) {
         if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab())) {
           this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");                  
@@ -186,7 +245,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           this.addInvalidField("PermissionAddRequest", "Insufficient permissions to edit the request.");
         }          
       }
-      
+            
       if (this.isValid()) {
         List labels = sess.createQuery("SELECT label from Label label").list();
         for(Iterator i = labels.iterator(); i.hasNext();) {
@@ -369,7 +428,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
             // Create work items for labeling step if experiment modified
             if (!requestParser.isExternalExperiment() && !isNewSample) {
-              StringBuffer buf = new StringBuffer();
+              buf = new StringBuffer();
               buf.append("SELECT  ls ");
               buf.append(" from LabeledSample ls ");
               buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
@@ -477,7 +536,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 canDelete = false;
               }
               
-              StringBuffer buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
+              buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
               List analysis = sess.createQuery(buf.toString()).list();
               if (analysis != null && analysis.size() > 0) {
                 canDelete = false;
@@ -670,6 +729,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
     }finally {
       try {
+        if(sessGuest != null) {
+          if (con != null) {
+            con.close();
+          }
+          this.getSecAdvisor().closeReadOnlyHibernateSession();
+        }
         if (sess != null) {
           HibernateSession.closeSession();
         }
