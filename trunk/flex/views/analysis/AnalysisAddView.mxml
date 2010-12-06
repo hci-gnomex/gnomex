@@ -164,6 +164,7 @@
 			params.hybsXMLString = "<hybs/>";
 			params.lanesXMLString = "<lanes/>";
 			params.analysisFilesXMLString = "<analysisFiles/>";
+			params.analysisFilesToDeleteXMLString = "<analysisFilesToDelete/>";
 			params.collaboratorsXMLString = "<collaborators/>";
 			
 			saveAnalysis.send(params);
