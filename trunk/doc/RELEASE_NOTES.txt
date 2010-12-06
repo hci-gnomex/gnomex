@@ -1,11 +1,12 @@
 ﻿GNomEx Release Notes
 
-5.0.7
+5.0.7 (Dec 6, 2010)
 ---------------------
 - Make experiment category on Submit Request window dictionary driven
 - Add field icon, type to RequestCategory dictionary
 - Centralize code for getting tree icons
-
+- Fix Add Analysis bug introduced in 5.0.6
+- Validate CC Numbers against BST
 
 5.0.6 (Nov 30,2010)
 ----------------------
