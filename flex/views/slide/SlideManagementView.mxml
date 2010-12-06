@@ -135,21 +135,6 @@
 		[Bindable]
 		public var lastSavedSlideDesignId:String;
 		
-		[Bindable]
-        [Embed(source="../../assets/image.png")]
-        public var iconSlide:Class;
-		
-		[Bindable]
-        [Embed(source="../../assets/images.png")]
-        public var iconSlideSet:Class;
-		
-		[Bindable]
-        [Embed(source="../../assets/image_disable.png")]
-        public var iconSlideInActive:Class;
-		
-		[Bindable]
-        [Embed(source="../../assets/images_disable.png")]
-        public var iconSlideSetInActive:Class;
         
         private var isInitialized:Boolean = false;
 		
@@ -607,24 +592,7 @@
 			}
 		}
 		
-		public function getTreeIcon(item:Object):Class {
-			var icon:Class = iconSlide;
-			if (item.name() == "SlideProduct") {
-				if (item.@isActive == "N") {
-					icon = this.iconSlideSetInActive;
-				} else {
-					icon = this.iconSlideSet;
-				}
-			}else if (item.name() == "SlideDesign") {
-				if (item.@isActive == "N") {
-					icon = this.iconSlideInActive;
-				} else {
-					icon = this.iconSlide;
-				}
-			}
-			return icon;
-		}
-		
+
 		public function onBrowseSlides(event:Event):void {
 			var params:Object = null;
 			if (browseSlides.selectedItem != null && browseSlides.selectedItem.name() == "SlideProduct") {
@@ -717,7 +685,7 @@
 			<mx:Tree left="6" right="4" top="27" bottom="0"
 				id="browseSlides"
 				labelField="@name"
-				iconFunction="getTreeIcon"
+				iconFunction="parentApplication.getTreeIcon"
 				change="onBrowseSlides(event);"
 				click="onBrowseSlides(event);"
 				showRoot="false"

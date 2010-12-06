@@ -241,7 +241,7 @@
 	        [Embed(source="assets/chart_line.png")]
 	        public var iconQC:Class;
 	        
-	        	        [Bindable]
+	        [Bindable]
 	        [Embed(source="assets/chart_line_disable.png")]
 	        public var iconQCDisabled:Class;
 	        
@@ -330,10 +330,26 @@
 	        [Embed(source="assets/attach.png")]
 	        public var iconPriceCriteria:Class;
 
+			[Bindable]
+	        [Embed(source="assets/image.png")]
+	        public var iconSlide:Class;
+			
+			[Bindable]
+	        [Embed(source="assets/images.png")]
+	        public var iconSlideSet:Class;
+			
+			[Bindable]
+	        [Embed(source="assets/image_disable.png")]
+	        public var iconSlideInActive:Class;
+			
+			[Bindable]
+	        [Embed(source="assets/images_disable.png")]
+	        public var iconSlideSetInActive:Class;
 	        
 	        [Bindable]
 	        [@Embed(source="assets/ding.mp3")]
 	        public var soundDing:Class;
+	        
 	        
 	        public var isUniversityOnlyUser:Boolean = false;
 	        
@@ -1183,7 +1199,7 @@
 		public function getTreeIcon(item:Object):Class {
 				if (item.name() == "Lab" || item.name() == "BillingLab") {
 					return this.iconGroup;
-				} else if (item.name() == "Project" || item.name() == "AnalysisGroup" || item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList" || item.name() == "Status" ) {
+				} else if (item.name() == "Project" || item.name() == "AnalysisGroup" || item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList" || item.name() == "Status" || item.name() == "Protocols" ) {
 					return iconProject;
 				} else if (item.name() == "Protocol") {
 					return iconProtocol;
@@ -1205,7 +1221,19 @@
 					} 
 				} else if (item.name() == "PriceCriteria") {
 					return iconPriceCriteria;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "SOLEXA") {
+				} else if (item.name() == "SlideProduct") {
+					if (item.@isActive == "N") {
+						return this.iconSlideSetInActive;
+					} else {
+					   return this.iconSlideSet;
+					}
+				} else if (item.name() == "SlideDesign") {
+					if (item.@isActive == "N") {
+						return this.iconSlideInActive;
+					} else {
+						return this.iconSlide;
+					}
+				}else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "SOLEXA") {
 					return this.iconSolexa;
 				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "HISEQ") {
 					return this.iconHiSeq;
