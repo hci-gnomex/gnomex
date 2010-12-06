@@ -100,22 +100,13 @@
 			
 			[Bindable]
 			public var lastSelectedProtocolClass:Object = null;
-			
-			[Bindable]
-	        [Embed(source="../../assets/brick.png")]
-	        public var iconPage:Class;
-			
 			[Bindable]
 	        [Embed(source="../../assets/brick_add.png")]
-	        public var iconPageAdd:Class;
+	        public var iconProtocolAdd:Class;
 	        
 	        [Bindable]
 	        [Embed(source="../../assets/brick_delete.png")]
-	        public var iconPageDelete:Class;
-			
-			[Bindable]
-	        [Embed(source="../../assets/bricks.png")]
-	        public var iconBook:Class;
+	        public var iconProtocolDelete:Class;
 			
 			public var createNewProtocol:CreateNewProtocolPopUp;
 			
@@ -262,13 +253,6 @@
 				onBrowseProtocols(null);
 			}
 			
-			public function getTreeIcon(item:Object):Class {
-				if (item.name() == "Protocol") {
-					return this.iconPage;
-				}else {
-					return this.iconBook;
-				}
-			}
 			
 			public function onBrowseProtocols(event:Event):void {
 				if (browseProtocols.selectedItem != null && browseProtocols.selectedItem.name() == 'Protocol') {
@@ -370,7 +354,7 @@
 				<mx:Tree  
 					id="browseProtocols" 
 					right="0" left="0" bottom="0" top="0"
-					iconFunction="getTreeIcon"
+					iconFunction="parentApplication.getTreeIcon"
 					borderThickness="0" 
 					labelField="@label" 
 					dataProvider="{protocols}" 
