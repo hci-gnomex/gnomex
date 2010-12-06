@@ -82,21 +82,14 @@ public class RequestHTMLFormatter {
  public Element makeRequestCategoryImage(String appURL) {
    Element img = new Element("img");
    
-   String imageName = "";
-   if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY)) {
-     imageName = "microarray_small.png";
-   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) {
-     imageName = "microarray_small_single_color.png";
-   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-     imageName = "microarray_chip.png";
-   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-     imageName = "chart_line.png";
-   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.SOLEXA_REQUEST_CATEGORY)) {
-     imageName = "DNA_diag.png";
-   } else if (this.request.getCodeRequestCategory().equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY)) {
-     imageName = "DNA_diag_lightening.png";
-   } else {
-     imageName = "flask.png";
+   RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
+   String imageName = requestCategory.getIcon();
+   if (imageName == null || imageName.equals("")) {
+     imageName = "flash.png";
+   } else if (imageName.startsWith("assets/")) {
+     // Get rid of the leading assets directory.  We serve images for the html report
+     // from the webapp root /images directory.
+     imageName = imageName.substring(7);
    }
    
    img.setAttribute("src", (appURL != null ? appURL + "/images/" : "images/") + imageName);
