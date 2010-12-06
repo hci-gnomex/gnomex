@@ -35,6 +35,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleNumberComparator;
@@ -164,8 +165,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     
     Session sess = null;
-    Session sessGuest = null;
-    Connection con = null;
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
@@ -183,58 +182,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       requestParser.parse(sess);
       
       // The following code makes sure any ccNumbers that have been entered actually exist
-      boolean hasCCNumbers = false;
-      List<String> ccNumberList = requestParser.getCcNumberList();
-      StringBuffer buf = new StringBuffer("select ccNumber from BST.dbo.Sample WHERE ccNumber in (");   
-      Iterator<String> itStr = ccNumberList.iterator();
-      boolean firstTime = true;
-      while(itStr.hasNext()) {
-        hasCCNumbers = true;
-        String thisKey = itStr.next();
-        if (!firstTime)
-          buf.append(",");
-        else
-          firstTime = false;
-        buf.append("'" + thisKey + "'");
+      PropertyHelper propertyHelper = PropertyHelper.getInstance(sess);
+      if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
+        validateCCNumbers();
       }
-      buf.append(")");
-      
-      if(hasCCNumbers) {
-        Statement stmt = null;
-        ResultSet rs = null;
-        
-        // Use guest session for validating ccNumbers because it has read permissions on BST
-        sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-        con = sessGuest.connection();      
-        stmt = con.createStatement();
-        rs = stmt.executeQuery(buf.toString());
-
-        List<String> ccNumbersRetreivedList = new ArrayList<String>();
-        while (rs.next()) {
-          ccNumbersRetreivedList.add(rs.getString("ccNumber"));
-        }
-        rs.close();
-        stmt.close();
-        
-        buf = new StringBuffer();
-        // Now check to see if any ccNumbers weren't found
-        itStr = ccNumberList.iterator();
-        firstTime = true;
-        while(itStr.hasNext()) {
-          String thisKey = itStr.next();
-          if(!ccNumbersRetreivedList.contains(thisKey)) {
-            if (!firstTime)
-              buf.append(", ");
-            else
-              firstTime = false;
-            buf.append("'" + thisKey + "'");          
-          }
-        }
-        if(buf.toString().length() > 0) {
-          this.addInvalidField("InvalidCCNumber", "The following CC Numbers do not exist in BST: " + buf.toString());                         
-        }        
-      }
   
       if (requestParser.isNewRequest()) {
         if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab())) {
@@ -420,6 +372,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         
         // Create Hyb work items if QC->Microarray request
+        StringBuffer buf = new StringBuffer();
         if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
           for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
             String idSampleString = (String)i.next();
@@ -729,12 +682,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
     }finally {
       try {
-        if(sessGuest != null) {
-          if (con != null) {
-            con.close();
-          }
-          this.getSecAdvisor().closeReadOnlyHibernateSession();
-        }
+       
         if (sess != null) {
           HibernateSession.closeSession();
         }
@@ -744,6 +692,80 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void validateCCNumbers() {
+    Session sessGuest = null;
+    Connection con = null;
+
+    boolean hasCCNumbers = false;
+    List<String> ccNumberList = requestParser.getCcNumberList();
+    StringBuffer buf = new StringBuffer("select ccNumber from BST.dbo.Sample WHERE ccNumber in (");   
+    Iterator<String> itStr = ccNumberList.iterator();
+    boolean firstTime = true;
+    while(itStr.hasNext()) {
+      hasCCNumbers = true;
+      String thisKey = itStr.next();
+      if (!firstTime)
+        buf.append(",");
+      else
+        firstTime = false;
+      buf.append("'" + thisKey + "'");
+    }
+    buf.append(")");
+    
+    if(hasCCNumbers) {
+      try {
+        Statement stmt = null;
+        ResultSet rs = null;
+        
+        // Use guest session for validating ccNumbers because it has read permissions on BST
+        sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+
+        con = sessGuest.connection();      
+        stmt = con.createStatement();
+        rs = stmt.executeQuery(buf.toString());
+        List<String> ccNumbersRetreivedList = new ArrayList<String>();
+        while (rs.next()) {
+          ccNumbersRetreivedList.add(rs.getString("ccNumber"));
+        }
+        rs.close();
+        stmt.close();
+        
+        buf = new StringBuffer();
+        // Now check to see if any ccNumbers weren't found
+        itStr = ccNumberList.iterator();
+        firstTime = true;
+        while(itStr.hasNext()) {
+          String thisKey = itStr.next();
+          if(!ccNumbersRetreivedList.contains(thisKey)) {
+            if (!firstTime)
+              buf.append(", ");
+            else
+              firstTime = false;
+            buf.append("'" + thisKey + "'");          
+          }
+        }
+        if(buf.toString().length() > 0) {
+          this.addInvalidField("InvalidCCNumber", "The following CC Numbers do not exist in BST: " + buf.toString() + ".\n\nPlease correct on the Samples tab.");                         
+        }        
+        
+      } catch (Exception e) {
+        
+      } finally {
+        try {
+          if(sessGuest != null) {
+            if (con != null) {
+              con.close();
+            }
+            this.getSecAdvisor().closeReadOnlyHibernateSession();
+          }          
+        } catch (Exception e) {
+        }
+      }
+
+    }
+    
   }
   
   

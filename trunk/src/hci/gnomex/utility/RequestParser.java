@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ConcentrationUnit;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
@@ -76,41 +77,6 @@ public class RequestParser implements Serializable {
     
   }
   
-  public void parse() throws Exception{
-    init();
-    
-    Element requestNode = this.requestDoc.getRootElement();
-    request = new Request();
-    request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-    isNewRequest = true;
-    this.initializeRequest(requestNode, request);
-    
-    for(Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
-      Element sampleNode = (Element)i.next();
-      String idSampleString = sampleNode.getAttributeValue("idSample");
-      Sample sample = new Sample();
-      this.initializeSample(sampleNode, sample, idSampleString, true);
-    }
-    
-    
-    if (requestNode.getChild("hybridizations") != null && 
-        !requestNode.getChild("hybridizations").getChildren("Hybridization").isEmpty()) {
-
-      for(Iterator i = requestNode.getChild("hybridizations").getChildren("Hybridization").iterator(); i.hasNext();) {
-        Element hybNode = (Element)i.next();
-        initializeHyb(hybNode);
-      }            
-    }
-    if (requestNode.getChild("sequenceLanes") != null && 
-        !requestNode.getChild("sequenceLanes").getChildren("SequenceLane").isEmpty()) {
-
-      for(Iterator i = requestNode.getChild("sequenceLanes").getChildren("SequenceLane").iterator(); i.hasNext();) {
-        Element sequenceLaneNode = (Element)i.next();
-        initializeSequenceLane(sequenceLaneNode);
-      }            
-    }
-    
-  }
   
   public void parse(Session sess) throws Exception{
     
@@ -287,12 +253,13 @@ public class RequestParser implements Serializable {
       sample = (Sample)sess.load(Sample.class, new Integer(idSampleString));
     }
     
-    initializeSample(n, sample, idSampleString, isNewSample);
+    PropertyHelper propertyHelper = PropertyHelper.getInstance(sess);
+    initializeSample(n, sample, idSampleString, isNewSample, propertyHelper);
         
   }
   
  
-  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample) throws Exception {
+  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyHelper propertyHelper) throws Exception {
     
     sample.setName(unEscape(n.getAttributeValue("name")));
     
@@ -373,21 +340,18 @@ public class RequestParser implements Serializable {
     } else {
       sample.setPrepInstructions(null);
     }
-    if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
-      String ccNumber = n.getAttributeValue("ccNumber");
-      sample.setCcNumber(ccNumber);
-      if(!ccNumberList.contains(ccNumber)) {
-        ccNumberList.add(ccNumber);
-      }
-    } else {
-      sample.setCcNumber(null);
+    
+    if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
+      if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
+        String ccNumber = n.getAttributeValue("ccNumber");
+        sample.setCcNumber(ccNumber);
+        if(!ccNumberList.contains(ccNumber)) {
+          ccNumberList.add(ccNumber);
+        }
+      } else {
+        sample.setCcNumber(null);
+      }     
     }
-    
-    
-    
-    
-    
-    
     
     
     sampleMap.put(idSampleString, sample);
