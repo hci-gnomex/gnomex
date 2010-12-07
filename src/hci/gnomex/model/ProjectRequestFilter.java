@@ -35,6 +35,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                publicExperimentsInOtherGroups;
   private String                showSamples = "Y";
   private String                showCategory = "Y";
+  private String                showExternalExperiments = "Y";
   private String                lastWeek  = "N";
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
@@ -341,6 +342,11 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" req.codeApplication = '");
       queryBuf.append(codeApplication);
       queryBuf.append("'");
+    } 
+    //  External experiments
+    if (showExternalExperiments != null && showExternalExperiments.equals("N")){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.isExternal != 'Y'");
     } 
     
     // Search for requests submitted in last week
@@ -811,6 +817,18 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setLastThreeMonths(String lastThreeMonths) {
     this.lastThreeMonths = lastThreeMonths;
+  }
+
+
+  
+  public String getShowExternalExperiments() {
+    return showExternalExperiments;
+  }
+
+
+  
+  public void setShowExternalExperiments(String showExternalExperiments) {
+    this.showExternalExperiments = showExternalExperiments;
   }
 
 
