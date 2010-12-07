@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.0.7.1 (Dec 7, 2010)
+---------------------
+- Make 'Add Services' window dictionary-driven from experiment category
+- Omit external experiments from list of experiments listed for 'Add Services'
+
 5.0.7 (Dec 6, 2010)
 ---------------------
 - Make experiment category on Submit Request window dictionary driven
