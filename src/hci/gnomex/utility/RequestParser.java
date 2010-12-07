@@ -341,7 +341,7 @@ public class RequestParser implements Serializable {
       sample.setPrepInstructions(null);
     }
     
-    if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
+    if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
       if (n.getAttributeValue("ccNumber") != null && !n.getAttributeValue("ccNumber").equals("")) {
         String ccNumber = n.getAttributeValue("ccNumber");
         sample.setCcNumber(ccNumber);

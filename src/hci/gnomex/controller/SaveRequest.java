@@ -183,7 +183,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
       // The following code makes sure any ccNumbers that have been entered actually exist
       PropertyHelper propertyHelper = PropertyHelper.getInstance(sess);
-      if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
+      if (propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(Property.BST_LINKAGE_SUPPORTED).equals("Y")) {
         validateCCNumbers();
       }
 
