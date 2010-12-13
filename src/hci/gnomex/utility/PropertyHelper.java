@@ -185,13 +185,19 @@ public class PropertyHelper implements Serializable {
     String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
     String flowCellDirectory   = this.getFlowCellDirectory(serverName);
     
-    if (fileName.indexOf(experimentDirectory) >= 0) {
+    if (fileName.toLowerCase().indexOf(experimentDirectory.toLowerCase()) >= 0) {
       baseDir = experimentDirectory;
-    } else if (fileName.indexOf(flowCellDirectory) >= 0) {
+    } else if (fileName.toLowerCase().indexOf(flowCellDirectory.toLowerCase()) >= 0) {
       baseDir = flowCellDirectory;
-    } 
+    } else {
+      throw new RuntimeException("Cannot determine base directory.  Neither flowcell directory or experiment directory match file name " + fileName);
+    }
     
-    String relativePath = fileName.substring(baseDir.length() + 5);
+    
+    // Strip off the leading part of the path, up through the year subdirectory,
+    // to leave only the path that starts with the request number subdirectory.
+    String relativePath = fileName.substring(baseDir.length() + (baseDir.endsWith("/") | baseDir.endsWith("\\") ? 5 : 6));
+    
     String tokens[] = relativePath.split("/", 2);
     if (tokens == null || tokens.length == 1) {
       tokens = relativePath.split("\\\\", 2);
