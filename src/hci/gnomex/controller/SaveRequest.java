@@ -1420,7 +1420,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
     
     String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
-    String rootDir = microarrayDir + createYear;
+    String rootDir = microarrayDir + "/" + createYear;
     
     boolean success = false;
     if (!new File(rootDir).exists()) {
@@ -1430,7 +1430,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }      
     }
     
-    String directoryName = microarrayDir + createYear + "/" + req.getNumber();
+    String directoryName = rootDir + "/" + req.getNumber();
     
     success = (new File(directoryName)).mkdir();
     if (!success) {

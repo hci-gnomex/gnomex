@@ -187,7 +187,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       String analysisNumber = tokens[2];
 
       String directoryKey = analysisNumber;
-      String directoryName = baseDir + createYear + "/" + analysisNumber;
+      String directoryName = baseDir + "/" + createYear + "/" + analysisNumber;
       
       // We want the list to be ordered the same way as the original keys,
       // so we will keep the analysis numbers in a list

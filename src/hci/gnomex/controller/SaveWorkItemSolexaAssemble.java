@@ -304,7 +304,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
 
     
     String createYear = this.formatDate(flowCell.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
-    String rootDir = flowCellDir + createYear;
+    String rootDir = flowCellDir + "/" + createYear;
     
     boolean success = false;
     if (!new File(rootDir).exists()) {
