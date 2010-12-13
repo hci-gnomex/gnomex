@@ -38,7 +38,8 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.fileSize = file.length();
     this.lastModifyDate  = new Date(file.lastModified());
     try {
-      this.fileName = file.getCanonicalPath();      
+      this.fileName = file.getCanonicalPath();   
+      this.fileName = this.fileName.replaceAll("\\\\", "/");
     } catch (Exception e) {
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
