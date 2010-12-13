@@ -120,7 +120,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(analysis.getCreateDate());
 
-          String baseDir = dh.getAnalysisDirectory(req.getServerName()) + "/" +createYear;
+          String baseDir = dh.getAnalysisDirectory(req.getServerName()) + "/" + createYear;
           if (!new File(baseDir).exists()) {
             boolean success = (new File(baseDir)).mkdir();
             if (!success) {

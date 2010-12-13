@@ -110,7 +110,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             // Add new directories to the file system
             for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
               String directoryName = (String)i.next();
-              File dir = new File(baseDir + File.separator + directoryName);
+              File dir = new File(baseDir + "/" + directoryName);
               if (!dir.exists()) {
                 boolean success = dir.mkdirs();
                 if (!success) { 
@@ -131,9 +131,16 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 String fileName = (String)i1.next();
                 
                 File sourceFile = new File(fileName);
-                String targetDirName = baseDir + File.separator + directoryName;
+                String targetDirName = baseDir + "/" + directoryName;
                 File targetDir = new File(targetDirName);
                 
+                if (!targetDir.exists()) {
+                  boolean success = targetDir.mkdirs();
+                  if (!success) {
+                    throw new Exception("Unable to create directory " + targetDir.getCanonicalPath());                    
+                  }
+                }
+
                 // Don't try to move if the file is in the same directory
                 String td = targetDirName.replaceAll("\\\\", "_");
                 td = td.replaceAll("/", "_");

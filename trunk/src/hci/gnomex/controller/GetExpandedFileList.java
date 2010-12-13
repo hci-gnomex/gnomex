@@ -228,14 +228,14 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       String directoryName = null;
       String theBaseDir;
       if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
-        directoryName = baseDirFlowCell + createYear + "/" + resultDirectory;
+        directoryName = baseDirFlowCell + "/" + createYear + "/" + resultDirectory;
         theBaseDir = baseDirFlowCell;
         
         //Make sure flow cell is for this request
         String flowCellNumber = resultDirectory;
         
       } else {
-        directoryName = baseDir + createYear + "/" + requestNumberBase + "/" + resultDirectory;
+        directoryName = baseDir + "/" + createYear + "/" + requestNumberBase + "/" + resultDirectory;
         theBaseDir = baseDir;
       }
       
