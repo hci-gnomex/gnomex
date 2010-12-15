@@ -72,8 +72,6 @@ public class SampleQualityPlugin implements BillingPlugin {
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-       
-        
         if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.CHIP_SEQ_CATEGORY)) {
           filter1 = Application.QUBIT_PICOGREEN_QC;
         } else if (request.getCodeApplication() != null && request.getCodeApplication().indexOf("DNA") >= 0) {
@@ -84,6 +82,10 @@ public class SampleQualityPlugin implements BillingPlugin {
           filter1 = Application.DNA_GEL_QC;
         } 
         
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+        if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.QUBIT_PICOGREEN_QC)) {
+          filter1 = Application.QUBIT_PICOGREEN_QC;
+        }
       } else if ((request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) &&
                   request.getCodeApplication().equals(Application.CGH_MICROARRAY_CATEGORY)) {
           filter2 =  Application.DNA_GEL_QC;
