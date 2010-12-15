@@ -972,7 +972,6 @@ DROP TABLE IF EXISTS `gnomex`.`OligoBarcodeScheme`;
 CREATE TABLE `gnomex`.`OligoBarcodeScheme` (
   `idOligoBarcodeScheme` INT(10) NOT NULL AUTO_INCREMENT,
   `oligoBarcodeScheme` VARCHAR(200) NULL,
-  `name` VARCHAR(50) NULL,
   `description` VARCHAR(2000) NULL,
   `isActive` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idOligoBarcodeScheme`)
@@ -982,6 +981,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`OligoBarcode`;
 CREATE TABLE `gnomex`.`OligoBarcode` (
   `idOligoBarcode` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NULL,
   `barcodeSequence` VARCHAR(20) NOT NULL,
   `idOligoBarcodeScheme` INT(10) NOT NULL,
   `sortOrder` INT(10) NULL,
