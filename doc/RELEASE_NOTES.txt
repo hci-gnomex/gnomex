@@ -1,5 +1,16 @@
 ﻿GNomEx Release Notes
 
+5.0.8
+---------------------
+- Compile with flex 3.5, provide instructions for building with flash builder 4
+- Handle case where experiment, analysis, flowcell directory properties don't end with file separator
+- Account for Windows 7 // in File.getCanonicalPath()
+- Account for case differences in experiment directory and file name
+- Make dictionary editor work with flex sdk 3.5 compile (setData has to occur after component added)
+- Clean up home page 
+- Fix QuBit PicoGreen billing
+
+
 5.0.7.1 (Dec 7, 2010)
 ---------------------
 - Make 'Add Services' window dictionary-driven from experiment category
