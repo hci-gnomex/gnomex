@@ -1776,7 +1776,7 @@
         	</mx:TabNavigator>
  
 			        	
-        	<util:PanelBox width="100%" height="100%">
+        	<mx:VBox styleName="panelBox"  width="100%" height="100%">
         		<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}"/>
         		<mx:AdvancedDataGrid width="100%" height="100%"  
         			displayItemsExpanded="true"  
@@ -1885,7 +1885,7 @@
 				      </mx:HBox>
 				 </mx:ControlBar>
 
-        	</util:PanelBox>
+        	</mx:VBox>
         </mx:HDividedBox>
   </mx:VBox>
   

@@ -348,7 +348,7 @@
 	<mx:XMLListCollection id="protocols" source="{protocolList}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-	  <util:PanelBox width="240" height="100%"  >
+	  <mx:VBox styleName="panelBox"  width="240" height="100%"  >
 		<mx:Label id="titleLabel123" styleName="titleLabel" text="Materials &amp; Methods"/>
 		<mx:Canvas  alpha="1" width="100%" height="100%" >
 				<mx:Tree  
@@ -374,8 +374,8 @@
 				</mx:VBox>
 				<mx:LinkButton label="Refresh" id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
 			</mx:ControlBar>
-	  </util:PanelBox>
-	  <util:PanelBox id="bodyPanel"  
+	  </mx:VBox>
+	  <mx:VBox styleName="panelBox"  id="bodyPanel"  
 	  	height="100%" dropShadowEnabled="true" width="100%" >
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{titleLabelText}"/>
 		
@@ -455,7 +455,7 @@
 				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
 
-		</util:PanelBox>
+		</mx:VBox>
 		
 		
 	</mx:HDividedBox>

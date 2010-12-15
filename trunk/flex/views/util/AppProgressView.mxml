@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox     
+<mx:VBox styleName="panelBox"      
 	xmlns:mx="http://www.adobe.com/2006/mxml" width="252" height="88"  
 	label="horizontal" horizontalAlign="center" verticalAlign="middle"  
 	xmlns:util="views.util.*"
@@ -7,7 +7,7 @@
 	 <mx:VBox styleName="form" width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" id="vbox1" dropShadowEnabled="false">
 		 <mx:Label text="Initializing GNomEx" color="#000000" id="label1" fontFamily="Verdana" fontSize="11" fontWeight="normal"/>	 	
 	 </mx:VBox>
-	 <util:states>      
+	 <mx:states>      
 	 	 <mx:State name="StartupState">
 	 	 	 <mx:SetProperty target="{label1}" name="text">
 	 	 	 	 <mx:value>Getting security settings...</mx:value>
@@ -38,6 +38,6 @@
 	 	 	 	 <mx:Label text="Please try logging in again." fontSize="11"/>
 	 	 	 </mx:AddChild>
 	 	 </mx:State>
-	 </util:states>
+	 </mx:states>
 
-</util:PanelBox>
+</mx:VBox>

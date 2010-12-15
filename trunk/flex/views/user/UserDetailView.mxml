@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml"  
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml"  
 	 xmlns:views="views.*" 
 	 xmlns:util="views.util.*" 
 	 height="100%" width="100%" 
@@ -234,7 +234,7 @@
 	  </mx:HBox>	
 	</mx:ControlBar>
   
-  <util:states> 
+  <mx:states> 
 
   	
   	<mx:State name="externalUserState">
@@ -256,5 +256,5 @@
   	</mx:AddChild>
   	<mx:RemoveChild target="{unidContainer}"/>
   	</mx:State>
-  </util:states>
-</util:PanelBox>
+  </mx:states>
+</mx:VBox>

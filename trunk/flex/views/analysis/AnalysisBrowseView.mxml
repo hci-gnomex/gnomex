@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
 	xmlns:views="views.*"  
 	xmlns:analysis="views.analysis.*"  
@@ -408,7 +408,7 @@
 	</mx:ControlBar>
 	
 
-</util:PanelBox>
+</mx:VBox>
 
 
 

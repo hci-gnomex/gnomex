@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml" 
 	 xmlns:util="views.util.*" 	
 	 height="100%" width="100%" label="Group Detail"
 	 >
@@ -161,4 +161,4 @@
 			<util:DirtyNote id="dirty"/>
 			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" width="70" click="save()"/>
 		</mx:ControlBar>
-</util:PanelBox>
+</mx:VBox>

@@ -275,6 +275,20 @@ TextArea {
 	dropShadowEnabled: true;
 }
 
+.panelWelcomeBox {
+	backgroundImage: Embed('../assets/panelWelcome.png');
+	backgroundSize: "100%";
+	paddingTop: 4;
+	paddingBottom: 2;
+	paddingLeft: 4;
+	paddingRight: 4;
+	verticalGap: 4;
+	borderColor: #5F696F;
+	borderStyle: solid;
+	cornerRadius: 6;
+	dropShadowColor: #020000;
+	dropShadowEnabled: true;
+}
 	
 
 
@@ -531,12 +545,12 @@ Label.titleLabel
 	fillAlphas: 1.0, 1.0;
 	fillColors: #Ffffff, #dadfc9;
 	fontFamily: Verdana;
-	fontSize: 11;
+	fontSize: 12;
 	width: 300;
 	height: 120;
 	labelPlacement: "bottom";
-	paddingLeft: 8;
-	paddingRight: 8;
+	paddingLeft: 2;
+	paddingRight: 2;
 	horizontalGap: 1;
 	paddingTop: 2;
 	paddingBottom: 2;
@@ -584,5 +598,13 @@ Label.titleLabel
 	paddingRight: 1;
 	paddingBottom: 1;
 	paddingTop: 1;
+}
+Label.welcomeLabel
+{
+	fontSize: 17;
+	color: #FFFFFF;
+	fontWeight: normal;
+	fontFamily: Arial;
+	fontStyle: normal;
 }
 
