@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?> 
-	<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml"   
+	<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
 	xmlns:views="views.*"   
 	xmlns:util="views.util.*"  
 	creationPolicy="all" width="100%" height="100%"  
 	verticalAlign="top" horizontalAlign="center" 
 	show="init()"
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	 paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="0" paddingTop="6">
-		<util:states>
+		<mx:states>
 			<mx:State name="GuestState">
 				<mx:RemoveChild target="{hbox2}"/>
 				<mx:AddChild relativeTo="{hbox4}" position="before" target="{hbox2}"/>
@@ -96,10 +96,9 @@
 					</mx:VBox>
 				</mx:AddChild>
 			</mx:State>
-		</util:states>
+		</mx:states>
 <mx:Script>
 	<![CDATA[
-	  import views.util.PanelBox;
 	  import mx.managers.PopUpManager;
 	  
 			public function checkDirty():void {
@@ -279,4 +278,4 @@
    </mx:HBox>
     </mx:VBox>
 
-</util:PanelBox>
+</mx:VBox>

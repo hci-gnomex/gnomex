@@ -1292,33 +1292,33 @@
 		  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"> 
-			      <mx:HBox width="100%"  horizontalAlign="right" verticalAlign="top" horizontalGap="0"  styleName="catalogPanel" 
+			      <mx:HBox width="100%"  horizontalAlign="left" verticalAlign="top" horizontalGap="0"  styleName="catalogPanel" 
 			      	paddingBottom="6" id="hbox1" 
 			      	paddingTop="6" 
 			      	paddingLeft="4" paddingRight="4">
 			        <mx:HBox width="100%" height="100%" horizontalAlign="left" 
-			        	horizontalGap="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
+			        	horizontalGap="0" paddingBottom="0" paddingTop="0" verticalAlign="middle" id="hbox3">
 			          <mx:Image source="assets/hciLogo_hOnly.png"/>
-			          <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="17" color="#ffffff" fontWeight="bold"/>
-			          <mx:HBox width="100%" height="100%"  horizontalAlign="right" paddingLeft="10" paddingRight="6" horizontalGap="10" verticalAlign="middle" paddingTop="0">
-			            <mx:HBox horizontalAlign="left" verticalAlign="middle" width="100%" paddingLeft="0" paddingRight="0" height="100%">
-			                <mx:Label id="userName" color="#ffffff"  visible="false"/>
-			            </mx:HBox>
-			            
-			            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}">
-			              <mx:Label text="Lookup Experiment or Analysis by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false" />
-			              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
-			              <mx:Button id="lookupButton"  
-			              	fontFamily="Arial"  height="18" width="30"
-			               	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
-			            </mx:HBox>
-			            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-			              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
-		 	              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
-			              <mx:Button id="searchButton" height="18" click="callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30"/>
-			              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showAdvancedSearch()}" >
-			              </mx:LinkButton>
-			            </mx:HBox>
+					 <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="19" color="#ffffff" fontWeight="normal"/>
+						<mx:Spacer width="8"  />
+					  <mx:Label id="userName" color="#ffffff"  visible="false" width="100%"/>
+						<mx:Spacer width="10" id="spacer1"/>
+						
+						<mx:HBox height="100%"  horizontalAlign="right" paddingLeft="4" paddingRight="0" horizontalGap="10" verticalAlign="middle" paddingTop="0" id="hbox5">
+				            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4">
+				              <mx:Label text="Lookup Experiment or Analysis by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false" />
+				              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
+				              <mx:Button id="lookupButton"  
+				              	fontFamily="Arial"  height="18" width="30"
+				               	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+				            </mx:HBox>
+				            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
+				              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
+			 	              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
+				              <mx:Button id="searchButton" height="18" click="callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30"/>
+				              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showAdvancedSearch()}" >
+				              </mx:LinkButton>
+				            </mx:HBox>
 			           </mx:HBox> 
 			         </mx:HBox>  
  			        <mx:Spacer width="10"/>
@@ -1364,8 +1364,8 @@
 		    	     
  				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
 		
-					<util:HomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
-					</util:HomeView>  
+					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
+					</util:WelcomeView>  
 		
 				    <experiment:ExperimentEditView id="submitRequestView" label="{isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register Experiment'}" 
 				    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
@@ -1434,6 +1434,12 @@
 	 		<mx:SetProperty target="{pricingButton}" name="visible" value="{pricingURL != null ? true : false}"/>
 	 		<mx:SetProperty target="{appLabel}" name="text" value="GNomEx"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
+	 	    <mx:SetStyle target="{hbox3}" name="horizontalAlign" value="right"/>
+	 	    <mx:RemoveChild target="{userName}"/>
+	 	    <mx:AddChild relativeTo="{hbox5}" position="before" target="{userName}"/>
+	 	    <mx:RemoveChild target="{spacer1}"/>
+	 	    <mx:AddChild relativeTo="{hbox5}" position="before" target="{spacer1}"/>
+	 	    <mx:SetStyle target="{hbox5}" name="paddingLeft"/>
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
 	 		<mx:SetProperty target="{dictionaryButton}" name="enabled" value="true"/>
@@ -1442,7 +1448,7 @@
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
 	 		<mx:SetProperty target="{amendRequestView}" name="label" value="Add services" /> 
-	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth."/>
+	 		<mx:SetProperty target="{protocolsView}" name="label" value="Materials &amp; Meth"/>
 	 		<mx:SetProperty target="{this.amendRequestView}" name="label" value="Add Services"/>
 	 		<mx:SetProperty target="{this.submitRequestView}" name="label" value="Submit Request"/>
 	 		<mx:SetStyle target="{linkButtonBar}" name="horizontalGap" value="0"/>
@@ -1453,6 +1459,7 @@
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
+	 		<mx:SetProperty target="{userName}" name="width" value="100%"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>

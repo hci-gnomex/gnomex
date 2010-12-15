@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox 
-    xmlns:mx="http://www.adobe.com/2006/mxml"     
-    xmlns:views="views.*" 
-    xmlns:util="views.util.*" 
-    xmlns:analysis="views.analysis.*"
-    showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
-	width="100%" height="100%" >
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+	xmlns:mx="http://www.adobe.com/2006/mxml"     
+	xmlns:views="views.*" 
+	xmlns:util="views.util.*" 
+	xmlns:analysis="views.analysis.*"
+	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
+	
 
 
   <mx:HTTPService  
@@ -873,7 +873,7 @@
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
 <mx:XMLListCollection  id="filesToDelete"  />
 <mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AppUser}"/>
- 
+	
 <mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
  	
 	<mx:HBox width="100%"  horizontalGap="5"  verticalAlign="top" horizontalAlign="left">
@@ -1187,4 +1187,4 @@
     </mx:HBox>
 		
 
-</util:PanelBox>
+</mx:VBox>

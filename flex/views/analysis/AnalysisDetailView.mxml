@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox  
+<mx:VBox styleName="panelBox"   
 	xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
 	height="100%"  paddingTop="6"
 	xmlns:views="views.*" 
@@ -342,20 +342,20 @@
 	        	<mx:VBox width="100%" verticalGap="0">
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Analysis Groups"  width="98" fontWeight="bold"/>
-		                   <mx:Text text="{parentDocument.selectedAnalysis.@analysisGroupNames}" width="100%"/>
+		                   <mx:Text text="{parentDocument.selectedAnalysis.@analysisGroupNames}" width="140"/>
 		            </mx:HBox>
 		        	
 		            <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 		                   <mx:Label text="Visibility"  width="98" fontWeight="bold"/>
-		                   <mx:Text text="{visibilityName}" width="100%"/>
+		                   <mx:Text text="{visibilityName}" width="140"/>
 		            </mx:HBox>
 		            <mx:HBox verticalGap="0" horizontalGap="0">
 		        	       <mx:Label text="Analysis Type"  width="98" fontWeight="bold"/>
-		        	       <mx:Text text="{analysisTypeName}" width="150" />
+		        	       <mx:Text text="{analysisTypeName}" width="140" />
 		        	   </mx:HBox>
 		            <mx:HBox verticalGap="0" horizontalGap="0">
 		                <mx:Label text="Protocol"  width="98" fontWeight="bold"/>
-		                <mx:Text  text="{analysisProtocolName}" width="150" />
+		                <mx:Text  text="{analysisProtocolName}" width="140" />
 		            </mx:HBox>
 	        	</mx:VBox>
 	        </mx:HBox>
@@ -494,4 +494,4 @@
 </mx:ControlBar>
 
 	
-</util:PanelBox>
+</mx:VBox>

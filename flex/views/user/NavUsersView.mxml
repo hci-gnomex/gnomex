@@ -617,12 +617,12 @@
 	
 	    
     <mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
-            <util:PanelBox id="userEmptyView" />
+            <mx:VBox styleName="panelBox"  id="userEmptyView" />
             
 		    <user:UserDetailView id="userDetailView" height="100%">	
 	        </user:UserDetailView>
 	        
-	        <util:PanelBox id="groupEmptyView" />
+	        <mx:VBox styleName="panelBox"  id="groupEmptyView" />
             
 		    <user:GroupDetailView id="groupDetailView" height="100%">	
 	        </user:GroupDetailView>

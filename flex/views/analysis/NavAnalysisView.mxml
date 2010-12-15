@@ -956,7 +956,7 @@
 <mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 
     <mx:VBox width="100%" height="100%">
-      <util:PanelBox height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
+      <mx:VBox styleName="panelBox"  height="32" backgroundImage="@Embed(source='../../assets/filterBar.png')" backgroundSize="100%" width="100%">
           <mx:HBox id="filterBox"  horizontalGap="20" verticalAlign="middle">
           	  <mx:Label text="Filter by"/>
           	  <mx:HBox horizontalGap="0" verticalAlign="middle">
@@ -983,9 +983,9 @@
 			  </mx:HBox>          	  
           	  <mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="linkbutton1"/>
           </mx:HBox>
-      </util:PanelBox>
+      </mx:VBox>
 	  <mx:HDividedBox height="100%" width="100%"> 
-			<util:PanelBox label="Analysis" width="278" height="100%" id="navPanel" >
+			<mx:VBox styleName="panelBox"  label="Analysis" width="278" height="100%" id="navPanel" >
 			    <mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
 					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
@@ -1034,7 +1034,7 @@
 						</mx:VBox>
 								
 					</mx:ControlBar>
-			</util:PanelBox> 
+			</mx:VBox> 
 
  
 

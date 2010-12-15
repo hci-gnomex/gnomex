@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:PanelBox xmlns:mx="http://www.adobe.com/2006/mxml"     
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:SubmitRequestView="SubmitRequestView.*" 
     xmlns:views="views.*" 
     xmlns:util="views.util.*"  
@@ -3597,7 +3597,7 @@
  	   </mx:ControlBar>
  	   
 	
-    <util:states>
+    <mx:states>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
     			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
@@ -3625,7 +3625,7 @@
     				           	  change="this.dirty.setDirty();refreshLab()" 
     				           	  dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
     				           	  enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
-    				           	  width="340"/>
+    				           	  width="320"/>
     				       </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
     				        <mx:Label text="Project"  width="70" fontWeight="bold"/>
@@ -3634,7 +3634,7 @@
     				           	  change="this.dirty.setDirty()"
     				           	  dataProvider="{projects}" 
     				           	  enabled="true"
-    				           	  width="340"/>
+    				           	  width="320"/>
     				    </mx:HBox>
     				    <mx:HBox>
 	    				    <mx:Text visible="{this.request.@completedDate != ''}" text="{'Completed'}" width="70"  fontWeight="bold"/>    				       
@@ -3921,9 +3921,9 @@
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{seqSetupView}"/>
         </mx:State>
-    </util:states>
+    </mx:states>
     
 
   
     
-</util:PanelBox> 
+</mx:VBox> 
