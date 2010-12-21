@@ -281,7 +281,7 @@
    
 <mx:HDividedBox width="100%" height="100%">
     
-        <mx:VBox height="100%" verticalGap="8" paddingRight="4">
+        <mx:VBox height="100%" verticalGap="6" paddingRight="4">
             <mx:HBox width="100%">
               <mx:VBox width="100%" verticalGap="8">
                 <mx:HBox>
@@ -380,33 +380,37 @@
          </mx:VBox>
             
         </mx:VBox>
-        <mx:HBox width="250" height="100%"  paddingLeft="4">
-            <mx:DataGrid  width="100%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentDesignGrid">
-                <mx:itemClick>toggleExperimentDesignCheck(event)</mx:itemClick>
-                <mx:columns>
-                    <mx:DataGridColumn headerText=" " 
-                    	width="18" 
-                    	editable="true"                        	
-                    	dataField="@isSelected"  
-                    	editorDataField="selected"
-                    	itemRenderer="hci.flex.controls.CheckBox" >
-                    </mx:DataGridColumn>
-                    <mx:DataGridColumn headerText="Experiment Design (general intent)" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
-                </mx:columns>
-            </mx:DataGrid>
-            <mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentFactorGrid" itemClick="toggleExperimentFactorCheck(event)">
-                <mx:columns>
-                    <mx:DataGridColumn headerText=" " 
-                    	width="18" 
-                    	editable="true"                        	
-                    	dataField="@isSelected" 
-                    	editorDataField="selected" 
-                    	itemRenderer="hci.flex.controls.CheckBox">
-                    </mx:DataGridColumn>
-                    <mx:DataGridColumn headerText="Experimental Factors (differences)" editable="false" dataField="@experimentFactor"/>
-                </mx:columns>
-            </mx:DataGrid>
-        </mx:HBox>
+	    <mx:VBox verticalGap="0" height="100%" width="100%">
+			<mx:Text text="Project:"/>
+			<mx:HBox height="100%"  paddingLeft="4" width="100%">
+				<mx:DataGrid  width="100%" height="100%" dataProvider="{parentApplication.experimentDesignList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentDesignGrid" alternatingItemColors="[#F7F7F7, #FFFFFF]">
+					<mx:itemClick>toggleExperimentDesignCheck(event)</mx:itemClick>
+					<mx:columns>
+						<mx:DataGridColumn headerText=" " 
+										   width="18" 
+										   editable="true"                        	
+										   dataField="@isSelected"  
+										   editorDataField="selected"
+										   itemRenderer="hci.flex.controls.CheckBox" >
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="Experiment Design" editable="false" editorDataField="selected" dataField="@experimentDesign"/>
+					</mx:columns>
+				</mx:DataGrid>
+				<mx:DataGrid width="100%" height="100%" dataProvider="{parentApplication.experimentFactorList}" selectionColor="#FFFFFF" rowHeight="20" id="experimentFactorGrid" itemClick="toggleExperimentFactorCheck(event)">
+					<mx:columns>
+						<mx:DataGridColumn headerText=" " 
+										   width="18" 
+										   editable="true"                        	
+										   dataField="@isSelected" 
+										   editorDataField="selected" 
+										   itemRenderer="hci.flex.controls.CheckBox">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="Experimental Factors"  editable="false" dataField="@experimentFactor"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:HBox>
+			
+		</mx:VBox>
 
 
 						
