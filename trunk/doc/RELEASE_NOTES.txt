@@ -9,6 +9,9 @@
 - Make dictionary editor work with flex sdk 3.5 compile (setData has to occur after component added)
 - Clean up home page 
 - Fix QuBit PicoGreen billing
+- Add QC experiment sample type, sample names to searchable index 
+- Double-click on Analysis search results brings up Analysis detail.
+- Make search a popup window rather than a full pane.
 
 
 5.0.7.1 (Dec 7, 2010)
