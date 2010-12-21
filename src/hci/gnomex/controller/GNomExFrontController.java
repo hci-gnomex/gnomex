@@ -81,10 +81,13 @@ public class GNomExFrontController extends HttpServlet {
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !request.isSecure()) {
       if (request.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
-          || request.getRemoteAddr().equals("127.0.0.1")) {
+          || request.getRemoteAddr().equals("127.0.0.1") 
+          || InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress()) {
         log.debug("Requested from local host");
       }
       else {
+        System.out.println(request.getRemoteAddr());
+        System.out.println(InetAddress.getLocalHost().getHostAddress());
         log.error("Accessing secure command over non-secure line from remote host is not allowed");
         this.forwardWithError(request, response,"Secure connection is required. Prefix your request with 'https:'");
         return;
