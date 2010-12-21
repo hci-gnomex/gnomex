@@ -89,7 +89,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.isGNomExUniversityUser = isGNomExUniversityUser;
     this.isGNomExExternalUser = isGNomExExternalUser;
     this.isUniversityOnlyUser = isUniversityOnlyUser;
-    this.loginDateTime = new SimpleDateFormat("MMM dd HH:mm a").format(System.currentTimeMillis());
+    this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
     
 
     validate();
