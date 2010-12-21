@@ -21,6 +21,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabComparator;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,13 +76,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   // Global permission map
   private Map                          globalPermissionMap = new HashMap();
   
+  private String                       loginDateTime;
   
+  
+  public String getLoginDateTime() {
+    return loginDateTime;
+  }
+
   private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser) throws InvalidSecurityAdvisorException {
     
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
     this.isGNomExExternalUser = isGNomExExternalUser;
     this.isUniversityOnlyUser = isUniversityOnlyUser;
+    this.loginDateTime = new SimpleDateFormat("MMM dd HH:mm a").format(System.currentTimeMillis());
     
 
     validate();
@@ -93,6 +101,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     isGNomExUniversityUser = false;
     isGNomExExternalUser = false;
     isUniversityOnlyUser = false;
+    this.loginDateTime = new SimpleDateFormat("MMM-dd HH:mm").format(System.currentTimeMillis());
     setGlobalPermissions();
   }
   
