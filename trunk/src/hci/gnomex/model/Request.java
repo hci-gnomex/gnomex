@@ -23,42 +23,43 @@ import org.jdom.Element;
 
 public class Request extends HibernateDetailObject {
   
-  private Integer        idRequest;
-  private String         number;
-  private Date           createDate;
-  private String         protocolNumber;
-  private String         codeProtocolType;
-  private Integer        idLab;
-  private Lab            lab;
-  private Integer        idAppUser;
-  private AppUser        appUser;
-  private Project        project;
-  private Integer        idProject;
-  private Integer        idBillingAccount;
-  private BillingAccount billingAccount;
-  private String         codeRequestCategory;
-  private String         codeApplication;
-  private Integer        idSlideProduct;
-  private SlideProduct   slideProduct;
-  private Integer        idSampleTypeDefault;
-  private Integer        idOrganismSampleDefault;
-  private Integer        idSamplePrepMethodDefault;
-  private String         codeBioanalyzerChipType;
-  private String         notes;
-  private Date           completedDate;
-  private Date           lastModifyDate;
-  private String         isArrayINFORequest;
-  private String         codeVisibility;
-  private String         isExternal;  
-  private Set            samples = new TreeSet();
-  private Set            labeledSamples = new TreeSet();
-  private Set            hybridizations = new TreeSet();
-  private Set            workItems = new TreeSet();
-  private Set            sequenceLanes = new TreeSet();
-  private Set            analysisExperimentItems = new TreeSet();
-  private Set            billingItems = new TreeSet();  
-  private Set            seqLibTreatments = new TreeSet();
-  private Set            collaborators = new TreeSet();
+  private Integer         idRequest;
+  private String          number;
+  private Date            createDate;
+  private String          protocolNumber;
+  private String          codeProtocolType;
+  private Integer         idLab;
+  private Lab             lab;
+  private Integer         idAppUser;
+  private AppUser         appUser;
+  private Project         project;
+  private Integer         idProject;
+  private Integer         idBillingAccount;
+  private BillingAccount  billingAccount;
+  private String          codeRequestCategory;
+  private RequestCategory requestCategory;
+  private String          codeApplication;
+  private Integer         idSlideProduct;
+  private SlideProduct    slideProduct;
+  private Integer         idSampleTypeDefault;
+  private Integer         idOrganismSampleDefault;
+  private Integer         idSamplePrepMethodDefault;
+  private String          codeBioanalyzerChipType;
+  private String          notes;
+  private Date            completedDate;
+  private Date            lastModifyDate;
+  private String          isArrayINFORequest;
+  private String          codeVisibility;
+  private String          isExternal;  
+  private Set             samples = new TreeSet();
+  private Set             labeledSamples = new TreeSet();
+  private Set             hybridizations = new TreeSet();
+  private Set             workItems = new TreeSet();
+  private Set             sequenceLanes = new TreeSet();
+  private Set             analysisExperimentItems = new TreeSet();
+  private Set             billingItems = new TreeSet();  
+  private Set             seqLibTreatments = new TreeSet();
+  private Set             collaborators = new TreeSet();
     
   
   
@@ -557,6 +558,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getBillingAccount");
     this.excludeMethodFromXML("getKey");
     this.excludeMethodFromXML("getCreateYear");
+    this.excludeMethodFromXML("getRequestCategory");
   }
   
   public String getOwnerName() {
@@ -719,6 +721,15 @@ public class Request extends HibernateDetailObject {
     this.isExternal = isExternal;
   }
   
+
+  public RequestCategory getRequestCategory() {
+    return requestCategory;
+  }
+
+
+  public void setRequestCategory(RequestCategory requestCategory) {
+    this.requestCategory = requestCategory;
+  }
 
 
 
