@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?> 
-<mx:VBox styleName="panelBox"    
+<mx:TitleWindow   
 	xmlns:mx="http://www.adobe.com/2006/mxml"   
 	xmlns:views="views.*"  
 	xmlns:util="views.util.*"  
 	xmlns:search="views.search.*" 
-	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
-	label="Advanced Search"  defaultButton="{searchButton}"
+	showCloseButton="true"
+	close="{PopUpManager.removePopUp(this)}"
+	title="Search Experiments, Analyses, and Protocols"  defaultButton="{searchButton}"
 	creationPolicy="all" show="init()" 
-	width="100%" height="100%" icon="@Embed('../../assets/magnifier.png')">
+	width="900" height="420" icon="@Embed('../../assets/magnifier.png')">
 
     <mx:HTTPService 
     id="getSlideProductList" 
@@ -26,9 +27,11 @@
     
 	<mx:Script>
     <![CDATA[ 
-    	import mx.managers.CursorManager;
-    	import hci.flex.controls.DropdownLabel;
-    	import mx.rpc.events.ResultEvent;
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.managers.CursorManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
     	
     	[Bindable] 
     	private var experimentHitLabel:String = "Experiments";
@@ -235,11 +238,10 @@
     <mx:XMLListCollection id="searchList" source="{searchView.searchGNomEx.lastResult.RequestList.Request}"/>
     <mx:XMLListCollection id="searchProtocolList" source="{searchView.searchGNomEx.lastResult.ProtocolList.Protocol}"/>
     <mx:XMLListCollection id="searchAnalysisList" source="{searchView.searchGNomEx.lastResult.AnalysisList.Analysis}"/>
-    <mx:Label text="Advanced Search" styleName="titleLabel" id="titleLabel"/>
-    <mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingBottom="0"  verticalGap="0" paddingTop="0">
+<mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingBottom="0"  verticalGap="0" paddingTop="0" backgroundColor="#FEFEFE" backgroundAlpha="0.5">
 
 
-<mx:VBox width="100%" verticalGap="0" height="100%">
+<mx:VBox width="100%" verticalGap="0" height="100%" >
 	<mx:HBox  verticalAlign="bottom" width="100%" horizontalAlign="left" paddingTop="0" horizontalGap="0">
         <mx:TabBar dataProvider="{searchViews}" 
         	itemClick="onViewSwitch()"  
@@ -413,4 +415,4 @@
 					
 				</mx:ControlBar>
     
-</mx:VBox>
+</mx:TitleWindow>
