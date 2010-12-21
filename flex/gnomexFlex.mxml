@@ -7,7 +7,6 @@
 	xmlns:analysis="views.analysis.*" 
 	xmlns:user="views.user.*"
 	xmlns:protocol="views.protocol.*"
-	xmlns:search="views.search.*"
 	xmlns:slide="views.slide.*"
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:billing="views.billing.*"
@@ -122,29 +121,37 @@
 <mx:Script>
             
         <![CDATA[
-        	import hci.flex.renderers.RendererFactory;
-        	import hci.flex.util.DictionaryManager; 
-        	import hci.flex.dictionary.DictionaryEditor;
-        	import views.util.AboutView;
-        	import views.util.AppProgressView;
-        	import views.util.CaptchaView;
-        	import views.util.FileDownloadUtil;
-        	import views.util.PromptXMLListCollection;
-        	import views.util.WorkAuthorizationWindow;
-        	import mx.collections.Sort;
-        	import mx.collections.XMLListCollection;
-            import mx.controls.Alert;
-            import mx.rpc.events.ResultEvent;        
-            import mx.managers.CursorManager;
-            import mx.managers.PopUpManager;
-            import mx.events.CloseEvent;
-            import mx.rpc.events.FaultEvent;
-            import mx.controls.dataGridClasses.DataGridColumn;
-            import hci.flex.dictionary.DictionaryEvent;
-            import com.earthbrowser.ebutils.MacMouseWheelHandler;
+			import com.earthbrowser.ebutils.MacMouseWheelHandler;
+			
+			import hci.flex.dictionary.DictionaryEditor;
+			import hci.flex.dictionary.DictionaryEvent;
+			import hci.flex.renderers.RendererFactory;
+			import hci.flex.util.DictionaryManager;
+			import views.search.NavSearchView;
+			
+			import mx.collections.Sort;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.search.NavSearchView;
+			
+			import views.util.AboutView;
+			import views.util.AppProgressView;
+			import views.util.CaptchaView;
+			import views.util.FileDownloadUtil;
+			import views.util.PromptXMLListCollection;
+			import views.util.WorkAuthorizationWindow;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
+			
+			private var navSearchView:NavSearchView;
             
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
@@ -354,7 +361,13 @@
 	        public var isUniversityOnlyUser:Boolean = false;
 	        
 	        [Bindable]
-	        private var pricingURL:String = null;
+	        public var pricingURL:String = '';
+			
+			[Bindable]
+			public var userName:String = '';
+			
+			[Bindable]
+			public var loginDateTime:String = '';
 	        
 	        [Bindable]
 	        public var isInternalExperimentSubmission:Boolean = true;
@@ -605,21 +618,19 @@
 			}
 
             private function search():void {
-            	this.stateStack.selectedChild = navSearchView;
-            	navSearchView.simpleSearchText = this.searchText.text;
-            	
-            	// We are already on this tab, so force init().
-            	if (this.navSearchView.searchView != null) {
-            		this.navSearchView.init();
-            	}
-            	
+				showSearch();
+				navSearchView.simpleSearchText = this.searchText.text;
             }
             
-            public function showAdvancedSearch():void {
-            	this.stateStack.selectedChild = this.navSearchView;
-            	theViews.selectedIndex = 0;
-            }
+            public function showSearch():void {
+				navSearchView = NavSearchView(PopUpManager.createPopUp(this,  NavSearchView, false));
+				PopUpManager.centerPopUp(navSearchView);
+				navSearchView.init();
+			}
             
+			public function showDictionaries():void {
+				PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));
+			}
             
             private function onViewSelection():void {
             	this.setDefaultSubmissionState();
@@ -922,7 +933,8 @@
 			    this.appProgressBar.currentState = "LoadingState";
 			    this.showProgress(20);
 			    
-			    userName.text = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
+			    userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
+				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
 			    isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
 			    version = createSecurityAdvisor.lastResult.@version;
 			    		
@@ -945,7 +957,9 @@
             		Alert.show("You must launch GNomEx from guest page.");  
             		return;	
             	} 
-            	userName.text = "(guest)";
+            	userName  = "guest user";
+				loginDateTime  = getSecurityAdvisorForGuest.lastResult.@loginDateTime;
+				
 			    version = getSecurityAdvisorForGuest.lastResult.@version;
 			    isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
 
@@ -1292,41 +1306,37 @@
 		  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 		  	 
 		      <mx:VBox width="100%" verticalGap="0"> 
-			      <mx:HBox width="100%"  horizontalAlign="left" verticalAlign="top" horizontalGap="0"  styleName="catalogPanel" 
+			      <mx:HBox width="100%"  
+				  horizontalAlign="left" verticalAlign="top" horizontalGap="20"  styleName="catalogPanel" 
 			      	paddingBottom="6" id="hbox1" 
-			      	paddingTop="6" 
+			      	paddingTop="4" 
 			      	paddingLeft="4" paddingRight="4">
-			        <mx:HBox width="100%" height="100%" horizontalAlign="left" 
-			        	horizontalGap="0" paddingBottom="0" paddingTop="0" verticalAlign="middle" id="hbox3">
-			          <mx:Image source="assets/hciLogo_hOnly.png"/>
-					 <mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="19" color="#ffffff" fontWeight="normal"/>
-						<mx:Spacer width="8"  />
-					  <mx:Label id="userName" color="#ffffff"  visible="false" width="100%"/>
-						<mx:Spacer width="10" id="spacer1"/>
-						
-						<mx:HBox height="100%"  horizontalAlign="right" paddingLeft="4" paddingRight="0" horizontalGap="10" verticalAlign="middle" paddingTop="0" id="hbox5">
-				            <mx:HBox height="100%" horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4">
-				              <mx:Label text="Lookup Experiment or Analysis by #" height="18" color="#ffffff" id="requestNumberLabel"  fontFamily="Arial" visible="false" />
+						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
+							<mx:Image source="assets/hciLogo_hOnly.png"/>
+							<mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="19" color="#ffffff" fontWeight="normal"/>
+						</mx:HBox>
+						<mx:Spacer width="100%"/>
+					        <mx:HBox  horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="100%">
+				              
+							  <mx:Text text="Lookup by Experiment or Analysis #" id="requestNumberLabel" visible="false"  styleName="navLabel"/>
 				              <mx:TextInput id="requestNumber" height="18"  borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="false"/>
 				              <mx:Button id="lookupButton"  
 				              	fontFamily="Arial"  height="18" width="30"
 				               	color="#400040" click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 				            </mx:HBox>
+					        <mx:Spacer width="100%"/>
 				            <mx:HBox height="100%" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-				              <mx:Label text="Search" height="18" color="#ffffff" id="searchLabel" visible="false" fontFamily="Arial"/>
+				              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false" />
 			 	              <mx:TextInput id="searchText"  height="18"  width="118" visible="false" borderStyle="none" backgroundAlpha=".8"/>
-				              <mx:Button id="searchButton" height="18" click="callLater(search)" fontFamily="Arial" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30"/>
-				              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showAdvancedSearch()}" >
+				              <mx:Button id="searchButton" height="18" click="callLater(search)"  visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30"/>
+				              <mx:LinkButton visible="false" styleName="navLinkButtonSmall"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}" >
 				              </mx:LinkButton>
 				            </mx:HBox>
-			           </mx:HBox> 
-			         </mx:HBox>  
- 			        <mx:Spacer width="10"/>
+				            <mx:Spacer width="100%"/>
+			        
 			        <mx:HBox horizontalAlign="right" verticalAlign="middle" horizontalGap="2" height="30" id="hbox2">
-			        	<mx:LinkButton id="dictionaryButton" label="Dictionaries" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));" visible="false" enabled="false"/>
-			        	<mx:LinkButton label="Pricing" id="pricingButton" styleName="navLinkButtonSmall" click="navigateToURL(new URLRequest(getProperty(PROPERTY_PRICING_URL)), '_blank');" visible="false"/>
-			        	<mx:LinkButton label="Help" styleName="navLinkButtonSmall" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"/>
-			        	<mx:LinkButton label="About" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));"  fontFamily="Verdana"/>
+			        	<mx:LinkButton label="Help" styleName="navLinkButtonSmall" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1" />
+			        	<mx:LinkButton label="About" styleName="navLinkButtonSmall" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" />
 			        </mx:HBox>
 			      </mx:HBox>
 			      
@@ -1401,9 +1411,7 @@
 			        
 		        </mx:ViewStack>
 		        
-		       <search:NavSearchView    id="navSearchView" icon="@Embed('assets/magnifier.png')" width="100%" height="100%" backgroundAlpha="1.0" creationPolicy="all">	
-			   </search:NavSearchView>
-		           
+		            
 	    		
 	    	</mx:ViewStack>
            
@@ -1423,7 +1431,6 @@
 	 		<mx:SetProperty target="{theViews}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{linkButtonBar}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{linkButtonBar}" name="enabled" value="true"/>
-	 		<mx:SetProperty target="{userName}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{requestNumber}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{lookupButton}" name="visible" value="true"/>
@@ -1431,19 +1438,10 @@
 	 		<mx:SetProperty target="{searchText}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
 	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{pricingButton}" name="visible" value="{pricingURL != null ? true : false}"/>
 	 		<mx:SetProperty target="{appLabel}" name="text" value="GNomEx"/>
 	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
-	 	    <mx:SetStyle target="{hbox3}" name="horizontalAlign" value="right"/>
-	 	    <mx:RemoveChild target="{userName}"/>
-	 	    <mx:AddChild relativeTo="{hbox5}" position="before" target="{userName}"/>
-	 	    <mx:RemoveChild target="{spacer1}"/>
-	 	    <mx:AddChild relativeTo="{hbox5}" position="before" target="{spacer1}"/>
-	 	    <mx:SetStyle target="{hbox5}" name="paddingLeft"/>
 	 	</mx:State>
 	 	<mx:State name="AdminState" basedOn="enabledState">
-	 		<mx:SetProperty target="{dictionaryButton}" name="enabled" value="true"/>
-	 		<mx:SetProperty target="{dictionaryButton}" name="visible" value="true"/>
 	 		<mx:SetStyle target="{hbox2}" name="horizontalGap" value="1"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingLeft" value="2"/>
 	 		<mx:SetStyle target="{advancedSearchButton}" name="paddingRight" value="2"/>
@@ -1459,7 +1457,6 @@
 	 		<mx:SetStyle target="{linkButtonBar}" name="fontWeight" value="normal"/>
 	 		<mx:SetStyle target="{navBar}" name="verticalGap"/>
 	 		<mx:SetStyle target="{theBody}" name="verticalGap" value="2"/>
-	 		<mx:SetProperty target="{userName}" name="width" value="100%"/>
 	 	</mx:State>
 	 	<mx:State name="UserState" basedOn="enabledState">
 	 		<mx:RemoveChild target="{navBillingView}"/>
@@ -1487,7 +1484,6 @@
 	 	<mx:State name="GuestState" basedOn="UserState">
 	 		<mx:RemoveChild target="{submitRequestView}"/>
 	 		<mx:RemoveChild target="{amendRequestView}"/>
-	 		<mx:SetProperty target="{pricingButton}" name="visible" value="false"/>
 	 	</mx:State>
 	 </mx:states>
 	

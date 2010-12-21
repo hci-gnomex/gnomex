@@ -125,35 +125,79 @@ Panel {
 }
 
 TitleWindow {
- headerColors:  #b3b198, #b0ae9d;
+	headerColors: #548db8, #97b8d2; 
 	borderColor: #C3C2B7;
 	backgroundColor: #C3C2B7;
+	cornerRadius: 4;
+	borderThicknessTop: 2;
+	borderThicknessBottom: 2;
+	borderThicknessLeft: 2;
+	borderThicknessRight: 2;
+	titleStyleName: titleWindowTitle;
+	headerHeight: 22;
+	controlBarStyleName: titleWindowControlBar;
+	dropShadowEnabled: true;
+	borderAlpha: 0.6;
+	backgroundAlpha: 0.4;
+	backgroundSize: "100%";
+}
+.titleWindowTitle
+{ 
+	fontSize: 12;
+	color: #010000;
+	fontWeight: normal;
+}
+
+TitleWindow.progress {
+	headerColors: #ffffff, #ffffff; 
+	borderColor: #ffffff;
+	backgroundColor: #FFFFFF;
 	cornerRadius: 4;
 	borderThicknessTop: 4;
 	borderThicknessBottom: 4;
 	borderThicknessLeft: 4;
 	borderThicknessRight: 4;
 	titleStyleName: titleWindowTitle;
-	headerHeight: 24;
+	headerHeight: 0;
 	controlBarStyleName: titleWindowControlBar;
 	dropShadowEnabled: true;
-}
-.titleWindowTitle
-{ 
-	color: #FFFFFF;
-	fontWeight: normal;
+	borderAlpha: 0.1;
+	backgroundAlpha: 0.1;
+	backgroundSize: "100%";
 }
 
 Alert {
-	borderAlpha: 0;
-	headerColors: #888a97, #888a97;
-	backgroundColor: #888a97;
-	borderColor: #888a97;
+	borderAlpha: 0.3;
+	backgroundColor: #C3C2B7;
+	borderColor: #C3C2B7;
 	cornerRadius: 4;
 	borderStyle: solid;
+	backgroundAlpha: 0.3;
+	fontSize: 11;
+	titleStyleName: alertTitle;
+	controlBarStyleName: alertControlBar;
+	backgroundSize: "100%";
+	color: #392F1E;
 
 }
 
+TitleWindow {
+	headerColors: #548db8, #97b8d2; 
+	borderColor: #C3C2B7;
+	backgroundColor: #C3C2B7;
+	cornerRadius: 4;
+	borderThicknessTop: 2;
+	borderThicknessBottom: 2;
+	borderThicknessLeft: 2;
+	borderThicknessRight: 2;
+	titleStyleName: titleWindowTitle;
+	headerHeight: 22;
+	controlBarStyleName: titleWindowControlBar;
+	dropShadowEnabled: true;
+	borderAlpha: 0.6;
+	backgroundAlpha: 0.4;
+	backgroundSize: "100%";
+}
 
  
 HDividedBox {
@@ -444,14 +488,17 @@ TextArea {
 
 
 .appProgressBar {
-    barColor: #1CC7E6;
+    barColor: #45C014;
     trackColors: #ffffff, #ffffff;
     paddingTop: 14;
-	trackHeight: 4;
+	trackHeight: 10;
 	verticalGap: 0;
 	paddingLeft: 14;
 	paddingRight: 14;
 	verticalGap: 10;
+	fontSize: 12;
+	fontWeight: normal;
+	color: #FFFFFF;
 }
 
 
@@ -554,6 +601,8 @@ Label.titleLabel
 	horizontalGap: 1;
 	paddingTop: 2;
 	paddingBottom: 2;
+	rollOverColor: #F1F7CD;
+	selectionColor: #F8F79F;
 }
 .warningLabel
 {
@@ -578,6 +627,7 @@ Label.titleLabel
 	textDecoration: underline;
 	paddingLeft: 1;
 	paddingRight: 1;
+	fontSize: 11;
 	
 }
 .hintBox
@@ -606,5 +656,49 @@ Label.welcomeLabel
 	fontWeight: normal;
 	fontFamily: Arial;
 	fontStyle: normal;
+}
+Text.welcomeUserLabel
+{
+	color: #453D33;
+	fontSize: 12;
+	leading: 0;
+	fontWeight: normal;
+}
+Text.welcomeSessionLabel
+{
+	color: #453D33;
+	fontSize: 11;
+	leading: 0;
+	fontWeight: normal;
+}
+Text.navLabel
+{
+	color: #ffffff;
+	fontSize: 11;
+	leading: 0;
+}
+Text.navLabelSmall
+{
+	color: #ffffff;
+	fontSize: 12;
+	leading: 0;
+}
+.alertTitle
+{
+	fontSize: 11;
+}
+.alertControlBar
+{
+	fontSize: 11;
+	color: #000000;
+	backgroundAlpha: 0.7;
+}
+Text.progressLabel
+{
+	color: #FFFFFF;
+	fontFamily: Verdana;
+	fontSize: 12;
+	fontWeight: normal;
+	textAlign: center;
 }
 
