@@ -245,7 +245,6 @@
 		}
 		
 		public function checkSecurity():void {
-			this.browseView.checkSecurity();
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				currentState = "AdminState";
 			} else if (parentApplication.currentState == "GuestState") {
@@ -256,6 +255,9 @@
 				// if the user belongs to at least one lab
 				this.newAnalysisButton.enabled = parentApplication.canSubmitRequestForALab();
 				this.newAnalysisGroupButton.enabled = parentApplication.canSubmitRequestForALab();
+			}
+			if (this.browseView != null) {
+				this.browseView.checkSecurity();
 			}
 			
 		}
