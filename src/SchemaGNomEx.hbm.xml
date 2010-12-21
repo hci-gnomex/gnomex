@@ -383,13 +383,14 @@
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<many-to-one name="appUser" column="idAppUser" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
 		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
-    <many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
+    	<many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
 		<property name="idProject" column="idProject" type="integer"/>
-    <many-to-one name="project" column="idProject" class="hci.gnomex.model.Project" cascade="none" insert="false" update="false" />
+    	<many-to-one name="project" column="idProject" class="hci.gnomex.model.Project" cascade="none" insert="false" update="false" />
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+		<many-to-one name="requestCategory" column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 		<property name="codeApplication" column="codeApplication" type="string"/>
 		<property name="idSlideProduct" column="idSlideProduct" type="integer"/>
-    <many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
+    	<many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
 		<property name="idOrganismSampleDefault" column="idOrganismSampleDefault" type="integer"/>
 		<property name="idSamplePrepMethodDefault" column="idSamplePrepMethodDefault" type="integer"/>

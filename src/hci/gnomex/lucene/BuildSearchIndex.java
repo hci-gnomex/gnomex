@@ -278,6 +278,9 @@ public class BuildSearchIndex extends DetailObject {
   
   
   private void getProjectRequestData(Session sess) throws Exception{
+    //
+    // Microarray experiments
+    //
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT proj.id, ");
     buf.append("       req.id, ");
@@ -320,6 +323,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
     buf.append("LEFT JOIN   req.lab as labReq ");
+    buf.append("LEFT JOIN   req.requestCategory as reqCat ");
     buf.append("LEFT JOIN   req.slideProduct as slideProd ");
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.hybridizations as hyb ");
@@ -327,7 +331,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   ls1.sample as s1 ");
     buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls2 ");
     buf.append("LEFT JOIN   ls2.sample as s2 ");
-    buf.append("WHERE       req.codeRequestCategory NOT IN ('" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "', '" + RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY + "')");
+    buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_MICROARRAY + "' ");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -347,6 +351,77 @@ public class BuildSearchIndex extends DetailObject {
       rows.add(row);
     }    
     
+    //
+    // Sample quality experiments
+    //
+    buf = new StringBuffer();
+    buf.append("SELECT proj.id, ");
+    buf.append("       req.id, ");
+    buf.append("       req.number, ");
+    buf.append("       proj.name, ");
+    buf.append("       proj.description, ");
+    buf.append("       '', ");
+    buf.append("       s1.name, ");
+    buf.append("       s1.description, ");
+    buf.append("       s1.idOrganism, ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       req.codeRequestCategory,  ");
+    buf.append("       proj.idLab,  ");
+    buf.append("       labProj.lastName,  ");
+    buf.append("       labProj.firstName,  ");
+    buf.append("       req.idLab,  ");
+    buf.append("       labReq.lastName,  ");
+    buf.append("       labReq.firstName,  ");
+    buf.append("       req.codeApplication, ");
+    buf.append("       reqOwner.firstName, ");
+    buf.append("       reqOwner.lastName, ");
+    buf.append("       '', ");
+    buf.append("       req.codeVisibility, ");
+    buf.append("       req.createDate, ");
+    buf.append("       s1.idSampleType, ");
+    buf.append("       '', ");
+    buf.append("       req.idAppUser, ");
+    buf.append("       s1.idSamplePrepMethod, ");
+    buf.append("       s1.otherSamplePrepMethod, ");
+    buf.append("       '', ");
+    buf.append("       ''  ");
+    
+    buf.append("FROM        Project as proj ");
+    buf.append("LEFT JOIN   proj.requests as req ");
+    buf.append("LEFT JOIN   proj.lab as labProj ");
+    buf.append("LEFT JOIN   req.lab as labReq ");
+    buf.append("LEFT JOIN   req.requestCategory as reqCat ");
+    buf.append("LEFT JOIN   req.appUser as reqOwner ");
+    buf.append("LEFT JOIN   req.samples as s1 ");
+    buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_QC + "' ");
+    buf.append("ORDER BY proj.idProject, req.idRequest ");
+    
+    results = sess.createQuery(buf.toString()).list();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idProject = (Integer)row[0];
+      Integer idRequest = (Integer)row[1];
+      String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
+      
+      List rows = (List)projectRequestMap.get(key);
+      if (rows == null) {
+        rows = new ArrayList();
+        projectRequestMap.put(key, rows);
+      }
+      rows.add(row);
+    }    
+
+
+    //
+    // Illumina experiments
+    //
     buf = new StringBuffer();
     buf.append("SELECT proj.id, ");
     buf.append("       req.id, ");
@@ -389,10 +464,11 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
     buf.append("LEFT JOIN   req.lab as labReq ");
+    buf.append("LEFT JOIN   req.requestCategory as reqCat ");
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.sequenceLanes as lane ");
     buf.append("LEFT JOIN   lane.sample as s1 ");
-    buf.append("WHERE       req.codeRequestCategory  IN ('" + RequestCategory.SOLEXA_REQUEST_CATEGORY + "', '" + RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY + "')");
+    buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_ILLUMINA + "' ");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     results = sess.createQuery(buf.toString()).list();
