@@ -2,7 +2,7 @@
 
 5.0.8
 ---------------------
-- Compile with flex 3.5, provide instructions for building with flash builder 4
+- Compile with Flex 3.5 SDK, provide instructions for building with Flash Builder 4
 - Handle case where experiment, analysis, flowcell directory properties don't end with file separator
 - Account for Windows 7 // in File.getCanonicalPath()
 - Account for case differences in experiment directory and file name
@@ -12,6 +12,8 @@
 - Add QC experiment sample type, sample names to searchable index 
 - Double-click on Analysis search results brings up Analysis detail.
 - Make search a popup window rather than a full pane.
+- Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to directory sql.
+- Created upgrade sql script
 
 
 5.0.7.1 (Dec 7, 2010)
