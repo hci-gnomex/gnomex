@@ -7,11 +7,12 @@ System Requirements
 - Orion application server 2.0.5+ (http://www.orionserver.com/)
 - MySQL database server (http://mysql.com)
 - MySQL JDBC driver (http://mysql.com, download mysql-connector-java-5.1.7.zip)
-- Adobe Flash Player 9+ (http://get.adobe.com/flashplayer/)
+- Adobe Flash Player 10+ (http://get.adobe.com/flashplayer/)
 
 To compile GNomEx:
  - Ant (http://ant.apache.org/)
- - Flex SDK 3.0+ (http://www.adobe.com/products/flex/)
+ - Adobe Flex 3.5 Open source (http://opensource.adobe.com/wiki/display/flexsdk/download?build=3.5.0.12683&pkgtype=2&release=3)
+ - Adobe Flex 3.5 Data Visualization Components for Flex Builder (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk)
 
 
 Install Instructions
@@ -91,10 +92,10 @@ Install Instructions
    - Try logging in again, using your new login and password. Then go back to the 
      Users And Groups and remove the user named 'admin'.
    - There are a number of configurable properties that you need to 
-     set for your installation.  Click on the upper-right link 'Dictionaries'.
-     Scroll in the left-hand tree to find the node called 'Admin - Property'.  Review
-     the entries and make sure you modify the following properties to 
-     match your environment:
+     set for your installation.  Click on the 'Manage Dictionaries' under the 'Administration'
+     heading of the Welcome pane.  Scroll in the left-hand tree to find the node called 
+     'Admin - Property'.  Review the entries and make sure you modify the following properties 
+     to match your environment:
       Required properties - Make sure all of these directories exist.
       -	experiment_directory      
       -	experiment_test_directory 
@@ -201,12 +202,12 @@ Build Instructions
    Public License, so please please read each license to understand how
    the libraries can be used.
    
-   - Download and uncompress the Flex SDK 3+ MPL 
-     (http://opensource.adobe.com/wiki/display/flexsdk/downloads)
+   - Download and uncompress the Flex SDK 3.5 MPL 
+     (http://opensource.adobe.com/wiki/display/flexsdk/download?build=3.5.0.12683&pkgtype=2&release=3)
     
    - Download and uncompress (into the same directory as above)
-     the Adobe Flex 3.4 Data Visualization Components for Flex Builder.
-     (http://www.adobe.com/support/documentation/en/flex/3/releasenotes_flex3_sdk.html#Datavisualization)
+     the Adobe Flex 3.5 Data Visualization Components for Flex Builder.
+     (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk)
      
 
 2. Modify /path/to/gnomex/build.properties
