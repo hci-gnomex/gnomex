@@ -2,26 +2,32 @@
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
 	"http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
-  
-  <context-param>
-    <param-name>mode</param-name>
-    <param-value>opensource</param-value>
-  </context-param>
-  
+
+	<context-param>
+		<param-name>mode</param-name>
+		<param-value>opensource</param-value>
+	</context-param>
+
 	<servlet>
 		<servlet-name>GNomExFrontController</servlet-name>
-		<servlet-class>hci.gnomex.controller.GNomExFrontController</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.GNomExFrontController
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.CustomCaptchaURLServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.CustomCaptchaURLServlet
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet>
-    <servlet-name>Captcha</servlet-name>
+		<servlet-name>Captcha</servlet-name>
 		<display-name>Captcha</display-name>
-    <servlet-class>hci.gnomex.controller.CustomCaptchaServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.CustomCaptchaServlet
+		</servlet-class>
 		<init-param>
 			<param-name>width</param-name>
 			<param-value>180</param-value>
@@ -30,140 +36,184 @@
 			<param-name>height</param-name>
 			<param-value>60</param-value>
 		</init-param>
-    </servlet>
+	</servlet>
 
 
 	<servlet>
 		<servlet-name>DownloadResultsServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.DownloadResultsServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.DownloadResultsServlet
+		</servlet-class>
 	</servlet>
 
 	<servlet>
 		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.DownloadAnalysisFolderServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.DownloadAnalysisFolderServlet
+		</servlet-class>
 	</servlet>
-		
+
 	<servlet>
 		<servlet-name>DownloadFileServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.DownloadFileServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.DownloadFileServlet
+		</servlet-class>
 	</servlet>
 
 	<servlet>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.DownloadSingleFileServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.DownloadSingleFileServlet
+		</servlet-class>
 	</servlet>
 
 	<servlet>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.DownloadAnalysisFileServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.DownloadAnalysisFileServlet
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.DownloadAnalysisSingleFileServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.DownloadAnalysisSingleFileServlet
+		</servlet-class>
 	</servlet>
-	
+
 
 	<servlet>
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.UploadAnalysisFileServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.UploadAnalysisFileServlet
+		</servlet-class>
 	</servlet>
 
 	<servlet>
 		<servlet-name>UploadAnalysisURLServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.UploadAnalysisURLServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.UploadAnalysisURLServlet
+		</servlet-class>
 	</servlet>
-	
+
+	<servlet>
+		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadSampleSheetFileServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadSampleSheetURLServlet
+		</servlet-class>
+	</servlet>
+
 	<servlet>
 		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.UploadAndBroadcastEmailServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.UploadAndBroadcastEmailServlet
+		</servlet-class>
 	</servlet>
-	
-		<servlet>
+
+	<servlet>
 		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.UploadAndBroadcastEmailURLServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.UploadAndBroadcastEmailURLServlet
+		</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<servlet-name>UploadExperimentFileServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.UploadExperimentFileServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.UploadExperimentFileServlet
+		</servlet-class>
 	</servlet>
 
 	<servlet>
 		<servlet-name>UploadExperimentURLServlet</servlet-name>
-		<servlet-class>hci.gnomex.controller.UploadExperimentURLServlet</servlet-class>
+		<servlet-class>
+			hci.gnomex.controller.UploadExperimentURLServlet
+		</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
 		<url-pattern>*.gx</url-pattern>
 	</servlet-mapping>
-	
-		
+
+
 	<servlet-mapping>
 		<servlet-name>DownloadResultsServlet</servlet-name>
 		<url-pattern>DownloadResultsServlet.gx</url-pattern>
 	</servlet-mapping>
-		
+
 	<servlet-mapping>
 		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
 		<url-pattern>DownloadAnalysisFolderServlet.gx</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>DownloadFileServlet</servlet-name>
 		<url-pattern>DownloadFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
-  <servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
 		<url-pattern>DownloadSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
-	
-  <servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<url-pattern>DownloadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
-  <servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
 		<url-pattern>DownloadAnalysisSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
-  <servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
 		<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
-	
-	
-  <servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
+		<url-pattern>UploadSampleSheetFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
 		<url-pattern>UploadAndBroadcastEmailServlet.gx</url-pattern>
 	</servlet-mapping>
-	
-	
-  <servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>UploadAnalysisURLServlet</servlet-name>
 		<url-pattern>UploadAnalysisURLServlet.gx</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>
+		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
+		<url-pattern>UploadSampleSheetURLServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
 		<url-pattern>UploadAndBroadcastEmailURLServlet.gx</url-pattern>
 	</servlet-mapping>
 
-
-  <servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>UploadExperimentFileServlet</servlet-name>
 		<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 	</servlet-mapping>
-	
-	
-  <servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>UploadExperimentURLServlet</servlet-name>
 		<url-pattern>UploadExperimentURLServlet.gx</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
 		<url-pattern>CustomCaptchaURLServlet.gx</url-pattern>
@@ -176,7 +226,7 @@
 	<session-config>
 		<session-timeout>240</session-timeout>
 	</session-config>
-	
+
 	<security-constraint>
 		<display-name>GNomExUser</display-name>
 		<web-resource-collection>
@@ -188,6 +238,8 @@
 			<url-pattern>go.jsp</url-pattern>
 			<url-pattern>uploadAnalysisFile.jsp</url-pattern>
 			<url-pattern>uploadAnalysisFile_plupload.jsp</url-pattern>
+			<url-pattern>uploadSampleSheetFile.jsp</url-pattern>
+			<url-pattern>uploadSampleSheetFile_plupload.jsp</url-pattern>
 			<url-pattern>launcher_reconnect.jsp</url-pattern>
 			<url-pattern>launch.jsp</url-pattern>
 			<url-pattern>Delete*.gx</url-pattern>
@@ -222,27 +274,23 @@
 			<transport-guarantee>NONE</transport-guarantee>
 		</user-data-constraint>
 	</security-constraint>
-	
-    <welcome-file-list>
-       <welcome-file>
-           gnomexFlex.jsp
-       </welcome-file>
-       <welcome-file>
-           gnomex.html
-       </welcome-file>
-    </welcome-file-list>
- 
 
-	
+	<welcome-file-list>
+		<welcome-file>gnomexFlex.jsp</welcome-file>
+		<welcome-file>gnomex.html</welcome-file>
+	</welcome-file-list>
+
+
+
 	<login-config>
 		<auth-method>BASIC</auth-method>
 		<realm-name>hciEnv</realm-name>
 	</login-config>
-	
-	
+
+
 	<security-role>
 		<role-name>GNomExUser</role-name>
 	</security-role>
-	
-  
+
+
 </web-app>

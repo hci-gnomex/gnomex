@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="420" height="272" 
+	xmlns:views="views.*" 
+	showCloseButton="true" initialize="this.setupSampleSheetUpload();vsMain.selectedChild=intro;"
+	close="{PopUpManager.removePopUp(this)}" 
+	title="Upload Sample Sheet" 	 
+	borderThickness="4" defaultButton="{selectFileButton}">
+	
+
+	<mx:ViewStack id="vsMain" width="100%" height="234">
+		<mx:Canvas id="intro" width="100%" height="100%">
+			<mx:VBox verticalGap="20" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%">
+				<mx:Text text="This procedure will upload a tab-deliimited text file containing information to be imported into the editable sample fields. Once the file has been uploaded you will be given an option to specify which columns in the file correspond to which on the form." width="100%"/>
+				<mx:CheckBox id="hasColNames" label="Check here of the first row contains column names."/>
+			<mx:ControlBar horizontalAlign="right">
+				<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"  x="264" y="140"/>
+			</mx:ControlBar>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:Canvas id="chooseColumns" width="100%" height="100%">
+			<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="234">
+				<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%"/>
+				<mx:HBox width="100%">
+					<mx:Label width="200" text="Sample Name:"/>
+					<mx:ComboBox id="sampleName" dataProvider="{sampleNameList}" labelField="@label"></mx:ComboBox>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label width="200" text="Concentration:"/>
+					<mx:ComboBox id="sampleConcentration" dataProvider="{sampleConcentrationList}" labelField="@label"></mx:ComboBox>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label width="200" text="Description"/>
+					<mx:ComboBox id="sampleDescription" dataProvider="{sampleDescriptionList}" labelField="@label"></mx:ComboBox>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label width="200" text="CC Number:"/>
+					<mx:ComboBox id="sampleCCNumber" dataProvider="{sampleCCNumberList}" labelField="@label"></mx:ComboBox>
+				</mx:HBox>
+				<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()" />
+			</mx:VBox>
+		</mx:Canvas>
+	</mx:ViewStack>
+
+	  <mx:HTTPService  
+	    id="getSampleSheetUploadURL" 
+	    url="UploadSampleSheetURLServlet.gx"
+	    resultFormat="e4x"
+	    showBusyCursor="true" 
+	    result="onGetSampleSheetUploadURL(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to get sample sheet upload URL', event)"
+	    method="POST"
+	    useProxy="false">
+	  </mx:HTTPService>	    
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent; 
+			import mx.collections.XMLListCollection;  
+			import mx.rpc.events.FaultEvent;   
+			import mx.controls.Alert; 
+			import gnomex_package.PopulateSampleSheetFieldsEvent;
+			
+			private var uploadFR:FileReference;
+			public var uploadSampleSheetURL:String;
+			private var docTypes:FileFilter;
+			private var	sampleSheetXML:XML;	
+			
+			[Bindable]
+			private var sampleNameList:XMLListCollection = new XMLListCollection();
+			
+			[Bindable]
+			private var sampleConcentrationList:XMLListCollection = new XMLListCollection();
+			
+			[Bindable]
+			private var sampleDescriptionList:XMLListCollection = new XMLListCollection();
+			
+			[Bindable]
+			private var sampleCCNumberList:XMLListCollection = new XMLListCollection();
+			
+			public function setupSampleSheetUpload():void {
+				uploadSampleSheetURL = null;
+				getSampleSheetUploadURL.send();		
+			}
+			
+			private function onGetSampleSheetUploadURL(event:ResultEvent):void {
+				if (getSampleSheetUploadURL.lastResult.name() == "UploadSampleSheetURL") {
+					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
+				}
+			}				
+				
+			private function clickUploadFileButton():void {
+				//var clickUploadFileButtonEvent:ChooseFileClickEvent = new ChooseFileClickEvent(hasColNames.selected);
+				//this.dispatchEvent(clickUploadFileButtonEvent);
+				//PopUpManager.removePopUp(this);
+				if(uploadSampleSheetURL != null) {
+					docTypes = new FileFilter("Documents (*.txt)", "*.txt"); 
+					uploadFR = new FileReference;
+					uploadFR.addEventListener(Event.SELECT, uploadSampleSheetSelectHandler); 
+					uploadFR.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, uploadSampleSheetCompleteHandler); 
+					uploadFR.browse([docTypes]);					
+				}
+				else {
+					Alert.show("Error: the upload URL has not been retrieved.");
+				}
+			}
+			
+			private function clickPopulateFieldsButton():void {
+				var selectedSampleName:int = parseInt(sampleName.selectedItem.@data);
+				var selectedSampleConcentration:int = parseInt(sampleConcentration.selectedItem.@data);
+				var selectedSampleDescription:int = parseInt(sampleDescription.selectedItem.@data);
+				var selectedSampleCCNumber:int = parseInt(sampleCCNumber.selectedItem.@data);
+				
+				var sampleNameArray:Array = new Array();
+				var sampleConcentrationArray:Array = new Array();
+				var sampleDescriptionArray:Array = new Array();
+				var sampleCCNumberArray:Array = new Array();
+				
+				var rowList:XMLList = sampleSheetXML.SampleSheetData.Row;
+				var rowCount:int = 1;
+				for each (var rowItem:XML in rowList) {
+					if(hasColNames.selected && rowCount==1) {
+						// Skip row 1 if it consists of column names
+						rowCount++;
+						continue; 
+					}
+					var colList:XMLList = rowItem.Column;
+					var colCount:int = 1;
+					for each(var colItem:XML in colList) {  
+						if(colCount == selectedSampleName) {
+							sampleNameArray.push(colItem.@Value);
+						}
+						if(colCount == selectedSampleConcentration) {
+							sampleConcentrationArray.push(colItem.@Value);						
+						}
+						if(colCount == selectedSampleDescription) {
+							sampleDescriptionArray.push(colItem.@Value);						
+						}
+						if(colCount == selectedSampleCCNumber) {
+							sampleCCNumberArray.push(colItem.@Value);						
+						}
+						colCount++;													
+					} 
+					rowCount++;                
+				} 				
+				var pSSFieldsEvent:PopulateSampleSheetFieldsEvent 
+					= new PopulateSampleSheetFieldsEvent(sampleNameArray, sampleConcentrationArray,
+														 sampleDescriptionArray, sampleCCNumberArray);
+				this.dispatchEvent(pSSFieldsEvent);
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function uploadSampleSheetSelectHandler(event:Event):void { 
+				var request:URLRequest = new URLRequest(uploadSampleSheetURL); 
+				request.method = URLRequestMethod.POST; 
+
+				var variables:URLVariables = new URLVariables(); 
+				if(hasColNames.selected) {
+					variables.hasColumnNames = "1"; 
+				} else {
+					variables.hasColumnNames = "0"; 
+				}
+				request.data = variables; 
+			
+				uploadFR.upload(request); 		
+			} 
+			
+			private function uploadSampleSheetCompleteHandler(event:DataEvent):void { 
+				//var strData:String = StringUtil.trim(event.data);
+				
+				var cols:String = "";
+				
+				sampleSheetXML = new XML(event.data); 
+				
+				sampleNameList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+				sampleConcentrationList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+				sampleDescriptionList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+				sampleCCNumberList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);			
+				
+				vsMain.selectedChild=chooseColumns;
+			
+			} 	
+		
+						
+		]]>
+	</mx:Script>
+</mx:TitleWindow>
