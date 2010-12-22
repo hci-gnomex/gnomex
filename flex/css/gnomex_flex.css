@@ -147,29 +147,13 @@ TitleWindow {
 	fontWeight: normal;
 }
 
-TitleWindow.progress {
-	borderColor: #7E91A9;
-	backgroundColor: #7E91A9;
-	cornerRadius: 4;
-	borderThicknessTop: 4;
-	borderThicknessBottom: 4;
-	borderThicknessLeft: 4;
-	borderThicknessRight: 4;
-	titleStyleName: titleWindowTitle;
-	headerHeight: 0;
-	controlBarStyleName: titleWindowControlBar;
-	dropShadowEnabled: true;
-	borderAlpha: 0.7; 
-	backgroundAlpha: 0.7;
-}
-
 Alert {
-	borderAlpha: 0.3;
+	borderAlpha: 0.7;
 	backgroundColor: #C3C2B7;
 	borderColor: #C3C2B7;
 	cornerRadius: 4;
 	borderStyle: solid;
-	backgroundAlpha: 0.3;
+	backgroundAlpha: 0.7;
 	fontSize: 11;
 	titleStyleName: alertTitle;
 	controlBarStyleName: alertControlBar;
@@ -493,10 +477,10 @@ TextArea {
 	paddingLeft: 14;
 	paddingRight: 14;
 	verticalGap: 10;
-	fontSize: 12;
+	fontSize: 14;
 	fontWeight: normal;
 	color: #ffffff;
-	fontFamily: Arial;
+	fontFamily: Verdana;
 }
 
 
@@ -694,8 +678,8 @@ Text.navLabelSmall
 Text.progressLabel
 {
 	color: #ffffff;
-	fontFamily: Arial;
-	fontSize: 12;
+	fontFamily: Verdana;
+	fontSize: 14;
 	fontWeight: normal;
 	textAlign: center;
 }
