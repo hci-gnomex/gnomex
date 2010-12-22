@@ -4,18 +4,13 @@ Open Source GNomEx FAQ
 Q: What development environment would you recommend to make changes to the GNomEx software?
 
 A: If you plan on making significant changes to the user interface, I would suggest 
-   purchasing Flex Builder 3, which costs ~ $250.  This is an Eclipse based development 
+   purchasing Flash Builder 4, which costs ~ $250.  This is an Eclipse based development 
    environment for building Flex applications.  It will allow you to design the Flex 
-   screens in an interactive drag-and-drop environment. Adobe just introduced Flash Builder 4, 
-   so it looks like they no longer offer trial downloads or purchases of Flex Builder 3.  
-   However, it looks like Flex Builder 3 can be purchased from various third parties 
-   such as Amazon.
-
-   In the coming months, I will most likely port GNomEx to the Flex 4.  At this time, 
-   I have not investigated the migration effort to port from Flex 3 to Flex 4.  
-   I suspect it will be trivial, but I hesitate to suggest Flash Builder 4 until I 
-   know for certain that the migration will not be burdensome.
-
+   screens in an interactive drag-and-drop environment.
+   
+   GNomEx currently compiles using the Flex SDK 3.5, which is packaged into Flash 
+   Builder 4. In the coming months, I will most likely port GNomEx to the Flex SDK 4.  
+   
    If you are making very small changes to the software, you might be able to manage 
    with a good text editor, the Java SDK, the open source Flex SDK, and Ant.  
    (See README_INSTALL.txt for notes on how to build GNomEx.)  Another option is to 
@@ -41,7 +36,7 @@ A: To be able to download data files from GNomEx, you will need to set the
            available for download.
       6446R
   
-   flowcell_directory – The path to the root flowcell quality report directory.   
+   flowcell_directory -  The path to the root flowcell quality report directory.   
    GNomEx assumes that this directory contains subdirectories for each year; the year 
    subdirectoriy contains subdirectories for each flow cell number:  Here’s an example
 
@@ -53,11 +48,11 @@ A: To be able to download data files from GNomEx, you will need to set the
 
 You can set the flowcell_directory and experiment_directory in GNomEx by clicking 
 on the dictionaries link (right corner of nav bar).  Click on the folder called 
-‘Properties’, then set each property.  (Remember to press the ‘Save’  button.)
+'Admin Properties', then set each property.  (Remember to press the 'Save'  button.)
 
-When you select the experiment, then click the ‘Download’ link at the bottom, 
+When you select the experiment, then click the 'Download' link at the bottom, 
 you should see the experiment downloads folder.  Check the folder and then click 
-on ‘Explore files’.  This will display all of the files sitting in the experiment directory ready for download.  
+on '�Explore files'.  This will display all of the files sitting in the experiment directory ready for download.  
  
  
 Q:  How do I configure GNomEx to use GMail's SMTP mail server?
