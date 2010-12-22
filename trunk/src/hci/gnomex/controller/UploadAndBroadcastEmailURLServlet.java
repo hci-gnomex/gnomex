@@ -21,7 +21,8 @@ public class UploadAndBroadcastEmailURLServlet extends HttpServlet {
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
       if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
-          || req.getRemoteAddr().equals("127.0.0.1")) {
+          || req.getRemoteAddr().equals("127.0.0.1")
+          || InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
        
       }
       else {

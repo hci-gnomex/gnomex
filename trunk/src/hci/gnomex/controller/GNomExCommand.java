@@ -116,7 +116,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
   }
   
   public String getAppURL(HttpServletRequest request) throws Exception {
-    boolean isLocalHost = request.getServerName().equalsIgnoreCase("localhost") || request.getServerName().equals("127.0.0.1");
+    boolean isLocalHost = request.getServerName().equalsIgnoreCase("localhost") || request.getServerName().equals("127.0.0.1")  || InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress();
     return "http"+ (isLocalHost ? "://" : "s://") + request.getServerName() + request.getContextPath();    
   }
   
