@@ -105,6 +105,7 @@
             classpathref="project.class.path">
 
             <src path="${src.dir}" />
+      		<exclude name="**/fdt/**"/>      		
         </javac>
 	</target>
 
@@ -324,12 +325,13 @@
 		<!-- Copy gnomex source, leaving out hci installation specific files -->
 	  <copy todir="${opensource.dir}">
 	  	 <fileset dir="${basedir}">
-		    	<include name="build.properties"/>
-		    	<include name="build.xml"/>
-		    	<include name="*.sql"/>
-		    	<include name="*.sh"/>
-		    	<include name="*.cmd"/>
-	        <include name="doc/**"/>
+		      <include name="build.properties"/>
+		      <include name="build.xml"/>
+		      <include name="*.sql"/>
+		      <include name="*.sh"/>
+		      <include name="*.cmd"/>
+	  	 	  <include name="sql/**"/>
+	  	 	  <include name="doc/**"/>
 		      <include name="flex/**"/>
 		      <include name="src/**"/>
 		      <include name="lib/**"/>
