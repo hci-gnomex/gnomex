@@ -85,7 +85,7 @@
 		}		
 		private function onPromptToClose(event:CloseEvent):void {
 			if (event.detail==Alert.YES) {
-				this.onCloseWindow();
+				PopUpManager.removePopUp(this);
 			}
 		}			
 		public function initializeFileUploadControl(uploadServletURL:String):void{
