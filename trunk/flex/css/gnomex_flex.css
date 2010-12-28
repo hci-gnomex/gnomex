@@ -148,18 +148,16 @@ TitleWindow {
 }
 
 Alert {
-	borderAlpha: 0.7;
-	backgroundColor: #C3C2B7;
-	borderColor: #C3C2B7;
+	borderAlpha: 1.0;
+	backgroundColor: #BAB8A5;
+	borderColor: #BAB8A5;
 	cornerRadius: 4;
 	borderStyle: solid;
-	backgroundAlpha: 0.7;
+	backgroundAlpha: 1;
 	fontSize: 11;
 	titleStyleName: alertTitle;
 	controlBarStyleName: alertControlBar;
 	backgroundSize: "100%";
-	color: #392F1E;
-
 }
 
 TitleWindow {
@@ -477,7 +475,7 @@ TextArea {
 	paddingLeft: 14;
 	paddingRight: 14;
 	verticalGap: 10;
-	fontSize: 14;
+	fontSize: 12;
 	fontWeight: normal;
 	color: #ffffff;
 	fontFamily: Verdana;
@@ -671,15 +669,15 @@ Text.navLabelSmall
 }
 .alertControlBar
 {
-	fontSize: 11;
-	color: #000000;
-	backgroundAlpha: 0.7;
+	fontSize: 10;
+	color: #3F3E28;
+	backgroundAlpha: 1.0;
 }
 Text.progressLabel
 {
 	color: #ffffff;
 	fontFamily: Verdana;
-	fontSize: 14;
+	fontSize: 12;
 	fontWeight: normal;
 	textAlign: center;
 }

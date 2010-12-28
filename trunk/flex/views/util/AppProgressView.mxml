@@ -24,7 +24,7 @@
 	 	 	 	   	labelPlacement="top" 
 	 	 	 	   	textAlign="left" 
 	 	 	 	        direction="right" mode="manual" width="100%" 
-	 	 	 	         label="Loading application settings..."/>
+	 	 	 	         label="Loading application settings..." fontWeight="normal" fontSize="12"/>
 	 	 	 </mx:AddChild>
 	 	 </mx:State>
 	 	 <mx:State name="AuthenticationFailedState" basedOn="StartupState">
