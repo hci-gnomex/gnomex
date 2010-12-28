@@ -6,29 +6,33 @@
   
 <mx:Script>
 	<![CDATA[
-		import mx.collections.GroupingField;
+		import hci.flex.controls.DropdownLabel;
+		import hci.flex.controls.Label;
+		
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
-		import views.renderers.TextInputSeqPrepByCore;
-		import hci.flex.controls.DropdownLabel;
-		import views.renderers.ComboBox;
-		import views.renderers.ComboBoxWorkflowStatus;
+		import mx.collections.GroupingField;
+		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
-		import hci.flex.controls.Label; 
-		import views.util.AnnotationAdvancedDataGridColumn;
+		import mx.events.DragEvent;
+		import mx.events.ValidationResultEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		import mx.utils.StringUtil;
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
-		import mx.events.ValidationResultEvent;		
-		import mx.collections.XMLListCollection;
-		import mx.events.DragEvent;
-		import mx.managers.DragManager;
-		import views.renderers.LabelBarcodeSequence;
-		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
+		
 		import views.util.UploadSampleSheetView;
-		import gnomex_package.PopulateSampleSheetFieldsEvent;
-		import mx.utils.StringUtil;
+		
+		import views.renderers.ComboBox;
+		import views.renderers.ComboBoxWorkflowStatus;
+		import views.renderers.LabelBarcodeSequence;
+		import views.renderers.TextInputSeqPrepByCore;
+		import views.util.AnnotationAdvancedDataGridColumn;
+		import views.util.PopulateSampleSheetFieldsEvent;
+		import views.util.UploadSampleSheetView;
 
 		            
 		public var sampleGroupingCollection:GroupingCollection = null;
@@ -41,7 +45,9 @@
 		
 		public function uploadSampleSheet():void {
 			this.systemManager.addEventListener("PopulateSampleSheetFieldsEvent", populateSampleSheetFields);  
-			PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetView, true));
+			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(this, UploadSampleSheetView, true));
+			PopUpManager.centerPopUp(uploadSampleSheetWindow);
+			uploadSampleSheetWindow.init(this.showCCNumberCheckbox.selected);
 		}
 		
 		public function populateSampleSheetFields(event:PopulateSampleSheetFieldsEvent):void {

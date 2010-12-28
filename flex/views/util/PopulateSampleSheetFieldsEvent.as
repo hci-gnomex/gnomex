@@ -1,5 +1,5 @@
-package gnomex_package
-{
+package views.util
+{ 
 	import flash.events.Event;
 
 	public class PopulateSampleSheetFieldsEvent extends Event
