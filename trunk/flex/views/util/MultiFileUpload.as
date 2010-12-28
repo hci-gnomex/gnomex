@@ -387,13 +387,15 @@ package views.util
 
         // called after a file has been successully uploaded | we use this as well to check if there are any files left to upload and how to handle it
         private function completeHandler(event:Event):void{
+			var fileUploaded:Event = new Event(Event.ADDED);
+			dispatchEvent(fileUploaded);
             _files.removeItemAt(0);
             if (_files.length > 0){
-            	_totalbytes = 0;
+				_totalbytes = 0;
                 uploadFiles(null);
             }else{
                 setupCancelButton(false);
-                 _progressbar.label = "Uploads Complete";
+                 _progressbar.label = "Uploads Complete"; 
                  var uploadCompleted:Event = new Event(Event.COMPLETE);
                 dispatchEvent(uploadCompleted);
             }
