@@ -73,16 +73,7 @@
     useProxy="false">
   </mx:HTTPService>
   
-  <mx:HTTPService  
-    id="getAnalysisUploadURL" 
-    url="UploadAnalysisURLServlet.gx"
-    resultFormat="e4x"
-    showBusyCursor="true" 
-    result="onGetAnalysisUploadURL(event)" 
-	fault="parentApplication.onFailHttpRequest('Failed to get analysis upload URL', event)"
-    method="POST"
-    useProxy="false">
-  </mx:HTTPService>
+
   
   <mx:HTTPService  
     id="getLab" 
@@ -101,31 +92,31 @@
      	 
 <mx:Script>
 	<![CDATA[
-		import mx.events.CollectionEvent;
-		import views.protocol.ProtocolsView;
-		import views.experiment.ExperimentDetailWindow;
-		import mx.managers.PopUpManager;
-		import mx.events.CloseEvent;
+		import hci.flex.controls.DropdownLabel;
+		import hci.flex.dictionary.DictionaryEditor;
+		import hci.flex.dictionary.DictionaryEvent;
+		
 		import mx.controls.Alert;
-		import mx.rpc.events.ResultEvent;
+		import mx.controls.listClasses.ListBase;
+		import mx.core.DragSource;
+		import mx.core.UIComponent;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
 		import mx.events.DragEvent;
-		import mx.events.DragEvent;
+		import mx.events.PropertyChangeEvent;
 		import mx.managers.DragManager;
-        import mx.core.DragSource;
-        import mx.core.UIComponent;
-        import mx.controls.listClasses.ListBase;
-        import views.util.MultiFileUpload;
-        import views.experiment.ExperimentDetailView;
-        import hci.flex.dictionary.DictionaryEvent;
-        import hci.flex.dictionary.DictionaryEditor;
-        import hci.flex.controls.DropdownLabel;
-        import mx.events.CollectionEventKind;
-        import mx.events.PropertyChangeEvent;
-        import views.util.PromptXMLListCollection;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.experiment.ExperimentDetailView;
+		import views.experiment.ExperimentDetailWindow;
+		import views.protocol.ProtocolsView;
+		import views.util.PromptXMLListCollection;
 
         	
 	    [Bindable]
-		private var analysis:Object;
+		public var analysis:Object;
 		
 		[Bindable]
 		private var possibleCollaborators:PromptXMLListCollection;
@@ -135,8 +126,6 @@
 		
 		private var execValidateAndSaveAnalysis:Boolean = false;
 		
-		private var multiFileUpload:MultiFileUpload;
-        private var UPLOAD_SERVLET_URL:String = "UploadAnalysisFileServlet.gx";
         
         private var experimentDetailWindow:ExperimentDetailWindow;  
         
@@ -147,9 +136,7 @@
         private function onCloseWindow():void {
         	if (dirty.isDirty()) {
         		promptToCloseOnDirty();
-        	} else if (uploadButton.enabled) {
-        		promptToCloseOnUploadPending();
-        	}else {
+        	} else {
         		PopUpManager.removePopUp(this);
         	}
         }
@@ -160,20 +147,11 @@
 						onPromptToSaveAndClose,						
 						parentApplication.iconWarning);
 		}
-		private function promptToCloseOnUploadPending():void {
-			Alert.show( "Some analysis files have not been uploaded. Upload files before closing window?",
-						"Warning",
-						(Alert.YES | Alert.NO), this, 
-						onPromptToSaveAndClose,						
-						parentApplication.iconWarning);
-		}
+
 		
 		private function onPromptToSaveAndClose(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
             	this.validateAndSaveAnalysis();
-            	PopUpManager.removePopUp(this);            	
-            } else {
-            	PopUpManager.removePopUp(this);            	
             }
         }	
 		
@@ -220,19 +198,13 @@
 			
 			files.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingFilesChange);
 			
-			getAnalysisUploadURL.send();
+			if(execValidateAndSaveAnalysis) {
+				validateAndSaveAnalysis();
+			}
 			
 		}
 		
-		private function onGetAnalysisUploadURL(event:ResultEvent):void {
-			if (getAnalysisUploadURL.lastResult.name() == "UploadAnalysisURL") {
-				var url:String = getAnalysisUploadURL.lastResult.@url;
-				initializeFileUploadControl(url);
-				if(execValidateAndSaveAnalysis) {
-					validateAndSaveAnalysis();
-				}
-			}
-		}
+		
 		
 		public function initializeDataProviders():void {
 			filteredGenomeBuildList.source = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild');
@@ -372,6 +344,9 @@
 		}
 		private function removeAllAnalysisFiles():void {
 			this.dirty.setDirty();
+			for each(var f:Object in files) {
+				filesToDelete.addItem(f);
+			}
 			files.removeAll();
 		}
 		private function removeAnalysisFile():void {
@@ -409,7 +384,7 @@
 	    	var x:int = hybsGrid.dataProvider.getItemIndex(item) + 1;
 	       	return String(x);
 	    } 
-   	 	private function getFilesGridRowNumber(item:Object,col:int):String
+   	 	public function getFilesGridRowNumber(item:Object,col:int):String
 	    {
 	    	var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
 	       	return String(x);
@@ -432,7 +407,6 @@
         }     
         
         public function validateAndSaveAnalysis():void {
-        	initializeFileUploadParameters();
         	
         	// Check for required fields
         	if (analysisName.text == "") {
@@ -479,11 +453,6 @@
         
 		private function onSaveAnalysis(event:ResultEvent):void {
 			if (saveAnalysis.lastResult.name() == "SUCCESS") {
-
-				// start file uploads
-				this.uploadButton.visible = true;
-				this.multiFileUpload.startUpload();
-
 
 				dirty.resetDirty();
 
@@ -588,50 +557,7 @@
 	       event.preventDefault();
 	       
 		}
-		public function initializeFileUploadParameters():void{
-           var postVariables:URLVariables = new URLVariables;
-		   postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
-		   multiFileUpload.setUploadURLParameters(postVariables);  
-		}
-		
-		public function initializeFileUploadControl(uploadServletURL:String):void{
-            
-            if (multiFileUpload == null) {
-		         
-		        multiFileUpload = new MultiFileUpload(
-		            this.uploadFilesGrid,
-		            this.uploadBrowseButton,
-		            this.uploadClearButton,
-		            this.uploadDeleteButton,
-		            this.uploadButton,
-		            this.uploadProgressBar,
-		            uploadServletURL,
-		            postVariables,
-		            0,
-		            null
-		            );
-		        
-		       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
-		       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
-            	
-            } else {
-            	var postVariables:URLVariables = new URLVariables;
-		        postVariables.idAnalysis = this.analysis.@idAnalysis.toString(); 
-		        multiFileUpload.setUploadURLParameters(postVariables);  
-            }
-          
-       }
-       public function onUploadFinished(event:Event):void{
-				// refresh analysis
-			 	var parms:Object = new Object();
-			 	parms.idAnalysis = analysis.@idAnalysis;
-			 	getAnalysisAfterUpload.send(parms);
-			 	
-       }	
-       
-       public function onChooseFileToUpload(event:Event):void {
-       		//dirty.setDirty();
-       }
+
         
         private function filterGenomeBuild(item:Object):Boolean {
         	if (item.@value == "") {
@@ -811,10 +737,12 @@
             parentDocument.detailView.setupForm();
 		}
 		
-		private function showHTMLUploadForm():void {
-			var url:URLRequest = new URLRequest('uploadAnalysisFile_plupload.jsp?analysisNumber=' + this.analysis.@number + '&analysisName=' + this.analysis.@name);
-			navigateToURL(url, '_blank');			
+		private function showUploadWindow():void {
+			var uploadWindow:AnalysisUploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.initFromEdit(this, this.analysis);
 		}
+
 		
 		private function refreshAnalysis():void {
 			// refresh analysis
@@ -1084,46 +1012,22 @@
 				</mx:VBox>	
 			</mx:HDividedBox>
 		</mx:Canvas>
-		<mx:VDividedBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
-			<mx:VBox width="100%" height="100%" verticalGap="2">
-			    <mx:HBox width="100%">
-					<mx:Label text="Files to upload" fontWeight="bold"/>
-					<mx:Spacer width="100%">
-					</mx:Spacer>
-					<mx:LinkButton label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
-			    </mx:HBox>
-	            <mx:HBox  width="100%">
-	                <mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
-	                <mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
-	                <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
-	                <mx:HBox width="100%"  horizontalAlign="right">
-	                    <mx:VRule height="20"/>
-	                    <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
-	                </mx:HBox>
-
-	            </mx:HBox>
-				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
-				</mx:DataGrid>				
-        		<mx:Spacer  width="100%" height="10"/>		
-			</mx:VBox>
-			<mx:VBox width="100%" height="100%" verticalGap="2">
-				<mx:Label text="Uploaded Files" fontWeight="bold"/>
+		<mx:VBox verticalGap="2" label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 				<mx:HBox>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()"/>
 					<mx:LinkButton id="clearFileButton" label="Clear all" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png')" icon="@Embed(source='../../assets/folder_delete.png')" toolTip="Clear all files"  textDecoration="underline" click="promptToRemoveAllAnalysisFiles()"/>					
 				</mx:HBox>
-				<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
+				<mx:DataGrid id="filesGrid"  horizontalScrollPolicy="auto" dataProvider="{files}"  editable="true" width="100%" height="100%">
 					<mx:columns>
-					    <mx:DataGridColumn headerText="" width="25" editable="false" labelFunction="getFilesGridRowNumber"/>
-						<mx:DataGridColumn headerText="File name"  editable="false" dataField="@displayName"/>
+						<mx:DataGridColumn headerText=" " width="20" editable="false" labelFunction="getFilesGridRowNumber"/>
+						<mx:DataGridColumn headerText="File name"   width="240" editable="false" dataField="@displayName"/>
 						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@lastModifyDateDisplay"/>
-						<mx:DataGridColumn headerText="Comments" editable="true" dataField="@comments"/>
-				    	<mx:DataGridColumn dataField="@type"           headerText="Type" width="20" />
-				    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="20"/>
+						<mx:DataGridColumn headerText="Comments" width="240" editable="true" dataField="@comments"/>
+						<mx:DataGridColumn dataField="@type"           headerText="Type" width="80" />
+						<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="80"/>
 					</mx:columns>
 				</mx:DataGrid>
-			</mx:VBox>
-		</mx:VDividedBox>
+		</mx:VBox>
 
    		<mx:VBox label="Visibility" width="100%" height="100%"  paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
@@ -1176,10 +1080,11 @@
         <mx:HBox width="100%" horizontalAlign="left">
 	        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
         	</mx:LinkButton>
+			<mx:LinkButton label="Upload files" click="showUploadWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')">    	        
+			</mx:LinkButton>
 	        <mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()"/>
         </mx:HBox>
         <util:DirtyNote id="dirty"/>
-        <mx:Button label="Upload files" id="uploadButton" click="initializeFileUploadParameters()" enabled="false" visible="true"/>
       	<mx:Button id="saveButton" label="Save" 
              	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">
         </mx:Button>
