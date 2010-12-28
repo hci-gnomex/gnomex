@@ -4,6 +4,7 @@
 ----------------------
 - Fix bug that was causing error on save of Analysis when file registered in the db but not found on the file system.
 - Fix bug that was preventing 'clear all' Analysis files from working.
+- When file registered in db but not on file system, just show 0 bytes instead of post-fixing (FILE NOT FOUND) to name.
 - Fix bug introduced in 5.0.8 that was causing $0 estimated price on QC bionanalyzer requests.
 - Introduce import Sample Spreadshett feature (Robb)
 
