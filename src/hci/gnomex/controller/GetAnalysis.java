@@ -205,6 +205,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           if (!fileMap.containsKey(af.getFileName())) {
             AnalysisFileDescriptor fd = new AnalysisFileDescriptor();
             fd.setDisplayName(af.getFileName() + " (FILE NOT FOUND)");
+            fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+            fd.setIdAnalysis(af.getIdAnalysis());
             fd.setAnalysisNumber(a.getNumber());
             fd.setUploadDate(af.getUploadDate());
             fd.setComments(af.getComments());
