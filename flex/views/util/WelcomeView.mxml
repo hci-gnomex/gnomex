@@ -182,7 +182,7 @@
 	]]> 
 </mx:Script>
 
-	<mx:Text text="{'Wecome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="12" top="12"/>
+	<mx:Text text="{'Welcome ' + parentApplication.userName}" styleName="welcomeUserLabel" left="12" top="12"/>
 	<mx:Text  bottom="2" right="2" text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel"/>
 	<mx:VBox    
 		width="100%" height="100%"  
