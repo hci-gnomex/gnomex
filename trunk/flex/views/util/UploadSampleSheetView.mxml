@@ -1,46 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" width="420" height="272" 
+	creationPolicy="all"
 	xmlns:views="views.*" 
 	showCloseButton="true" initialize="this.setupSampleSheetUpload();vsMain.selectedChild=intro;"
 	close="{PopUpManager.removePopUp(this)}" 
 	title="Upload Sample Sheet" 	 
 	borderThickness="4" defaultButton="{selectFileButton}">
+	<mx:states>
+		<mx:State name="HideCCNumberState">
+			<mx:RemoveChild target="{hbox1}"/>
+		</mx:State>
+	</mx:states>
 	
-
-	<mx:ViewStack id="vsMain" width="100%" height="234">
-		<mx:Canvas id="intro" width="100%" height="100%">
-			<mx:VBox verticalGap="20" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%">
-				<mx:Text text="This procedure will upload a tab-deliimited text file containing information to be imported into the editable sample fields. Once the file has been uploaded you will be given an option to specify which columns in the file correspond to which on the form." width="100%"/>
-				<mx:CheckBox id="hasColNames" label="Check here of the first row contains column names."/>
-			<mx:ControlBar horizontalAlign="right">
-				<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"  x="264" y="140"/>
-			</mx:ControlBar>
-			</mx:VBox>
-		</mx:Canvas>
-		<mx:Canvas id="chooseColumns" width="100%" height="100%">
-			<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="234">
-				<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%"/>
-				<mx:HBox width="100%">
-					<mx:Label width="200" text="Sample Name:"/>
-					<mx:ComboBox id="sampleName" dataProvider="{sampleNameList}" labelField="@label"></mx:ComboBox>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label width="200" text="Concentration:"/>
-					<mx:ComboBox id="sampleConcentration" dataProvider="{sampleConcentrationList}" labelField="@label"></mx:ComboBox>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label width="200" text="Description"/>
-					<mx:ComboBox id="sampleDescription" dataProvider="{sampleDescriptionList}" labelField="@label"></mx:ComboBox>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label width="200" text="CC Number:"/>
-					<mx:ComboBox id="sampleCCNumber" dataProvider="{sampleCCNumberList}" labelField="@label"></mx:ComboBox>
-				</mx:HBox>
-				<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()" />
-			</mx:VBox>
-		</mx:Canvas>
-	</mx:ViewStack>
+    <mx:VBox width="100%" height="100%">
+		<mx:ViewStack id="vsMain" width="100%" height="100%">
+			<mx:Canvas id="intro" width="100%" height="100%">
+				<mx:VBox verticalGap="20" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
+					<mx:Text text="This procedure will upload a tab-deliimited text file containing information to be imported into the editable sample fields. Once the file has been uploaded you will be given an option to specify which columns in the file correspond to which on the form." width="100%"/>
+					<mx:CheckBox id="hasColNames" label="Check here of the first row contains column names."/>
+					<mx:Spacer height="100%"/>
+					<mx:ControlBar horizontalAlign="right">
+						<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"  x="264" y="140"/>
+					</mx:ControlBar>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="chooseColumns" width="100%" height="100%">
+				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" id="vbox1" height="100%" paddingTop="8" paddingBottom="8">
+					<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%"/>
+					<mx:HBox width="100%">
+						<mx:Label width="200" text="Sample Name:"/>
+						<mx:ComboBox id="sampleName" dataProvider="{sampleNameList}" labelField="@label"></mx:ComboBox>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label width="200" text="Concentration:"/>
+						<mx:ComboBox id="sampleConcentration" dataProvider="{sampleConcentrationList}" labelField="@label"></mx:ComboBox>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label width="200" text="Description"/>
+						<mx:ComboBox id="sampleDescription" dataProvider="{sampleDescriptionList}" labelField="@label"></mx:ComboBox>
+					</mx:HBox>
+					<mx:HBox width="100%" id="hbox1">
+						<mx:Label width="200" text="CC Number:"/>
+						<mx:ComboBox id="sampleCCNumber" dataProvider="{sampleCCNumberList}" labelField="@label"></mx:ComboBox>
+					</mx:HBox>
+					<mx:Spacer height="100%" id="spacer1"/>
+					<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button1"/>
+				</mx:VBox>
+			</mx:Canvas>
+		</mx:ViewStack>
+		
+	</mx:VBox>
+	<mx:ControlBar width="100%">
+	</mx:ControlBar>
 
 	  <mx:HTTPService  
 	    id="getSampleSheetUploadURL" 
@@ -55,12 +67,14 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent; 
-			import mx.collections.XMLListCollection;  
-			import mx.rpc.events.FaultEvent;   
-			import mx.controls.Alert; 
-			import gnomex_package.PopulateSampleSheetFieldsEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.util.PopulateSampleSheetFieldsEvent;
+
 			
 			private var uploadFR:FileReference;
 			public var uploadSampleSheetURL:String;
@@ -78,6 +92,14 @@
 			
 			[Bindable]
 			private var sampleCCNumberList:XMLListCollection = new XMLListCollection();
+			
+			public function init(showCCNumberField:Boolean):void {
+				if (showCCNumberField) {
+					this.currentState = "";
+				} else {
+					this.currentState = "HideCCNumberState";
+				}
+			}
 			
 			public function setupSampleSheetUpload():void {
 				uploadSampleSheetURL = null;
@@ -110,7 +132,7 @@
 				var selectedSampleName:int = parseInt(sampleName.selectedItem.@data);
 				var selectedSampleConcentration:int = parseInt(sampleConcentration.selectedItem.@data);
 				var selectedSampleDescription:int = parseInt(sampleDescription.selectedItem.@data);
-				var selectedSampleCCNumber:int = parseInt(sampleCCNumber.selectedItem.@data);
+				var selectedSampleCCNumber:int = this.currentState == "CCNumberState" ? parseInt(sampleCCNumber.selectedItem.@data) : 0;
 				
 				var sampleNameArray:Array = new Array();
 				var sampleConcentrationArray:Array = new Array();
