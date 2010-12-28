@@ -82,10 +82,6 @@ public class SampleQualityPlugin implements BillingPlugin {
           filter1 = Application.DNA_GEL_QC;
         } 
         
-      } else if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-        if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.QUBIT_PICOGREEN_QC)) {
-          filter1 = Application.QUBIT_PICOGREEN_QC;
-        }
       } else if ((request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY)) &&
                   request.getCodeApplication().equals(Application.CGH_MICROARRAY_CATEGORY)) {
           filter2 =  Application.DNA_GEL_QC;
@@ -101,19 +97,27 @@ public class SampleQualityPlugin implements BillingPlugin {
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY) &&
                   request.getCodeApplication().equals(Application.SNP_MICROARRAY_CATEGORY)) {
         filter1 = Application.DNA_GEL_QC;
-      } else {
-        filter2 = sample.getCodeBioanalyzerChipType();
-        // If we don't have a chip type assigned yet on the sample,
-        // use the default based on the sample type
-        if ( filter1.equals(Application.BIOANALYZER_QC)) {
-          if (filter2 == null || filter2.equals("")) {
-            if (dh.getSampleType(sample).indexOf("RNA") >= 1) {
-              filter2 = BioanalyzerChipType.RNA_NANO;
-            } else {
-              filter2 = BioanalyzerChipType.DNA1000;
+      } else if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+        if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.QUBIT_PICOGREEN_QC)) {
+          filter1 = Application.QUBIT_PICOGREEN_QC;
+        } else {
+
+          filter1 = Application.BIOANALYZER_QC;
+          filter2 = sample.getCodeBioanalyzerChipType();
+          // If we don't have a chip type assigned yet on the sample,
+          // use the default based on the sample type
+          if ( filter1.equals(Application.BIOANALYZER_QC)) {
+            if (filter2 == null || filter2.equals("")) {
+              if (dh.getSampleType(sample).indexOf("RNA") >= 1) {
+                filter2 = BioanalyzerChipType.RNA_NANO;
+              } else {
+                filter2 = BioanalyzerChipType.DNA1000;
+              }
             }
           }
+          
         }
+   
       }        
       
 
