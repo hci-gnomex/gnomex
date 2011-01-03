@@ -5,7 +5,8 @@ HCI Blue = 00529F
 HCI Teal = 00A9B9
 HCI Cream = F2EFD9
 */
- 
+
+
 
 .errorTip { 
 			borderColor: #FFEA00;
@@ -602,6 +603,7 @@ Label.titleLabel
 }
 .navLinkButtonSmall
 {
+	fontFamily: Verdana;
 	color: #ffffff;
 	textAlign: right;
 	textDecoration: underline;
@@ -631,14 +633,24 @@ Label.titleLabel
 }
 Label.welcomeLabel
 {
-	fontSize: 17;
+	fontSize: 14;
 	color: #FFFFFF;
 	fontWeight: normal;
-	fontFamily: Arial;
+	fontFamily: Verdana;
 	fontStyle: normal;
 }
+Label.appTitle
+{
+	fontSize: 18;
+	color: #FFFFFF;
+	fontWeight: normal;
+	fontFamily: Verdana;
+	fontStyle: normal;
+}
+
 Text.welcomeUserLabel
 {
+	fontFamily: Verdana;
 	color: #453D33;
 	fontSize: 12;
 	leading: 0;
@@ -647,12 +659,14 @@ Text.welcomeUserLabel
 Text.welcomeSessionLabel
 {
 	color: #453D33;
+	fontFamily: Verdana;
 	fontSize: 11;
 	leading: 0;
 	fontWeight: normal;
 }
 Text.navLabel
 {
+	fontFamily: Verdana;
 	color: #ffffff;
 	fontSize: 11;
 	leading: 0;
