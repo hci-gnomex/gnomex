@@ -1,12 +1,18 @@
 ﻿GNomEx Release Notes
 
+5.0.8.2 (Jan 3, 2011)
+----------------------
+- Worked around Mac Copy/Paste problem that was stripping new line characters by introducing TextAreaWorkaround class.
+
 5.0.8.1 (Dec 27, 2010)
 ----------------------
 - Fix bug that was causing error on save of Analysis when file registered in the db but not found on the file system.
 - Fix bug that was preventing 'clear all' Analysis files from working.
 - When file registered in db but not on file system, just show 0 bytes instead of post-fixing (FILE NOT FOUND) to name.
+- Analysis file upload is in a popup window rather than embedded in the Edit window’s file tab.
 - Fix bug introduced in 5.0.8 that was causing $0 estimated price on QC bionanalyzer requests.
-- Introduce import Sample Spreadshett feature (Robb)
+- Introduce import Sample Spreadsheet feature (Thanks Robb!)
+
 
 5.0.8 (Dec 20, 2010)
 ---------------------
