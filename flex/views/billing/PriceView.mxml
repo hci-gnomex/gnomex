@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Price ' + price.@name + ' (' + priceCategory.@name + ')'}" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+	xmlns:util="views.util.*" 
+	title="{'Price ' + price.@name + ' (' + priceCategory.@name + ')'}" 
 	width="536" height="370" defaultButton="{saveButton}">
    
    <mx:HTTPService             
@@ -116,7 +118,7 @@
     </mx:HBox>
     <mx:HBox width="100%">
     	<mx:Label text="Notes:" width="70"/>
-    	<mx:TextArea id="priceDescription" width="100%" text="{price.@description}"/>
+    	<util:TextAreaWorkaround id="priceDescription" width="100%" text="{price.@description}"/>
     </mx:HBox>
 	<mx:HBox width="100%">
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">

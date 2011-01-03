@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:util="views.util.*" 
 	xmlns:hci="hci.flex.controls.*"
 	layout="vertical" title="{'Price Category ' + priceCategory.@name}" 
 	width="568" height="338" defaultButton="{saveButton}">
@@ -99,7 +100,7 @@
     </mx:HBox>
     <mx:HBox width="100%">
     	<mx:Label text="Notes:" width="80"/>
-    	<mx:TextArea id="priceCategoryDescription" width="100%" text="{priceCategory.@description}"/>
+    	<util:TextAreaWorkaround id="priceCategoryDescription" width="100%" text="{priceCategory.@description}"/>
     </mx:HBox>
     <mx:HBox width="100%">
     	<mx:Label text="Charge Kind:" width="80"/>

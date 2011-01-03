@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" title="Send Email to all GNomEx Users" 
-	width="652" height="430" 
+	width="652" height="430"
+	xmlns:util="views.util.*" 
 	initialize="init()"
 	defaultButton="{saveButton}" showCloseButton="true" titleIcon="@Embed(source='../../assets/email_go.png')">
     
@@ -153,7 +154,7 @@
 			</mx:HBox>
 			<mx:ViewStack paddingLeft="80" id="bodyViewStack" width="100%" height="100%">
 				<mx:Canvas label="textView" width="100%" height="100%"> 
-					<mx:TextArea width="100%" height="100%" id="body"/>
+					<util:TextAreaWorkaround width="100%" height="100%" id="body"/>
 				</mx:Canvas>
 				<mx:Canvas label="uploadView" width="100%" height="100%">
 				    <mx:HBox width="100%" paddingTop="10">

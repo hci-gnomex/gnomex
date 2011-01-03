@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Price Sheet ' + priceSheet.@name}" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+	xmlns:util="views.util.*" 
+	title="{'Price Sheet ' + priceSheet.@name}" 
 	width="572" height="344" defaultButton="{saveButton}">
    
    <mx:HTTPService             
@@ -81,7 +83,7 @@
     </mx:HBox>
     <mx:HBox width="100%">
     	<mx:Label text="Notes:" width="70"/>
-    	<mx:TextArea id="priceSheetDescription" width="100%" text="{priceSheet.@description}"/>
+    	<util:TextAreaWorkaround id="priceSheetDescription" width="100%" text="{priceSheet.@description}"/>
     </mx:HBox>
     <mx:VBox width="100%"  verticalGap="0">
     		<mx:Label text="Price Sheet applies to:" paddingTop="4"/>
