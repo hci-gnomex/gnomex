@@ -443,7 +443,7 @@
 			</mx:HBox>
 			<mx:VBox top="118" left="10" right="10" bottom="10">
 				<mx:Label text="Protocol Description:"/>
-				<mx:TextArea id="description" text="{fullProtocol.description}" height="100%" width="100%" change="dirty.setDirty()"/>
+				<util:TextAreaWorkaround id="description" text="{fullProtocol.description}" height="100%" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>	
 			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{fullProtocol.id}" left="0" top="0"/>
 			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{fullProtocol.protocolClassName}" left="0" top="0"/>
