@@ -1313,7 +1313,7 @@
 			      	paddingLeft="4" paddingRight="4">
 						<mx:HBox height="100%" verticalAlign="middle" horizontalGap="0">
 							<mx:Image source="assets/hciLogo_hOnly.png"/>
-							<mx:Label text="GNomEx" id="appLabel" fontFamily="Arial" fontSize="19" color="#ffffff" fontWeight="normal"/>
+							<mx:Label text="GNomEx" id="appLabel" styleName="appTitle"/>
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
 					        <mx:HBox  horizontalGap="2" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="100%">
