@@ -3,6 +3,9 @@
 5.0.8.2 (Jan 3, 2011)
 ----------------------
 - Worked around Mac Copy/Paste problem that was stripping new line characters by introducing TextAreaWorkaround class.
+- Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to /sql subdir
+- Moved .cmd, .sh to /scripts subdir
+- Include README_UPGRADE.txt distribution 
 
 5.0.8.1 (Dec 27, 2010)
 ----------------------

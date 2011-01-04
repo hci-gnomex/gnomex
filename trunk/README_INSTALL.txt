@@ -59,14 +59,14 @@ Install Instructions
      FLUSH PRIVILEGES;  
      
    - Login into MySQL as gnomex user and run the SQL scripts
-     /path/to/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql to create the gnomex database and  
-     /path/to/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql to load the dictionaries.
+     /path/to/GNomEx_$VERSION/gnomex/sql/gnomex_db_ddl.sql to create the gnomex database and  
+     /path/to/GNomEx_$VERSION/gnomex/sql/gnomex_db_populate.sql to load the dictionaries.
      
      >mysql -u gnomex -p
      [enter gnomex password]
      
-     SOURCE ~/GNomEx_$VERSION/gnomex/gnomex_db_ddl.sql
-     SOURCE ~/GNomEx_$VERSION/gnomex/gnomex_db_populate.sql
+     SOURCE ~/GNomEx_$VERSION/gnomex/sql/gnomex_db_ddl.sql
+     SOURCE ~/GNomEx_$VERSION/gnomex/sql/gnomex_db_populate.sql
 
 5. Copy the following files in /path/to/GNomEx_$VERSION/orion/config to 
    /path/to/orion/config:
