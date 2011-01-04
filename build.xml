@@ -250,13 +250,13 @@
 		<ear destfile="${dist.dir}/${ear.name}"
 			 appxml="${metainf.dir}/ear/application.xml">
 
-      <fileset dir="${basedir}"		 	includes="lib/*.*" />
-      <fileset dir="${dist.dir}"	  includes="${jar.name}" />
-      <fileset dir="${dist.dir}"		includes="${war.name}" />
-      <fileset dir="${src.dir}"     includes="*.hbm.xml" />
-      <fileset dir="${basedir}"     includes="*.cmd" />
-      <fileset dir="${basedir}"     includes="*.sh" />
-      <fileset dir="${src.dir}"			includes="Dictionaries.xml" />
+      <fileset dir="${basedir}"		 	    includes="lib/*.*" />
+      <fileset dir="${dist.dir}"	        includes="${jar.name}" />
+      <fileset dir="${dist.dir}"		    includes="${war.name}" />
+      <fileset dir="${src.dir}"             includes="*.hbm.xml" />
+      <fileset dir="${basedir}/scripts"     includes="*.cmd" />
+      <fileset dir="${basedir}/scripts"     includes="*.sh" />
+      <fileset dir="${src.dir}"			    includes="Dictionaries.xml" />
 
       <metainf dir="${metainf.dir}/ear" includes="*.xml" />
     </ear>
@@ -315,6 +315,17 @@
 		<fixcrlf srcdir="${opensource.dir}" includes="README_INSTALL.txt"
 		         eol="lf" eof="remove" />		
 
+		<!-- Copy README_UPGRADE.txt and stick in actual version number into document -->				
+		<copy todir="${opensource.dir}" file="${basedir}/README_UPGRADE.txt"/>
+		<replace file="${opensource.dir}/README_UPGRADE.txt"
+					     token="$VERSION"
+	      	     value="${gnomex_version}">
+		</replace>
+
+		<!-- Use UNIX eol convention for README_UPGRADE.txt file -->
+		<fixcrlf srcdir="${opensource.dir}" includes="README_UPGRADE.txt"
+		         eol="lf" eof="remove" />		
+
 		<!-- Copy LICENSE.txt  -->				
 		<copy todir="${opensource.dir}" file="${basedir}/LICENSE.txt"/>
 
@@ -322,15 +333,17 @@
 		<fixcrlf srcdir="${opensource.dir}" includes="LICENSE.txt"
 		         eol="lf" eof="remove" />		
 
+		
+
 		<!-- Copy gnomex source, leaving out hci installation specific files -->
 	  <copy todir="${opensource.dir}">
 	  	 <fileset dir="${basedir}">
 		      <include name="build.properties"/>
 		      <include name="build.xml"/>
-		      <include name="*.sql"/>
 		      <include name="*.sh"/>
 		      <include name="*.cmd"/>
 	  	 	  <include name="sql/**"/>
+	  	 	  <include name="scripts/**"/>
 	  	 	  <include name="doc/**"/>
 		      <include name="flex/**"/>
 		      <include name="src/**"/>
@@ -340,8 +353,8 @@
 		      <exclude name="defaultroot/doc/**"/>	  	
 		      <exclude name="**/CVS"/>
 		      <exclude name="**/.cvsignore"/>
- 	        <exclude name="**/Thumbs.db"/>
-	        <exclude name="**/.settings/**"/>
+ 	          <exclude name="**/Thumbs.db"/>
+	          <exclude name="**/.settings/**"/>
 		      <exclude name="**/SecurityManager.java"/>
 		      <exclude name="**/SecurityManagerLocal.java"/>
 	  	 	</fileset>
@@ -389,11 +402,11 @@
 			       match="&lt;source-path\s+path-element=&quot;(.*)hciflex.dir(.*)"
 		         replace="">
 		</replaceregexp>		
-		<replaceregexp  file="${opensource.dir}/index_gnomex.sh"
+		<replaceregexp  file="${opensource.dir}/scripts/index_gnomex.sh"
 			       match="HIBERNATE_HOME=\$ORION_HOME/applications/hciEnv"
              replace="HIBERNATE_HOME=$$ORION_HOME/applications/gnomex">
 		</replaceregexp>
-		<replaceregexp  file="${opensource.dir}/index_gnomex.cmd"
+		<replaceregexp  file="${opensource.dir}/scripts/index_gnomex.cmd"
 			       match="HIBERNATE_HOME=\%ORION_HOME\%\\applications\\hciEnv"
              replace="HIBERNATE_HOME=\%ORION_HOME\%\\\\applications\\\\gnomex">
 		</replaceregexp>
@@ -565,14 +578,14 @@
 
 		
 		<!-- Create the zip file -->
-   	<mkdir dir="${opensource.dir}/release/" />
+     	<mkdir dir="${opensource.dir}/release/" />
 		<zip destfile="${opensource.dir}/release/${opensource.name}.zip" >
 			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist"/>
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
-			<zipfileset dir="${opensource.dir}" includes="gnomex_db_ddl.sql" prefix="${opensource.name}/gnomex"/>
-			<zipfileset dir="${opensource.dir}" includes="gnomex_db_populate.sql" prefix="${opensource.name}/gnomex"/>
+			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
 			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
 			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
 		</zip>
 	
 	</target>
