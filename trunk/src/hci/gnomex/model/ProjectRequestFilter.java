@@ -358,7 +358,7 @@ public class ProjectRequestFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(lastWeek));
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search for requests submitted in last month
@@ -370,7 +370,7 @@ public class ProjectRequestFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(lastMonth));
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search for requests submitted in last 3 months
@@ -382,7 +382,7 @@ public class ProjectRequestFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(last3Month));
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search for requests submitted in last year
@@ -394,7 +394,7 @@ public class ProjectRequestFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(lastYear));
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
     

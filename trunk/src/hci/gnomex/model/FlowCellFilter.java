@@ -86,7 +86,7 @@ public class FlowCellFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" fc.createDate >= '");
-      queryBuf.append(this.formatDate(lastWeek));
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search for analysis created in last month
@@ -98,7 +98,7 @@ public class FlowCellFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" fc.createDate >= '");
-      queryBuf.append(this.formatDate(lastMonth));
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search for analysis created in last 3 months
@@ -110,7 +110,7 @@ public class FlowCellFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" fc.createDate >= '");
-      queryBuf.append(this.formatDate(last3Month));
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search for analysis created in last year
@@ -122,7 +122,7 @@ public class FlowCellFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" fc.createDate >= '");
-      queryBuf.append(this.formatDate(lastYear));
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
 
