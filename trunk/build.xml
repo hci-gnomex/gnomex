@@ -412,7 +412,7 @@
 		</replaceregexp>
 		
 		<!-- Use UNIX eol convention for .sh files -->
-		<fixcrlf srcdir="${opensource.dir}" includes="index_gnomex.sh"
+		<fixcrlf srcdir="${opensource.dir}/scripts" includes="index_gnomex.sh"
 		         eol="lf" eof="remove" />		
 
 		<!-- Get rid of proxy and change to MySQL jdbc driver in hibernate.cfg.xml files -->
@@ -584,6 +584,7 @@
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
 			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
+			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
 		</zip>
