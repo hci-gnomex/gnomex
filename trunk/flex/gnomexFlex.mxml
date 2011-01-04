@@ -515,11 +515,10 @@
             
 			public function showAnalysisForExperiment(request:Object):void {
 				navAnalysisView.selectedIdAnalysis = null;
-				navAnalysisView.selectedIdAnalysisGroup = null;
+				navAnalysisView.selectedIdAnalysisGroup = null; 
 				navAnalysisView.selectedIdLab = request.@idLab;
 
 				var parms:Object = new Object();
-				parms.idLab = request.@idLab;
 				parms.idRequest = request.@idRequest;
 				navAnalysisView.getAnalysisGroupList.send(parms);
 
