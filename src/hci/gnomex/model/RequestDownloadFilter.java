@@ -293,14 +293,14 @@ public class RequestDownloadFilter extends DetailObject {
     if (createDateFrom != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(createDateFrom));
+      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     } 
     //  Search by create date from 
     if (createDateTo != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate <= '");
-      queryBuf.append(this.formatDate(createDateTo));
+      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search by requestIds
@@ -323,7 +323,7 @@ public class RequestDownloadFilter extends DetailObject {
       
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(end.getTime()));
+      queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
       queryBuf.append("'");      
     } 
     // Search requests made in last month
@@ -333,7 +333,7 @@ public class RequestDownloadFilter extends DetailObject {
         
         this.addWhereOrAnd();
         queryBuf.append(" req.createDate >= '");
-        queryBuf.append(this.formatDate(end.getTime()));
+        queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
         queryBuf.append("'");      
     }
     // Search requests made in last week
@@ -343,7 +343,7 @@ public class RequestDownloadFilter extends DetailObject {
         
         this.addWhereOrAnd();
         queryBuf.append(" req.createDate >= '");
-        queryBuf.append(this.formatDate(end.getTime()));
+        queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
         queryBuf.append("'");      
     } 
     
