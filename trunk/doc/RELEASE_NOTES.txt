@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.0.8.3 (Jan 4, 2011)
+---------------------
+- Fix date comparisons to use YYYY-MM-DD for sql queries to work on MySQL platforms.
+- Fixed bug that was causing blank analysis when user clicked on Analysis link for Experiment that belongs to a different lab.
+
 5.0.8.2 (Jan 3, 2011)
 ----------------------
 - Worked around Mac Copy/Paste problem that was stripping new line characters by introducing TextAreaWorkaround class.
