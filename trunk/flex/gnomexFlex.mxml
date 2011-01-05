@@ -144,7 +144,6 @@
 			import views.util.AboutView;
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
-			import views.util.FileDownloadUtil;
 			import views.util.PromptXMLListCollection;
 			import views.util.WorkAuthorizationWindow;
             
@@ -427,10 +426,7 @@
 			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String            = "illumina_barcoding_note";
 			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
-			
-            public	var fileDownloadUtil:FileDownloadUtil;
-
- 
+			 
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
 			
