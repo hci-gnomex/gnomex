@@ -4,6 +4,8 @@
 ---------------------
 - Fix date comparisons to use YYYY-MM-DD for sql queries to work on MySQL platforms.
 - Fixed bug that was causing blank analysis when user clicked on Analysis link for Experiment that belongs to a different lab.
+- Fix bug that was prevent analysis file from being removed from file system when it was back-door copied rather than uploaded from GNomEx.
+- Fix event timing on 'Upload analysis files' so that file only appears in 'Uploaded' list when entire file has been uploaded.
 
 5.0.8.2 (Jan 3, 2011)
 ----------------------
