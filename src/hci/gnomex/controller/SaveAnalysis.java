@@ -350,9 +350,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         for(Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
           String idAnalysisFileString = (String)i.next();
           AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileToDeleteMap().get(idAnalysisFileString);
-          
-          sess.delete(af);
-          analysis.getFiles().remove(af);
+
+          // Only delete from db if it was already present.
+          if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
+            sess.delete(af);
+            analysis.getFiles().remove(af);
+          }
 
           removeAnalysisFileFromFileSystem(baseDir, analysis, af);
         }

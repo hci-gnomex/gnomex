@@ -57,10 +57,14 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
       String idAnalysisFileString = node.getAttributeValue("idAnalysisFileString");
 
       AnalysisFile af = null;
-      if (!idAnalysisFileString.startsWith("AnalysisFile")) {
+      if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
         af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idAnalysisFileString));
-        analysisFileToDeleteMap.put(idAnalysisFileString, af);
-      } 
+      } else {
+        af = new AnalysisFile();
+        af.setFileName(node.getAttributeValue("displayName"));
+        af.setIdAnalysis(Integer.valueOf(node.getAttributeValue("idAnalysis")));
+      }
+      analysisFileToDeleteMap.put(idAnalysisFileString, af);
     }
   }
 
