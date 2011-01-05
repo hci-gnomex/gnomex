@@ -50,6 +50,7 @@
     import mx.events.CollectionEvent;
     import mx.events.CollectionEventKind;
     import mx.events.PropertyChangeEvent;
+	import views.util.FileUtil;
         
     public var downloadProgressWindow:DownloadProgressView;
 
@@ -77,11 +78,6 @@
     public var resultKeys:String;
     
     private var filesExceedingMaxMessage:String = "";
-    
-  	private static const  KB:Number = Math.pow(2, 10);
-  	private static const  MB:Number = Math.pow(2, 20);
-  	private static const  GB:Number = Math.pow(2, 30);
-  	public static const   MAX_DOWNLOAD_SIZE:Number = (4 * GB);
   	
   	public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
       
@@ -128,8 +124,8 @@
     	} else {
 	    	estimatedDownloadSize = 0;
     		for each (var item:Object in selectedFileList) {
-    			var size:Number = getEstimatedCompressedSize(item);
-    			if (size > MAX_DOWNLOAD_SIZE) {
+    			var size:Number = FileUtil.getEstimatedCompressedSize(item);
+    			if (size > FileUtil.MAX_DOWNLOAD_SIZE) {
     				if (filesExceedingMaxMessage.length > 0) {
     					filesExceedingMaxMessage += ", ";
     				}
@@ -179,14 +175,14 @@
 				onAlternateDownloadFiles,						
 				parentApplication.iconWarning);
 
-    	} else if (estimatedSize >= MAX_DOWNLOAD_SIZE) {
+    	} else if (estimatedSize >= FileUtil.MAX_DOWNLOAD_SIZE) {
     		message =  
-    			"The total download size (" + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
     		title = "Total download size exceeds maximum size"; 
 			Alert.show( message, title);
 
     	} else {
-    		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?";
+    		message = "Ready to download approximately " + FileUtil.getFileSizeText(call.marker) + " of data.  Proceed?";
 			Alert.show( message,
 						title,
 						(Alert.YES | Alert.NO), this, 
@@ -212,70 +208,6 @@
 			parentDocument.showAlternateDownloadPage();	
 		} 		
 	}
-    
-   
-
- 	public static function getEstimatedCompressedSize(item:Object):Number {
- 		var compressionRatio:Number = 1; 
- 		if (item.@type == 'fep') {
- 			compressionRatio = 1.6; 
- 		} else if (item.@type.toString().toUpperCase() == 'PDF') {
- 			compressionRatio = 1;
- 		} else if (item.@type.toString().toUpperCase() == 'TIF' ||
- 		           item.@type.toString().toUpperCase() == 'TIFF') {
- 			compressionRatio = 1.9;
- 		} else if (item.@type.toString().toUpperCase() == 'JPG') {
- 			compressionRatio = 1;
- 		} else if (item.@type.toString().toUpperCase() == 'TXT') {
- 			compressionRatio = 2.7;  
- 		} else if (item.@type.toString().toUpperCase() == 'RTF') {
- 			compressionRatio = 2.7;
- 		} else if (item.@type.toString().toUpperCase() == 'DAT') {
- 			compressionRatio = 1.6;
- 		} else if (item.@type.toString().toUpperCase() == 'CEL') { 
- 			compressionRatio = 2.8;
- 		} else if (item.@type.toString().toUpperCase() == 'ZIP') {
- 			compressionRatio = 1;
- 		}
- 		
- 		return (item.@fileSize / compressionRatio);
- 	}
-    
-    public static function getFileSizeText(theFileSize:Number):String {
-    	var size:Number = 0;
-    	var sizeTxt:String = "";
-    	if (theFileSize > GB ) {
-    		// Round gigabyte to the one decimal place
-      		size = Math.round((theFileSize / GB) * 10) / 10;
-      		if (size == 0) {
-      			size = 1;
-      		} 
-      		sizeTxt = size + " GB";
-    	}  else if (theFileSize > MB ) {
-    		// Round megabyte to neareast whole number
-      		size = Math.round(theFileSize / MB);
-      		if (size == 0) {
-      			size = 1;
-      		}
-      		sizeTxt = size + " MB";
-    	} else if (theFileSize > KB ) {
-    		// Round kb to the nearest 100th place
-      		size = Math.round((theFileSize / KB) / 100) * 100;
-      		if (size == 0) {
-      			size = 1;
-      		}
-      		sizeTxt = size + " KB";
-    	} else {
-    		// Round bytes to nearest 100th place
-      		size = Math.round(theFileSize / 100) * 100;
-			if (size == 0) {
-      			size = 1;
-      		}
-      		sizeTxt = size + " bytes";
-    	}
-    	return sizeTxt;
-  	}
-
 	
 	public function selectDownload(requestNumber:String):void {
 		var pos:int = -1;
@@ -309,11 +241,11 @@
 		var selectedFiles:XMLList = getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
     	for each(var file:Object in selectedFiles) {
     		if (file.@type != "dir") {
-    			var size:Number = getEstimatedCompressedSize(file);
+    			var size:Number = FileUtil.getEstimatedCompressedSize(file);
     			selectedDownloadSize += size;
     		}
     	}
-    	downloadSizeMessage = "Ready to download " + getFileSizeText(selectedDownloadSize);
+    	downloadSizeMessage = "Ready to download " + FileUtil.getFileSizeText(selectedDownloadSize);
 
 	}
 

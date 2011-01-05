@@ -32,8 +32,9 @@
 	    import hci.flex.controls.CheckBox;
     	import mx.rpc.events.ResultEvent;
     	import mx.collections.XMLListCollection;
-    	import views.experiment.ExperimentDownloadView;
+    	import views.util.FileUtil;
     	import views.experiment.DownloadProgressView;
+		
 	
 		[Bindable]
 		private var analysisTypeName:String;
@@ -200,15 +201,15 @@
 	    	} else {
 		    	estimatedDownloadSize = 0;
 				for each (var item:Object in selectedFileList) {
-					var size:Number = ExperimentDownloadView.getEstimatedCompressedSize(item);
-    				if (size > ExperimentDownloadView.MAX_DOWNLOAD_SIZE) {
+					var size:Number = FileUtil.getEstimatedCompressedSize(item);
+    				if (size > FileUtil.MAX_DOWNLOAD_SIZE) {
     					if (filesExceedingMaxMessage.length > 0) {
     						filesExceedingMaxMessage += ", ";
     					}
     					filesExceedingMaxMessage += item.@displayName;
     				}
 
-					estimatedDownloadSize += ExperimentDownloadView.getEstimatedCompressedSize(item);
+					estimatedDownloadSize += FileUtil.getEstimatedCompressedSize(item);
 				}
 				
 				if (estimatedDownloadSize == 0) {
@@ -240,14 +241,14 @@
 					onAlternateDownloadFiles,						
 					parentApplication.iconWarning);
 	
-	    	} else if (estimatedSize >= ExperimentDownloadView.MAX_DOWNLOAD_SIZE) {
+	    	} else if (estimatedSize >= FileUtil.MAX_DOWNLOAD_SIZE) {
 	    		message =  
-	    			"The total download size (" + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+	    			"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the 4 GB maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
 	    		title = "Total download size exceeds maximum size"; 
 				Alert.show( message, title);
 	
 	    	} else {
-	    		message = "Ready to download approximately " + views.experiment.ExperimentDownloadView.getFileSizeText(call.marker) + " of data.  Proceed?"
+	    		message = "Ready to download approximately " + FileUtil.getFileSizeText(call.marker) + " of data.  Proceed?"
 				Alert.show( message,
 							title,
 							(Alert.YES | Alert.NO), this, 
