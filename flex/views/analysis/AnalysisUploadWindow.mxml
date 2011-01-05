@@ -14,21 +14,6 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
-	<mx:HTTPService  
-		id="getAnalysis" 
-		url="GetAnalysis.gx"
-		destination="getAnalysis"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onGetAnalysis(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
-		method="POST"
-		useProxy="false">
-		<mx:request>
-			<idAnalysis>{analysis.@idAnalysis}</idAnalysis>
-		</mx:request>
-	</mx:HTTPService>
-	
 <mx:Script>
 	<![CDATA[
 		import mx.collections.XMLListCollection;
@@ -37,6 +22,8 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
+		import views.util.FileUploadEvent;
+		import views.util.FileUtil;
 		import views.util.MultiFileUpload;
 
 		private var multiFileUpload:MultiFileUpload;
@@ -123,12 +110,14 @@
 			multiFileUpload.setUploadURLParameters(postVariables);  
 		}
 		
-		public function onFileUploaded(event:Event):void{
-			getAnalysis.send();
-		}
-		
-		private function onGetAnalysis(event:ResultEvent):void {
-			analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
+		public function onFileUploaded(event:FileUploadEvent):void{
+			var today:Date = new Date();
+			var fd:XML = new XML("<AnalysisFileDescriptor displayName='" + event.file.name + "' " +
+				                 "fileSizeText='" + FileUtil.getFileSizeText(event.file.size) + "' " +
+                                 "lastModifyDateDisplay='" + today.getFullYear() + "-" + today.getMonth() + 1 + "-" + today.getDate() + "' " +
+                                 "/>");
+			files.addItem(fd);
+								 
 		}
 		
 		public function onUploadFinished(event:Event):void{
