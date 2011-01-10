@@ -4,7 +4,7 @@
 	title="Downloading File" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
 	 creationComplete="centerPopup()" modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7" backgroundColor="#FFFFFF" borderColor="#FFFFFF">
     <mx:HBox width="100%" horizontalAlign="center">
-        <mx:ProgressBar id="downloadProgress" label="" mode="manual" completeEffect="{ding}"/>
+        <mx:ProgressBar id="downloadProgress" label="" mode="manual"/>
     </mx:HBox>
     <mx:ControlBar horizontalAlign="right">
         <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"/>
@@ -13,9 +13,6 @@
 
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
-	
-    <mx:SoundEffect id="ding" 
-            source="{parentApplication.soundDing}" /> 
 
 
     
