@@ -411,6 +411,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdOrganism(analysisScreen.getIdOrganism());
     analysis.setIdGenomeBuild(analysisScreen.getIdGenomeBuild());
     analysis.setCodeVisibility(analysisScreen.getCodeVisibility());
+    analysis.setIdInstitution(analysisScreen.getIdInstitution());
   }
   
   

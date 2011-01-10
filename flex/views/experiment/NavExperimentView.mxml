@@ -1143,7 +1143,7 @@
 		    		    	<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
 		    	  <mx:RadioButton label="My lab's experiments" id="myLabsExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-		    	    <mx:toolTip>My lab's experiments and experiments I collaborate on</mx:toolTip>
+		    	    <mx:toolTip><![CDATA[Experiments of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
 		    	    <mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 		    	  </mx:RadioButton>
 		    	  <mx:RadioButton label="Other labs' public experiments" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">

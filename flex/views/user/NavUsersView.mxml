@@ -64,6 +64,7 @@
     useProxy="false">
     <mx:request>
            <listKind>UnboundedLabList</listKind>
+		   <idInstitution>{this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@value : ''}</idInstitution>
     </mx:request>
     </mx:HTTPService >
     
@@ -568,11 +569,16 @@
 		      
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%">
-			    	  <mx:HBox width="100%" paddingTop="4">
-			       	      <mx:Label text="Search groups:"/>
+			    	  <mx:HBox width="100%" paddingTop="4" horizontalGap="0">
+			       	      <mx:Text text="Search by name:" width="80"/>
 			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
 			          </mx:HBox>
-			         
+			          <mx:HBox  horizontalGap="0">
+						  
+						  <mx:Text text="Filter by instititution:" width="80"/>
+						  <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()">			       	
+						  </mx:ComboBox>
+					  </mx:HBox>
 		    	      <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid">
 						<mx:columns>
 									<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>

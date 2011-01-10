@@ -9,6 +9,7 @@ public class Visibility extends DictionaryEntry implements Serializable {
   public static final String                  VISIBLE_TO_OWNER                           = "OWNER";
   public static final String                  VISIBLE_TO_GROUP_MEMBERS                   = "MEM";
   public static final String                  VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS = "MEMCOL";
+  public static final String                  VISIBLE_TO_INSTITUTION_MEMBERS             = "INST";
   public static final String                  VISIBLE_TO_PUBLIC                          = "PUBLIC";
   
   private String   codeVisibility;

@@ -317,7 +317,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.idSamplePrepMethod, ");
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       s2.idSamplePrepMethod, ");
-    buf.append("       s2.otherSamplePrepMethod ");
+    buf.append("       s2.otherSamplePrepMethod, ");
+    buf.append("       req.idInstitution ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -390,7 +391,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.idSamplePrepMethod, ");
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       '', ");
-    buf.append("       ''  ");
+    buf.append("       '',  ");
+    buf.append("       req.idInstitution ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -458,7 +460,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.idSamplePrepMethod, ");
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       '', ");
-    buf.append("       '' ");
+    buf.append("       '', ");
+    buf.append("       req.idInstitution ");
         
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -470,6 +473,73 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   lane.sample as s1 ");
     buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_ILLUMINA + "' ");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
+    
+    results = sess.createQuery(buf.toString()).list();
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      
+      Integer idProject = (Integer)row[0];
+      Integer idRequest = (Integer)row[1];
+      String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
+      
+      List rows = (List)projectRequestMap.get(key);
+      if (rows == null) {
+        rows = new ArrayList();
+        projectRequestMap.put(key, rows);
+      }
+      rows.add(row);
+    } 
+    
+    
+
+
+    //
+    // "Empty" projects
+    //
+    buf = new StringBuffer();
+    buf.append("SELECT proj.id, ");
+    buf.append("       req.id, ");
+    buf.append("       req.number, ");
+    buf.append("       proj.name, ");
+    buf.append("       proj.description, ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       -99, ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '',  ");
+    buf.append("       '',  ");
+    buf.append("       '', ");
+    buf.append("       '',  ");
+    buf.append("       '',  ");
+    buf.append("       '',  ");
+    buf.append("       proj.idLab,  ");
+    buf.append("       labProj.lastName,  ");
+    buf.append("       labProj.firstName,  ");
+    buf.append("       -99,  ");
+    buf.append("       '',  ");
+    buf.append("       '',  ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       -99, ");
+    buf.append("       '', ");
+    buf.append("       -99, ");
+    buf.append("       -99, ");
+    buf.append("      '', ");
+    buf.append("       '', ");
+    buf.append("       '', ");
+    buf.append("       -99 ");
+        
+    buf.append("FROM        Project as proj ");
+    buf.append("LEFT JOIN   proj.requests as req ");
+    buf.append("LEFT JOIN   proj.lab as labProj ");
+    buf.append("WHERE      req.idRequest is NULL ");
+    buf.append("ORDER BY proj.idProject");
     
     results = sess.createQuery(buf.toString()).list();
     for(Iterator i = results.iterator(); i.hasNext();) {
@@ -511,7 +581,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       a.idLab,  ");
     buf.append("       a.createDate, ");
     buf.append("       a.codeVisibility, ");
-    buf.append("       a.idAppUser  ");
+    buf.append("       a.idAppUser,  ");
+    buf.append("       a.idInstitution ");
     
     buf.append("FROM        AnalysisGroup as ag ");
     buf.append("LEFT JOIN   ag.lab as agLab ");
@@ -836,6 +907,7 @@ public class BuildSearchIndex extends DetailObject {
     Integer      idSamplePrepMethod = null;
     String       otherSamplePrepMethod = null;
     String       samplePrepMethod = null;
+    Integer      idInstitution = null;
     
     
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
@@ -921,9 +993,10 @@ public class BuildSearchIndex extends DetailObject {
       requestOwnerFirstName    = (String) row[24];
       requestOwnerLastName     = (String) row[25];      
       requestCodeVisibility    = (String) row[27];
-      requestCreateDate        = (java.sql.Date) row[28];
+      requestCreateDate        = row[28] instanceof java.sql.Date ? (java.sql.Date) row[28] : null;
       slideProduct             = (String) row[30];
       idAppUser                = (Integer)row[31];
+      idInstitution            = (Integer)row[36];
       
       slideProductOrganism     = idOrganismSlideProduct != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganismSlideProduct.toString()) : null;
       requestCategory          = getDictionaryDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
@@ -957,7 +1030,9 @@ public class BuildSearchIndex extends DetailObject {
         requestDisplayName.append(" ");
         requestDisplayName.append(requestOwnerLastName);
         requestDisplayName.append(" ");
-        requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));      
+        if (requestCreateDate != null) {
+          requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));                
+        }
       }
       
     }
@@ -1122,6 +1197,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.LAB_NAME, labRequest);
     indexedFieldMap.put(ExperimentIndexHelper.CODE_VISIBILITY, requestCodeVisibility);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_INSTITUTION, idInstitution !=  null ? idInstitution.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_ANNOTATIONS, projectAnnotations.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, codeExperimentDesigns.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS, codeExperimentFactors.toString());
@@ -1183,6 +1259,7 @@ public class BuildSearchIndex extends DetailObject {
     String codeVisibility         = (String)row[20];
     String publicNote             = ""; 
     Integer idAppUser             = (Integer)row[21];
+    Integer idInstitution         = (Integer)row[22];
     
     // Obtain collaborators of analysis
     StringBuffer collaborators = new StringBuffer();
@@ -1210,7 +1287,6 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSISGROUP, idAnalysisGroup.toString());
     nonIndexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, agIdLab.toString());
     nonIndexedFieldMap.put(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP, agLabName);
-    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS, idAnalysis != null ? idAnalysis.toString() : "");
     nonIndexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NUMBER, number);
     nonIndexedFieldMap.put(AnalysisIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
     nonIndexedFieldMap.put(AnalysisIndexHelper.OWNER_LAST_NAME, ownerLastName);
@@ -1219,6 +1295,7 @@ public class BuildSearchIndex extends DetailObject {
     
 
     Map indexedFieldMap = new HashMap();
+    indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS, idAnalysis != null ? idAnalysis.toString() : "unknown");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, agIdLab);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_NAME, agName);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_DESCRIPTION, agDesc);
@@ -1231,6 +1308,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS_PROTOCOL, idAnalysisProtocol);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_PROTOCOL, idAnalysisProtocol != null ? getDictionaryDisplay("hci.gnomex.model.AnalysisProtocol", idAnalysisProtocol.toString()) : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB, idLab != null ? idLab.toString() : "");
+    indexedFieldMap.put(AnalysisIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");

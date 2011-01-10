@@ -32,6 +32,7 @@ public class AnalysisIndexHelper extends IndexHelper {
   public static final String       ID_ANALYSIS_PROTOCOL = "idAnalysisProtocol";
   public static final String       ANALYSIS_PROTOCOL = "analysisProtocol";
   public static final String       ID_LAB = "idLab";
+  public static final String       ID_INSTITUTION = "idInstitution";
   public static final String       ID_APPUSER = "analysisIdAppUser";
   public static final String       COLLABORATORS = "analysisCollaborators";
   public static final String       LAB_NAME = "labName";

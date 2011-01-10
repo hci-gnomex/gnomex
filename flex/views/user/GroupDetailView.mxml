@@ -136,6 +136,21 @@
 				billingAccounts.removeItemAt(billingAccountGrid.selectedIndex);
 			}
 		}
+		private function addInstitution():void {
+			dirty.setDirty();
+			var node:XML = new XML("<Institution " +
+				" idInstitution='" + institutionCombo.selectedItem.@idInstitution + "'" +
+				" institution='" + institutionCombo.selectedItem.@institution + "'" +
+				"/>");
+			institutions.addItem(node);
+		}
+		
+		private function removeInstitution():void {
+			dirty.setDirty();
+			if (institutionsGrid.selectedIndex != -1) {
+				institutions.removeItemAt(institutionsGrid.selectedIndex);
+			}
+		}
 		
 		private function addMember():void {
 			dirty.setDirty();
@@ -311,6 +326,7 @@
 			}
 			
 			params.accountsXMLString = "<billingAccounts>" + billingAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
+			params.institutionsXMLString = "<institutions>" + institutions.toXMLString() + "</institutions>";
 			params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
 			params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
 			params.managersXMLString = "<managers>" + managers.toXMLString() + "</managers>";
@@ -441,6 +457,7 @@
 
 	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}"/>
 	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}"/>
+	<mx:XMLListCollection id="institutions" source="{parentDocument.fullLab.institutions.Institution}"/>
 	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
 	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}"/>
 	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}"/>
@@ -455,39 +472,60 @@
 				
 				<mx:HBox   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  horizontalGap="8" horizontalAlign="left" width="100%">
 				   <mx:VBox   height="100%" verticalGap="8" width="100%">
-					   	<mx:HBox verticalAlign="bottom" horizontalGap="10" width="100%">
-							<mx:VBox  verticalGap="0">
-								<mx:Label text="Investigator's Last Name (or lab name)"/>
-								<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="240" change="dirty.setDirty()"/>
+					   	<mx:HBox verticalAlign="top" horizontalGap="10" width="100%">
+							<mx:VBox height="100%" width="67%">
+								<mx:HBox width="100%">
+									<mx:VBox  verticalGap="0" width="100%">
+										<mx:Label text="Investigator's Last Name (or lab name)"/>
+										<mx:TextInput id="groupLastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@lastName}" width="100%" change="dirty.setDirty()"/>
+									</mx:VBox>
+									<mx:VBox  verticalGap="0" width="100%">
+										<mx:Label text="Investigator's First Name"/>
+										<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="100%" change="dirty.setDirty()"/>
+									</mx:VBox>
+									
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
+									<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
+								</mx:HBox>
+								<mx:HBox width="100%" verticalAlign="top">
+									<mx:VBox  verticalGap="0">
+										<mx:Label text="Phone" />
+										<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="130" change="dirty.setDirty()"/>
+									</mx:VBox>
+									<mx:VBox  verticalGap="0" width="100%"> 
+										<mx:Label text="Department" />
+										<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="100%" change="dirty.setDirty()"/>
+									   </mx:VBox>
+								
+								</mx:HBox>
+								<mx:VBox  verticalGap="0" width="100%">
+								    <mx:HBox verticalGap="8">
+								    <mx:Label text="Email(s) " />
+								    <mx:Label text="(For multiple email addresses, place a comma between emails.)" fontStyle="italic"/>
+								    </mx:HBox>
+									<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
+								</mx:VBox>
 							</mx:VBox>
-							<mx:VBox  verticalGap="0">
-								<mx:Label text="Investigator's First Name"/>
-								<mx:TextInput id="groupFirstName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullLab.@firstName}" width="160" change="dirty.setDirty()"/>
+							<mx:VBox verticalGap="0" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0" borderThickness="1" width="33%">
+							    <mx:Label text="Institutions"/>
+								   <mx:HBox horizontalAlign="left" horizontalGap="6">
+								    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display" >			       	
+								    </mx:ComboBox>
+								   	   <mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+								   	   	   <mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+								   	   </mx:Button>
+								   	   <mx:Button click="removeInstitution()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{institutionsGrid.selectedItem != null}" width="25"/>
+								   </mx:HBox>
+							 <mx:Spacer height="2"/>
+							  <mx:DataGrid id="institutionsGrid" showHeaders="false" dataProvider="{institutions}" width="100%">
+							        <mx:columns>
+							            <mx:DataGridColumn dataField="@institution" headerText="Name"/>
+							        </mx:columns>
+							    </mx:DataGrid>			   	
 							</mx:VBox>
-							<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Lab is Active" click="dirty.setDirty()"/>
-							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()"/>
 							<mx:RadioButtonGroup id="pricingModel"/>
-					   	</mx:HBox>
-					   	<mx:HBox width="100%" verticalAlign="bottom">
-					   		<mx:VBox  verticalGap="0" width="100%">
-					   		    <mx:HBox verticalGap="8">
-						   			<mx:Label text="Email(s) " />
-						   			<mx:Label text="(For multiple email addresses, place a comma between emails.)" fontStyle="italic"/>
-					   		    </mx:HBox>
-					   			<mx:TextInput id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()"/>
-					   		</mx:VBox>
-
-					   	</mx:HBox>
-					   	<mx:HBox width="100%" verticalAlign="bottom">
-					   		<mx:VBox  verticalGap="0">
-					   			<mx:Label text="Phone" />
-					   			<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="100" change="dirty.setDirty()"/>
-					   		</mx:VBox>
-					   		<mx:VBox  verticalGap="0"> 
-					   			<mx:Label text="Department" />
-					   			<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="240" change="dirty.setDirty()"/>
-					   	    </mx:VBox>
-
 					   	</mx:HBox>
 				   	<mx:HRule width="100%"/>
 						
@@ -504,7 +542,7 @@
 				   	   	   </mx:Button>
 				   	   	   <mx:Button click="removeMember()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}" width="25"/>
 				   	   </mx:HBox>
-		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%">
+		 			   <mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%" showHeaders="false">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
@@ -520,7 +558,7 @@
 				   	   	   </mx:Button>
 				   	   	   <mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}" width="25"/>
 				   	   </mx:HBox>
-		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%">
+		 			   <mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%" showHeaders="false">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>
@@ -536,7 +574,7 @@
 				   	   	   </mx:Button>
 				   	   	   <mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
 				   	   </mx:HBox>
-					    <mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%">
+					    <mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%" showHeaders="false">
 				           <mx:columns>
 				               <mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 				           </mx:columns>

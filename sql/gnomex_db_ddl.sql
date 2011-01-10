@@ -25,6 +25,7 @@ CREATE TABLE `gnomex`.`Analysis` (
   `codeVisibility` VARCHAR(10) NOT NULL,
   `createDate` DATETIME NULL,
   `idAppUser` INT(10) NULL,
+  `idInstitution` INT(10) NULL,
   PRIMARY KEY (`idAnalysis`),
   CONSTRAINT `FK_Analysis_Lab` FOREIGN KEY `FK_Analysis_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -52,6 +53,10 @@ CREATE TABLE `gnomex`.`Analysis` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Analysis_Visibility` FOREIGN KEY `FK_Analysis_Visibility` (`codeVisibility`)
     REFERENCES `gnomex`.`Visibility` (`codeVisibility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT FK_Analysis_Institution FOREIGN KEY FK_Analysis_Institution (idInstitution)
+    REFERENCES gnomex.Institution (idInstitution)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -822,6 +827,34 @@ CREATE TABLE `gnomex`.`LabCollaborator` (
 )
 ENGINE = INNODB;
 
+-- Add new Table Institution
+DROP TABLE IF EXISTS gnomex.Institution;
+CREATE TABLE gnomex.Institution ( 
+    idInstitution	INT(10) NOT NULL AUTO_INCREMENT,
+    institution 	varchar(200) NOT NULL,
+    description  	varchar(500) NULL,
+    isActive     	char(1) NULL,
+    PRIMARY KEY (idInstitution)
+    );
+    
+    
+-- Add new Table to link lab to multiple institutions
+DROP TABLE IF EXISTS gnomex.InstitutionLab;
+CREATE TABLE gnomex.InstitutionLab ( 
+    idInstitution	INT(10),
+    idLab           INT(10),
+    PRIMARY KEY (idInstitution, idLab),
+    CONSTRAINT FK_InstitutionLab_Institution FOREIGN KEY FK_InstitutionLab_Institution (idInstitution)
+    REFERENCES gnomex.Institution (idInstitution)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_InstitutionLab_Lab FOREIGN KEY FK_InstitutionLab_Lab (idLab)
+    REFERENCES gnomex.Lab (idLab)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    );
+    
+
 DROP TABLE IF EXISTS `gnomex`.`Label`;
 CREATE TABLE `gnomex`.`Label` (
   `idLabel` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1130,6 +1163,7 @@ CREATE TABLE `gnomex`.`Request` (
   `codeVisibility` VARCHAR(10) NOT NULL,
   `lastModifyDate` DATETIME NULL,
   `isExternal` CHAR(1) NULL,
+  `idInstitution` INT(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1161,6 +1195,10 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_Visibility` FOREIGN KEY `FK_Request_Visibility` (`codeVisibility`)
     REFERENCES `gnomex`.`Visibility` (`codeVisibility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_Institution` FOREIGN KEY FK_Request_Institution (`idInstitution`)
+    REFERENCES `gnomex`.`Institution` (`idInstitution`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

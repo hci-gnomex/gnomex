@@ -185,9 +185,14 @@ public class PropertyHelper implements Serializable {
     String experimentDirectory = this.getMicroarrayDirectoryForReading(serverName);
     String flowCellDirectory   = this.getFlowCellDirectory(serverName);
     
-    if (fileName.toLowerCase().indexOf(experimentDirectory.toLowerCase()) >= 0) {
+    // Change all file separators to forward slash
+    String theFileName = fileName.replaceAll("\\\\", "/");
+    experimentDirectory = experimentDirectory.replaceAll("\\\\", "/");
+    flowCellDirectory = flowCellDirectory.replaceAll("\\\\", "/");
+    
+    if (theFileName.toLowerCase().indexOf(experimentDirectory.toLowerCase()) >= 0) {
       baseDir = experimentDirectory;
-    } else if (fileName.toLowerCase().indexOf(flowCellDirectory.toLowerCase()) >= 0) {
+    } else if (theFileName.toLowerCase().indexOf(flowCellDirectory.toLowerCase()) >= 0) {
       baseDir = flowCellDirectory;
     } else {
       throw new RuntimeException("Cannot determine base directory.  Neither flowcell directory or experiment directory match file name " + fileName);
@@ -196,7 +201,7 @@ public class PropertyHelper implements Serializable {
     
     // Strip off the leading part of the path, up through the year subdirectory,
     // to leave only the path that starts with the request number subdirectory.
-    String relativePath = fileName.substring(baseDir.length() + (baseDir.endsWith("/") | baseDir.endsWith("\\") ? 5 : 6));
+    String relativePath = theFileName.substring(baseDir.length() + (baseDir.endsWith("/") | baseDir.endsWith("\\") ? 5 : 6));
     
     String tokens[] = relativePath.split("/", 2);
     if (tokens == null || tokens.length == 1) {

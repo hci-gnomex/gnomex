@@ -24,6 +24,7 @@ public class Analysis extends HibernateDetailObject {
   private Integer   idGenomeBuild;
   private Date      createDate;
   private String    codeVisibility;
+  private Integer   idInstitution;
   private Set       analysisGroups = new TreeSet();  
   private Set       experimentItems = new TreeSet();
   private Set       files = new TreeSet();
@@ -318,6 +319,18 @@ public class Analysis extends HibernateDetailObject {
     String sortDate = createYear + createMonth + createDay;
     String key = createYear + "-" + sortDate + "-" + this.getNumber();     
     return key;
+  }
+
+
+
+  public Integer getIdInstitution() {
+    return idInstitution;
+  }
+
+
+
+  public void setIdInstitution(Integer idInstitution) {
+    this.idInstitution = idInstitution;
   }
 
  

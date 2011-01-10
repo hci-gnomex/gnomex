@@ -88,6 +88,7 @@ public class GetLab extends GNomExCommand implements Serializable {
       Hibernate.initialize(theLab.getMembers());
       Hibernate.initialize(theLab.getCollaborators());
       Hibernate.initialize(theLab.getManagers());
+      Hibernate.initialize(theLab.getInstitutions());
       
       blockAppUserContent(theLab.getMembers());
       blockAppUserContent(theLab.getCollaborators());

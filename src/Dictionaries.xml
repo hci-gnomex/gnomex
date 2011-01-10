@@ -5,6 +5,8 @@
 	<Dictionary displayName="Admin - Funding Agency" className="hci.gnomex.model.FundingAgency"  >
   	  <Filter className="YN" filterField="isPeerReviewedFunding"/>
 	</Dictionary>
+	<Dictionary displayName="Admin - Institution" className="hci.gnomex.model.Institution"  >
+	</Dictionary>
 	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.Property" scrub="Y"/>
   <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
 	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />

@@ -5,12 +5,14 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabInstitutionParser;
 import hci.gnomex.utility.LabMemberParser;
 import hci.gnomex.utility.MailUtil;
 
@@ -44,25 +46,29 @@ public class SaveLab extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
   
-  private String                membersXMLString;
-  private Document              membersDoc;
-  private LabMemberParser       labMemberParser;
+  private String                         institutionsXMLString;
+  private Document                       institutionsDoc;
+  private LabInstitutionParser           labInstitutionParser;
   
-  private String                collaboratorsXMLString;
-  private Document              collaboratorsDoc;
-  private LabMemberParser       collaboratorParser;
+  private String                         membersXMLString;
+  private Document                       membersDoc;
+  private LabMemberParser                labMemberParser;
 
-  private String                managersXMLString;
-  private Document              managersDoc;
-  private LabMemberParser       managerParser;
+  private String                         collaboratorsXMLString;
+  private Document                       collaboratorsDoc;
+  private LabMemberParser                collaboratorParser;
 
-  private String                accountsXMLString;
-  private Document              accountsDoc;
-  private BillingAccountParser  accountParser;
+  private String                         managersXMLString;
+  private Document                       managersDoc;
+  private LabMemberParser                managerParser;
 
-  private Lab                   labScreen;
-  private boolean              isNewLab = false;
-  
+  private String                         accountsXMLString;
+  private Document                       accountsDoc;
+  private BillingAccountParser           accountParser;
+
+  private Lab                            labScreen;
+  private boolean                        isNewLab = false;
+
   private String                         serverName;
   private String                         launchAppURL;
   
@@ -78,12 +84,27 @@ public class SaveLab extends GNomExCommand implements Serializable {
       isNewLab = true;
     }
     
+
+    if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
+      institutionsXMLString = request.getParameter("institutionsXMLString");
+    }
+    
+    StringReader reader = new StringReader(institutionsXMLString);
+    try {
+      SAXBuilder sax = new SAXBuilder();
+      institutionsDoc = sax.build(reader);
+      labInstitutionParser = new LabInstitutionParser(institutionsDoc);
+    } catch (JDOMException je ) {
+      log.error( "Cannot parse institutionsXMLString", je );
+      this.addInvalidField( "institutionsXMLString", "Invalid institutionsXMLString");
+    }
+    
     
     if (request.getParameter("membersXMLString") != null && !request.getParameter("membersXMLString").equals("")) {
       membersXMLString = request.getParameter("membersXMLString");
     }
     
-    StringReader reader = new StringReader(membersXMLString);
+    reader = new StringReader(membersXMLString);
     try {
       SAXBuilder sax = new SAXBuilder();
       membersDoc = sax.build(reader);
@@ -160,6 +181,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         accountParser.parse(sess);
+        labInstitutionParser.parse(sess);
         labMemberParser.parse(sess);
         collaboratorParser.parse(sess);
         managerParser.parse(sess);
@@ -212,6 +234,19 @@ public class SaveLab extends GNomExCommand implements Serializable {
             sess.delete(ba);
           }
         }
+        
+        //
+        // Save lab institutions
+        //
+        TreeSet institutions = new TreeSet(new InstitutionComparator());
+        for(Iterator i = labInstitutionParser.getInstititionMap().keySet().iterator(); i.hasNext();) {
+          Integer idInstitution = (Integer)i.next();
+          Institution institution = (Institution)labInstitutionParser.getInstititionMap().get(idInstitution);     
+          institutions.add(institution);
+        }
+        lab.setInstitutions(institutions);
+        
+        sess.flush();
         
         //
         // Save lab members
@@ -374,6 +409,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
       AppUser u2 = (AppUser)o2;
       
       return u1.getIdAppUser().compareTo(u2.getIdAppUser());
+      
+    }
+  }
+  
+  private class InstitutionComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      Institution u1 = (Institution)o1;
+      Institution u2 = (Institution)o2;
+      
+      return u1.getIdInstitution().compareTo(u2.getIdInstitution());
       
     }
   }
