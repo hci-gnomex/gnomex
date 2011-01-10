@@ -1,6 +1,10 @@
 ﻿GNomEx Release Notes
 
-5.0.8.3 (Jan 4, 2011)
+5.0.9
+---------------------
+- Added institution level visibility on experiments and analysis
+
+5.0.8.3 (Jan 5, 2011)
 ---------------------
 - Fix date comparisons to use YYYY-MM-DD for sql queries to work on MySQL platforms.
 - Fixed bug that was causing blank analysis when user clicked on Analysis link for Experiment that belongs to a different lab.
@@ -23,7 +27,6 @@
 - Fix bug introduced in 5.0.8 that was causing $0 estimated price on QC bionanalyzer requests.
 - Introduce import Sample Spreadsheet feature (Thanks Robb!)
 
-
 5.0.8 (Dec 20, 2010)
 ---------------------
 - Compile with Flex 3.5 SDK, provide instructions for building with Flash Builder 4
@@ -38,7 +41,6 @@
 - Make search a popup window rather than a full pane.
 - Moved gnomex_db_ddl.sql, gnomex_db_populate.sql to directory sql.
 - Created upgrade sql script
-
 
 5.0.7.1 (Dec 7, 2010)
 ---------------------

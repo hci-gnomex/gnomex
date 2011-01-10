@@ -2358,6 +2358,9 @@
 			
 			// Visibility
 			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
+			if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
+				request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
+			}
 			
 			// Collaborators
 			if (request.toString().indexOf("<collaborators>") >= 0) {
@@ -2413,7 +2416,10 @@
 			
 			// Visibility
 			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
-			
+			if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
+				request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
+			}
+
 			// Collaborators
 			request.replace("collaborators", <collaborators></collaborators>);
 			for each(var collaborator:Object in visibilityView.collaborators) {

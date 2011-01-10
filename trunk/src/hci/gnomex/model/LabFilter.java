@@ -11,13 +11,14 @@ public class LabFilter extends DetailObject {
   
   
   // Criteria
-  private String                firstName;
-  private String                lastName;
-  private String                userLastName;
-  private String                userFirstName;
-  private Integer               idLab;
-  private SecurityAdvisor       secAdvisor;
-  private boolean              isUnbounded = false;
+  private String          firstName;
+  private String          lastName;
+  private String          userLastName;
+  private String          userFirstName;
+  private Integer         idLab;
+  private Integer         idInstitution;
+  private SecurityAdvisor secAdvisor;
+  private boolean         isUnbounded = false;
 
   
   
@@ -43,12 +44,18 @@ public class LabFilter extends DetailObject {
     
     queryBuf.append(" FROM        Lab as lab ");
   
+    if (hasInstitutionCriteria()) {
+      queryBuf.append(" JOIN lab.institutions as inst ");
+    }
+
     if (hasUserCriteria()) {
       queryBuf.append(" JOIN lab.appUsers as user ");
     }
     
     
+    
     addLabCriteria();
+    addInstitutionCriteria();
     addUserCriteria();
     if (!isUnbounded) {
       addSecurityCriteria();      
@@ -61,6 +68,14 @@ public class LabFilter extends DetailObject {
   private boolean hasUserCriteria() {
     if ((userLastName != null && !userLastName.equals("")) ||
         (userFirstName != null && !userFirstName.equals(""))) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  private boolean hasInstitutionCriteria() {
+    if (idInstitution != null) {
       return true;
     } else {
       return false;
@@ -89,6 +104,16 @@ public class LabFilter extends DetailObject {
       queryBuf.append(" lab.idLab =");
       queryBuf.append(idLab);
     } 
+  }
+  
+  private void addInstitutionCriteria() {
+    //  Search by idInstitution
+    if (idInstitution != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" inst.idInstitution =");
+      queryBuf.append(idInstitution);
+    } 
+    
   }
   
   private void addUserCriteria() {
@@ -181,6 +206,14 @@ public class LabFilter extends DetailObject {
   
   public void setLastName(String lastName) {
     this.lastName = lastName;
+  }
+
+  public Integer getIdInstitution() {
+    return idInstitution;
+  }
+
+  public void setIdInstitution(Integer idInstitution) {
+    this.idInstitution = idInstitution;
   }
 
   

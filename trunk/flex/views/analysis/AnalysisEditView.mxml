@@ -120,7 +120,10 @@
 		
 		[Bindable]
 		private var possibleCollaborators:PromptXMLListCollection;
-		
+
+		[Bindable]
+		private var possibleInstitutions:PromptXMLListCollection;
+
 		[Bindable]
 		public var selectedExperiment:Object; 
 		
@@ -437,7 +440,9 @@
 			params.idOrganism         = this.organismCombo.selectedItem.@value;
 			params.idGenomeBuild      = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@value : "";
 			params.codeVisibility     = this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "";
-			
+			if (params.codeVisibility == 'INST') {
+				params.idInstitution      = this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@idInstitution : "";				
+			} 
 			params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
 			params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
 			params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
@@ -786,6 +791,21 @@
 				    " displayName=''"  +
 					"/>");
 				possibleCollaborators = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y')));
+				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
+				
+				this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
+				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
+				if (analysis.@idInstitution != null) {
+					for each(var inst:Object in possibleInstitutions) {
+						if (inst.@idInstitution == analysis.@idInstitution) {
+							this.institutionCombo.selectedItem =  inst;
+							break;
+						}
+					}
+				} else {
+					this.institutionCombo.selectedIndex = 0;
+				}
+
 			}
 		}
 
@@ -1037,9 +1057,14 @@
 		   <mx:HBox paddingLeft="20" horizontalGap="0" width="100%">
 		   	<mx:VBox verticalGap="0">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
-		   		<mx:RadioButton value="OWNER" label="Owner     (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
-		   		<mx:RadioButton value="MEM" selected="true" label="Members (all members of the lab group)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
-		   		<mx:RadioButton value="PUBLIC" label="Public      (anyone)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
+		   		<mx:RadioButton value="OWNER" label="Owner       (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
+		   		<mx:RadioButton value="MEM" selected="true" label="Members   (all members of the lab group)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
+				<mx:HBox>
+					<mx:RadioButton value="INST" selected="true" label="Institution  (all lab groups that are part of institution)" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false"/>
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" >			       	
+					</mx:ComboBox>					
+				</mx:HBox>
+				<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="dirty.setDirty()"/>
 		   		
 		   	</mx:VBox>
 		   </mx:HBox>

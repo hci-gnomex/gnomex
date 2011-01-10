@@ -9,6 +9,7 @@ import hci.gnomex.model.AnalysisGroup;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.DictionaryEntryUserOwned;
+import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
@@ -151,6 +152,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Hibernate.initialize(appUser.getLabs());
       Hibernate.initialize(appUser.getCollaboratingLabs());
       Hibernate.initialize(appUser.getManagingLabs());
+      
 
       isGNomExUniversityUser = true;
       isGNomExExternalUser = false;
@@ -205,9 +207,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     // Instantiate SecurityAdvisor
     securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser);
-    
     // Make sure we have a valid state.
     securityAdvisor.validate();
+    // Initialize institutions (lazy loading causing invalid object
+    securityAdvisor.getInstitutionsIAmMemberOf();
     
     return securityAdvisor;
   }
@@ -276,6 +279,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
               canRead = true;
             } 
           }
+          // Request has institution visibility
+          else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+            if (isInstitutionIAmMemberOf(req.getIdInstitution())) {
+              canRead = true;
+            }            
+          }
           // Request has public visibility
           else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
             canRead = true;
@@ -337,6 +346,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 isGroupICollaborateWith(a.getIdLab())) {
               canRead = true;
             } 
+          }
+          // Analysis has institution visibility
+          else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+            if (isInstitutionIAmMemberOf(a.getIdInstitution())) {
+              canRead = true;
+            }            
           }
           // Analysis has public visibility
           else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
@@ -990,7 +1005,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       return new TreeSet();
     }
   }
+
   
+  public Set getInstitutionsIAmMemberOf() {
+    TreeSet institutions = new TreeSet();
+    if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      for(Iterator i = this.getGroupsIAmMemberOrManagerOf().iterator(); i.hasNext();) {
+        Lab l = (Lab)i.next();
+        institutions.addAll(l.getInstitutions());
+      }
+    } 
+    return institutions;
+  }
+
   public Set getGroupsICollaborateWith() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       return this.getAppUser().getCollaboratingLabs();
@@ -1043,7 +1070,26 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     return labs;
   }
+  public boolean isInstitutionIAmMemberOf(Integer idInstitution) {
+    boolean isMyInstitution = false;
+    
+    if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+      isMyInstitution = true;
+    } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      
+      if (idInstitution != null) {
+        for(Iterator i = this.getInstitutionsIAmMemberOf().iterator(); i.hasNext();) {
+          Institution institution = (Institution)i.next();
+          if (institution.getIdInstitution().equals(idInstitution)) {
+            isMyInstitution = true;
+            break;
+          }
+        }      
+      }
+    }
 
+    return isMyInstitution;
+  }
 
   public boolean isGroupIAmMemberOf(Integer idLab) {
     boolean isMyLab = false;
@@ -1160,6 +1206,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.excludeMethodFromXML("getGroupsIAmMemberOf");
     this.excludeMethodFromXML("getGroupsICollaborateWith");
     this.excludeMethodFromXML("getGroupsIAmMemberOrManagerOf");
+    this.excludeMethodFromXML("getInstitutionsIAmMemberOf");
   }
 
   
@@ -1186,20 +1233,50 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       isFirstCriteria = false;
       queryBuf.append(" ( ");
       
+      // Add criteria for collaborator list
       boolean criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
-      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
-
-      queryBuf.append(" ( ");
-      criteriaAdded = appendInheritedSecurityCriteria(queryBuf, inheritedClassShortName, scopeToGroup, visibilityField, null);
       
-      queryBuf.append( !criteriaAdded ? "WHERE " : " AND ");
-      appendSecurityCriteria(queryBuf, classShortName, scopeToGroup, leftJoinExclusionCriteria);      
-      queryBuf.append(" ) ");
+      // Add criteria with owner visibility
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
+
+      // Add criteria for objects with members visibility
+      if (getGroupsIAmMemberOrManagerOf().size() > 0) {
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        criteriaAdded = appendMembershipCriteria(queryBuf, classShortName);
+      }
+
+      // Add criteria for objects with collaborator visibility
+      if (getAllMyGroups().size() > 0) {
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        criteriaAdded = appendMembersAndCollaboratorsCriteria(queryBuf, classShortName);
+      }
+
+      // Add criteria for objects with institution visibility
+      if (getInstitutionsIAmMemberOf().size() > 0) {        
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        criteriaAdded = appendInstitutionCriteria(queryBuf, classShortName);        
+      }
+
+      // Add criteria for public objects
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      criteriaAdded = appendPublicCriteria(queryBuf, classShortName, scopeToGroup);
+         
+      // Pick up "empty" projects or analysis groups that don't have any children but
+      // belong to same lab user is member or manager of.
+      if (leftJoinExclusionCriteria != null && this.getGroupsIAmMemberOrManagerOf().size() > 0) {
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        queryBuf.append(" ( ");
+        criteriaAdded = this.appendGroupCriteria(queryBuf, inheritedClassShortName);
+        queryBuf.append(" AND ");
+        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
+        queryBuf.append(" ) ");
+      } 
+
 
       queryBuf.append(" ) ");
-    
     } else {
-      // Guest or University only user cab access public objects
+      // Guest or University only user can access public objects
       queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
       isFirstCriteria = false;
       queryBuf.append(" ( ");
@@ -1225,13 +1302,35 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       isFirstCriteria = false;
       queryBuf.append(" ( ");
       
+      // Add criteria for collaborator list
       boolean criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
-      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
-      
-      queryBuf.append(" ( ");
-      appendSecurityCriteria(queryBuf, classShortName, scopeToGroup, null);
-      queryBuf.append(" ) ");
 
+      // Add criteria with owner visibility
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
+
+      // Add criteria for objects with members visibility
+      if (getGroupsIAmMemberOrManagerOf().size() > 0) {
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        criteriaAdded = appendMembershipCriteria(queryBuf, classShortName);
+      }
+
+      // Add criteria for objects with collaborator visibility
+      if (getAllMyGroups().size() > 0) {
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        criteriaAdded = appendMembersAndCollaboratorsCriteria(queryBuf, classShortName);
+      }
+
+      // Add criteria for objects with institution visibility
+      if (getInstitutionsIAmMemberOf().size() > 0) {        
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        criteriaAdded = appendInstitutionCriteria(queryBuf, classShortName);        
+      }
+
+      // Add criteria for public objects
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      criteriaAdded = appendPublicCriteria(queryBuf, classShortName, scopeToGroup);
+         
       
       queryBuf.append(" ) ");
     } else {
@@ -1273,109 +1372,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
 
-  private boolean appendSecurityCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroup, String leftJoinExclusionCriteria ) {
-    if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      
-      queryBuf.append(" ( ");
-      
-      
-      // Add criteria with owner visibility
-      boolean addedCriteria = false;
-      addedCriteria = appendOwnerCriteria(queryBuf, classShortName);
 
-      // Add criteria for objects with members visibility
-      if (addedCriteria) {
-        queryBuf.append(" OR ");        
-      }
-      addedCriteria = appendMembershipCriteria(queryBuf, classShortName);
-
-      // Add criteria for objects with collaborator visibility
-      if (addedCriteria) {
-        queryBuf.append(" OR ");        
-      }
-      addedCriteria = appendMembersAndCollaboratorsCriteria(queryBuf, classShortName);
-
-      // Add criteria for public objects
-      if (addedCriteria) {
-        queryBuf.append(" OR ");        
-      }
-      appendPublicCriteria(queryBuf, classShortName, scopeToGroup);
- 
-      
-      // Add exclusion criteria
-      // Pick up projects or analysis groups that don't have any children but
-      // belong to same lab user is member or manager of.
-      if (leftJoinExclusionCriteria != null && this.getGroupsIAmMemberOrManagerOf().size() > 0) {
-        queryBuf.append(" OR ");
-        queryBuf.append(" ( ");
-        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
-        queryBuf.append(" ) ");
-        
-      }
-
-      
-      queryBuf.append(" ) ");
-      return true;
-    } else {
-      return false;
-    }
-  }
-  
-
-
-  private boolean appendInheritedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, boolean scopeToGroup, String visibilityField, String leftJoinExclusionCriteria ) {
-    // Admins
-    if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
-      return false;
-    }
-    // GNomEx users
-    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      
-      queryBuf.append(" ( ");
-      
-     
-      // Add criteria with member visibility
-      boolean addedCriteria = false;
-      addedCriteria = this.appendGroupCriteria(queryBuf, inheritedClassShortName);
-
-      // Add criteria for objects with member visibility
-      if (addedCriteria) {
-        queryBuf.append(" OR ");        
-      }
-
-      appendInheritedPublicCriteria(queryBuf, inheritedClassShortName, visibilityField, scopeToGroup);
-
-     
-      
-      // Pick up projects or analysis groups that don't have any children but
-      // belong to same lab user is member or manager of.
-      if (leftJoinExclusionCriteria != null && this.getGroupsIAmMemberOrManagerOf().size() > 0) {
-        queryBuf.append(" OR ");
-        queryBuf.append(" ( ");
-        
-        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
-        queryBuf.append(" AND " + inheritedClassShortName + ".idLab in ( ");
-        for (Iterator i = this.getGroupsIAmMemberOrManagerOf().iterator(); i.hasNext();) {
-          Lab l = (Lab)i.next();
-          queryBuf.append(l.getIdLab());
-          if (i.hasNext()) {
-            queryBuf.append(", ");
-          }
-        }
-        queryBuf.append(")");
-        queryBuf.append(" ) ");
-        
-      }
-      
-      queryBuf.append(" ) ");
-    }
-    // Guest
-    else {
-      appendInheritedPublicCriteria(queryBuf, inheritedClassShortName, visibilityField, false);        
-    }
-    
-    return true;
-  }
 
   public boolean addPublicOnlySecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd) {
 
@@ -1483,6 +1480,37 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   
+  private boolean appendInstitutionCriteria(StringBuffer queryBuf, String classShortName ) {
+    Set institutions = getInstitutionsIAmMemberOf();
+    if (institutions.isEmpty()) {
+      return false;
+    }
+    
+    queryBuf.append(" ( ");
+
+    // req.idLab in (....)
+    queryBuf.append(classShortName);
+    queryBuf.append(".idInstitution in ( ");
+    for(Iterator i = institutions.iterator(); i.hasNext();) {
+      Institution theInstitution = (Institution)i.next();
+      queryBuf.append(theInstitution.getIdInstitution());
+      if (i.hasNext()) {
+        queryBuf.append(", ");
+      }
+    }      
+    queryBuf.append(" )");
+    
+    // req.codeVisibility = 'visible to members'
+    queryBuf.append(" AND ");
+    queryBuf.append(classShortName);
+    queryBuf.append(".codeVisibility = '");
+    queryBuf.append(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS);
+    queryBuf.append("'");
+    
+    queryBuf.append(" ) ");
+    return true;
+  }
+  
   private  boolean appendMembersAndCollaboratorsCriteria(StringBuffer queryBuf, String classShortName ) {
     Set labs = getAllMyGroups();
     if (labs.isEmpty()) {
@@ -1549,7 +1577,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
 
   
-  private void appendPublicCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroups) {
+  private boolean appendPublicCriteria(StringBuffer queryBuf, String classShortName, boolean scopeToGroups) {
     queryBuf.append(" ( ");
 
     if (scopeToGroups) {
@@ -1577,6 +1605,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         queryBuf.append(" AND ");        
         
       }
+      
     } 
      
     queryBuf.append(classShortName);
@@ -1586,43 +1615,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
     queryBuf.append(" ) ");
     
-  }
-  
-  private void appendInheritedPublicCriteria(StringBuffer queryBuf, String classShortName, String visibilityField, boolean scopeToGroups) {
-    queryBuf.append(" ( ");
-
-    if (scopeToGroups) {
-
-      // req.idLab in (....)
-      Set labs = getAllMyGroups();
-      if (!labs.isEmpty()) {
-      queryBuf.append(classShortName);
-        queryBuf.append(".idLab in ( ");
-        for (Iterator i = labs.iterator(); i.hasNext();) {
-          Lab theLab = (Lab) i.next();
-          queryBuf.append(theLab.getIdLab());
-          if (i.hasNext()) {
-            queryBuf.append(", ");
-          }
-        }
-        queryBuf.append(" )");
-        queryBuf.append(" AND ");
-      }
-    }
-
-    // req.codeVisibility is 'visible to collaborators and members'
-    queryBuf.append(visibilityField + " = '");
-    queryBuf.append(Visibility.VISIBLE_TO_PUBLIC);
-    queryBuf.append("'");
+    return true;
     
-    queryBuf.append(" ) ");
   }
-  
 
 
-
-  
-  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField,  String ownerField, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
+  public boolean buildLuceneSecurityFilter(StringBuffer searchText, String labField, String institutionField, 
+      String collaboratorField, String ownerField,String visibilityField, boolean scopeToGroup, 
+      String inheritedLabField, String leftJoinExclusionCriteria) {
     boolean addedFilter = false;
     
     // Admins
@@ -1634,105 +1634,69 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       
       boolean added = buildLuceneOwnershipFilter(searchText, labField, ownerField, visibilityField);
 
-      if (added) {
-        searchText.append(" OR ");
+      boolean added1 =  buildLuceneCollaboratorListFilter(searchText, collaboratorField);
+      
+      boolean added2 = false;
+      if (getGroupsIAmMemberOrManagerOf().size() > 0) {
+        if (added || added1) {
+          searchText.append(" OR ");
+        }
+        added2 = buildLuceneMembershipFilter(searchText, labField, visibilityField);
       }
-      boolean added1 = buildLuceneMembershipFilter(searchText, labField, visibilityField);
 
       // Add criteria for objects with collaborator visibility
-      if (added1) {
-        searchText.append(" OR ");        
+      boolean added3 = false;
+      if (getAllMyGroups().size() > 0) {
+        if (added || added1 || added2) {
+          searchText.append(" OR ");        
+        }
+        added3 = buildLuceneMemberCollaboratorFilter(searchText, labField, visibilityField);        
       }
-      boolean added2 = addedFilter = buildLuceneMemberCollaboratorFilter(searchText, labField, visibilityField);
 
+
+      // Add criteria for objects with institution visibility
+      boolean added4 = false;
+      if (getInstitutionsIAmMemberOf().size() > 0) {
+        if (added1 || added2 || added3) {
+          searchText.append(" OR ");        
+        }
+        added4  = buildLuceneInstitutionFilter(searchText, institutionField, visibilityField);        
+      }
+
+      
       // Add criteria for public objects
-      if (added1 || added2) {
+      if (added1 || added2 || added3 || added4) {
         searchText.append(" OR ");        
       }
-      boolean added3 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup, null);
-      addedFilter = added || added1 || added2 || added3;        
+      boolean added5 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup);
+      addedFilter = added || added1 || added2 || added3 || added4 || added5;        
 
       searchText.append(" ) ");
       
-      // Add exclusion criteria
-      if (addedFilter && leftJoinExclusionCriteria != null) {
+      // Add exclusion criteria to pick up "empty" projects / analysis groups 
+      // for the lab the user belongs to
+      if (addedFilter && leftJoinExclusionCriteria != null && this.getAllMyGroups().size() > 0) {
         searchText.append(" OR ");
+        searchText.append(" ( ");
+
+        buildLuceneGroupFilter(searchText, inheritedLabField);
+        searchText.append(" AND ");
         searchText.append(" ( ");
         searchText.append(leftJoinExclusionCriteria);
         searchText.append(" ) ");
-      }
-    }
-    // Guest
-    else {
-      addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false, leftJoinExclusionCriteria);        
-    }
-    
-    return addedFilter;
-  }
 
-  
-  public boolean buildLuceneCollaboratorListFilter(StringBuffer searchText, String collaboratorField) {
-    boolean addedFilter = false;
-    
-    // Admins
-    if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
-    }
-    // GNomEx users
-    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      searchText.append(" ( ");
-      
-      // Get all objects this user is specified as a collaborator on.    
-      searchText.append(collaboratorField + ":");
-      searchText.append("COLLAB-" +  this.getIdAppUser() + "-COLLAB");
-      
-      searchText.append(" ) ");
-      
-      addedFilter = true;
-    }
-    // Guest
-    else {
-    }
-    
-    return addedFilter;
-  }
-
-  public boolean buildLuceneInheritedSecurityFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria) {
-    boolean addedFilter = false;
-    
-    // Admins
-    if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
-    }
-    // GNomEx users
-    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      searchText.append(" ( ");
-      
-      boolean added1 = buildLuceneGroupFilter(searchText, labField);
-
-
-      // Add criteria for public objects
-      if (added1) {
-        searchText.append(" OR ");        
-      }
-      boolean added2 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup, null);
-      addedFilter = added1 || added2;        
-
-      searchText.append(" ) ");
-      
-      // Add exclusion criteria
-      if (addedFilter && leftJoinExclusionCriteria != null) {
-        searchText.append(" OR ");
-        searchText.append(" ( ");
-        searchText.append(leftJoinExclusionCriteria);
         searchText.append(" ) ");
+        return true;
       }
     }
     // Guest
     else {
-      addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false, leftJoinExclusionCriteria);        
+      addedFilter = buildLucenePublicFilter(searchText, labField, visibilityField, false);        
     }
     
     return addedFilter;
   }
+
   
   private boolean buildLuceneOwnershipFilter(StringBuffer searchText, String labField, String ownerField, String visibilityField ) {
     Set mgrLabs = getGroupsIManage();
@@ -1768,6 +1732,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     searchText.append(" ) ");
     return true;
+  }
+  
+  private boolean buildLuceneCollaboratorListFilter(StringBuffer searchText, String collaboratorField) {
+    boolean addedFilter = false;
+
+    searchText.append(" ( ");
+
+    // Get all objects this user is specified as a collaborator on.    
+    searchText.append(collaboratorField + ":");
+    searchText.append("COLLAB-" +  this.getIdAppUser() + "-COLLAB");
+
+    searchText.append(" ) ");
+
+    addedFilter = true;
+ 
+    
+    return addedFilter;
   }
 
   private boolean buildLuceneMembershipFilter(StringBuffer searchText, String labField, String visibilityField ) {
@@ -1828,6 +1809,37 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
   
+  private boolean buildLuceneInstitutionFilter(StringBuffer searchText, String institutionField, String visibilityField ) {
+    Set institutions = getInstitutionsIAmMemberOf();
+    if (institutions.isEmpty()) {
+      return false;
+    }
+    
+    searchText.append(" ( ");
+
+    // req.idLab in (....)
+    searchText.append(institutionField);
+    searchText.append(":(");
+    for(Iterator i = institutions.iterator(); i.hasNext();) {
+      Institution theInstitution = (Institution)i.next();
+      searchText.append(theInstitution.getIdInstitution());
+      if (i.hasNext()) {
+        searchText.append(" ");
+      }
+    }      
+    searchText.append(")");
+    
+    // req.codeVisibility = 'visible to institution'
+    searchText.append(" AND ");
+    searchText.append(visibilityField + ":");
+    searchText.append(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS);
+    searchText.append("'");
+    
+    searchText.append(" ) ");
+    return true;
+  }
+  
+  
   private boolean buildLuceneGroupFilter(StringBuffer searchText, String labField) {
     if (getAllMyGroups().isEmpty()) {
       return false;
@@ -1852,7 +1864,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
 
-  private boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups, String leftJoinExclusionCriteria) {
+  private boolean buildLucenePublicFilter(StringBuffer searchText, String labField, String visibilityField, boolean scopeToGroups) {
     searchText.append(" ( ");
 
     searchText.append(" ( ");
@@ -1878,17 +1890,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     searchText.append(Visibility.VISIBLE_TO_PUBLIC);
     searchText.append(" ) ");
     
-    // Add exclusion criteria
-    if (leftJoinExclusionCriteria != null) {
-      searchText.append(" OR ");
-      searchText.append(" ( ");
-      searchText.append(leftJoinExclusionCriteria);
-      searchText.append(" ) ");
-    }
-    
+
     searchText.append(" ) ");
     return true;
   }
+
   
   private boolean addWhereOrAnd(StringBuffer queryBuf, boolean addWhere) {
     if (addWhere) {

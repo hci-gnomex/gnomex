@@ -28,7 +28,8 @@ public class Lab extends HibernateDetailObject {
   private Set     collaborators;
   private Set     managers;
   private Set     projects;
-  
+  private Set     institutions;
+
   // Permission flag
   private boolean canSubmitRequests = false;
   private boolean canManage = false;
@@ -291,6 +292,13 @@ public class Lab extends HibernateDetailObject {
     this.isExternalPricing = isExternalPricing;
   }
   
+  public Set getInstitutions() {
+    return institutions;
+  }
+
+  public void setInstitutions(Set institutions) {
+    this.institutions = institutions;
+  }  
   public List getApprovedBillingAccounts() {
     ArrayList approvedBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {

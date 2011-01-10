@@ -116,6 +116,9 @@ public class RequestParser implements Serializable {
         request = new Request();
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
         request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
+        if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
+          request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
+        } 
         isNewRequest = true;
       } else {
         request = (Request)sess.load(Request.class, idRequest);
@@ -135,6 +138,9 @@ public class RequestParser implements Serializable {
             throw new Exception("Visibility is required for experiment " + request.getNumber());
           }
           request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
+          if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
+            request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
+          } 
         }
       }
       

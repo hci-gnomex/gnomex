@@ -557,7 +557,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     Integer idAnalysisGroup = new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSISGROUP));
     Integer idLab     = new Integer(doc.get(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP));
-    Integer idAnalysis          = doc.get(AnalysisIndexHelper.ID_ANALYSIS) == null ? null : new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSIS));
+    Integer idAnalysis          = doc.get(AnalysisIndexHelper.ID_ANALYSIS).equals("unknown") ? null : new Integer(doc.get(AnalysisIndexHelper.ID_ANALYSIS));
     
     Element labNode = (Element)labAnalysisMap.get(idLab);
     if (labNode == null) {
@@ -651,7 +651,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
     node.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
     node.setAttribute("codeApplication", codeApplication != null ? codeApplication : "");
-    node.setAttribute("requestLabName", doc.get(ExperimentIndexHelper.LAB_NAME) != null ? doc.get(ExperimentIndexHelper.LAB_NAME) : "");
+    node.setAttribute("labName", doc.get(ExperimentIndexHelper.LAB_NAME) != null ? doc.get(ExperimentIndexHelper.LAB_NAME) : "");
     node.setAttribute("projectName", doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     node.setAttribute("idSlideProduct", doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) != null ? doc.get(ExperimentIndexHelper.ID_SLIDE_PRODUCT) : "");
     if (rank >= 0) {
@@ -666,6 +666,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   
   private void buildEmptyRequestNode(Element node,  Integer idProject, Document doc, float score, int rank) {
     node.setAttribute("idRequest", "-1");
+    node.setAttribute("labName", doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_LAB_NAME) : "");
     node.setAttribute("idProject", idProject.toString());
     node.setAttribute("projectName",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
     node.setAttribute("label",  doc.get(ExperimentIndexHelper.PROJECT_NAME) != null ? doc.get(ExperimentIndexHelper.PROJECT_NAME) : "");
@@ -713,7 +714,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     node.setAttribute("idAnalysis", "-1");
     node.setAttribute("idAnalysisGroup", idAnalysisGroup.toString());
     node.setAttribute("analysisGroupName", doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME));
-    node.setAttribute("name",  doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
+    node.setAttribute("labName", doc.get(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP) != null ? doc.get(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP) : "" );
     node.setAttribute("label",  doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) != null ? doc.get(AnalysisIndexHelper.ANALYSIS_GROUP_NAME) : "");
     if (rank >= 0) {
       node.setAttribute("searchRank", new Integer(rank + 1).toString());          
@@ -904,65 +905,19 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     
     StringBuffer searchText = new StringBuffer();
     
-    boolean addedCollaboratorFilter = false;
-    boolean addedInheritedFilter = false;
-    boolean addedVisibilityFilter = false;
     
-    StringBuffer collaboratorSearchText = new StringBuffer();
-    StringBuffer inheritedSearchText = new StringBuffer();
-    StringBuffer visibilitySearchText = new StringBuffer();
-
-    addedCollaboratorFilter = this.getSecAdvisor().buildLuceneCollaboratorListFilter(collaboratorSearchText, 
-                                                                                      ExperimentIndexHelper.COLLABORATORS);
-    
-    addedInheritedFilter = this.getSecAdvisor().buildLuceneInheritedSecurityFilter(inheritedSearchText, 
-                                                                    ExperimentIndexHelper.ID_LAB_PROJECT, 
-                                                                    ExperimentIndexHelper.CODE_VISIBILITY,
-                                                                    scopeToGroup,
-                                                                     null);
-    
-    addedVisibilityFilter = this.getSecAdvisor().buildLuceneSecurityFilter(visibilitySearchText, 
+    boolean addedFilter = this.getSecAdvisor().buildLuceneSecurityFilter(searchText, 
                                                                     ExperimentIndexHelper.ID_LAB,
+                                                                    ExperimentIndexHelper.ID_INSTITUTION,
+                                                                    ExperimentIndexHelper.COLLABORATORS,
                                                                     ExperimentIndexHelper.ID_APPUSER,
                                                                     ExperimentIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
-                                                                    AnalysisIndexHelper.ID_ANALYSIS + ":unknown" );
+                                                                    ExperimentIndexHelper.ID_LAB_PROJECT, 
+                                                                    ExperimentIndexHelper.ID_REQUEST + ":unknown" );
 
-    
-    // Filters need to have following order of evaluation
-    // (collaboratorFilter) OR (inheritedFilter AND visibilityFilter)
-    if (addedCollaboratorFilter) {
-      searchText.append("(");
-      searchText.append(collaboratorSearchText);
-      searchText.append(")");      
-    }
-    if (addedCollaboratorFilter && (addedInheritedFilter || addedVisibilityFilter)) {
-      searchText.append(" OR ");
-      searchText.append(" ( ");
-    }
-    
-    
-    if (addedInheritedFilter) {
-      searchText.append("(");
-      searchText.append(inheritedSearchText);
-      searchText.append(")");
-    }
-    if (addedInheritedFilter && addedVisibilityFilter) {
-      searchText.append(" AND ");
-    }
-    if (addedVisibilityFilter) {
-      searchText.append("(");
-      searchText.append(visibilitySearchText);
-      searchText.append(")");      
-    }
-    
-    if (addedCollaboratorFilter && (addedInheritedFilter || addedVisibilityFilter)) {
-      searchText.append(" ) ");
-    }
-    
-    
-    if (addedCollaboratorFilter || addedInheritedFilter || addedVisibilityFilter) {
-      
+   
+    if (addedFilter) {
       log.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {
@@ -979,65 +934,18 @@ public class SearchIndex extends GNomExCommand implements Serializable {
    
     StringBuffer searchText = new StringBuffer();
     
-    boolean addedCollaboratorFilter = false;
-    boolean addedInheritedFilter = false;
-    boolean addedVisibilityFilter = false;
-    
-    StringBuffer collaboratorSearchText = new StringBuffer();
-    StringBuffer inheritedSearchText = new StringBuffer();
-    StringBuffer visibilitySearchText = new StringBuffer();
-
-    addedCollaboratorFilter = this.getSecAdvisor().buildLuceneCollaboratorListFilter(collaboratorSearchText, 
-                                                                                      AnalysisIndexHelper.COLLABORATORS);
-    
-    addedInheritedFilter = this.getSecAdvisor().buildLuceneInheritedSecurityFilter(inheritedSearchText, 
-                                                                   AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, 
-                                                                   AnalysisIndexHelper.CODE_VISIBILITY,
-                                                                   scopeToGroup,
-                                                                   null);
-    
-    addedVisibilityFilter = this.getSecAdvisor().buildLuceneSecurityFilter(visibilitySearchText, 
+    boolean addedFilter = this.getSecAdvisor().buildLuceneSecurityFilter(searchText, 
                                                                     AnalysisIndexHelper.ID_LAB,
+                                                                    AnalysisIndexHelper.ID_INSTITUTION,
+                                                                    AnalysisIndexHelper.COLLABORATORS,
                                                                     AnalysisIndexHelper.ID_APPUSER,
                                                                     AnalysisIndexHelper.CODE_VISIBILITY,
                                                                     scopeToGroup,
+                                                                    AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, 
                                                                     AnalysisIndexHelper.ID_ANALYSIS + ":unknown" );
 
     
-    // Filters need to have following order of evaluation
-    // (collaboratorFilter) OR (inheritedFilter AND visibilityFilter)
-    if (addedCollaboratorFilter) {
-      searchText.append("(");
-      searchText.append(collaboratorSearchText);
-      searchText.append(")");      
-    }
-    if (addedCollaboratorFilter && (addedInheritedFilter || addedVisibilityFilter)) {
-      searchText.append(" OR ");
-      searchText.append(" ( ");
-    }
-    
-    
-    if (addedInheritedFilter) {
-      searchText.append("(");
-      searchText.append(inheritedSearchText);
-      searchText.append(")");
-    }
-    if (addedInheritedFilter && addedVisibilityFilter) {
-      searchText.append(" AND ");
-    }
-    if (addedVisibilityFilter) {
-      searchText.append("(");
-      searchText.append(visibilitySearchText);
-      searchText.append(")");      
-    }
-    
-    if (addedCollaboratorFilter && (addedInheritedFilter || addedVisibilityFilter)) {
-      searchText.append(" ) ");
-    }
-    
-    
-    if (addedCollaboratorFilter || addedInheritedFilter || addedVisibilityFilter) {
-      
+    if (addedFilter) {
       log.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {

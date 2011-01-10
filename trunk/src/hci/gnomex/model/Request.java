@@ -51,6 +51,7 @@ public class Request extends HibernateDetailObject {
   private String          isArrayINFORequest;
   private String          codeVisibility;
   private String          isExternal;  
+  private Integer         idInstitution;
   private Set             samples = new TreeSet();
   private Set             labeledSamples = new TreeSet();
   private Set             hybridizations = new TreeSet();
@@ -729,6 +730,16 @@ public class Request extends HibernateDetailObject {
 
   public void setRequestCategory(RequestCategory requestCategory) {
     this.requestCategory = requestCategory;
+  }
+
+
+  public Integer getIdInstitution() {
+    return idInstitution;
+  }
+
+
+  public void setIdInstitution(Integer idInstitution) {
+    this.idInstitution = idInstitution;
   }
 
 

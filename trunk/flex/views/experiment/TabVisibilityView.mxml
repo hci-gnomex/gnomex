@@ -28,14 +28,16 @@
 	
 <mx:Script>
 	<![CDATA[
-		import views.util.PromptXMLListCollection;
-		import mx.controls.Spacer;
+		import hci.flex.controls.CheckBox;
+		
 		import mx.collections.XMLListCollection;
 		import mx.controls.RadioButton;
+		import mx.controls.Spacer;
 		import mx.events.ListEvent;
-		import views.renderers.CheckBoxIsSelectedChipType;
-		import hci.flex.controls.CheckBox;
 		import mx.rpc.events.ResultEvent;
+		
+		import views.renderers.CheckBoxIsSelectedChipType;
+		import views.util.PromptXMLListCollection;
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
@@ -43,22 +45,30 @@
 		[Bindable]
 		private var idLab:Object;
 		
+		private var idInstitution:Object;
+		
 		[Bindable]
 		private var possibleCollaborators:PromptXMLListCollection;
 
+		[Bindable]
+		private var possibleInstitutions:PromptXMLListCollection;
 
 		public function init():void {
 			checkSecurity();
 			if (this.currentState == "EditState") {
 				this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
+			} else {
+				this.visibilityRadioGroup.selectedValue = 'MEM';
 			}
 			this.collaboratorCombo.selectedItem = null;
 			checkVisibilitySetupCompleteness();
 			
 			if (this.currentState == "EditState" || parentDocument.isAmendState()) {
 				idLab = parentDocument.request.@idLab;
+				idInstitution = parentDocument.request.@idInstitution;
 			} else {
 				idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+				idInstitution = parentDocument.visibilityView.institutionCombo.selectedItem != null ? parentDocument.visibilityView.institutionCombo.selectedItem.@idInstitution : '';
 			}
 			getLab.send();
 		}
@@ -74,6 +84,20 @@
 				    " displayName=''"  +
 					"/>");
 				possibleCollaborators = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).possibleCollaborators.AppUser.(@isActive == 'Y')));
+				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
+
+				this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
+				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
+				if (this.idInstitution != null) {
+					for each(var inst:Object in possibleInstitutions) {
+						if (inst.@idInstitution == this.idInstitution) {
+							this.institutionCombo.selectedItem =  inst;
+							break;
+						}
+					}
+				} else {
+					this.institutionCombo.selectedIndex = 0;
+				}
 			}
 		}
 
@@ -82,7 +106,15 @@
         	if (parentDocument.isEditState()) {
         		isComplete = true;
         	} else if (this.visibilityRadioGroup.selectedValue != null && this.visibilityRadioGroup.selectedValue != '') {
-	        	isComplete = true;
+
+				if (this.visibilityRadioGroup.selectedValue == 'INST') {
+					if (institutionCombo.selectedItem != null && institutionCombo.selectedItem.hasOwnProperty("@idInstitution") && institutionCombo.selectedItem.@idInstitution != '') {
+						isComplete = true;						
+					}					
+				} else {
+					isComplete = true;
+					
+				}
         	} 
 
 			if (this.currentState != "EditState") {
@@ -127,9 +159,14 @@
 		   <mx:HBox paddingLeft="20" horizontalGap="0" width="100%">
 		   	<mx:VBox verticalGap="0">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
-		   		<mx:RadioButton value="OWNER" label="Owner     (the submitter and the lab PI)" groupName="visibilityRadioGroup"  change="checkVisibilitySetupCompleteness();" click="parentDocument.dirty.setDirty()"/>
-		   		<mx:RadioButton value="MEM" selected="true" label="Members (all members of the lab group)" groupName="visibilityRadioGroup" change="checkVisibilitySetupCompleteness();" click="parentDocument.dirty.setDirty()"/>
-		   		<mx:RadioButton value="PUBLIC" label="Public      (anyone)" groupName="visibilityRadioGroup" change="checkVisibilitySetupCompleteness();" click="parentDocument.dirty.setDirty()"/>
+		   		<mx:RadioButton value="OWNER" label="Owner       (the submitter and the lab PI)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()"/>
+		   		<mx:RadioButton value="MEM" selected="true" label="Members   (all members of the lab group)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()"/>
+				<mx:HBox>
+					<mx:RadioButton value="INST" selected="true" label="Institution  (all lab groups that are part of institution)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="false"/>
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" change="checkVisibilitySetupCompleteness()">			       	
+					</mx:ComboBox>					
+				</mx:HBox>
+		   		<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()"/>
 		   		
 		   	</mx:VBox>
 		   </mx:HBox>
