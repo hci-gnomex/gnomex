@@ -601,6 +601,7 @@
 							<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true"  dataField="@concentration"/>
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
+							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber"/>
 			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Barcode"  width="75" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
 			                   <mx:headerRenderer>
@@ -670,7 +671,6 @@
 							<mx:AdvancedDataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
 							<mx:AdvancedDataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
 							<mx:AdvancedDataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
-							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CCNumber" width="100" dataField="@ccNumber"/>
 	
 							<mx:AdvancedDataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>
 							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" width="100" dataField="@description"/>
