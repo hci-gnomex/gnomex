@@ -6,7 +6,7 @@
     xmlns:experiment="views.experiment.*"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	width="100%" height="100%"  
-	creationPolicy="all" show="init()" >
+	creationPolicy="all" show="init()" hide="leave()">
 
     
    <mx:HTTPService  
@@ -335,6 +335,16 @@
         	}	
 
 		}
+			
+		private function leave():void {
+			if (parentApplication.theViews.selectedChild == this) {
+				
+			} else if (this.id == "editView" && request != null) {
+				this.theTab.selectedChild = this.samplesView;
+			}	
+		}
+				
+
 
 
 		public function checkDirty():void {
@@ -1599,6 +1609,7 @@
 			samplesView.currentState = '';
 
 
+
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 			requestIcon = requestCategory.@icon;
@@ -1711,11 +1722,21 @@
 			this.getBillingAccountName(); 
 			this.getExperimentCategoryName();
 			
-			postSetupEditForm();
+		    postSetupEditForm();
 
 		}
 		
 		private function postSetupEditForm():void {
+			// Only show billing tab if it is is not an external experiment
+			if (this.request.@isExternal == 'Y') {
+				if (theTab.contains(this.billingTab)) {
+					theTab.removeChild(billingTab);
+				}
+			} else {
+				if (!theTab.contains(this.billingTab)) {
+					theTab.addChild(billingTab);
+				}
+			}
 			initializeControls();
 			
 			if (this.isMicroarrayState()) {
@@ -1727,16 +1748,6 @@
 				hybsView.checkHybsCompleteness();
 			}
 			
-			// Only show billing tab if it is is not an external experiment
-			if (this.request.@isExternal == 'Y') {
-				if (theTab.contains(this.billingTab)) {
-					theTab.removeChild(billingTab);
-				}
-			} else {
-				if (!theTab.contains(this.billingTab)) {
-					theTab.addChild(billingTab);
-				}
-			}
 			
 			this.dirty.resetDirty();
 		}
