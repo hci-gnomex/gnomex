@@ -961,17 +961,20 @@
 			  </mx:TextArea>
 			</mx:HBox>
 			<mx:Spacer width="8"/>
-			<mx:HBox id="buttonsContainer">
+		    <mx:HBox width="100%">
 				<mx:CheckBox id="showCCNumberCheckbox" 
-					click="toggleShowCCNumber()" 
-					visible="{parentApplication.isBSTLinkageSupported}"
-					width="{parentApplication.isBSTLinkageSupported ? 250 : 0}" 
-					label="Link to BST samples using CC Number" />
-				<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
-				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
-				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
-				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
-				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
+							 click="toggleShowCCNumber()" 
+							 visible="{parentApplication.isBSTLinkageSupported}"
+							 width="{parentApplication.isBSTLinkageSupported ? 250 : 0}" 
+							 label="Link to BST samples using CC Number" />
+				<mx:HBox id="buttonsContainer">
+					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
+					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
+					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+					<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
+				</mx:HBox>
+				
 			</mx:HBox>
 					
 			<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
