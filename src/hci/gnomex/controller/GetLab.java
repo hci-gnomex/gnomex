@@ -72,6 +72,11 @@ public class GetLab extends GNomExCommand implements Serializable {
       Hibernate.initialize(theLab.getBillingAccounts());
     }
     
+    // We want the list of institutions to show up for the lab
+    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
+      Hibernate.initialize(theLab.getInstitutions());
+    }
+    
     
     theLab.excludeMethodFromXML("getIsMyLab");
     theLab.excludeMethodFromXML("getCanSubmitRequests");
