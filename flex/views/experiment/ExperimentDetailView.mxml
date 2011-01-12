@@ -84,7 +84,6 @@
 			}
 			
 			this.currentState = '';						
-			this.theTab.selectedIndex = 0;
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
 			} else if (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
