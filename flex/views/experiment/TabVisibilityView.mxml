@@ -61,6 +61,7 @@
 				this.visibilityRadioGroup.selectedValue = 'MEM';
 			}
 			this.collaboratorCombo.selectedItem = null;
+			this.institutionCombo.selectedItem = null;
 			checkVisibilitySetupCompleteness();
 			
 			if (this.currentState == "EditState" || parentDocument.isAmendState()) {
