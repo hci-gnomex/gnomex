@@ -3,6 +3,7 @@
 5.0.9
 ---------------------
 - Added institution level visibility on experiments and analysis
+- Fix Experiment Edit window to show checkbox for 'CC Number'.  
 
 5.0.8.3 (Jan 5, 2011)
 ---------------------
