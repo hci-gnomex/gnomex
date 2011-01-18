@@ -5,6 +5,8 @@
 - Added institution level visibility on experiments and analysis
 - Fix Experiment Edit window to show checkbox for 'CC Number'.  
 - Fix selection problem with lab dropdown on "Submit Request" window. (Didn't refresh app user combo on first selection.)
+- Avoid simultaneous calls to get billing list, get pricing list to prevent random error on Windows 7 clients.  (Get pricing when user clicks on pricing tab in Billing.)
+
 
 5.0.8.3 (Jan 5, 2011)
 ---------------------
