@@ -456,7 +456,7 @@
 </mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  filterFunction="filterBillingAccount"/>
 	
-	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.submitters.AppUser.(@isActive == 'Y')}"/>
+	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
 	
 	<mx:NumberValidator id="labValidator"
         source="{this.labCombo}"
