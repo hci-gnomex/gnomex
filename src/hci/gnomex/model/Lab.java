@@ -1,14 +1,11 @@
 package hci.gnomex.model;
 
+import hci.hibernate3utils.HibernateDetailObject;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
-
-import hci.gnomex.utility.AppUserNameComparator;
-import hci.gnomex.utility.LabComparator;
-import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class Lab extends HibernateDetailObject {
@@ -325,6 +322,5 @@ public class Lab extends HibernateDetailObject {
     }
     return pendingBillingAccounts;
   }
-  
 
 }
