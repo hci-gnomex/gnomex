@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
+import hci.gnomex.utility.AppUserNameComparator;
+import hci.gnomex.utility.LabComparator;
 import hci.hibernate3utils.HibernateDetailObject;
 
 
@@ -321,5 +324,18 @@ public class Lab extends HibernateDetailObject {
       }
     }
     return pendingBillingAccounts;
+  }
+  
+  public Set getSubmitters() {
+      TreeSet submitters = new TreeSet(new AppUserNameComparator());
+      for(Iterator i = getMembers().iterator(); i.hasNext();) {
+        AppUser u = (AppUser)i.next();
+        submitters.add(u);
+      }
+      for(Iterator i = getManagers().iterator(); i.hasNext();) {
+        AppUser u = (AppUser)i.next();
+        submitters.add(u);
+      }
+      return submitters;
   }
 }

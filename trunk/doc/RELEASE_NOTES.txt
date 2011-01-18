@@ -1,9 +1,10 @@
 ﻿GNomEx Release Notes
 
-5.0.9
+5.0.9 (Jan 18, 2010)
 ---------------------
 - Added institution level visibility on experiments and analysis
 - Fix Experiment Edit window to show checkbox for 'CC Number'.  
+- Fix selection problem with lab dropdown on "Submit Request" window. (Didn't refresh app user combo on first selection.)
 
 5.0.8.3 (Jan 5, 2011)
 ---------------------

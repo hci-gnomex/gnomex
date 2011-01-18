@@ -139,14 +139,11 @@
 		import views.experiment.RequestCloneWindow;
 		import views.experiment.ProjectDetailWindow;
 		import views.util.WorkAuthorizationWindow;
+		import views.util.PromptXMLListCollection;
 
         [Bindable]
         private var lab:Object = null;
-        
-        [Bindable]
-        private var appUsers:XMLListCollection;
-        private var appUserSort:Sort;
-		
+        		
         public var idAppUser:Object = '';
 
 		public var projectDetailWindow:ProjectDetailWindow;
@@ -178,7 +175,7 @@
 		
 		public function selectDefaultLab():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				labCombo.selectedIndex = 0;
+				labCombo.selectedIndex = -1;
 			} else {
 				if (labCombo.dataProvider.length == 2) {
 					labCombo.selectedIndex = 1;
@@ -302,34 +299,15 @@
 		
 		
 		private function getMembersOfLab():void {			
-			if (this.labCombo.selectedItem.@idLab != null) {
-				if (lab == null || labCombo.selectedItem.@idLab != lab.@idLab) {
-					if (currentState == "AdminState" || currentState == "AdminExternalExperimentState") {
-					    idAppUser = null;
-					}
-					getLab.send();				
+			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != null) {
+				if (currentState == "AdminState" || currentState == "AdminExternalExperimentState") {
+					idAppUser = null;
 				}
+				getLab.send();				
 			}
 		}
 		private function onGetLab(event:ResultEvent):void {			
 			lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
-			appUsers = new XMLListCollection(lab.members.AppUser);
-			for each (var mgr:Object in lab.managers.AppUser) {
-				if (!appUsers.contains(mgr)) {
-					appUsers.addItem(mgr);				
-				}
-			}
-			appUsers.addItemAt(emptyNode, 0);
-			
-			appUserSort = new Sort();
-	        appUserSort.compareFunction = this.sortAppUsers;
-	        appUsers.sort = appUserSort;
-	        appUsers.refresh();
-	        
-	        if (this.currentState == "AdminState" || this.currentState == "AdminExternalExperimentState") {
-		        this.appUserCombo.selectedIndex = 0;
-	        }
 
 			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 	        billingAccounts.filterFunction = this.filterBillingAccount;
@@ -341,6 +319,7 @@
 	        if (parentDocument != null && !parentDocument.isAmendState()) {
 		        parentDocument.filteredProjectList.refresh();	        	
 	        }
+			this.checkSetupCompleteness();
 
 
 		}
@@ -477,6 +456,8 @@
 </mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  filterFunction="filterBillingAccount"/>
 	
+	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.submitters.AppUser.(@isActive == 'Y')}"/>
+	
 	<mx:NumberValidator id="labValidator"
         source="{this.labCombo}"
         lowerThanMinError="This field is required."
@@ -509,9 +490,11 @@
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 				<mx:Label text="(1) Verify your lab group." width="160" id="label12"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
-					selectedIndex="-1" labelField="@name" 
+					labelField="@name" 
 					width="345"
-					 change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" id="labCombo">
+					change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
+					close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
+					id="labCombo">
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
