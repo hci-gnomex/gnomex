@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AppUserNameComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -16,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -120,6 +122,7 @@ public class GetLab extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("OpenLabList"));
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       this.appendPossibleCollaborators(labNode, theLab);
+      this.appendSubmitters(labNode, theLab);
       doc.getRootElement().addContent(labNode);
       
       
@@ -159,6 +162,7 @@ public class GetLab extends GNomExCommand implements Serializable {
       if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())) {
         this.appendPossibleCollaborators(labNode, theLab);
       }
+      this.appendSubmitters(labNode, theLab);
       doc.getRootElement().addContent(labNode);        
           
       XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -234,6 +238,40 @@ public class GetLab extends GNomExCommand implements Serializable {
       possibleCollaboratorsNode.addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());            
     }
   }    
+  
+  private void appendSubmitters(Element labNode, Lab theLab) throws Exception {
+    Element submittersNode = new Element("submitters");
+    labNode.addContent(submittersNode);
+ 
+    Element activeSubmittersNode = new Element("activeSubmitters");
+    labNode.addContent(activeSubmittersNode);
+    
+    TreeSet submitters = new TreeSet(new AppUserNameComparator());
+    AppUser empty = new AppUser();
+    empty.setFirstName("");
+    empty.setIsActive("Y");
+    submitters.add(empty);
+    for(Iterator i = theLab.getMembers().iterator(); i.hasNext();) {
+      AppUser u = (AppUser)i.next();
+      submitters.add(u);
+    }
+    for(Iterator i = theLab.getManagers().iterator(); i.hasNext();) {
+      AppUser u = (AppUser)i.next();
+      submitters.add(u);
+    }
+    
+    for (Iterator i = submitters.iterator(); i.hasNext();) {
+      AppUser u = (AppUser)i.next();
+      this.blockAppUserContent(u);
+      
+      submittersNode.addContent(u.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+      
+      if (u.getIsActive() != null && u.getIsActive().equals("Y")) {
+        activeSubmittersNode.addContent(u.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+      }
+    }
+    
+  }
   
   private void blockAppUserContent(Set appUsers) {
     

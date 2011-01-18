@@ -262,9 +262,7 @@
 		[Bindable]
 		public var slideDesignList:XMLListCollection;
 
-        [Bindable]
-        private var appUsers:XMLListCollection;
-        private var appUserSort:Sort;
+        
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
@@ -3364,19 +3362,7 @@
 		
 		private function onGetLabForAddingServices(event:ResultEvent):void {			
 			var lab:Object = getLabForAddingServices.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
-			appUsers = new XMLListCollection(lab.members.AppUser);
-			for each (var mgr:Object in lab.managers.AppUser) {
-				if (!appUsers.contains(mgr)) {
-					appUsers.addItem(mgr);				
-				}
-			}
-			appUsers.addItemAt(emptyNode, 0);
 			
-			appUserSort = new Sort();
-	        appUserSort.compareFunction = this.sortAppUsers;
-	        appUsers.sort = appUserSort;
-	        appUsers.refresh();
 	        
 	        if (parentApplication.hasPermission('canWriteAnyObject')) {
 		        this.appUserCombo.selectedIndex = 0;
@@ -3508,7 +3494,9 @@
   	<mx:XMLListCollection id="billingAccounts" />
   	<mx:XMLListCollection id="projects" />
 
-  	<mx:HBox id="hbox7">
+	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
+
+	<mx:HBox id="hbox7">
 		<mx:Image source="{requestIcon}"/>
 	  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
   		<mx:Spacer width="100%"/>
@@ -3845,6 +3833,7 @@
                 		<mx:ComboBox  id="labCombo" dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
                 			selectedIndex="-1" labelField="@name" 
                 			width="340"
+							close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
                 			change="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}">
                 		</mx:ComboBox>
                 	</mx:HBox>
