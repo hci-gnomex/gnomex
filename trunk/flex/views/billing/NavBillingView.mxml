@@ -401,18 +401,23 @@
             }
         }
 		public function refreshImpl():void {
-			billingItemsDisplayed = new XMLListCollection();
-			this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
-			
-			var params:Object = new Object();
-			params.action = "refresh";
-			getPricingList.send();
-			
-			if (requestNumberText.text != "") {
-				this.refreshBillingItemsByRequestNumber();
+
+			if (this.billingTabNavigator.selectedChild == this.priceTab) {
+				var params:Object = new Object();
+				params.action = "refresh";
+				getPricingList.send();
+				
 			} else {
-				this.refreshBillingItems();
+				billingItemsDisplayed = new XMLListCollection();
+				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+
+				if (requestNumberText.text != "") {
+					this.refreshBillingItemsByRequestNumber();
+				} else {
+					this.refreshBillingItems();
+				}
 			}
+			
 			
 		}
 		
