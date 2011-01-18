@@ -244,8 +244,6 @@
       	public function initializeData():void
       	{
       		glFileButton.visible = parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N" ? false : true;
-      		
-			getPricingList.send();
 			
 			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
         	var billingPeriodSort:Sort = new Sort();
@@ -1712,7 +1710,7 @@
        			
         		</mx:VBox> 
         		
-        		<mx:VBox id="priceTab" label="Prices" height="100%" verticalGap="0" width="100%" color="#000000">
+        		<mx:VBox id="priceTab" label="Prices" height="100%" verticalGap="0" width="100%" color="#000000" show="{this.getPricingList.send();}" >
 					<mx:Tile  direction="horizontal" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="0" verticalGap="0">
 						<mx:Repeater id="priceSheetRepeater" dataProvider="{getPricingList.lastResult.PriceSheet}">
 							<mx:LinkButton label="{priceSheetRepeater.currentItem.@display}" 
