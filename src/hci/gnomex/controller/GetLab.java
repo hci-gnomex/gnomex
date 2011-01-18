@@ -133,7 +133,9 @@ public class GetLab extends GNomExCommand implements Serializable {
       // from list of other lab members.
       if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab())) {
         Hibernate.initialize(theLab.getMembers());
+        Hibernate.initialize(theLab.getManagers());
         blockAppUserContent(theLab.getMembers());
+        blockAppUserContent(theLab.getManagers());
       }  else {
         theLab.excludeMethodFromXML("getProjects");
       }
