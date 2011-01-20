@@ -186,7 +186,8 @@
 					this.billingAccountValidator.validate();
 				}
 
-			}			
+			}	
+			this.checkSetupCompleteness();
 		}
 		
 		public function getRequestCategory():Object {
@@ -347,7 +348,7 @@
 		}			
 
 	
-		private function checkSetupCompleteness():void {
+		public function checkSetupCompleteness():void {
         	var isComplete:Boolean = false;
         	if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
         		isComplete = true;
