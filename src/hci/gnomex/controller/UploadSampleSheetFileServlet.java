@@ -39,6 +39,11 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
   
   private String   fileName;
 
+  private static final int                        ERROR_MISSING_TEMP_DIRECTORY_PROPERTY  = 900;
+  private static final int                        ERROR_INVALID_TEMP_DIRECTORY           = 901;
+  private static final int                        ERROR_SECURITY_EXCEPTION               = 902;
+  private static final int                        ERROR_UPLOAD_MISC                      = 903;
+ 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
   }
 
@@ -79,6 +84,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
       //
       if (secAdvisor == null) {
         System.out.println("UploadSampleSheetFileServlet: Error - Unable to find or create security advisor.");
+        res.setStatus(ERROR_SECURITY_EXCEPTION);
         throw new ServletException("Unable to upload sample sheet file.  Servlet unable to obtain security information. Please contact GNomEx support.");
       }
 
@@ -92,6 +98,29 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
       Part part;
       
       directoryName = dh.getProperty(Property.TEMP_DIRECTORY);
+      if (directoryName == null || directoryName.equals("")) {
+        res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
+        throw new ServletException("Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
+      }
+      if (!directoryName.endsWith("/") && !directoryName.endsWith("\\")) {
+        directoryName += File.separator;
+      }
+      
+      File dir = new File(directoryName);
+      if (!dir.canRead()) {
+        res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+        throw new ServletException("Unable to upload sample sheet.  Cannot read temp directory " + directoryName);
+      } 
+      if (!dir.canWrite()) {
+        res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+        throw new ServletException("Unable to upload sample sheet.  Cannot write to temp directory " + directoryName);
+      }
+      if (!dir.exists()) {
+        if (!dir.mkdir()) {
+          res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+          throw new ServletException("Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
+        }
+      }
       
       boolean fileWasWritten = false;
       boolean hasColumnNames = false;
@@ -185,9 +214,13 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
       XMLOutputter xmlOut = new XMLOutputter();
       responseOut.println(xmlOut.outputString(doc));   
     
-    } catch (Exception e) {
+    } catch (ServletException e) {
       e.printStackTrace();
-      throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
+      throw new ServletException(e.getMessage());
+    } catch (Exception e) {
+      res.setStatus(ERROR_UPLOAD_MISC);
+      e.printStackTrace();
+      throw new ServletException("Unable to upload file " + fileName + " due to a server error.\n\n" + e.toString() + "\n\nPlease contact GNomEx support.");
     }  finally {
       try {
         HibernateSession.closeSession();        

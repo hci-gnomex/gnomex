@@ -29,20 +29,20 @@
 				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" id="vbox1" height="100%" paddingTop="8" paddingBottom="8">
 					<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%"/>
 					<mx:HBox width="100%">
-						<mx:Label width="200" text="Sample Name:"/>
-						<mx:ComboBox id="sampleName" dataProvider="{sampleNameList}" labelField="@label"></mx:ComboBox>
+						<mx:Label width="100" text="Sample Name:"/>
+						<mx:ComboBox id="sampleName" dataProvider="{sampleNameList}" labelField="@label" width="280"></mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox width="100%">
-						<mx:Label width="200" text="Concentration:"/>
-						<mx:ComboBox id="sampleConcentration" dataProvider="{sampleConcentrationList}" labelField="@label"></mx:ComboBox>
+						<mx:Label width="100" text="Concentration:"/>
+						<mx:ComboBox id="sampleConcentration" dataProvider="{sampleConcentrationList}" labelField="@label" width="280"></mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox width="100%">
-						<mx:Label width="200" text="Description"/>
-						<mx:ComboBox id="sampleDescription" dataProvider="{sampleDescriptionList}" labelField="@label"></mx:ComboBox>
+						<mx:Label width="100" text="Description"/>
+						<mx:ComboBox id="sampleDescription" dataProvider="{sampleDescriptionList}" labelField="@label" width="280"></mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox width="100%" id="hbox1">
-						<mx:Label width="200" text="CC Number:"/>
-						<mx:ComboBox id="sampleCCNumber" dataProvider="{sampleCCNumberList}" labelField="@label"></mx:ComboBox>
+						<mx:Label width="100" text="CC Number:"/>
+						<mx:ComboBox id="sampleCCNumber" dataProvider="{sampleCCNumberList}" labelField="@label" width="280"></mx:ComboBox>
 					</mx:HBox>
 					<mx:Spacer height="100%" id="spacer1"/>
 					<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button1"/>
@@ -121,6 +121,9 @@
 					uploadFR = new FileReference;
 					uploadFR.addEventListener(Event.SELECT, uploadSampleSheetSelectHandler); 
 					uploadFR.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, uploadSampleSheetCompleteHandler); 
+					uploadFR.addEventListener(SecurityErrorEvent.SECURITY_ERROR, uploadSecurityErrorHandler);
+					uploadFR.addEventListener(HTTPStatusEvent.HTTP_STATUS, uploadHttpStatusHandler);
+					uploadFR.addEventListener(IOErrorEvent.IO_ERROR, uploadIoErrorHandler);
 					uploadFR.browse([docTypes]);					
 				}
 				else {
@@ -189,22 +192,55 @@
 			} 
 			
 			private function uploadSampleSheetCompleteHandler(event:DataEvent):void { 
-				//var strData:String = StringUtil.trim(event.data);
 				
-				var cols:String = "";
-				
-				sampleSheetXML = new XML(event.data); 
-				
-				sampleNameList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
-				sampleConcentrationList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
-				sampleDescriptionList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
-				sampleCCNumberList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);			
-				
-				vsMain.selectedChild=chooseColumns;
+				if (event.data.indexOf("<SampleSheet>") >= 0) {
+					var cols:String = "";
+					
+					sampleSheetXML = new XML(event.data); 
+					
+					sampleNameList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+					sampleConcentrationList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+					sampleDescriptionList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
+					sampleCCNumberList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);			
+					
+					vsMain.selectedChild=chooseColumns;
+					
+				} else {
+					var errorMessage:String = event.text;
+					var removeHTML:RegExp = new RegExp("<[^>]*>", "gi");
+					var errorMessageSafe:String = errorMessage.replace(removeHTML, "");
+					Alert.show(errorMessageSafe, "Upload Error");
+					
+				}
 			
 			} 	
 		
-						
+			// only called if there is an  error detected by flash player browsing or uploading a file   
+			private function uploadIoErrorHandler(event:IOErrorEvent):void{
+				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+					"Upload IO error",0);
+			}    
+			// only called if a security error detected by flash player such as a sandbox violation
+			private function uploadSecurityErrorHandler(event:SecurityErrorEvent):void{
+				mx.controls.Alert.show(String(event),"Security Error",0);
+			}
+
+			//  after a file upload is complete or attemted the server will return an http status code, code 200 means all is good anything else is bad.
+			private function uploadHttpStatusHandler(event:HTTPStatusEvent):void {
+				if (event.status == 200){
+				} else if (event.status == 900) {
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The GNomEx property 'temp_directory' is not specified.  Please contact GNomEx support.");
+				} else if (event.status == 901) {
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The temp directory is invalid.  Please contact GNomEx support.");
+				} else if (event.status == 902) {
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload due to insufficent permissions.  Please contact GNomEx support.");
+				} else {
+				  	mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+						"HTTP status",0);
+				} 
+			}
+			
+
 		]]>
 	</mx:Script>
 </mx:TitleWindow>
