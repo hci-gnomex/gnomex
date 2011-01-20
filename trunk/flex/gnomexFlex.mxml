@@ -984,11 +984,13 @@
             		this.isBSTLinkageSupported = false;
             	}
             	
-            					
-            	getExperimentDesignList.send();
-            	
-	        	showProgress(30);
-	        	enableApp();
+				if (currentState == null || currentState == "") {
+					getExperimentDesignList.send();
+					
+					showProgress(30);
+					enableApp();
+					
+				}            					
             }
             
             public function getProperty(name:String):String {
