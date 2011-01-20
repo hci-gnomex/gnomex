@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.0.9.1 (Jan 20, 2010)
+----------------------
+- Make error handling more robust and erorr messages more informative for 'Upload sample sheet'.
+- Fix bug that was causing lab dropdown to clear on 'Submit Request' when admin refreshed dictionaries in the middle of a Submit Request operation.  
+
 5.0.9 (Jan 18, 2010)
 ---------------------
 - Added institution level visibility on experiments and analysis
