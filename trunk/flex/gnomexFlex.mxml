@@ -56,7 +56,7 @@
     showBusyCursor="false"
     destination="getExperimentDesignList"
     result="onGetExperimentDesignList(event)"
-	fault="onFailHttpRequestVerbose('Failed to get experiment design list', event)"
+	fault="onFailHttpRequest('Failed to get experiment design list', event)"
     useProxy="false">
     <mx:request>
     </mx:request>
@@ -68,7 +68,7 @@
     resultFormat="e4x"
     showBusyCursor="false"
     result="onGetExperimentFactorList(event)"
-	fault="onFailHttpRequestVerbose('Failed to get experiment factor list', event)"
+	fault="onFailHttpRequest('Failed to get experiment factor list', event)"
     destination="getExperimentFactorList"
     useProxy="false">
     <mx:request>
@@ -81,7 +81,7 @@
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetAppUserList(event)"
-	fault="onFailHttpRequestVerbose('Failed to get app user list', event)"
+	fault="onFailHttpRequest('Failed to get app user list', event)"
     destination="getAppUserList"
     useProxy="false">
     </mx:HTTPService >
@@ -92,7 +92,7 @@
     showBusyCursor="false"
     resultFormat="e4x"
     result="onGetLabList(event)"
-	fault="onFailHttpRequestVerbose('Failed to get lab list', event)"
+	fault="onFailHttpRequest('Failed to get lab list', event)"
     destination="getLabList"
     useProxy="false">
     <mx:request>
@@ -107,7 +107,7 @@
     resultFormat="e4x"
     result="onGetProjectList(event)"
     destination="getProjectList"
-	fault="onFailHttpRequestVerbose('Failed to get project list', event)"
+	fault="onFailHttpRequest('Failed to get project list', event)"
     showBusyCursor="false"
     useProxy="false">
     <mx:request>
@@ -1170,7 +1170,7 @@
 			}
 		}
 		
-		public function onFailHttpRequestVerbose(title:String, event:FaultEvent):void {
+		public function onFailHttpRequest(title:String, event:FaultEvent):void {
 			var sandboxMessage:String = "";
 			switch (Security.sandboxType) {
                 case Security.LOCAL_TRUSTED:
@@ -1191,7 +1191,7 @@
 		
 
             
-        public function onFailHttpRequest(title:String, event:FaultEvent):void {
+        public function onFailHttpRequestNonVerbose(title:String, event:FaultEvent):void {
         		
         	if (event.message.body is String) {
 	        	var startPos:int = event.message.body.indexOf("TEXT=");
