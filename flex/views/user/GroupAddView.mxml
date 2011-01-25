@@ -44,6 +44,7 @@
 			params.membersXMLString = "<members/>";
 			params.collaboratorsXMLString = "<collaborators/>";
 			params.managersXMLString = "<managers/>";
+			params.institutionsXMLString = "<institutions/>";
 			
 			saveLab.send(params);
 		}
