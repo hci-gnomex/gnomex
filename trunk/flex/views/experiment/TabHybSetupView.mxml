@@ -335,7 +335,7 @@
 	<mx:VBox width="100%" height="100%" verticalGap="14" paddingTop="2">
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(1) Select an organism." width="250" />
-			<mx:ComboBox labelField="@display" width="250" id="organismCombo">							
+			<mx:ComboBox labelField="@display" width="250" id="organismCombo" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 			</mx:ComboBox>
@@ -369,7 +369,7 @@
 			</mx:Text>
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 			    <mx:HBox>
-					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();arrayCoordinates = null;parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness();initializeApplicationName()}" >							
+					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();arrayCoordinates = null;parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness();initializeApplicationName()}"  close="{parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();arrayCoordinates = null;parentDocument.initializeSlideDesigns();propagateSlideDesign();assignSlideNumbers();checkHybSetupCompleteness();initializeApplicationName()}">							
 						<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
 					</mx:ComboBox>
 			    </mx:HBox>

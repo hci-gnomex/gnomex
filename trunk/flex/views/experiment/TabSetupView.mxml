@@ -11,7 +11,7 @@
 					</mx:Text>
             		<mx:ComboBox dataProvider="{appUsers}" 
             			selectedIndex="-1" labelField="@displayName" 
-                		id="appUserCombo" width="340">
+                		id="appUserCombo" width="340" close="{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}">
             			<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
             		</mx:ComboBox>
             </mx:HBox>
@@ -172,7 +172,7 @@
 			}		
 			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
 		}
-		
+		 
 		public function selectDefaultLab():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				labCombo.selectedIndex = -1;
@@ -187,7 +187,6 @@
 				}
 
 			}	
-			this.checkSetupCompleteness();
 		}
 		
 		public function getRequestCategory():Object {
@@ -505,7 +504,7 @@
 					</mx:Text>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%" id="vbox3">
 						<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1">
-							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1">
+							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1" close="checkSetupCompleteness()">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 							</mx:ComboBox>
 							<mx:Text text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel" id="text4"/>
@@ -567,7 +566,7 @@
 				    	
 				    </mx:VBox>
 					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2" id="hbox2">
-						<mx:ComboBox dataProvider="{parentDocument.filteredProjectList}" labelField="@name" width="385" id="projectCombo" change="{checkSetupCompleteness()}">
+						<mx:ComboBox dataProvider="{parentDocument.filteredProjectList}" labelField="@name" width="385" id="projectCombo" change="{checkSetupCompleteness()}" close="{checkSetupCompleteness()}">
 						</mx:ComboBox>
 						<mx:LinkButton  id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
 							<mx:enabled>{projectCombo.selectedItem != null &amp;&amp; projectCombo.selectedItem.@idProject != &quot;&quot;}</mx:enabled>
