@@ -560,18 +560,18 @@
 			<mx:HBox width="100%" horizontalGap="0" id="hbox6">
 				<mx:Label text="(2) Which category best describes your samples?" width="310" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
-					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}">							
+					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}" close="pickSampleType()">							
 				</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="pickOrganism()">							
+				<mx:ComboBox labelField="@display" width="300" id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
 				</mx:ComboBox> 
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer" paddingRight="4">
 				<mx:Label text="(4) Select the nucleic acid extraction method." width="310" id="label2"/>
-				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}">															
+				<mx:ComboBox labelField="@display" width="300" id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}" close="pickSamplePrepMethod()">															
 				</mx:ComboBox>
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
