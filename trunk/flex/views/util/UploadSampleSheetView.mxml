@@ -135,7 +135,7 @@
 				var selectedSampleName:int = parseInt(sampleName.selectedItem.@data);
 				var selectedSampleConcentration:int = parseInt(sampleConcentration.selectedItem.@data);
 				var selectedSampleDescription:int = parseInt(sampleDescription.selectedItem.@data);
-				var selectedSampleCCNumber:int = this.currentState == "CCNumberState" ? parseInt(sampleCCNumber.selectedItem.@data) : 0;
+				var selectedSampleCCNumber:int = this.currentState == "HideCCNumberState" ? 0 : parseInt(sampleCCNumber.selectedItem.@data);
 				
 				var sampleNameArray:Array = new Array();
 				var sampleConcentrationArray:Array = new Array();
