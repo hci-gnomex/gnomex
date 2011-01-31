@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.0.9.3 (Jan 31, 2011)
+----------------------
+- Fix bug that was preventing CC Number from importing on sample sheet (Submit request).
+- Fix events on comboboxes on Submit Request tabs to fire when user hits hot key for selection.
+
 5.0.9.2 (Jan 25, 2011)
 ---------------------
 - Fix 'Add group' bug caused by missing parameter for institutions
