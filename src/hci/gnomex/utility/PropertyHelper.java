@@ -25,9 +25,41 @@ public class PropertyHelper implements Serializable {
   private static final String    PROPERTY_ANALYSIS_TEST_DIRECTORY             = "analysis_test_directory";
   private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
   private static final String    PROPERTY_FLOWCELL_TEST_DIRECTORY             = "flowcell_test_directory";
+  private static final String    PROPERTY_SOFTLINKS_DIRECTORY                 = "softlinks_directory";
+  private static final String    PROPERTY_FAST_DATA_TRANSFER_DIRECTORY        = "fast_data_transfer_directory";
 
   
   public PropertyHelper() {    
+  }
+
+  public String getSoftLinksDirectory(String serverName) {
+	  String property = "";
+	  String propertyName = null;
+
+	  // First use the property qualified by server name.  If
+	  // it isn't found, get the property without any qualification.   
+	  propertyName = PROPERTY_SOFTLINKS_DIRECTORY + "_" + serverName;
+	  property = this.getProperty(propertyName);
+	  if (property == null || property.equals("")) {  
+		  propertyName = PROPERTY_SOFTLINKS_DIRECTORY;
+		  property = this.getProperty(propertyName);
+	  }
+	  return property;
+  }
+  
+  public String getFastDataTransferDirectory(String serverName) {
+	  String property = "";
+	  String propertyName = null;
+
+	  // First use the property qualified by server name.  If
+	  // it isn't found, get the property without any qualification.   
+	  propertyName = PROPERTY_FAST_DATA_TRANSFER_DIRECTORY + "_" + serverName;
+	  property = this.getProperty(propertyName);
+	  if (property == null || property.equals("")) {  
+		  propertyName = PROPERTY_FAST_DATA_TRANSFER_DIRECTORY;
+		  property = this.getProperty(propertyName);
+	  }
+	  return property;
   }
   
   public static synchronized PropertyHelper getInstance(Session sess) {

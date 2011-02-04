@@ -31,9 +31,7 @@ public class Property extends DictionaryEntry implements Serializable {
   public static final String        BILLING_PO_ACCOUNT                  = "billing_po_account";
   public static final String        EXPERIMENT_SUBMISSION_DEFAULT_MODE  = "experiment_submission_default_mode";
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
-  public static final String        BST_LINKAGE_SUPPORTED               = "bst_linkage_supported";
-  
-
+  public static final String        BST_LINKAGE_SUPPORTED               = "bst_linkage_supported";  
 
 
   private Integer  idProperty;
