@@ -1,41 +1,42 @@
 package hci.gnomex.controller;
 
-import javax.servlet.http.HttpServlet;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
+import hci.gnomex.utility.PropertyHelper;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import net.jimmc.jshortcut.JShellLink;
+
 import org.hibernate.Session;
 import org.jdom.Document;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 
 public class FastDataTransferDownloadServlet extends HttpServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferDownloadServlet.class);
 
@@ -51,7 +52,7 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 	public void init() {
 
 	}
-
+	
 	protected void doPost(HttpServletRequest req, HttpServletResponse response)
 	throws ServletException, IOException {
 
@@ -82,7 +83,6 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 		}
 
 
-
 		try {
 			
 			String xmlText = "";
@@ -107,31 +107,17 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 			SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
 			if (secAdvisor != null) {
-				//response.setContentType("application/x-download");
-				//response.setHeader("Content-Disposition", "attachment;filename=gnomex.zip");
-				//response.setHeader("Cache-Control", "max-age=0, must-revalidate");
-
 
 				Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 				DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
-				//archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));
+				
 
 				parser.parse();
 
-
-				// Open the archive output stream
-				//ZipOutputStream zipOut = null;
-				//TarArchiveOutputStream tarOut = null;
-				//if (archiveHelper.isZipMode()) {
-				//	zipOut = new ZipOutputStream(response.getOutputStream());
-				//} else {
-				//	tarOut = new TarArchiveOutputStream(response.getOutputStream());
-				//}
-
-
-				int totalArchiveSize = 0;
-
+				String softlinks_dir = "";
+				// Create random name directory for storing softlinks
+				UUID uuid = UUID.randomUUID();
+				
 				// For each request
 				for(Iterator i = parser.getRequestNumbers().iterator(); i.hasNext();) {
 					String requestNumber = (String)i.next();
@@ -152,7 +138,7 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 					}
 
 					List fileDescriptors = parser.getFileDescriptors(requestNumber);
-
+					
 					// For each file to be downloaded for the request
 					for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
 
@@ -187,60 +173,30 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 							}
 						}
 
-						// If we are using tar, compress the file first using
-						// zip.  If we are zipping the file, just open
-						// it to read. 
-						System.out.println("Filename="+fd.getFileName());
 						
-						/*
-						InputStream in = archiveHelper.getInputStreamToArchive(fd.getFileName(), fd.getZipEntryName());
+						if(softlinks_dir.length() == 0) {							
+							softlinks_dir = PropertyHelper.getInstance(sess).getSoftLinksDirectory(req.getServerName())+uuid.toString();
 
-
-						// Add an entry to the archive 
-						// (The file name starts after the year subdirectory)
-						if (archiveHelper.isZipMode()) {
-							// Add ZIP entry 
-							zipOut.putNextEntry(new ZipEntry(archiveHelper.getArchiveEntryName()));              
-						} else {
-							// Add a TAR archive entry
-							TarArchiveEntry entry = new TarArchiveEntry(archiveHelper.getArchiveEntryName());
-							entry.setSize(archiveHelper.getArchiveFileSize());
-							tarOut.putArchiveEntry(entry);
-
+							boolean success = (new File(softlinks_dir)).mkdir();
+							if (!success) {
+								response.setStatus(999);
+								System.out.println("Error. Unable to create softlinks directory.");
+								return;
+							}  							
 						}
-
-
-						// Transfer bytes from the file to the archive file
-						OutputStream out = null;
-						if (archiveHelper.isZipMode()) {
-							out = zipOut;
-						} else {
-							out = tarOut;
-						}
-						int size = archiveHelper.transferBytes(in, out);
-						totalArchiveSize += size;
-
-						if (archiveHelper.isZipMode()) {
-							zipOut.closeEntry();              
-						} else {
-							tarOut.closeArchiveEntry();
-						}
-
-						// Remove temporary files
-						archiveHelper.removeTemporaryFile();
-						*/
+						
+						// Get file/location of file to create symbolic link to
+						String fullPath = fd.getFileName();
+						int indx = fullPath.lastIndexOf("/");
+						
+						// Get fileName only to use for the name of the softlink
+						String fileName = softlinks_dir+fullPath.substring(indx);	
+						Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", fd.getFileName(), fileName } );
+						
+						process.waitFor();
+						process.destroy();						
 					}     
 				}
-
-/*
-				if (archiveHelper.isZipMode()) {
-					zipOut.finish();
-					zipOut.flush();          
-				} else {
-					tarOut.finish();
-				}
-*/
-
 
 				secAdvisor.closeReadOnlyHibernateSession();
 
@@ -267,19 +223,14 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 					response.getOutputStream().println("<application-desc main-class=\"gui.FdtMain\">");
 					response.getOutputStream().println("<argument>bioserver.hci.utah.edu</argument>");
 					response.getOutputStream().println("<argument>download</argument>");
-					response.getOutputStream().println("<argument>/var/www/html/fdt/fdtClient.jar</argument>");
+					String softLinksPath = PropertyHelper.getInstance(sess).getFastDataTransferDirectory(req.getServerName())+uuid.toString();					
+					response.getOutputStream().println("<argument>" + softLinksPath + "</argument>");
 					response.getOutputStream().println("</application-desc>");
 					response.getOutputStream().println("</jnlp>");
 
 				} catch (IOException e) {
 					log.error( "Unable to get response output stream.", e );
 				}	          
-
-
-
-
-
-
 
 			} else {
 				response.setStatus(999);
