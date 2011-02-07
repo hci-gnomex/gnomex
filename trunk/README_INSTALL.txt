@@ -4,7 +4,7 @@ Installing GNomEx_$VERSION
 System Requirements
 --------------------
 - Java 6 (http://java.sun.com/)
-- Orion application server 2.0.5+ (http://www.orionserver.com/)
+- Orion application server 2.0.2+ (http://www.orionserver.com/)
 - MySQL database server (http://mysql.com)
 - MySQL JDBC driver (http://mysql.com, download mysql-connector-java-5.1.7.zip)
 - Adobe Flash Player 10+ (http://get.adobe.com/flashplayer/)
