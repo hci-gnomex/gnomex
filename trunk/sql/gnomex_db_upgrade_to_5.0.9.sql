@@ -5,14 +5,14 @@ CREATE TABLE gnomex.Institution (
     description  	varchar(500) NULL,
     isActive     	char(1) NULL,
     PRIMARY KEY (idInstitution)
-    );
+    ) ENGINE = INNODB;;
     
     
 -- Add new Table to link lab to multiple institutions
-CREATE TABLE gnomex.InstitutionLab ( 
-    idInstitution	INT(10),
-    idLab           INT(10),
-    PRIMARY KEY (idInstitution, idLab),
+ CREATE TABLE gnomex.InstitutionLab ( 
+     idInstitution	INT(10),
+     idLab           INT(10),
+     PRIMARY KEY (idInstitution, idLab),
     CONSTRAINT FK_InstitutionLab_Institution FOREIGN KEY FK_InstitutionLab_Institution (idInstitution)
     REFERENCES gnomex.Institution (idInstitution)
     ON DELETE NO ACTION
@@ -21,10 +21,10 @@ CREATE TABLE gnomex.InstitutionLab (
     REFERENCES gnomex.Lab (idLab)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    );
+    ) ENGINE = INNODB;;
     
 -- Add new Institution visibility level    
-INSERT INTO gnomex.Visibility (codeVisibility, visibility) values ('INST', 'Institution');
+-- INSERT INTO gnomex.Visibility (codeVisibility, visibility) values ('INST', 'Institution');
 
 -- Add idInstitution to Experiment
 ALTER TABLE gnomex.Request add column idInstitution INT(10);
