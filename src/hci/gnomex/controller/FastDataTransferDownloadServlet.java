@@ -24,8 +24,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.jimmc.jshortcut.JShellLink;
-
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
