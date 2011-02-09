@@ -40,13 +40,14 @@
  <mx:Script>
  	<![CDATA[
  	import mx.collections.ArrayCollection;
+ 	import mx.containers.TitleWindow;
  	import mx.core.IContainer;
+ 	import mx.core.IFlexDisplayObject;
+ 	import mx.managers.PopUpManager;
  	import mx.rpc.events.ResultEvent;
-    import mx.managers.PopUpManager;
-	import mx.containers.TitleWindow;
-	import views.experiment.ProjectDetailWindow;
-	import views.util.DownloadHints;
-	import mx.core.IFlexDisplayObject;
+ 	
+ 	import views.experiment.ProjectDetailWindow;
+ 	import views.util.DownloadHints;
 
 
 
@@ -401,33 +402,48 @@
 		PopUpManager.centerPopUp(hints);			 		
 	}
 	
-	public function showAlternateDownloadPage():void {
-		if (parentDocument.selectedIdRequest != null) {
-			var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
-				(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-				'.gx?idRequest=' + 
-				parentDocument.selectedIdRequest);
-			navigateToURL(url, '_blank');					 
-		} else if (this.theViews.selectedChild == this.downloadView) {
-			var requestNumbers:String = "";
-			for each(var dl:Object in this.downloadView.downloadList) {
-				if (requestNumbers.length > 0) {
-					requestNumbers += ":"
+		public function showAlternateDownloadPage():void {
+			if (parentDocument.selectedIdRequest != null) {
+				var url:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+					(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+					'.gx?idRequest=' + 
+					parentDocument.selectedIdRequest);
+				navigateToURL(url, '_blank');					 
+			} else if (this.theViews.selectedChild == this.downloadView) {
+				var requestNumbers:String = "";
+				for each(var dl:Object in this.downloadView.downloadList) {
+					if (requestNumbers.length > 0) {
+						requestNumbers += ":"
+					}
+					requestNumbers += dl.@requestNumber;
 				}
-				requestNumbers += dl.@requestNumber;
-			}
-			if (requestNumbers.length > 0) {
-				var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+				if (requestNumbers.length > 0) {
+					var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
 						(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
 						'.gx?requestNumbers=' + 
 						requestNumbers);
-				navigateToURL(url1, '_blank');					
+					navigateToURL(url1, '_blank');					
+					
+				}
 				
 			}
-			
 		}
-	}
-
+		
+		public function showFastDataTransferDownloadPage():void {
+			var selectedFiles:XMLList = downloadView.getRequestDownloadList.lastResult..FileDescriptor.(@isSelected == "true");        	
+			var selectedFileList:XMLListCollection = new XMLListCollection(selectedFiles);
+			if (selectedFileList.length == 0) {
+				mx.controls.Alert.show("Please select the files to download.");
+			} else {	
+				var paramStr:String =  selectedFileList.toXMLString();			
+				var url:URLRequest = new URLRequest('FastDataTransferDownloadServlet.gx');	
+				url.data = paramStr;
+				url.contentType = "text/xml";
+				url.method = URLRequestMethod.POST;
+				navigateToURL(url, '_self');					
+			}			
+		}
+		
 
  	]]>
  </mx:Script>
@@ -554,7 +570,8 @@
 		             	icon="@Embed('../../assets/download.png')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
-		            <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<!--mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/-->
+					<mx:LinkButton label="Download - Fast Data Transfer" textDecoration="underline" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 		            <mx:VBox styleName="hintBox">
 			            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>		            	
 		            </mx:VBox>
