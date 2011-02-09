@@ -13,6 +13,7 @@ import hci.gnomex.utility.PropertyHelper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.InetAddress;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -116,6 +118,8 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 				// Create random name directory for storing softlinks
 				UUID uuid = UUID.randomUUID();
 				
+				String requestNumberBase = "";
+				
 				// For each request
 				for(Iterator i = parser.getRequestNumbers().iterator(); i.hasNext();) {
 					String requestNumber = (String)i.next();
@@ -147,12 +151,12 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 						if (fd.getType().equals("dir")) {
 							continue;
 						}
-
+						
 
 						// Since we use the request number to determine if user has permission to read the data, make sure
 						// it matches the request number of the directory.  If it doesn't bypass the download
 						// for this file.
-						String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
+						requestNumberBase = Request.getBaseRequestNumber(requestNumber);
 						if (!requestNumberBase.equalsIgnoreCase(fd.getMainFolderName(dh, serverName))) {
 							boolean isAuthorizedDirectory = false;
 							// If this is a flow cell, make sure that that a sequence lane on this request has this flow cell
@@ -183,14 +187,34 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 							}  							
 						}
 						
+
+						if (fd.getFileSize() == 0) {
+							// Ignore files with length of zero
+							continue;
+						}
+						
+						
 						// Get file/location of file to create symbolic link to
 						String fullPath = fd.getFileName();
-						int indx = fullPath.lastIndexOf("/");
+						int indxFileName = fullPath.lastIndexOf("/");
+						int indxDirPath = fullPath.indexOf(requestNumberBase);
 						
-						// Get fileName only to use for the name of the softlink
-						String fileName = softlinks_dir+fullPath.substring(indx);	
-						Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", fd.getFileName(), fileName } );
+						// Get fileName to use for the name of the softlink
+						String fileName = softlinks_dir+fullPath.substring(indxDirPath-1);	
 						
+						// Make intermediate directories if necessary
+						String dirsName = softlinks_dir+fullPath.substring(indxDirPath-1, indxFileName);
+					    File dir = new File(dirsName);
+					    if(!dir.exists()) {
+						    boolean isDirCreated = dir.mkdirs();  
+							if (!isDirCreated) {
+								response.setStatus(999);
+								System.out.println("Error. Unable to create " + dirsName);
+								return;
+							}						    				    					    	
+					    }
+					    
+						Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", fd.getFileName(), fileName } );					
 						process.waitFor();
 						process.destroy();						
 					}     
@@ -202,29 +226,33 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 				response.setContentType("application/jnlp");
 				response.setHeader("Cache-Control", "max-age=0, must-revalidate");
 				try {
-					response.getOutputStream().println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-					response.getOutputStream().println("<jnlp spec=\"1.0\"");
-					response.getOutputStream().println("codebase=\"http://bioserver.hci.utah.edu/fdt/\"");
-					response.getOutputStream().println("href=\"downLoad.jnlp\">");
-					response.getOutputStream().println("<information>");
-					response.getOutputStream().println("<title>FDT GUI</title>");
-					response.getOutputStream().println("<vendor>Sun Microsystems, Inc.</vendor>");
-					response.getOutputStream().println("<offline-allowed/>");
-					response.getOutputStream().println("</information>");
-					response.getOutputStream().println("<security> ");
-					response.getOutputStream().println("<all-permissions/> ");
-					response.getOutputStream().println("</security>");
-					response.getOutputStream().println("<resources>");
-					response.getOutputStream().println("<jar href=\"fdtClient.jar\"/>");
-					response.getOutputStream().println("<j2se version=\"1.6+\"/>");
-					response.getOutputStream().println("</resources>");
-					response.getOutputStream().println("<application-desc main-class=\"gui.FdtMain\">");
-					response.getOutputStream().println("<argument>bioserver.hci.utah.edu</argument>");
-					response.getOutputStream().println("<argument>download</argument>");
-					String softLinksPath = PropertyHelper.getInstance(sess).getFastDataTransferDirectory(req.getServerName())+uuid.toString();					
-					response.getOutputStream().println("<argument>" + softLinksPath + "</argument>");
-					response.getOutputStream().println("</application-desc>");
-					response.getOutputStream().println("</jnlp>");
+			        ServletOutputStream out = response.getOutputStream();
+
+					out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+					out.println("<jnlp spec=\"1.0\"");
+					out.println("codebase=\"http://bioserver.hci.utah.edu/fdt/\"");
+					out.println("href=\"downLoad.jnlp\">");
+					out.println("<information>");
+					out.println("<title>FDT GUI</title>");
+					out.println("<vendor>Sun Microsystems, Inc.</vendor>");
+					out.println("<offline-allowed/>");
+					out.println("</information>");
+					out.println("<security> ");
+					out.println("<all-permissions/> ");
+					out.println("</security>");
+					out.println("<resources>");
+					out.println("<jar href=\"fdtClient.jar\"/>");
+					out.println("<j2se version=\"1.6+\"/>");
+					out.println("</resources>");
+					out.println("<application-desc main-class=\"gui.FdtMain\">");
+					out.println("<argument>bioserver.hci.utah.edu</argument>");
+					out.println("<argument>download</argument>");
+					String softLinksPath = PropertyHelper.getInstance(sess).getFastDataTransferDirectory(req.getServerName())+uuid.toString()+System.getProperty("file.separator")+requestNumberBase;					
+					out.println("<argument>" + softLinksPath + "</argument>");
+					out.println("</application-desc>");
+					out.println("</jnlp>");
+			        out.close();
+			        out.flush();
 
 				} catch (IOException e) {
 					log.error( "Unable to get response output stream.", e );
@@ -238,12 +266,7 @@ public class FastDataTransferDownloadServlet extends HttpServlet {
 			response.setStatus(999);
 			System.out.println( "DownloadFileServlet: An exception occurred " + e.toString());
 			e.printStackTrace();
-		} 			
-		finally {
-			// Remove temporary files
-			//archiveHelper.removeTemporaryFile();
-
-		}		
+		} 					
 
 	}    
 
