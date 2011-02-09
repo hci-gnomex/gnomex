@@ -79,8 +79,11 @@ public class FileDescriptorParser extends DetailObject implements Serializable {
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setZipEntryName(n.getAttributeValue("zipEntryName"));
     fd.setType(n.getAttributeValue("type"));
-
-   
+    if(n.getAttributeValue("fileSize").length() > 0) {
+        long fileSize = Long.parseLong(n.getAttributeValue("fileSize"));
+        fd.setFileSize(fileSize);    	
+    }
+    
     return fd;
 
   }
