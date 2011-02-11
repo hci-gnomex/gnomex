@@ -570,8 +570,8 @@
 		             	icon="@Embed('../../assets/download.png')" 
 		             	toolTip="Download selected files"
 		             	label="Download"/>
-					<!--mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/-->
-					<mx:LinkButton label="Download - Fast Data Transfer" textDecoration="underline" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:LinkButton visible="{parentApplication.isFDTSupported ? true : false}" label="Download - Fast Data Transfer" textDecoration="underline" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 		            <mx:VBox styleName="hintBox">
 			            <mx:LinkButton  label="having trouble downloading?" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>		            	
 		            </mx:VBox>

@@ -665,7 +665,8 @@ INSERT INTO `gnomex`.`Property` (`idProperty`,`propertyName`,`propertyValue`,`pr
  (44,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N'),
  (45,'contact_email_core_facility_workauth','first.last@somwhere.edu','Core facility\'s email adresses to for notification when work authorization submitted', 'N'),
  (46, 'experiment_submission_default_mode', 'INTERNAL', 'INTERNAL if new experiment request to core facility, EXTERNAL if external experiment submission', 'N'), 
- (47, 'bst_linkage_supported', 'N', 'Set to N.  Only HCI installation supports linkage from GNomEx to Biospecimen tracking system.', 'Y'); 
+ (47, 'bst_linkage_supported', 'N', 'Set to N.  Only HCI installation supports linkage from GNomEx to Biospecimen tracking system.', 'Y'), 
+ (47, 'fdt_supported', 'N', 'Flag indicating if FDT is supported.', 'N'); 
 
 
 

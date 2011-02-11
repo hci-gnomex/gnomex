@@ -373,6 +373,9 @@
 	        
 	        [Bindable]
 	        public var isBSTLinkageSupported:Boolean = false;
+			
+			[Bindable]
+			public var isFDTSupported:Boolean = false;
 	        
 	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
@@ -426,6 +429,7 @@
 			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String            = "illumina_barcoding_note";
 			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
+			public var PROPERTY_FDT_SUPPORTED:String                      = "fdt_supported";
 			 
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
@@ -983,6 +987,13 @@
             	} else {
             		this.isBSTLinkageSupported = false;
             	}
+				
+				if (this.getProperty(this.PROPERTY_FDT_SUPPORTED) != null && 
+					this.getProperty(this.PROPERTY_FDT_SUPPORTED) == 'Y') {
+					this.isFDTSupported = true;
+				} else {
+					this.isFDTSupported = false;
+				}
             	
 				if (currentState == null || currentState == "") {
 					getExperimentDesignList.send();
