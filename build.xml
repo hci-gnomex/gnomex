@@ -49,6 +49,7 @@
 		<antcall target="clean" />
 		<antcall target="compile" />
 		<antcall target="jar" />
+		<antcall target="clientjar"/>
 		<antcall target="flex"/>
 		<antcall target="war" />
 		<antcall target="ear" />
@@ -133,6 +134,7 @@
              jarfile="${dist.dir}/${jar.name}">
 
             <fileset dir="${build.class.dir}">
+            	<exclude name="hci/gnomex/httpclient/*.class" />
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -146,6 +148,42 @@
     		</manifest>
 
             <metainf dir="${metainf.dir}/jar" includes="*.xml" />
+        </jar>
+		
+
+	</target>
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Client Jar                                     -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="clientjar" depends="init, compile">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${clientjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${clientjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/httpclient/*.class" />
+            </fileset>
+
+			<manifest>
+				<section name="gnomexClient">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
         </jar>
 		
 
@@ -254,8 +292,12 @@
       <fileset dir="${dist.dir}"	        includes="${jar.name}" />
       <fileset dir="${dist.dir}"		    includes="${war.name}" />
       <fileset dir="${src.dir}"             includes="*.hbm.xml" />
-      <fileset dir="${basedir}/scripts"     includes="*.cmd" />
-      <fileset dir="${basedir}/scripts"     includes="*.sh" />
+      <fileset dir="${basedir}/scripts">
+      	<exclude name="httpclient*.cmd" />
+      	<exclude name="httpclient*.sh" />
+        <include name="*.cmd" />
+        <include name="*.sh" />
+      </fileset>
       <fileset dir="${src.dir}"			    includes="Dictionaries.xml" />
 
       <metainf dir="${metainf.dir}/ear" includes="*.xml" />

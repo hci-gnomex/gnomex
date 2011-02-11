@@ -1,7 +1,7 @@
 /**
  * 
  */
-package hci.gnomex.utility;
+package hci.gnomex.httpclient;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,10 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 
 /**
  * @author Tony Di Sera
@@ -39,6 +40,9 @@ public class CreateAnalysisMain {
   private String userName;
   private String password;
   
+  private String propertiesFileName = "/properties/gnomex_httpclient.properties";
+  private boolean debug = false;
+  private String server;
   private Integer idLab;
   private Integer idOrganism;
   private Integer idGenomeBuild;
@@ -65,6 +69,12 @@ public class CreateAnalysisMain {
       if (args[i].equals("-h")) {
         printUsage();
         return;
+      } else if (args[i].equals("-debug")) {
+        debug = true;
+      }  else if (args[i].equals("-properties")) {
+        propertiesFileName = args[++i];
+      } else if (args[i].equals("-server")) {
+        server = args[++i];
       } else if (args[i].equals("-idLab")) {
         idLab = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-idGenomeBuild")) {
@@ -98,7 +108,7 @@ public class CreateAnalysisMain {
   }
     
   private void loadProperties() throws FileNotFoundException, IOException {
-    File file = new File("/properties/gnomex_batch.properties");
+    File file = new File(propertiesFileName);
     FileInputStream fis = new FileInputStream(file);
     Properties p = new Properties();
     p.load(fis);
@@ -110,6 +120,9 @@ public class CreateAnalysisMain {
   
   private void printUsage() {
     System.out.println("java hci.gnomex.utility.CreateAnalysisMain " + "\n" +
+        "[-debug] " + "\n" +
+        "-properties <propertiesFileName> " + "\n" +
+        "-server <serverName>" + "\n" +
         "-name <analysisName>" + "\n" +
         "[-description <analysisDescription>]" + "\n" +
         "-idLab <idLab>" + "\n" +
@@ -125,11 +138,14 @@ public class CreateAnalysisMain {
 
     
     BufferedReader in = null;
-    
+    String inputLine;    
+    StringBuffer outputXML = new StringBuffer();
+    boolean success = false;
    
 
     try {
       loadProperties();
+      trustCerts(); 
       
       // Install the custom authenticator
       Authenticator.setDefault(new MyAuthenticator(userName, password));
@@ -137,14 +153,24 @@ public class CreateAnalysisMain {
       //
       // Create a security advisor
       //
-      URL url = new URL("http://localhost/gnomex/CreateSecurityAdvisor.gx");
+      URL url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/CreateSecurityAdvisor.gx");
       URLConnection conn = url.openConnection();
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      Document doc  = new SAXBuilder().build(in);
-      if (!doc.getRootElement().getName().equals("SecurityAdvisor")) {
-        new XMLOutputter().output(doc.getRootElement(), System.out);
+      success = false;
+      outputXML = new StringBuffer();
+      while ((inputLine = in.readLine()) != null) {
+        outputXML.append(inputLine);
+        if (inputLine.indexOf("<SecurityAdvisor") >= 0) {
+          success = true;
+          break;
+        }
+      }
+      if (!success) {
+        System.err.print(outputXML.toString());
         throw new Exception("Unable to create security advisor");
       }
+      
+      // Capture session id from cookie
       List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
       in.close();
       
@@ -163,9 +189,11 @@ public class CreateAnalysisMain {
       parms += "&" + URLEncoder.encode("idAnalysisType", "UTF-8") + "=" + URLEncoder.encode(idAnalysisType.toString(), "UTF-8");
       if (lanesXMLString != null) {
         parms += "&" + "lanesXMLString" + "=" + lanesXMLString;        
-      }
+      } 
 
-      url = new URL("http://localhost/gnomex/SaveAnalysis.gx");
+      success = false;
+      outputXML = new StringBuffer();
+      url = new URL((server.equals("localhost") ? "http://" : "https://") + server + "/gnomex/SaveAnalysis.gx");
       conn = url.openConnection();
       conn.setDoOutput(true);
       for (String cookie : cookies) {
@@ -176,18 +204,16 @@ public class CreateAnalysisMain {
       wr.flush();
 
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      doc  = new SAXBuilder().build(in);
-      if (!doc.getRootElement().getName().equals("SUCCESS")) {
-        new XMLOutputter().output(doc.getRootElement(), System.out);
-        throw new Exception("Unable to create analysis");        
-      } else {
-        new XMLOutputter().output(doc.getRootElement(), System.out);
+      while ((inputLine = in.readLine()) != null) {
+        System.out.print(inputLine);
+        if (inputLine.indexOf("<SUCCESS") >= 0) {
+          success = true;
+        } 
+      }
+      if (!success) {
+        throw new Exception("Unable to create analysis");
       }
 
-    } catch (JDOMException e) {
-      printUsage();
-      e.printStackTrace();
-      System.err.println(e.toString());
     } catch (MalformedURLException e) {
       printUsage();
       e.printStackTrace();
@@ -209,10 +235,46 @@ public class CreateAnalysisMain {
         }
       }
     }
+  }
 
+    private void trustCerts() {
+      TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {  
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {  
+          return null;  
+        }  
+
+        public void checkClientTrusted(  
+            java.security.cert.X509Certificate[] certs, String authType) {  
+        }  
+
+        public void checkServerTrusted(  
+          java.security.cert.X509Certificate[] certs, String authType) {  
+          if (debug) {
+            System.out.println("authType is " + authType);  
+            System.out.println("cert issuers");              
+          }
+          for (int i = 0; i < certs.length; i++) {
+            if (debug) {
+              System.out.println("\t" + certs[i].getIssuerX500Principal().getName());  
+              System.out.println("\t" + certs[i].getIssuerDN().getName());                
+            }
+          }  
+        }  
+      } };  
+
+      try {  
+        SSLContext sc = SSLContext.getInstance("SSL");  
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());  
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());  
+      } catch (Exception e) {  
+        e.printStackTrace();  
+        System.exit(1);  
+      }  
+
+    }
     
 
-  }
+
   private static class MyAuthenticator extends Authenticator {
     private String userName;
     private String password;
