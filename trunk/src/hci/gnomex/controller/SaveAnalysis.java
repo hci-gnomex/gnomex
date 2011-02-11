@@ -98,88 +98,86 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       isNewAnalysis = true;
     }
     
+    StringReader reader = null;
     
     if (request.getParameter("analysisGroupsXMLString") != null && !request.getParameter("analysisGroupsXMLString").equals("")) {
       analysisGroupsXMLString = request.getParameter("analysisGroupsXMLString");
+      reader = new StringReader(analysisGroupsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        analysisGroupsDoc = sax.build(reader);
+        analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse analysisGroupsXMLString", je );
+        this.addInvalidField( "analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
+      }
     }
     
     
-    StringReader reader = new StringReader(analysisGroupsXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      analysisGroupsDoc = sax.build(reader);
-      analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse analysisGroupsXMLString", je );
-      this.addInvalidField( "analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
-    }
     
     
     if (request.getParameter("analysisFilesXMLString") != null && !request.getParameter("analysisFilesXMLString").equals("")) {
       analysisFilesXMLString = request.getParameter("analysisFilesXMLString");
-    }
-    if (request.getParameter("analysisFilesToDeleteXMLString") != null && !request.getParameter("analysisFilesToDeleteXMLString").equals("")) {
-      analysisFilesToDeleteXMLString = request.getParameter("analysisFilesToDeleteXMLString");
-    }
-    
-    reader = new StringReader(analysisFilesXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      analysisFilesDoc = sax.build(reader);
-
-      reader = new StringReader(analysisFilesToDeleteXMLString);
-      analysisFilesToDeleteDoc = sax.build(reader);
+      if (request.getParameter("analysisFilesToDeleteXMLString") != null && !request.getParameter("analysisFilesToDeleteXMLString").equals("")) {
+        analysisFilesToDeleteXMLString = request.getParameter("analysisFilesToDeleteXMLString");
+      }
       
-      analysisFileParser = new AnalysisFileParser(analysisFilesDoc, analysisFilesToDeleteDoc);
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse analysisFilesXMLString", je );
-      this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
+      reader = new StringReader(analysisFilesXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        analysisFilesDoc = sax.build(reader);
+
+        reader = new StringReader(analysisFilesToDeleteXMLString);
+        analysisFilesToDeleteDoc = sax.build(reader);
+        
+        analysisFileParser = new AnalysisFileParser(analysisFilesDoc, analysisFilesToDeleteDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse analysisFilesXMLString", je );
+        this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
+      }
     }
     
     if (request.getParameter("hybsXMLString") != null && !request.getParameter("hybsXMLString").equals("")) {
       hybsXMLString = request.getParameter("hybsXMLString");
+      reader = new StringReader(hybsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        hybsDoc = sax.build(reader);
+        hybParser = new AnalysisHybParser(hybsDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse hybsXMLString", je );
+        this.addInvalidField( "hybsXMLString", "Invalid hybsXMLString");
+      }
     }
     
-    reader = new StringReader(hybsXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      hybsDoc = sax.build(reader);
-      hybParser = new AnalysisHybParser(hybsDoc);
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse hybsXMLString", je );
-      this.addInvalidField( "hybsXMLString", "Invalid hybsXMLString");
-    }
 
     if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
       lanesXMLString = request.getParameter("lanesXMLString");
+      reader = new StringReader(lanesXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        lanesDoc = sax.build(reader);
+        laneParser = new AnalysisLaneParser(lanesDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse lanesXMLString", je );
+        this.addInvalidField( "lanesXMLString", "Invalid lanesXMLString");
+      }
     }
     
-    reader = new StringReader(lanesXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      lanesDoc = sax.build(reader);
-      laneParser = new AnalysisLaneParser(lanesDoc);
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse lanesXMLString", je );
-      this.addInvalidField( "lanesXMLString", "Invalid lanesXMLString");
-    }
     
     if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
       collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
-    }
-    reader = new StringReader(collaboratorsXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      collaboratorsDoc = sax.build(reader);
-      collaboratorParser = new AnalysisCollaboratorParser(collaboratorsDoc);
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse collaboratorsXMLString", je );
-      this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
+      reader = new StringReader(collaboratorsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        collaboratorsDoc = sax.build(reader);
+        collaboratorParser = new AnalysisCollaboratorParser(collaboratorsDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse collaboratorsXMLString", je );
+        this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
+      }
     }
 
-    if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
-      lanesXMLString = request.getParameter("lanesXMLString");
-    }
     
     if (request.getParameter("newAnalysisGroupName") != null && !request.getParameter("newAnalysisGroupName").equals("")) {
       newAnalysisGroupName = request.getParameter("newAnalysisGroupName");
@@ -195,8 +193,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisDirectory(baseDir);
+      
       Analysis analysis = null;
       if (isNewAnalysis) {
         analysis = analysisScreen;
@@ -211,11 +208,21 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       }
       
       if (this.getSecurityAdvisor().canUpdate(analysis)) {
-        analysisGroupParser.parse(sess);
-        analysisFileParser.parse(sess);
-        hybParser.parse(sess);
-        laneParser.parse(sess);
-        collaboratorParser.parse(sess);
+        if (analysisGroupParser != null) {
+          analysisGroupParser.parse(sess);          
+        }
+        if (analysisFileParser != null) {
+          analysisFileParser.parse(sess);          
+        }
+        if (hybParser != null) {
+          hybParser.parse(sess);
+        }
+        if (laneParser != null) {
+          laneParser.parse(sess);          
+        }
+        if (collaboratorParser != null) {
+          collaboratorParser.parse(sess);          
+        }
         
               
         if (isNewAnalysis) {
@@ -251,7 +258,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (!isNewAnalysisGroup) {
           TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
           // If analysis group wasn't provided, create a default one
-          if (analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
+          if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
             AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
             defaultAnalysisGroup.setName(analysis.getName());
             defaultAnalysisGroup.setIdLab(analysisScreen.getIdLab());
@@ -283,20 +290,25 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           for (Iterator i = analysis.getExperimentItems().iterator(); i.hasNext();) {
             AnalysisExperimentItem ex = (AnalysisExperimentItem) i.next();
             boolean found = false;
-            for(Iterator i1 = hybParser.getIdHybridizations().iterator(); i1.hasNext();) {
-              Integer idHybridization = (Integer)i1.next();
-              if (idHybridization.equals(ex.getIdHybridization())) {
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              for(Iterator i1 = laneParser.getIdSequenceLanes().iterator(); i1.hasNext();) {
-                Integer idSequenceLane = (Integer)i1.next();
-                if (idSequenceLane.equals(ex.getIdSequenceLane())) {
+            if (hybParser != null) {
+              for(Iterator i1 = hybParser.getIdHybridizations().iterator(); i1.hasNext();) {
+                Integer idHybridization = (Integer)i1.next();
+                if (idHybridization.equals(ex.getIdHybridization())) {
                   found = true;
                   break;
                 }
+              }
+              
+            }
+            if (!found) {
+              if (laneParser != null) {
+                for(Iterator i1 = laneParser.getIdSequenceLanes().iterator(); i1.hasNext();) {
+                  Integer idSequenceLane = (Integer)i1.next();
+                  if (idSequenceLane.equals(ex.getIdSequenceLane())) {
+                    found = true;
+                    break;
+                  }
+                }                
               }
               
             }
@@ -315,23 +327,29 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         // Save experiment items        
         //
         TreeSet experimentItems = new TreeSet(new AnalysisExperimentItemComparator());
-        for(Iterator i = hybParser.getIdHybridizations().iterator(); i.hasNext();) {
-          Integer idHybridization = (Integer)i.next();
-          AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
-          experimentItem.setIdAnalysis(analysis.getIdAnalysis());
-          experimentItem.setIdHybridization(idHybridization);
-          experimentItem.setIdRequest(hybParser.getIdRequest(idHybridization));
-          experimentItems.add(experimentItem);
+        if (hybParser != null) {
+          for(Iterator i = hybParser.getIdHybridizations().iterator(); i.hasNext();) {
+            Integer idHybridization = (Integer)i.next();
+            AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
+            experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+            experimentItem.setIdHybridization(idHybridization);
+            experimentItem.setIdRequest(hybParser.getIdRequest(idHybridization));
+            experimentItems.add(experimentItem);
+          }          
         }
-        for(Iterator i = laneParser.getIdSequenceLanes().iterator(); i.hasNext();) {
-          Integer idSequenceLane = (Integer)i.next();
-          AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
-          experimentItem.setIdAnalysis(analysis.getIdAnalysis());
-          experimentItem.setIdSequenceLane(idSequenceLane);
-          experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
-          experimentItems.add(experimentItem);
+        if (laneParser != null) {
+          for(Iterator i = laneParser.getIdSequenceLanes().iterator(); i.hasNext();) {
+            Integer idSequenceLane = (Integer)i.next();
+            AnalysisExperimentItem experimentItem = new AnalysisExperimentItem();
+            experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+            experimentItem.setIdSequenceLane(idSequenceLane);
+            experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
+            experimentItems.add(experimentItem);
+          }          
         }
-        analysis.setExperimentItems(experimentItems);
+        if (hybParser != null || laneParser != null) {
+          analysis.setExperimentItems(experimentItems);          
+        }
         
         sess.flush();        
 
@@ -339,40 +357,49 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         // Save analysis files
         //
         if (!isNewAnalysisGroup) {
-          for(Iterator i = analysisFileParser.getAnalysisFileMap().keySet().iterator(); i.hasNext();) {
-            String idAnalysisFileString = (String)i.next();
-            AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileMap().get(idAnalysisFileString);
-            sess.save(af);
+          if (analysisFileParser != null) {
+            for(Iterator i = analysisFileParser.getAnalysisFileMap().keySet().iterator(); i.hasNext();) {
+              String idAnalysisFileString = (String)i.next();
+              AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileMap().get(idAnalysisFileString);
+              sess.save(af);
+            }            
           }
         }
         
         // Get rid of removed analysis files
-        for(Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
-          String idAnalysisFileString = (String)i.next();
-          AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileToDeleteMap().get(idAnalysisFileString);
+        if (analysisFileParser != null) {
+          DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+          String analysisBaseDir = dh.getAnalysisDirectory(baseDir);
+          
+          for(Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
+            String idAnalysisFileString = (String)i.next();
+            AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileToDeleteMap().get(idAnalysisFileString);
 
-          // Only delete from db if it was already present.
-          if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
-            sess.delete(af);
-            analysis.getFiles().remove(af);
-          }
+            // Only delete from db if it was already present.
+            if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
+              sess.delete(af);
+              analysis.getFiles().remove(af);
+            }
 
-          removeAnalysisFileFromFileSystem(baseDir, analysis, af);
+            removeAnalysisFileFromFileSystem(analysisBaseDir, analysis, af);
+          }          
         }
 
         
         //
         // Save collaborators
         //
-        Set collaborators = new TreeSet();
-        for(Iterator i = collaboratorParser.getIdCollaboratorList().iterator(); i.hasNext();) {
-          Integer idAppUser = (Integer)i.next();
-          
-          // TODO (performance):  Would be better if app user was cached.
-          AppUser collaborator = (AppUser)sess.load(AppUser.class, idAppUser);
-          collaborators.add(collaborator);
+        if (collaboratorParser != null) {
+          Set collaborators = new TreeSet();
+          for(Iterator i = collaboratorParser.getIdCollaboratorList().iterator(); i.hasNext();) {
+            Integer idAppUser = (Integer)i.next();
+            
+            // TODO (performance):  Would be better if app user was cached.
+            AppUser collaborator = (AppUser)sess.load(AppUser.class, idAppUser);
+            collaborators.add(collaborator);
+          }
+          analysis.setCollaborators(collaborators);          
         }
-        analysis.setCollaborators(collaborators);
            
         
         sess.flush();
