@@ -1,5 +1,9 @@
 ﻿GNomEx Release Notes
 
+5.0.9.4 (Feb 10,2011)
+---------------------
+Provide java main for creating analysis in batch job
+
 5.0.9.3 (Jan 31, 2011)
 ----------------------
 - Fix bug that was preventing CC Number from importing on sample sheet (Submit request).
