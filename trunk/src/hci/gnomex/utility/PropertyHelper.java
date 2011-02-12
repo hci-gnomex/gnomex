@@ -98,6 +98,21 @@ public class PropertyHelper implements Serializable {
     }
   }
   
+  public String getQualifiedProperty(String name, String serverName) {
+    // First try to get property that is 
+    // qualified by server name.  If that isn't found, get the property without
+    // any qualification.
+    String property = "";
+    if (serverName != null && !serverName.equals("")) {
+      String qualifiedName = name + "_" + serverName;
+      property = this.getProperty(qualifiedName);      
+    }
+    if (property == null || property.equals("")) {   
+      property = this.getProperty(name);
+    }
+    return property;
+  }
+  
   public boolean isProductionServer(String serverName) {
     if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null &&
         this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
