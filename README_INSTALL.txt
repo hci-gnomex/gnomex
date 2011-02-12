@@ -131,21 +131,13 @@ command manually do the following
 Configuring GNomEx and Orion for SSL (https)
 --------------------------------------------
 By default, GNomEx is configured to run from a non-secure (http:) web-site.
-To run GNomEx from a secure web-site (https:), rebuild GNomEx, modify the orion 
+To run GNomEx from a secure web-site (https:), deploy the secure gnomex.ear, modify the orion 
 configuration, and set up a server certificate. 
    
 
-1. Checkout the GNomEx source code from the SourceForge SVN repository (https://gnomex.svn.sourceforge.net/svnroot/gnomex)
-   to /path/to/gnomex
-      
-2. Rebuild GNomEx to enforce that only secure connections are allowed.
+1. Copy the /path/to/GNomEx_$VERSION/gnomex/dist/secure/gnomex.ear into /path/to/orion/applications/
 
-   a. Edit the source file /path/to/gnomex/src/hci/gnomex/constants/Constants.java
-      - Set the following constant to false
-        public static final boolean            REQUIRE_SECURE_REMOTE           = false; 
-   b. Recompile GNomEx (see detailed instructions 'Build Instructions').
-
-3. Modify the Orion configuration:
+2. Modify the Orion configuration:
 
    a. Modify /path/to/orion/config/server.xml
       - Uncomment <web-site path="./secure-web-site.xml" />  
@@ -155,7 +147,7 @@ configuration, and set up a server certificate.
       - Uncomment the <ssl-config> entry
    
    
-4. Configure Orion for SSL.  (See detailed instructions and troubleshooting guide 
+3. Configure Orion for SSL.  (See detailed instructions and troubleshooting guide 
    at http://www.orionserver.com/docs/ssl.html.)
    
    a. Create a keystore.  Use the JDK or JRE installed on your server.   

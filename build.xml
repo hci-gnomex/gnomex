@@ -409,13 +409,6 @@
 	    </fileset>
 	  </copy>
 		
-		<!-- By default, gnomex will run unsecure (http: instead of https).
-		     Change the Constants.java file so that the front controller
-		     will not reject unsecure (http:) requests. -->
-		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
-				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
-		         replace="REQUIRE_SECURE_REMOTE           = false;">
-		</replaceregexp>
 
 		<!-- Change realm name in web.xml from hciEnv to gnomex.  -->
 		<replace file="${opensource.dir}/defaultroot/WEB-INF/web.xml"
@@ -521,10 +514,35 @@
     </replaceregexp>
 
 		
-		<!-- All files have been customized for open source.  Now call the target to build the gnomex ear for open source -->
+		
+		<!-- By default, gnomex will run unsecure (http: instead of https).
+		     Change the Constants.java file so that the front controller
+		     will not reject unsecure (http:) requests. -->
+		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
+		         replace="REQUIRE_SECURE_REMOTE           = false;">
+		</replaceregexp>
+		
+		<!-- Build ear again, this time allowing http (nonsecure) connections -->
 		<subant target="ear">
 		   <fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
+
+		<!-- Compile GNomex to run secure (https) only-->
+		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
+		         replace="REQUIRE_SECURE_REMOTE           = true;">
+		</replaceregexp>
+
+		<!-- All files have been customized for open source.  Now call the target to build the gnomex ear for open source -->
+		<subant target="ear">
+		   <property name="dist.dir" value="${opensource.dir}/dist/secure"/>
+		   <fileset dir="${opensource.dir}" includes="build.xml"/>
+		</subant>
+		
+
+		
+		
 		
 		<!-- Get rid of local directory properties in build.properties.  Set back to default -->
 		<replace file="${opensource.dir}/build.properties"
@@ -623,6 +641,7 @@
      	<mkdir dir="${opensource.dir}/release/" />
 		<zip destfile="${opensource.dir}/release/${opensource.name}.zip" >
 			<zipfileset dir="${opensource.dir}/dist" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist/secure"/>
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
 			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
