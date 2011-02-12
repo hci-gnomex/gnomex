@@ -94,9 +94,12 @@ public class AnalysisFileDescriptorParser extends DetailObject implements Serial
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setZipEntryName(n.getAttributeValue("zipEntryName"));
     fd.setType(n.getAttributeValue("type"));
+    if(n.getAttributeValue("fileSize").length() > 0) {
+        long fileSize = Long.parseLong(n.getAttributeValue("fileSize"));
+        fd.setFileSize(fileSize);    	
+    }
     fd.setAnalysisNumber(n.getAttributeValue("number"));
 
-   
     return fd;
 
   }
