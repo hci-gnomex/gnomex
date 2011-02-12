@@ -13,4 +13,4 @@ for %%i in (%LIB%\*.jar) do call append_classpath.cmd %%i
 
 set PATH=%JAVA_HOME%\bin;%PATH%
 
-java -classpath %CP% hci.gnomex.lucene.BuildSearchIndex 
+java -classpath %CP% hci.gnomex.lucene.BuildSearchIndex %*

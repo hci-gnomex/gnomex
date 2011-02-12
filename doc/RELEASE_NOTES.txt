@@ -2,7 +2,8 @@
 
 5.0.9.4 (Feb 10,2011)
 ---------------------
-Provide java main for creating analysis in batch job
+- Provide java main for creating analysis in batch job
+- Allow property for lucene index to be qualified by server name.
 
 5.0.9.3 (Jan 31, 2011)
 ----------------------

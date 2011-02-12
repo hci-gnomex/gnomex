@@ -11,6 +11,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityManagerGNomEx.DummyEntityRes;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +61,10 @@ public class BuildSearchIndex extends DetailObject {
   private String gnomex_db_password;
   
   
-  private Map propertyMap;
+  private PropertyHelper propertyHelper;
   private Map dictionaryMap;
+  
+  private String serverName;
   
   
   private Map projectRequestMap;
@@ -80,11 +83,17 @@ public class BuildSearchIndex extends DetailObject {
 
   private static final String          KEY_DELIM = "&-&-&";
 
-  public BuildSearchIndex() {
+  public BuildSearchIndex(String[] args) {
+    for (int i = 0; i < args.length; i++) {
+      if (args[i].equals("-server")) {
+        serverName = args[++i];
+        System.out.println("servername = " + serverName);
+      }
+    }
   }
   public static void main(String[] args)
   {
-    BuildSearchIndex app = new BuildSearchIndex();
+    BuildSearchIndex app = new BuildSearchIndex(args);
     try
     {
       System.out.println(new Date() + " connecting...");
@@ -142,13 +151,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void init() throws Exception {
 
-    // Get system properties
-    propertyMap = new HashMap();
-    List props = sess.createQuery("SELECT p from Property as p").list();
-    for(Iterator i = props.iterator(); i.hasNext();) {
-      Property p = (Property)i.next();
-      propertyMap.put(p.getPropertyName(), p.getPropertyValue());
-    }
+    propertyHelper = PropertyHelper.getInstance(sess);
 
     // Cache dictionary value-to-display
     dictionaryMap = new HashMap();
@@ -178,14 +181,11 @@ public class BuildSearchIndex extends DetailObject {
       return display;
     }
   }
-  
-  private String getProperty(String name) {
-    return (String)propertyMap.get(name);
-  }
+
   
   private void buildExperimentIndex() throws Exception{
 
-    IndexWriter experimentIndexWriter = new IndexWriter(getProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY), new StandardAnalyzer(), true);
+    IndexWriter experimentIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(Property.LUCENE_EXPERIMENT_INDEX_DIRECTORY, serverName), new StandardAnalyzer(), true);
 
     // Get basic project/request data
     getProjectRequestData(sess);
@@ -221,7 +221,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildProtocolIndex() throws Exception{
 
-    IndexWriter protocolIndexWriter   = new IndexWriter(getProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
+    IndexWriter protocolIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(Property.LUCENE_PROTOCOL_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
 
     // Get basic protocol data
     getProtocolData(sess);
@@ -247,7 +247,7 @@ public class BuildSearchIndex extends DetailObject {
   
   private void buildAnalysisIndex() throws Exception{
 
-    IndexWriter analysisIndexWriter   = new IndexWriter(getProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY),   new StandardAnalyzer(), true);
+    IndexWriter analysisIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(Property.LUCENE_ANALYSIS_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
 
     // Get analysis data
     getAnalysisData(sess);
