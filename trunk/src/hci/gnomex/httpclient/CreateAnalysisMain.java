@@ -145,6 +145,13 @@ public class CreateAnalysisMain {
 
     try {
       loadProperties();
+      
+      // Make sure mandatory arguments were passed in
+      if (idLab == null || name == null || name.equals("") || idOrganism == null || idGenomeBuild == null || idAnalysisType == null || analysisGroupName == null || analysisGroupName.equals("")) {
+        this.printUsage();
+        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+      }
+      
       trustCerts(); 
       
       // Install the custom authenticator
@@ -181,12 +188,16 @@ public class CreateAnalysisMain {
       // Construct request parameters
       String parms = URLEncoder.encode("idLab", "UTF-8") + "=" + URLEncoder.encode(idLab.toString(), "UTF-8");
       parms += "&" + URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(name, "UTF-8");
-      parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");
       parms += "&" + URLEncoder.encode("newAnalysisGroupName", "UTF-8") + "=" + URLEncoder.encode(analysisGroupName, "UTF-8");
-      parms += "&" + URLEncoder.encode("newAnalysisGroupDescription", "UTF-8") + "=" + URLEncoder.encode(analysisGroupDescription, "UTF-8");
       parms += "&" + URLEncoder.encode("idOrganism", "UTF-8") + "=" + URLEncoder.encode(idOrganism.toString(), "UTF-8");
       parms += "&" + URLEncoder.encode("idGenomeBuild", "UTF-8") + "=" + URLEncoder.encode(idGenomeBuild.toString(), "UTF-8");
       parms += "&" + URLEncoder.encode("idAnalysisType", "UTF-8") + "=" + URLEncoder.encode(idAnalysisType.toString(), "UTF-8");
+      if (description != null) {
+        parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");        
+      }
+      if (analysisGroupDescription != null) {
+        parms += "&" + URLEncoder.encode("newAnalysisGroupDescription", "UTF-8") + "=" + URLEncoder.encode(analysisGroupDescription, "UTF-8");        
+      }
       if (lanesXMLString != null) {
         parms += "&" + "lanesXMLString" + "=" + lanesXMLString;        
       } 
@@ -210,6 +221,7 @@ public class CreateAnalysisMain {
           success = true;
         } 
       }
+      System.out.println();
       if (!success) {
         throw new Exception("Unable to create analysis");
       }
