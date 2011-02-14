@@ -59,6 +59,23 @@
 			hci.gnomex.controller.DownloadFileServlet
 		</servlet-class>
 	</servlet>
+	
+	
+	<servlet>
+		<servlet-name>FastDataTransferDownloadExpServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.FastDataTransferDownloadExpServlet
+		</servlet-class>
+	</servlet>
+	
+
+	<servlet>
+		<servlet-name>FastDataTransferDownloadAnalysisServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.FastDataTransferDownloadAnalysisServlet
+		</servlet-class>
+	</servlet>
+	
 
 	<servlet>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
@@ -157,6 +174,16 @@
 	<servlet-mapping>
 		<servlet-name>DownloadFileServlet</servlet-name>
 		<url-pattern>DownloadFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>FastDataTransferDownloadExpServlet</servlet-name>
+		<url-pattern>FastDataTransferDownloadExpServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>FastDataTransferDownloadAnalysisServlet</servlet-name>
+		<url-pattern>FastDataTransferDownloadAnalysisServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
@@ -264,8 +291,9 @@
 			<url-pattern>SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
-			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>
-
+			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>			
+			<url-pattern>FastDataTransferExpDownload.gx</url-pattern>
+			<url-pattern>FastDataTransferAnalysisDownload.gx</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>
