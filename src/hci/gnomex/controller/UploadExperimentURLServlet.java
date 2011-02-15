@@ -1,7 +1,10 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.PropertyHelper;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.hibernate.Session;
 
 public class UploadExperimentURLServlet extends HttpServlet {
   
@@ -44,7 +49,11 @@ public class UploadExperimentURLServlet extends HttpServlet {
       }
     }
     
+    Session sess = null;
+    
     try {
+      
+      
       
       boolean isLocalHost = req.getServerName().equalsIgnoreCase("localhost") || req.getServerName().equals("127.0.0.1");
       
@@ -58,7 +67,15 @@ public class UploadExperimentURLServlet extends HttpServlet {
       //
       //
       
-      String baseURL =  "http"+  "://"  + req.getServerName() + req.getContextPath();
+      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
+      String portNumber = PropertyHelper.getInstance(sess).getProperty(Property.HTTP_PORT);
+      if (portNumber == null) {
+        portNumber = "";
+      } else {
+        portNumber = ":" + portNumber;           
+      }
+      
+      String baseURL =  "http"+  "://"  + req.getServerName() + portNumber + req.getContextPath();
       String URL = baseURL + "/" + "UploadExperimentFileServlet.gx";
       // Encode session id in URL so that session maintains for upload servlet when called from
       // Flex upload component inside FireFox, Safari
@@ -70,6 +87,13 @@ public class UploadExperimentURLServlet extends HttpServlet {
       
     } catch (Exception e) {
       System.out.println("An error has occured in UploadExperimentURLServlet - " + e.toString());
+    } finally {
+      if (sess != null) {
+        try {
+          HibernateGuestSession.closeGuestSession();          
+        } catch (Exception e) {
+        }
+      }
     }
   }
 }
