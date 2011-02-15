@@ -111,7 +111,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
-        baseDir = PropertyHelper.getInstance(sess).getAnalysisReadDirectory(req.getServerName());
+        baseDir = PropertyHelper.getInstance(sess).getAnalysisDirectory(req.getServerName());
         
           
         Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);
