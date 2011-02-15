@@ -82,7 +82,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         
         Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-        baseDir = dh.getAnalysisReadDirectory(req.getServerName());
+        baseDir = dh.getAnalysisDirectory(req.getServerName());
        
         archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));        
         
