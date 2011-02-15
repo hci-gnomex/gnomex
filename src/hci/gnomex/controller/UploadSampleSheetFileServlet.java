@@ -3,9 +3,11 @@ package hci.gnomex.controller;
 import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateGuestSession;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -14,19 +16,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.*;
-
-import org.hibernate.Session;
+import org.jdom.output.XMLOutputter;
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class UploadSampleSheetFileServlet extends HttpServlet {
   
@@ -58,7 +56,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
-      Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
 
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -223,7 +221,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.\n\n" + e.toString() + "\n\nPlease contact GNomEx support.");
     }  finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateGuestSession.closeGuestSession();        
       } catch (Exception e1) {
         System.out.println("UploadSampleSheetFileServlet warning - cannot close hibernate session");
       }

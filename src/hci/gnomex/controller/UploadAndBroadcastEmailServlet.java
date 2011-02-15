@@ -7,7 +7,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.MailUtil;
 
 import java.io.BufferedReader;
@@ -58,7 +58,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
-      Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
       
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -227,7 +227,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
       throw new ServletException("Unable to send broadcast email due to a server error.  Please contact GNomEx support.");
     }  finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateGuestSession.closeGuestSession();        
       } catch (Exception e1) {
         System.out.println("UploadAndBroadcaseEmailServlet warning - cannot close hibernate session");
       }
