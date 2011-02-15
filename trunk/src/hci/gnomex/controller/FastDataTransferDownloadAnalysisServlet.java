@@ -113,6 +113,12 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 				Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 				DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 				
+				// Make sure the system is configured to run FDT
+        String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
+        if (fdtSupported == null || !fdtSupported.equals("Y")) {
+          showError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
+          return;
+        }
 
 				parser.parse();
 
@@ -276,5 +282,16 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 		return request;    
 	}
 
+	private void showError(HttpServletResponse response, String message) throws IOException {
+    log.error(message);
 
+    response.setContentType("text/html");
+    response.getOutputStream().println(
+    "<html><head><title>Error</title></head>");
+    response.getOutputStream().println("<body><b>");
+    response.getOutputStream().println(message + "<br>");
+    response.getOutputStream().println("</body>");
+    response.getOutputStream().println("</html>");
+
+  }
 }
