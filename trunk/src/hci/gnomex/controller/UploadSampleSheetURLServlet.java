@@ -1,6 +1,9 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Property;
+import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.PropertyHelper;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,6 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.hibernate.Session;
 
 public class UploadSampleSheetURLServlet extends HttpServlet {
   
@@ -40,6 +45,7 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
         return;
       }
     }
+    Session sess = null;
     
     try {
       
@@ -55,7 +61,16 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
       //
       //
       
-      String baseURL =  "http"+  "://"  + req.getServerName() + req.getContextPath();
+      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
+      String portNumber = PropertyHelper.getInstance(sess).getProperty(Property.HTTP_PORT);
+      if (portNumber == null) {
+        portNumber = "";
+      } else {
+        portNumber = ":" + portNumber;           
+      }
+
+      
+      String baseURL =  "http"+  "://"  + req.getServerName() + portNumber + req.getContextPath();
       String URL = baseURL + "/" + "UploadSampleSheetFileServlet.gx";
       // Encode session id in URL so that session maintains for upload servlet when called from
       // Flex upload component inside FireFox, Safari
@@ -67,6 +82,13 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
       
     } catch (Exception e) {
       System.out.println("An error has occured in UploadSampleSheetURLServlet - " + e.toString());
+    } finally {
+      try {
+        if (sess != null) {
+          HibernateGuestSession.closeGuestSession();
+        }
+      } catch (Exception e) {
+      }
     }
   }
 }
