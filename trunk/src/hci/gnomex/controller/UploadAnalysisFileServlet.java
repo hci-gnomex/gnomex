@@ -11,6 +11,7 @@ import hci.gnomex.utility.HibernateSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -82,9 +83,44 @@ public class UploadAnalysisFileServlet extends HttpServlet {
         throw new ServletException("Unable to upload analysis file.  Servlet unable to obtain security information. Please contact GNomEx support.");
       }
       
+      DecimalFormat sizeFormatter = new DecimalFormat("###,###,###,####,###");
 
+
+      res.setContentType("text/html");
       PrintWriter out = res.getWriter();
       res.setHeader("Cache-Control", "max-age=0, must-revalidate");
+      
+      org.dom4j.io.OutputFormat format = null;
+      org.dom4j.io.HTMLWriter writer = null;
+      Document doc = null;
+      String baseURL = "";
+      Element body = null;
+      
+      if (analysisNumber != null) {
+        StringBuffer fullPath = req.getRequestURL();
+        String extraPath = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
+        int pos = fullPath.lastIndexOf(extraPath);
+        if (pos > 0) {
+          baseURL = fullPath.substring(0, pos);
+        }
+
+      
+        res.setContentType("text/html");
+        res.setHeader("Cache-Control", "max-age=0, must-revalidate");
+        
+        format = org.dom4j.io.OutputFormat.createPrettyPrint();        
+        writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);         
+        doc = DocumentHelper.createDocument();
+        
+        Element root = doc.addElement("HTML");
+        Element head = root.addElement("HEAD");
+        Element link = head.addElement("link");
+        link.addAttribute("rel", "stylesheet");
+        link.addAttribute("type", "text/css");
+        link.addAttribute("href", baseURL + "/css/message.css");
+        body = root.addElement("BODY");
+        
+      }
             
       MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE); 
       Part part;
@@ -100,6 +136,10 @@ public class UploadAnalysisFileServlet extends HttpServlet {
           }
           if (name.equals("analysisNumber")) {
             analysisNumber = (String)value;
+            if (body != null) {
+              Element h3 = body.addElement("H3");
+              h3.addCDATA("Upload analysis files for " + analysisNumber);              
+            }
             break;
           }
         }
@@ -145,6 +185,11 @@ public class UploadAnalysisFileServlet extends HttpServlet {
                 // the part actually contained a file
                 long size = filePart.writeTo(new File(directoryName));
                 
+                if (analysisNumber != null && body != null) {
+                  body.addElement("BR");
+                  body.addCDATA(fileName + "   -   successfully uploaded " + sizeFormatter.format(size) + " bytes.");                  
+                }
+                
                 // Save analysis file (name) in db
                 AnalysisFile analysisFile = null;
                 for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
@@ -184,41 +229,15 @@ public class UploadAnalysisFileServlet extends HttpServlet {
         
       }
       
-      if (analysisNumber != null) {
-        String baseURL = "";
-        StringBuffer fullPath = req.getRequestURL();
-        String extraPath = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
-        int pos = fullPath.lastIndexOf(extraPath);
-        if (pos > 0) {
-          baseURL = fullPath.substring(0, pos);
-        }
-
-      
-        org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
-        org.dom4j.io.HTMLWriter writer = null;
-        res.setContentType("text/html");
+      if (analysisNumber != null && doc != null && writer != null && doc != null && body != null) {
+        body.addElement("BR");
+        Element h5 = body.addElement("H5");
+        h5.addCDATA("In GNomEx, click refresh button to see uploaded analysis files.");    
         
-        Document doc = DocumentHelper.createDocument();
-        Element root = doc.addElement("HTML");
-        Element head = root.addElement("HEAD");
-        Element link = head.addElement("link");
-        link.addAttribute("rel", "stylesheet");
-        link.addAttribute("type", "text/css");
-        link.addAttribute("href", baseURL + "/css/message.css");
-        Element body = root.addElement("BODY");
-        Element h3 = body.addElement("H3");
-        h3.addCDATA("Upload analysis file");
-        body.addCDATA(analysis.getNumber());
-        body.addElement("BR");
-        body.addCDATA(analysis.getName());
-        body.addElement("BR");
-        body.addElement("BR");
-        body.addCDATA("File " + fileName + " successfully uploaded.");
-        writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);            
         writer.write(doc);
         writer.flush();
+        
         writer.close(); 
-               
       }
 
       

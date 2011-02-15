@@ -443,6 +443,11 @@
 		}	
 		
 
+		public function showHTMLUploadForm():void {
+			var url:URLRequest = new URLRequest('uploadExperimentFile.jsp?requestNumber=' + this.requestNumber);
+			navigateToURL(url, '_blank');			
+			this.theTab.selectedIndex = 1;
+		}
 		
     	]]>
     </mx:Script>	
@@ -462,6 +467,7 @@
 			              <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
 			              <mx:HBox width="100%"  horizontalAlign="right">
 			                  <mx:VRule height="20"/>
+			                  <mx:LinkButton label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
 			              </mx:HBox>
 			          
 			          </mx:HBox>

@@ -142,8 +142,9 @@
 		} 		
 		
 		public function showHTMLUploadForm():void {
-			var url:URLRequest = new URLRequest('uploadAnalysisFile_plupload.jsp?analysisNumber=' + this.analysis.@number + '&analysisName=' + this.analysis.@name);
+			var url:URLRequest = new URLRequest('uploadAnalysisFile.jsp?analysisNumber=' + this.analysis.@number + '&analysisName=' + this.analysis.@name);
 			navigateToURL(url, '_blank');			
+			PopUpManager.removePopUp(this);
 		}
 	]]>
 </mx:Script>	

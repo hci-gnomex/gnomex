@@ -2,16 +2,15 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.Property;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateGuestSession;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -52,7 +51,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
-      Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
       
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -82,8 +81,43 @@ public class UploadExperimentFileServlet extends HttpServlet {
       }
       
 
+      res.setContentType("text/html");
       PrintWriter out = res.getWriter();
       res.setHeader("Cache-Control", "max-age=0, must-revalidate");
+      DecimalFormat sizeFormatter = new DecimalFormat("###,###,###,####,###");
+      
+      Element body = null;
+      
+      org.dom4j.io.OutputFormat format = null;
+      org.dom4j.io.HTMLWriter writer = null;
+      Document doc = null;
+      String baseURL = "";
+      
+      if (requestNumber != null) {
+        StringBuffer fullPath = req.getRequestURL();
+        String extraPath = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
+        int pos = fullPath.lastIndexOf(extraPath);
+        if (pos > 0) {
+          baseURL = fullPath.substring(0, pos);
+        }
+
+      
+        res.setContentType("text/html");
+        res.setHeader("Cache-Control", "max-age=0, must-revalidate");
+        
+        format = org.dom4j.io.OutputFormat.createPrettyPrint();        
+        writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);         
+        doc = DocumentHelper.createDocument();
+        
+        Element root = doc.addElement("HTML");
+        Element head = root.addElement("HEAD");
+        Element link = head.addElement("link");
+        link.addAttribute("rel", "stylesheet");
+        link.addAttribute("type", "text/css");
+        link.addAttribute("href", baseURL + "/css/message.css");
+        body = root.addElement("BODY");
+      }
+
             
       MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE); 
       Part part;
@@ -99,6 +133,8 @@ public class UploadExperimentFileServlet extends HttpServlet {
           }
           if (name.equals("requestNumber")) {
             requestNumber = (String)value;
+            Element h3 = body.addElement("H3");
+            h3.addCDATA("Upload experiment files for " + request.getNumber());
             break;
           }
         }
@@ -152,13 +188,29 @@ public class UploadExperimentFileServlet extends HttpServlet {
 
                 // the part actually contained a file
                 long size = filePart.writeTo(new File(directoryName));
+
+                if (requestNumber != null && body != null) {
+                  body.addElement("BR");
+                  body.addCDATA(fileName + "   -   successfully uploaded " + sizeFormatter.format(size) + " bytes.");                  
+                }
               }
               else { 
               }
               out.flush();
+
             }
           }
-          sess.flush();
+          
+          if (requestNumber != null && doc != null && writer != null) {
+            body.addElement("BR");
+            Element h5 = body.addElement("H5");
+            h5.addCDATA("In GNomEx, click refresh button on 'Organize' tab to see list of uploaded files.");    
+            
+            writer.write(doc);
+            writer.flush();
+            
+            writer.close(); 
+          }
           
         } else {
           System.out.println("UploadExperimentFileServlet - unable to upload file " + fileName + " for request idRequest=" + idRequest);
@@ -174,40 +226,6 @@ public class UploadExperimentFileServlet extends HttpServlet {
         
       }
       
-      if (requestNumber != null) {
-        String baseURL = "";
-        StringBuffer fullPath = req.getRequestURL();
-        String extraPath = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
-        int pos = fullPath.lastIndexOf(extraPath);
-        if (pos > 0) {
-          baseURL = fullPath.substring(0, pos);
-        }
-
-      
-        org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
-        org.dom4j.io.HTMLWriter writer = null;
-        res.setContentType("text/html");
-        
-        Document doc = DocumentHelper.createDocument();
-        Element root = doc.addElement("HTML");
-        Element head = root.addElement("HEAD");
-        Element link = head.addElement("link");
-        link.addAttribute("rel", "stylesheet");
-        link.addAttribute("type", "text/css");
-        link.addAttribute("href", baseURL + "/css/message.css");
-        Element body = root.addElement("BODY");
-        Element h3 = body.addElement("H3");
-        h3.addCDATA("Upload experiment file");
-        body.addCDATA(request.getNumber());
-        body.addElement("BR");
-        body.addElement("BR");
-        body.addCDATA("File " + fileName + " successfully uploaded.");
-        writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);            
-        writer.write(doc);
-        writer.flush();
-        writer.close(); 
-               
-      }
 
       
       
@@ -218,7 +236,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
     }  finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateGuestSession.closeGuestSession();        
       } catch (Exception e1) {
         System.out.println("UploadExperimentFileServlet warning - cannot close hibernate session");
       }

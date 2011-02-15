@@ -1,13 +1,15 @@
 <HTML>
 <HEAD>
 <link rel="stylesheet" type="text/css" href="css/message.css" />
-<TITLE>Upload analysis file</TITLE>
+<TITLE>Upload experiment files</TITLE>
 </HEAD>
 <BODY bgcolor="#FFFFF0">
-<h3>Upload analysis files for <%=request.getParameter("analysisNumber")%></h3>
-<form enctype="multipart/form-data"  method="post" action="UploadAnalysisFileServlet.gx">
+<h3>Upload experiment files</h3>
+<form enctype="multipart/form-data"  method="post" action="UploadExperimentFileServlet.gx">
+
 <p>
-<input type="hidden" name="analysisNumber" value="<%=request.getParameter("analysisNumber")%>">
+<input type="hidden" name="requestNumber" value="<%=request.getParameter("requestNumber")%>">
+<%=request.getParameter("requestNumber")%>
 <br>
 File:&nbsp;<input type="file" name="file"  size="45">
 <p>
@@ -24,6 +26,8 @@ File:&nbsp;<input type="file" name="file"  size="45">
 <p>
 <input type="submit" name="Show" value="Upload">
 </form>
+
+
 
 <p class="message">
 <%

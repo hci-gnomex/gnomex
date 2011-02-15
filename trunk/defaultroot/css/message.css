@@ -26,6 +26,17 @@
       padding-left: 4;
       padding-bottom: 0;
   }
+
+  H5 {
+	
+	font-family: Trebuchet MS;
+	font-size: 9pt;
+	padding-top: 0;
+	padding-right: 2;
+	padding-left: 4;
+	padding-bottom: 0;
+	color: green;
+}
   
   P.warning {
       font-size: 9pt;
