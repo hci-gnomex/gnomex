@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.0.9.5 (Feb 15, 2011)
+----------------------
+- Make port number for http property driven so that flex uploads (that require http rather than https) work.
+- Use read-only session on all Upload servlets.
+- Replace plupload with standard-issue HTML multi-part upload forms.  Add html upload form for Experiment upload. 
+
 5.0.9.4 (Feb 10,2011)
 ---------------------
 - Provide java main for creating analysis in batch job
