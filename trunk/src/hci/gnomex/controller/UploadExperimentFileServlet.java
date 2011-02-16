@@ -133,8 +133,10 @@ public class UploadExperimentFileServlet extends HttpServlet {
           }
           if (name.equals("requestNumber")) {
             requestNumber = (String)value;
-            Element h3 = body.addElement("H3");
-            h3.addCDATA("Upload experiment files for " + request.getNumber());
+            if (body != null) {
+              Element h3 = body.addElement("H3");
+              h3.addCDATA("Upload experiment files for " + request.getNumber());              
+            }
             break;
           }
         }
