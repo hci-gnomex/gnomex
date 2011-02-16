@@ -4,12 +4,13 @@
 <TITLE>Upload experiment files</TITLE>
 </HEAD>
 <BODY bgcolor="#FFFFF0">
-<h3>Upload experiment files</h3>
+<img src="images/navbar.png"/>
+<br>
+<h3>Upload experiment files for <%=request.getParameter("requestNumber")%></h3>
 <form enctype="multipart/form-data"  method="post" action="UploadExperimentFileServlet.gx">
 
 <p>
 <input type="hidden" name="requestNumber" value="<%=request.getParameter("requestNumber")%>">
-<%=request.getParameter("requestNumber")%>
 <br>
 File:&nbsp;<input type="file" name="file"  size="45">
 <p>

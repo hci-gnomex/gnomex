@@ -4,6 +4,8 @@
 <TITLE>Upload analysis file</TITLE>
 </HEAD>
 <BODY bgcolor="#FFFFF0">
+<img src="images/navbar.png"/>
+<br>
 <h3>Upload analysis files for <%=request.getParameter("analysisNumber")%></h3>
 <form enctype="multipart/form-data"  method="post" action="UploadAnalysisFileServlet.gx">
 <p>
