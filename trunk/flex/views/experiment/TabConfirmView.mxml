@@ -22,6 +22,7 @@
 			<mx:SetProperty target="{textarea1}" name="htmlText">
 				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the “Back” button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the “Submit” button.]]></mx:value>
 			</mx:SetProperty>
+			<mx:RemoveChild target="{billingContainer}"/>
 		</mx:State>
 	</mx:states>
 	
