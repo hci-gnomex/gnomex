@@ -265,6 +265,8 @@
 			<url-pattern>go.jsp</url-pattern>
 			<url-pattern>uploadAnalysisFile.jsp</url-pattern>
 			<url-pattern>uploadAnalysisFile_plupload.jsp</url-pattern>
+			<url-pattern>uploadExperimentFile.jsp</url-pattern>
+			<url-pattern>uploadExperimentFile_plupload.jsp</url-pattern>
 			<url-pattern>uploadSampleSheetFile.jsp</url-pattern>
 			<url-pattern>uploadSampleSheetFile_plupload.jsp</url-pattern>
 			<url-pattern>launcher_reconnect.jsp</url-pattern>
