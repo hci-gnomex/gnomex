@@ -20,12 +20,11 @@ public class PropertyHelper implements Serializable {
 
   private static final String    PROPERTY_PRODUCTION_SERVER                   = "production_server";
   
-  private static final String    PROPERTY_EXPERIMENT_DIRECTORY                = "experiment_directory";
-  private static final String    PROPERTY_EXPERIMENT_TEST_DIRECTORY           = "experiment_test_directory";
-  private static final String    PROPERTY_ANALYSIS_DIRECTORY                  = "analysis_directory";
-  private static final String    PROPERTY_ANALYSIS_TEST_DIRECTORY             = "analysis_test_directory";
+  private static final String    PROPERTY_EXPERIMENT_READ_DIRECTORY           = "experiment_read_directory";
+  private static final String    PROPERTY_EXPERIMENT_WRITE_DIRECTORY          = "experiment_write_directory";
+  private static final String    PROPERTY_ANALYSIS_READ_DIRECTORY             = "analysis_read_directory";
+  private static final String    PROPERTY_ANALYSIS_WRITE_DIRECTORY            = "analysis_write_directory";
   private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
-  private static final String    PROPERTY_FLOWCELL_TEST_DIRECTORY             = "flowcell_test_directory";
   private static final String    PROPERTY_SOFTLINKS_DIRECTORY                 = "softlinks_directory";
   private static final String    PROPERTY_FAST_DATA_TRANSFER_DIRECTORY        = "fast_data_transfer_directory";
   private static final String    PROPERTY_FAST_DATA_TRANSFER_CODEBASE_PARAM   = "fast_data_transfer_codebase_param";
@@ -179,107 +178,54 @@ public class PropertyHelper implements Serializable {
     }
   }
   
-  public String getAnalysisDirectory(String serverName) {
-    String property = "";
-    String propertyName = null;
-    
-    // If this is the production server, first try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    // If this is not the production server, get the property for the analysis
-    // test path.  First use the property qualified by server name.  If
-    // it isn't found, get the property without any qualification. 
-    
-    /*
-    if (isProductionServer(serverName)) {
-      propertyName = PROPERTY_ANALYSIS_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) { 
+  public String getAnalysisReadDirectory(String serverName) {
+	  // First try to get property that is qualified by server name.  
+	  // Then, try with partial mathc. If that isn't found then get 
+	  // the property without any qualification.	  
+	  String property = "";
+	  String propertyName = PROPERTY_ANALYSIS_READ_DIRECTORY + "_" + serverName;
+	  property = this.getProperty(propertyName);
+	  if (property == null || property.equals("")) { 
 		  property = this.getPropertyPartialMatch(propertyName);
 		  if (property == null || property.equals("")) { 
-		        propertyName = PROPERTY_ANALYSIS_DIRECTORY;
-		        property = this.getProperty(propertyName);			  
+			  propertyName = PROPERTY_ANALYSIS_READ_DIRECTORY;
+			  property = this.getProperty(propertyName);       	
 		  }
-      }
-    } else {
-      propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
+	  }   
+
+	  return property;
+  }
+
+  public String getAnalysisWriteDirectory(String serverName) {
+	  // First try to get property that is qualified by server name.  
+	  // Then, try with partial mathc. If that isn't found then get 
+	  // the property without any qualification.	  
+	  String property = "";
+	  String propertyName = PROPERTY_ANALYSIS_WRITE_DIRECTORY + "_" + serverName;
+	  property = this.getProperty(propertyName);
+	  if (property == null || property.equals("")) { 
 		  property = this.getPropertyPartialMatch(propertyName);
 		  if (property == null || property.equals("")) { 
-			  propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY;
-		      property = this.getProperty(propertyName);			  
-		  }  	  
-      }
-    }
-    */
-    // Changed by RC to first check for qualified name, then check
-    // for production server.    
-    propertyName = PROPERTY_ANALYSIS_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) { 
-    	property = this.getPropertyPartialMatch(propertyName);
-    	if (property == null || property.equals("")) { 
-    		if (isProductionServer(serverName)) {
-    			propertyName = PROPERTY_ANALYSIS_DIRECTORY;
-    			property = this.getProperty(propertyName);			  
-    		} else {
-    			propertyName = PROPERTY_ANALYSIS_TEST_DIRECTORY;
-    			property = this.getProperty(propertyName);       	
-    		}
-    	}
-    }   
-    
-    return property;
+			  propertyName = PROPERTY_ANALYSIS_WRITE_DIRECTORY;
+			  property = this.getProperty(propertyName);       	
+		  }
+	  }   
+
+	  return property;
   }
   
   public String getFlowCellDirectory(String serverName) {
+    // First try to get property that is qualified by server name.  
+	// Then, try with partial mathc. If that isn't found then get 
+    // the property without any qualification.	  
     String property = "";
-    String propertyName = null;
-    
-    // If this is the production server, first try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    // If this is not the production server, get the property for the flowcell
-    // test path.  First use the property qualified by server name.  If
-    // it isn't found, get the property without any qualification. 
-    /*
-    if (isProductionServer(serverName)) {
-      propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) { 
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) { 
-			  propertyName = PROPERTY_FLOWCELL_DIRECTORY;
-		      property = this.getProperty(propertyName);
-		  }  
-      }
-    } else {
-      propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) { 
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) { 
-		        propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY;
-		        property = this.getProperty(propertyName);
-		  }
-      }
-    }
-    */
-    // Changed by RC to first check for qualified name, then check
-    // for production server.    
-    propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
+    String propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) { 
     	property = this.getPropertyPartialMatch(propertyName);
     	if (property == null || property.equals("")) { 
-    		if (isProductionServer(serverName)) {
-    			propertyName = PROPERTY_FLOWCELL_DIRECTORY;
-    			property = this.getProperty(propertyName);				  
-    		} else {
-    			propertyName = PROPERTY_FLOWCELL_TEST_DIRECTORY;
-    			property = this.getProperty(propertyName);				  
-    		}
+			propertyName = PROPERTY_FLOWCELL_DIRECTORY;
+			property = this.getProperty(propertyName);				  
     	}  
     }
       
@@ -287,52 +233,17 @@ public class PropertyHelper implements Serializable {
   }
 
   public String getMicroarrayDirectoryForWriting(String serverName) {
-    String property = "";
-    String propertyName = null;
-    
-    // If this is the production server, first try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
-    // If this is not the production server, get the property for the experiment
-    // test path.  First use the property qualified by server name.  If
-    // it isn't found, get the property without any qualification.   
-    /*
-    if (isProductionServer(serverName)) {
-      propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) { 
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) {
-		        propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
-		        property = this.getProperty(propertyName);
-		  }
-      }
-    } else {
-      propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY + "_" + serverName;
-      property = this.getProperty(propertyName);
-      if (property == null || property.equals("")) {  
-		  property = this.getPropertyPartialMatch(propertyName);
-		  if (property == null || property.equals("")) {
-		        propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY;
-		        property = this.getProperty(propertyName);
-		  }
-      }
-    }
-    */
-    // Changed by RC to first check for qualified name, then check
-    // for production server.    
-    propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
+    // First try to get property that is qualified by server name.  
+	// Then, try with partial mathc. If that isn't found then get 
+    // the property without any qualification.	  
+	String property = "";
+    String propertyName = PROPERTY_EXPERIMENT_WRITE_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) { 
     	property = this.getPropertyPartialMatch(propertyName);
     	if (property == null || property.equals("")) {
-    		if (isProductionServer(serverName)) {
-    			propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
-    			property = this.getProperty(propertyName);
-    		} else {
-    			propertyName = PROPERTY_EXPERIMENT_TEST_DIRECTORY;
-    			property = this.getProperty(propertyName);
-    		}
+			propertyName = PROPERTY_EXPERIMENT_WRITE_DIRECTORY;
+			property = this.getProperty(propertyName);
     	}
     }
 
@@ -340,16 +251,16 @@ public class PropertyHelper implements Serializable {
   }
 
   public  String getMicroarrayDirectoryForReading(String serverName) {
-    // First try to get property that is 
-    // qualified by server name.  If that isn't found, get the property without
-    // any qualification.
+    // First try to get property that is qualified by server name.  
+	// Then, try with partial mathc. If that isn't found then get 
+    // the property without any qualification.
     String property = "";
-    String propertyName = PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName;
+    String propertyName = PROPERTY_EXPERIMENT_READ_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
     if (property == null || property.equals("")) { 
       property = this.getPropertyPartialMatch(propertyName);
       if (property == null || property.equals("")) {
-          propertyName = PROPERTY_EXPERIMENT_DIRECTORY;
+          propertyName = PROPERTY_EXPERIMENT_READ_DIRECTORY;
           property = this.getProperty(propertyName);    	  
       }
     }

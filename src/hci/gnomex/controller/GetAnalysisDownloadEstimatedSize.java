@@ -38,7 +38,7 @@ public class GetAnalysisDownloadEstimatedSize extends GNomExCommand implements S
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisDirectory(baseDir);
+      baseDir = dh.getAnalysisReadDirectory(baseDir);
 
       Map fileNameMap = new HashMap();
       long compressedFileSizeTotal = DownloadAnalysisFolderServlet.getFileNamesToDownload(baseDir, keysString, fileNameMap);

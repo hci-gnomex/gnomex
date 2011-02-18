@@ -436,7 +436,7 @@
 				mx.controls.Alert.show("Please select the files to download.");
 			} else {	
 				var paramStr:String =  selectedFileList.toXMLString();			
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadServlet.gx');	
+				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
 				url.data = paramStr;
 				url.contentType = "text/xml";
 				url.method = URLRequestMethod.POST;

@@ -89,7 +89,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
         if (secAdvisor.canRead(analysis)) { 
 
           // Format an HTML page with links to download the files
-          String baseDir = PropertyHelper.getInstance(sess).getAnalysisDirectory(serverName);
+          String baseDir = PropertyHelper.getInstance(sess).getAnalysisReadDirectory(serverName);
           Document doc = formatDownloadHTML(analysis, baseDir, baseURL);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();

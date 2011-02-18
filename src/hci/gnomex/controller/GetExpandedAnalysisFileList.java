@@ -62,7 +62,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
    
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    baseDir = dh.getAnalysisDirectory(baseDir);
+    baseDir = dh.getAnalysisReadDirectory(baseDir);
     
     Map analysisMap = new TreeMap();
     Map directoryMap = new TreeMap();
