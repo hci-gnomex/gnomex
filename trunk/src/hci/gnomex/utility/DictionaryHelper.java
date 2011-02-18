@@ -365,10 +365,14 @@ public class DictionaryHelper implements Serializable {
     return propertyHelper.isProductionServer(serverName);
   }
   
-  public String getAnalysisDirectory(String serverName) {
-    return propertyHelper.getAnalysisDirectory(serverName);
+  public String getAnalysisReadDirectory(String serverName) {
+	  return propertyHelper.getAnalysisReadDirectory(serverName);
   }
-  
+
+  public String getAnalysisWriteDirectory(String serverName) {
+	  return propertyHelper.getAnalysisWriteDirectory(serverName);
+  }
+	  
   public String getFlowCellDirectory(String serverName) {
     return propertyHelper.getFlowCellDirectory(serverName);
   }

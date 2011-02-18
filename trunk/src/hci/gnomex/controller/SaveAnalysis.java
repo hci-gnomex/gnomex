@@ -369,7 +369,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         // Get rid of removed analysis files
         if (analysisFileParser != null) {
           DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-          String analysisBaseDir = dh.getAnalysisDirectory(baseDir);
+          String analysisBaseDir = dh.getAnalysisWriteDirectory(baseDir);
           
           for(Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
             String idAnalysisFileString = (String)i.next();

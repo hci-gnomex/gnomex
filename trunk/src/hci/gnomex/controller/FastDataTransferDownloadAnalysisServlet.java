@@ -69,17 +69,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 				log.debug("Requested from local host");
 			}
 			else {
-				log.error("Accessing secure command over non-secure line from remote host is not allowed");
-
-				response.setContentType("text/html");
-				response.getOutputStream().println(
-				"<html><head><title>Error</title></head>");
-				response.getOutputStream().println("<body><b>");
-				response.getOutputStream().println(
-						"Secure connection is required. Prefix your request with 'https: "
-						+ "<br>");
-				response.getOutputStream().println("</body>");
-				response.getOutputStream().println("</html>");
+				showError(response, "Accessing secure command over non-secure line from remote host is not allowed");
 				return;
 			}
 		}
@@ -113,12 +103,12 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 				Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 				DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 				
-				// Make sure the system is configured to run FDT
-        String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
-        if (fdtSupported == null || !fdtSupported.equals("Y")) {
-          showError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
-          return;
-        }
+                // Make sure the system is configured to run FDT
+                String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
+                if (fdtSupported == null || !fdtSupported.equals("Y")) {
+                      showError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
+                      return;
+                }
 
 				parser.parse();
 
@@ -272,6 +262,17 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
 	}    
 
+	private void showError(HttpServletResponse response, String message) throws IOException {
+		log.error(message);
+		response.setContentType("text/html");
+		response.getOutputStream().println(
+		"<html><head><title>Error</title></head>");
+		response.getOutputStream().println("<body><b>");
+		response.getOutputStream().println(message + "<br>");
+		response.getOutputStream().println("</body>");
+		response.getOutputStream().println("</html>");
+
+	}
 
 	public static Request findRequest(Session sess, String requestNumber) {
 		Request request = null;
@@ -282,16 +283,4 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 		return request;    
 	}
 
-	private void showError(HttpServletResponse response, String message) throws IOException {
-    log.error(message);
-
-    response.setContentType("text/html");
-    response.getOutputStream().println(
-    "<html><head><title>Error</title></head>");
-    response.getOutputStream().println("<body><b>");
-    response.getOutputStream().println(message + "<br>");
-    response.getOutputStream().println("</body>");
-    response.getOutputStream().println("</html>");
-
-  }
 }

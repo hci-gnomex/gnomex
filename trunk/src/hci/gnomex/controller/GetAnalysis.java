@@ -77,7 +77,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = dh.getAnalysisDirectory(serverName);
+      baseDir = dh.getAnalysisWriteDirectory(serverName);
       
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {

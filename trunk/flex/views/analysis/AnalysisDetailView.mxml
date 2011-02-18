@@ -277,6 +277,23 @@
 			} 		
 		}
 		
+		public function showFastDataTransferDownloadPage():void {
+			var selectedFiles:XMLList = parentDocument.selectedAnalysis..AnalysisFileDescriptor.(@isSelected == "true");
+			var selectedFileList:XMLListCollection = new XMLListCollection(selectedFiles);					
+			
+			if (selectedFileList.length == 0) {
+				mx.controls.Alert.show("Please select the files to download.");
+			} else {	
+				var paramStr:String =  selectedFileList.toXMLString();			
+				var url:URLRequest = new URLRequest('FastDataTransferDownloadAnalysisServlet.gx');	
+				url.data = paramStr;
+				url.contentType = "text/xml";
+				url.method = URLRequestMethod.POST;
+				navigateToURL(url, '_self');					
+			}			
+		}
+		
+		
 		private function showAlternateDownloadPage():void {
 			var url:URLRequest = new URLRequest('ShowAnalysisDownloadForm' + 
 				(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
@@ -284,6 +301,9 @@
 				this.parentDocument.selectedAnalysis.@idAnalysis);
 			navigateToURL(url, '_blank');					
 		}
+
+		
+		
 		
 		private function onTabChange():void {
 			if (theTab.selectedChild == filesView) {
@@ -491,8 +511,9 @@
 				    	toolTip="Download selected folders"
 				    	label="Download" 
 				    	visible="true"/>
-				    <mx:LinkButton label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-				    <mx:VBox styleName="hintBox">
+					<mx:LinkButton visible="{parentApplication.isFDTSupported ? true : false}" label="Download - Fast Data Transfer" textDecoration="underline" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+				    <mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+					<mx:VBox styleName="hintBox">
 					    <mx:LinkButton  label="Downloading help" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>
 				    </mx:VBox>
 		    		<mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
