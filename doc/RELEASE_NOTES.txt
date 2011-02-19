@@ -1,10 +1,17 @@
 ﻿GNomEx Release Notes
 
+5.0.9.6 (Feb 20, 2011)
+----------------------
+- Introduced Robb's PropertyHelper code for getting Experiment, Analysis, and Flowcell directories
+- Fixed code that was removing anlaysis from file system by adding file separator between base directory and year.
+
+
 5.0.9.5 (Feb 15, 2011)
 ----------------------
 - Make port number for http property driven so that flex uploads (that require http rather than https) work.
 - Use read-only session on all Upload servlets.
-- Replace plupload with standard-issue HTML multi-part upload forms.  Add html upload form for Experiment upload. 
+- Replace plupload with standard-issue HTML multi-part upload forms.  Add html upload form for Experiment upload.
+- Don't show billing area on Confirm tab for external projects. 
 
 5.0.9.4 (Feb 10,2011)
 ---------------------

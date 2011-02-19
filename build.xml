@@ -528,6 +528,10 @@
 		   <fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
 
+		<subant target="clientjar">
+			<fileset dir="${opensource.dir}" includes="build.xml"/>
+		</subant>
+
 		<!-- Compile GNomex to run secure (https) only-->
 		<replaceregexp  file="${opensource.dir}/src/hci/gnomex/constants/Constants.java"
 				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"

@@ -25,7 +25,7 @@ A: To be able to download data files from GNomEx, you will need to set the
    following properties to point GNomEx to a file directory on your server (or mounted on your server) that is read accessible to the account your are running the Orion application server under.  
 
    experiment_directory  - The path to the root experiment directory.  GNomEx assumes that 
-   this directory contains subdirectories for each year; the year subdirectory contains subdirectories for each request number.  Here’s an example:
+   this directory contains subdirectories for each year; the year subdirectory contains subdirectories for each request number.  Here is an example:
 
    /home/gnomex/experiments
      2009
