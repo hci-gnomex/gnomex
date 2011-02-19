@@ -835,7 +835,8 @@ CREATE TABLE gnomex.Institution (
     description  	varchar(500) NULL,
     isActive     	char(1) NULL,
     PRIMARY KEY (idInstitution)
-    );
+    )
+ENGINE = INNODB;
     
     
 -- Add new Table to link lab to multiple institutions
@@ -852,8 +853,8 @@ CREATE TABLE gnomex.InstitutionLab (
     REFERENCES gnomex.Lab (idLab)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    );
-    
+    )
+ENGINE = INNODB;    
 
 DROP TABLE IF EXISTS `gnomex`.`Label`;
 CREATE TABLE `gnomex`.`Label` (
