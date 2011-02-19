@@ -376,12 +376,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             AnalysisFile af = (AnalysisFile)analysisFileParser.getAnalysisFileToDeleteMap().get(idAnalysisFileString);
 
             // Only delete from db if it was already present.
-            if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
+            if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {              
               sess.delete(af);
               analysis.getFiles().remove(af);
             }
 
             removeAnalysisFileFromFileSystem(analysisBaseDir, analysis, af);
+            
           }          
         }
 
@@ -442,23 +443,27 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   
-  public static boolean removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
+  public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String fileName = baseDir + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();
+    String fileName = baseDir +  "/" + createYear + "/" + analysis.getNumber() + "/" + analysisFile.getFileName();    
     File f = new File(fileName);
-    return f.delete();
+    if (!f.delete()) {
+      log.error("Unable to remove " + fileName + " from file system for analysis " + analysis.getNumber());
+    }      
     
   }
   
-  public static boolean removeAnalysisDirectoryFromFileSystem(String baseDir, Analysis analysis) {
+  public static void removeAnalysisDirectoryFromFileSystem(String baseDir, Analysis analysis) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
-    String dirName = baseDir + createYear + "/" + analysis.getNumber();
+    String dirName = baseDir +  "/" + createYear + "/" + analysis.getNumber();
     File f = new File(dirName);
-    return f.delete();
+    if (!f.delete()) {
+      log.error("Unable to remove " + dirName + " from file system for analysis " + analysis.getNumber());
+    }
     
   }
   
