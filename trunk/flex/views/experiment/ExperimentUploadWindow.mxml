@@ -5,7 +5,7 @@
 	height="408" creationPolicy="all"
 	showCloseButton="true"
 	close="{mx.managers.PopUpManager.removePopUp(this)}" 
-	title="{'Upload Files for Experiment ' + requestNumber}" >
+	title="{'Upload Files for Experiment ' + requestNumber}"  xmlns:controls="hci.flex.controls.*">
 
   <mx:HTTPService  
     id="getExperimentUploadURL" 
@@ -17,6 +17,19 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+	
+	
+  <mx:HTTPService  
+    id="fdtUploadExpStart" 
+	url="FastDataTransferUploadExpStart.gx"
+	resultFormat="e4x"
+	showBusyCursor="true" 
+	result="onFdtUploadExpStart(event)" 
+	fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+	method="POST"
+	useProxy="false">
+  </mx:HTTPService>
+	
 
   <mx:HTTPService  
     id="getRequest" 
@@ -77,6 +90,9 @@
 		public function init(idRequest:Object, requestNumber:Object):void {
 			this.idRequest = idRequest;
 			this.requestNumber = requestNumber;
+			fdtStartButton.enabled = true;
+			fdtProcessButton.enabled = false;
+			saveUUID.text = "";
 			
 			getExperimentUploadURL.send();
 			
@@ -104,6 +120,29 @@
 			}
 		}
 		
+			
+		private function onFdtUploadExpStart(event:ResultEvent):void {
+			if (fdtUploadExpStart.lastResult.name() == "FDTExpUpload") {
+				var uuid:String = fdtUploadExpStart.lastResult.@uuid;
+				saveUUID.text = uuid;
+				fdtStartButton.enabled = false;
+				fdtProcessButton.enabled = true;
+						
+				var url:URLRequest = new URLRequest('FastDataTransferUploadExpGetJnlpServlet.gx');
+				var uv:URLVariables = new URLVariables();
+				uv.uuid = uuid;
+				uv.idRequest = idRequest;
+				url.data = uv;
+				url.method = URLRequestMethod.POST;
+				navigateToURL(url, '_self');				
+				
+				
+			}
+		}
+			
+			
+			
+			
 		public function initializeFileUploadControl(uploadServletURL:String):void{
             
             if (multiFileUpload == null) {
@@ -140,6 +179,7 @@
        		params.showUploads = "Y";
        		getRequest.send(params);       	
        }
+			
        public function onUploadFinished(event:Event):void{
        		refreshUploadFiles();
        }
@@ -448,6 +488,15 @@
 			navigateToURL(url, '_blank');			
 			this.theTab.selectedIndex = 1;
 		}
+			
+		public function startFDTUpload():void {			
+			var params:Object = new Object();
+			params.idRequest = idRequest;
+			getRequest.send(params); 			
+			fdtUploadExpStart.send(params);
+		}
+			
+			
 		
     	]]>
     </mx:Script>	
@@ -461,18 +510,31 @@
 			styleName="instructionBox" visible="{theTab.selectedIndex == 1}" text="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
 		<mx:TabNavigator id="theTab" change="onTabChange()" width="100%" paddingTop="0" height="100%" styleName="form">
 			<mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-			          <mx:HBox  width="100%">
-			              <mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" enabled="false"/>
-			              <mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" enabled="false"/>
-			              <mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
-			              <mx:HBox width="100%"  horizontalAlign="right">
-			                  <mx:VRule height="20"/>
-			                  <mx:LinkButton label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
-			              </mx:HBox>
-			          
-			          </mx:HBox>
-				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
-				</mx:DataGrid>				
+				<mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
+					<mx:VBox width="100%" height="100%">
+						<mx:HBox height="20" width="100%">						
+							<mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline" enabled="false"/>
+							<mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" enabled="false"/>
+							<mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
+							<mx:HBox width="100%"  horizontalAlign="right">
+								<mx:VRule height="20"/>
+								<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+								<mx:LinkButton visible="{parentApplication.isFDTSupported ? true : false}" label="Upload large files." click="uploadFilesStack.selectedIndex=1;" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+							</mx:HBox>			          
+						</mx:HBox>
+						<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
+						</mx:DataGrid>	
+					</mx:VBox>
+					<mx:VBox width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+						<mx:HBox height="20" width="100%"  horizontalAlign="right">
+							<mx:VRule height="20"/>
+							<mx:LinkButton label="Return to regular upload." click="uploadFilesStack.selectedIndex=0;" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+						</mx:HBox>			          
+						<mx:TextArea styleName="instructionBox" width="100%" wordWrap="true" height="100%" id="textarea1" fontSize="12">
+							<mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer (FDT) server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened using Java Web Start (either directly or after first saving<br>         the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files), click the "Process Files"<br>         button.]]></mx:htmlText>
+						</mx:TextArea>							
+					</mx:VBox>
+				</mx:ViewStack>
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
 			    <mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
@@ -526,16 +588,25 @@
 	<mx:ControlBar width="100%">
 	  <mx:ViewStack id="buttonStack" width="100%" selectedIndex="{theTab.selectedIndex}">
 	      <mx:HBox width="100%">
-			 <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
-			 <mx:Button label="Upload files" id="uploadButton"  enabled="false" visible="true" disabledIcon="@Embed(source='../../assets/upload_disable.png')" icon="@Embed(source='../../assets/upload.png')"/>	      	
+			 <mx:ViewStack id="buttonStack_1" width="100%" selectedIndex="{uploadFilesStack.selectedIndex}">
+				 <mx:HBox height="100%" width="100%">
+					 <mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+					 <mx:Button label="Upload files" id="uploadButton"  enabled="false" visible="true" disabledIcon="@Embed(source='../../assets/upload_disable.png')" icon="@Embed(source='../../assets/upload.png')"/>	
+				 </mx:HBox>				 
+				 <mx:HBox height="100%" width="100%">
+					 <mx:Spacer  width="100%" height="10"/>	
+					 <mx:Label id="saveUUID" text=""/>
+					 <mx:Button id="fdtStartButton" label="Start" click="startFDTUpload()"  enabled="true" visible="true"/>	      	
+					 <mx:Button id="fdtProcessButton" label="Process Files" enabled="true" visible="true" />	      	
+				 </mx:HBox>		  			 
+			 </mx:ViewStack>
 	      </mx:HBox>
 	      <mx:HBox width="100%">
 			 <mx:Spacer  width="100%" height="10"/>		
 			 <util:DirtyNote id="dirty"/>
 			 <mx:Button label="Save" id="saveButton"  enabled="true" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')"/>	      	
 			 <mx:Button label="Close" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" />	      	
-	      </mx:HBox>
-	  	
+	      </mx:HBox>  	
 	  </mx:ViewStack>
 	</mx:ControlBar>
 	
