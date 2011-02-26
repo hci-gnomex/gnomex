@@ -30,6 +30,17 @@
 	useProxy="false">
   </mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="fdtUploadExpProcess" 
+		url="FastDataTransferUploadExpProcess.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onFdtUploadExpProcess(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT process', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>	
+	
 
   <mx:HTTPService  
     id="getRequest" 
@@ -135,14 +146,18 @@
 				url.data = uv;
 				url.method = URLRequestMethod.POST;
 				navigateToURL(url, '_self');				
-				
-				
 			}
 		}
 			
+		private function onFdtUploadExpProcess(event:ResultEvent):void {
+			if (fdtUploadExpProcess.lastResult.name() != "SUCCESS") {
+				mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+			} else {
+				refreshUploadFiles();
+			} 	 
+		}
 			
-			
-			
+						
 		public function initializeFileUploadControl(uploadServletURL:String):void{
             
             if (multiFileUpload == null) {
@@ -457,14 +472,6 @@
 	       		downloadTree.selectedItem = dropFolderNode;
        		}
        		
-		    
-		    
-		    
-		    
-		    
-		    
-		    
-		    
 		    event.preventDefault();
 		}
 		
@@ -491,11 +498,16 @@
 			
 		public function startFDTUpload():void {			
 			var params:Object = new Object();
-			params.idRequest = idRequest;
-			getRequest.send(params); 			
+			params.idRequest = idRequest; 			
 			fdtUploadExpStart.send(params);
 		}
-			
+
+		public function processFDTUpload():void {			
+			var params:Object = new Object();
+			params.idRequest = idRequest; 
+			params.uuid = saveUUID.text;
+			fdtUploadExpProcess.send(params);
+		}
 			
 		
     	]]>
@@ -596,8 +608,8 @@
 				 <mx:HBox height="100%" width="100%">
 					 <mx:Spacer  width="100%" height="10"/>	
 					 <mx:Label id="saveUUID" text=""/>
-					 <mx:Button id="fdtStartButton" label="Start" click="startFDTUpload()"  enabled="true" visible="true"/>	      	
-					 <mx:Button id="fdtProcessButton" label="Process Files" enabled="true" visible="true" />	      	
+					 <mx:Button id="fdtStartButton" label="Start" click="startFDTUpload();"  enabled="true" visible="true"/>	      	
+					 <mx:Button id="fdtProcessButton" label="Process Files" click="processFDTUpload();" enabled="true" visible="true" />	      	
 				 </mx:HBox>		  			 
 			 </mx:ViewStack>
 	      </mx:HBox>

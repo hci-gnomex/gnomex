@@ -149,46 +149,66 @@
 	]]>
 </mx:Script>	
 	<mx:XMLListCollection id="files" source="{analysis..AnalysisFileDescriptor}"/>
-	
-	<mx:VDividedBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
-		<mx:VBox width="100%" height="100%" verticalGap="2">
-			<mx:HBox width="100%">
-				<mx:Label text="Files to upload" fontWeight="bold"/>
-				<mx:Spacer width="100%">
-				</mx:Spacer>
-				<mx:LinkButton label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
-			</mx:HBox>
-			<mx:HBox  width="100%">
-				<mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
-				<mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
-				<mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
-				<mx:HBox width="100%"  horizontalAlign="right">
-					<mx:VRule height="20"/>
-					<mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+	<mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
+		<mx:VDividedBox label="Files" width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+			<mx:VBox width="100%" height="100%" verticalGap="2">
+				<mx:HBox width="100%">
+					<mx:Label text="Files to upload" fontWeight="bold"/>
+					<mx:Spacer width="100%">
+					</mx:Spacer>
+					<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+					<mx:LinkButton visible="{parentApplication.isFDTSupported ? true : false}" label="Upload large files." click="uploadFilesStack.selectedIndex=1;" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
 				</mx:HBox>
-				
-			</mx:HBox>
-			<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
-			</mx:DataGrid>				
-			<mx:Spacer  width="100%" height="10"/>		
+				<mx:HBox  width="100%">
+					<mx:LinkButton id="uploadBrowseButton" label="Choose files" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"  toolTip="Choose file(s) to upload"  textDecoration="underline"/>
+					<mx:LinkButton id="uploadDeleteButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline"/>
+					<mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
+					<mx:HBox width="100%"  horizontalAlign="right">
+						<mx:VRule height="20"/>
+						<mx:ProgressBar id="uploadProgressBar"  width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+					</mx:HBox>				
+				</mx:HBox>
+				<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
+				</mx:DataGrid>				
+				<mx:Spacer  width="100%" height="10"/>		
+			</mx:VBox>
+			<mx:VBox width="100%" height="100%" verticalGap="2">
+				<mx:Label text="Uploaded Files" fontWeight="bold"/>
+				<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
+					<mx:columns>
+						<mx:DataGridColumn headerText="" width="5" editable="false" labelFunction="getFilesGridRowNumber"/>
+						<mx:DataGridColumn headerText="File name"  width="80" editable="false" dataField="@displayName"/>
+						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="30" dataField="@lastModifyDateDisplay"/>
+						<mx:DataGridColumn headerText="Comments" width="80" editable="true" dataField="@comments"/>
+						<mx:DataGridColumn dataField="@type"           headerText="Type" width="20" />
+						<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="20"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+		</mx:VDividedBox>
+		<mx:VBox width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:HBox height="20" width="100%"  horizontalAlign="right">
+				<mx:VRule height="20"/>
+				<mx:LinkButton label="Return to regular upload." click="uploadFilesStack.selectedIndex=0;" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
+			</mx:HBox>			          
+			<mx:TextArea styleName="instructionBox" width="100%" wordWrap="true" height="100%" id="textarea1" fontSize="12">
+				<mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer (FDT) server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened using Java Web Start (either directly<br>         or after first saving the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files),<br>         click the "Process Files" button.]]></mx:htmlText>
+			</mx:TextArea>							
 		</mx:VBox>
-		<mx:VBox width="100%" height="100%" verticalGap="2">
-			<mx:Label text="Uploaded Files" fontWeight="bold"/>
-			<mx:DataGrid id="filesGrid"  dataProvider="{files}"  editable="true" width="100%" height="100%">
-				<mx:columns>
-					<mx:DataGridColumn headerText="" width="5" editable="false" labelFunction="getFilesGridRowNumber"/>
-					<mx:DataGridColumn headerText="File name"  width="80" editable="false" dataField="@displayName"/>
-					<mx:DataGridColumn headerText="Upload Date"  editable="false" width="30" dataField="@lastModifyDateDisplay"/>
-					<mx:DataGridColumn headerText="Comments" width="80" editable="true" dataField="@comments"/>
-					<mx:DataGridColumn dataField="@type"           headerText="Type" width="20" />
-					<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="20"/>
-				</mx:columns>
-			</mx:DataGrid>
-		</mx:VBox>
-	</mx:VDividedBox>
+	</mx:ViewStack>
     <mx:ControlBar horizontalCenter="right" horizontalAlign="right">
-		
-		<mx:Button label="Upload files" id="uploadButton" click="initializeFileUploadParameters()" enabled="false" visible="true"/>
-        <mx:Button label="Close" click="onCloseWindow()"/>
+		<mx:ViewStack id="buttonStack_1" width="100%" selectedIndex="{uploadFilesStack.selectedIndex}">
+			<mx:HBox height="100%" width="100%">
+				<mx:Spacer  width="100%" height="10"/>	
+				<mx:Button label="Upload files" id="uploadButton" click="initializeFileUploadParameters()" enabled="false" visible="true"/>
+        		<mx:Button label="Close" click="onCloseWindow()"/>
+			</mx:HBox>				 
+			<mx:HBox height="100%" width="100%">
+				<mx:Spacer  width="100%" height="10"/>	
+				<mx:Label id="saveUUID" text=""/>
+				<mx:Button id="fdtStartButton" label="Start" enabled="true" visible="true"/>	      	
+				<mx:Button id="fdtProcessButton" label="Process Files" enabled="true" visible="true" />	      	
+			</mx:HBox>		  			 
+		</mx:ViewStack>
 	</mx:ControlBar>
 </mx:TitleWindow>

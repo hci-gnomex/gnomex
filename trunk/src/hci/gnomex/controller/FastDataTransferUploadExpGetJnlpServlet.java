@@ -100,10 +100,10 @@ public class FastDataTransferUploadExpGetJnlpServlet extends HttpServlet {
 		        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 		        String createYear = formatter.format(request.getCreateDate());
 		        
-				String softLinksPath = PropertyHelper.getInstance(sess).getFastDataTransferDirectory(req.getServerName())+uuid			
-				+ System.getProperty("file.separator") + createYear
-				+ System.getProperty("file.separator") + request.getNumber()
-				+ System.getProperty("file.separator") + Constants.UPLOAD_STAGING_DIR;			        
+				String softLinksPath = PropertyHelper.getInstance(sess).getFastDataTransferDirectory(req.getServerName())+uuid;		
+				//+ System.getProperty("file.separator") + createYear
+				//+ System.getProperty("file.separator") + request.getNumber()
+				//+ System.getProperty("file.separator") + Constants.UPLOAD_STAGING_DIR;			        
 		        
 				
 				DictionaryHelper dh = DictionaryHelper.getInstance(sess);
