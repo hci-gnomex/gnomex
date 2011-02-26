@@ -63,16 +63,41 @@ public class FastDataTransferUploadExpStart extends GNomExCommand implements Ser
         	        
 	        UUID uuid = UUID.randomUUID();
 			String uuidStr = uuid.toString();
-	        
-			String softlinks_dir = PropertyHelper.getInstance(sess).getSoftLinksDirectory(serverName)+uuidStr			
-									+ System.getProperty("file.separator") + createYear
-									+ System.getProperty("file.separator") + request.getNumber()
-									+ System.getProperty("file.separator") + Constants.UPLOAD_STAGING_DIR;	
+			
+			// Directories must be created one level at a time so that permissions will be set properly in Linux			
+			String softlinks_dir = PropertyHelper.getInstance(sess).getSoftLinksDirectory(serverName)+uuidStr;				
+			
 			File dir = new File(softlinks_dir);
-		    boolean isDirCreated = dir.mkdirs();  
+		    boolean isDirCreated = dir.mkdir();  
 			if (!isDirCreated) {
 				this.addInvalidField("Error.", "Unable to create " + softlinks_dir + " directory.");		
 			}	        
+			dir.setWritable(true, false);
+			/*
+			softlinks_dir = softlinks_dir + System.getProperty("file.separator") + createYear;
+			dir = new File(softlinks_dir);
+		    isDirCreated = dir.mkdir();  
+			if (!isDirCreated) {
+				this.addInvalidField("Error.", "Unable to create " + softlinks_dir + " directory.");		
+			}	        
+			dir.setWritable(true, false);
+			
+			softlinks_dir = softlinks_dir + System.getProperty("file.separator") + request.getNumber();
+			dir = new File(softlinks_dir);
+		    isDirCreated = dir.mkdir();  
+			if (!isDirCreated) {
+				this.addInvalidField("Error.", "Unable to create " + softlinks_dir + " directory.");		
+			}	        
+			dir.setWritable(true, false);
+			
+			softlinks_dir = softlinks_dir + System.getProperty("file.separator") + System.getProperty("file.separator") + Constants.UPLOAD_STAGING_DIR;
+			dir = new File(softlinks_dir);
+		    isDirCreated = dir.mkdir();  
+			if (!isDirCreated) {
+				this.addInvalidField("Error.", "Unable to create " + softlinks_dir + " directory.");		
+			}	        
+			dir.setWritable(true, false);	
+			*/		
 			
 	        this.xmlResult = "<FDTExpUpload uuid='" + uuidStr + "'/>";
 	        
