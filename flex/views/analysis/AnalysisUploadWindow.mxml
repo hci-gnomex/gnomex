@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				close="onCloseWindow()"
+				close="onCloseWindow()" creationPolicy="all"
 				layout="absolute" width="704" height="396" title="Upload Analysis Files">
 
 	<mx:HTTPService  
@@ -13,7 +13,29 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService>
+		
+	<mx:HTTPService  
+		id="fdtUploadStart" 
+		url="FastDataTransferUploadStart.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onFdtUploadStart(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
 	
+	<mx:HTTPService
+		id="fdtUploadAnalysisProcess" 
+		url="FastDataTransferUploadAnalysisProcess.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onFdtUploadAnalysisProcess(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT process', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>	
+		
 <mx:Script>
 	<![CDATA[
 		import mx.collections.XMLListCollection;
@@ -40,13 +62,16 @@
 			this.analysisEditView = analysisEditView;
 			this.analysis = analysis;
 			this.getAnalysisUploadURL.send();
-			
+			fdtStartButton.enabled = true;
+			fdtProcessButton.enabled = false;			
 		}
 		
 		public function initFromDetail(analysisDetailView:AnalysisDetailView, analysis:Object):void {
 			this.analysisDetailView = analysisDetailView;
 			this.analysis = analysis;
 			this.getAnalysisUploadURL.send();
+			fdtStartButton.enabled = true;
+			fdtProcessButton.enabled = false;
 		}
 		
 		private function onGetAnalysisUploadURL(event:ResultEvent):void {
@@ -56,25 +81,66 @@
 			}
 		}
 		
+		private function onFdtUploadStart(event:ResultEvent):void {
+			if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+				var uuid:String = fdtUploadStart.lastResult.@uuid;
+				saveUUID.text = uuid;
+				fdtStartButton.enabled = false;
+				fdtProcessButton.enabled = true;
+				
+				var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+				var uv:URLVariables = new URLVariables();
+				uv.uuid = uuid;
+				url.data = uv;
+				url.method = URLRequestMethod.POST;
+				navigateToURL(url, '_self');				
+			}
+		}
+		
+		private function onFdtUploadAnalysisProcess(event:ResultEvent):void {
+			if (fdtUploadAnalysisProcess.lastResult.name() != "SUCCESS") {
+				mx.controls.Alert.show(fdtUploadAnalysisProcess.lastResult..ACTMESSAGE.@TEXT);
+			} else {
+				onUploadFinished(null);
+			} 	 
+		}	
+		
+		public function refreshAnalysis(updAnalysis:Object):void {
+			analysis = updAnalysis;
+			// Lines below force a refresh of the grid
+			filesGrid.dataProvider = null;
+			files.source = null;
+			files.source = analysis..AnalysisFileDescriptor;
+			filesGrid.dataProvider = files;
+
+			uploadFilesStack.selectedIndex=0;
+		}
+		
+		
 		private function onCloseWindow():void {
 			if (uploadButton.enabled) {
 				promptToCloseOnUploadPending();
 			}else {
+				clearUploadWindowVar();
 				PopUpManager.removePopUp(this);
 			}
 		}
+		
 		private function promptToCloseOnUploadPending():void {
 			Alert.show( "Some analysis files have not been uploaded. Close window anyways?",
 				"Warning",
 				(Alert.YES | Alert.NO), this, 
 				onPromptToClose,						
 				parentApplication.iconWarning);
-		}		
+		}
+		
 		private function onPromptToClose(event:CloseEvent):void {
 			if (event.detail==Alert.YES) {
+				clearUploadWindowVar();
 				PopUpManager.removePopUp(this);
 			}
-		}			
+		}	
+		
 		public function initializeFileUploadControl(uploadServletURL:String):void{
 			
 			if (multiFileUpload == null) {
@@ -130,7 +196,15 @@
 				analysisDetailView.refreshSavedAnalysis(analysis.@idAnalysis);
 			}
 			
-		}	
+		}
+		
+		private function clearUploadWindowVar():void {
+			if (analysisEditView != null) {
+				analysisEditView.clearUploadWindowVar();				
+			} else if (analysisDetailView != null) {
+				analysisDetailView.clearUploadWindowVar();	
+			}			
+		}
 		
 		public function onChooseFileToUpload(event:Event):void {
 		}
@@ -143,9 +217,23 @@
 		
 		public function showHTMLUploadForm():void {
 			var url:URLRequest = new URLRequest('uploadAnalysisFile.jsp?analysisNumber=' + this.analysis.@number + '&analysisName=' + this.analysis.@name);
-			navigateToURL(url, '_blank');			
+			navigateToURL(url, '_blank');	
+			clearUploadWindowVar();
 			PopUpManager.removePopUp(this);
 		}
+		
+		public function startFDTUpload():void {			
+			var params:Object = new Object();			
+			fdtUploadStart.send();
+		}
+		
+		public function processFDTUpload():void {			
+			var params:Object = new Object();
+			params.idAnalysis = analysis.@idAnalysis.toString(); 
+			params.uuid = saveUUID.text;
+			fdtUploadAnalysisProcess.send(params);
+		}		
+		
 	]]>
 </mx:Script>	
 	<mx:XMLListCollection id="files" source="{analysis..AnalysisFileDescriptor}"/>
@@ -206,8 +294,9 @@
 			<mx:HBox height="100%" width="100%">
 				<mx:Spacer  width="100%" height="10"/>	
 				<mx:Label id="saveUUID" text=""/>
-				<mx:Button id="fdtStartButton" label="Start" enabled="true" visible="true"/>	      	
-				<mx:Button id="fdtProcessButton" label="Process Files" enabled="true" visible="true" />	      	
+				<mx:Button id="fdtStartButton" label="Start" click="startFDTUpload();"  enabled="true" visible="true"/>	      	
+				<mx:Button id="fdtProcessButton" label="Process Files" click="processFDTUpload();" enabled="true" visible="true" />	 
+				<mx:Button label="Close" click="onCloseWindow()"/>
 			</mx:HBox>		  			 
 		</mx:ViewStack>
 	</mx:ControlBar>

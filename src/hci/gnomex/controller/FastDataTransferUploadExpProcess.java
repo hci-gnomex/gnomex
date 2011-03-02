@@ -2,13 +2,8 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
-import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Price;
 import hci.gnomex.model.Request;
-import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyHelper;
 
@@ -18,21 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.channels.FileChannel;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 
 public class FastDataTransferUploadExpProcess extends GNomExCommand implements Serializable {
@@ -83,22 +69,26 @@ public class FastDataTransferUploadExpProcess extends GNomExCommand implements S
 			// Set up folder (and any necessary parent folders) that files will be moved to
 			String baseDir = dh.getMicroarrayDirectoryForWriting(serverName) + createYear;
 			if (!new File(baseDir).exists()) {
-				boolean success = (new File(baseDir)).mkdir();
+				File dir = new File(baseDir);
+				boolean success = dir.mkdir();
 				if (!success) {
 		            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
 		            setResponsePage(this.ERROR_JSP); 					
 					return this;
-				}      
+				} 
+				dir.setWritable(true, false);
 			}
 
 			String directoryName = baseDir + System.getProperty("file.separator") + request.getNumber();
 			if (!new File(directoryName).exists()) {
-				boolean success = (new File(directoryName)).mkdir();
+				File dir = new File(directoryName);
+				boolean success = dir.mkdir();
 				if (!success) {
 		            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
 		            setResponsePage(this.ERROR_JSP); 					
 					return this;
-				}      
+				}   
+				dir.setWritable(true, false);
 			}
 
 			directoryName += System.getProperty("file.separator") + Constants.UPLOAD_STAGING_DIR;
@@ -109,7 +99,8 @@ public class FastDataTransferUploadExpProcess extends GNomExCommand implements S
 		            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
 		            setResponsePage(this.ERROR_JSP); 					
 					return this;
-				}      
+				} 
+				fDest.setWritable(true, false);
 			}			
 
 			moveFiles(softlinks_dir+System.getProperty("file.separator"), directoryName+System.getProperty("file.separator"));		
@@ -142,13 +133,32 @@ public class FastDataTransferUploadExpProcess extends GNomExCommand implements S
 	public void moveFiles(String source, String destination) throws IOException {  
 		File srcDir = new File(source);  
 		File[] files = srcDir.listFiles();  
+		FileChannel in = null;  
+		FileChannel out = null; 
 		
 		for (File file : files) {
-			String thisSourceFilePath = source + file.getName();
 			String thisDestFilePath = destination + file.getName();
-			new File(thisSourceFilePath).renameTo(new File(thisDestFilePath));
+			File toFile = new File(thisDestFilePath);
+			if(!file.renameTo(toFile)) {
+				// If move doesn't work then do a copy/delete
+				try {  
+					in = new FileInputStream(file).getChannel();  
+					File outFile = new File(destination, file.getName());  
+					out = new FileOutputStream(outFile).getChannel(); 
+					in.transferTo(0, in.size(), out);
+					in.close();
+					in = null;
+					out.close();
+					out = null;	
+					file.delete();
+				} finally {  
+					if (in != null)  
+						in.close();  
+					if (out != null)  
+						out.close();  
+				}				
+			}
 		}
 		srcDir.delete();
 	} 	
-
 }

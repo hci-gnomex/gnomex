@@ -78,6 +78,14 @@
 	
 
 	<servlet>
+		<servlet-name>FastDataTransferUploadGetJnlpServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.FastDataTransferUploadGetJnlpServlet
+		</servlet-class>
+	</servlet>
+	
+
+	<servlet>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.DownloadSingleFileServlet
@@ -185,6 +193,12 @@
 		<servlet-name>FastDataTransferDownloadAnalysisServlet</servlet-name>
 		<url-pattern>FastDataTransferDownloadAnalysisServlet.gx</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>FastDataTransferUploadGetJnlpServlet</servlet-name>
+		<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>
+	</servlet-mapping>
+	
 
 	<servlet-mapping>
 		<servlet-name>DownloadSingleFileServlet</servlet-name>

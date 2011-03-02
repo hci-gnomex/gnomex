@@ -20,26 +20,26 @@
 	
 	
   <mx:HTTPService  
-    id="fdtUploadExpStart" 
-	url="FastDataTransferUploadExpStart.gx"
+    id="fdtUploadStart" 
+	url="FastDataTransferUploadStart.gx"
 	resultFormat="e4x"
 	showBusyCursor="true" 
-	result="onFdtUploadExpStart(event)" 
+	result="onFdtUploadStart(event)" 
 	fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
 	method="POST"
 	useProxy="false">
   </mx:HTTPService>
 	
-	<mx:HTTPService  
-		id="fdtUploadExpProcess" 
-		url="FastDataTransferUploadExpProcess.gx"
-		resultFormat="e4x"
-		showBusyCursor="true" 
-		result="onFdtUploadExpProcess(event)" 
-		fault="parentApplication.onFailHttpRequest('Failed to start FDT process', event)"
-		method="POST"
-		useProxy="false">
-	</mx:HTTPService>	
+  <mx:HTTPService
+    id="fdtUploadExpProcess" 
+	url="FastDataTransferUploadExpProcess.gx"
+	resultFormat="e4x"
+	showBusyCursor="true" 
+	result="onFdtUploadExpProcess(event)" 
+	fault="parentApplication.onFailHttpRequest('Failed to start FDT process', event)"
+	method="POST"
+	useProxy="false">
+  </mx:HTTPService>	
 	
 
   <mx:HTTPService  
@@ -132,17 +132,16 @@
 		}
 		
 			
-		private function onFdtUploadExpStart(event:ResultEvent):void {
-			if (fdtUploadExpStart.lastResult.name() == "FDTExpUpload") {
-				var uuid:String = fdtUploadExpStart.lastResult.@uuid;
+		private function onFdtUploadStart(event:ResultEvent):void {
+			if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+				var uuid:String = fdtUploadStart.lastResult.@uuid;
 				saveUUID.text = uuid;
 				fdtStartButton.enabled = false;
 				fdtProcessButton.enabled = true;
 						
-				var url:URLRequest = new URLRequest('FastDataTransferUploadExpGetJnlpServlet.gx');
+				var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
 				var uv:URLVariables = new URLVariables();
 				uv.uuid = uuid;
-				uv.idRequest = idRequest;
 				url.data = uv;
 				url.method = URLRequestMethod.POST;
 				navigateToURL(url, '_self');				
@@ -151,7 +150,7 @@
 			
 		private function onFdtUploadExpProcess(event:ResultEvent):void {
 			if (fdtUploadExpProcess.lastResult.name() != "SUCCESS") {
-				mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+				mx.controls.Alert.show(fdtUploadExpProcess.lastResult..ACTMESSAGE.@TEXT);
 			} else {
 				refreshUploadFiles();
 			} 	 
@@ -497,9 +496,8 @@
 		}
 			
 		public function startFDTUpload():void {			
-			var params:Object = new Object();
-			params.idRequest = idRequest; 			
-			fdtUploadExpStart.send(params);
+			var params:Object = new Object();		
+			fdtUploadStart.send();
 		}
 
 		public function processFDTUpload():void {			

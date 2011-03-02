@@ -681,6 +681,7 @@
 			} else {
 			    theViews.selectedChild = detailView;				
 				detailView.setupForm();
+				detailView.updateUploadFormAnalysisObj();
 			}
 
 			if (selectedAnalysis.@canDelete == "Y") {

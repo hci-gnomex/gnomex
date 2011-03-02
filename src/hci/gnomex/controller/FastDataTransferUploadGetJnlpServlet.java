@@ -3,23 +3,14 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FileDescriptor;
-import hci.gnomex.utility.FileDescriptorParser;
 import hci.gnomex.utility.PropertyHelper;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -28,20 +19,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
 
 
-public class FastDataTransferUploadExpGetJnlpServlet extends HttpServlet {
+public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadExpGetJnlpServlet.class);
-
-	//private ArchiveHelper archiveHelper = new ArchiveHelper();
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadGetJnlpServlet.class);
 
 	private String serverName = "";
 
@@ -61,15 +48,6 @@ public class FastDataTransferUploadExpGetJnlpServlet extends HttpServlet {
 			showError(response, "Missing UUID parameter.");
 			return;			
 		}
-		Integer idRequest = null;
-		if (req.getParameter("idRequest") != null && !req.getParameter("idRequest").equals("")) {
-			idRequest = new Integer(req.getParameter("idRequest"));
-		}
-		if (idRequest == null) {
-			showError(response, "Missing idRequest parameter.");
-			return;			
-		}
-
 
 		// restrict commands to local host if request is not secure
 		if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -95,16 +73,9 @@ public class FastDataTransferUploadExpGetJnlpServlet extends HttpServlet {
 			if (secAdvisor != null) {
 
 				Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
-				
-		        Request request = (Request)sess.get(Request.class, idRequest);
-		        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-		        String createYear = formatter.format(request.getCreateDate());
 		        
 				String softLinksPath = PropertyHelper.getInstance(sess).getFastDataTransferDirectory(req.getServerName())+uuid;		
-				//+ System.getProperty("file.separator") + createYear
-				//+ System.getProperty("file.separator") + request.getNumber()
-				//+ System.getProperty("file.separator") + Constants.UPLOAD_STAGING_DIR;			        
-		        
+		        		        
 				
 				DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 				
@@ -127,8 +98,7 @@ public class FastDataTransferUploadExpGetJnlpServlet extends HttpServlet {
 					out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 					out.println("<jnlp spec=\"1.0\"");
 					String codebase_param = PropertyHelper.getInstance(sess).getFastDataTransferCodebaseParam(req.getServerName());
-					out.println("codebase=\""+codebase_param+"\"");
-					out.println("href=\"upLoad.jnlp\">");
+					out.println("codebase=\""+codebase_param+"\">");
 					out.println("<information>");
 					out.println("<title>FDT GUI</title>");
 					out.println("<vendor>Sun Microsystems, Inc.</vendor>");
@@ -178,14 +148,4 @@ public class FastDataTransferUploadExpGetJnlpServlet extends HttpServlet {
 		response.getOutputStream().println("</html>");
 
 	}
-
-	public static Request findRequest(Session sess, String requestNumber) {
-		Request request = null;
-		List requests = sess.createQuery("SELECT req from Request req where req.number = '" + requestNumber + "'").list();
-		if (requests.size() == 1) {
-			request = (Request)requests.get(0);
-		}
-		return request;    
-	}
-
 }

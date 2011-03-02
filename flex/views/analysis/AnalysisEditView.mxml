@@ -138,6 +138,8 @@
 		
 		private var pasteCommand:Boolean = false; 
 		
+		private var uploadWindow:AnalysisUploadWindow = null;
+		
         private function onCloseWindow():void {
         	if (dirty.isDirty()) {
         		promptToCloseOnDirty();
@@ -491,6 +493,9 @@
 			analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).ExpandedAnalysisFileList;
 			files.source = analysis..AnalysisFileDescriptor;
 			filesToDelete.removeAll();
+			if(uploadWindow != null) {
+				uploadWindow.refreshAnalysis(this.analysis);
+			}
 		}
 		        
         private function validateAndSubmitAnalysis():void {        	
@@ -744,11 +749,14 @@
 		}
 		
 		private function showUploadWindow():void {
-			var uploadWindow:AnalysisUploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
+			uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
 			PopUpManager.centerPopUp(uploadWindow);
 			uploadWindow.initFromEdit(this, this.analysis);
 		}
-
+		
+		public function clearUploadWindowVar():void {
+			uploadWindow = null;
+		}
 		
 		private function refreshAnalysis():void {
 			// refresh analysis
