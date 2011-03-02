@@ -167,13 +167,14 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 						
 						if(softlinks_dir.length() == 0) {							
 							softlinks_dir = PropertyHelper.getInstance(sess).getSoftLinksDirectory(req.getServerName())+uuid.toString();
-
-							boolean success = (new File(softlinks_dir)).mkdir();
+							File dir = new File(softlinks_dir);
+							boolean success = dir.mkdir();
 							if (!success) {
 								response.setStatus(999);
 								System.out.println("Error. Unable to create softlinks directory.");
 								return;
 							}
+							dir.setWritable(true, false);
 							softlinks_dir = softlinks_dir + System.getProperty("file.separator");
 						}
 						
@@ -221,8 +222,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 					out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 					out.println("<jnlp spec=\"1.0\"");
 					String codebase_param = PropertyHelper.getInstance(sess).getFastDataTransferCodebaseParam(req.getServerName());
-					out.println("codebase=\""+codebase_param+"\"");
-					out.println("href=\"downLoad.jnlp\">");
+					out.println("codebase=\""+codebase_param+"\">");
 					out.println("<information>");
 					out.println("<title>FDT GUI</title>");
 					out.println("<vendor>Sun Microsystems, Inc.</vendor>");

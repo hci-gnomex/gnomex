@@ -22,18 +22,20 @@
   
 <mx:Script>
 	<![CDATA[
-		import mx.managers.PopUpManager;
-		import mx.events.CloseEvent;
-		import mx.controls.Alert;
-		import views.analysis.AnalysisEditView;
+		import hci.flex.controls.CheckBox;
 		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
 		import mx.core.IFlexDisplayObject;
+		import mx.events.CloseEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.analysis.AnalysisEditView;
+		import views.experiment.DownloadProgressView;
 		import views.util.DownloadHints;
-	    import hci.flex.controls.CheckBox;
-    	import mx.rpc.events.ResultEvent;
-    	import mx.collections.XMLListCollection;
-    	import views.util.FileUtil;
-    	import views.experiment.DownloadProgressView;
+		import views.util.FileUtil;
 		
 	
 		[Bindable]
@@ -56,6 +58,8 @@
 	    private var selectedFileList:XMLListCollection;
 	    
 	    private var estimatedDownloadSize:Number;
+		
+		private var uploadWindow:AnalysisUploadWindow = null;
 
 		public function checkSecurity():void {
 			if (parentApplication.isGuestMode()) {
@@ -145,9 +149,13 @@
 		
 		
 		private function showUploadWindow():void {
-			var uploadWindow:AnalysisUploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
+			uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
 			PopUpManager.centerPopUp(uploadWindow);
 			uploadWindow.initFromDetail(this, parentDocument.selectedAnalysis);
+		}
+		
+		public function clearUploadWindowVar():void {
+			uploadWindow = null;
 		}
 
 		
@@ -157,7 +165,12 @@
 			parms.idAnalysis = parentDocument.selectedIdAnalysis;
 			parentDocument.getAnalysis.send(parms);
 		}
-
+		
+		public function updateUploadFormAnalysisObj():void {
+			if(uploadWindow != null) {
+				uploadWindow.refreshAnalysis(parentDocument.selectedAnalysis);
+			}
+		}
 
    	 	private function getLanesGridRowNumber(item:Object,col:int):String
 	    {
