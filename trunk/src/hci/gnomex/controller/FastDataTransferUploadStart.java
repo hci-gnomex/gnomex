@@ -43,7 +43,16 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       if (!isDirCreated) {
         this.addInvalidField("Error.", "Unable to create " + softlinks_dir + " directory.");		
       }	        
-      dir.setWritable(true, false);
+
+      // change ownership to fdt
+      Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
+      process.waitFor();
+      process.destroy();        
+      // only fdt user (and root) can read and write to this directory
+      process = Runtime.getRuntime().exec( new String[] { "chmod", "700", softlinks_dir } );          
+      process.waitFor();
+      process.destroy();        
+      
 
       this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + "'/>";
 

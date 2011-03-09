@@ -173,6 +173,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
             }
 
 
+            // Make softlinks dir
             if(softlinks_dir.length() == 0) {							
               softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(req.getServerName())+uuid.toString();
               File dir = new File(softlinks_dir);
@@ -182,7 +183,14 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
                 System.out.println("Error. Unable to create softlinks directory.");
                 return;
               } 
-              dir.setWritable(true, false);
+              // change ownership to fdt
+              Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
+              process.waitFor();
+              process.destroy();        
+              // only fdt user (and root) can read from this directory
+              process = Runtime.getRuntime().exec( new String[] { "chmod", "500", softlinks_dir } );          
+              process.waitFor();
+              process.destroy();        
             }
 
 
