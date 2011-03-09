@@ -3,8 +3,12 @@
 5.0.9.6 (Feb 20, 2011)
 ----------------------
 - Introduced Robb's PropertyHelper code for getting Experiment, Analysis, and Flowcell directories
-- Fixed code that was removing anlaysis from file system by adding file separator between base directory and year.
-
+- Fixed code that was removing analysis from file system by adding file separator between base directory and year.
+- Refinements to FDT uploads and downloads.  Require authentication for upload servlets.  
+- Get rid of unused FastDataTransferServlet.java.  
+- Rename fdt properties.  
+- Launch upload from main analysis and experiment windows rather than side link on upload popup window.
+- Fix bug in download zip that was causing extra "blank" directory because of // in zip entry
 
 5.0.9.5 (Feb 15, 2011)
 ----------------------
