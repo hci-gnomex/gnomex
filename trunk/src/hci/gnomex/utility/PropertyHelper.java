@@ -25,80 +25,80 @@ public class PropertyHelper implements Serializable {
   private static final String    PROPERTY_ANALYSIS_READ_DIRECTORY             = "analysis_read_directory";
   private static final String    PROPERTY_ANALYSIS_WRITE_DIRECTORY            = "analysis_write_directory";
   private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
-  private static final String    PROPERTY_SOFTLINKS_DIRECTORY                 = "softlinks_directory";
-  private static final String    PROPERTY_FAST_DATA_TRANSFER_DIRECTORY        = "fast_data_transfer_directory";
-  private static final String    PROPERTY_FAST_DATA_TRANSFER_CODEBASE_PARAM   = "fast_data_transfer_codebase_param";
-  private static final String    PROPERTY_FAST_DATA_TRANSFER_ARGUMENT_PARAM   = "fast_data_transfer_argument_param";
+  private static final String    PROPERTY_FDT_DIRECTORY_GNOMEX                = "fdt_directory_gnomex";
+  private static final String    PROPERTY_FDT_DIRECTORY                       = "fdt_directory";
+  private static final String    PROPERTY_FDT_CLIENT_CODEBASE                 = "fdt_client_codebase";
+  private static final String    PROPERTY_FDT_SERVER_NAME                     = "fdt_server_name";
 
   
   public PropertyHelper() {    
   }
 
-  public String getSoftLinksDirectory(String serverName) {
+  public String getFDTDirectoryForGNomEx(String serverName) {
 	  String property = "";
 	  String propertyName = null;
 
 	  // First use the property qualified by server name.  If
 	  // it isn't found, get the property without any qualification.   
-	  propertyName = PROPERTY_SOFTLINKS_DIRECTORY + "_" + serverName;
+	  propertyName = PROPERTY_FDT_DIRECTORY_GNOMEX + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
 		  property = this.getPropertyPartialMatch(propertyName);
 		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_SOFTLINKS_DIRECTORY;
+			  propertyName = PROPERTY_FDT_DIRECTORY_GNOMEX;
 			  property = this.getProperty(propertyName);			  
 		  }
 	  }
 	  return property;
   }
   
-  public String getFastDataTransferDirectory(String serverName) {
+  public String GetFDTDirectory(String serverName) {
 	  String property = "";
 	  String propertyName = null;
 
 	  // First use the property qualified by server name.  If
 	  // it isn't found, get the property without any qualification.   
-	  propertyName = PROPERTY_FAST_DATA_TRANSFER_DIRECTORY + "_" + serverName;
+	  propertyName = PROPERTY_FDT_DIRECTORY + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
 		  property = this.getPropertyPartialMatch(propertyName);
 		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FAST_DATA_TRANSFER_DIRECTORY;
+			  propertyName = PROPERTY_FDT_DIRECTORY;
 			  property = this.getProperty(propertyName);
 		  }
 	  }
 	  return property;
   }
-  public String getFastDataTransferCodebaseParam(String serverName) {
+  public String getFDTClientCodebase(String serverName) {
 	  String property = "";
 	  String propertyName = null;
 
 	  // First use the property qualified by server name.  If
 	  // it isn't found, get the property without any qualification.   
-	  propertyName = PROPERTY_FAST_DATA_TRANSFER_CODEBASE_PARAM + "_" + serverName;
+	  propertyName = PROPERTY_FDT_CLIENT_CODEBASE + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
 		  property = this.getPropertyPartialMatch(propertyName);
 		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FAST_DATA_TRANSFER_CODEBASE_PARAM;
+			  propertyName = PROPERTY_FDT_CLIENT_CODEBASE;
 			  property = this.getProperty(propertyName);
 		  }
 	  }
 	  return property;
   }
   
-  public String getFastDataTransferArgumentParam(String serverName) {
+  public String getFDTServerName(String serverName) {
 	  String property = "";
 	  String propertyName = null;
 
 	  // First use the property qualified by server name.  If
 	  // it isn't found, get the property without any qualification.   
-	  propertyName = PROPERTY_FAST_DATA_TRANSFER_ARGUMENT_PARAM + "_" + serverName;
+	  propertyName = PROPERTY_FDT_SERVER_NAME + "_" + serverName;
 	  property = this.getProperty(propertyName);
 	  if (property == null || property.equals("")) {  
 		  property = this.getPropertyPartialMatch(propertyName);
 		  if (property == null || property.equals("")) {  
-			  propertyName = PROPERTY_FAST_DATA_TRANSFER_ARGUMENT_PARAM;
+			  propertyName = PROPERTY_FDT_SERVER_NAME;
 			  property = this.getProperty(propertyName);
 		  }
 	  }

@@ -153,7 +153,14 @@
 			PopUpManager.centerPopUp(uploadWindow);
 			uploadWindow.initFromDetail(this, parentDocument.selectedAnalysis);
 		}
-		
+
+		private function showUploadFDTWindow():void {
+			uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.initFromDetail(this, parentDocument.selectedAnalysis);
+			uploadWindow.uploadFilesStack.selectedIndex = 1;
+		}
+
 		public function clearUploadWindowVar():void {
 			uploadWindow = null;
 		}
@@ -462,12 +469,14 @@
 				
 		    
 			<mx:VBox id="filesView"  label="Files" width="100%" height="100%" verticalGap="0" paddingTop="0" >
-			    <mx:ViewStack id="selectAllStack" width="100" paddingBottom="0" paddingTop="0">
+			    <mx:ViewStack id="selectAllStack" width="300" paddingBottom="0" paddingTop="0">
 				    <mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
 			   		    <mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAllDownloads()"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
+						<mx:LinkButton  label="Downloading help" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>
 				    </mx:HBox>
 				    <mx:HBox width="100%" paddingBottom="0" paddingTop="0">
 			   		    <mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAllDownloads()"  paddingTop="0" paddingBottom="0"/>
+						<mx:LinkButton  label="Downloading help" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>
 				    </mx:HBox>			    	
 			    </mx:ViewStack>
 				<mx:DataGrid id="filesGrid" dataProvider="{analysisFiles}" width="100%" height="100%">
@@ -516,6 +525,10 @@
 					<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 					<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>				
+				<mx:LinkButton label="Upload files - FDT" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline">
+					<mx:height>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? 22 : 0}</mx:height>
+					<mx:visible>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? true : false}</mx:visible>
+				</mx:LinkButton>				
 			</mx:HBox>
         	<mx:HBox horizontalGap="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
 				    <mx:Button id="downloadFilesButton" 
@@ -526,9 +539,6 @@
 				    	visible="true"/>
 					<mx:LinkButton visible="{parentApplication.isFDTSupported ? true : false}" label="Download - Fast Data Transfer" textDecoration="underline" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
 				    <mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-					<mx:VBox styleName="hintBox">
-					    <mx:LinkButton  label="Downloading help" textDecoration="underline" click="showDownloadHints()" styleName="hintLink" icon="@Embed(source='../../assets/information.png')"/>
-				    </mx:VBox>
 		    		<mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
 	    	    		<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 	        			<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
@@ -537,6 +547,10 @@
 						<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 						<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 					</mx:LinkButton>				
+				<mx:LinkButton label="Upload files - FDT" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline">
+					<mx:height>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? 22 : 0}</mx:height>
+					<mx:visible>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? true : false}</mx:visible>
+				</mx:LinkButton>				
 	
 			</mx:HBox>
 

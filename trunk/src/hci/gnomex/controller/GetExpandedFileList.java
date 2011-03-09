@@ -285,6 +285,9 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
           zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");
         } else {
           zipEntryName = fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
+          if (zipEntryName.startsWith("/")) {
+            zipEntryName = zipEntryName.substring(1);
+          }
         }
         
         if (f1.isDirectory()) {
