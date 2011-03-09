@@ -3410,7 +3410,14 @@
 			uploadWindow.init(idRequest, requestNumber);
     		
     	}
-    	
+
+		public static function showExperimentUploadFDTWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.init(idRequest, requestNumber);
+			uploadWindow.uploadFilesStack.selectedIndex = 1;
+		}
+
     	public function showSampleBarcodes():Boolean {
     		var show:Boolean = false;
     		if (this.isSolexaState()) {
@@ -3587,7 +3594,8 @@
 			    	</mx:LinkButton>
    		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" paddingRight="0">    	        
 			    	</mx:LinkButton>
-			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" paddingRight="0"/>
+			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')"/>
+					<mx:LinkButton label="Upload files - FDT" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')"/>
 			    </mx:HBox>
 	 	        <util:DirtyNote id="dirty"  />
  				<mx:Button id="saveButton" label="Save" 
@@ -3752,6 +3760,7 @@
     		<mx:SetProperty target="{hbox6}" name="width" value="100%"/>
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
     		<mx:SetStyle target="{linkbutton1}" name="fontSize" value="9"/>
+			<mx:SetStyle target="{uploadFDTLink}" name="fontSize" value="9"/>
     		<mx:SetStyle target="{linkbutton3}" name="fontSize" value="9"/>
     		<mx:SetStyle target="{linkbutton2}" name="fontSize" value="9"/>
     		<mx:SetStyle target="{analysisButton}" name="fontSize" value="9"/>

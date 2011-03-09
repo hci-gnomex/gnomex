@@ -753,7 +753,14 @@
 			PopUpManager.centerPopUp(uploadWindow);
 			uploadWindow.initFromEdit(this, this.analysis);
 		}
-		
+
+		private function showUploadFDTWindow():void {
+			uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.initFromEdit(this, this.analysis);
+			uploadWindow.uploadFilesStack.selectedIndex = 1;
+		}
+
 		public function clearUploadWindowVar():void {
 			uploadWindow = null;
 		}
@@ -1113,6 +1120,8 @@
 	        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
         	</mx:LinkButton>
 			<mx:LinkButton label="Upload files" click="showUploadWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')">    	        
+			</mx:LinkButton>
+			<mx:LinkButton label="Upload files - FDT" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" visible="{parentApplication.isFDTSupported}" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')">    	        
 			</mx:LinkButton>
 	        <mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()"/>
         </mx:HBox>

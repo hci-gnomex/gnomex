@@ -308,8 +308,10 @@
 			<url-pattern>UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>			
-			<url-pattern>FastDataTransferExpDownload.gx</url-pattern>
-			<url-pattern>FastDataTransferAnalysisDownload.gx</url-pattern>
+			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>
+			<url-pattern>FastDataTransferUploadStart.gx</url-pattern>
+			<url-pattern>FastDataTransferUploadAnalysisProcess.gx</url-pattern>
+			<url-pattern>FastDataTransferUploadExpProcess.gx</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>

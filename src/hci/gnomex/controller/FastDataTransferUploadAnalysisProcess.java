@@ -41,157 +41,156 @@ import org.jdom.output.XMLOutputter;
 
 public class FastDataTransferUploadAnalysisProcess extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadAnalysisProcess.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadAnalysisProcess.class);
 
-	private String serverName;
-	private Integer idAnalysis = null;
-	private String uuid = null;
+  private String serverName;
+  private Integer idAnalysis = null;
+  private String uuid = null;
 
-	public void validate() {
-	}
+  public void validate() {
+  }
 
-	public void loadCommand(HttpServletRequest request, HttpSession session) {
-		serverName = request.getServerName();
-		if (request.getParameter("idAnalysis") != null && !request.getParameter("idAnalysis").equals("")) {
-			idAnalysis = new Integer(request.getParameter("idAnalysis"));
-		}
-		if (idAnalysis == null) {
-			this.addInvalidField("idAnalysis", "idAnalysis must be provided");
-		}    
-		if (request.getParameter("uuid") != null && !request.getParameter("uuid").equals("")) {
-			uuid = new String(request.getParameter("uuid"));
-		}
-		if (uuid == null) {
-			this.addInvalidField("idRequest", "idRequest must be provided");
-		}      
-	}
+  public void loadCommand(HttpServletRequest request, HttpSession session) {
+    serverName = request.getServerName();
+    if (request.getParameter("idAnalysis") != null && !request.getParameter("idAnalysis").equals("")) {
+      idAnalysis = new Integer(request.getParameter("idAnalysis"));
+    }
+    if (idAnalysis == null) {
+      this.addInvalidField("idAnalysis", "idAnalysis must be provided");
+    }    
+    if (request.getParameter("uuid") != null && !request.getParameter("uuid").equals("")) {
+      uuid = new String(request.getParameter("uuid"));
+    }
+    if (uuid == null) {
+      this.addInvalidField("uuid", "uuid must be provided");
+    }      
+  }
 
-	public Command execute() throws RollBackCommandException {
+  public Command execute() throws RollBackCommandException {
 
-		try {
-			SecurityAdvisor secAdvisor = this.getSecAdvisor();
-			Session sess = secAdvisor.getHibernateSession(this.getUsername());
-			
-		    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    try {
+      SecurityAdvisor secAdvisor = this.getSecAdvisor();
+      Session sess = secAdvisor.getHibernateSession(this.getUsername());
 
-			Analysis analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
-			
-			
-	        if (secAdvisor.canUpdate(analysis)) {	 	
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-				String createYear = formatter.format(analysis.getCreateDate());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-				// Get folder to retrieve files from		
-				String softlinks_dir = PropertyHelper.getInstance(sess).getSoftLinksDirectory(serverName)+uuid;	
-				File fFile = new File(softlinks_dir);
-				
-				
-				// Set up folder (and any necessary parent folders) that files will be moved to
-				String baseDir = dh.getAnalysisWriteDirectory(serverName) + createYear;
-				if (!new File(baseDir).exists()) {
-					File dir = new File(baseDir);
-					boolean success = dir.mkdir();
-					if (!success) {
-			            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
-			            setResponsePage(this.ERROR_JSP); 					
-						return this;
-					} 
-					dir.setWritable(true, false);
-				}
+      Analysis analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
 
-				String directoryName = baseDir + System.getProperty("file.separator") + analysis.getNumber();
-				if (!new File(directoryName).exists()) {
-					File dir = new File(directoryName);
-					boolean success = dir.mkdir();
-					if (!success) {
-			            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
-			            setResponsePage(this.ERROR_JSP); 					
-						return this;
-					}  
-					dir.setWritable(true, false);
-				}			
 
-                String source = softlinks_dir+System.getProperty("file.separator");
-                String destination = directoryName+System.getProperty("file.separator");
-                
-        		File srcDir = new File(source);  
-        		File[] files = srcDir.listFiles();  
-        		FileChannel in = null;  
-        		FileChannel out = null; 
-        		
-        		for (File file : files) {
-        			String fileName = file.getName();
-        			String thisDestFilePath = destination + fileName;
-        			File toFile = new File(thisDestFilePath);
-        			if(!file.renameTo(toFile)) {
-        				// If move doesn't work then do a copy/delete
-        				try {  
-        					in = new FileInputStream(file).getChannel();  
-        					File outFile = new File(destination, file.getName());  
-        					out = new FileOutputStream(outFile).getChannel(); 
-        					in.transferTo(0, in.size(), out);
-        					in.close();
-        					in = null;
-        					out.close();
-        					out = null;	
-        					file.delete();
-        				} finally {  
-        					if (in != null)  
-        						in.close();  
-        					if (out != null)  
-        						out.close();  
-        				}				
-        			}
-        			
-                    // Save analysis file (name) in db
-                    AnalysisFile analysisFile = null;                                  
-                    
-                    for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
-                      AnalysisFile af = (AnalysisFile)i.next();
-                      if (af.getFileName().equals(fileName)) {
-                        analysisFile = af;
-                        break;
-                      }
-                    }
-                    if (analysisFile == null) {
-                      analysisFile = new AnalysisFile();
-                      analysisFile.setIdAnalysis(analysis.getIdAnalysis());
-                      analysisFile.setFileName(fileName);
-                    }
-                    analysisFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
-                    sess.save(analysisFile);     					
-        		}
-                sess.flush();
-        		srcDir.delete();                
-                
-				this.xmlResult = "<FDTExpProcess result='success'/>";
+      if (secAdvisor.canUpdate(analysis)) {	 	
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+        String createYear = formatter.format(analysis.getCreateDate());
 
-				if (isValid()) {
-		            this.xmlResult = "<SUCCESS/>";
-		            setResponsePage(this.SUCCESS_JSP);     
-				} else {
-					setResponsePage(this.ERROR_JSP);
-				}	        		        	
-	        } else {
-	            this.addInvalidField("Insufficient permissions", "Insufficient write permissions for user " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserFirstName());
-	            setResponsePage(this.ERROR_JSP); 					
-				return this;            
-	        }			
+        // Get folder to retrieve files from		
+        String softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName)+uuid;	
+        File fFile = new File(softlinks_dir);
 
-		} catch (Exception e){
-            this.addInvalidField("Exception", e.getMessage());
-            setResponsePage(this.ERROR_JSP); 							
-			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				this.getSecAdvisor().closeReadOnlyHibernateSession();
-			} catch(Exception e) {
 
-			}
-		}
-		return this;	  
+        // Set up folder (and any necessary parent folders) that files will be moved to
+        String baseDir = dh.getAnalysisWriteDirectory(serverName) + System.getProperty("file.separator") + createYear;
+        if (!new File(baseDir).exists()) {
+          File dir = new File(baseDir);
+          boolean success = dir.mkdir();
+          if (!success) {
+            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
+            setResponsePage(this.ERROR_JSP); 					
+            return this;
+          } 
+          dir.setWritable(true, false);
+        }
 
-	}
-	
+        String directoryName = baseDir + System.getProperty("file.separator") + analysis.getNumber();
+        if (!new File(directoryName).exists()) {
+          File dir = new File(directoryName);
+          boolean success = dir.mkdir();
+          if (!success) {
+            this.addInvalidField("Directory create error", "Unable to create base directory " + baseDir);
+            setResponsePage(this.ERROR_JSP); 					
+            return this;
+          }  
+          dir.setWritable(true, false);
+        }			
+
+        String source = softlinks_dir+System.getProperty("file.separator");
+        String destination = directoryName+System.getProperty("file.separator");
+
+        File srcDir = new File(source);  
+        File[] files = srcDir.listFiles();  
+        FileChannel in = null;  
+        FileChannel out = null; 
+
+        for (File file : files) {
+          String fileName = file.getName();
+          String thisDestFilePath = destination + fileName;
+          File toFile = new File(thisDestFilePath);
+          if(!file.renameTo(toFile)) {
+            System.out.println("rename failed when moving " + file.getAbsolutePath() + file.getName() + " to " + toFile.getAbsolutePath() + toFile.getName());
+            // If move doesn't work then do a copy/delete
+            try {  
+              in = new FileInputStream(file).getChannel();  
+              File outFile = new File(destination, file.getName());  
+              out = new FileOutputStream(outFile).getChannel(); 
+              in.transferTo(0, in.size(), out);
+              in.close();
+              in = null;
+              out.close();
+              out = null;	
+              file.delete();
+            } finally {  
+              if (in != null)  
+                in.close();  
+              if (out != null)  
+                out.close();  
+            }				
+          }
+
+          // Save analysis file (name) in db
+          AnalysisFile analysisFile = null;                                  
+
+          for(Iterator i = analysis.getFiles().iterator(); i.hasNext();) {
+            AnalysisFile af = (AnalysisFile)i.next();
+            if (af.getFileName().equals(fileName)) {
+              analysisFile = af;
+              break;
+            }
+          }
+          if (analysisFile == null) {
+            analysisFile = new AnalysisFile();
+            analysisFile.setIdAnalysis(analysis.getIdAnalysis());
+            analysisFile.setFileName(fileName);
+          }
+          analysisFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+          sess.save(analysisFile);     					
+        }
+        sess.flush();
+        srcDir.delete();                
+
+        if (isValid()) {
+          this.xmlResult = "<SUCCESS/>";
+          setResponsePage(this.SUCCESS_JSP);     
+        } else {
+          setResponsePage(this.ERROR_JSP);
+        }	        		        	
+      } else {
+        this.addInvalidField("Insufficient permissions", "Insufficient write permissions for user " + secAdvisor.getUserLastName() + ", " + secAdvisor.getUserFirstName());
+        setResponsePage(this.ERROR_JSP); 					
+        return this;            
+      }			
+
+    } catch (Exception e){
+      this.addInvalidField("Exception", e.getMessage());
+      setResponsePage(this.ERROR_JSP); 							
+      throw new RollBackCommandException(e.getMessage());
+    } finally {
+      try {
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch(Exception e) {
+
+      }
+    }
+    return this;	  
+
+  }
+
 
 }
