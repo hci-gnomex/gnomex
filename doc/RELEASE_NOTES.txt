@@ -1,6 +1,6 @@
 ﻿GNomEx Release Notes
 
-5.0.9.6 (Feb 20, 2011)
+5.1 
 ----------------------
 - Introduced Robb's PropertyHelper code for getting Experiment, Analysis, and Flowcell directories
 - Fixed code that was removing analysis from file system by adding file separator between base directory and year.
