@@ -1055,8 +1055,8 @@
 					<mx:columns>
 						<mx:DataGridColumn headerText=" " width="20" editable="false" labelFunction="getFilesGridRowNumber"/>
 						<mx:DataGridColumn headerText="File name"   width="240" editable="false" dataField="@displayName"/>
-						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@lastModifyDateDisplay"/>
 						<mx:DataGridColumn headerText="Comments" width="240" editable="true" dataField="@comments"/>
+						<mx:DataGridColumn headerText="Upload Date"  editable="false" width="80" dataField="@lastModifyDateDisplay"/>
 						<mx:DataGridColumn dataField="@type"           headerText="Type" width="80" />
 						<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="80"/>
 					</mx:columns>
