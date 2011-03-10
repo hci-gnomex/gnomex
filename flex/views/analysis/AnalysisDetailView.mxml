@@ -488,11 +488,11 @@
 		            		editorDataField="selected" sortable="false"
 		            		itemRenderer="{CheckBox.getFactory('true', 'false', '@isSelected', true)}">
 		            	</mx:DataGridColumn>				
-						<mx:DataGridColumn headerText="File name"  dataField="@displayName"/>
-						<mx:DataGridColumn headerText="Comments"   dataField="@comments"/>
-						<mx:DataGridColumn headerText="Upload Date"  dataField="@lastModifyDateDisplay" width="30"/>
-				    	<mx:DataGridColumn dataField="@type"           headerText="Type" width="20" />
-				    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="20"/>
+						<mx:DataGridColumn headerText="File name"  dataField="@displayName" width="240"/>
+						<mx:DataGridColumn headerText="Comments"   dataField="@comments" width="240"/>
+						<mx:DataGridColumn headerText="Upload Date"  dataField="@lastModifyDateDisplay" width="90"/>
+				    	<mx:DataGridColumn dataField="@type"           headerText="Type" width="90" />
+				    	<mx:DataGridColumn dataField="@fileSizeText"   headerText="Size" width="90"/>
 					</mx:columns>
 				</mx:DataGrid>
 			</mx:VBox>
