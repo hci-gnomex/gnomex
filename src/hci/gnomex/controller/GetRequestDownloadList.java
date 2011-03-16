@@ -45,6 +45,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestDownloadList.class);
   
   private RequestDownloadFilter          filter;
+  private String                         includeUploadStagingDir = "Y";
   private HashMap                        slideDesignMap = new HashMap();
   private HashMap                        seqRunTypeMap = new HashMap();
   private static final String          QUALITY_CONTROL_DIRECTORY = "bioanalysis";
@@ -62,6 +63,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     filter = new RequestDownloadFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
+    
+    if (request.getParameter("includeUploadStagingDir") != null && !request.getParameter("includeUploadStagingDir").equals("")) {
+      includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
+    }
     
     String idRequestStringList = request.getParameter("idRequestStringList");
     if (idRequestStringList != null&& !idRequestStringList.equals("")) {
@@ -261,6 +266,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           requestNode.setAttribute("info", appUserName);
           
           doc.getRootElement().addContent(requestNode);
+          
+          // Show files under the root experiment directory
+          String createDateString = this.formatDate((java.sql.Date)row[0]);
+          addRootFileNodes(requestNode, requestNumber,  createDateString, null);
+
+          // Crawl the upload staging directory and show its files under the root experiment directory
+          if (includeUploadStagingDir.equals("Y")) {
+            addRootFileNodes(requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR);            
+          }
         }
 
         
@@ -541,6 +555,49 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       }
     }
     return folders;
+    
+  }
+  
+  private void addRootFileNodes(Element requestNode, String requestNumber, String createDate, String subDirectory) throws Exception {
+   
+    String dirTokens[] = createDate.split("/");
+    String createYear  = dirTokens[2];
+    
+    String directoryName = baseDir + "/" + createYear + "/" + Request.getBaseRequestNumber(requestNumber) + 
+                           (subDirectory != null ? "/" + Constants.UPLOAD_STAGING_DIR : "");
+    File fd = new File(directoryName);
+    if (fd.exists() && fd.isDirectory()) {
+      String[] fileList = fd.list();
+      for (int x = 0; x < fileList.length; x++) {
+        String fileName = directoryName + "/" + fileList[x];
+        File f1 = new File(fileName);
+       
+        // bypass temp files
+        if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {
+          continue;
+        } 
+        
+        // bypass directories
+        if (f1.isDirectory()) {
+          continue;
+        }
+        
+        // Hide that the files are in the upload staging directory.  Show them in the root experiment directory instead.
+        String zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + f1.getName();
+
+        FileDescriptor fdesc = new FileDescriptor(Request.getBaseRequestNumber(requestNumber), f1.getName(), f1, zipEntryName);
+        fdesc.setDirectoryName("");
+        fdesc.excludeMethodFromXML("getChildren");
+
+        Element fdNode = fdesc.toXMLDocument(null, fdesc.DATE_OUTPUT_ALTIO).getRootElement();
+        fdNode.setAttribute("isSelected", "N");
+        fdNode.setAttribute("state", "unchecked");
+
+        requestNode.addContent(fdNode);
+        requestNode.setAttribute("isEmpty", "N");
+      }
+      
+    }
     
   }
   

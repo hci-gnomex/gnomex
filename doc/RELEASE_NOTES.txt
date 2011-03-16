@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.1.1
+----------------------
+- Reworked FDT interface so that daemon is responsible for moving upload files from fdt staging directory to experiment/analysis directory.
+- Show uploaded experiment files in upload staging area in downloads (under root experiment directory)
+
+
 5.1 
 ----------------------
 - Introduced Robb's PropertyHelper code for getting Experiment, Analysis, and Flowcell directories

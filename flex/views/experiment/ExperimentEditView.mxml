@@ -3410,6 +3410,22 @@
 			uploadWindow.init(idRequest, requestNumber);
     		
     	}
+			
+			
+		public static function showExperimenOrganizeWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.init(idRequest, requestNumber);
+			uploadWindow.theTab.selectedIndex = 1;
+			
+		}
+			
+		public static function showExperimentOrganizeWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
+			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.init(idRequest, requestNumber);
+			uploadWindow.theTab.selectedIndex = 1;
+		}
 
 		public static function showExperimentUploadFDTWindow(parent:DisplayObject, idRequest:Object, requestNumber:String):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
@@ -3596,6 +3612,7 @@
 			    	</mx:LinkButton>
 			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')"/>
 					<mx:LinkButton label="Upload files - FDT" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')"/>
+					<mx:LinkButton label="Organize files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentOrganizeWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadOrganizeLink" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')"/>
 			    </mx:HBox>
 	 	        <util:DirtyNote id="dirty"  />
  				<mx:Button id="saveButton" label="Save" 
@@ -3761,6 +3778,7 @@
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
     		<mx:SetStyle target="{linkbutton1}" name="fontSize" value="9"/>
 			<mx:SetStyle target="{uploadFDTLink}" name="fontSize" value="9"/>
+			<mx:SetStyle target="{uploadOrganizeLink}" name="fontSize" value="9"/>
     		<mx:SetStyle target="{linkbutton3}" name="fontSize" value="9"/>
     		<mx:SetStyle target="{linkbutton2}" name="fontSize" value="9"/>
     		<mx:SetStyle target="{analysisButton}" name="fontSize" value="9"/>
