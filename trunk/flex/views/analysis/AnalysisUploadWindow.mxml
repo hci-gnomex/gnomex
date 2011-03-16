@@ -25,16 +25,6 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
-	<mx:HTTPService
-		id="fdtUploadAnalysisProcess" 
-		url="FastDataTransferUploadAnalysisProcess.gx"
-		resultFormat="e4x"
-		showBusyCursor="true" 
-		result="onFdtUploadAnalysisProcess(event)" 
-		fault="parentApplication.onFailHttpRequest('Failed to start FDT process', event)"
-		method="POST"
-		useProxy="false">
-	</mx:HTTPService>	
 		
 <mx:Script>
 	<![CDATA[
@@ -63,7 +53,6 @@
 			this.analysis = analysis;
 			this.getAnalysisUploadURL.send();
 			fdtStartButton.enabled = true;
-			fdtProcessButton.enabled = false;			
 		}
 		
 		public function initFromDetail(analysisDetailView:AnalysisDetailView, analysis:Object):void {
@@ -71,7 +60,6 @@
 			this.analysis = analysis;
 			this.getAnalysisUploadURL.send();
 			fdtStartButton.enabled = true;
-			fdtProcessButton.enabled = false;
 		}
 		
 		private function onGetAnalysisUploadURL(event:ResultEvent):void {
@@ -86,7 +74,6 @@
 				var uuid:String = fdtUploadStart.lastResult.@uuid;
 				saveUUID.text = uuid;
 				fdtStartButton.enabled = false;
-				fdtProcessButton.enabled = true;
 				
 				var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
 				var uv:URLVariables = new URLVariables();
@@ -97,16 +84,7 @@
 			}
 		}
 		
-		private function onFdtUploadAnalysisProcess(event:ResultEvent):void {
-			if (fdtUploadAnalysisProcess.lastResult.name() != "SUCCESS") {
-				mx.controls.Alert.show(fdtUploadAnalysisProcess.lastResult..ACTMESSAGE.@TEXT);
-			} else {
-				onUploadFinished(null);
-				
-				// We are finished with fdt upload.  Close the upload window.
-				PopUpManager.removePopUp(this);
-			} 	 
-		}	
+
 		
 		public function refreshAnalysis(updAnalysis:Object):void {
 			analysis = updAnalysis;
@@ -226,16 +204,12 @@
 		}
 		
 		public function startFDTUpload():void {			
-			var params:Object = new Object();			
-			fdtUploadStart.send();
+			var params:Object = new Object();		
+			params.idAnalysis = analysis.@idAnalysis.toString();
+			
+			fdtUploadStart.send(params);
 		}
 		
-		public function processFDTUpload():void {			
-			var params:Object = new Object();
-			params.idAnalysis = analysis.@idAnalysis.toString(); 
-			params.uuid = saveUUID.text;
-			fdtUploadAnalysisProcess.send(params);
-		}		
 		
 	]]>
 </mx:Script>	
@@ -278,7 +252,7 @@
 		</mx:VDividedBox>
 		<mx:VBox width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 			<mx:TextArea styleName="instructionBox" width="100%" wordWrap="true" height="100%" id="textarea1" fontSize="12">
-				<mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer (FDT) server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened using Java Web Start (either directly<br>         or after first saving the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files),<br>         click the "Process Files" button.]]></mx:htmlText>
+				<mx:htmlText><![CDATA[This method of uploading files uses a Fast Data Transfer (FDT) server. To upload files:<br><br>     1. Select the "Start" button below.<br><br>     2. This will download a special "jnlp" file that can be opened using Java Web Start (either directly<br>         or after first saving the file to your desktop).<br><br>     3. Use the window launched by Java Web Start to select and upload the files to the server.<br><br>     4. After all of the files have been uploaded (% Completed column indicates 100 for all files),<br>         refresh the Analysis to see the uploaded files.]]></mx:htmlText>
 			</mx:TextArea>							
 		</mx:VBox>
 	</mx:ViewStack>
@@ -293,7 +267,6 @@
 				<mx:Spacer  width="100%" height="10"/>	
 				<mx:Label id="saveUUID" visible="false" text=""/>
 				<mx:Button id="fdtStartButton" label="Start" click="startFDTUpload();"  enabled="true" visible="true"/>	      	
-				<mx:Button id="fdtProcessButton" label="Process Files" click="processFDTUpload();" enabled="true" visible="true" />	 
 				<mx:Button label="Close" click="onCloseWindow()"/>
 			</mx:HBox>		  			 
 		</mx:ViewStack>

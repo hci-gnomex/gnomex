@@ -22,21 +22,22 @@
   
   
 <mx:ControlBar  width="100%" id="buttonBar">
-	    <mx:HBox width="100%" horizontalAlign="left">
-		    <mx:LinkButton label="Show Downloads" click="detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline"/>
-		    <mx:LinkButton label="Printable form" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
-		    <mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+	    <mx:HBox width="100%"  horizontalGap="1" horizontalAlign="left">
+		    <mx:LinkButton label="Show Downloads" fontSize="9" click="detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline"/>
+		    <mx:LinkButton label="Printable form" fontSize="9" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
+		    <mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 		    	enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()">
 		    </mx:LinkButton>
-		    <mx:LinkButton label="Edit" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
+		    <mx:LinkButton label="Edit" fontSize="9" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
 		        <mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 		        <mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 		    </mx:LinkButton>	
-		    <mx:LinkButton label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline" >    	        
+		    <mx:LinkButton  fontSize="9" label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline" >    	        
 		    </mx:LinkButton>
-		    <mx:LinkButton label="Upload files" visible="{detail.selectedExperiment.@isExternal == 'Y'}" click="{ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
-			<mx:LinkButton label="Upload files - FDT" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="{ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonFDTUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
-		    <mx:LinkButton label="Delete" click="detail.promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
+		    <mx:LinkButton label="Upload files"  fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y'  &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
+			<mx:LinkButton label="Upload files - FDT"  fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported  &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonFDTUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
+			<mx:LinkButton label="Organize files" fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentOrganizeWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonOrganize" icon="@Embed(source='../../assets/chart_organisation.png')" paddingLeft="0" textDecoration="underline"/>
+		    <mx:LinkButton label="Delete"  fontSize="9" click="detail.promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
 		        <mx:height>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
 		        <mx:visible>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
 		    </mx:LinkButton>
