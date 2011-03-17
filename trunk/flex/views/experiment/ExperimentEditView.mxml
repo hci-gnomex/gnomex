@@ -221,6 +221,11 @@
         [Bindable]
         private var submittedRequestNumber:String;
 
+			
+
+		private var externalIdRequest:String;
+		private var externalRequestNumber:String;
+
 		[Bindable]
 		public var requestCategoryName:String;
 		
@@ -2554,6 +2559,8 @@
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
 				if (this.isExternalExperimentSubmission()) {
+					externalRequestNumber = submittedRequestNumber;
+					externalIdRequest = submittedIdRequest;
 					promptToUpload();
 				} else {
 					showPrintableRequestForm();
@@ -2582,16 +2589,16 @@
 					(Alert.YES | Alert.NO), this, 
 					onPromptToUpload);
 			} else {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);				
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
 			}
 			
 		}
 			
 		private function onPromptToUpload(event:CloseEvent):void {
 			if (event.detail==Alert.YES) {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);				
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
 			} else {
-				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);				
+				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
 			}
 			Alert.yesLabel = "Yes";
 			Alert.noLabel = "No";
