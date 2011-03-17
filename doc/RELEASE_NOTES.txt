@@ -4,6 +4,7 @@
 ----------------------
 - Reworked FDT interface so that daemon is responsible for moving upload files from fdt staging directory to experiment/analysis directory.
 - Show uploaded experiment files in upload staging area in downloads (under root experiment directory)
+- Moved link buttons to top of Experiment and Analysis Detail and Edit views for (to fit in 1024x768 space)
 
 
 5.1 

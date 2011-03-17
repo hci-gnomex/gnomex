@@ -3,16 +3,37 @@
 	width="100%" height="100%" 
 	xmlns:util="views.util.*"
 	xmlns:experiment="views.experiment.*" >
-<mx:HBox width="100%">
-	<mx:Image source="{detail.selectedExperiment.@icon}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
-	<mx:Spacer width="100%"/>
-   	<mx:HBox verticalGap="0" horizontalGap="0">
-    	<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
-    	<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
-    </mx:HBox>
+<mx:VBox width="100%" verticalGap="8">
+	<mx:HBox width="100%" horizontalGap="1">
+		<mx:Image source="{detail.selectedExperiment.@icon}"/>
+		<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
+		<mx:Spacer width="100%"/>
+		<mx:HBox verticalGap="0" horizontalGap="0">
+			<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
+			<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
+		</mx:HBox>
+		
+	</mx:HBox>
 	
-</mx:HBox>
+	
+	<mx:HBox width="100%"  horizontalGap="0" horizontalAlign="left">
+			<mx:LinkButton label="Edit" fontSize="9" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton" textAlign="left" paddingLeft="0">
+				<mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+				<mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+			</mx:LinkButton>
+			<mx:LinkButton label="Downloads" fontSize="9" click="detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
+			<mx:LinkButton label="Printable form" fontSize="9" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+			<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+						   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()" textAlign="left">
+			</mx:LinkButton>
+			<mx:LinkButton  fontSize="9" label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline"  textAlign="left">    	        
+			</mx:LinkButton>
+			<mx:LinkButton label="Upload files"  fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y'  &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline" textAlign="left"/>
+			<mx:LinkButton label="FDT Upload files"  fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported  &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonFDTUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline" textAlign="left"/>
+			<mx:LinkButton label="Organize files" fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentOrganizeWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonOrganize" icon="@Embed(source='../../assets/chart_organisation.png')" textDecoration="underline" textAlign="left"/>
+	</mx:HBox>
+
+</mx:VBox>
 
 <mx:VBox width="100%" height="100%">
 	 <experiment:ExperimentDetailView id="detail" width="100%" height="100%">
@@ -20,28 +41,5 @@
  	
 </mx:VBox> 
   
-  
-<mx:ControlBar  width="100%" id="buttonBar">
-	    <mx:HBox width="100%"  horizontalGap="1" horizontalAlign="left">
-		    <mx:LinkButton label="Show Downloads" fontSize="9" click="detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline"/>
-		    <mx:LinkButton label="Printable form" fontSize="9" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline"/>
-		    <mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-		    	enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="detail.showRelatedAnalysis()">
-		    </mx:LinkButton>
-		    <mx:LinkButton label="Edit" fontSize="9" click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton">
-		        <mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-		        <mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-		    </mx:LinkButton>	
-		    <mx:LinkButton  fontSize="9" label="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' || detail.selectedExperiment.@codeRequestCategory == 'HISEQ')}"  icon="{detail.selectedExperiment.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" click="{detail.showConvertIlluminaRequest()}" textDecoration="underline" >    	        
-		    </mx:LinkButton>
-		    <mx:LinkButton label="Upload files"  fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y'  &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
-			<mx:LinkButton label="Upload files - FDT"  fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported  &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonFDTUpload" icon="@Embed(source='../../assets/upload.png')" paddingLeft="0" textDecoration="underline"/>
-			<mx:LinkButton label="Organize files" fontSize="9" visible="{detail.selectedExperiment.@isExternal == 'Y' &amp;&amp; detail.selectedExperiment.@canUpdate == 'Y'}" click="{ExperimentEditView.showExperimentOrganizeWindow(DisplayObject(parentApplication.theBody), detail.selectedExperiment.@idRequest, detail.selectedExperiment.@number)}" id="linkbuttonOrganize" icon="@Embed(source='../../assets/chart_organisation.png')" paddingLeft="0" textDecoration="underline"/>
-		    <mx:LinkButton label="Delete"  fontSize="9" click="detail.promptToDeleteExperiment()" icon="@Embed(source='../../assets/delete.png')" textDecoration="underline" id="deleteButton">
-		        <mx:height>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? 22 : 0}</mx:height>
-		        <mx:visible>{detail.selectedExperiment.@canDelete == &quot;Y&quot; ? true : false}</mx:visible>
-		    </mx:LinkButton>
-	    </mx:HBox>
-</mx:ControlBar>
 
 </mx:VBox>

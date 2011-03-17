@@ -490,6 +490,7 @@
 			
 			deleteProjectButton.enabled = false;
 			newProjectButton.enabled = false;
+
 			
 			if (browseTree.selectedItem == null) {
 				return; 
@@ -1231,20 +1232,28 @@
 				</mx:VBox>
 					<mx:ControlBar width="100%" verticalAlign="top">
 						<mx:VBox verticalGap="0">
-						        <mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow()" 
-						        	icon="@Embed('../../assets/folder_add.png')" 
-						        	toolTip="New project..." 
-						        	enabled="false" 
-						        	disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" textDecoration="underline"/>
-						        <mx:LinkButton  label="Delete project" id="deleteProjectButton" icon="@Embed('../../assets/folder_delete.png')" 
-						        	click="browseView.projectDetailView.promptToDeleteProject()"
-						        	toolTip="Delete project" enabled="false" textDecoration="underline">
-						        	<mx:disabledIcon>@Embed(source='../../assets/folder_delete_disable.png')</mx:disabledIcon>
-						        </mx:LinkButton>
+							<mx:HBox>
+								<mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow()" 
+											   icon="@Embed('../../assets/folder_add.png')" 
+											   toolTip="New project..." 
+											   enabled="false" 
+											   disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" textDecoration="underline"/>
+								<mx:LinkButton  label="Delete project" id="deleteProjectButton" icon="@Embed('../../assets/folder_delete.png')" 
+												click="browseView.projectDetailView.promptToDeleteProject()"
+												toolTip="Delete project" enabled="false" textDecoration="underline">
+												<mx:disabledIcon>@Embed(source='../../assets/folder_delete_disable.png')</mx:disabledIcon>
+								</mx:LinkButton>
+															
+							</mx:HBox>
+							<mx:HBox>
+								<mx:LinkButton  label="Delete experiment" id="deleteExperimentButton"  icon="@Embed(source='../../assets/delete.png')"
+												click="detailView.detail.promptToDeleteExperiment()"
+												toolTip="Delete experiment" enabled="{browseTree.selectedItem != null &amp;&amp; browseTree.selectedItem.@canDelete == &quot;Y&quot; ? true : false}" textDecoration="underline">
+									<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
+								</mx:LinkButton>
+							</mx:HBox>
 							
 			  			</mx:VBox>
-						<mx:VBox verticalGap="0">
-						</mx:VBox>
 								
 					</mx:ControlBar> 
 			</mx:VBox>  
