@@ -9,12 +9,14 @@ import java.text.SimpleDateFormat;
 
 public class FDTUploadDaemon {
 
-  private static final int shutdownInterval = 2;   // shutdown hook delay time in seconds
-  private static  long    lifetime = 60 * 60 * 24;     // time in seconds that this daemon should run (24 hrs)
+  private static  long     maxWaitMin = 60 * 24;     // minutes this daemon should run (24 hrs) after last activity
+ 
+  private static final int shutdownIntervalSeconds = 2;  // shutdown hook delay time in seconds
   
   private static String  sourceDir;
   private static String  targetDir;
   private static boolean isFinished = false;
+  private static long    lastActivityMillis = 0;
   
   public static void main (String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -22,8 +24,8 @@ public class FDTUploadDaemon {
         sourceDir = args[++i];
       } else if (args[i].equals("-targetDir")) {
         targetDir = args[++i];
-      } else if (args[i].equals("-lifetime")) {
-        lifetime = Integer.valueOf(args[++i]);
+      } else if (args[i].equals("-maxWaitMin")) {
+        maxWaitMin = Integer.valueOf(args[++i]);
       } 
     }
     
@@ -35,15 +37,16 @@ public class FDTUploadDaemon {
     
     Runtime.getRuntime().addShutdownHook (runtimeHookThread);
     try {
-      long t0 = System.currentTimeMillis();
+      lastActivityMillis = System.currentTimeMillis();
       while (true) {
         Thread.sleep (3000);
         moveFiles();
         if (isFinished) {
           break;
         }
-        if (System.currentTimeMillis() - t0 > lifetime * 1000) {
-          log("reached daemon max life time");
+        // Terminate daemon if it has gone X minutes (maxWaitMin) with no activity
+        if (System.currentTimeMillis() - lastActivityMillis > maxWaitMin * 60 * 1000) {
+          log("reached daemon max wait time");
           isFinished = true;
           break;
         }
@@ -80,6 +83,10 @@ public class FDTUploadDaemon {
         isFinished = true;
         break;        
       }
+      
+      // We have encountered a file to move.  Set the last activity
+      // time to current time.
+      lastActivityMillis = System.currentTimeMillis();
       
       String targetFileName = targetDir + File.separator + f.getName();
       
@@ -140,7 +147,7 @@ public class FDTUploadDaemon {
         log ("Exception during shutdown: " + e.toString());
         break; 
       }
-      if (System.currentTimeMillis() - t0 > shutdownInterval * 1000) {
+      if (System.currentTimeMillis() - t0 > shutdownIntervalSeconds * 1000) {
         break;
       }
     }
