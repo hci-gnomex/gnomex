@@ -742,6 +742,28 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return canUpdate;
   }
   
+  public boolean canDelete(Integer idLab, Integer idAppUser)  {
+    boolean canDelete = false;
+
+    // Admins
+    if (hasPermission(this.CAN_DELETE_REQUESTS)) {
+      canDelete = true;
+    }
+    // University GNomEx users
+    else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+      // Lab manager
+      if (isGroupIManage(idLab)) {
+        canDelete = true;
+      } 
+      // Owner of request
+      else if (isGroupIAmMemberOf(idLab) && isOwner(idAppUser)) {
+        canDelete = true;
+      } 
+    } 
+
+    return canDelete;
+  }
+  
 
   public boolean canDelete(DetailObject object) throws UnknownPermissionException {
     boolean canDelete = false;

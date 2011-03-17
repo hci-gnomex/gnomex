@@ -835,8 +835,23 @@
 <mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
 <mx:XMLListCollection  id="filesToDelete"  />
 <mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AppUser}"/>
-	
-<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
+
+	<mx:VBox width="100%" verticalGap="8">
+		<mx:HBox horizontalGap="1">
+			<mx:Image source="{parentApplication.iconAnalysis}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis" />
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left" paddingBottom="4">
+			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">    	        
+			</mx:LinkButton>
+			<mx:LinkButton label="Upload files" click="showUploadWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')" fontSize="9" textAlign="left">    	        
+			</mx:LinkButton>
+			<mx:LinkButton label="FDT Upload files" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" visible="{parentApplication.isFDTSupported}" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')" fontSize="9" textAlign="left">    	        
+			</mx:LinkButton>
+			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" fontSize="9" textAlign="left"/>
+		</mx:HBox>
+	</mx:VBox>
+
  	
 	<mx:HBox width="100%"  horizontalGap="5"  verticalAlign="top" horizontalAlign="left">
 		<mx:VBox verticalGap="4" width="100%">
@@ -1116,15 +1131,6 @@
 		</mx:VBox>		
 	</mx:TabNavigator>
     <mx:HBox width="100%" horizontalAlign="right" id="editButtonView">
-        <mx:HBox width="100%" horizontalAlign="left">
-	        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline">    	        
-        	</mx:LinkButton>
-			<mx:LinkButton label="Upload files" click="showUploadWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')">    	        
-			</mx:LinkButton>
-			<mx:LinkButton label="Upload files - FDT" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" visible="{parentApplication.isFDTSupported}" textDecoration="underline" disabledIcon="@Embed(source='../../assets/upload_disable.png')">    	        
-			</mx:LinkButton>
-	        <mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()"/>
-        </mx:HBox>
         <util:DirtyNote id="dirty"/>
       	<mx:Button id="saveButton" label="Save" 
              	icon="@Embed('../../assets/action_save.gif')" click="validateAndSaveAnalysis()">

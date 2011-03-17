@@ -183,24 +183,25 @@
   
 	<mx:Script>
 		<![CDATA[
-		import mx.events.PropertyChangeEvent;
-		import mx.events.CollectionEventKind;
-		import mx.collections.ArrayCollection;
-		import mx.events.CollectionEvent;
-		import mx.controls.Alert;
-		import mx.core.UIComponent;
-		import mx.core.Container;
-		import mx.rpc.events.ResultEvent;
-		import mx.rpc.events.FaultEvent;
-		import mx.events.CloseEvent;
-		import mx.managers.PopUpManager;
-		import mx.events.CollectionEvent;
 		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.core.Container;
+		import mx.core.UIComponent;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.PropertyChangeEvent;
+		import mx.events.ValidationResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
-		import mx.events.ValidationResultEvent;
-        import views.util.PromptXMLListCollection;
-        import views.experiment.ConvertIlluminaRequestWindow;
+		
+		import views.experiment.ConvertIlluminaRequestWindow;
+		import views.util.PromptXMLListCollection;
         
 
 		[Bindable]
@@ -292,6 +293,8 @@
 		public var concentrationValidator:NumberValidator = new NumberValidator();
 		
 		private var isInitialized:Boolean = false;
+			
+		private var alertButtonWidth:Number = Alert.buttonWidth
 
 		private function init():void {
 			
@@ -2551,7 +2554,7 @@
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
 				if (this.isExternalExperimentSubmission()) {
-					ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);
+					promptToUpload();
 				} else {
 					showPrintableRequestForm();
 				}
@@ -2567,6 +2570,32 @@
 				
 			}
 
+		}
+			
+		private function promptToUpload():void {
+			if (parentApplication.isFDTSupported) {
+				Alert.buttonWidth = 200; 
+				Alert.yesLabel = "Normal upload";
+				Alert.noLabel = "FDT upload for files > 1GB";
+				Alert.show( "Which upload mechanism do you want to use?",
+					"Read to upload files",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToUpload);
+			} else {
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);				
+			}
+			
+		}
+			
+		private function onPromptToUpload(event:CloseEvent):void {
+			if (event.detail==Alert.YES) {
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);				
+			} else {
+				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), submittedIdRequest, submittedRequestNumber);				
+			}
+			Alert.yesLabel = "Yes";
+			Alert.noLabel = "No";
+			Alert.buttonWidth = alertButtonWidth;
 		}
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {
@@ -3519,11 +3548,12 @@
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 
-	<mx:HBox id="hbox7">
-		<mx:Image source="{requestIcon}"/>
-	  	<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
-  		<mx:Spacer width="100%"/>
-  	</mx:HBox>
+    <mx:VBox width="100%" verticalGap="8" id="navBox" verticalAlign="top" >
+		<mx:HBox id="hbox7" verticalAlign="middle" horizontalGap="1">
+			<mx:Image source="{requestIcon}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'Submit Experiment Request' : 'Register External Experiment'}"/>
+		</mx:HBox>		
+	</mx:VBox>
 
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
@@ -3600,20 +3630,7 @@
 				</mx:HBox>
 	 	    </mx:HBox>
 	 	    <mx:HBox width="100%"   horizontalAlign="left" paddingRight="1" id="hbox8">
-			    <mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="4" height="22"  >
-			        <mx:LinkButton label="Downloads" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" paddingLeft="0" paddingRight="0"/>
-					<mx:LinkButton label="Printable form" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" paddingRight="0"/>
-					<mx:LinkButton label="Analysis" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-						enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" paddingRight="0">
-					</mx:LinkButton>
-			        <mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingRight="0">    	        
-			    	</mx:LinkButton>
-   		            <mx:LinkButton label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" paddingRight="0">    	        
-			    	</mx:LinkButton>
-			    	<mx:LinkButton label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')"/>
-					<mx:LinkButton label="Upload files - FDT" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')"/>
-					<mx:LinkButton label="Organize files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentOrganizeWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadOrganizeLink" paddingRight="0" textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')"/>
-			    </mx:HBox>
+				<mx:Spacer width="100%"/>
 	 	        <util:DirtyNote id="dirty"  />
  				<mx:Button id="saveButton" label="Save" 
 	            	icon="@Embed('../../assets/action_save.gif')" 
@@ -3759,31 +3776,31 @@
 				</mx:VBox>
     			</mx:Canvas>
     		</mx:AddChild>
-    		<mx:SetStyle target="{linkbutton1}" name="icon" value="@Embed(source='../../assets/upload.png')"/>
-    		<mx:SetStyle target="{downloadExperimentButton}" name="paddingLeft" value="0"/>
-    		<mx:SetStyle target="{requestFormButton}" name="paddingLeft" value="0"/>
-    		<mx:SetStyle target="{analysisButton}" name="paddingLeft" value="0"/>
-    		<mx:SetStyle target="{linkbutton2}" name="paddingLeft" value="0"/>
-    		<mx:SetStyle target="{linkbutton3}" name="paddingLeft" value="0"/>
-    		<mx:SetStyle target="{linkbutton1}" name="paddingLeft" value="0"/>
-    		<mx:SetStyle target="{linkbutton1}" name="textDecoration" value="underline"/>
     		<mx:SetStyle target="{dirty}" name="fontSize" value="9"/>
     		<mx:SetProperty target="{dirty}" name="label" value="Changes have not been saved"/>
-    		<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-    			<mx:Text visible="{this.request.@lastModifyDate != ''}" text="{'Last modified  ' + this.request.@lastModifyDate}" />
-    		</mx:AddChild>
     		<mx:SetProperty target="{hbox7}" name="width" value="100%"/>
     		<mx:SetStyle target="{hbox8}" name="horizontalGap" value="0"/>
-    		<mx:SetProperty target="{hbox6}" name="width" value="100%"/>
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
-    		<mx:SetStyle target="{linkbutton1}" name="fontSize" value="9"/>
-			<mx:SetStyle target="{uploadFDTLink}" name="fontSize" value="9"/>
-			<mx:SetStyle target="{uploadOrganizeLink}" name="fontSize" value="9"/>
-    		<mx:SetStyle target="{linkbutton3}" name="fontSize" value="9"/>
-    		<mx:SetStyle target="{linkbutton2}" name="fontSize" value="9"/>
-    		<mx:SetStyle target="{analysisButton}" name="fontSize" value="9"/>
-    		<mx:SetStyle target="{requestFormButton}" name="fontSize" value="9"/>
-    		<mx:SetStyle target="{downloadExperimentButton}" name="fontSize" value="9"/>
+    		<mx:AddChild relativeTo="{navBox}" position="lastChild">
+    			<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="1" width="100%" paddingBottom="4">
+					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
+					</mx:LinkButton>
+    				<mx:LinkButton label="Downloads" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showDownloads()" icon="@Embed(source='../../assets/download.png')" id="downloadExperimentButton" textDecoration="underline" textAlign="left"/>
+    				<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.detailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+    				<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+    							   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.detailView.detail.showRelatedAnalysis()" textAlign="left">
+    				</mx:LinkButton>
+    				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" textAlign="left">    	        
+    				</mx:LinkButton>
+    				<mx:LinkButton fontSize="9" label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
+    				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
+    				<mx:LinkButton fontSize="9" label="Organize files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentOrganizeWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadOrganizeLink" textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" textAlign="left"/>
+    			</mx:HBox>
+    		</mx:AddChild>
+    		<mx:AddChild relativeTo="{hbox7}" position="lastChild">
+				<mx:Spacer width="100%"/>
+    			<mx:Text visible="{this.request.@lastModifyDate != ''}" text="{'Last modified  ' + this.request.@lastModifyDate}" />
+    		</mx:AddChild>
     	</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>

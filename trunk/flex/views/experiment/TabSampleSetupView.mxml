@@ -707,7 +707,7 @@
                 <mx:RadioButton groupName="barcodeRadioGroup" value="C" id="radioYesCustomBarcoding" label="Yes, samples tagged with custom barcode sequence" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()">
                 </mx:RadioButton>
             </mx:AddChild>
-            <mx:SetProperty target="{radioYesBarcoding}" name="label" value="Yes, samples tagged with Illumina multiplexing mequencing primers "/>
+            <mx:SetProperty target="{radioYesBarcoding}" name="label" value="Yes, samples tagged with Illumina multiplexing sequencing primers "/>
         </mx:State>
         <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
              <mx:AddChild relativeTo="{hbox4}" position="lastChild">
