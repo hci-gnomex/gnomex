@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -55,6 +56,11 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy");
       String createYear = "";
+      
+      String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
+      if (fdtSupported == null || !fdtSupported.equals("Y")) {
+        this.addInvalidField("fdtNotSupport", "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
+      }
 
       if (idAnalysis != null) {
         Analysis analysis = (Analysis)sess.get(Analysis.class, idAnalysis);
