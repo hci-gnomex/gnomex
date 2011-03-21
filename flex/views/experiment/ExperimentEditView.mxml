@@ -2585,7 +2585,7 @@
 				Alert.yesLabel = "Normal upload";
 				Alert.noLabel = "FDT upload for files > 1GB";
 				Alert.show( "Which upload mechanism do you want to use?",
-					"Read to upload files",
+					"Ready to upload files",
 					(Alert.YES | Alert.NO), this, 
 					onPromptToUpload);
 			} else {
