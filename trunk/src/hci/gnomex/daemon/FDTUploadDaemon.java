@@ -133,6 +133,8 @@ public class FDTUploadDaemon {
         log(operation + " " + f.getName());        
       } else {
         log("ERROR - " + operation + " " + f.getName() + " to " + targetFileName + " failed.");
+        isFinished = true;
+        break;
       }
     }
     
