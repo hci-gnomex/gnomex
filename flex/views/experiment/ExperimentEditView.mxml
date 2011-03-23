@@ -2581,12 +2581,12 @@
 			
 		private function promptToUpload():void {
 			if (parentApplication.isFDTSupported) {
-				Alert.buttonWidth = 200; 
+				Alert.buttonWidth = 120; 
 				Alert.yesLabel = "Normal upload";
-				Alert.noLabel = "FDT upload for files > 1GB";
-				Alert.show( "Which upload mechanism do you want to use?",
+				Alert.noLabel = "FDT upload";
+				Alert.show( "Which upload mechanism do you want to use?\n(FDT is recommended for uploads exceeding 1 GB.)",
 					"Ready to upload files",
-					(Alert.YES | Alert.NO), this, 
+					(Alert.YES | Alert.NO | Alert.CANCEL), this, 
 					onPromptToUpload);
 			} else {
 				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
@@ -2595,14 +2595,14 @@
 		}
 			
 		private function onPromptToUpload(event:CloseEvent):void {
-			if (event.detail==Alert.YES) {
-				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
-			} else {
-				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
-			}
 			Alert.yesLabel = "Yes";
 			Alert.noLabel = "No";
 			Alert.buttonWidth = alertButtonWidth;
+			if (event.detail==Alert.YES) {
+				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
+			} else if (event.detail == Alert.NO) {
+				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), externalIdRequest, externalRequestNumber);				
+			}
 		}
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {
@@ -3657,15 +3657,15 @@
     			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
     				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					       <mx:Text text="{request.@isExternal == 'Y' ? 'External Experiment ' : 'Experiment '}" width="128"  fontWeight="bold"/>
+    					       <mx:Text text="Experiment" width="80"  fontWeight="bold"/>
     					       <mx:Text text="{requestCategoryName}" width="200"  fontWeight="normal"/>
     					   </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					    <mx:Spacer width="128"/>
+    					    <mx:Spacer width="80"/>
     					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="200"/>
     					 </mx:HBox>
 		    			<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-		    			  <mx:Text text="{(this.request.@isExternal == 'Y' ? 'Registered by' : 'Submitted by')}"  fontWeight="bold" width="128"/>
+		    			  <mx:Text text="{(this.request.@isExternal == 'Y' ? 'Registered by' : 'Submitted by')}"  fontWeight="bold" width="80"/>
 		    			  <mx:Text text="{this.request.@ownerName}" />
 		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
 		    			</mx:HBox>
@@ -3800,7 +3800,7 @@
     				<mx:LinkButton fontSize="9" label="{request.@codeRequestCategory == 'SOLEXA' ? 'To HiSeq' : 'To GAIIx'}"  visible="{parentApplication.currentState == 'AdminState' &amp;&amp; (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ')}"  icon="{request.@codeRequestCategory == 'SOLEXA' ? parentApplication.iconHiSeq : parentApplication.iconSolexa}" textDecoration="underline" click="{this.showConvertIlluminaRequest()}"  id="linkbutton3" textAlign="left">    	        
     				</mx:LinkButton>
     				<mx:LinkButton fontSize="9" label="Upload files" visible="{request.@isExternal == 'Y'}" click="showExperimentUploadWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
-    				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" textAlign="left"/>
+    				<mx:LinkButton fontSize="9" label="FDT Upload files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentUploadFDTWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadFDTLink" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
     				<mx:LinkButton fontSize="9" label="Organize files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentOrganizeWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadOrganizeLink" textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" textAlign="left"/>
     			</mx:HBox>
     		</mx:AddChild>
