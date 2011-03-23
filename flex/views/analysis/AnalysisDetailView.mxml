@@ -326,11 +326,6 @@
 		
 		
 		private function onTabChange():void {
-			if (theTab.selectedChild == filesView) {
-				this.downloadButtonStack.selectedIndex = 1;
-			} else {
-				this.downloadButtonStack.selectedIndex = 0;
-			}
 		}    
 		private function selectAllDownloads():void {
 			for each(var f:Object in analysisFiles) {
@@ -356,7 +351,7 @@
 	</mx:HBox>
 
 	<mx:HBox width="100%" horizontalAlign="left" verticalAlign="bottom">
-		<mx:ViewStack id="downloadButtonStack" width="100%">
+
 			<mx:HBox  horizontalCenter="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
 				<mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" paddingLeft="0" fontSize="9" textAlign="left">
 					<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
@@ -368,36 +363,13 @@
 					<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
 					<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 				</mx:LinkButton>				
-				<mx:LinkButton label="FDT Upload files" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline" fontSize="9" textAlign="left">
+				<mx:LinkButton label="FDT Upload files" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload_large.png')" textDecoration="underline" fontSize="9" textAlign="left">
 					<mx:height>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? 22 : 0}</mx:height>
 					<mx:visible>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? true : false}</mx:visible>
 				</mx:LinkButton>				
-			</mx:HBox>
-			<mx:HBox horizontalGap="8" paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0"  verticalAlign="bottom">
-				<mx:Button id="downloadFilesButton" 
-						   click="downloadFiles()"
-						   icon="@Embed('../../assets/download.png')" 
-						   toolTip="Download selected folders"
-						   label="Download" 
-						   visible="true"/>
-				<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" label="FDT Download" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-				<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Download large files" textDecoration="underline" click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
-				<mx:LinkButton label="Edit" click="showEditWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline">
-					<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-					<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-				</mx:LinkButton>				
-				<mx:LinkButton label="Upload files" click="showUploadWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline">
-					<mx:height>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
-					<mx:visible>{parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
-				</mx:LinkButton>				
-				<mx:LinkButton label="Upload files - FDT" click="showUploadFDTWindow()" icon="@Embed(source='../../assets/upload.png')" textDecoration="underline">
-					<mx:height>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? 22 : 0}</mx:height>
-					<mx:visible>{(parentDocument.selectedAnalysis.@canUpdate == &quot;Y&quot; &amp;&amp; parentApplication.isFDTSupported ) ? true : false}</mx:visible>
-				</mx:LinkButton>				
-				
 			</mx:HBox>
 			
-		</mx:ViewStack>
+
 	</mx:HBox>
 
 </mx:VBox>
@@ -561,7 +533,20 @@
 
 	
 </mx:VBox> 
-
+<mx:ControlBar>
+	<mx:HBox width="100%">
+		<mx:Button id="downloadFilesButton" 
+				   click="downloadFiles()"
+				   icon="@Embed('../../assets/download.png')" 
+				   toolTip="Download selected folders"
+				   label="Download"  
+				   visible="{theTab.selectedChild == filesView}"/>
+		<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported ? true : false}" label="FDT Download" click="{this.showFastDataTransferDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+		<mx:Button visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isFDTSupported == false? true : false}" label="HTTP Download"  click="{this.showAlternateDownloadPage()}" icon="@Embed(source='../../assets/download_large.png')"/>
+		
+	</mx:HBox>
+	
+</mx:ControlBar>
 
 	
 </mx:VBox>
