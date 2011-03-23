@@ -43,6 +43,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                isMicroarray = "N";
   private String                isSolexa = "N";
   private String                isBioanalyzer = "N";
+  private String                isExternalOnly = "N";
   
   
   
@@ -61,6 +62,7 @@ public class ProjectRequestFilter extends DetailObject {
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
+        (isExternalOnly != null && isExternalOnly.equalsIgnoreCase("Y")) ||
         (codeRequestCategory != null && !codeRequestCategory.equals("")) ||
         (codeApplication != null && !codeApplication.equals("")) ||
         idSlideProduct != null ||
@@ -113,7 +115,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeApplication, lab.lastName, lab.firstName, slideProduct.name, projectLab.lastName, projectLab.firstName, ");
     queryBuf.append("        '', req.codeVisibility,");
     queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
-    queryBuf.append("        reqOwner.firstName, reqOwner.lastName ");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.isExternal ");
     
     getQueryBody(queryBuf);
     
@@ -347,6 +349,12 @@ public class ProjectRequestFilter extends DetailObject {
     if (showExternalExperiments != null && showExternalExperiments.equals("N")){
       this.addWhereOrAnd();
       queryBuf.append(" req.isExternal != 'Y'");
+    } 
+    
+    //  External experiments (only)
+    if (isExternalOnly != null && isExternalOnly.equals("Y")){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.isExternal = 'Y'");
     } 
     
     // Search for requests submitted in last week
@@ -829,6 +837,16 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setShowExternalExperiments(String showExternalExperiments) {
     this.showExternalExperiments = showExternalExperiments;
+  }
+
+
+  public String getIsExternalOnly() {
+    return isExternalOnly;
+  }
+
+
+  public void setIsExternalOnly(String isExternalOnly) {
+    this.isExternalOnly = isExternalOnly;
   }
 
 
