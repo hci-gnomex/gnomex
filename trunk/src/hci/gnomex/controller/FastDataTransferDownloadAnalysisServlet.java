@@ -186,7 +186,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
               process.waitFor();
               process.destroy();        
 
-              softlinks_dir = softlinks_dir + System.getProperty("file.separator");
+              softlinks_dir = softlinks_dir + File.separator;
             }
 
 
@@ -250,7 +250,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
           String argument_param = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
           out.println("<argument>"+argument_param+"</argument>");
           out.println("<argument>download</argument>");
-          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+System.getProperty("file.separator")+folderPrefix+analysisNumberBase;					
+          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+folderPrefix+analysisNumberBase;					
           out.println("<argument>" + softLinksPath + "</argument>");
           out.println("</application-desc>");
           out.println("</jnlp>");

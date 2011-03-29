@@ -256,7 +256,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 		      String argument_param = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
 		      out.println("<argument>"+argument_param+"</argument>");
 		      out.println("<argument>download</argument>");
-		      String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+System.getProperty("file.separator")+requestNumberBase;					
+		      String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+requestNumberBase;					
 		      out.println("<argument>" + softLinksPath + "</argument>");
 		      out.println("</application-desc>");
 		      out.println("</jnlp>");
