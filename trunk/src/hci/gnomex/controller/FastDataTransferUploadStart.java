@@ -11,8 +11,12 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyHelper;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -107,20 +111,24 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         }         
 
         // change ownership to fdt
-        Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
-        process.waitFor();
-        process.destroy();        
+        //Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
+        //process.waitFor();
+        //process.destroy();        
         
         // only fdt user (and root) can read and write to this directory
-        process = Runtime.getRuntime().exec( new String[] { "chmod", "700", softlinks_dir } );          
+        //process = Runtime.getRuntime().exec( new String[] { "chmod", "700", softlinks_dir } );          
+        Process process = Runtime.getRuntime().exec( new String[] { "chmod", "777", softlinks_dir } );         
         process.waitFor();
         process.destroy();        
         
         // start daemon
-        process = Runtime.getRuntime().exec( new String[] { "gnomex_fdt_daemon", "-sourceDir", softlinks_dir, "-targetDir", targetDir } );          
-        process.waitFor();
-        process.destroy();        
+        //process = Runtime.getRuntime().exec( new String[] { "gnomex_fdt_daemon", "-sourceDir", softlinks_dir, "-targetDir", targetDir } );          
+        //process.waitFor();
+        //process.destroy(); 
         
+        // Set task for moving files when uploaded
+        String taskFileDir = PropertyHelper.getInstance(sess).getFDTFileMonitorTaskDir(serverName); 
+        addTask(taskFileDir, softlinks_dir, targetDir);                
 
         this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + "'/>";
         
@@ -149,5 +157,57 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     return this;	  
 
   }
-
+  
+  private static void addTask(String taskFileDir, String sourceDir, String targetDir) { 
+    
+    if (!new File(taskFileDir).exists()) {
+      File dir = new File(taskFileDir);
+      boolean success = dir.mkdir();
+      if (!success) {
+        System.out.println("Error: unable to create task file directory.");
+        return;      
+      }
+    }   
+    
+    File taskFile;
+    int numTries = 10;    
+    while(true) {
+      String taskFileName = taskFileDir + File.separator + Long.toString(System.currentTimeMillis())+".txt";
+      taskFile = new File(taskFileName);
+      if(!taskFile.exists()) {
+        boolean success;
+        try {
+          success = taskFile.createNewFile();
+          if (!success) {
+            System.out.println("Error: unable to create task file.");
+            return;      
+          } 
+          break;
+        } catch (IOException e) {
+          System.out.println("Error: unable to create task file.");
+          return;  
+        }
+      }
+      // If the file already exists then try again but don't try forever
+      numTries--;
+      if(numTries == 0) {
+        System.out.println("Error: Unable to create task file: " + taskFileName);
+        return;
+      }      
+    }
+    
+    try {
+      PrintWriter pw = new PrintWriter(new FileWriter(taskFile));
+      SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      pw.println("Started: " + f.format(new Date()));
+      pw.println("LastActivity: 0");
+      pw.println("SourceDirectory: " + sourceDir);
+      pw.println("TargetDirectory: " + targetDir);
+      pw.flush();
+      pw.close();      
+    } catch (IOException e) {
+      System.out.println("IOException: " + e.getMessage());
+      return;
+    }    
+  }
 }
