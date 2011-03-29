@@ -29,11 +29,30 @@ public class PropertyHelper implements Serializable {
   private static final String    PROPERTY_FDT_DIRECTORY                       = "fdt_directory";
   private static final String    PROPERTY_FDT_CLIENT_CODEBASE                 = "fdt_client_codebase";
   private static final String    PROPERTY_FDT_SERVER_NAME                     = "fdt_server_name";
+  private static final String    PROPERTY_FILE_MONITOR_TASK_DIR               = "fdt_file_monitor_task_dir";
 
   
   public PropertyHelper() {    
   }
 
+  public String getFDTFileMonitorTaskDir(String serverName) {
+    String property = "";
+    String propertyName = null;
+
+    // First use the property qualified by server name.  If
+    // it isn't found, get the property without any qualification.   
+    propertyName = PROPERTY_FILE_MONITOR_TASK_DIR + "_" + serverName;
+    property = this.getProperty(propertyName);
+    if (property == null || property.equals("")) {  
+      property = this.getPropertyPartialMatch(propertyName);
+      if (property == null || property.equals("")) {  
+        propertyName = PROPERTY_FILE_MONITOR_TASK_DIR;
+        property = this.getProperty(propertyName);        
+      }
+    }
+    return property;
+  }
+  
   public String getFDTDirectoryForGNomEx(String serverName) {
 	  String property = "";
 	  String propertyName = null;
