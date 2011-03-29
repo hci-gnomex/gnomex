@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import hci.gnomex.model.Property;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ public class PropertyHelper implements Serializable {
         property = this.getProperty(propertyName);        
       }
     }
-    return property;
+    return addFileSepIfNec(property);
   }
   
   public String getFDTDirectoryForGNomEx(String serverName) {
@@ -68,7 +69,7 @@ public class PropertyHelper implements Serializable {
 			  property = this.getProperty(propertyName);			  
 		  }
 	  }
-	  return property;
+	  return addFileSepIfNec(property);
   }
   
   public String GetFDTDirectory(String serverName) {
@@ -86,7 +87,7 @@ public class PropertyHelper implements Serializable {
 			  property = this.getProperty(propertyName);
 		  }
 	  }
-	  return property;
+	  return addFileSepIfNec(property);
   }
   public String getFDTClientCodebase(String serverName) {
 	  String property = "";
@@ -230,7 +231,7 @@ public class PropertyHelper implements Serializable {
 		  }
 	  }   
 
-	  return property;
+	  return addFileSepIfNec(property);
   }
   
   public String getFlowCellDirectory(String serverName) {
@@ -265,8 +266,8 @@ public class PropertyHelper implements Serializable {
 			property = this.getProperty(propertyName);
     	}
     }
-
-    return property;
+    
+    return addFileSepIfNec(property);
   }
 
   public  String getMicroarrayDirectoryForReading(String serverName) {
@@ -321,6 +322,24 @@ public class PropertyHelper implements Serializable {
     }
     
     return mainFolderName;
+  }
+  
+  public static String addFileSepIfNec(String inputPath) {
+    
+    if(inputPath == null || inputPath.length() < 1) {
+      return inputPath;
+    }
+    String tempStr = inputPath;
+    // Change all file separators to forward slash
+    tempStr.replaceAll("\\\\", "/");
+    
+    // And then see if there is a separator at the end of the string
+    if(tempStr.charAt(tempStr.length()-1) != '/') {
+      inputPath = inputPath + File.separator;
+    }
+
+    return inputPath;
+    
   }
  
   

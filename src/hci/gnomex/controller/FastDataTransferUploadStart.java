@@ -74,7 +74,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         if (this.isValid()) {
           createYear = yearFormatter.format(analysis.getCreateDate());
           String baseDir = dh.getAnalysisWriteDirectory(serverName);
-          targetDir = baseDir + File.separator + createYear + File.separator + analysis.getNumber();
+          targetDir = baseDir + createYear + File.separator + analysis.getNumber();
         }
       } else if (idRequest != null) {
         Request experiment = (Request)sess.get(Request.class, idRequest);
@@ -84,7 +84,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         if (this.isValid()) {
           createYear = yearFormatter.format(experiment.getCreateDate());
           String baseDir = dh.getMicroarrayDirectoryForWriting(serverName);
-          targetDir = baseDir + File.separator + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetDir = baseDir + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
         }
       }
       if (this.isValid()) {
@@ -102,7 +102,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         String uuidStr = uuid.toString();
 
         // Directories must be created one level at a time so that permissions will be set properly in Linux      
-        String softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName)+ File.separator + uuidStr;       
+        String softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
 
         File dir = new File(softlinks_dir);
         boolean isDirCreated = dir.mkdir();  
@@ -172,7 +172,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     File taskFile;
     int numTries = 10;    
     while(true) {
-      String taskFileName = taskFileDir + File.separator + Long.toString(System.currentTimeMillis())+".txt";
+      String taskFileName = taskFileDir + Long.toString(System.currentTimeMillis())+".txt";
       taskFile = new File(taskFileName);
       if(!taskFile.exists()) {
         boolean success;
