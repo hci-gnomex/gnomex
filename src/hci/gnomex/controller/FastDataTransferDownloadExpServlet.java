@@ -184,11 +184,13 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
                 return;
               } 
               // change ownership to fdt
-              Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
-              process.waitFor();
-              process.destroy();        
+              //Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
+              //process.waitFor();
+              //process.destroy(); 
+              
               // only fdt user (and root) can read from this directory
-              process = Runtime.getRuntime().exec( new String[] { "chmod", "500", softlinks_dir } );          
+              //process = Runtime.getRuntime().exec( new String[] { "chmod", "500", softlinks_dir } );          
+              Process process = Runtime.getRuntime().exec( new String[] { "chmod", "777", softlinks_dir } );          
               process.waitFor();
               process.destroy();        
             }
