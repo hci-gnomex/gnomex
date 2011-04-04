@@ -238,7 +238,7 @@
 				</mx:VBox>
 			
 			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="2">
-				<mx:Label text="{parentDocument.samples.length + ' Samples'}" id="label1" textDecoration="underline" paddingTop="10"/>
+				<mx:Label text="{'Sample setup (' + parentDocument.samples.length + ' samples)'}" id="label1" textDecoration="underline" paddingTop="10"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 
 					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{parentDocument.samples.length}"
 					sortableColumns="false" alpha="0.8" fontSize="9" >
@@ -311,7 +311,7 @@
 			</mx:VBox>
 			
 			<mx:VBox width="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="4">
-				<mx:Label text="{parentDocument.hybs.length + ' Hybridizations'}" id="label3" textDecoration="underline" paddingTop="10"/>
+				<mx:Label text="{'Hybridizations (' + parentDocument.hybs.length + ')'}" id="label3" textDecoration="underline" paddingTop="10"/>
 				<mx:DataGrid width="100%" id="hybsGridConfirm" rowCount="{parentDocument.hybs.length}"
 					editable="false" dataProvider="{parentDocument.hybs}"  
 					backgroundAlpha="0" borderStyle="solid" 
@@ -328,7 +328,7 @@
 				 
 			</mx:VBox>
             <mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%"  paddingTop="4" >
-			  <mx:Label id="laneGridLabel" text="{'Sample Sequencing Runs' + ' (' + parentDocument.multiplexLanes.length + ' lanes)'}" textDecoration="underline" paddingTop="10"/>
+			  <mx:Label id="laneGridLabel" text="{'Sequencing setup ' + ' (' + parentDocument.multiplexLanes.length + ' lanes)'}" textDecoration="underline" paddingTop="10"/>
 					<mx:AdvancedDataGrid width="100%"  id="lanesConfirmGrid" 
 						rollOverColor="#C0C0C0" 
 						editable="false"
@@ -361,7 +361,7 @@
 				
 			</mx:VBox>	
             <mx:VBox  id="lanesConfirmFlatContainer"  verticalGap="0" width="100%"  paddingTop="4" >
-				  <mx:Label  text="{parentDocument.lanes.length + ' Sample Sequencing Runs'}" textDecoration="underline" paddingTop="10"/>
+				  <mx:Label  text="{'Sequencing setup (' + parentDocument.lanes.length + ' lanes)'}" textDecoration="underline" paddingTop="10"/>
 					<mx:DataGrid width="100%"  
 						rollOverColor="#C0C0C0" 
 						editable="false"
