@@ -79,6 +79,18 @@
 			<mx:State name="UniversityOnlyUserState" basedOn="UserNonSubmitterState" >
 				<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
 			</mx:State>
+			<mx:State name="ExternalUserState">
+				<mx:AddChild relativeTo="{vbox1}" position="lastChild">
+					<mx:HBox id="miscBox" horizontalGap="2" paddingTop="0">
+						<mx:Label text="User account" id="label0" styleName="welcomeLabel" paddingTop="10"/>
+					</mx:HBox>
+				</mx:AddChild>
+				<mx:AddChild relativeTo="{vbox1}" position="lastChild">
+					<mx:LinkButton label="Change Password" click="changePassword()" styleName="dashboardButton"  id="buttonChangePassword"  icon="@Embed(source='../../assets/user.png')"/>
+				</mx:AddChild>
+				<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
+				<mx:SetStyle target="{vbox10}" name="verticalGap" value="20"/>
+			</mx:State>
 		</mx:states>
 <mx:Script>
 	<![CDATA[
@@ -104,6 +116,8 @@
 					this.currentState = "AdminState";
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
 					currentState = "UserNonSubmitterState";
+				} else if (parentApplication.isExternalUser)  {
+					currentState = "ExternalUserState";
 				} else {
 					currentState = "";
 				}
@@ -149,6 +163,10 @@
 			private function showPricing():void {
 				navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_PRICING_URL)), '_blank');
 			}
+
+			private function changePassword():void {
+				navigateToURL(new URLRequest('change_password_external_user.jsp'), '_blank');
+			}
 			
 			private function showAdvancedSearch():void {				
 				parentApplication.showSearch();
@@ -187,7 +205,7 @@
 	<mx:VBox    
 		width="100%" height="100%"  
 		verticalAlign="middle" horizontalAlign="center"  
-		paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="40" paddingTop="6">
+		paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="40" paddingTop="6" id="vbox10">
  
 		
   <mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40">
@@ -220,7 +238,7 @@
   <mx:HBox verticalGap="0"    verticalAlign="middle" horizontalAlign="center" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="2" width="100%" horizontalGap="40" id="hbox6">
     <mx:VBox height="100%" id="vbox6" width="268" verticalGap="4">
       <mx:HBox id="hbox2" horizontalGap="2" verticalAlign="middle">
-        <mx:Label text="Account Setup" id="label4" styleName="welcomeLabel"/>
+        <mx:Label text="Billing Account Setup" id="label4" styleName="welcomeLabel"/>
       </mx:HBox>
       <mx:LinkButton label="Submit Work Authorization" click="showWorkAuthForm()" styleName="dashboardButton" id="button8"  toolTip="Submit a work authorization form indicating the billing account to be charged for work" icon="@Embed(source='../../assets/work_auth_form.png')"/>
     </mx:VBox>

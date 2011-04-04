@@ -131,6 +131,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
 
+  public String getIsExternalUser() {
+    if (this.isGNomExExternalUser) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+
   public static SecurityAdvisor create(Session   sess, 
                                          String    uid) throws InvalidSecurityAdvisorException {
     SecurityAdvisor securityAdvisor = null;

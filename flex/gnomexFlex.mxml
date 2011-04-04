@@ -358,6 +358,7 @@
 	        
 	        
 	        public var isUniversityOnlyUser:Boolean = false;
+			public var isExternalUser:Boolean = false;
 	        
 	        [Bindable]
 	        public var pricingURL:String = '';
@@ -935,6 +936,7 @@
 			    userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
 			    isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
+				isExternalUser = createSecurityAdvisor.lastResult.@isExternalUser == "Y" ? true : false;
 			    version = createSecurityAdvisor.lastResult.@version;
 			    		
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
@@ -961,6 +963,7 @@
 				
 			    version = getSecurityAdvisorForGuest.lastResult.@version;
 			    isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
+				isExternalUser = 'N';
 
 			    
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
