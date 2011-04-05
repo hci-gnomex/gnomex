@@ -963,7 +963,7 @@
 				
 			    version = getSecurityAdvisorForGuest.lastResult.@version;
 			    isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
-				isExternalUser = 'N';
+				isExternalUser = false;
 
 			    
 			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
