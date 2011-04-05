@@ -183,14 +183,14 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
                 System.out.println("Error. Unable to create softlinks directory.");
                 return;
               } 
-              // change ownership to fdt
-              //Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "fdt:fdt", softlinks_dir } );          
-              //process.waitFor();
-              //process.destroy(); 
               
-              // only fdt user (and root) can read from this directory
-              //process = Runtime.getRuntime().exec( new String[] { "chmod", "500", softlinks_dir } );          
-              Process process = Runtime.getRuntime().exec( new String[] { "chmod", "777", softlinks_dir } );          
+              // change ownership to HCI_fdt user
+              Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "HCI_fdt:HCI_FDTSecurity", softlinks_dir } );          
+              process.waitFor();
+              process.destroy(); 
+              
+              // only HCI_fdt user and HCI_FDTSecurity group have permissions on this directory
+              process = Runtime.getRuntime().exec( new String[] { "chmod", "550", softlinks_dir } );                   
               process.waitFor();
               process.destroy();        
             }
