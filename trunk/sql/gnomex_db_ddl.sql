@@ -1165,6 +1165,7 @@ CREATE TABLE `gnomex`.`Request` (
   `lastModifyDate` DATETIME NULL,
   `isExternal` CHAR(1) NULL,
   `idInstitution` INT(10) NULL,
+  `name` VARCHAR(200) NOT NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1215,6 +1216,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `notes` VARCHAR(500) NULL,
   `icon` VARCHAR(200) NULL,
   `type` VARCHAR(10) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)

@@ -34,6 +34,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   notes;
   private String   icon;
   private String   type;
+  private Integer  sortOrder;
 
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
@@ -182,6 +183,14 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   
   public void setType(String type) {
     this.type = type;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
   
 
