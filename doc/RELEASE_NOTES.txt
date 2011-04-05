@@ -1,11 +1,17 @@
 ﻿GNomEx Release Notes
 
+5.1.2 (Apr 5, 2011)
+---------------------
+- Rename labels (Sample setup, Sequencing setup) on Request Submit confirm tab.
+- On Submit window, order request category radio buttons by dictionary defined sort order.
+- Be able to name experiments. Name is searchable and viewed in the experiment tree.
+
+
 5.1.1
 ----------------------
 - Reworked FDT interface so that daemon is responsible for moving upload files from fdt staging directory to experiment/analysis directory.
 - Show uploaded experiment files in upload staging area in downloads (under root experiment directory)
 - Moved link buttons to top of Experiment and Analysis Detail and Edit views for (to fit in 1024x768 space)
-
 
 5.1 
 ----------------------
