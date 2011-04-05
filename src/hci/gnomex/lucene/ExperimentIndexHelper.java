@@ -22,6 +22,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       PUBLIC_NOTE = "requestPublicNote";  
   
   // Indexed fields
+  public static final String       EXPERIMENT_NAME = "experimentName";
   public static final String       PROJECT_NAME = "projectName";
   public static final String       PROJECT_DESCRIPTION = "projectDescription";
   public static final String       HYB_NOTES = "hybNotes";

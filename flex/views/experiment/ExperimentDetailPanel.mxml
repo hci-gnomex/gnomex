@@ -6,9 +6,9 @@
 <mx:VBox width="100%" verticalGap="8">
 	<mx:HBox width="100%" horizontalGap="1">
 		<mx:Image source="{detail.selectedExperiment.@icon}"/>
-		<mx:Label id="titleLabel" styleName="titleLabel" width="100%"/>
-		<mx:Spacer width="100%"/>
-		<mx:HBox verticalGap="0" horizontalGap="0">
+		<mx:Label id="titleLabel" styleName="titleLabel" />
+		<mx:Text width="100%" text="{detail.selectedExperiment.@name}" paddingLeft="8"/>
+		<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8">
 			<mx:Label text="Last modified on" visible="{detail.selectedExperiment.@lastModifyDate != ''}"/>
 			<mx:Text  text="{detail.selectedExperiment.@lastModifyDate}"/>
 		</mx:HBox>

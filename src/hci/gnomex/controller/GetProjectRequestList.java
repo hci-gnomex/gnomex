@@ -328,6 +328,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("ownerFirstName",         row[26] == null ? "" : (String)row[26]);
     requestNode.setAttribute("ownerLastName",          row[27] == null ? "" : (String)row[27]);
     requestNode.setAttribute("isExternal",             row[28] == null ? "" : (String)row[28]);
+    requestNode.setAttribute("name",                   row[29] == null ? "" : (String)row[29]);
     requestNode.setAttribute("isDirty",                "N");
     requestNode.setAttribute("isSelected",             "N");
     requestNode.setAttribute("analysisNames",          analysisNames != null ? analysisNames.toString() : "");
@@ -346,6 +347,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     if (RequestCategory.isMicroarrayRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));
+      if (requestNode.getAttributeValue("name") != null && !requestNode.getAttributeValue("name").equals("")) {
+        displayName.append(" - ");
+        displayName.append(requestNode.getAttributeValue("name"));                
+      }      
       displayName.append(" - ");
       displayName.append(requestNode.getAttributeValue("slideProductName"));      
       displayName.append(" - ");
@@ -361,6 +366,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     } else {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));
+      if (requestNode.getAttributeValue("name") != null && !requestNode.getAttributeValue("name").equals("")) {
+        displayName.append(" - ");
+        displayName.append(requestNode.getAttributeValue("name"));                
+      }
       if (requestNode.getAttributeValue("codeApplication") != null && !requestNode.getAttributeValue("codeApplication").equals("")) {
         displayName.append(" - ");
         displayName.append(dictionaryHelper.getApplication(requestNode.getAttributeValue("codeApplication")));                

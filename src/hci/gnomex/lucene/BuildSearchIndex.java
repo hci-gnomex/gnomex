@@ -108,7 +108,7 @@ public class BuildSearchIndex extends DetailObject {
       System.out.println(new Date() + " building lucene protocol index...");
       app.buildProtocolIndex();
       
-      System.out.println(new Date() + " building lucena analysis index...");
+      System.out.println(new Date() + " building lucene analysis index...");
       app.buildAnalysisIndex();
       
       System.out.println(new Date() + " disconnecting...");
@@ -318,7 +318,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       s2.idSamplePrepMethod, ");
     buf.append("       s2.otherSamplePrepMethod, ");
-    buf.append("       req.idInstitution ");
+    buf.append("       req.idInstitution, ");
+    buf.append("       req.name ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -392,7 +393,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       '', ");
     buf.append("       '',  ");
-    buf.append("       req.idInstitution ");
+    buf.append("       req.idInstitution, ");
+    buf.append("       req.name ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -461,7 +463,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s1.otherSamplePrepMethod, ");
     buf.append("       '', ");
     buf.append("       '', ");
-    buf.append("       req.idInstitution ");
+    buf.append("       req.idInstitution, ");
+    buf.append("       req.name ");
         
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -533,8 +536,9 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("      '', ");
     buf.append("       '', ");
     buf.append("       '', ");
-    buf.append("       -99 ");
-        
+    buf.append("       -99, ");
+    buf.append("       '' ");
+           
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
@@ -908,6 +912,7 @@ public class BuildSearchIndex extends DetailObject {
     String       otherSamplePrepMethod = null;
     String       samplePrepMethod = null;
     Integer      idInstitution = null;
+    String       experimentName = null;
     
     
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
@@ -997,6 +1002,7 @@ public class BuildSearchIndex extends DetailObject {
       slideProduct             = (String) row[30];
       idAppUser                = (Integer)row[31];
       idInstitution            = (Integer)row[36];
+      experimentName           = (String) row[37];
       
       slideProductOrganism     = idOrganismSlideProduct != null ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganismSlideProduct.toString()) : null;
       requestCategory          = getDictionaryDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
@@ -1129,6 +1135,8 @@ public class BuildSearchIndex extends DetailObject {
 
     // Combine all text into one search field
     StringBuffer text = new StringBuffer();
+    text.append(experimentName);
+    text.append(" ");
     text.append(projectName);
     text.append(" ");
     text.append(projectDescription);
@@ -1172,6 +1180,7 @@ public class BuildSearchIndex extends DetailObject {
     
     Map indexedFieldMap = new HashMap();
     indexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest != null ? idRequest.toString() : "unknown");      
+    indexedFieldMap.put(ExperimentIndexHelper.EXPERIMENT_NAME, experimentName);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_NAME, projectName);
     indexedFieldMap.put(ExperimentIndexHelper.PROJECT_DESCRIPTION, projectDescription);
     indexedFieldMap.put(ExperimentIndexHelper.HYB_NOTES, hybNotes.toString());
