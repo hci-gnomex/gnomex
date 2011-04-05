@@ -802,7 +802,7 @@
 
 		public function getTreeLabel(item:Object):String {
 				if (item.name() == "Request") {
-					return item.@requestNumber;
+					return item.@requestNumber + (item.@name != "" ? " - " + item.@name : "");
 				} else {
 					return item.@label;
 				}

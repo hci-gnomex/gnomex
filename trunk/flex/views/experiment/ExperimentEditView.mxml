@@ -2298,6 +2298,8 @@
 				if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
 				}
+				
+				request.@name = setupView.experimentName.text;
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
@@ -2450,6 +2452,7 @@
 				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;				
 			}
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
+			request.@name = experimentName.text;
 
 			var params:Object = new Object();
 			params.requestXMLString = request.toXMLString();
@@ -3657,15 +3660,15 @@
     			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
     				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					       <mx:Text text="Experiment" width="80"  fontWeight="bold"/>
+    					       <mx:Text text="Experiment" width="90"  fontWeight="bold"/>
     					       <mx:Text text="{requestCategoryName}" width="200"  fontWeight="normal"/>
     					   </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
-    					    <mx:Spacer width="80"/>
+    					    <mx:Spacer width="90"/>
     					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="200"/>
     					 </mx:HBox>
 		    			<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-		    			  <mx:Text text="{(this.request.@isExternal == 'Y' ? 'Registered by' : 'Submitted by')}"  fontWeight="bold" width="80"/>
+		    			  <mx:Text text="{(this.request.@isExternal == 'Y' ? 'Registered by' : 'Submitted by')}"  fontWeight="bold" width="90"/>
 		    			  <mx:Text text="{this.request.@ownerName}" />
 		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
 		    			</mx:HBox>
@@ -3804,9 +3807,14 @@
     				<mx:LinkButton fontSize="9" label="Organize files" visible="{request.@isExternal == 'Y' &amp;&amp; parentApplication.isFDTSupported}" click="showExperimentOrganizeWindow(parentApplication.theBody, request.@idRequest, request.@number)" id="uploadOrganizeLink" textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" textAlign="left"/>
     			</mx:HBox>
     		</mx:AddChild>
-    		<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-				<mx:Spacer width="100%"/>
-    			<mx:Text visible="{this.request.@lastModifyDate != ''}" text="{'Last modified  ' + this.request.@lastModifyDate}" />
+			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
+				<mx:Spacer width="8"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
+				<mx:TextInput id="experimentName" width="100%" text="{request.@name}"  />
+			</mx:AddChild>
+    		<mx:AddChild relativeTo="{hbox7}" position="lastChild" >
+    			<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
     		</mx:AddChild>
     	</mx:State>
         <mx:State name="MicroarrayState">

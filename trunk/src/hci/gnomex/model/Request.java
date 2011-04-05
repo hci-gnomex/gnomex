@@ -52,6 +52,7 @@ public class Request extends HibernateDetailObject {
   private String          codeVisibility;
   private String          isExternal;  
   private Integer         idInstitution;
+  private String          name;
   private Set             samples = new TreeSet();
   private Set             labeledSamples = new TreeSet();
   private Set             hybridizations = new TreeSet();
@@ -740,6 +741,16 @@ public class Request extends HibernateDetailObject {
 
   public void setIdInstitution(Integer idInstitution) {
     this.idInstitution = idInstitution;
+  }
+
+
+  public String getName() {
+    return name;
+  }
+
+
+  public void setName(String name) {
+    this.name = name;
   }
 
 

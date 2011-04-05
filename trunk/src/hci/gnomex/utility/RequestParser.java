@@ -157,7 +157,10 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("amendState") != null && !n.getAttributeValue("amendState").equals("")) {
       amendState = n.getAttributeValue("amendState");      
     }
-   
+    
+    if (n.getAttributeValue("name") != null && !n.getAttributeValue("name").equals("")) {
+      request.setName(n.getAttributeValue("name"));      
+    }
     
     otherCharacteristicLabel = this.unEscape(n.getAttributeValue(SampleCharacteristicEntry.OTHER_LABEL));
     
