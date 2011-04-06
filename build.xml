@@ -50,6 +50,7 @@
 		<antcall target="compile" />
 		<antcall target="jar" />
 		<antcall target="clientjar"/>
+		<antcall target="fdtfiledaemonjar"/>
 		<antcall target="flex"/>
 		<antcall target="war" />
 		<antcall target="ear" />
@@ -135,6 +136,7 @@
 
             <fileset dir="${build.class.dir}">
             	<exclude name="hci/gnomex/httpclient/*.class" />
+            	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -188,6 +190,42 @@
 		
 
 	</target>
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- FDTFileDaemon Jar                                     -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="fdtfiledaemonjar" depends="init, compile">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${fdtfiledaemon.dir}" includes="${fdtfiledaemonjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${fdtfiledaemon.dir}/${fdtfiledaemonjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/daemon/FDTFileDaemon.class" />
+            </fileset>
+
+			<manifest>
+				<section name="FDTFileDaemon">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
+        </jar>
+		
+
+	</target>	
 
 
 	<!-- ============================================== -->
