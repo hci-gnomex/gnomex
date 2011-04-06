@@ -3661,14 +3661,14 @@
     				<mx:VBox verticalGap="0">
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					       <mx:Text text="Experiment" width="90"  fontWeight="bold"/>
-    					       <mx:Text text="{requestCategoryName}" width="200"  fontWeight="normal"/>
+    					       <mx:Text text="{requestCategoryName}" width="250"  fontWeight="normal"/>
     					   </mx:HBox>
     					 <mx:HBox verticalGap="0" horizontalGap="0">
     					    <mx:Spacer width="90"/>
-    					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="200"/>
+    					    <mx:Text  text="{experimentCategoryName}" fontWeight="normal" width="250"/>
     					 </mx:HBox>
-		    			<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-		    			  <mx:Text text="{(this.request.@isExternal == 'Y' ? 'Registered by' : 'Submitted by')}"  fontWeight="bold" width="90"/>
+		    			<mx:HBox verticalGap="0" horizontalGap="0" width="340" >
+		    			  <mx:Text text="Submitted by"  fontWeight="bold" width="90"/>
 		    			  <mx:Text text="{this.request.@ownerName}" />
 		    			  <mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
 		    			</mx:HBox>
@@ -3676,7 +3676,7 @@
      				<mx:VBox verticalGap="2" maxWidth="700" width="100%" id="vbox3">
     				    
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-    				           <mx:Label text="Group"  width="70" fontWeight="bold"/>
+    				           <mx:Label text="Group"  width="80" fontWeight="bold"/>
     				           <mx:ComboBox id="requestEditLabCombo"
     				           	  labelField="@name" 
     				           	  change="this.dirty.setDirty();refreshLab()" 
@@ -3685,7 +3685,7 @@
     				           	  width="320"/>
     				       </mx:HBox>
     				    <mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="hbox5">
-    				        <mx:Label text="Project"  width="70" fontWeight="bold"/>
+    				        <mx:Label text="Project"  width="80" fontWeight="bold"/>
     				        <mx:ComboBox id="requestEditProjectCombo"
     				           	  labelField="@name" 
     				           	  change="this.dirty.setDirty()"
@@ -3694,8 +3694,8 @@
     				           	  width="320"/>
     				    </mx:HBox>
     				    <mx:HBox>
-	    				    <mx:Text visible="{this.request.@completedDate != ''}" text="{'Completed'}" width="70"  fontWeight="bold"/>    				       
-	    				    <mx:Text visible="{this.request.@completedDate != ''}" text="{this.request.@completedDate}"/>
+	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="{'Completed'}" width="80"  fontWeight="bold"/>    				       
+	    				    <mx:Text height="{this.request.@completedDate != '' ? 20 : 0}" visible="{this.request.@completedDate != ''}" text="{this.request.@completedDate}"/>
     				    </mx:HBox>
 
     				</mx:VBox>
@@ -3811,7 +3811,7 @@
 				<mx:Spacer width="8"/>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">				
-				<mx:TextInput id="experimentName" width="100%" text="{request.@name}"  />
+				<mx:TextInput id="experimentName" width="100%" text="{request.@name}" change="{this.dirty.setDirty()}"  />
 			</mx:AddChild>
     		<mx:AddChild relativeTo="{hbox7}" position="lastChild" >
     			<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}" />
