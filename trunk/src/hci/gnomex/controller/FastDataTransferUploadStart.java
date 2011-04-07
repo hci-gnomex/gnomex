@@ -126,7 +126,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         //process.destroy(); 
         
         // Set task for moving files when uploaded
-        String taskFileDir = PropertyHelper.getInstance(sess).getFDTFileMonitorTaskDir(serverName); 
+        String taskFileDir = PropertyHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 
         addTask(taskFileDir, softlinks_dir, targetDir);                
 
         this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + "'/>";
