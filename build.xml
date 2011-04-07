@@ -218,6 +218,7 @@
 				<section name="FDTFileDaemon">
 	    	      <attribute name="Built-By" value="${user.name}"/>
   	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+	 	  	      <attribute name="Main-Class" value="hci.gnomex.daemon.FDTFileDaemon"/>
 				</section>
     		</manifest>
 
