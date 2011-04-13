@@ -203,12 +203,12 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<delete>
-			<fileset dir="${fdtfiledaemon.dir}" includes="${fdtfiledaemonjar.name}" />
+			<fileset dir="${dist.dir}" includes="${fdtfiledaemonjar.name}" />
 		</delete>
 
       	<jar basedir="${build.class.dir}"
              excludes="**"
-             jarfile="${fdtfiledaemon.dir}/${fdtfiledaemonjar.name}">
+             jarfile="${dist.dir}/${fdtfiledaemonjar.name}">
 
             <fileset dir="${build.class.dir}">
             	<include name="hci/gnomex/daemon/FDTFileDaemon.class" />
@@ -568,6 +568,10 @@
 		</subant>
 
 		<subant target="clientjar">
+			<fileset dir="${opensource.dir}" includes="build.xml"/>
+		</subant>
+
+		<subant target="fdtfiledaemonjar">
 			<fileset dir="${opensource.dir}" includes="build.xml"/>
 		</subant>
 
