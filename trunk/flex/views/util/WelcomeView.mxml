@@ -91,6 +91,14 @@
 				<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
 				<mx:SetStyle target="{vbox10}" name="verticalGap" value="20"/>
 			</mx:State>
+			<mx:State name="ExternalUserNonSubmitterState" basedOn="UserNonSubmitterState">
+				<mx:AddChild relativeTo="{hbox0}" position="before">
+					<mx:Label text="User account" id="label5" styleName="welcomeLabel" paddingTop="10"/>
+				</mx:AddChild>
+				<mx:AddChild relativeTo="{hbox0}" position="before"> 
+					<mx:LinkButton label="Change Password" click="changePassword()" styleName="dashboardButton"  id="buttonChangePassword0"  icon="@Embed(source='../../assets/user.png')"/>
+				</mx:AddChild>
+			</mx:State>
 		</mx:states>
 <mx:Script>
 	<![CDATA[
@@ -115,7 +123,11 @@
 				} else if (parentApplication.currentState == "AdminState") {
 					this.currentState = "AdminState";
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
-					currentState = "UserNonSubmitterState";
+					if (parentApplication.isExternalUser)  {
+						currentState = "ExternalUserNonSubmitterState";												
+					} else {
+						currentState = "UserNonSubmitterState";						
+					}
 				} else if (parentApplication.isExternalUser)  {
 					currentState = "ExternalUserState";
 				} else {
