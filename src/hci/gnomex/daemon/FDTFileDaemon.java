@@ -57,7 +57,7 @@ public class FDTFileDaemon {
         // When the task wakes up traverse the files in the task directory and process each task
         File tasksDir = new File(taskFileDirectory);
         if (!tasksDir.exists()) {
-          System.out.println("ERROR - task file directory does not exist.");
+          System.out.println(getTimeStamp() + "ERROR - task file directory does not exist.");
           return;
         }
         File[] taskFileList = tasksDir.listFiles();
@@ -86,7 +86,7 @@ public class FDTFileDaemon {
           }
           br.close();
           if(currentLastActivity == -1 || sourceDirectory.length()==0 || targetDirectory.length()==0) {
-            System.out.println("Error: unable to process file due to missing parameters."+targetDirectory);                        
+            System.out.println(getTimeStamp() + "Error: unable to process file due to missing parameters."+targetDirectory);                        
             System.out.println("LastActivity="+currentLastActivity);
             System.out.println("SourceDirectory="+sourceDirectory);   
             System.out.println("TargetDirectory="+targetDirectory);              
@@ -96,7 +96,7 @@ public class FDTFileDaemon {
             // Terminate daemon if it has gone X minutes (maxWaitMin) with no activity
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis- currentLastActivity > maxWaitMin * 60 * 1000) {
-              System.out.println("Reached max wait time for " + fileName);
+              System.out.println(getTimeStamp() + "Reached max wait time for task " + fileName);
               isFinished = true;
             }
             if(isFinished) {
@@ -112,7 +112,7 @@ public class FDTFileDaemon {
           lastDeleteFolderCheckTime = currentTimeMillis;
           File softLinksDir = new File(softlinksDirPath);
           if (!softLinksDir.exists()) {
-            System.out.println("ERROR - softlinks_directory does not exist.");
+            System.out.println(getTimeStamp() + "ERROR - softlinks_directory does not exist.");
             return;
           }
           
@@ -124,9 +124,8 @@ public class FDTFileDaemon {
               // Check the last modified date to see if this one's been around long enough
               //System.out.println(thisFile.getName() + ":" + currentTimeMillis + ":" + thisFile.lastModified() + ":" + delFolderInactiveMin);
               if(currentTimeMillis - thisFile.lastModified() > delFolderInactiveMin * 60 * 1000) {       
-                //System.out.println("Delete " + thisFile.getName() 
-                //    + " Last Modified: " + f.format(new Date(thisFile.lastModified()))
-                //    + " Current Time: " + f.format(new Date(currentTimeMillis)));
+                System.out.println(getTimeStamp() + "Deleting " + thisFile.getCanonicalPath() 
+                    + " Last Modified: " + f.format(new Date(thisFile.lastModified())));                  
                 deleteDirectory(thisFile.getAbsolutePath());
               }
             }
@@ -134,9 +133,9 @@ public class FDTFileDaemon {
         }        
       }         
     } catch (IOException e) {
-      System.out.println("IOException: " + e.getMessage());
+      System.out.println(getTimeStamp() + "IOException: " + e.getMessage());
     } catch (InterruptedException e) {
-      System.out.println("InterruptedException: " + e.getMessage());
+      System.out.println(getTimeStamp() + "InterruptedException: " + e.getMessage());
     }
   }
   
@@ -149,7 +148,13 @@ public class FDTFileDaemon {
         deleteDirectory(f.getAbsolutePath());
       }
     }
-    return thisFile.delete();
+    boolean success = thisFile.delete();
+
+    if (!success) {
+      System.out.println(getTimeStamp() + "ERROR - Unable to delete " + dirPath);
+    }
+    
+    return success;
   }
 
 
@@ -189,14 +194,14 @@ public class FDTFileDaemon {
 
     //Delete the original file
     if (!currentFile.delete()) {
-      System.out.println("Error in updateLastActivity: could not delete original file");
+      System.out.println(getTimeStamp() + "Error in updateLastActivity: could not delete original file");
       tempFile.delete();
       return;
     }
 
     //Rename the new file to the filename the original file had.
     if (!tempFile.renameTo(currentFile))
-      System.out.println("Could not rename file");  
+      System.out.println(getTimeStamp() + "Could not rename file");  
     currentFile = new File(currentFileName);;
   }
 
@@ -207,7 +212,12 @@ public class FDTFileDaemon {
     // Look in the directory for file
     File stagingDir = new File(sourceDir);
     if (!stagingDir.exists()) {
-      System.out.println("ERROR - source directory does not exist.");
+      System.out.println(getTimeStamp() + "ERROR - source directory does not exist.");
+      return true;
+    }
+    
+    if (stagingDir.listFiles() == null) {
+      System.out.println(getTimeStamp() + "ERROR - Empty file list. Possible permission error on source directory " + sourceDir);
       return true;
     }
 
@@ -226,47 +236,73 @@ public class FDTFileDaemon {
       // Try to move to file.  If we can't move it, copy then delete it.
       String operation = "move";
       boolean success = f.renameTo(new File(targetFileName));
-      if (!success) {
-        operation = "copy";
-        // If move doesn't work then do a copy/delete
-        FileChannel in = null;  
-        FileChannel out = null; 
-
-        try {  
-          in = new FileInputStream(f).getChannel();  
-          File outFile = new File(targetFileName);  
-          out = new FileOutputStream(outFile).getChannel(); 
-          in.transferTo(0, in.size(), out);
-          in.close();
-          in = null;
-          out.close();
-          out = null; 
-          f.delete();
-          success  = true;
+      if (success) {
+        fileMoved = true;
+      } else {
+        // Java rename didn't work, possibly because we are trying to
+        // move file across file systems.  Try "mv" command instead.
+        operation = "mv";
+        try {
+          Process process = Runtime.getRuntime().exec( new String[] { "mv", f.getCanonicalPath(), targetFileName } );          
+          process.waitFor();
+          process.destroy();
+          
+          // Find out if the move worked
+          if (!new File(targetFileName).exists()) {
+            success = false;
+          } else {
+            success = true;
+            fileMoved = true;
+          }
         } catch (Exception e) {
-          success = false;  
-        } finally {
-          if (in != null) {
-            try {
-              in.close();                
-            } catch (Exception e){
-            }
-          }
-          if (out != null) {  
-            try {
-              out.close();                
-            } catch (Exception e) {
-            }
-          }
+          success = false;
+        }
+        
+        // Java rename and "mv" commend didn't work.  Now we just
+        // throw up out hands and do a copy.
+        if (!success) {
+          operation = "copy";
+          // If move doesn't work then do a copy/delete
+          FileChannel in = null;  
+          FileChannel out = null; 
 
-        }   
+          try {  
+            in = new FileInputStream(f).getChannel();  
+            File outFile = new File(targetFileName);  
+            out = new FileOutputStream(outFile).getChannel(); 
+            in.transferTo(0, in.size(), out);
+            in.close();
+            in = null;
+            out.close();
+            out = null; 
+            f.delete();
+            success  = true;
+          } catch (Exception e) {
+            success = false;  
+          } finally {
+            if (in != null) {
+              try {
+                in.close();                
+              } catch (Exception e){
+              }
+            }
+            if (out != null) {  
+              try {
+                out.close();                
+              } catch (Exception e) {
+              }
+            }
+
+          }   
+          
+        }
       }
 
       if (success) {
-        //System.out.println(operation + " " + f.getName()); 
+        System.out.println(getTimeStamp() + operation + " " + f.getAbsolutePath() +  " to " + targetDir); 
         fileMoved = true;
       } else {
-        System.out.println("ERROR - " + operation + " " + f.getName() + " to " + targetFileName + " failed.");
+        System.out.println(getTimeStamp() + "ERROR - " + operation + " " + f.getName() + " to " + targetFileName + " failed.");
         isFinished = true;
       }
     }
@@ -276,14 +312,17 @@ public class FDTFileDaemon {
         currentLastActivity = System.currentTimeMillis();
         updateLastActivity(currentLastActivity);
       } catch (NumberFormatException e) {
-        System.out.println("ERROR: NumberFormatException when trying to update lastActivity.");
+        System.out.println(getTimeStamp() + "ERROR: NumberFormatException when trying to update lastActivity.");
         isFinished = true;
       } catch (IOException e) {
-        System.out.println("ERROR: IOException when trying to update lastActivity.");
+        System.out.println(getTimeStamp() + "ERROR: IOException when trying to update lastActivity. " + e.toString());
         isFinished = true;
       }      
     }
     return isFinished;
   }
-
+  private static String getTimeStamp() {
+    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    return f.format(new Date()) + " "; 
+  }
 }
