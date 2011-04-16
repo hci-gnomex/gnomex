@@ -292,6 +292,11 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdOrganism(null);
     }
+    if (n.getAttributeValue("otherOrganism") != null && !n.getAttributeValue("otherOrganism").equals("")) {
+      sample.setOtherOrganism(n.getAttributeValue("otherOrganism"));
+    } else {
+      sample.setOtherOrganism(null);
+    }
     if (n.getAttributeValue("concentration") != null && !n.getAttributeValue("concentration").equals("")) {
       sample.setConcentration(new BigDecimal(n.getAttributeValue("concentration")));      
     } else {

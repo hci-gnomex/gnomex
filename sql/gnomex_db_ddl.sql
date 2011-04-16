@@ -1217,9 +1217,16 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `icon` VARCHAR(200) NULL,
   `type` VARCHAR(10) NULL,
   `sortOrder` INT(10) NULL,
+  `idOrganism` INT(10) NULL,
+  `idSamplePrepMethod` INT(10) NULL,
+  `isSampleBarcodingOptional` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategory_Organism` FOREIGN KEY `FK_RequestCategory_Organism` (`idOrganism`)
+    REFERENCES `gnomex`.`Organism` (`idOrganism`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1299,6 +1306,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `codeConcentrationUnit` VARCHAR(10) NULL,
   `idSampleType` INT(10) NULL,
   `idOrganism` INT(10) NULL,
+  `otherOrganism` VARCHAR(100) NULL,
   `idSampleSource` INT(10) NULL,
   `idSamplePrepMethod` INT(10) NULL,
   `otherSamplePrepMethod` VARCHAR(300) NULL,

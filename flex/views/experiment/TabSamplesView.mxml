@@ -122,6 +122,7 @@
 					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
 					" prepInstructions='" + parentDocument.seqSetup1View.prepInstructions.text + "'" +				
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
+					" otherOrganism='" + parentDocument.sampleSetupView.otherOrganism.text + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
 					
@@ -151,6 +152,7 @@
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
 					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
+					" otherOrganism='" + parentDocument.sampleSetupView.otherOrganism.text + "'" +				
 					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 					"/>");
 					
@@ -201,6 +203,7 @@
 				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
 				" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
 				" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
+				" otherOrganism='" + parentDocument.sampleSetupView.otherOrganism.text + "'" +				
 				" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
 				"/>");
 			}
@@ -747,7 +750,7 @@
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
-				corePrepInstructionsCol.visible = true;
+				corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
 					numberSequencingLanesCol.editable = false;
@@ -1203,6 +1206,7 @@
 	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true)}"/>
+					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="140" dataField="@otherOrganism"/> 
 
 
 	                <mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 

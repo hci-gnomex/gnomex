@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+
+5.1.3
+---------------------
+- For experiment submission, default the organism and sample prep method dropdown select based on request category
+- For sequencing experiment submission, only ask if samples are barcoded if the request category dictionary indicates that sample barcoding is options.
+
 5.1.2 (Apr 5, 2011)
 ---------------------
 - Rename labels (Sample setup, Sequencing setup) on Request Submit confirm tab.

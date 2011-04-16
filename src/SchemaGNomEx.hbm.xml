@@ -473,6 +473,7 @@
 		<property name="concentration" column="concentration" type="big_decimal"/>
 		<property name="codeConcentrationUnit" column="codeConcentrationUnit" type="string"/>
 		<property name="idOrganism" column="idOrganism" type="integer"/>
+		<property name="otherOrganism" column="otherOrganism" type="string"/>
 		<property name="idSampleType" column="idSampleType" type="integer"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="otherSamplePrepMethod" column="otherSamplePrepMethod" type="string"/>
@@ -1054,6 +1055,9 @@
 		<property name="icon" column="icon" type="string"/>
 		<property name="type" column="type" type="string"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
+		<property name="idOrganism" column="idOrganism" type="integer"/>
+		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
+		<property name="isSampleBarcodingOptional" column="isSampleBarcodingOptional" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
