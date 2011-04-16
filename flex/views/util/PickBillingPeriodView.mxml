@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="absolute" 
+				width="236" height="134"
+				showCloseButton="true" 
+				close="{PopUpManager.removePopUp(this)}" 
+				title="First choose year, then month:" 	 
+				borderThickness="4" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Canvas x="0" y="0" width="100%" height="109" backgroundColor="#EBEBEB" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:Label id="lblCurrentYear" x="95.5" y="2" text="2011" fontSize="12" fontWeight="bold"/>
+		<mx:Image x="59" y="3" source="@Embed(source='../../assets/resultset_previous.png')" click="changeYear(-1);"/>
+		<mx:Image x="154.5" y="3" source="@Embed(source='../../assets/resultset_next.png')"  click="changeYear(1);"/>
+		<mx:Tile id="monthContainer" x="0" y="22" height="60" width="232" tileWidth="50" tileHeight="14">
+			<mx:Button label="Jan" width="56" id="btnJan" paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Jan')"/>
+			<mx:Button label="Feb" width="56" paddingLeft="2" paddingRight="2" id="btnFeb" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Feb')"/>
+			<mx:Button label="Mar" width="56" paddingLeft="2" paddingRight="2" id="btnMar" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Mar')"/>
+			<mx:Button label="Apr" width="56" paddingLeft="2" paddingRight="2" id="btnApr" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Apr')"/>
+			<mx:Button label="May" width="56" paddingLeft="2" paddingRight="2" id="btnMay" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('May')"/>
+			<mx:Button label="Jun" width="56" paddingLeft="2" paddingRight="2" id="btnJun" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Jun')"/>
+			<mx:Button label="Jul" width="56" paddingLeft="2" paddingRight="2" id="btnJul" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Jul')"/>
+			<mx:Button label="Aug" width="56" paddingLeft="2" paddingRight="2" id="btnAug" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Aug')"/>
+			<mx:Button label="Sep" width="56" paddingLeft="2" paddingRight="2" id="btnSep" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Sep')"/>
+			<mx:Button label="Oct" width="56" paddingLeft="2" paddingRight="2" id="btnOct" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Oct')"/>
+			<mx:Button label="Nov" width="56" paddingLeft="2" paddingRight="2" id="btnNov" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Nov')"/>
+			<mx:Button label="Dec" width="56" paddingLeft="2" paddingRight="2" id="btnDec" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('Dec')"/>
+		</mx:Tile>
+		<mx:Button label="Clear" width="56" paddingLeft="2" paddingRight="2" id="btnOct0" paddingTop="2" paddingBottom="2" height="18" click="monthSelected('')" x="88" y="86"/>
+
+	</mx:Canvas>
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			
+			private var currentYear:int;
+			private var minYear:int;
+			private var maxYear:int;
+			private var activeBillingPeriods:ArrayCollection;
+			
+			public function init(initYear:int, initMaxYear:int, initMinYear:int, initActiveBillingPeriods:ArrayCollection):void {
+				currentYear = initYear;
+				minYear = initMinYear;
+				maxYear = initMaxYear;
+				lblCurrentYear.text = "" + currentYear;
+				activeBillingPeriods = initActiveBillingPeriods;	
+				enableActiveMonthButtons();
+			}
+			
+			private function changeYear(changeBy:int): void {
+				var newYear:int = currentYear + changeBy;
+				if (newYear < minYear || newYear > maxYear) {
+					return;
+				} 
+				currentYear = newYear;
+				lblCurrentYear.text = "" + currentYear;
+				enableActiveMonthButtons();
+			}
+			
+			private function enableActiveMonthButtons():void {
+				var monthButtons:Array = monthContainer.getChildren();
+				for (var i:int = 0; i < monthButtons.length; i++) {
+					var thisButton:Button = monthButtons[i];
+					var monthYear:String = thisButton.label + " " + currentYear;
+					if(activeBillingPeriods.getItemIndex(monthYear) >= 0) {
+						thisButton.enabled = true;
+					} else {
+						thisButton.enabled = false;
+					}
+				}				
+			}
+			
+			private function monthSelected(month:String):void {
+				var monthYear:String = "        ";
+				if(month.length > 2) {
+					monthYear = month + " " + currentYear;					
+				}
+				dispatchEvent(new BillingPeriodSelectEvent(monthYear));
+				PopUpManager.removePopUp(this)
+			}
+			
+			
+		]]>
+	</mx:Script>	
+</mx:TitleWindow>
