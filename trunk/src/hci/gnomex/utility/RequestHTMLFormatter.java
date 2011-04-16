@@ -480,7 +480,18 @@ public class RequestHTMLFormatter {
     }
     return spm != null && !spm.trim().equals("") ? spm : "&nbsp;";
   }
-  
+
+  private String getOrganism(Sample sample) {
+    
+    String org = null;
+    if (dictionaryHelper.getOrganism(sample).equals("Other")) {
+      org = sample.getOtherOrganism();
+    } else {
+      org = dictionaryHelper.getSamplePrepMethod(sample); 
+    }
+    return org != null && !org.trim().equals("") ? org : "&nbsp;";
+  }
+
   public Element makeLabeledSampleTable(Element container, Set labeledSamples) {
 
 

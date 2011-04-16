@@ -31,6 +31,7 @@ public class Sample extends HibernateDetailObject {
   private BigDecimal  concentration;
   private String      codeConcentrationUnit;
   private Integer     idOrganism;
+  private String      otherOrganism;
   private Integer     idSampleType;
   private Integer     idSamplePrepMethod;
   private String      otherSamplePrepMethod;
@@ -628,6 +629,14 @@ public class Sample extends HibernateDetailObject {
   
   public void setBarcodeSequence(String barcodeSequence) {
     this.barcodeSequence = barcodeSequence;
+  }
+
+  public String getOtherOrganism() {
+    return otherOrganism;
+  }
+
+  public void setOtherOrganism(String otherOrganism) {
+    this.otherOrganism = otherOrganism;
   }
 
 }

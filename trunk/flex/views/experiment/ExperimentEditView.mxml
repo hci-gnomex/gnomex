@@ -787,6 +787,8 @@
 				this.currentState = 'SolexaBaseState';
 				this.sampleSetupView.currentState = 'SolexaSetupState';
 				this.samplesView.currentState = 'SolexaSamplesState';
+				
+				showHideBarcodingQuestion();
 
 
 				filteredAppList.filterFunction = filterApplication;
@@ -892,15 +894,67 @@
 				}
 			}
 			
+			this.sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
 			this.sampleSetupView.numberOfSamplesValidator.validate();
 			this.sampleSetupView.sampleTypeValidator.validate();
 			this.sampleSetupView.samplePrepMethodValidator.validate();
+
+			
 			
 			filteredSampleTypeList.refresh();
 			samplePrepMethodList.refresh();
 			seqLibProtocolList.refresh();
 			
+			callLater(pickDefaultOrganism);
+			callLater(pickDefaultSamplePrepMethod);
 			
+			
+		}
+			
+		public function showHideBarcodingQuestion():void {
+			var requestCategory:Object = getRequestCategory();
+			// If barcoding is not optional, don't show the question,
+			// that asks about sample barcode tags
+			if (requestCategory.@isSampleBarcodingOptional == "N") {
+				sampleSetupView.radioYesBarcoding.selected = true;
+				sampleSetupView.pickRadioBarcoding();
+				sampleSetupView.barcodeQuestionVisible = false;
+			} else {
+				sampleSetupView.barcodeQuestionVisible = true;
+			}			
+		}
+			
+		private function pickDefaultOrganism():void {
+			// Select the default organism on sample setup if the request category specifies one
+			var requestCategory:Object = getRequestCategory();
+			if (requestCategory.@idOrganism != '') {
+				var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
+				if (organism is XMLList) {
+					sampleSetupView.sampleOrganismCombo.selectedItem = organism[0];
+					
+				} else {
+					sampleSetupView.sampleOrganismCombo.selectedItem = organism;
+				}
+			} else {
+				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
+			}
+		}
+			
+		private function pickDefaultSamplePrepMethod():void {
+			
+			// If the request category specified a default sample prep method,
+			// use it.
+			var requestCategory:Object = getRequestCategory();
+			if (requestCategory.@idSamplePrepMethod != '') {
+				var spm:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SamplePrepMethod',requestCategory.@idSamplePrepMethod);
+				if (spm is XMLList) {
+					sampleSetupView.samplePrepMethodCombo.selectedItem = spm[0];
+					return;
+				} else {
+					sampleSetupView.sampleOrganismCombo.selectedItem = spm;
+					return;
+				}
+			}			
 		}
 		
 		public function getSamplesGridRowNumber(item:Object,col:int):String
@@ -1860,7 +1914,9 @@
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {
-					sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);					
+					if (request.@idOrganismSampleDefault != '') {
+						sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', request.@idOrganismSampleDefault);											
+					}
 				}
 			}
 			

@@ -39,6 +39,9 @@
 	</Dictionary>
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
+         <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
+         <Filter className="hci.gnomex.model.SamplePrepMethod" filterField="idSamplePrepMethod"/>
+  	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
 	</Dictionary>
 	<Dictionary displayName="Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>	

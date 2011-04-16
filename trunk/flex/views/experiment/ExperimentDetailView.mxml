@@ -626,6 +626,7 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 				            <mx:AdvancedDataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
+							<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="100" dataField="@otherOrganism"/>
 				            <mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
 				            <mx:AdvancedDataGridColumn id="samplePrepCol" headerText="Nucl. acid extraction meth."   visible="{true}" width="100" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"/>

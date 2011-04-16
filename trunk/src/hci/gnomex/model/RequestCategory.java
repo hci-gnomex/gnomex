@@ -35,7 +35,9 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   icon;
   private String   type;
   private Integer  sortOrder;
-
+  private Integer  idOrganism;
+  private Integer  idSamplePrepMethod;
+  private String   isSampleBarcodingOptional;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
@@ -191,6 +193,30 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  public Integer getIdOrganism() {
+    return idOrganism;
+  }
+
+  public void setIdOrganism(Integer idOrganism) {
+    this.idOrganism = idOrganism;
+  }
+
+  public Integer getIdSamplePrepMethod() {
+    return idSamplePrepMethod;
+  }
+
+  public void setIdSamplePrepMethod(Integer idSamplePrepMethod) {
+    this.idSamplePrepMethod = idSamplePrepMethod;
+  }
+
+  public String getIsSampleBarcodingOptional() {
+    return isSampleBarcodingOptional;
+  }
+
+  public void setIsSampleBarcodingOptional(String isSampleBarcodingOptional) {
+    this.isSampleBarcodingOptional = isSampleBarcodingOptional;
   }
   
 

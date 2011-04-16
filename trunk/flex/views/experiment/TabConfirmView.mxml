@@ -304,6 +304,7 @@
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
+						<mx:DataGridColumn headerText="Organism (other)" width="140" dataField="@otherOrganism"/>
 		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>
