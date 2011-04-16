@@ -113,7 +113,7 @@
     method="POST"
     useProxy="false">
        <mx:request>
-         <idBillingPeriod>{billingPeriodCombo.selectedItem.@value}</idBillingPeriod>       	
+         <idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>       	
          <idLab>{labCombo.selectedItem.@idLab}</idLab>       	
          <idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
        </mx:request>
@@ -131,7 +131,7 @@
        <mx:request>
          <showOtherBillingItems>{spanOtherCheckbox.selected ? 'Y' : 'N'}</showOtherBillingItems>
          <requestNumber>{requestNumberText.text}</requestNumber>
-         <idBillingPeriod>{requestNumberText.text == "" ? billingPeriodCombo.selectedItem.@value : ""}</idBillingPeriod>       	
+         <idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
          <idLab>{requestNumberText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
          <idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>       	
        </mx:request>
@@ -176,24 +176,31 @@
 
 <mx:Script>
  	<![CDATA[
- 		import mx.formatters.CurrencyFormatter;
- 		import mx.collections.XMLListCollection; 
- 		import mx.collections.Sort;
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+		import mx.core.DragSource;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
 		import mx.events.DragEvent;
+		import mx.events.PropertyChangeEvent;
+		import mx.formatters.CurrencyFormatter;
 		import mx.managers.DragManager;
-        import mx.core.DragSource;
-        import mx.controls.Alert;
+		import mx.managers.PopUpManager;
+		import mx.messaging.channels.StreamingAMFChannel;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import hci.flex.controls.DropdownLabel;
-		import hci.flex.controls.ComboBox;
-        import views.renderers.ComboBoxBillingStatus;
-        import mx.events.CollectionEvent;	
-        import mx.events.CollectionEventKind;	
-        import mx.events.PropertyChangeEvent;
-        import mx.events.CloseEvent;
-        import views.renderers.LabelPercentage;
-        import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+		
+		import views.renderers.ComboBoxBillingStatus;
+		import views.renderers.LabelPercentage;
+		import views.util.PickBillingPeriodView;
+		import views.util.BillingPeriodSelectEvent;
         
         private var revisionNumber:int = 1;
  		
@@ -226,6 +233,7 @@
         
         private var lastSelectedItem:Object = null;
         
+		[Bindable]
         private var lastSelectedBillingPeriod:Object = null;
         
         [Bindable]
@@ -236,6 +244,11 @@
         
         private var pricingNodeToSelect:String = null;
         private var pricingIdToSelect:Object = null;
+		
+		private var minBillingYear:int = 4000;
+		private var maxBillingYear:int = 0;
+		
+		private var activeBillingPeriods:ArrayCollection;
         
         private function init():void {
         	initializeData();
@@ -250,19 +263,66 @@
         	billingPeriodSort.compareFunction = this.sortBillingPeriods;	   
         	billingPeriods.sort = billingPeriodSort;  
         	billingPeriods.refresh();
-        	billingPeriodCombo.dataProvider = billingPeriods;   
- 
+        	//billingPeriodCombo.dataProvider = billingPeriods;  
+			
+			
+			// Get min abd max year to display on month picker.
+
+			var nowYear:int = (new Date()).getFullYear();
+			var nowMonth:int = (new Date()).getMonth();
+			var months:Array = new Array(12);
+			months[0] = "Jan";
+			months[1] = "Feb";
+			months[2] = "Mar";
+			months[3] = "Apr";
+			months[4] = "May";
+			months[5] = "Jun";
+			months[6] = "Jul";
+			months[7] = "Aug";
+			months[8] = "Sep";
+			months[9] = "Oct";
+			months[10] = "Nov";
+			months[11] = "Dec";	
+			
+			pickBillingPeriodButton.label = months[nowMonth] + " " + nowYear;
+			activeBillingPeriods = new ArrayCollection();
+			
+			var test:Object = null;
+			var de:Object;
+			var currentYear:int;			
+			for each( de in billingPeriods) {
+				if (de.@display != "") {
+					var currDisplay:String = de.@display;
+					if (currDisplay.length > 3) {
+						var yearOnly:String  = currDisplay.substr(currDisplay.length - 4);
+						currentYear= parseInt(yearOnly);
+						if(currentYear < minBillingYear) {
+							minBillingYear = currentYear;
+						}
+						if(currentYear > maxBillingYear) {
+							maxBillingYear = currentYear;
+						}
+						activeBillingPeriods.addItem(currDisplay);
+					}
+				}
+			} 
+			//mChosenMonth.minYear = minBillingYear;
+			//mChosenMonth.maxYear = maxBillingYear;	
+
+			this.systemManager.addEventListener("BillingPeriodSelectEvent", billingPeriodSelected);
+			
  			var params:Object = new Object();
  			if(this.lastSelectedBillingPeriod == null) {
 	 			var currentBillingPeriod:Object = null;
-				for each( var de:Object in billingPeriods) {
+				for each( de in billingPeriods) {
 					if (de.@value != "" && de.@isCurrentPeriod == "Y") {
 						billingItemsDisplayed = new XMLListCollection();
 						dirty.resetDirty();
 						this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 		
 						currentBillingPeriod = de;
-			        	billingPeriodCombo.selectedItem = currentBillingPeriod;
+			        	//billingPeriodCombo.selectedItem = currentBillingPeriod;
+						lastSelectedBillingPeriod = currentBillingPeriod;
 			        	
 			        	params.idBillingPeriod = currentBillingPeriod.@value;
 			        	getBillingRequestList.send(params);
@@ -276,7 +336,7 @@
 				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 	
 
-	        	billingPeriodCombo.selectedItem = lastSelectedBillingPeriod;
+	        	//billingPeriodCombo.selectedItem = lastSelectedBillingPeriod;
 	        	
 	        	params.idBillingPeriod = lastSelectedBillingPeriod.@value;
 	        	getBillingRequestList.send(params);
@@ -422,8 +482,9 @@
 		}
 		
 		private function refreshBillingItems():void {
-			if (billingPeriodCombo.selectedItem == null) {
-				billingPeriodCombo.setFocus();
+			//if (billingPeriodCombo.selectedItem == null) {
+			if (lastSelectedBillingPeriod == null || lastSelectedBillingPeriod.@value == "") {
+				//billingPeriodCombo.setFocus();
 				Alert.show("Please select a billing period or enter an experiment #");
 			} else {
 				this.dirty.resetDirty();
@@ -432,7 +493,8 @@
 		}
 		
 		private function refreshBillingItemsByRequestNumber():void {
-			billingPeriodCombo.selectedItem = null;
+			//billingPeriodCombo.selectedItem = null;
+			lastSelectedBillingPeriod = null;
 			labCombo.selectedItem = null;
 			billingAccountCombo.selectedItem = null;
 			
@@ -861,7 +923,8 @@
 	       			dragNode.@codeBillingStatus = "PENDING";
 	       			var params:Object = new Object(); 
 	       			params.idRequest = dragNode.@idRequest;
-	       			params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
+					//params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
+					params.idBillingPeriod = lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "";
 	       			this.createBillingItems.send(params);
 	    	   	} else if (dragNode.name() == "Price") {
        				var newBillingItem:XML = new XML(
@@ -871,7 +934,8 @@
        			 	 " description='" + dragNode.@name + "'" +
        			 	 " unitPrice='" + (dropRequestNode.@isExternalPricing == 'Y' ? dragNode.@unitPriceExternal : dragNode.@unitPrice) + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
-       			 	 " idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
+					 //" idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
+					 " idBillingPeriod='" + (lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.selectedItem.@value : "") + "'" + 
        			 	 " idPriceCategory='" +	dragNode.parent().@idPriceCategory + "'" +
        			 	 " idPrice='" + dragNode.@idPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
@@ -1112,9 +1176,15 @@
         }
         
 		public function showBillingInvoice():void {
-			
+			/*
 			if (billingPeriodCombo.selectedItem == null ||
-			    billingPeriodCombo.selectedItem.@value == "") {
+				billingPeriodCombo.selectedItem.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	
+			}
+			*/
+			if (lastSelectedBillingPeriod == null ||
+				lastSelectedBillingPeriod.@value == "") {
 				Alert.show("Please select a billing period.");
 				return;    	
 			}
@@ -1132,7 +1202,8 @@
 				}
 				if (labNode != null) {
 					var url:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
-						'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
+						//'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
+						'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 						'&idLab=' + labNode.@idLab +
 						'&idBillingAccount=' + labNode.@idBillingAccount);
 					navigateToURL(url, '_blank');			
@@ -1145,9 +1216,15 @@
 			}
 		} 
 		public function showBillingMonthendReport():void {
-			
+			/*
 			if (billingPeriodCombo.selectedItem == null ||
-			    billingPeriodCombo.selectedItem.@value == "") {
+				billingPeriodCombo.selectedItem.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	   
+			}
+			*/
+			if (lastSelectedBillingPeriod == null ||
+				lastSelectedBillingPeriod.@value == "") {
 				Alert.show("Please select a billing period.");
 				return;    	   
 			}
@@ -1162,7 +1239,8 @@
 				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
 					    '?codeBillingStatus=' + statusNode.@status +
-						'&idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
+						//'&idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
+						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
 					navigateToURL(url, '_blank');			
 					
 				} else {
@@ -1187,8 +1265,15 @@
             usageWindow.billingPeriods = this.billingPeriods; 				
 		}
 		public function showBillingGLInterface():void {
+			/*
 			if (billingPeriodCombo.selectedItem == null ||
-			    billingPeriodCombo.selectedItem.@value == "") {
+				billingPeriodCombo.selectedItem.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	
+			} 
+			*/
+			if (lastSelectedBillingPeriod == null ||
+				lastSelectedBillingPeriod .@value == "") {
 				Alert.show("Please select a billing period.");
 				return;    	
 			} 
@@ -1213,8 +1298,10 @@
     		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
     		mx.managers.PopUpManager.centerPopUp(runWindow);
     		runWindow.setFocus();
-    		runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
-    		runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
+			//runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
+			runWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
+			//runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
+			runWindow.billingPeriod = lastSelectedBillingPeriod.@billingPeriod;
     		runWindow.grandTotalPrice = this.grandTotalPrice;
 		}		
 		
@@ -1485,7 +1572,8 @@
 			}
 			
 			if (billingPeriods.length > 1) {
-				if (this.billingPeriodCombo.selectedItem != null && this.billingPeriodCombo.selectedItem.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
+				//if (this.billingPeriodCombo.selectedItem != null && this.billingPeriodCombo.selectedItem.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
+				if (this.lastSelectedBillingPeriod != null && this.lastSelectedBillingPeriod.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
 					Alert.show("This experiment has billing items spanning multiple billing periods.\n\nPlease uncheck the checkbox 'Show related charges in other periods' to narrow the billing items to qualify the billing items to be split.");
 					return;			
 				} else {
@@ -1557,8 +1645,7 @@
 					if (!foundBillingPeriod) {
 						var newBillingPeriod:XML = new XML("<BillingPeriod idBillingPeriod='" + billingItem.@idBillingPeriod + "'/>");
 						billingPeriods.addItem(newBillingPeriod);
-					}
-					
+					}					
 				}
 				
 			}
@@ -1592,7 +1679,67 @@
 				this.billingTabNavigator.width = this.requestTabWidth;
 			}
 		}
-
+		
+		//[Bindable]
+		//private var chosenMonth:Date = new Date();
+			
+		/*
+		private function executeBillingPeriod():void
+		{
+			var selDateStr:String = months[mChosenMonth.selectedDate.month] + " " + mChosenMonth.selectedDate.fullYear;
+			var currentBillingPeriod:Object = null;
+			for each( var de:Object in billingPeriods) {
+				if (de.@display == selDateStr) {
+					lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;
+					requestNumberText.text = "";
+					refresh();
+					return;
+				}
+			}
+			Alert.show("Sorry, " + selDateStr + " is not defined in the billing period dictionary.");
+		}
+		
+		private function processMonthChooser():void
+		{
+			var selDateStr:String = months[mChosenMonth.selectedDate.month] + " " + mChosenMonth.selectedDate.fullYear;
+			var currentBillingPeriod:Object = null;
+			for each( var de:Object in billingPeriods) {
+				if (de.@display == selDateStr) {
+					currentBillingPeriod = de;
+					billingPeriodCombo.selectedItem = currentBillingPeriod;
+					return;
+				}
+			}
+			billingPeriodCombo.selectedIndex = 0;
+		}
+		*/
+		
+		private function pickBillingPeriod():void 
+		{
+			var pickBillingPeriodWindow:PickBillingPeriodView = new PickBillingPeriodView();
+			PopUpManager.addPopUp(pickBillingPeriodWindow, pickBillingPeriodButton, false);
+			PopUpManager.centerPopUp(pickBillingPeriodWindow);
+			var selYear:int = parseInt(pickBillingPeriodButton.label.substr(pickBillingPeriodButton.label.length-4));
+			if(selYear == 0) {
+				selYear = (new Date()).getFullYear();
+			}
+			pickBillingPeriodWindow.init(selYear, maxBillingYear, minBillingYear, activeBillingPeriods);
+		}
+		
+		private function billingPeriodSelected(evt:BillingPeriodSelectEvent):void
+		{
+			pickBillingPeriodButton.label = evt.selectedMonthYear;
+			var currentBillingPeriod:Object = null;
+			lastSelectedBillingPeriod = billingPeriods[0];
+			for each( var de:Object in billingPeriods) {
+			if (de.@display == evt.selectedMonthYear) {
+					lastSelectedBillingPeriod=de;
+				}
+			}
+			requestNumberText.text = "";
+			refresh();					
+		}			
+		
 
  	]]>
  </mx:Script>	
@@ -1629,27 +1776,21 @@
 			    	<mx:Label text="by:"/>
 	            </mx:VBox>
 		    	<mx:VBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
-					<mx:HBox verticalGap="0" paddingTop="0" paddingLeft="0" horizontalGap="0">
-						<mx:Label id="billingPeriodLabel" visible="true" text="Period"/>
-						<mx:ComboBox id="billingPeriodCombo" 
-							labelField="@display"
-							visible="true"  
-							change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()" width="170">
-						</mx:ComboBox>
+					<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0">
+						<mx:HBox verticalGap="0" paddingTop="0" paddingLeft="0" horizontalGap="0" verticalAlign="middle">
+							<mx:Label id="billingPeriodLabel" visible="true" text="Period"/>
+							<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130"/>					
+						</mx:HBox>						<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" width="39"/>
+						<mx:ComboBox id="labCombo" 
+									 labelField="@name"
+									 dataProvider="{parentApplication.promptedLabList}"
+									 visible="true"  width="160" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
+						</mx:ComboBox>				   
 					</mx:HBox>
 				      <mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="0" paddingRight="0">
 				      	<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
 				      </mx:CheckBox>
 		    	</mx:VBox>  
-
-			   <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0">
-					<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" width="39"/>
-					<mx:ComboBox id="labCombo" 
-						labelField="@name"
-						dataProvider="{parentApplication.promptedLabList}"
-						visible="true"  width="160" change="requestNumberText.text = &quot;&quot;;getLab.send();refresh()">
-					</mx:ComboBox>
-			   </mx:HBox>
 
 		    	<mx:HBox horizontalGap="0" height="100%" verticalAlign="top" verticalGap="0" horizontalAlign="left" paddingRight="0">
 					<mx:Label id="billingAccountLabel" visible="true" text="Account" paddingBottom="0"/>
@@ -1678,6 +1819,26 @@
 					<mx:Button id="lookupButton"  
 						height="18"
 						click="refresh()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/>
+					
+					<!--util:MonthChooser
+						id="mChosenMonth" 
+						yearNavigationEnabled="true"
+						selectedDate="{chosenMonth}"
+						styleName="monthChooserStyles" headerStyleName="monthHeaderStyle" change="processMonthChooser();"
+						/-->
+					<!--mx:Button id="execBillingPeriodButton"  
+							   height="18"
+							   click="executeBillingPeriod()" visible="true" icon="@Embed('../../assets/arrow_right.png')" width="20"/-->						
+					
+					<!--mx:ComboBox id="billingPeriodCombo" 
+								 labelField="@display"
+								 visible="true"  
+								 change="lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;requestNumberText.text = &quot;&quot;;refresh()" width="170">
+					</mx:ComboBox-->
+					<!--mx:ComboBox id="billingPeriodCombo" 
+								 labelField="@display"
+								 visible="false" width="170">
+					</mx:ComboBox-->					
 				</mx:HBox>
 
 		   </mx:HBox> 	
@@ -1687,7 +1848,7 @@
         	<mx:TabNavigator height="100%" width="220" id="billingTabNavigator"
         		paddingTop="2" styleName="navTabNavigator" 
         		paddingLeft="4" paddingRight="4" paddingBottom="4"
- change="{onBillingTabChange()}" dropShadowEnabled="true">
+ 				change="{onBillingTabChange()}" dropShadowEnabled="true">
         		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
