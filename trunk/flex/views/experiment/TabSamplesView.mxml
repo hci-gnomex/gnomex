@@ -769,7 +769,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-        	corePrepInstructionsCol.visible = false;
+        	//corePrepInstructionsCol.visible = false;
         	
         	
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
@@ -797,7 +797,7 @@
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = true;
-				corePrepInstructionsCol.visible = parentDocument.isEditState();
+				//corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
 					numberSequencingLanesCol.editable = false;
@@ -1086,7 +1086,7 @@
 							</mx:Component> 
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
-	                <mx:AdvancedDataGridColumn id="barcodeColumn" visible="true" headerText="Barcode" width="85" dataField="@idOligoBarcode" 
+	                <mx:AdvancedDataGridColumn id="barcodeColumn" visible="true" headerText="Barcode" width="130" dataField="@idOligoBarcode" 
 	                   editorDataField="value" sortable="false" editable="{parentApplication.hasPermission('canWriteAnyObject')}" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(barcodeList, '@display', '@value', '@idOligoBarcode', true)}"/>
@@ -1237,7 +1237,6 @@
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>
  	                   
-					<mx:AdvancedDataGridColumn id="corePrepInstructionsCol" headerText="Core Prep Instructions" width="140" dataField="@prepInstructions"/> 
 					<mx:AdvancedDataGridColumn headerText="Description" width="140" dataField="@description"/> 
 
                     <mx:AdvancedDataGridColumn id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 

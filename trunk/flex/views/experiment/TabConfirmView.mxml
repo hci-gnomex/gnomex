@@ -101,7 +101,7 @@
 				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				
-				corePrepInstructionsConfirmColumn.visible = true;
+				//corePrepInstructionsConfirmColumn.visible = true;
 				
 				if (!parentDocument.isEditState() &&
 				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
@@ -116,7 +116,7 @@
 				samplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
-				corePrepInstructionsConfirmColumn.visible = false;
+				//corePrepInstructionsConfirmColumn.visible = false;
 			} else {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = true;
@@ -124,7 +124,7 @@
 				samplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
-				corePrepInstructionsConfirmColumn.visible = false;
+				//corePrepInstructionsConfirmColumn.visible = false;
 			}
 			// If this is a QC request, hide the annotation columns 
 			if (parentDocument.currentState == 'QCState') {
@@ -263,7 +263,7 @@
 							</mx:headerRenderer>
 					    </mx:DataGridColumn>
 
-	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Barcode" width="66" dataField="@idOlogiBarcode" 
+	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Barcode" width="130" dataField="@idOlogiBarcode" 
 	                      editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
 	                      visible="false"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}" />
@@ -291,9 +291,7 @@
 						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
 
-						<mx:DataGridColumn id="corePrepInstructionsConfirmColumn" headerText="Instructions" width="140" dataField="@prepInstructions"/>
-
-
+					
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Seq Lib Protocol" id="seqLibProtocolConfirmCol" width="160" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
@@ -355,7 +353,6 @@
                   		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
 			            <mx:AdvancedDataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
                   		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
-						<mx:AdvancedDataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>
 					</mx:AdvancedDataGrid>
               	
@@ -381,7 +378,6 @@
                   		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
 			            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
                   		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuild').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
-						<mx:DataGridColumn width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 					</mx:columns>
 					</mx:DataGrid>
 			</mx:VBox>
