@@ -3597,6 +3597,21 @@
     	
      		
 
+		public function propagateAnalysisInstructions():void {
+			for each (var sample:Object in this.samples) {
+				sample.@analysisInstructions = this.analysisInstructions.text;
+			}
+			for each (var lane:Object in this.lanes) {
+				lane.@analysisInstructions = this.analysisInstructions.text;
+			}
+		}
+			
+		public function propagatePrepInstructions():void {
+			for each (var sample:Object in this.samples) {
+				sample.@prepInstructions = this.prepInstructions.text;
+			}
+				
+		}
 
 		]]>
 	</mx:Script>
@@ -3944,6 +3959,19 @@
             	<experiment:TabLanesView id="lanesView">            		
             	</experiment:TabLanesView>
             </mx:AddChild>
+			<mx:AddChild relativeTo="{lanesView}" position="after">
+				<mx:VBox label="Instructions">
+					
+					<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
+						<mx:Text text="{'Sample prep instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
+						<mx:TextArea id="prepInstructions" width="100%" text="{request.@corePrepInstructions}" focusOut="this.propagatePrepInstructions()" maxChars="2000" height="100%"/>
+					</mx:HBox>
+					<mx:HBox id="analysisInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
+						<mx:Text text="Analysis instructions for bionformatics." width="314"  id="text1"/>
+						<mx:TextArea id="analysisInstructions" width="100%" text="{request.@analysisInstructions}" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:AddChild>
          </mx:State>
         <mx:State name="BaseSubmitState">
         </mx:State>
