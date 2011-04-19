@@ -12,6 +12,8 @@
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
 		import mx.collections.GroupingField;
+		import mx.collections.IHierarchicalCollectionView;
+		import mx.collections.SortField;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
@@ -20,11 +22,10 @@
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
+		import mx.utils.ObjectUtil;
 		import mx.utils.StringUtil;
 		import mx.validators.NumberValidator;
 		import mx.validators.ValidationResult;
-		
-		import views.util.UploadSampleSheetView;
 		
 		import views.renderers.ComboBox;
 		import views.renderers.ComboBoxWorkflowStatus;
@@ -33,6 +34,7 @@
 		import views.util.AnnotationAdvancedDataGridColumn;
 		import views.util.PopulateSampleSheetFieldsEvent;
 		import views.util.UploadSampleSheetView;
+
 
 		            
 		public var sampleGroupingCollection:GroupingCollection = null;
@@ -97,7 +99,7 @@
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
 					emptyNode = new XML("<Sample " +
-				    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
+				    " idSample='" + "Sample" + getNextSampleId() + "'" +
 				    " name='' description='' " +
 				    " canChangeSampleName='Y'" +
 				    " canChangeSampleType='Y'" +
@@ -128,7 +130,7 @@
 					
 				} else {
 					emptyNode = new XML("<Sample " +
-				    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
+				    " idSample='" + "Sample" + getNextSampleId() + "'" +
 				    " name='' description='' " +
 				    " canChangeSampleName='Y'" +
   				    " canChangeSampleType='Y'" +
@@ -162,7 +164,7 @@
 			}
 			else if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
 				emptyNode = new XML("<Sample " +
-			    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
+			    " idSample='" + "Sample" + getNextSampleId() + "'" +
 			    " name='' description='' " +
 			    " canChangeSampleName='Y'" +
 			    " canChangeSampleType='Y'" +
@@ -184,7 +186,7 @@
 			
 			} else {
 				emptyNode = new XML("<Sample " +
-			    " idSample='" + "Sample" + parentDocument.samples.length + "'" +
+			    " idSample='" + "Sample" + getNextSampleId() + "'" +
 			    " name='' description='' " +
 			    " cy3='false'" +
 			    " cy5='false'" +			    
@@ -213,6 +215,21 @@
 
 		}
 		
+		private function getNextSampleId():Number {
+			var lastId:Number = -1;
+			
+			for each(var sample:Object in parentDocument.samples) {
+				if (sample.@idSample.toString().indexOf("Sample") == 0) {
+					var id:Number = sample.@idSample.toString().substr(6);
+					if (id > lastId) {
+						lastId = id;
+					}
+				}
+			}
+			
+			lastId++;
+			return lastId; 
+		}
  
         
 		
@@ -287,8 +304,8 @@
 				for each(var sampleToCopy:Object in samplesGrid.selectedItems) {	
 					
 					var emptyNode:XML = new XML("<Sample " +
-					" idSample='" + "Sample" + parentDocument.samples.length + "'" +
-					" name='" + sampleToCopy.@name + "'" + 
+					" idSample='" + "Sample" + getNextSampleId() + "'" +
+ 	  		        " name='" + sampleToCopy.@name + "'" + 
 					" canChangeSampleName='Y'" +
 			    	" canChangeSampleType='Y'" +
 			   	 	" canChangeSampleConcentration='Y'" +
@@ -681,6 +698,7 @@
         		var gf:GroupingField = new GroupingField();
         		gf.name = "@multiplexGroupNumber";
         		group.fields = [gf];
+				gf.compareFunction = sampleCompareFunction;
         		sampleGroupingCollection.grouping  = group;
         		sampleGroupingCollection.refresh(); 
         		this.samplesGrid.dataProvider = sampleGroupingCollection;
@@ -693,7 +711,9 @@
         		this.multiplexGroupNumberColumn.visible = true;
         		this.barcodeColumn.visible = false;
 				this.multiplexGroupNumberEditColumn.visible = false;
+				
         	} else {
+				this.samplesGrid.sortableColumns = false;
         		sampleGroupingCollection = null;
         		this.samplesGrid.dataProvider = parentDocument.samples;
         		
@@ -703,7 +723,8 @@
 
         		this.sampleRowNumberCol.visible = true;
 				this.multiplexGroupNumberColumn.visible = false;
-        		this.multiplexGroupNumberEditColumn.visible = parentDocument.isEditState();
+        		this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
+				this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.currentState == "AdminState";
 
         	}
         		
@@ -715,6 +736,32 @@
 
 		}
 		
+		private function sampleCompareFunction(a:XML, b:XML):int
+		{
+			var aPersistFlag:Number = 0;
+			var aPosition:Number = 0;
+			if (a.@idSample.toString().indexOf("Sample") > -1) {
+				aPosition = a.@idSample.toString().substr(6);
+				aPersistFlag = 1;
+			} else {
+				aPosition = a.@idSample;
+			}
+
+			var bPersistFlag:Number = 0;
+			var bPosition:Number = 0;
+			if (b.@idSample.toString().indexOf("Sample") > -1) {
+				bPosition = b.@idSample.toString().substr(6);
+				bPersistFlag = 1; // non-persistent samples sort after the persistent ones
+			} else {
+				bPosition = b.@idSample;
+			}
+			
+			if (aPersistFlag == bPersistFlag) {
+				return ObjectUtil.numericCompare(aPosition, bPosition);				
+			} else {
+				return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
+			}
+		}
 
 		
         public function showHideColumns():void {
@@ -971,9 +1018,9 @@
 							 width="{parentApplication.isBSTLinkageSupported ? 250 : 0}" 
 							 label="Link to BST samples using CC Number" />
 				<mx:HBox id="buttonsContainer">
-					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
-					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
+					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 				</mx:HBox>
