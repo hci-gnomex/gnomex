@@ -17,11 +17,11 @@ public class OligoBarcode extends DictionaryEntry implements Serializable {
   private OligoBarcodeScheme oligoBarcodeScheme;
   
   public String getDisplay() {
-    return name;
+    return getBarcodeSequenceDisplay();
   }
 
   public String getBarcodeSequenceDisplay() {
-    String display = this.getBarcodeSequence() + (this.getOligoBarcodeScheme() != null ? " (" + this.getOligoBarcodeScheme().getOligoBarcodeScheme() + ")": "");
+    String display = name + " " + this.getBarcodeSequence();
     return display;
   }
   
