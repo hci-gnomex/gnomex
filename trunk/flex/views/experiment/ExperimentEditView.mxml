@@ -905,7 +905,10 @@
 			samplePrepMethodList.refresh();
 			seqLibProtocolList.refresh();
 			
+			sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
 			callLater(pickDefaultOrganism);
+			
+			sampleSetupView.samplePrepMethodCombo.selectedIndex = 0;
 			callLater(pickDefaultSamplePrepMethod);
 			
 			
@@ -924,6 +927,7 @@
 			}			
 		}
 			
+
 		private function pickDefaultOrganism():void {
 			// Select the default organism on sample setup if the request category specifies one
 			var requestCategory:Object = getRequestCategory();
@@ -938,6 +942,8 @@
 			} else {
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 			}
+
+
 		}
 			
 		private function pickDefaultSamplePrepMethod():void {
@@ -951,10 +957,12 @@
 					sampleSetupView.samplePrepMethodCombo.selectedItem = spm[0];
 					return;
 				} else {
-					sampleSetupView.sampleOrganismCombo.selectedItem = spm;
+					sampleSetupView.samplePrepMethodCombo.selectedItem = spm;
 					return;
 				}
-			}			
+			} else {
+				sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
+			}		
 		}
 		
 		public function getSamplesGridRowNumber(item:Object,col:int):String
