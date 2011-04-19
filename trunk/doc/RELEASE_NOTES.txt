@@ -10,6 +10,9 @@
 - Unusual characters such as ° and µ can now be saved/retrieved correctly in protocol description (under Materials & Meth).
 - On seq submissions with multiplexed samples, sample order was scrambled after sample deleted.  Fixed by enforcing sort order on groupingCollection.
 - Disallow non-admin users to edit sample multiplex number on Experiment Edit window. 
+- Show sample barcode sequence alongside sequence tag name on all dropdowns (workflow, seq submission, experiment edit).
+- Don't allow core prep instructions or analysis instructions to be changed at the sample/seq lane level.  For now, instructions are still
+  stored at the detail level but in the UI, are shown at the experiment level.
 
 5.1.2 (Apr 5, 2011)
 ---------------------
