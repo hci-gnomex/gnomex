@@ -5,6 +5,9 @@
 ---------------------
 - For experiment submission, default the organism and sample prep method dropdown select based on request category
 - For sequencing experiment submission, only ask if samples are barcoded if the request category dictionary indicates that sample barcoding is options.
+- Fix for dictionary update problem where an item is deleted when other tree items have been expanded above it.
+- New month selector for billing periond.
+- Unusual characters such as ° and µ can now be saved/retrieved correctly in protocol description (under Materials & Meth).
 
 5.1.2 (Apr 5, 2011)
 ---------------------
