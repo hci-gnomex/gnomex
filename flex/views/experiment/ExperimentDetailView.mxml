@@ -28,6 +28,7 @@
 		import mx.collections.GroupingField;
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
+		import mx.utils.ObjectUtil;
 		
 		public var sampleGroupingCollection:GroupingCollection = null;		
 		
@@ -143,6 +144,7 @@
         		var group:Grouping = new Grouping();
         		var gf:GroupingField = new GroupingField();
         		gf.name = "@multiplexGroupNumber";
+				gf.compareFunction = sampleCompareFunction;
         		group.fields = [gf];
         		sampleGroupingCollection.grouping  = group;
         		sampleGroupingCollection.refresh();
@@ -168,6 +170,33 @@
         	
 			this.samplesGridConfirm.validateNow();
 		}
+		
+		private function sampleCompareFunction(a:XML, b:XML):int
+		{
+			var aPersistFlag:Number = 0;
+			var aPosition:Number = 0;
+			if (a.@idSample.toString().indexOf("Sample") > -1) {
+				aPosition = a.@idSample.toString().substr(6);
+				aPersistFlag = 1;
+			} else {
+				aPosition = a.@idSample;
+			}
+			
+			var bPersistFlag:Number = 0;
+			var bPosition:Number = 0;
+			if (b.@idSample.toString().indexOf("Sample") > -1) {
+				bPosition = b.@idSample.toString().substr(6);
+				bPersistFlag = 1; // non-persistent samples sort after the persistent ones
+			} else {
+				bPosition = b.@idSample;
+			}
+			
+			if (aPersistFlag == bPersistFlag) {
+				return ObjectUtil.numericCompare(aPosition, bPosition);				
+			} else {
+				return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
+			}
+		}		
 
 		
 		private function showCy3LabelCols(isVisible:Boolean):void {
