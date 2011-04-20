@@ -376,9 +376,11 @@
 		<!-- Delete all files in opensource directory -->
 		<delete includeEmptyDirs="true">
 			<fileset dir="${opensource.dir}">
-			  <exclude name="fdt/*.*"/>
-			  <exclude name="fdtHCI/*.*"/>
-			  <exclude name="fdtLib/*.*"/>
+			  <exclude name=".svn/**"/>
+			  <exclude name="**/.svn/**"/>
+			  <exclude name="fdt/**"/>
+			  <exclude name="fdtHCI/**"/>
+			  <exclude name="fdtLib/**"/>
 		      <include name="*/**"/>
 		      <exclude name=".project"/>
 			  <exclude name=".classpath"/>
@@ -694,6 +696,7 @@
 			<zipfileset dir="${opensource.dir}/dist/secure" includes="gnomex.ear" prefix="${opensource.name}/gnomex/dist/secure"/>
 			<zipfileset dir="${opensource.dir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${opensource.dir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
+			<zipfileset dir="${opensource.dir}/scripts" includes="*/**" prefix="${opensource.name}/gnomex/scripts"/>
 			<zipfileset dir="${opensource.dir}/orion" prefix="${opensource.name}/orion"/>
 			<zipfileset dir="${opensource.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
 			<zipfileset dir="${opensource.dir}" includes="README_INSTALL.txt" prefix="${opensource.name}"/>

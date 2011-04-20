@@ -98,11 +98,8 @@ Install Instructions
      to match your environment:
       Required properties - Make sure all of these directories exist.
       -	experiment_directory      
-      -	experiment_test_directory 
-      -	analyis_directory        
-      -	analysis_test_directory   
+      -	analysis_directory        
       -	flowcell_directory				
-      -	flowcell_test_directory   
       -	lucene_index_directory
       -	lucene_experiment_index_directory
       -	lucene_analysis_index_directory
@@ -125,6 +122,59 @@ command manually do the following
   
   For Unix environments:
   >sh index_gnomex.sh
+  
+  
+ 
+Configuring GNomEx for FDT Uploads and Downloads
+------------------------------------------------
+Fast Data Transfer is a utility developed by CalTech and CERN. See http://monalisa.cern.ch/FDT/.
+GNomEx can be configured with FDT, which is equipped to deal with the transfer of large
+data files over the internet.  NOTE:  At this time, FDT in GNomEx is set up to work with the Orion application
+server running on Unix and Linux based systems.  If you are running GNomex on a Windows or Mac server, GNomEx is
+is not yet configured to work.
+
+1. Download and unzip the fdt distribution (http://sourceforge.net/projects/gnomex/files/fdt/fdt_hci_1.0.zip/download).
+   
+2. Copy fdtServer.jar to /path/to/fdt/server.  
+
+3. Make sure port 54321 is not blocked by the firewall.
+
+4. Create an fdt staging dir.  This will be the directory that stages the files for the fdt uploads and downloads.   
+
+5. Start the fdt server in the background.
+   >java -jar fdtServer.jar -rdt [fdt_staging_dir] &
+
+6. Copy fdtClient.jar to your default web directory.  (For example, create a directory called 
+   fdt under var/www/html/ if your system is running the standard apache server.)
+   
+7. Make a directory for the fdt file monitor daemon and copy the necessary files:
+   >mkdir /path/to/fdtfilemonitor
+   >mkdir /path/to/fdtfilemonitor/tasks
+   >cp scripts/fdtFileDaemon.jar /path/to/fdtfilemonitor/
+   >cp scripts/fdtfiledaemon.sh /path/to/fdtfilemonitor/
+   
+8. Modify /path/to/fdtfilemonitor/fdtfiledaemon.sh.  Edit /path/to/fdtfilemonitor/ and /path/to/fdt_staging_dir to point
+   to your filepath locations.
+   
+9. Start the fdt file monitor daemon.
+   >cd /path/to/fdtfilemonitor
+   >sh fdtfiledaemon.sh 
+   
+10. In GNomEx, click on 'Manage Dictionaries'.  Create/edit these properties:
+     property                          value
+     ----------------------            ---------------------------------------
+     fdt_supported                     Y
+     fdt_directory                     The fdt staging dir
+     fdt_directory_gnomex              The fdt staging dir.  Only differs from fdt_directory when fdt server running on different machine than Orion (gnomex)
+     fdt_client_codebase               The URL to download fdtClient.jar.  (See step 6).
+     fdt_server_name                   The machine (domain name) that the fdt server is running on.
+     fdt_filedaemon_task_dir           Set to /path/to/fdtfilemonitor/tasks
+     
+11. In GNomEx, go to Experiment downloads or Analysis Downloads.  A button for 'FDT Download' should appear.  Also,
+    there should be an 'FDT Upload' link for uploading Analysis and Experiment data files.
+    
+12.  When using the FDT Upload or Download, webstart will lauch the FDT GUI.  To troubleshoot transfer problems, 
+     click on the menu Options -> Show Transfer Logs. 
   
         
       
