@@ -1,5 +1,12 @@
 ﻿GNomEx Release Notes
 
+5.1.4
+--------------------
+- Moved FDTFileDaemon to gnomex opensource hciFDT source tree.
+- Add other organism to lucene search index.
+- Add section to install notes for configuring GNomEx to use FDT
+
+
 
 5.1.3 (Apr 19, 2011)
 ---------------------

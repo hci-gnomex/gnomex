@@ -319,7 +319,9 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       s2.idSamplePrepMethod, ");
     buf.append("       s2.otherSamplePrepMethod, ");
     buf.append("       req.idInstitution, ");
-    buf.append("       req.name ");
+    buf.append("       req.name, ");
+    buf.append("       s1.otherOrganism, ");
+    buf.append("       s2.otherOrganism ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -394,8 +396,10 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '', ");
     buf.append("       '',  ");
     buf.append("       req.idInstitution, ");
-    buf.append("       req.name ");
-    
+    buf.append("       req.name, ");
+    buf.append("       '', ");
+    buf.append("       ''  ");
+   
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
     buf.append("LEFT JOIN   proj.lab as labProj ");
@@ -464,7 +468,9 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '', ");
     buf.append("       '', ");
     buf.append("       req.idInstitution, ");
-    buf.append("       req.name ");
+    buf.append("       req.name, ");
+    buf.append("       s1.otherOrganism, ");
+    buf.append("       '' ");
         
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -537,6 +543,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '', ");
     buf.append("       '', ");
     buf.append("       -99, ");
+    buf.append("       '', ");
+    buf.append("       '', ");
     buf.append("       '' ");
            
     buf.append("FROM        Project as proj ");
@@ -911,6 +919,8 @@ public class BuildSearchIndex extends DetailObject {
     Integer      idSamplePrepMethod = null;
     String       otherSamplePrepMethod = null;
     String       samplePrepMethod = null;
+    String       otherOrganism = null;
+    String       organism = null;
     Integer      idInstitution = null;
     String       experimentName = null;
     
@@ -936,12 +946,19 @@ public class BuildSearchIndex extends DetailObject {
       Integer idSampleType    = (Integer)row[29];
       idSamplePrepMethod      = (Integer)row[32];
       otherSamplePrepMethod   = (String)row[33];
+      otherOrganism           = (String)row[38];
       
       
       if (idOrganism != null) {
         idOrganismSampleMap.put(idOrganism, null);            
       }
-
+      
+      if (idOrganism != null) {
+        organism = getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString());        
+        if (organism.equals("Other")) {
+          organism = otherOrganism;
+        }
+      }
       if (idSampleType != null) {
         idSampleTypeMap.put(idSampleType, null);
       }      
@@ -956,7 +973,7 @@ public class BuildSearchIndex extends DetailObject {
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
       samplePrepMethods.append(samplePrepMethod    != null ? samplePrepMethod + " " : "");
-      sampleOrganisms.append(   idOrganism != null    ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) + " " : "");
+      sampleOrganisms.append(organism    != null ? organism + " " : "");
       sampleTypes.append(     idSampleType != null    ? getDictionaryDisplay("hci.gnomex.model.SampleType", idSampleType.toString()) + " " : "");
 
       //
@@ -967,6 +984,7 @@ public class BuildSearchIndex extends DetailObject {
       idOrganism           = row[12] instanceof Integer ? (Integer)row[12] : null;
       idSamplePrepMethod   = row[34] instanceof Integer ? (Integer)row[34] : null;
       otherSamplePrepMethod = (String)row[35];
+      otherOrganism        = (String)row[39];
 
       if (idSamplePrepMethod != null) {
         samplePrepMethod = getDictionaryDisplay("hci.gnomex.model.SamplePrepMethod", idSamplePrepMethod.toString());        
@@ -979,9 +997,16 @@ public class BuildSearchIndex extends DetailObject {
         idOrganismSampleMap.put(idOrganism, null);            
       }
       
+      if (idOrganism != null) {
+        organism = getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString());        
+        if (organism.equals("Other")) {
+          organism = otherOrganism;
+        }
+      }
+      
       sampleNames.append       (sampleName    != null ? sampleName + " " : "");
       sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
-      sampleOrganisms.append(   idOrganism != null    ? getDictionaryDisplay("hci.gnomex.model.Organism", idOrganism.toString()) + " " : "");
+      sampleOrganisms.append(organism    != null ? organism + " " : "");
       samplePrepMethods.append(samplePrepMethod    != null ? samplePrepMethod + " " : "");
       
       // more request data
