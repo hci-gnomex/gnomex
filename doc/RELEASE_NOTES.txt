@@ -5,7 +5,10 @@
 - Moved FDTFileDaemon to gnomex opensource hciFDT source tree.
 - Add other organism to lucene search index.
 - Add section to install notes for configuring GNomEx to use FDT
-
+- Fix for retrieving codeApplication when no buttons present in microarrayAppRadioGroup (saveRequest function in ExperimentEditView.mxml).
+- Allow save of experiments with no billing accounts.
+- Added instructions for command line download/upload to commented section in jnlp files (added fdt_jar_location property in case we need
+  to change location for obtaining fdt file -- currently http://monalisa.cern.ch/FDT/).
 
 
 5.1.3 (Apr 19, 2011)

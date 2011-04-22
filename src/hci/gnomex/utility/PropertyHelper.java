@@ -31,6 +31,7 @@ public class PropertyHelper implements Serializable {
   private static final String    PROPERTY_FDT_CLIENT_CODEBASE                 = "fdt_client_codebase";
   private static final String    PROPERTY_FDT_SERVER_NAME                     = "fdt_server_name";
   private static final String    PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR       = "fdt_file_daemon_task_dir";
+  private static final String    PROPERTY_FDT_JAR_LOCATION                    = "fdt_jar_location";
 
   
   public PropertyHelper() {    
@@ -197,10 +198,28 @@ public class PropertyHelper implements Serializable {
       return false;
     }
   }
+    
+  public String getFDTJarLocation(String serverName) {
+    // First try to get property that is qualified by server name.  
+    // Then, try with partial match. If that isn't found then get 
+    // the property without any qualification.    
+    String property = "";
+    String propertyName = PROPERTY_FDT_JAR_LOCATION + "_" + serverName;
+    property = this.getProperty(propertyName);
+    if (property == null || property.equals("")) { 
+      property = this.getPropertyPartialMatch(propertyName);
+      if (property == null || property.equals("")) { 
+        propertyName = PROPERTY_FDT_JAR_LOCATION;
+        property = this.getProperty(propertyName);        
+      }
+    }   
+
+    return property;
+  }  
   
   public String getAnalysisReadDirectory(String serverName) {
 	  // First try to get property that is qualified by server name.  
-	  // Then, try with partial mathc. If that isn't found then get 
+	  // Then, try with partial match. If that isn't found then get 
 	  // the property without any qualification.	  
 	  String property = "";
 	  String propertyName = PROPERTY_ANALYSIS_READ_DIRECTORY + "_" + serverName;

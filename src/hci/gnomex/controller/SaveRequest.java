@@ -1319,46 +1319,46 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
     
-    if (priceSheet == null) {
-      throw new Exception("Cannot find price sheet to create billing items for added services");
-    }
+    //if (priceSheet == null) {
+    //  throw new Exception("Cannot find price sheet to create billing items for added services");
+    //}
     
-     
-      
-    for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
-      PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
-      PriceCategory priceCategory = priceCategoryX.getPriceCategory();
+    if (priceSheet != null) {
+      for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
+        PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
+        PriceCategory priceCategory = priceCategoryX.getPriceCategory();
 
-      // Ignore inactive price categories
-      if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
-        continue;
-      }
-      
+        // Ignore inactive price categories
+        if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
+          continue;
+        }
+        
 
-      // Instantiate plugin for billing category
-      BillingPlugin plugin = null;
-      if (priceCategory.getPluginClassName() != null) {
-        try {
-          plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-        } catch(Exception e) {
-          log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+        // Instantiate plugin for billing category
+        BillingPlugin plugin = null;
+        if (priceCategory.getPluginClassName() != null) {
+          try {
+            plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
+          } catch(Exception e) {
+            log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+          }
+
         }
 
+        // Get the billing items
+        if (plugin != null) {
+          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);    
+          
+          billingItems.addAll(billingItemsForCategory);                
+        }
       }
-
-      // Get the billing items
-      if (plugin != null) {
-        List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes);    
-        
-        billingItems.addAll(billingItemsForCategory);                
+      
+     
+      for(Iterator i = billingItems.iterator(); i.hasNext();) {
+        BillingItem bi = (BillingItem)i.next();
+        sess.save(bi);
       }
-    }
-    
-   
-    for(Iterator i = billingItems.iterator(); i.hasNext();) {
-      BillingItem bi = (BillingItem)i.next();
-      sess.save(bi);
-    }
+    }    
   }
   
   
