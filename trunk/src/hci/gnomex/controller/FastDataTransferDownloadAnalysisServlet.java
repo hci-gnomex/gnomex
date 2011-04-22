@@ -234,6 +234,23 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
           out.println("<jnlp spec=\"1.0\"");
           String codebase_param = PropertyHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
           out.println("codebase=\""+codebase_param+"\">");
+          out.println("<!--");
+          out.println("");
+          out.println("Command line download instructions:");
+          out.println("");
+          String fdtJarLoc = PropertyHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
+          String fdtServerName = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
+          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+folderPrefix+analysisNumberBase;          
+          if (fdtJarLoc == null || fdtJarLoc.equals("")) {
+            fdtJarLoc = "http://monalisa.cern.ch/FDT/";
+          }
+          out.println("1) Download the fdt.jar app from " + fdtJarLoc);
+          out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
+          out.println("3) Execute the following on the command line after changing the path2xxx variables:");
+          out.println("");
+          out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+          out.println("");
+          out.println("-->");
           out.println("<information>");
           out.println("<title>FDT GUI</title>");
           out.println("<vendor>Sun Microsystems, Inc.</vendor>");
@@ -247,10 +264,8 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
           out.println("<j2se version=\"1.6+\"/>");
           out.println("</resources>");
           out.println("<application-desc main-class=\"gui.FdtMain\">");
-          String argument_param = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
-          out.println("<argument>"+argument_param+"</argument>");
+          out.println("<argument>"+fdtServerName+"</argument>");
           out.println("<argument>download</argument>");
-          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+folderPrefix+analysisNumberBase;					
           out.println("<argument>" + softLinksPath + "</argument>");
           out.println("</application-desc>");
           out.println("</jnlp>");

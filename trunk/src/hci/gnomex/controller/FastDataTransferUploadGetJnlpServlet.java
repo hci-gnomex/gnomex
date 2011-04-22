@@ -7,6 +7,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyHelper;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
@@ -100,6 +101,22 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
           out.println("<jnlp spec=\"1.0\"");
           String codebase_param = PropertyHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
           out.println("codebase=\""+codebase_param+"\">");
+          out.println("<!--");
+          out.println("");
+          out.println("Command line upload instructions:");
+          out.println("");
+          String fdtJarLoc = PropertyHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
+          String fdtServerName = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
+          if (fdtJarLoc == null || fdtJarLoc.equals("")) {
+            fdtJarLoc = "http://monalisa.cern.ch/FDT/";
+          }
+          out.println("1) Download the fdt.jar app from " + fdtJarLoc);
+          out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
+          out.println("3) Execute the following on the command line after changing the path2xxx variables:");
+          out.println("");
+          out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -r -c " + fdtServerName + " -d " + softLinksPath + " path2YourLocalDirContainingFiles2Upload/");
+          out.println("");
+          out.println("-->");   
           out.println("<information>");
           out.println("<title>FDT GUI</title>");
           out.println("<vendor>Sun Microsystems, Inc.</vendor>");
@@ -113,8 +130,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
           out.println("<j2se version=\"1.6+\"/>");
           out.println("</resources>");
           out.println("<application-desc main-class=\"gui.FdtMain\">");
-          String argument_param = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
-          out.println("<argument>"+argument_param+"</argument>");
+          out.println("<argument>"+fdtServerName+"</argument>");
           out.println("<argument>upload</argument>");					
           out.println("<argument>" + softLinksPath + "</argument>");
           out.println("</application-desc>");
