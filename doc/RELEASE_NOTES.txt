@@ -9,6 +9,7 @@
 - Allow save of experiments with no billing accounts.
 - Added instructions for command line download/upload to commented section in jnlp files (added fdt_jar_location property in case we need
   to change location for obtaining fdt file -- currently http://monalisa.cern.ch/FDT/).
+- Fixed problem with billing period not being set when price dragged to billing sheet. Added code to validate that billing period has been selected.
 
 
 5.1.3 (Apr 19, 2011)

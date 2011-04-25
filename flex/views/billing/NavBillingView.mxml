@@ -935,7 +935,7 @@
        			 	 " unitPrice='" + (dropRequestNode.@isExternalPricing == 'Y' ? dragNode.@unitPriceExternal : dragNode.@unitPrice) + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
 					 //" idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
-					 " idBillingPeriod='" + (lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.selectedItem.@value : "") + "'" + 
+					 " idBillingPeriod='" + (lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "") + "'" + 
        			 	 " idPriceCategory='" +	dragNode.parent().@idPriceCategory + "'" +
        			 	 " idPrice='" + dragNode.@idPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
@@ -1095,6 +1095,11 @@
  							isEmptyPriceOrQty = true;
  							break;
  						}
+						if (bi1.@idBillingPeriod == '') {
+							Alert.show("Each price must have an associated billing period.",
+								"Error");
+							return;
+						}
  					}					
  				} 
  			}
@@ -1103,7 +1108,7 @@
  				msg += "External account to be approved.  Has pricing been verified?\n";
  			}
  			if (isEmptyPriceOrQty) {
- 				msg += "Price or qty is blank.  Proceed anyways?\n"
+ 				msg += "Price or qty is blank.  Proceed anyway?\n"
  			}
  			
  			if (msg != '') {
