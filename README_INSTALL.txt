@@ -140,9 +140,12 @@ is not yet configured to work.
 3. Make sure port 54321 is not blocked by the firewall.
 
 4. Create an fdt staging dir.  This will be the directory that stages the files for the fdt uploads and downloads.   
-
-5. Start the fdt server in the background.
-   >java -jar fdtServer.jar -rdt [fdt_staging_dir] &
+   VERY IMPORTANT: the fdt stagin directory should be a sandbox directory that ONLY contains temporary fdt directories and
+   files.  Make sure that this directory does not contain any files or subdirectories that should be restricted
+   from FDT transfers.
+   
+5. Start the fdt server in the background.  
+   >nohup java -jar fdtServer.jar -rdt fdt_staging_dir &
 
 6. Copy fdtClient.jar to your default web directory.  (For example, create a directory called 
    fdt under var/www/html/ if your system is running the standard apache server.)
@@ -158,7 +161,7 @@ is not yet configured to work.
    
 9. Start the fdt file monitor daemon.
    >cd /path/to/fdtfilemonitor
-   >sh fdtfiledaemon.sh 
+   >nohup sh fdtfiledaemon.sh 
    
 10. In GNomEx, click on 'Manage Dictionaries'.  Create/edit these properties:
      property                          value
