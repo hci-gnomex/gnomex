@@ -299,7 +299,7 @@
 		
 		private var isInitialized:Boolean = false;
 			
-		private var lastSelectedApplication;
+		private var lastSelectedApplication:Object = null;
 			
 		private var alertButtonWidth:Number = Alert.buttonWidth
 
