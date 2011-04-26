@@ -258,7 +258,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           out.println("");
           out.println("-->");	
           out.println("<information>");
-		      out.println("<title>FDT GUI</title>");
+		      out.println("<title>GNomEx FDT Download Experiment Files</title>");
 		      out.println("<vendor>Sun Microsystems, Inc.</vendor>");
 		      out.println("<offline-allowed/>");
 		      out.println("</information>");
