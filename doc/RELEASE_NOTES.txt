@@ -10,6 +10,7 @@
 - Added instructions for command line download/upload to commented section in jnlp files (added fdt_jar_location property in case we need
   to change location for obtaining fdt file -- currently http://monalisa.cern.ch/FDT/).
 - Fixed problem with billing period not being set when price dragged to billing sheet. Added code to validate that billing period has been selected.
+- Fix bug that was ignoring barcoding radio selection of yes when user submits Illumina GAII seq request.
 - Reworked fix for unusual characters in protocol description -- completely escaping the text was causing problems for the Lucene index compile. Replaced
   with a custom function to escape special characters.
 - Modified Lucene search to add the ability to search on partial words.

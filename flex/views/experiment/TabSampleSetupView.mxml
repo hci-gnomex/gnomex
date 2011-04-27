@@ -736,11 +736,11 @@
             <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                 <mx:HBox id="barcodeContainer" width="100%" horizontalGap="0" visible="{barcodeQuestionVisible}">
                 	<mx:Text text="(6) Should sequencing libraries be constructed with barcode tags for multiplexing capability?" width="305"  id="label13" visible="{barcodeQuestionVisible}"/>
-                	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="barcodeRadioBox" visible="{barcodeQuestionVisible}">
-                		<mx:RadioButtonGroup id="barcodeRadioGroup"/>
+                	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="normalBox" id="barcodeRadioBox" visible="{barcodeQuestionVisible}">
+                		<mx:RadioButtonGroup id="barcodeRadioGroup" selectedValue="Y"/>
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require barcoding" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()" selected="true">
                 		</mx:RadioButton>
-                		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()">
+                		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()" selected="false">
                 		</mx:RadioButton>
                 	</mx:VBox>
                 	<mx:Text width="300" id="barcodingNote" styleName="submitNote" height="40" paddingLeft="4" visible="{barcodeQuestionVisible}">									
@@ -764,7 +764,7 @@
                 <mx:value>(6) How are sequencing libraries constructed with barcode tags for multiplexing capability?</mx:value>
             </mx:SetProperty>
             <mx:AddChild relativeTo="{radioNoBarcoding}" position="before">
-                <mx:RadioButton groupName="barcodeRadioGroup" value="C" id="radioYesCustomBarcoding" label="Samples tagged with custom barcode sequence" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()">
+                <mx:RadioButton groupName="barcodeRadioGroup" value="C" id="radioYesCustomBarcoding" label="Samples tagged with custom barcode sequence" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()">
                 </mx:RadioButton>
             </mx:AddChild>
             <mx:SetProperty target="{radioYesBarcoding}" name="label" value="Samples tagged with Illumina multiplexing sequencing primers "/>
@@ -772,6 +772,7 @@
             <mx:SetProperty target="{barcodeRadioBox}" name="visible" value="true"/>
             <mx:SetProperty target="{barcodingNote}" name="visible" value="true"/>
             <mx:SetProperty target="{radioNoBarcoding}" name="visible" value="{barcodeQuestionVisible}"/>
+            <mx:SetEventHandler target="{radioYesBarcoding}" name="change" handler="pickRadioBarcoding()"/>
         </mx:State>
         <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
              <mx:AddChild relativeTo="{hbox4}" position="lastChild">

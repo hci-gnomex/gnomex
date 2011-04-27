@@ -918,12 +918,13 @@
 		}
 			
 		public function showHideBarcodingQuestion():void {
+			sampleSetupView.radioYesBarcoding.selected = true;
+			sampleSetupView.pickRadioBarcoding();
+
 			var requestCategory:Object = getRequestCategory();
 			// If barcoding is not optional, don't show the question,
 			// that asks about sample barcode tags
 			if (requestCategory.@isSampleBarcodingOptional == "N") {
-				sampleSetupView.radioYesBarcoding.selected = true;
-				sampleSetupView.pickRadioBarcoding();
 				sampleSetupView.barcodeQuestionVisible = false;
 			} else {
 				sampleSetupView.barcodeQuestionVisible = true;
