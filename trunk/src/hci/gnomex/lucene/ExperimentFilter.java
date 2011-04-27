@@ -76,7 +76,7 @@ public class ExperimentFilter extends DetailObject {
       text = text.replaceAll(" or ", " OR ");
       this.addLogicalOperator();
       searchText.append(" " + ExperimentIndexHelper.TEXT + ":(");
-      searchText.append(text + "*");
+      searchText.append("*" + text + "*");
       searchText.append(") ");
 
       displayText.append(" any text field = " + text);
@@ -114,7 +114,7 @@ public class ExperimentFilter extends DetailObject {
           }          
         }
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
-        searchText.append(text2 + "*");
+        searchText.append("*" + text2 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text2);
@@ -130,7 +130,7 @@ public class ExperimentFilter extends DetailObject {
           }          
         }
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
-        searchText.append(text3 + "*");
+        searchText.append("*" + text3 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text3);
@@ -146,7 +146,7 @@ public class ExperimentFilter extends DetailObject {
           }          
         }
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
-        searchText.append(text4 + "*");
+        searchText.append("*" + text4 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text4);

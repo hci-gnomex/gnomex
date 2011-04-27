@@ -168,7 +168,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         
         if (searchText != null && searchText.trim().length() > 0) {
           log.debug("Lucene search: " + searchText);
-          Query query = new QueryParser("text", new StandardAnalyzer()).parse(searchText);
+          QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+          myQueryParser.setAllowLeadingWildcard(true);
+          Query query = myQueryParser.parse(searchText);
           
           // Build security filter        
           QueryWrapperFilter filter = this.buildSecurityQueryFilter(securitySearchText);
@@ -185,7 +187,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           
         } else {
           if (securitySearchText != null) {
-            Query query = new QueryParser("text", new StandardAnalyzer()).parse(securitySearchText);     
+            QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+            myQueryParser.setAllowLeadingWildcard(true);
+            Query query = myQueryParser.parse(securitySearchText);
             Hits hits = searcher.search(query);
             processHits(hits, securitySearchText, dh);
           } else {
@@ -208,7 +212,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         
         if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
           log.debug("Lucene protocol search: " + protocolSearchText);
-          Query query = new QueryParser("text", new StandardAnalyzer()).parse(protocolSearchText);
+          QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+          myQueryParser.setAllowLeadingWildcard(true);
+          Query query = myQueryParser.parse(protocolSearchText);          
           
           // Search for the query
           Hits protocolHits = protocolSearcher.search(query);
@@ -242,7 +248,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
         if (analysisSearchText != null && analysisSearchText.trim().length() > 0) {
           log.debug("Lucene analysis search: " + analysisSearchText);
-          Query query = new QueryParser("text", new StandardAnalyzer()).parse(analysisSearchText);
+          QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+          myQueryParser.setAllowLeadingWildcard(true);
+          Query query = myQueryParser.parse(analysisSearchText);          
           
           // Build security filter        
           QueryWrapperFilter filter = this.buildSecurityQueryFilter(analysisSecuritySearchText);
@@ -259,7 +267,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
           
         } else {
           if (analysisSecuritySearchText != null) {
-            Query query = new QueryParser("text", new StandardAnalyzer()).parse(analysisSecuritySearchText);     
+            QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+            myQueryParser.setAllowLeadingWildcard(true);
+            Query query = myQueryParser.parse(analysisSecuritySearchText);          
             Hits hits = analysisSearcher.search(query);
             processAnalysisHits(hits, analysisSecuritySearchText);
           } else {
@@ -962,7 +972,9 @@ public class SearchIndex extends GNomExCommand implements Serializable {
     QueryWrapperFilter filter = null;
     if (searchText != null) {
       log.debug("Security filter: " + searchText.toString());
-      Query securityQuery = new QueryParser("text", new StandardAnalyzer()).parse(searchText.toString());
+      QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
+      myQueryParser.setAllowLeadingWildcard(true);
+      Query securityQuery = myQueryParser.parse(searchText.toString());          
       filter = new QueryWrapperFilter(securityQuery);            
     }
     return filter;
