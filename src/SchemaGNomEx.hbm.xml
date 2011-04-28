@@ -871,10 +871,13 @@
 		<id name="idNumberSequencingCyclesAllowed" column="idNumberSequencingCyclesAllowed" type="integer">
 			<generator class="native"/>
 		</id>
+		<property name="name" column="name" type="string"/>
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 		<property name="idNumberSequencingCycles" column="idNumberSequencingCycles" type="integer"/>
+		<property name="idSeqRunType" column="idSeqRunType" type="integer"/>
+		<property name="notes" column="notes" type="string"/>
 		<many-to-one name="numberSequencingCycles"  column="idNumberSequencingCycles" class="hci.gnomex.model.NumberSequencingCycles" cascade="none" insert="false" update="false" />
-		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
+		<many-to-one name="seqRunType"  column="idSeqRunType" class="hci.gnomex.model.SeqRunType" cascade="none" insert="false" update="false" />
 		
 	</class>
 

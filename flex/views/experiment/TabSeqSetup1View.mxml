@@ -2,7 +2,21 @@
 <mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false">
 	<mx:states>
 		<mx:State name="BarcodeState">
-			<mx:AddChild relativeTo="{seqRunTypeContainer}" position="before">
+			<mx:SetProperty target="{label10}" name="text">
+				<mx:value>(2) Select the desired number of sequencing cycles.</mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{label11}" name="text" value="(3) Do you want the sequence data to be aligned?"/>
+			<mx:SetProperty target="{label10}" name="width" value="340"/>
+			<mx:SetProperty target="{label11}" name="width" value="340"/>
+			<mx:SetProperty target="{label12}" name="width" value="340"/>
+			<mx:SetProperty target="{text1}" name="width" value="340"/>
+			<mx:SetProperty target="{text1}" name="text">
+				<mx:value>(5) Provide any special analysis instructions for bionformatics.</mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{label12}" name="text">
+				<mx:value>{'(4) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}</mx:value>
+			</mx:SetProperty>
+			<mx:AddChild relativeTo="{textarea1}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="340"/>
 					<mx:NumericStepper id="numberSamplesPerChannel" minimum="2" value="2" stepSize="1" maximum="{this.maxSamplesPerChannel}">
@@ -10,22 +24,7 @@
 					</mx:NumericStepper>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{label9}" name="text" value="(2) Select the sequencing run type:"/>
-			<mx:SetProperty target="{label10}" name="text">
-				<mx:value>(3) Select the desired number of sequencing cycles.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{label11}" name="text" value="(4) Do you want the sequence data to be aligned?"/>
-			<mx:SetProperty target="{label9}" name="width" value="340"/>
-			<mx:SetProperty target="{label10}" name="width" value="340"/>
-			<mx:SetProperty target="{label11}" name="width" value="340"/>
-			<mx:SetProperty target="{label12}" name="width" value="340"/>
-			<mx:SetProperty target="{text1}" name="width" value="340"/>
-			<mx:SetProperty target="{text1}" name="text">
-				<mx:value>(6) Provide any special analysis instructions for bionformatics.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{label12}" name="text">
-				<mx:value>{'(5) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}</mx:value>
-			</mx:SetProperty>
+			<mx:SetStyle target="{hbox1}" name="verticalAlign" value="bottom"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
@@ -44,10 +43,8 @@
 
 			var idSeqRunType:Object = ''; 
 			if (parentDocument.isSolexaState()) {
-				if (this.seqRunTypeRadioGroup.selectedValue != null) {
-					idSeqRunType = this.seqRunTypeRadioGroup.selectedValue;					
-				} 
-	       		
+				idSeqRunType = this.getIdSeqRunTypeSelected();				
+				
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@idSeqRunType = idSeqRunType;
 				}
@@ -90,20 +87,48 @@
        	public function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.numberSequencingCyclesRadioGroup.selectedValue != null) {
-					sample.@idNumberSequencingCycles = this.numberSequencingCyclesRadioGroup.selectedValue;				
+					
+					sample.@idNumberSequencingCycles = getIdNumberSequencingCyclesSelected();				
 				} else {
 					sample.@idNumberSequencingCycles = '';
 				}
 			}
 			for each (var lane:Object in parentDocument.lanes) {
 				if (this.numberSequencingCyclesRadioGroup.selectedValue != null) {
-					lane.@idNumberSequencingCycles = this.numberSequencingCyclesRadioGroup.selectedValue;
+					lane.@idNumberSequencingCycles = getIdNumberSequencingCyclesSelected();
 				} else {
 					lane.@idNumberSequencingCycles = '';
 				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
+		
+		public function getIdNumberSequencingCyclesSelected():String {
+			var idNumberSequencingCycles:String = '';
+			if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
+				for each(var item:Object in parentDocument.filteredNumberSequencingCycleAllowedList) {
+					if (item.@value == this.numberSequencingCyclesRadioGroup.selectedValue) {
+						idNumberSequencingCycles = item.@idNumberSequencingCycles;
+						break;
+					}
+				}
+			}
+			return idNumberSequencingCycles;
+		}
+		public function getIdSeqRunTypeSelected():String {
+			var idSeqRunType:String = '';
+			if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
+				for each(var item:Object in parentDocument.filteredNumberSequencingCycleAllowedList) {
+					if (item.@value == this.numberSequencingCyclesRadioGroup.selectedValue) {
+						idSeqRunType = item.@idSeqRunType;
+						break;
+					}
+				}
+			}
+			return idSeqRunType;
+		}
+		
+		
 		public function selectDefaultGenomeBuild():void {
 			if (this.genomeBuildCombo.dataProvider.length > 1) {
 				for each(var genomeBuild:Object in this.genomeBuildCombo.dataProvider) {
@@ -121,8 +146,7 @@
         	if (parentDocument.isEditState()) {
         		isComplete = true;
         	}else if (parentDocument.isSolexaState()) {
-	        	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '' &&
-	        	    this.seqRunTypeRadioGroup.selectedValue != null && seqRunTypeRadioGroup.selectedValue != '') {
+	        	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
 	        	
 	        		if (this.currentState == 'BarcodeState') {
 						if (this.numberSamplesPerChannel.value > 0 && this.barcodes.length > 0) {
@@ -280,19 +304,7 @@
         	
         }
         
-        private function pickSeqRunType():void {
-        	if (this.seqRunTypeRadioGroup.selectedValue != null && this.seqRunTypeRadioGroup.selectedValue != '') {
-        		this.seqRunTypeBox.styleName = "normalBox";
-        	} else {
-        		this.seqRunTypeBox.styleName = "requiredBox";
-        	}
-			parentDocument.samplePrepMethodList.refresh();
-			if (!parentDocument.isAmendState()) {
-				parentDocument.samplesView.initializeSamplesGrid();
-			}
-			this.propagateSeqRunType();
-			this.checkSeqSetup1Completeness(); 		        	
-        }
+
 
         private function pickNumberSequencingCycles():void {
         	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
@@ -305,6 +317,7 @@
 				parentDocument.samplesView.initializeSamplesGrid();
 			}
    		    this.propagateNumberSequencingCycles();				
+			this.propagateSeqRunType();			
 			this.checkSeqSetup1Completeness();
         }
 
@@ -313,46 +326,32 @@
 </mx:Script>   
  
 
-	<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
-  	  <mx:TextArea styleName="instructionBox" width="360" wordWrap="true" height="64">
-		<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.]]></mx:htmlText>
-	  </mx:TextArea>
-	</mx:VBox>
 			
 	<mx:VBox width="100%" height="100%" verticalGap="12">
-			<mx:HBox id="seqRunTypeContainer" width="100%" horizontalGap="0">
-				<mx:Label text="(1) Select the sequencing run type:" width="314."  id="label9"/>
-				<mx:VBox verticalGap="0" styleName="requiredBox" id="seqRunTypeBox">
-				    <mx:RadioButtonGroup id="seqRunTypeRadioGroup"/>
-					<mx:Repeater id="seqRunRepeater" dataProvider="{parentDocument.filteredSeqRunTypeList}"> 
-				    	<mx:RadioButton  label="{seqRunRepeater.currentItem.@display}" 
-				    		paddingLeft="1" paddingRight="1"
-				    		value="{seqRunRepeater.currentItem.@value}"
-				    	    groupName="seqRunTypeRadioGroup"
-				    		click="{pickSeqRunType()}"/>
-  					</mx:Repeater>
-				</mx:VBox>
-
-			</mx:HBox>
+		<mx:HBox  horizontalAlign="right" width="100%" id="hbox1">
+			<mx:TextArea styleName="instructionBox" width="360" wordWrap="true" height="80" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.]]></mx:htmlText>
+			</mx:TextArea>
+		</mx:HBox>
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-				<mx:Label text="(2) Select the desired number of sequencing cycles." width="314."  id="label10"/>
-				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox">
+				<mx:Label text="(1) Select the desired number of sequencing cycles." width="314"  id="label10"/>
+				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
 				    <mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
-						<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentDocument.filteredNumberSequencingCycleList}"> 
-						    <mx:HBox verticalAlign="middle">
+						<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{parentDocument.filteredNumberSequencingCycleAllowedList}"> 
+						    <mx:HBox verticalAlign="middle" width="100%">
 						    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
 						    		paddingLeft="0" paddingRight="1"
 						    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
 						    	    groupName="numberSequencingCyclesRadioGroup"
-					    			click="{pickNumberSequencingCycles()}" width="50"/>
-					    		<mx:Text  text="{numberSequencingCyclesRepeater.currentItem.@notes}"  fontSize="9"/>
+					    			click="{pickNumberSequencingCycles()}" width="190"/>
+					    		<mx:Text  text="{numberSequencingCyclesRepeater.currentItem.@notes}" width="100%"  fontSize="9"/>
 				    </mx:HBox>
 	  					</mx:Repeater>
 				    	
 				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0" paddingTop="12">
-				<mx:Label text="(3) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
+				<mx:Label text="(2) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
 				<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
 					<mx:HBox width="100%" horizontalGap="2">
 						<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{if (!alignCheckBox.selected) {genomeBuildCombo.selectedIndex = 0;};this.checkSeqSetup1Completeness();}" selected="true"/>
@@ -365,11 +364,11 @@
 				</mx:VBox> 
 			</mx:HBox>
 			<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
-				<mx:Text text="{'(4) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
+				<mx:Text text="{'(3) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
 				<mx:TextArea id="prepInstructions" width="100%" focusOut="this.propagatePrepInstructions()" maxChars="2000" height="100%"/>
 			</mx:HBox>
 			<mx:HBox id="analysisInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
-				<mx:Text text="(5) Provide any special analysis instructions for bionformatics." width="314"  id="text1"/>
+				<mx:Text text="(4) Provide any special analysis instructions for bionformatics." width="314"  id="text1"/>
 				<mx:TextArea id="analysisInstructions" width="100%" focusOut="this.propagateAnalysisInstructions()" maxChars="2000" height="100%"/>
 			</mx:HBox>
 		

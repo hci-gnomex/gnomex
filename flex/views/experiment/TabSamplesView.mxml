@@ -109,8 +109,8 @@
    					" canChangeNumberSequencingLanes='Y'" +  
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue + "'" +				
-					" idSeqRunType='" + parentDocument.seqSetup1View.seqRunTypeRadioGroup.selectedValue + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() + "'" +				
+					" idSeqRunType='" + parentDocument.seqSetup1View.getIdSeqRunTypeSelected() + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
@@ -142,8 +142,8 @@
 					" concentration=''" +
 					" idOligoBarcode = ''" +
 					" barcodeSequence = ''" +
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue + "'" +
-					" idSeqRunType='" +	parentDocument.seqSetup1View.seqRunTypeRadioGroup.selectedValue + "'" +				
+					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() + "'" +
+					" idSeqRunType='" +	parentDocument.seqSetup1View.getIdSeqRunTypeSelected() + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +

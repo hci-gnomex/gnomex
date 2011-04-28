@@ -73,17 +73,9 @@
 					sample.@seqPrepByCore = "Y";
 				}
 			}
-			if (currentState == 'SolexaSetupState') {
-				propagateDefaultSeqRunType();
-			}
+			
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}		
-		private function propagateDefaultSeqRunType():void {
-			var idSeqRunType:String = this.getDefaultIdSeqRunType();
-			for each (var sample:Object in parentDocument.samples) {
-				sample.@idSeqRunType = idSeqRunType;
-			}			
-		}
        	public function propagateSampleOrganism():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (sampleOrganismCombo.selectedItem != null) {
@@ -427,11 +419,7 @@
 		}
 		
 		public function pickRadioBarcoding():void {
-			if (this.barcodeRadioGroup.selectedValue != null) {
-				this.barcodeRadioBox.styleName = 'normalBox';				
-			} else {
-				this.barcodeRadioBox.styleName = 'requiredBox';				
-			}
+
 			if (this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue == 'N') {
 				this.clearBarcodingFields();				
 			}
@@ -738,7 +726,7 @@
                 	<mx:Text text="(6) Should sequencing libraries be constructed with barcode tags for multiplexing capability?" width="305"  id="label13" visible="{barcodeQuestionVisible}"/>
                 	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="normalBox" id="barcodeRadioBox" visible="{barcodeQuestionVisible}">
                 		<mx:RadioButtonGroup id="barcodeRadioGroup" selectedValue="Y"/>
-                		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require barcoding" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()" selected="true">
+                		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require barcoding" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()" selected="true">
                 		</mx:RadioButton>
                 		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require barcoding." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()" selected="false">
                 		</mx:RadioButton>

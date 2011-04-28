@@ -57,7 +57,7 @@
 				
 				if (seqAppBox.getChildren().length > 0) {
 					var spacer:Spacer = new Spacer();
-					spacer.height = 20;
+					spacer.height = 10;
 					seqAppBox.addChild(spacer);
 				}
 				
@@ -217,7 +217,7 @@
 		       <mx:Text text="Select a sequencing application." width="200" id="labelApplication"/>
 		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 		       </mx:RadioButtonGroup>
-		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox">
 		       </mx:VBox>
 		   </mx:HBox>
 		   	 
