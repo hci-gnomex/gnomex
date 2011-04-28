@@ -183,25 +183,26 @@
   
 	<mx:Script>
 		<![CDATA[
-		import hci.flex.controls.DropdownLabel;
-		
-		import mx.collections.ArrayCollection;
-		import mx.controls.Alert;
-		import mx.core.Container;
-		import mx.core.UIComponent;
-		import mx.events.CloseEvent;
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.events.PropertyChangeEvent;
-		import mx.events.ValidationResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.rpc.events.FaultEvent;
-		import mx.rpc.events.ResultEvent;
-		import mx.validators.NumberValidator;
-		import mx.validators.ValidationResult;
-		
-		import views.experiment.ConvertIlluminaRequestWindow;
-		import views.util.PromptXMLListCollection;
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Container;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.validators.NumberValidator;
+			import mx.validators.ValidationResult;
+			
+			import views.experiment.ConvertIlluminaRequestWindow;
+			import views.util.PromptXMLListCollection;
         
 
 		[Bindable]
@@ -256,7 +257,7 @@
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
-		public var filteredNumberSequencingCycleList:XMLListCollection;
+		public var filteredNumberSequencingCycleAllowedList:XMLListCollection;
 		[Bindable]
 		public var filteredMicroarrayAppList:XMLListCollection;
 		[Bindable]
@@ -272,7 +273,7 @@
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
-		private var numberSequencingCyclesSorter:Sort;
+		private var numberSequencingCyclesAllowedSorter:Sort;
 		private var seqRunTypeSorter:Sort;
 		private var filteredAppListSorter:Sort;
 
@@ -392,10 +393,10 @@
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuild'));
         	        	
         	
-        	filteredNumberSequencingCycleList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCycles'));
-        	numberSequencingCyclesSorter = new Sort();
-        	numberSequencingCyclesSorter.compareFunction = this.sortNumberSequencingCycles;	   
-        	filteredNumberSequencingCycleList.sort = numberSequencingCyclesSorter;     	
+        	filteredNumberSequencingCycleAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
+        	numberSequencingCyclesAllowedSorter = new Sort();
+        	numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;	   
+        	filteredNumberSequencingCycleAllowedList.sort = numberSequencingCyclesAllowedSorter;     	
 
         	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
         	// We use this technique xml.copy() to prevent duplication of applications 
@@ -457,8 +458,8 @@
 			filteredSampleTypeList.filterFunction = filterSampleType;
 			filteredSampleTypeList.refresh();
 			
-			filteredNumberSequencingCycleList.filterFunction = filterNumberSequencingCycles;
-			filteredNumberSequencingCycleList.refresh();
+			filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
+			filteredNumberSequencingCycleAllowedList.refresh();
 			
 			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
 			filteredSeqRunTypeList.refresh();
@@ -797,8 +798,8 @@
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
 
-				filteredNumberSequencingCycleList.filterFunction = filterNumberSequencingCycles;
-				filteredNumberSequencingCycleList.refresh(); 
+				filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
+				filteredNumberSequencingCycleAllowedList.refresh(); 
 				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
@@ -1354,7 +1355,7 @@
         	return true;
     	}
        
-        private function filterNumberSequencingCycles(item:Object):Boolean {
+        private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
 			if (isEditState()) {
         		return true;
         	}
@@ -1362,22 +1363,12 @@
 			if (item.@value == "") {
     	    	return false;
 			} 
-        	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
         	        	
 			var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
-			
         	var doesMatch:Boolean = false;
-        	var theCycles:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry.(@value != '' && @idNumberSequencingCycles == item.@value.toString());
-    	   	for each (var xref:Object in theCycles) {
-    	   		if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
-	    	   		doesMatch = true;
-	    	   		break;
-    	   		}
+        	if (item.@codeRequestCategory.toString() == codeRequestCategory) {
+	    		doesMatch = true;
     	   	}
-        	
         	
         	return doesMatch;
         }  
@@ -1599,16 +1590,7 @@
 			     hyb.@canChangeSlideDesign='Y';
 			}
 
-			// Initialize the seq run type on the sample
-			// to the default seq run type of the sample prep method
-			if (this.isSolexaState()) {
-				var idSeqRunType:String = this.sampleSetupView.getDefaultIdSeqRunType();
-				if (idSeqRunType != null) {
-					for each(var s:Object in samples) {
-						s.@idSeqRunType = idSeqRunType;
-					}
-				}
-			}
+			
 			
 			// Make sure we render the annotation tab because
 			// otherwise we won't activate the renderer code that
@@ -2875,7 +2857,7 @@
 			}			
 		}			
 
-        private function sortNumberSequencingCycles(obj1:Object, obj2:Object, fields:Array=null):int {
+        private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
 				return 0;
 			} else if (obj1 == null) {
@@ -2883,21 +2865,30 @@
 			} else if (obj2 == null) {
 				return -1;
 			} else {
-				var order1:int = obj1.@numberSequencingCycles;
-				var order2:int = obj2.@numberSequencingCycles;
 				
 				if (obj1.@value == '') {
 					return -1;
 				} else if (obj2.@value == '') {
 					return 1;
 				} else {
-					if (order1 < order2) {
+					var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
+					var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
+					var sortOrder1:Number = obj1.@seqRunTypeSortOrder == '' ? -1 : obj1.@seqRunTypeSortOrder;
+					var sortOrder2:Number = obj2.@seqRunTypeSortOrder == '' ? -1 : obj2.@seqRunTypeSortOrder;
+					
+					if (numberCycles1 < numberCycles2) {
 						return -1;
-					} else if (order1 > order2) {
+					} else if (numberCycles1 > numberCycles2) {
 						return 1;
 					} else {
-						return 0;
-					}
+						if (sortOrder1 < sortOrder2) {
+							return -1;
+						} else if (sortOrder1 > sortOrder2) {
+							return 1;
+						} else {
+							return 0;
+						} 
+					} 
 				}
 			}			
 		}			
@@ -3367,7 +3358,7 @@
 			
 			if (isSolexaAmendState()) {
 				this.filteredGenomeBuildList.refresh();
-				this.filteredNumberSequencingCycleList.refresh();
+				this.filteredNumberSequencingCycleAllowedList.refresh();
 			
 				
 				// Get rid of the existing lanes.  User will specify

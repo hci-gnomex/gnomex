@@ -990,6 +990,9 @@ CREATE TABLE `gnomex`.`NumberSequencingCyclesAllowed` (
   `idNumberSequencingCyclesAllowed` INT(10) NOT NULL AUTO_INCREMENT,
   `idNumberSequencingCycles` INT(10) NOT NULL,
   `codeRequestCategory` VARCHAR(10) NOT NULL,
+   idSeqRunType INT(10) NULL,
+   name varchar(100)  NOT NULL,
+   notes varchar(500) NULL,
   PRIMARY KEY (`idNumberSequencingCyclesAllowed`),
   CONSTRAINT `FK_NumberSequencingCyclesAllowed_RequestCategory` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
@@ -997,6 +1000,10 @@ CREATE TABLE `gnomex`.`NumberSequencingCyclesAllowed` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_NumberSequencingCyclesAllowed_NumberSequencingCycles` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_NumberSequencingCycles` (`idNumberSequencingCycles`)
     REFERENCES `gnomex`.`NumberSequencingCycles` (`idNumberSequencingCycles`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT FK_NumberSequencingCyclesAllowed_SeqRunType FOREIGN KEY FK_NumberSequencingCyclesAllowed_SeqRunType (idSeqRunType)
+    REFERENCES gnomex.SeqRunType (idSeqRunType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

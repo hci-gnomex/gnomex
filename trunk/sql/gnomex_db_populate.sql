@@ -563,12 +563,16 @@ VALUES (1, 18, 'Y'),
   (5, 76, 'N'),
   (6, 101, 'Y');
 
-INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`)
+INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`, idSeqRunType, name)
 VALUES 
-  (1, 1, 'SOLEXA'),
-  (2, 3, 'SOLEXA'),
-  (3, 4, 'HISEQ'),
-  (4, 6, 'HISEQ');
+  (1, 1, 'SOLEXA', 3),
+  (2, 3, 'SOLEXA', 3),
+  (3, 4, 'HISEQ', 3),
+  (4, 6, 'HISEQ', 3),
+  (5, 1, 'SOLEXA', 4),
+  (6, 3, 'SOLEXA', 4),
+  (7, 4, 'HISEQ', 4),
+  (8, 6, 'HISEQ', 4);
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
 VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
