@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Text xmlns:mx="http://www.adobe.com/2006/mxml"
+		 implements="mx.controls.listClasses.IDropInListItemRenderer"
+		 toolTip="click to Edit…" click="callLater(openPopup)" doubleClickEnabled="true"
+		 text="{urlDisplayString}">
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.renderers.RendererFactory;
+			
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.DataGrid;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
+			import mx.controls.listClasses.ListData;
+			import mx.core.IFactory;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			private var _listData:DataGridListData;
+			
+			[Bindable]
+			public var txt:String;
+			
+			[Bindable]
+			public var urlDisplayString:String;
+			
+			public var isEditable:Boolean = true;
+			
+			private var pop:URLPopup;
+			
+			
+			public static function create(isEditable:Boolean=true):IFactory {
+				return RendererFactory.create(URLRenderer, {isEditable:isEditable});
+			}		
+			
+			override public function set data(value:Object):void {
+				super.data = value;
+				txt =  data[_listData.dataField];
+				
+				urlDisplayString = "";
+				if (_listData == null || data == null || !data.hasOwnProperty(_listData.dataField)) {
+					return;
+				}
+				
+				var urls:Array = new Array();
+				urls = data[_listData.dataField].split("|");
+				var idx:Object = null;
+				var theURL:XML = null;
+
+				for (idx in urls) {
+					var urlTokens:Array = new Array();
+					urlTokens = urls[idx].split(",");
+					
+					var displayURL:String = urlTokens[0];
+					if (urlTokens.length > 1) {
+						displayURL = urlTokens[1];
+					}
+					
+					if (urlDisplayString.length > 0) {
+						urlDisplayString += ", ";
+					}
+					urlDisplayString +=  displayURL;
+				}
+			}
+			
+			override public function get data():Object {
+				return super.data;
+			}
+			
+			override public function get listData():BaseListData
+			{
+				return _listData;
+			}
+			
+			override public function set listData(value:BaseListData):void
+			{
+				_listData = DataGridListData(value);
+			}
+			
+			private function openPopup():void{
+				if (!isEditable) {
+					return;
+				}
+				if (_listData == null || _listData.dataField == null || !(data is XML)) {
+					return;
+				}
+
+				pop= URLPopup(PopUpManager.createPopUp(this.owner, URLPopup,true));
+				pop.initializeData(_listData.dataField.substr(1), this.txt);
+				pop.opener=this;
+			}
+			
+			public function updateDP(str:String):void{
+				if (!isEditable) {
+					return;
+				}
+
+				if (_listData == null) {
+					return;
+				}
+
+
+				this.data[_listData.dataField]=str;
+				
+				if (_listData.owner is DataGrid) {
+					var dg:DataGrid=_listData.owner as DataGrid;
+					dg.dataProvider.itemUpdated(data);					
+				} else if (_listData.owner is AdvancedDataGrid) {
+					var adg:AdvancedDataGrid=_listData.owner as AdvancedDataGrid;
+					adg.dataProvider.itemUpdated(data);					
+				} 
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				super.updateDisplayList(unscaledWidth,unscaledHeight);
+				
+				if (data != null && !(data is XML)) {
+					return;
+				}
+				
+				if (!isEditable) {
+					return;
+				}
+				
+				var g:Graphics = graphics;
+				g.clear();
+				g.beginFill(_listData == null ||  _listData.dataField == null || data == null || !data.hasOwnProperty(_listData.dataField) || data[_listData.dataField]  == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );
+				if (_listData == null ||  _listData.dataField == null || data == null || !data.hasOwnProperty(_listData.dataField) || data[_listData.dataField]  == '' ) {
+					g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
+						RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER );          	
+				}
+				g.drawRect(0,0,unscaledWidth,unscaledHeight);
+				g.endFill();
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+</mx:Text>
+
+

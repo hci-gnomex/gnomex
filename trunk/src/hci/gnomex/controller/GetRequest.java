@@ -168,10 +168,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
           if (!newRequest) {
             this.getSecAdvisor().flagPermissions(request);            
           }
-          
-          StringBuffer queryBuf = new StringBuffer();
-          queryBuf.append("SELECT sc from SampleCharacteristic as sc ");
-          List sampleCharacteristics = sess.createQuery(queryBuf.toString()).list();
 
 
           // Set number of seq lanes per sample
@@ -239,8 +235,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Element scParentNode = new Element("SampleCharacteristicEntries");
           requestNode.addContent(scParentNode);
           boolean hasCCNumber = false;
-          for(Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
-            SampleCharacteristic sc = (SampleCharacteristic)i.next();
+          for(Iterator i = dh.getSampleCharacteristicMap().keySet().iterator(); i.hasNext();) {
+            String codeSampleCharacteristic = (String)i.next();
+            SampleCharacteristic sc = (SampleCharacteristic)dh.getSampleCharacteristic(codeSampleCharacteristic);
 
             Element scNode = new Element("SampleCharacteristicEntry");
             SampleCharacteristicEntry entry = null;

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="350" height="250" showCloseButton="true" close="save()" creationComplete="centerMe()"
+				 paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	
+	
+	
+	<mx:Script>
+		
+		<![CDATA[
+			
+			import mx.collections.XMLListCollection;
+			import mx.events.ListEvent;
+			import mx.managers.FocusManager;
+			import mx.managers.PopUpManager;
+			import views.renderers.CheckBoxRenderer;
+			
+			
+			[Bindable]
+			public var options:XMLListCollection;
+
+			public var opener:Object;
+			
+			public function initializeData(title:String, value:String, allOptions:XMLList):void {
+				this.title = title;
+				
+				var values:Array = new Array();
+				values = value.split(",");
+				var idx:Object = null;
+
+				options = new XMLListCollection();
+				var option:XML = null;
+				for each(option in allOptions) {
+					var theOption:XML = option.copy();
+					var isSelected:Boolean = false;
+					if (values != null) {
+						for (idx in values) {
+							if (values[idx] != null && theOption.@option == values[idx]) {
+								isSelected = true;
+								break;
+							}
+						}
+					}
+					theOption.@isSelected = isSelected ? "Y" : "N";
+					options.addItem(theOption);
+				}
+			}
+			
+			
+			private function save():void{
+				var option:XML = null;
+				var optionsString:String = "";
+				for each(option in options) {
+					if (option.@isSelected == "Y") {
+						if (optionsString.length > 0) {
+							optionsString += ",";
+						}
+						optionsString += option.@idSampleCharacteristicOption;
+					}
+				}
+				(opener as MultiselectRenderer).updateDP(optionsString);
+				cancel();
+			}
+			
+			private function cancel():void{
+				PopUpManager.removePopUp(this);
+				returnFocus();
+			}
+			
+			private function returnFocus():void{
+				opener.setFocus();
+				
+			}
+			
+			private function centerMe():void{
+				PopUpManager.centerPopUp(this);
+				checkboxGrid.setFocus();
+			}
+			
+			private function toggleCheck(event:ListEvent):void {
+				if (event.columnIndex == 0) {
+					return;
+				}
+
+				if (checkboxGrid.selectedItem.@isSelected == "Y") {
+					checkboxGrid.selectedItem.@isSelected = "N";
+				} else {
+					checkboxGrid.selectedItem.@isSelected = "Y";
+				}
+			}
+			
+		]]>
+		
+	</mx:Script>
+	
+	 
+	
+	<mx:DataGrid id="checkboxGrid" dataProvider="{options}" 
+				 showHeaders="false" width="100%" height="100%"
+				 itemClick="toggleCheck(event)">
+		<mx:columns>
+			<mx:DataGridColumn headerText=" "  
+							   width="25" 
+							   editable="true"                        	
+							   dataField="@isSelected" 
+							   editorDataField="selected"
+							   itemRenderer="views.renderers.CheckBoxRenderer">			 
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Option" dataField="@option" >
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	
+</mx:TitleWindow>

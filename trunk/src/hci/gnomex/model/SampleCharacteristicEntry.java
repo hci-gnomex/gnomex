@@ -14,6 +14,8 @@ public class SampleCharacteristicEntry extends HibernateDetailObject {
   private Integer idSample;
   private String  value;
   private String  otherLabel;
+  private Set     options;
+  private Set     values;
   
   public String getCodeSampleCharacteristic() {
     return codeSampleCharacteristic;
@@ -58,7 +60,21 @@ public class SampleCharacteristicEntry extends HibernateDetailObject {
   public void setOtherLabel(String otherLabel) {
     this.otherLabel = otherLabel;
   }
-  
-  
-    
+
+  public Set getOptions() {
+    return options;
+  }
+
+  public void setOptions(Set options) {
+    this.options = options;
+  }
+
+  public Set getValues() {
+    return values;
+  }
+
+  public void setValues(Set values) {
+    this.values = values;
+  }
+
 }

@@ -29,6 +29,8 @@
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
 		import mx.utils.ObjectUtil;
+		import views.renderers.MultiselectRenderer;
+		import views.renderers.URLRenderer;
 		
 		public var sampleGroupingCollection:GroupingCollection = null;		
 		
@@ -470,13 +472,38 @@
        				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
        				newCol.headerText = annotation.@sampleCharacteristic;
        				newCol.visible    = annotation.@isSelected == "true" ? true : false;
-       				
+					
+					var sc:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristic').DictionaryEntry.(@value == annotation.@codeSampleCharacteristic);
+					var sampleCharacteristic:XML = null;
+					if (sc is XMLList) {
+						sampleCharacteristic = sc[0];
+					} else {
+						sampleCharacteristic = sc as XML;
+					}
+					
+					if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
+						newCol.itemRenderer =  MultiselectRenderer.create(false);
+					} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
+						newCol.itemRenderer = URLRenderer.create(false);
+					} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
+						// checkbox is just normal label renderer
+					} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
+						             
+						newCol.itemRenderer = views.renderers.DropdownLabel.create(
+							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic), 
+							'@option', 
+							'@idSampleCharacteristicOption', 
+							"@" + annotation.@codeSampleCharacteristic,
+							false);                
+					} 
+					
        				var columns:Array = samplesGridConfirm.columns;
        				// Pop the description; we want it to be the last column
        				var descCol:AdvancedDataGridColumn = AdvancedDataGridColumn(columns.pop());
        				columns.push(newCol);
        				columns.push(descCol);
        				samplesGridConfirm.columns = columns;
+					samplesGridConfirm.validateNow();
        			} else {
        				col.visible    = annotation.@isSelected == "true" ? true : false;       				
        			}

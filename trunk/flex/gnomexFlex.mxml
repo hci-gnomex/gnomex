@@ -1291,7 +1291,9 @@
 				}
 		}
 		
-		
+		public function getSampleCharactersticOptions(codeSampleCharacteristicType:String):XMLList {
+			return dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristicOption').DictionaryEntry.(@value != '' && @codeSampleCharacteristic == codeSampleCharacteristicType);
+		}		
 		
 
         ]]>

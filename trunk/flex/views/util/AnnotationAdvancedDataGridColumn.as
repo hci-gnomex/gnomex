@@ -4,9 +4,9 @@ package views.util
 	 
 	public class AnnotationAdvancedDataGridColumn extends AdvancedDataGridColumn
 	{
-		public function AnnotationAdvancedDataGridColumn()
+		public function AnnotationAdvancedDataGridColumn(name:String)
 		{
-			super();
+			super(name);
 		}
 
 	}
