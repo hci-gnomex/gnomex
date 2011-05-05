@@ -95,7 +95,7 @@
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				
-				preppedByCoreCol.visible = true;
+				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
 				samplePrepMethodConfirmCol.visible = true;
 				
 				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
@@ -263,12 +263,12 @@
 							</mx:headerRenderer>
 					    </mx:DataGridColumn>
 
-	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Barcode" width="130" dataField="@idOlogiBarcode" 
+	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Index Tag" width="130" dataField="@idOlogiBarcode" 
 	                      editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
 	                      visible="false"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}" />
 
-		                <mx:DataGridColumn id="customBarcodeColumn" headerText="Barcode" dataField="@barcodeSequence" editable="false" visible="false"
+		                <mx:DataGridColumn id="customBarcodeColumn" headerText="Index Tag" dataField="@barcodeSequence" editable="false" visible="false"
 							width="58">
 					    </mx:DataGridColumn>
 

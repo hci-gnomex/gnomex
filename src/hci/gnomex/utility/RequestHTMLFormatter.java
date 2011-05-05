@@ -213,12 +213,12 @@ public class RequestHTMLFormatter {
     
     boolean showSeqLibProtocol = false;
     boolean showBarcodeTag = false;
-    String barcodeHeader = "Barcode Sequence";
+    String barcodeHeader = "Index Tag Sequence";
     for(Iterator i = samples.iterator(); i.hasNext();) {
     	Sample s = (Sample)i.next();
     	if (s.getSeqPrepByCore() != null && s.getSeqPrepByCore().equalsIgnoreCase("N")) {
     		showSeqLibProtocol = true;
-    		barcodeHeader = "Custom Barcode Sequence";
+    		barcodeHeader = "Index Tag Sequence";
     	}
     	if (s.getIdOligoBarcode() != null || (s.getBarcodeSequence() != null && !s.getBarcodeSequence().trim().equals(""))) {
     	  showBarcodeTag = true;
