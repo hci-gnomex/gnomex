@@ -6,6 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CharacteristicType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Label;
@@ -21,6 +22,8 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.SampleCharacteristicEntryValue;
+import hci.gnomex.model.SampleCharacteristicOption;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
@@ -802,6 +805,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (!isNewSample) {
       for(Iterator i = sample.getSampleCharacteristicEntries().iterator(); i.hasNext();) {
         SampleCharacteristicEntry entry = (SampleCharacteristicEntry)i.next();
+        for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
+          SampleCharacteristicEntryValue v = (SampleCharacteristicEntryValue)i1.next();
+          sess.delete(v);
+        }
+        sess.flush();
+        entry.setValues(null);
         sess.delete(entry);
       }
     }
@@ -812,7 +821,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
      
       String code = (String)i.next();
       String value = (String)sampleAnnotations.get(code);
-      
+      SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)dh.getSampleCharacteristic(code);
+     
       
       SampleCharacteristicEntry entry = new SampleCharacteristicEntry();
       entry.setIdSample(sample.getIdSample());
@@ -821,8 +831,39 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       entry.setCodeSampleCharacteristic(code);
       entry.setValue(value);
-        
       sess.save(entry);
+      sess.flush();
+      
+      // If the sample characteristic type is "url", save the options.
+      if (value != null && !value.equals("") && sampleCharacteristic.getCodeCharacteristicType().equals(CharacteristicType.URL)) {
+        Set urlValues = new TreeSet();
+        String[] valueTokens = value.split("\\|");
+        for (int x = 0; x < valueTokens.length; x++) {
+          String v = valueTokens[x];
+          SampleCharacteristicEntryValue urlValue = new SampleCharacteristicEntryValue();
+          urlValue.setValue(v);
+          urlValue.setIdSampleCharacteristicEntry(entry.getIdSampleCharacteristicEntry());
+          sess.save(urlValue);
+        }
+      }
+      sess.flush();
+      
+      // If the sample characteristic type is "multi-option", save the options.
+      if (value != null && !value.equals("") && sampleCharacteristic.getCodeCharacteristicType().equals(CharacteristicType.MULTI_OPTION)) {
+        Set options = new TreeSet();
+        String[] valueTokens = value.split(",");
+        for (int x = 0; x < valueTokens.length; x++) {
+          String v = valueTokens[x];
+          for (Iterator i1 = sampleCharacteristic.getOptions().iterator(); i1.hasNext();) {
+            SampleCharacteristicOption option = (SampleCharacteristicOption)i1.next();
+            if (v.equals(option.getIdSampleCharacteristicOption().toString())) {
+                options.add(option);
+            }
+          }
+        }
+        entry.setOptions(options);
+      }
+        
     }
 
     // Delete the existing sample treatments

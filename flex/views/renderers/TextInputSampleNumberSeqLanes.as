@@ -1,9 +1,11 @@
 package views.renderers
 {
-	import mx.controls.TextInput;
 	import flash.display.Graphics;
 	import flash.events.Event;
+	
 	import hci.flex.renderers.RendererFactory;
+	
+	import mx.controls.TextInput;
 
 	public class TextInputSampleNumberSeqLanes extends TextInput
 	{
@@ -19,7 +21,7 @@ package views.renderers
     	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
      	{
           super.updateDisplayList(unscaledWidth,unscaledHeight);
-          if (data == null) {
+          if (data == null || !(data is XML)) {
           	return;
           }
           var g:Graphics = graphics;

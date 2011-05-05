@@ -24,7 +24,7 @@ Q: How to I make files available for download in GNomEx?
 A: To be able to download data files from GNomEx, you will need to set the 
    following properties to point GNomEx to a file directory on your server (or mounted on your server) that is read accessible to the account your are running the Orion application server under.  
 
-   experiment_directory  - The path to the root experiment directory.  GNomEx assumes that 
+   experiment_read_directory  - The path to the root experiment directory.  GNomEx assumes that 
    this directory contains subdirectories for each year; the year subdirectory contains subdirectories for each request number.  Here is an example:
 
    /home/gnomex/experiments
@@ -36,7 +36,7 @@ A: To be able to download data files from GNomEx, you will need to set the
            available for download.
       6446R
   
-   flowcell_directory -  The path to the root flowcell quality report directory.   
+   flowcell_read_directory -  The path to the root flowcell quality report directory.   
    GNomEx assumes that this directory contains subdirectories for each year; the year 
    subdirectoriy contains subdirectories for each flow cell number:  Hereâ€™s an example
 
@@ -58,7 +58,7 @@ on '˜Explore files'.  This will display all of the files sitting in the experime
 Q:  How do I configure GNomEx to use GMail's SMTP mail server?
 
 A:  You will need to set the <mail-session> properties in /path/to/orion/config.xml.  Here
-    is an example of how properties:
+    is an example of how to set the properties:
     
     <mail-session location="mail/MailSession" smtp-host="smtp.gmail.com">
                <property name="mail.smtp.starttls.enable" value="true" />
@@ -82,5 +82,91 @@ A:  Set the environment variable before running the ant build:
 		export ANT_OPTS="-Xms512m -Xmx512m"  (ksh/bash)
 		setenv ANT_OPTS "-Xms512m -Xmx512m"  (tcsh/csh)
 		
+
+
+Q:  Where can I find additional documentation on GNomex?
+
+A:  Many of the GNomEx features are described in a paper published in BMC Bionformatic 
+    http://www.biomedcentral.com/1471-2105/11/455.  Also, the online help provides a useful reference 
+    to the most commonly used features in GNomEx http://www.hci.utah.edu/internal/CSG/PublicDocs/SourceDocs/HCIApps/GNomEx/GNomEx.htm.  
+    Also look in the GNomEx download folder gnomex/docs which contains a FAQ, a configuration guide 
+    (first draft), and a class diagram.
+
+
+
+Q.  Is it possible to import the barcode data directly using a scanner? which reads barcode as input 
+    of GNomEx system. Do we need to install any other tool to save data and transfer to GNomEx system?
+
+A:  GNomEx doesn't offer any special barcoding support, but most barcode scanners can be connected to a 
+    computer port and treated as keyboard input.  For example, if you wanted to enter barcodes in as
+    sample names during experiment submission, you would need to position the cursor in the grid cell 
+    and then scan the barcode.  I could imagine a LIMs system equipped with lookup feature based on 
+    a barcode scan that would take you directly to the sample experiment or workflow step.  That would be 
+    a useful feature.  GNomEx doesn't support this kind of lookup as we have focused little on high 
+    throughput requirements.
+
+Q: "Submit a request" Section "Submit a request", Step 3, how can I change the following text 
+   "[ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE]"?
+    "(3) Pick the account to be billed." -- "If billing account is inactive, please download the work 
+    authorization  form below. Forward the completed form to the [ENTER FACILITY NAME HERE] 
+    ([ENTER ROOM AND PHONE NUMBER HERE])."
+
+A:  These are properties that can be configured through Dictionaries.  You can edit the 
+    properties using the 'Manage Dictionaries' link on the home page. (For older versions of GNomEx, 
+    click on the link titled 'Dictionaries' in top right corner of nav bar.)  From the Dictionary Editor,
+    click on the folder title 'Admin - Properties'.  The properties to edit are 
+    'contact_name_core_facility' and 'contact_email_core_facility'  Many other notes, instructions, 
+    and links are configurable through these properties. 
+
+
+Q:  Advanced Search for "Experiment". It can't be used. I didn't select/enter any item and should get 
+    all the records. But I could not get any record. Is there any problem for me to create experiment 
+    records using "Experiment" module.
+
+A:  You need to run the batch job to build the Lucene index files.  Instructions for running 
+    this script are provided in the README_INSTALL.txt in the GNomEx download.  At our facility, 
+    we run this batch job nightly, so searches will not include experiments submitted during the day.  
+    It is possible to run this script on a more frequent basis.
+
+
+
+Q: When I click "Billing", then select period, group, and account, and found that "Experiment" 
+   is still "Pending". When I click "Invoice", I got "Please complete the billing items first."  
+   After I checked the "Workflow", I finished all the steps from "Sample Quality" to "QA Pipeline", 
+   and I can find some items from "Flow Cells". Could you please let me know if I forget the last step 
+   or any other step to change the status of a project from "pending" to "completed" when I click 
+   "Billing" and "Experiment"?
+
+A:  GNomEx creates 'Pending' billing items for each experiment, which are estimated charges for 
+    the experiment and may not take into account exceptions that occur during experiment processing.  
+    Even though an experiment has been completed through the workflow, it requires manual review of the 
+    billing items in order to ensure accuracy and completeness.  The billing screens were designed to be
+    used for a once-a-month billing cycle.  (Billing cycles can be configured for a different time span.) 
+
+    At this time, the our core facility needs manual control over the invoicing since some 
+    experiments span multiple billing periods or have charges split between multiple billing accounts 
+    from different labs; therefore GNomEx has not yet automated changing the billing status from 
+    'Pending' to 'Completed'.  In addition, our core facility found it useful to have a further level 
+    of review/control over invoicing -- billing item status must be changed to 'Approved' before the 
+    final invoice is sent out (auto-emailed to the lab's billing contact).
+
+Q. What can the module "Analysis" do? When I follow the instructions "Submit Request", "Workflow", and "Billing". It seems I don't need "Analysis" module. Am I right?
+
+A:  The Analysis feature provides a repository for analysis performed on the raw experiment files.  
+    The analyzed data files are cataloged here along with annotations that categorize and describe 
+    the data analysis performed.  Analysis entries can be versioned (through Analysis Groups) and 
+    linked to the original experiment.
+    
+
+Q. Module "Experiment", I tried to do "Download", I couldn't do because I don't know how to 
+   upload a file from this module. I could upload file form "Analysis" module. Any suggestion will 
+   be appreciated.
+
+A: External experiments provide a mechanism for uploading the data files. GNomex distinguished external 
+   experiments (user is registering experiment results in the GNomEx repository) from submitted 
+   experiment requests (user is requesting an experiment to be performed by the core facility.) 
+   In the latter case, the core facility will be placing the files directly on the file server.  
+   (See FAQ for details on the experiment file directory structure on the file server. 
+				
 
 

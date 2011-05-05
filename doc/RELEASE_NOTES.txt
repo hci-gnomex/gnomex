@@ -1,5 +1,9 @@
 ﻿GNomEx Release Notes
 
+5.1.5
+--------------------
+- Introduced new data types for Sample annotations (text, checkbox, single-select, multi-select).
+
 5.1.4 (Apr 27, 2011)
 --------------------
 - Moved FDTFileDaemon to gnomex opensource hciFDT source tree.

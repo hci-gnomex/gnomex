@@ -65,7 +65,18 @@ package views.renderers
 		     			Alert.show("This field cannot be changed.  Please ask Microarray Core facility for assistance.");
 		     		}
             	}
-            }	    
+            }	 
+			
+			override protected function updateDisplayList(w:Number, h:Number):void
+			{
+				super.updateDisplayList(w, h);
+				
+				if (data == null || !(data is XML)) {
+					this.visible = false;
+					return;
+				}
+			}
+			
 	}
 
 }

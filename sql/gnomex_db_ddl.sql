@@ -1386,6 +1386,17 @@ CREATE TABLE `gnomex`.`Sample` (
 )
 ENGINE = INNODB;
 
+
+-- Add table CharacteristicType
+CREATE TABLE gnomex.CharacteristicType ( 
+    codeCharacteristicType	VARCHAR(10) NOT NULL,
+    name 	                varchar(200) NOT NULL,
+    isActive     	        char(1) NULL,
+    PRIMARY KEY (codeCharacteristicType)
+) ENGINE = INNODB;
+
+
+
 DROP TABLE IF EXISTS `gnomex`.`SampleCharacteristic`;
 CREATE TABLE `gnomex`.`SampleCharacteristic` (
   `codeSampleCharacteristic` VARCHAR(10) NOT NULL,
@@ -1394,11 +1405,16 @@ CREATE TABLE `gnomex`.`SampleCharacteristic` (
   `mageOntologyDefinition` VARCHAR(5000) NULL,
   `isActive` CHAR(1) NULL,
   `idAppUser` INT(10) NULL,
+  codeCharacteristicType VARCHAR(10) not null,
   PRIMARY KEY (`codeSampleCharacteristic`),
   CONSTRAINT `FK_SampleCharacteristic_AppUser` FOREIGN KEY `FK_SampleCharacteristic_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT FK_SampleCharacteristic_CharacteristicType FOREIGN KEY FK_SampleCharacteristic_CharacteristicType (codeCharacteristicType)
+    REFERENCES gnomex.CharacteristicType (codeCharacteristicType)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION        
 )
 ENGINE = INNODB;
 
@@ -1420,6 +1436,62 @@ CREATE TABLE `gnomex`.`SampleCharacteristicEntry` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+-- Add table SampleCharacteristicOrganism
+CREATE TABLE gnomex.SampleCharacteristicOrganism ( 
+     codeSampleCharacteristic	varchar(10),
+     idOrganism           INT(10),
+     PRIMARY KEY (codeSampleCharacteristic, idOrganism),
+    CONSTRAINT FK_SampleCharacteristicOrganism_SampleCharacteristic FOREIGN KEY FK_SampleCharacteristicOrganism_SampleCharacteristic (codeSampleCharacteristic)
+    REFERENCES gnomex.SampleCharacteristic (codeSampleCharacteristic)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_SampleCharacteristicOrganism_Organism FOREIGN KEY FK_SampleCharacteristicOrganism_Organism (idOrganism)
+    REFERENCES gnomex.Organism (idOrganism)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = INNODB;
+
+-- Add table SampleCharacteristicOption
+CREATE  TABLE gnomex.SampleCharacteristicOption (
+  idSampleCharacteristicOption INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  value VARCHAR(200)  NULL,
+  codeSampleCharacteristic VARCHAR(10)  NOT NULL,
+  sortOrder INT(10) NULL,
+  isActive     	        char(1) NULL,  
+  PRIMARY KEY (idSampleCharacteristicOption),
+  KEY `FK_SampleCharacteristicOption_SampleCharacteristic` (`codeSampleCharacteristic`),
+  CONSTRAINT `FK_SampleCharacteristicOption_SampleCharacteristic` FOREIGN KEY (`codeSampleCharacteristic`) REFERENCES `SampleCharacteristic` (`codeSampleCharacteristic`)
+) ENGINE=InnoDB;
+
+-- Add new Table SampleCharacteristicEntryOption
+DROP TABLE IF EXISTS SampleCharacteristicEntryOption;
+CREATE TABLE gnomex.SampleCharacteristicEntryOption (
+  idSampleCharacteristicEntry INT(10)  NOT NULL,
+  idSampleCharacteristicOption INT(10) unsigned  NOT NULL,
+  PRIMARY KEY (idSampleCharacteristicEntry, idSampleCharacteristicOption) ,
+  CONSTRAINT FK_SampleCharacteristicEntryOption_SampleCharacteristicEntry FOREIGN KEY FK_SampleCharacteristicEntryOption_SampleCharacteristicEntry (idSampleCharacteristicEntry)
+    REFERENCES gnomex.SampleCharacteristicEntry (idSampleCharacteristicEntry)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION, 
+   CONSTRAINT FK_SampleCharacteristicEntryOption_SampleCharacteristicOption FOREIGN KEY FK_SampleCharacteristicEntryOption_SampleCharacteristicOption (idSampleCharacteristicOption)
+    REFERENCES gnomex.SampleCharacteristicOption (idSampleCharacteristicOption)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)ENGINE=InnoDB;
+
+-- Add new Table SampleCharacteristicEntryValue
+DROP TABLE IF EXISTS SampleCharacteristicEntryValue;
+CREATE TABLE gnomex.SampleCharacteristicEntryValue (
+  idSampleCharacteristicEntryValue INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  value VARCHAR(200) NULL,
+  idSampleCharacteristicEntry INT(10)  NOT NULL,
+  PRIMARY KEY (idSampleCharacteristicEntryValue),
+  CONSTRAINT FK_SampleCharacteristicEntryValue_SampleCharacteristicEntry FOREIGN KEY FK_SampleCharacteristicEntryValue_SampleCharacteristicEntry (idSampleCharacteristicEntry)
+    REFERENCES gnomex.SampleCharacteristicEntry (idSampleCharacteristicEntry)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `gnomex`.`SamplePrepMethod`;
 CREATE TABLE `gnomex`.`SamplePrepMethod` (

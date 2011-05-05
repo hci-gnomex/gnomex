@@ -12,31 +12,35 @@ package views.renderers
 		public static function create(dataProvider:Object, 
 										  labelField:String,
 										  valueField:String,
-										  dataField:String 
+										  dataField:String,
+										  isRequired:Boolean=true
 								          ):IFactory {
 			return RendererFactory.create(views.renderers.DropdownLabel, {dataProvider: dataProvider, 
 																		 labelField: labelField,
 																		 valueField: valueField,
-																		 dataField: dataField  
+																		 dataField: dataField,
+																		 isRequired:isRequired
 																		 });			
 		}
 			
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             super.updateDisplayList(unscaledWidth,unscaledHeight);
-	    	if (data == null) {
+	    	if (data == null || !(data is XML)) {
 	      		return;
 	      	}
-	      	if (!data.hasOwnProperty(dataField)) {
-	      		return;
-	      	}
- 
+			
+			if (!isRequired) {
+				var g0:Graphics = graphics;
+				g0.clear();
+				return;
+			}
           
         	if (!parentDocument.parentDocument.isEditState()) {
           		var g:Graphics = graphics;
 	        	g.clear();	        
 		  	  
-	        	if (data[dataField] == '') {
-	        		g.beginFill( data[dataField] == '' ? missingRequiredFieldBackground : 0xffffff );
+	        	if (!data.hasOwnProperty(dataField) || data[dataField] == '') {
+	        		g.beginFill(!data.hasOwnProperty(dataField) || data[dataField] == '' ? missingRequiredFieldBackground : 0xffffff );
 	    	    	g.lineStyle(missingRequiredFieldBorderThickness, missingRequiredFieldBorder );          	
 					g.drawRect(0,0,unscaledWidth,unscaledHeight);
 		        	g.endFill();

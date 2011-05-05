@@ -8,6 +8,7 @@ import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SlideDesign;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Hibernate;
+
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 
@@ -34,6 +38,7 @@ public class DictionaryHelper implements Serializable {
   private Map              billingPeriodMap = new HashMap();
   private Map              seqLibTreatmentMap = new HashMap();
   private Map              slideDesignMap = new HashMap();
+  private Map              sampleCharacteristicMap = new HashMap();
 
   public DictionaryHelper() {    
   }
@@ -113,9 +118,30 @@ public class DictionaryHelper implements Serializable {
       SlideDesign sd = (SlideDesign)de;
       slideDesignMap.put(sd.getIdSlideDesign(), sd);
     }
+    
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT sc from SampleCharacteristic as sc ");
+    List sampleCharacteristics = sess.createQuery(queryBuf.toString()).list();
+    for (Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
+      SampleCharacteristic sc = (SampleCharacteristic)i.next();
+      try {
+        Hibernate.initialize(sc.getOptions());        
+      } catch (HibernateException e) {
+        System.out.println("warning - unable to initialize options on sample characteristic " + sc.getCodeSampleCharacteristic() + " " + e.toString());
+      } 
+      sampleCharacteristicMap.put(sc.getCodeSampleCharacteristic(), sc);
+      
+    }
 
    }
   
+  public SampleCharacteristic getSampleCharacteristic(String code) {
+    return (SampleCharacteristic)sampleCharacteristicMap.get(code);
+  }
+  
+  public Map getSampleCharacteristicMap() {
+    return sampleCharacteristicMap;
+  }
   
   public String getSampleType(Sample sample) {
     String name = "";

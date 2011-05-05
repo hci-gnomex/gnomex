@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:CheckBox xmlns:mx="http://www.adobe.com/2006/mxml" change="updateDP()"
+		 implements="mx.controls.listClasses.IDropInListItemRenderer"
+		 selected="{txt == 'Y' ? true : false}">
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.renderers.RendererFactory;
+			
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.DataGrid;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
+			import mx.controls.listClasses.ListData;
+			import mx.core.IFactory;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			private var _listData:DataGridListData;
+			
+			[Bindable]
+			public var txt:String;
+			
+			public static function create():IFactory {
+				return RendererFactory.create(CheckBoxRenderer, {});
+			}		
+			
+			override public function set data(value:Object):void {
+				super.data = value;
+				
+				if (_listData != null) {
+					txt=data[_listData.dataField];					
+				}
+			}
+			
+			override public function get data():Object {
+				return super.data;
+			}
+			
+			override public function get listData():BaseListData
+			{
+				return _listData;
+			}
+			
+			override public function set listData(value:BaseListData):void
+			{
+				_listData = DataGridListData(value);
+			}
+			
+			
+			public function updateDP():void{
+				if (_listData != null) {
+					this.data[_listData.dataField] = this.selected ? "Y" : "N";
+					if (this._listData is DataGrid) {
+						var dg:DataGrid=this._listData.owner as DataGrid;
+						dg.dataProvider.itemUpdated(data);
+					} else if (this._listData is AdvancedDataGrid) {
+						var adg:AdvancedDataGrid=this._listData.owner as AdvancedDataGrid;
+						adg.dataProvider.itemUpdated(data);						
+					}
+				}
+			}
+			
+			override protected function updateDisplayList(w:Number, h:Number):void
+			{
+				super.updateDisplayList(w, h);
+				
+				if (data == null || !(data is XML) || _listData == null) {
+					this.visible = false;
+					return;
+				}
+				
+				this.visible = true;
+				var n:int = numChildren;
+				for (var i:int = 0; i < n; i++)
+				{
+					var c:DisplayObject = getChildAt(i);
+					if (!(c is TextField))
+					{
+						c.x = (w - c.width) / 2;
+						c.y =(h - c.height) / 2;
+					}
+				}
+				/* TODO - Figure out a way to only hilight field when it hasn't been checked/unchecked
+				var g:Graphics = graphics;
+				g.clear();
+				g.beginFill( !_listData.hasOwnProperty(_listData.dataField) || this.data[_listData.dataField] == null || this.data[_listData.dataField] == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );
+				if (this.data[!_listData.hasOwnProperty(_listData.dataField) || _listData.dataField] == null || this.data[_listData.dataField] == '') {
+					g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
+						RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER );          	
+				}
+				g.drawRect(0,0,unscaledWidth,unscaledHeight);
+				g.endFill();
+				*/
+			}        
+		]]>
+	</mx:Script>
+	
+</mx:CheckBox>
+
+

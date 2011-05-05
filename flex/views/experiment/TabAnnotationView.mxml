@@ -10,17 +10,23 @@
 	</mx:states>
 <mx:Script>
 	<![CDATA[
-		import views.util.AnnotationDataGridColumn;
-		import views.util.AnnotationAdvancedDataGridColumn;
-		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-		import mx.events.ListEvent;
-		import mx.managers.PopUpManager;
-		import hci.flex.dictionary.DictionaryEditor;
-		import hci.flex.dictionary.DictionaryEvent;
-		import mx.collections.XMLListCollection;
-		import mx.controls.dataGridClasses.DataGridColumn;
 		import hci.flex.controls.DropdownLabel;
 		import hci.flex.controls.TextInput;
+		import hci.flex.dictionary.DictionaryEditor;
+		import hci.flex.dictionary.DictionaryEvent;
+		
+		import mx.collections.XMLListCollection;
+		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
+		
+		import views.renderers.CheckBoxRenderer;
+		import views.renderers.ComboBox;
+		import views.renderers.MultiselectRenderer;
+		import views.renderers.URLRenderer;
+		import views.util.AnnotationAdvancedDataGridColumn;
+		import views.util.AnnotationDataGridColumn;
 		
 		private var dictionaryEditor:DictionaryEditor; 
 		
@@ -228,6 +234,8 @@
        		}
         	
         }
+		
+
         
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
@@ -242,15 +250,66 @@
 					}    				 
        			}
        			if (!exists) {
-       				
-       				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn();
+       				// new column for sample grid
+       				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
        				var fieldName:String = "@" + annotation.@codeSampleCharacteristic;
        				newCol.dataField  = fieldName;
        				newCol.headerText = annotation.@sampleCharacteristic;
        				newCol.visible    = annotation.@isSelected == "true" ? true : false;
-       				newCol.editable   = true;
-       				newCol.itemRenderer = hci.flex.controls.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-       				newCol.itemEditor   = hci.flex.controls.TextInput.create(fieldName);
+					
+					// new column for sample grid on confirmation tab
+					var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn();
+					aCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
+					aCol.headerText = annotation.@sampleCharacteristic;
+					aCol.visible    = annotation.@isSelected == "true" ? true : false;
+
+					var sc:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristic').DictionaryEntry.(@value == annotation.@codeSampleCharacteristic);
+					var sampleCharacteristic:XML = null;
+					if (sc is XMLList) {
+						sampleCharacteristic = sc[0];
+					} else {
+						sampleCharacteristic = sc as XML;
+					}
+					
+					newCol.editable = false;
+					aCol.editable = false;
+					if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
+						newCol.itemRenderer =  MultiselectRenderer.create();
+						aCol.itemRenderer =  MultiselectRenderer.create(false);
+					} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
+						newCol.itemRenderer = URLRenderer.create();
+						aCol.itemRenderer = URLRenderer.create(false);
+					} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
+						newCol.itemRenderer = CheckBoxRenderer.create();
+					} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
+						newCol.editable = true;
+						newCol.editorDataField = "value"
+						newCol.itemRenderer = views.renderers.DropdownLabel.create(
+							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic), 
+							'@option', 
+							'@idSampleCharacteristicOption', 
+							fieldName);                
+						aCol.itemRenderer = views.renderers.DropdownLabel.create(
+							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic), 
+							'@option', 
+							'@idSampleCharacteristicOption', 
+							fieldName,
+						    false);                
+						newCol.itemEditor = views.renderers.ComboBox.create(
+							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic),
+							"@option",
+							"@idSampleCharacteristicOption",
+							fieldName, 
+							null,
+							true,
+							true);
+					} else  {
+						// Assume text
+						newCol.editable   = true;
+						newCol.itemRenderer = hci.flex.controls.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						newCol.itemEditor   = hci.flex.controls.TextInput.create(fieldName);
+					}
+					
        				 
        				var columns:Array = parentDocument.samplesView.samplesGrid.columns;
        				var newColumns:Array = new Array();
@@ -261,14 +320,11 @@
        					newColumns.push(column);
        				}
        				parentDocument.samplesView.samplesGrid.columns = newColumns;
+					parentDocument.samplesView.samplesGrid.validateNow();
 
 					// Add to confirm samples grid     (if this is a submit request, not an edit request)  				
        				if (!parentDocument.isEditState()) {
-       					var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn();
-	       				aCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
-	       				aCol.headerText = annotation.@sampleCharacteristic;
-	       				aCol.visible    = annotation.@isSelected == "true" ? true : false;
-	       				
+ 	       				
 	       				var confirmColumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
 	       				var newConfirmColumns:Array = new Array();
        			    	for each(var confirmCol:DataGridColumn in confirmColumns) {

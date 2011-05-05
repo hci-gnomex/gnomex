@@ -2,6 +2,8 @@ package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
 import java.io.Serializable;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 
@@ -32,6 +34,10 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   private String   mageOntologyDefinition;
   private String   isActive;
   private Integer  idAppUser;
+  private String   codeCharacteristicType;
+  private Set      options = new TreeSet();
+  private Set      values  =  new TreeSet();
+  private Set      organisms = new TreeSet();
   
   public static boolean isValidCode(String code) {
     if (code.equals(AGE) ||
@@ -118,6 +124,9 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getMageOntologyCode");
     this.excludeMethodFromXML("getMageOntologyDefinition");
+    this.excludeMethodFromXML("getValues");
+    this.excludeMethodFromXML("getOrganisms");
+    this.excludeMethodFromXML("getOptions");    
   }
 
 
@@ -129,6 +138,25 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
+  public Set getOptions() {
+    return options;
+  }
+  public void setOptions(Set options) {
+    this.options = options;
+  }
+  public String getCodeCharacteristicType() {
+    return codeCharacteristicType;
+  }
+  public void setCodeCharacteristicType(String codeCharacteristicType) {
+    this.codeCharacteristicType = codeCharacteristicType;
+  }
+  public Set getOrganisms() {
+    return organisms;
+  }
+  public void setOrganisms(Set organisms) {
+    this.organisms = organisms;
+  }
   
 
+    
 }
