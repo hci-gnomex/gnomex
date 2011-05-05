@@ -3,6 +3,9 @@
 5.1.5
 --------------------
 - Introduced new data types for Sample annotations (text, checkbox, single-select, multi-select).
+- Renamed 'barcode sequence' and 'barcode tag' to 'index tag'.  Renamed 'multiplex group' to 'index tag group'.
+- Allow 1 sample per lane on barcoding question (seq submissions).
+- Don't ask barcoding questions on external experiments.
 
 5.1.4 (Apr 27, 2011)
 --------------------
