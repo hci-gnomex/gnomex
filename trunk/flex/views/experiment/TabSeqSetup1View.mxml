@@ -18,8 +18,8 @@
 			</mx:SetProperty>
 			<mx:AddChild relativeTo="{textarea1}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-					<mx:Text text="(1) Select the number of barcoded samples that you would like to have combined into a single sequencing lane." width="340"/>
-					<mx:NumericStepper id="numberSamplesPerChannel" minimum="2" value="2" stepSize="1" maximum="{this.maxSamplesPerChannel}">
+					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
+					<mx:NumericStepper id="numberSamplesPerChannel" minimum="1" stepSize="1" maximum="{this.maxSamplesPerChannel}">
 						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.checkSeqSetup1Completeness();</mx:change>
 					</mx:NumericStepper>
 				</mx:HBox>
@@ -257,17 +257,21 @@
 
         
         public function pickBarcodeScheme():void {
-        	if (parentDocument.sampleSetupView.radioYesBarcoding.selected || 
-        	    ((parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||  parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState")&& parentDocument.sampleSetupView.radioYesCustomBarcoding.selected)) {
-        		currentState = 'BarcodeState';
-        		for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
-    	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
-    	    		if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
-    	    		   	if (theBarcodes.length > this.maxSamplesPerChannel) {
-    	    		   		this.maxSamplesPerChannel = theBarcodes.length;
-    	    		   	}
-    	    		}
-        		}
+			if (parentApplication.submitInternalExperiment()) {
+				if (parentDocument.sampleSetupView.radioYesBarcoding.selected || 
+					((parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||  parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState")&& parentDocument.sampleSetupView.radioYesCustomBarcoding.selected)) {
+					currentState = 'BarcodeState';
+					for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
+						var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
+						if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
+							if (theBarcodes.length > this.maxSamplesPerChannel) {
+								this.maxSamplesPerChannel = theBarcodes.length;
+							}
+						}
+					}
+				} else {
+					currentState = '';
+				}
         	} else {
         		currentState = '';
         	}

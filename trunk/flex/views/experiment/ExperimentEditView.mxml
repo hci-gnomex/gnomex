@@ -923,9 +923,10 @@
 			sampleSetupView.pickRadioBarcoding();
 
 			var requestCategory:Object = getRequestCategory();
-			// If barcoding is not optional, don't show the question,
+			// If barcoding is not optional or this is an external
+            // experiment submission, don't show the question,
 			// that asks about sample barcode tags
-			if (requestCategory.@isSampleBarcodingOptional == "N") {
+			if (requestCategory.@isSampleBarcodingOptional == "N" || !parentApplication.submitInternalExperiment()) {
 				sampleSetupView.barcodeQuestionVisible = false;
 			} else {
 				sampleSetupView.barcodeQuestionVisible = true;
@@ -3552,8 +3553,10 @@
 							break;		
 						}
 					}
+				} else if (!parentApplication.submitInternalExperiment()) {
+					show = false;
 				} else if (this.isEditState()) {
-    				return true;
+    				show = true;
     			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
 					show = true;
 				} 	
@@ -3571,8 +3574,10 @@
 							break;		
 						}
 					}
+				} else if (!parentApplication.submitInternalExperiment()) {
+					show = false;
 				} else if (this.isEditState()) {
-					return true;
+					show = true;
 				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'C') {
 					show = true;
 				}	
@@ -3584,7 +3589,7 @@
     	public function showSampleMultiplexGroup():Boolean {
     		var show:Boolean = false;
     		if (this.isSolexaState()) {
-	    		if (currentState == "SolexaLaneAmendState" ) {
+	    		if (currentState == "SolexaLaneAmendState") {
 					for each(var s:Object in samples) {
 						if (s.@multiplexGroupNumber != '') {
 							show = true;
@@ -3592,9 +3597,13 @@
 						}
 					}
 				} else if (isEditState()) {
-					return false;
-				}else if (sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N') {
-					return true;
+					show = false;
+				}  else if (!parentApplication.submitInternalExperiment()) {
+					show = false;
+				} else if (sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N' && this.seqSetup1View.numberSamplesPerChannel.value > 1) {
+					show = true;
+				} else {
+					show = false;
 				}	
     		}
     		return show;

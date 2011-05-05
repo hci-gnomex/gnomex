@@ -796,7 +796,7 @@
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState();
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
-				preppedByCoreCol.visible = true;
+				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
 				//corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
@@ -1041,11 +1041,11 @@
 				selectionColor="#DDF3FB">
 				<mx:columns>
 	                <mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
-						width="54">
+						width="60">
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-									<mx:Label text="Mutiplex"/>
+									<mx:Label text="Index Tag"/>
 									<mx:Label text="Group"/>
 								</mx:VBox> 
 							</mx:Component> 
@@ -1080,24 +1080,24 @@
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-									<mx:Label text="Mutiplex"/>
+									<mx:Label text="Index tag"/>
 									<mx:Label text="Group"/>
 								</mx:VBox> 
 							</mx:Component> 
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
-	                <mx:AdvancedDataGridColumn id="barcodeColumn" visible="true" headerText="Barcode" width="130" dataField="@idOligoBarcode" 
+	                <mx:AdvancedDataGridColumn id="barcodeColumn" visible="true" headerText="Index Tag" width="130" dataField="@idOligoBarcode" 
 	                   editorDataField="value" sortable="false" editable="{parentApplication.hasPermission('canWriteAnyObject')}" rendererIsEditor="false" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}"                
  	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(barcodeList, '@display', '@value', '@idOligoBarcode', true)}"/>
-	                <mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Custom Barcode" dataField="@barcodeSequence" editable="true" visible="true"
+	                <mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Custom Index Tag" dataField="@barcodeSequence" editable="true" visible="true"
 						width="80"
  	                    itemRenderer="views.renderers.LabelBarcodeSequence"               
  	                    itemEditor="{hci.flex.controls.TextInput.create('@barcodeSequence')}">
  	                     <mx:headerRenderer > 
 							<mx:Component>
 								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								    <mx:Label text="Barcode"/> 
+								    <mx:Label text="Index Tag"/> 
 								    <mx:Label text="Sequence"/>
 								</mx:VBox> 
 							</mx:Component>

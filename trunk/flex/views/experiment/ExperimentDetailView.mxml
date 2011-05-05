@@ -641,11 +641,11 @@
 						horizontalScrollPolicy="auto" height="100%">
 						<mx:columns>
 			                <mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
-								width="54">
+								width="60">
 								<mx:headerRenderer>
 									<mx:Component>
 										<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-											<mx:Label text="Multiplex"/>
+											<mx:Label text="Index Tag"/>
 											<mx:Label text="Group"/>
 										</mx:VBox> 
 									</mx:Component> 
@@ -657,23 +657,23 @@
 			                <mx:AdvancedDataGridColumn id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber"/>
-			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Barcode"  width="75" visible="{true}"  
+			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Index Tag"  width="75" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
 			                   <mx:headerRenderer>
 			                   	  <mx:Component>
 			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-			                   	    	<mx:Label text="Illumina"/>
-			                   	    	<mx:Label text="Barcode"/>
+			                   	    	<mx:Label text="Index"/>
+			                   	    	<mx:Label text="Tag"/>
 			                   	    </mx:VBox>
 			                   	  </mx:Component>
 			                   </mx:headerRenderer>
 			                </mx:AdvancedDataGridColumn>
-			                <mx:AdvancedDataGridColumn id="customBarcodeCol" headerText="Barcode" width="65" visible="true"  dataField="@barcodeSequence">
+			                <mx:AdvancedDataGridColumn id="customBarcodeCol" headerText="Index Tag" width="65" visible="true"  dataField="@barcodeSequence">
 			                   <mx:headerRenderer>
 			                   	  <mx:Component>
 			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
 			                   	    	<mx:Label text="Custom"/>
-			                   	    	<mx:Label text="Barcode"/>
+			                   	    	<mx:Label text="Index Tag"/>
 			                   	    </mx:VBox>
 			                   	  </mx:Component>
 			                   </mx:headerRenderer>

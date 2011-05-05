@@ -341,17 +341,17 @@
 						headerText="Sample Type" labelFunction="getSampleType">
 					</mx:DataGridColumn>
 					<mx:DataGridColumn editable="false" width="10" dataField="@multiplexGroupNumber"  
-						headerText="Multiplex Group" >
+						headerText="Index Tag Group" >
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox  horizontalScrollPolicy="off"  verticalGap="0">
-									<mx:Label text="Multiplex"/>
+									<mx:Label text="Index Tag"/>
 									<mx:Label text="Group"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn> 
-					<mx:DataGridColumn headerText="Barcode tag"  width="25" 
+					<mx:DataGridColumn headerText="Index Tag"  width="25" 
 					dataField="@idOligoBarcode" 
 					   editorDataField="value"
 		               editable="true"  
