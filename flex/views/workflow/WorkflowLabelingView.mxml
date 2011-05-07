@@ -273,8 +273,9 @@
                    editable="true"
                    rendererIsEditor="false"
                    itemRenderer="mx.controls.Label"               							
- 	               itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry,'@display', '@value', '@idLabelingProtocol', true)}"/>			                
-	            <mx:DataGridColumn headerText="Yield" width="7" dataField="@labelingYield"/>
+ 	               itemEditor="views.renderers.FillButtonComboBox"/>			                
+	            <mx:DataGridColumn headerText="Yield" width="7" dataField="@labelingYield"
+								   itemEditor="views.util.FillDataGridColumn" editorDataField="value"/>
 				<mx:DataGridColumn headerText="Reaction Size" width="10" 
 					dataField="@codeLabelingReactionSize"
 					editorDataField="value"
@@ -283,7 +284,7 @@
                    editable="true"
                    rendererIsEditor="false"  
                    itemRenderer="mx.controls.Label"             							
- 	               itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingReactionSize').DictionaryEntry,'@display', '@value', '@codeLabelingReactionSize', true)}">			                
+ 	               itemEditor="views.renderers.FillButtonComboBox">			                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
@@ -293,7 +294,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions">
+				<mx:DataGridColumn headerText="# Reactions" width="12" dataField="@numberOfReactions"
+								   itemEditor="views.util.FillDataGridColumn" editorDataField="value">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -309,7 +311,7 @@
                    editable="true"
                    rendererIsEditor="false"  
                    itemRenderer="mx.controls.Label"
- 	               itemEditor="{ComboBoxWorkflowStatus.create('@labelingStatus')}"/>			                
+ 	               itemEditor="views.renderers.FillButtonComboBox"/>			                
 			</util:columns>
 		</util:DataGridAlternatingGroup>
 			

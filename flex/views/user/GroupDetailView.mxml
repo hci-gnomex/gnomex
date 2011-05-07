@@ -438,8 +438,9 @@
         	// validation when the billing account has been changed.
         	setDirtyBillingAccount(theGrid.dataProvider.getItemAt(event.rowIndex));
         	
-        	// PO checkbox, account name, and expiration data are always editable
-			if (event.dataField == '@isPO' || event.dataField == '@accountName' || event.dataField == '@expirationDate') {
+        	// PO checkbox, account name, expiration date, and total amount are always editable
+			if (event.dataField == '@isPO' || event.dataField == '@accountName' 
+				|| event.dataField == '@expirationDate' || event.dataField == '@totalDollarAmountDisplay') {
         		return;
         	}
         	

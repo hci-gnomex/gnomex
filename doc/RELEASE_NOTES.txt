@@ -6,6 +6,10 @@
 - Renamed 'barcode sequence' and 'barcode tag' to 'index tag'.  Renamed 'multiplex group' to 'index tag group'.
 - Allow 1 sample per lane on barcoding question (seq submissions).
 - Don't ask barcoding questions on external experiments.
+- Fix for dictionary update problem where an item is saved when other tree items have been expanded above it.
+- Updated core ordering page.
+- Enabled edit of $ amt on PO billing accounts
+- Added "Fill" button to fill in workflow parameters for all samples on an experiment.
 
 5.1.4 (Apr 27, 2011)
 --------------------

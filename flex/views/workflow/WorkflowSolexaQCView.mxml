@@ -44,18 +44,21 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.validators.NumberValidator;
-        import mx.events.ValidationResultEvent;
-        import mx.collections.ArrayCollection;
-        import mx.collections.XMLListCollection;
-        import mx.rpc.events.FaultEvent; 
-        import mx.rpc.events.ResultEvent;   
-        import mx.controls.Alert;
-        import views.renderers.ComboBoxWorkflowStatus;
-        import hci.flex.controls.DropdownLabel;
-        import hci.flex.controls.ComboBox;
+			import hci.flex.controls.ComboBox;
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DataGridEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.NumberValidator;
+			
+			import views.renderers.ComboBoxWorkflowStatus;
         
         
         [Bindable]
@@ -235,9 +238,6 @@
         	}        	
         	return keep;
         }
-
-    	
-
         ]]>
     </mx:Script> 
     
@@ -253,30 +253,33 @@
             </mx:HBox>
         	
 		<mx:VBox width="100%" height="100%" verticalGap="0">
-	
 			<util:DataGridAlternatingGroup height="100%"   id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false"   headerText="" width="3"  labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="8" dataField="@sampleNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Client"  width="15" dataField="@appUserName" />
-					<mx:DataGridColumn headerText="Conc. ng/uL" width="7" dataField="@qualCalcConcentration">
+					<mx:DataGridColumn id="concColumn" headerText="Conc. ng/uL" width="7" dataField="@qualCalcConcentration" 
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value">
 						<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
-							    <mx:Label text="Conc."/>
-							    <mx:Label text="ng/uL"/>
-							</mx:VBox>
-						</mx:Component>
+							<mx:Component>
+								<mx:HBox horizontalGap="0" verticalAlign="middle" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+									<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle" width="80">
+										<mx:Label text="Conc."/>
+										<mx:Label text="ng/uL"/>
+									</mx:VBox>
+								</mx:HBox>
+							</mx:Component>
 						</mx:headerRenderer>
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="260/230" width="6" dataField="@qual260nmTo230nmRatio"/>
+					</mx:DataGridColumn>	
+					<mx:DataGridColumn headerText="260/230" width="6" dataField="@qual260nmTo230nmRatio"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value"/>
 					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="10" dataField="@qualCodeBioanalyzerChipType"
-						labelFunction="getBioanalyzerChipType" 
+						labelFunction="getBioanalyzerChipType"
 		               editorDataField="value"
 		               editable="true" 
 		               rendererIsEditor="false"
 		               itemRenderer="mx.controls.Label"		                
-		               itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@qualCodeBioanalyzerChipType', true)}">		                
+		               itemEditor="views.renderers.FillButtonComboBox" >		                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
@@ -286,8 +289,10 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="RIN#" width="6" dataField="@qualRINNumber"/>
-					<mx:DataGridColumn headerText="Frag size (from)" width="7" dataField="@qualFragmentSizeFrom">
+					<mx:DataGridColumn headerText="RIN#" width="6" dataField="@qualRINNumber"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value"/>
+					<mx:DataGridColumn headerText="Frag size (from)" width="7" dataField="@qualFragmentSizeFrom"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
@@ -297,7 +302,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Frag size (to)" width="7" dataField="@qualFragmentSizeTo"> 
+					<mx:DataGridColumn headerText="Frag size (to)" width="7" dataField="@qualFragmentSizeTo"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value"> 
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"  horizontalScrollPolicy="off"   horizontalAlign="center" verticalAlign="middle">
@@ -311,7 +317,7 @@
 	                	editorDataField="value"
 	                   rendererIsEditor="false" 
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@qualStatus')}"/>			                
+ 	                   itemEditor="views.renderers.FillButtonComboBox"/>			                
  					<mx:DataGridColumn headerText="" width="0" visible="false"/>
 				</util:columns>
 		</util:DataGridAlternatingGroup>

@@ -340,18 +340,18 @@
 					<mx:DataGridColumn editable="false" width="25" dataField="@idSampleType"  
 						headerText="Sample Type" labelFunction="getSampleType">
 					</mx:DataGridColumn>
-					<mx:DataGridColumn editable="false" width="10" dataField="@multiplexGroupNumber"  
+					<mx:DataGridColumn editable="false" width="9" dataField="@multiplexGroupNumber"  
 						headerText="Index Tag Group" >
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox  horizontalScrollPolicy="off"  verticalGap="0">
-									<mx:Label text="Index Tag"/>
+									<mx:Label text="Idx Tag"/>
 									<mx:Label text="Group"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn> 
-					<mx:DataGridColumn headerText="Index Tag"  width="25" 
+					<mx:DataGridColumn headerText="Index Tag"  width="20" 
 					dataField="@idOligoBarcode" 
 					   editorDataField="value"
 		               editable="true"  
@@ -359,15 +359,16 @@
 		               itemRenderer="mx.controls.Label"		
 		               labelFunction="getOligoBarcodeName"                
 					   itemEditor="{views.renderers.ComboBoxOligoBarcode.create()}"/>		                
-					<mx:DataGridColumn headerText="Seq Library Protocol"  width="45" 
+					<mx:DataGridColumn headerText="Seq Library Protocol"  width="44" 
 					dataField="@idSeqLibProtocol" 
 					   editorDataField="value"
 		               editable="true"  
 		               rendererIsEditor="false" 
 		               itemRenderer="mx.controls.Label"		
 		               labelFunction="getSeqLibProtocol"                
-					   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true)}"/>		                
-				    <mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="9" dataField="@seqPrepLibConcentration">
+					   itemEditor="views.renderers.FillButtonComboBox"/>		                
+				    <mx:DataGridColumn editable="true" headerText="Lib conc. ng/uL"  width="10" dataField="@seqPrepLibConcentration"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -377,12 +378,12 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="12" dataField="@seqPrepQualCodeBioanalyzerChipType"
+					<mx:DataGridColumn headerText="Bioanalyzer meth"  width="21" dataField="@seqPrepQualCodeBioanalyzerChipType"
 						labelFunction="getBioanalyzerChipType" 
 		               editorDataField="value"
 		               editable="true"  
 		               rendererIsEditor="false" 
-					   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry,'@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', null, true)}">		                
+					   itemEditor="views.renderers.FillButtonComboBox">		                
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -392,7 +393,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size range (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom">
+					<mx:DataGridColumn headerText="Gel size range (from)" width="11" dataField="@seqPrepGelFragmentSizeFrom"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
@@ -402,7 +404,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepGelFragmentSizeTo"> 
+					<mx:DataGridColumn headerText="Gel size range (to)" width="11" dataField="@seqPrepGelFragmentSizeTo"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value"> 
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -417,7 +420,7 @@
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@seqPrepStatus')}"/>			                
+ 	                   itemEditor="views.renderers.FillButtonComboBox"/>			                
 	
 				</util:columns>
 		</util:DataGridAlternatingGroup>

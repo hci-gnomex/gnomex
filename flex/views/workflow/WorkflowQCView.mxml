@@ -253,7 +253,8 @@
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
 					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@appUserName" />
-					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration">
+					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -263,13 +264,15 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"/>
-					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"/>
+					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value"/>
+					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"
+									   itemEditor="views.util.FillDataGridColumn" editorDataField="value"/>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@qualStatus" 
 	                	editorDataField="value"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@qualStatus')}"/>			                
+ 	                   itemEditor="views.renderers.FillButtonComboBox"/>			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			
