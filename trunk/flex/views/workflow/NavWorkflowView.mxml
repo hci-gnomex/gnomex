@@ -6,11 +6,36 @@
 	xmlns:WorkflowView="WorkflowView.*" 
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
     creationPolicy="all"
-	label="Workflow" width="100%" height="100%" >
+	label="Workflow" width="100%" height="100%" show="init()" >
 
     <mx:Script>
         <![CDATA[ 
-        import mx.controls.Alert;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridListData;
+			
+			import views.util.DataGridAlternatingGroup;
+			import views.util.FillButtonClickEvent;
+		
+			
+		private function init():void {
+			this.systemManager.addEventListener("FillButtonClickEvent", fillButtonClicked);
+		}
+			
+		private function fillButtonClicked(evt:FillButtonClickEvent):void {
+			var listData:DataGridListData = evt.listData;
+			var thisField:String = listData.dataField.substr(1);
+			var grid:DataGridAlternatingGroup = DataGridAlternatingGroup(listData.owner);
+			var value:String = evt.value;
+			var dataProvider:XMLListCollection = XMLListCollection(grid.dataProvider);
+			for each (var node : XML in dataProvider){
+				if(node.@idRequest == grid.selectedItem.@idRequest) {
+					node.attribute(thisField)[0] = value;
+					node.attribute('isDirty')[0] = 'Y';
+				}
+			}
+			grid.invalidateList();
+		}			
 		
 		public function checkDirty():void {
 		}
