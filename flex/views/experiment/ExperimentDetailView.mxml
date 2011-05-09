@@ -460,26 +460,38 @@
        		var exists:Boolean = false;
        		for each(annotation in this.selectedExperiment.SampleCharacteristicEntries.SampleCharacteristicEntry) {
 				exists = false;
+				/*
        			for each(col in samplesGridConfirm.columns) {
-					if (col.dataField == ("@" + annotation.@codeSampleCharacteristic)) {
+					if (col.dataField == ("@" + annotation.@idSampleCharacteristic)) {
 						exists = true;
 						break;
 					}    				
        			}
+				*/
        			if (!exists) {
-       				
-       				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
-       				newCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
-       				newCol.headerText = annotation.@sampleCharacteristic;
-       				newCol.visible    = annotation.@isSelected == "true" ? true : false;
 					
-					var sc:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristic').DictionaryEntry.(@value == annotation.@codeSampleCharacteristic);
+					var sc:Object = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
 					var sampleCharacteristic:XML = null;
 					if (sc is XMLList) {
 						sampleCharacteristic = sc[0];
 					} else {
 						sampleCharacteristic = sc as XML;
 					}
+					
+					
+					var headerName:String = "";
+					if (sc.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
+						headerName = annotation.@otherLabel;
+						annotation.@isSelected = "true";
+					} else {
+						headerName = annotation.@sampleCharacteristic;
+					}
+
+       				
+       				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
+       				newCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
+       				newCol.headerText = headerName;
+       				newCol.visible    = (annotation.@isSelected == "true" ? true : false);
 					
 					if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
 						newCol.itemRenderer =  MultiselectRenderer.create(false);
@@ -490,10 +502,10 @@
 					} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
 						             
 						newCol.itemRenderer = views.renderers.DropdownLabel.create(
-							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic), 
+							parentApplication.getSampleCharactersticOptions(annotation.@idSampleCharacteristic), 
 							'@option', 
 							'@idSampleCharacteristicOption', 
-							"@" + annotation.@codeSampleCharacteristic,
+							"@ANNOT" + annotation.@idSampleCharacteristic,
 							false);                
 					} 
 					

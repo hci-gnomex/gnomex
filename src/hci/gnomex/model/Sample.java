@@ -251,9 +251,9 @@ public class Sample extends HibernateDetailObject {
     Document doc = super.toXMLDocument(list, dateOutputStyle);
     for (Iterator i = getSampleCharacteristicEntries().iterator(); i.hasNext();) {
       SampleCharacteristicEntry entry = (SampleCharacteristicEntry) i.next();
-      doc.getRootElement().setAttribute(entry.getCodeSampleCharacteristic(), entry.getValue());
-      if (entry.getCodeSampleCharacteristic().equals(SampleCharacteristic.OTHER)) {
-        doc.getRootElement().setAttribute(SampleCharacteristicEntry.OTHER_LABEL, entry.getOtherLabel() == null ? "" : entry.getOtherLabel());
+      doc.getRootElement().setAttribute("ANNOT" + entry.getIdSampleCharacteristic().toString(), entry.getValue());
+      if (entry.getOtherLabel() != null && !entry.getOtherLabel().equals("")) {
+        doc.getRootElement().setAttribute(SampleCharacteristicEntry.OTHER_LABEL, entry.getOtherLabel());
       }
     }
     

@@ -32,12 +32,14 @@ package views.renderers
           	}
           	if (this.selected) {
           		_data.@isSelected = "true";
-          		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, true);
+          		parentDocument.showSampleAnnotationColumn(data.@idSampleCharacteristic, true);
           		parentDocument.clearOutUncheckedSampleAnnotations();
+				parentDocument.changeOtherHeaderLabel(data);
           	} else {
           		_data.@isSelected = "false";
-          		parentDocument.showSampleAnnotationColumn(data.@codeSampleCharacteristic, false);
+          		parentDocument.showSampleAnnotationColumn(data.@idSampleCharacteristic, false);
           		parentDocument.clearOutUncheckedSampleAnnotations();
+				parentDocument.changeOtherHeaderLabel(data);
           	}
           }
 			override protected function updateDisplayList(w:Number, h:Number):void

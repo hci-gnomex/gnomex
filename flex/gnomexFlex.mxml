@@ -74,6 +74,19 @@
     <mx:request>
     </mx:request>
     </mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="getSampleCharacteristicList" 
+		url="GetSampleCharacteristicList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getSampleCharacteristicList"
+		result="onGetSampleCharacteristicList(event)"
+		fault="onFailHttpRequest('Failed to get sample characteristic list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
          
     <mx:HTTPService 
     id="getAppUserList" 
@@ -127,7 +140,6 @@
 			import hci.flex.dictionary.DictionaryEvent;
 			import hci.flex.renderers.RendererFactory;
 			import hci.flex.util.DictionaryManager;
-			import views.search.NavSearchView;
 			
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
@@ -140,7 +152,6 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.search.NavSearchView;
-			
 			import views.util.AboutView;
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
@@ -405,6 +416,8 @@
 			public var manageLabList:XMLListCollection;
 			[Bindable]
 			public var promptedWorkAuthLabList:PromptXMLListCollection;
+			[Bindable]
+			public var sampleCharacteristicList:XMLListCollection;
 
 			private var properties:Object;
 			
@@ -931,7 +944,7 @@
             	}
 			    
 			    this.appProgressBar.currentState = "LoadingState";
-			    this.showProgress(20);
+			    this.showProgress(10);
 			    
 			    userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
@@ -1069,13 +1082,23 @@
 	        	showProgress(30);
 	        	enableApp();
 	        }		
+			
+			
             
 	        
             private function onGetProjectList(event:ResultEvent):void {
+				getSampleCharacteristicList.send();
+				
 	       	    showProgress(10);
 	        	enableApp();
 	        }
 	        
+			private function onGetSampleCharacteristicList(event:ResultEvent):void {
+				sampleCharacteristicList = new XMLListCollection(getSampleCharacteristicList.lastResult.SampleCharacteristic);
+				
+				showProgress(10);
+				enableApp();
+			}
 	        
 	        private function enableApp():void {
 	        	// If we are already in an enabled state,
@@ -1088,7 +1111,8 @@
 	        	if (dictionaryManager != null &&
 	        	    dictionaryManager.xml != null &&
 	        	    manageLabList != null &&
-	        	    promptedLabList != null ) {
+	        	    promptedLabList != null &&
+				    sampleCharacteristicList != null) {
 	        	    
 	        	    if (this.isGuestMode()) {
 	        	    	done = true;
@@ -1290,9 +1314,31 @@
 					return null;
 				}
 		}
+			
+		public function getSampleCharacteristic(idSampleCharacteristic:String):Object {
+			var sampleCharacteristic:XML = null;
+			for each(var sc:XML in sampleCharacteristicList) {
+				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
+					sampleCharacteristic = sc;
+				}
+			}
+			return sampleCharacteristic;
+		}		
+
 		
-		public function getSampleCharactersticOptions(codeSampleCharacteristicType:String):XMLList {
-			return dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristicOption').DictionaryEntry.(@value != '' && @codeSampleCharacteristic == codeSampleCharacteristicType);
+		public function getSampleCharactersticOptions(idSampleCharacteristic:String):XMLList {
+			var sampleCharacteristic:XML = null;
+			for each(var sc:XML in sampleCharacteristicList) {
+				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
+					sampleCharacteristic = sc;
+					break;
+				}
+			}
+			if (sampleCharacteristic != null) {
+				return sampleCharacteristic.options.SampleCharacteristicOption;
+			} else {
+				return new XMLList();
+			}
 		}		
 		
 

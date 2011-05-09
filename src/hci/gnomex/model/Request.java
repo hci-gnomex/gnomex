@@ -227,13 +227,13 @@ public class Request extends HibernateDetailObject {
     
     // Sample characteristics & treatments
     String otherLabel = null;
-    Map codes = new HashMap();
+    Map idSampleCharacteristics = new HashMap();
     boolean hasTreatment = false;
     for(Iterator i = getSamples().iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       for (Iterator i1 = sample.getSampleCharacteristicEntries().iterator(); i1.hasNext();) {
         SampleCharacteristicEntry entry = (SampleCharacteristicEntry) i1.next();
-        codes.put(entry.getCodeSampleCharacteristic(), "Y");
+        idSampleCharacteristics.put(entry.getIdSampleCharacteristic(), "Y");
         if (entry.getOtherLabel() != null && !entry.getOtherLabel().equals("")) {
           otherLabel = entry.getOtherLabel();
         }
@@ -242,9 +242,9 @@ public class Request extends HibernateDetailObject {
         hasTreatment = true;
       }
     }
-    for(Iterator i = codes.keySet().iterator(); i.hasNext();) {
-      String code = (String)i.next();
-      doc.getRootElement().setAttribute(code, "Y");
+    for(Iterator i = idSampleCharacteristics.keySet().iterator(); i.hasNext();) {
+      Integer idSampleCharacteristic = (Integer)i.next();
+      doc.getRootElement().setAttribute("ANNOT" + idSampleCharacteristic, "Y");
     }
     
     // Treatments

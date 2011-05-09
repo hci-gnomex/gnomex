@@ -528,7 +528,7 @@
 		<id name="idSampleCharacteristicEntry" column="idSampleCharacteristicEntry" type="integer">
 			<generator class="native"/>
 		</id>
-		<property name="codeSampleCharacteristic" column="codeSampleCharacteristic" type="string"/>
+		<property name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer"/>
 		<property name="idSample" column="idSample" type="integer"/>
 		<property name="value" column="valueString" type="string"/>
 		<property name="otherLabel" column="otherLabel" type="string"/>
@@ -1102,8 +1102,8 @@
 	</class>
 	<!-- hci.gnomex.model.SampleCharacteristic -->
 	<class name="hci.gnomex.model.SampleCharacteristic" table="SampleCharacteristic">
-		<id name="codeSampleCharacteristic" column="codeSampleCharacteristic" type="string">
-			<generator class="assigned"/>
+		<id name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer">
+			<generator class="native"/>
 		</id>
 		<property name="sampleCharacteristic" column="sampleCharacteristic" type="string"/>
 		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
@@ -1111,14 +1111,16 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<property name="codeCharacteristicType" column="codeCharacteristicType" type="string"/>
+
 		<set name="options" table="SampleCharacteristicOption" lazy="false" cascade="delete" order-by="sortOrder">
-			<key column="codeSampleCharacteristic"/>
+			<key column="idSampleCharacteristic"/>
 			<one-to-many class="hci.gnomex.model.SampleCharacteristicOption" />
 		</set>	
 		<set name="organisms" table="SampleCharacteristicOrganism" lazy="false" cascade="none">
-			<key column="codeSampleCharacteristic"/>
-			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>
+			<key column="idSampleCharacteristic"/>
+			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>			
 		</set>
+
 			
 	</class>
 	
@@ -1128,7 +1130,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="option" column="value" type="string"/>
-		<property name="codeSampleCharacteristic" column="codeSampleCharacteristic" type="string"/>
+		<property name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="isActive" column="isActive" type="string"/>
 	</class>

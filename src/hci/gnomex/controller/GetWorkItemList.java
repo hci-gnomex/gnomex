@@ -471,8 +471,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             FlowCellChannel ch = (FlowCellChannel)row[17];
             
             n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
-            n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
-            n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles().toString());
+            n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType() != null ? fc.getIdSeqRunType().toString() : "");
+            n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles() != null ? fc.getIdNumberSequencingCycles().toString() : "");
             n.setAttribute("number",                       ch.getContentNumbers());
             n.setAttribute("channelNumber",                ch.getNumber().toString());
             n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");

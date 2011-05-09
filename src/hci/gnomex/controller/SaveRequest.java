@@ -819,17 +819,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
     for(Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext(); ) {
      
-      String code = (String)i.next();
-      String value = (String)sampleAnnotations.get(code);
-      SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)dh.getSampleCharacteristic(code);
+      Integer idSampleCharacteristic = (Integer)i.next();
+      String value = (String)sampleAnnotations.get(idSampleCharacteristic);
+      SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)dh.getSampleCharacteristic(idSampleCharacteristic);
      
       
       SampleCharacteristicEntry entry = new SampleCharacteristicEntry();
       entry.setIdSample(sample.getIdSample());
-      if (code.equals(SampleCharacteristic.OTHER)) {
+      SampleCharacteristic sc = dh.getSampleCharacteristic(idSampleCharacteristic);
+      if (sc.getSampleCharacteristic().equals("Other")) {
           entry.setOtherLabel(requestParser.getOtherCharacteristicLabel());
       }
-      entry.setCodeSampleCharacteristic(code);
+      entry.setIdSampleCharacteristic(idSampleCharacteristic);
       entry.setValue(value);
       sess.save(entry);
       sess.flush();

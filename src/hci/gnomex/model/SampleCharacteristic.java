@@ -8,27 +8,9 @@ import java.util.TreeSet;
 
 
 public class SampleCharacteristic extends DictionaryEntry implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
-  public static final String     AGE                     = "AGE";
-  public static final String     CELL_LINE               = "CELLLINE";
-  public static final String     CELL_TYPE               = "CELLTYPE";
-  public static final String     CLINICAL_INFO           = "CLININFO";
-  public static final String     COMPOUND                = "COMPOUND";
-  public static final String     DISEASE_STATE           = "DISSTATE";
-  public static final String     DOSE                    = "DOSE";
-  public static final String     GROWTH_CONDITIONS       = "GROWTHCOND";
-  public static final String     GENOTYPE                = "GENOTYPE";
-  public static final String     GENETIC_MODIFICATION    = "GENMOD";
-  public static final String     INDIVIDUAL              = "INDIV";
-  public static final String     TEMP                    = "TEMP";
-  public static final String     TIME                    = "TIME";
-  public static final String     ORGANISM_PART           = "ORGPART";
-  public static final String     SEX                     = "SEX";
-  public static final String     OTHER                   = "OTHER";
   
   
-  
-  
-  private String   codeSampleCharacteristic;
+  private Integer  idSampleCharacteristic;
   private String   sampleCharacteristic;
   private String   mageOntologyCode;
   private String   mageOntologyDefinition;
@@ -36,39 +18,16 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   private Integer  idAppUser;
   private String   codeCharacteristicType;
   private Set      options = new TreeSet();
-  private Set      values  =  new TreeSet();
   private Set      organisms = new TreeSet();
   
-  public static boolean isValidCode(String code) {
-    if (code.equals(AGE) ||
-        code.equals(CELL_LINE) ||
-        code.equals(CELL_TYPE) ||
-        code.equals(CLINICAL_INFO) ||
-        code.equals(COMPOUND) ||
-        code.equals(DISEASE_STATE) ||
-        code.equals(DOSE) ||
-        code.equals(GENETIC_MODIFICATION) ||
-        code.equals(GENOTYPE) ||
-        code.equals(GROWTH_CONDITIONS) ||
-        code.equals(INDIVIDUAL) ||
-        code.equals(TEMP) ||
-        code.equals(TIME) ||
-        code.equals(ORGANISM_PART) ||
-        code.equals(SEX) ||
-        code.equals(OTHER)) {
-      return true;
-    } else {
-      return false;
-    }
-    
-  }
+
   public String getDisplay() {
     String display = this.getNonNullString(getSampleCharacteristic());
     return display;
   }
 
   public String getValue() {
-    return getCodeSampleCharacteristic();
+    return getIdSampleCharacteristic().toString();
   }
   
   
@@ -111,26 +70,7 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
     this.isActive = isActive;
   }
 
-  
-  public String getCodeSampleCharacteristic() {
-    return codeSampleCharacteristic;
-  }
 
-  
-  public void setCodeSampleCharacteristic(String codeSampleCharacteristic) {
-    this.codeSampleCharacteristic = codeSampleCharacteristic;
-  }
-  
-  public void registerMethodsToExcludeFromXML() {
-    this.excludeMethodFromXML("getMageOntologyCode");
-    this.excludeMethodFromXML("getMageOntologyDefinition");
-    this.excludeMethodFromXML("getValues");
-    this.excludeMethodFromXML("getOrganisms");
-    this.excludeMethodFromXML("getOptions");    
-  }
-
-
-  
   public Integer getIdAppUser() {
     return idAppUser;
   }
@@ -138,12 +78,15 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
+
   public Set getOptions() {
-    return options;
+    return this.options;
   }
+  
   public void setOptions(Set options) {
     this.options = options;
   }
+  
   public String getCodeCharacteristicType() {
     return codeCharacteristicType;
   }
@@ -155,6 +98,12 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   }
   public void setOrganisms(Set organisms) {
     this.organisms = organisms;
+  }
+  public Integer getIdSampleCharacteristic() {
+    return idSampleCharacteristic;
+  }
+  public void setIdSampleCharacteristic(Integer idSampleCharacteristic) {
+    this.idSampleCharacteristic = idSampleCharacteristic;
   }
   
 

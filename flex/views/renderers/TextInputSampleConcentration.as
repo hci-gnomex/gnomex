@@ -1,9 +1,11 @@
 package views.renderers
 {
-	import mx.controls.TextInput;
 	import flash.display.Graphics;
 	import flash.events.Event;
+	
 	import hci.flex.renderers.RendererFactory;
+	
+	import mx.controls.TextInput;
 
 	public class TextInputSampleConcentration extends TextInput
 	{
@@ -22,6 +24,10 @@ package views.renderers
           if (data == null) {
           	return;
           }
+		  if (!(data is XML)) {
+			  this.editable = false;
+			  return;
+		  }
           var g:Graphics = graphics;
           g.clear();
           g.beginFill( data.@concentration == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );

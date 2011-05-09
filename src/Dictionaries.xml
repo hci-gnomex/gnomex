@@ -43,12 +43,6 @@
          <Filter className="hci.gnomex.model.SamplePrepMethod" filterField="idSamplePrepMethod"/>
   	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Annotations" className="hci.gnomex.model.SampleCharacteristic" >
-			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>	
-	</Dictionary>
-	<Dictionary displayName="Sample Annotation Options" className="hci.gnomex.model.SampleCharacteristicOption" >
-			<Filter className="hci.gnomex.model.SampleCharacteristic" filterField="codeSampleCharacteristic"/>	
-	</Dictionary>
 	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
 	</Dictionary>
 	<Dictionary displayName="Sample Prep Method (Request defaults)" className="hci.gnomex.model.SamplePrepMethodRequestCategory" >

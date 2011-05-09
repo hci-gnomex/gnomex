@@ -11,7 +11,7 @@ import hci.hibernate3utils.HibernateDetailObject;
 public class SampleCharacteristicOption  extends DictionaryEntry {
   
   private Integer idSampleCharacteristicOption;
-  private String  codeSampleCharacteristic;
+  private Integer idSampleCharacteristic;
   private String  option;
   private Integer sortOrder;
   private String  isActive;
@@ -31,14 +31,6 @@ public class SampleCharacteristicOption  extends DictionaryEntry {
     this.isActive = isActive;
   }
 
-  public String getCodeSampleCharacteristic() {
-    return codeSampleCharacteristic;
-  }
-  
-  public void setCodeSampleCharacteristic(String codeSampleCharacteristic) {
-    this.codeSampleCharacteristic = codeSampleCharacteristic;
-  }
-  
   
   public Integer getIdSampleCharacteristicOption() {
     return idSampleCharacteristicOption;
@@ -64,6 +56,14 @@ public class SampleCharacteristicOption  extends DictionaryEntry {
 
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  public Integer getIdSampleCharacteristic() {
+    return idSampleCharacteristic;
+  }
+
+  public void setIdSampleCharacteristic(Integer idSampleCharacteristic) {
+    this.idSampleCharacteristic = idSampleCharacteristic;
   }
 
   

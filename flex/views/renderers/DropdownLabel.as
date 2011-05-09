@@ -26,12 +26,14 @@ package views.renderers
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             super.updateDisplayList(unscaledWidth,unscaledHeight);
 	    	if (data == null || !(data is XML)) {
+				var g0:Graphics = graphics;
+				g0.clear();
 	      		return;
 	      	}
 			
 			if (!isRequired) {
-				var g0:Graphics = graphics;
-				g0.clear();
+				var g1:Graphics = graphics;
+				g1.clear();
 				return;
 			}
           
@@ -46,8 +48,8 @@ package views.renderers
 		        	g.endFill();
           	  	}
           	} else {
-          		var g1:Graphics = graphics;
-	        	g1.clear();
+          		var g2:Graphics = graphics;
+	        	g2.clear();
           	}					        				
 		
         }	
