@@ -441,10 +441,10 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
 
 
 INSERT INTO `gnomex`.`BioanalyzerChipType`(`codeBioanalyzerChipType`, `bioanalyzerChipType`, `concentrationRange`, `maxSampleBufferStrength`, `costPerSample`, `sampleWellsPerChip`, `isActive`, `codeConcentrationUnit`)
-VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/µl', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul'),
-  ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/µl', '10mM TE', 7.00, 12, 'Y', 'ng/ul'),
-  ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/µl', '10 mM TE', 8.00, 11, 'Y', 'pg/ul'),
-  ('SMALLRNA', 'Small RNA Chip', '1-20 ng/µl', NULL, NULL, 11, 'Y', 'pg/ul');
+VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/Âµl', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul'),
+  ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/Âµl', '10mM TE', 7.00, 12, 'Y', 'ng/ul'),
+  ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/Âµl', '10 mM TE', 8.00, 11, 'Y', 'pg/ul'),
+  ('SMALLRNA', 'Small RNA Chip', '1-20 ng/Âµl', NULL, NULL, 11, 'Y', 'pg/ul');
 
 INSERT INTO `gnomex`.`ConcentrationUnit`(`codeConcentrationUnit`, `concentrationUnit`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`)
 VALUES ('ng/ul', 'ng/ul', NULL, NULL, 'Y'),
@@ -565,14 +565,14 @@ VALUES (1, 18, 'Y'),
 
 INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`, idSeqRunType, name)
 VALUES 
-  (1, 1, 'SOLEXA', 3),
-  (2, 3, 'SOLEXA', 3),
-  (3, 4, 'HISEQ', 3),
-  (4, 6, 'HISEQ', 3),
-  (5, 1, 'SOLEXA', 4),
-  (6, 3, 'SOLEXA', 4),
-  (7, 4, 'HISEQ', 4),
-  (8, 6, 'HISEQ', 4);
+  (1, 1, 'SOLEXA', 3, '18 cycle single-end reads'),
+  (2, 3, 'SOLEXA', 3, '36 cycle single-end reads'),
+  (3, 4, 'HISEQ', 3, '50 cycle single-end reads'),
+  (4, 6, 'HISEQ', 3,  '101 cycle single-end reads'),
+  (5, 1, 'SOLEXA', 4, '18 cycle paired-end reads'),
+  (6, 3, 'SOLEXA', 4, '36 cycle paired-end reads'),
+  (7, 4, 'HISEQ', 4, '50 cycle paired-end reads'),
+  (8, 6, 'HISEQ', 4, '101 cycle paired-end reads');
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
 VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
@@ -745,23 +745,23 @@ VALUES ('AFFY', 'CHIP'),
 
 
 
-INSERT INTO `gnomex`.`SampleCharacteristic`(`codeSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
-VALUES ('AGE', 'Age / Developmental Stage', 'age', NULL, 'Y', NULL),
-  ('CELLLINE', 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL),
-  ('CELLTYPE', 'Cell Type', 'cell_type', NULL, 'Y', NULL),
-  ('CLININFO', 'Clinical Information', 'clinical_information', NULL, 'Y', NULL),
-  ('COMPOUND', 'Compound', NULL, NULL, 'Y', NULL),
-  ('DISSTATE', 'Disease State / Stage / Tumor Grade', 'distease_state', NULL, 'Y', NULL),
-  ('DOSE', 'Dose', 'dose', NULL, 'Y', NULL),
-  ('GENMOD', 'Genetic Modification', NULL, NULL, 'Y', NULL),
-  ('GENOTYPE', 'Genotype', 'genotype', NULL, 'Y', NULL),
-  ('GROWTHCOND', 'Growth Conditions', NULL, NULL, 'Y', NULL),
-  ('INDIV', 'Individual', 'individual', NULL, 'Y', NULL),
-  ('ORGPART', 'Organ / Tissue', 'organism_part', NULL, 'Y', NULL),
-  ('OTHER', 'Other', NULL, NULL, 'Y', NULL),
-  ('SEX', 'Sex', 'sex', NULL, 'Y', NULL),
-  ('TEMP', 'Temperature', NULL, NULL, 'Y', NULL),
-  ('TIME', 'Time Course', 'sampling_time_point', NULL, 'Y', NULL);
+INSERT INTO `gnomex`.`SampleCharacteristic`(`idSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codeCharacteristicType)
+VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT'),
+  (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT'),
+  (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT'),
+  (4, 'Clinical Information', 'clinical_information', NULL, 'Y', NULL, 'TEXT'),
+  (5, 'Compound', NULL, NULL, 'Y', NULL, 'TEXT'),
+  (6, 'Disease State / Stage / Tumor Grade', 'distease_state', NULL, 'Y', NULL, 'TEXT'),
+  (7, 'Dose', 'dose', NULL, 'Y', NULL, 'TEXT'),
+  (8, 'Genetic Modification', NULL, NULL, 'Y', NULL, 'TEXT'),
+  (9, 'Genotype', 'genotype', NULL, 'Y', NULL, 'TEXT'),
+  (10, 'Growth Conditions', NULL, NULL, 'Y', NULL, 'TEXT'),
+  (11, 'Individual', 'individual', NULL, 'Y', NULL, 'TEXT'),
+  (12, 'Organ / Tissue', 'organism_part', NULL, 'Y', NULL, 'TEXT'),
+  (13, 'Other', NULL, NULL, 'Y', NULL, 'TEXT'),
+  (14, 'Sex', 'sex', NULL, 'Y', NULL, 'TEXT'),
+  (15, 'Temperature', NULL, NULL, 'Y', NULL, 'TEXT'),
+  (16, 'Time Course', 'sampling_time_point', NULL, 'Y', NULL, 'TEXT');
 
 INSERT INTO `gnomex`.`SamplePrepMethod`(`idSamplePrepMethod`, `samplePrepMethod`, `isActive`)
 VALUES (1, 'Qiagen RNeasy mini kit', 'Y'),

@@ -215,7 +215,7 @@ public class RequestParser implements Serializable {
     for (Iterator i1 = n.getChild("SampleCharacteristicEntries").getChildren("SampleCharacteristicEntry").iterator(); i1.hasNext();) {
       Element scNode = (Element)i1.next();
       if (scNode.getAttributeValue("isSelected").equals("true")) {
-        this.characteristicsToApplyMap.put(scNode.getAttributeValue("codeSampleCharacteristic"), null);        
+        this.characteristicsToApplyMap.put(scNode.getAttributeValue("idSampleCharacteristic"), null);        
       }
     }
     
@@ -374,13 +374,18 @@ public class RequestParser implements Serializable {
     for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
       
       Attribute a = (Attribute)i.next();
-      String code = a.getName();
+      String attributeName = a.getName();
       String value = unEscape(a.getValue());
       
+      //Strip off "ANNOT" from attribute name
+      if (attributeName.startsWith("ANNOT")) {
+        attributeName = attributeName.substring(5);
+      }
+      
       if (value != null && !value.equals("") && 
-          this.characteristicsToApplyMap.containsKey(code)) {
-        annotations.put(code, value);
-        sampleAnnotationCodeMap.put(code, null);
+          this.characteristicsToApplyMap.containsKey(attributeName)) {
+        annotations.put(Integer.valueOf(attributeName), value);
+        sampleAnnotationCodeMap.put(attributeName, null);
       }
     }
     sampleAnnotationMap.put(idSampleString, annotations);

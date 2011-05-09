@@ -22,8 +22,10 @@ package views.renderers
      	{
           super.updateDisplayList(unscaledWidth,unscaledHeight);
           if (data == null || !(data is XML)) {
+			this.editable = false;
           	return;
           }
+		  this.editable = true;
           var g:Graphics = graphics;
           g.clear();
           g.beginFill( data.@numberSequencingLanes == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );

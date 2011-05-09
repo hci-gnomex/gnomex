@@ -30,6 +30,8 @@
 		
 		private var dictionaryEditor:DictionaryEditor; 
 		
+		public var ignoreToggle:Boolean = false;
+		
        	private function propagateTreatment():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@treatment = this.treatmentTextInput.text;
@@ -50,20 +52,20 @@
 			}
 		}
 		
-		public function showSampleAnnotationColumn(codeSampleCharacteristic:String, show:Boolean):void {
+		public function showSampleAnnotationColumn(idSampleCharacteristic:String, show:Boolean):void {
 			if (parentDocument.samplesView.samplesGrid == null) {
 				return;
 			}
 			for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
 				var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
-				if ( dc.dataField == "@" + codeSampleCharacteristic) {
+				if ( dc.dataField == "@ANNOT" + idSampleCharacteristic) {
 					dc.visible = show;
 					break;					
 				}
 			}
 			for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
 				var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
-				if ( dc1.dataField == "@" + codeSampleCharacteristic) {
+				if ( dc1.dataField == "@ANNOT" + idSampleCharacteristic) {
 					dc1.visible = show;
 					break;
 				}
@@ -85,7 +87,7 @@
 				}
 					
 				for each(var sample:XML in parentDocument.samples) {
-					switch (annotation.@codeSampleCharacteristic.toString()) { 
+					switch (annotation.@idSampleCharacteristic.toString()) { 
 						case 'AGE' :
 							sample.@AGE = (value == null ? sample.@AGE : value);
 							parentDocument.request.@AGE = isSelected;
@@ -161,18 +163,26 @@
    			if (event.columnIndex == 0) {
 	   			return;
    			}
-   			// When user clicks in the "other" text field, don't toggle (off)
-   			// the checkbox.
-   			if (sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic == "OTHER") {
-   				return;
-   			}
+			
+			
+			// We don't want the typing in the the text field for "Other" to be treated
+			// as a toggle off
+			var sc:Object = parentApplication.getSampleCharacteristic(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic);
+			if (sc.@sampleCharacteristic.toString() == "Other") {
+				if (ignoreToggle) {
+					return;					
+				}
+			}
+   			
    			if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
+				
 				sampleAnnotationGrid.selectedItem.@isSelected = "false";
-				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic, false);
-          		clearOutUncheckedSampleAnnotations();				
+				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, false);
+				clearOutUncheckedSampleAnnotations();									
+				
 			} else {
 				sampleAnnotationGrid.selectedItem.@isSelected = "true";
-				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@codeSampleCharacteristic, true);
+				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, true);
           		clearOutUncheckedSampleAnnotations();
 			}
 		}
@@ -193,7 +203,7 @@
 			PopUpManager.centerPopUp(dictionaryEditor);
 		}
        	private function onDictionarySampleCharacteristicInitialized(event:Event):void{
-			dictionaryEditor.selectDictionary("hci.gnomex.model.SampleCharacteristic");
+			//dictionaryEditor.selectDictionary("hci.gnomex.model.SampleCharacteristic");
         }          
        	private function onDictionarySampleCharacteristicRefreshed(event:Event):void{
 			this.checkForNewAnnotations();
@@ -213,10 +223,10 @@
        		var de:Object;
        		var annotation:Object;
        		var exists:Boolean = false;
-       		for each(de in parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SampleCharacteristic')) {
+       		for each(de in parentApplication.sampleCharacteristicList) {
        			exists = false;
        			for each(annotation in parentDocument.sampleCharacteristicEntries) {
-					if (de.@value == annotation.@codeSampleCharacteristic) {
+					if (de.@value == annotation.@idSampleCharacteristic) {
 						exists = true;
 						break;
 					}      				
@@ -224,7 +234,7 @@
        			if (!exists) {
        				
        				var node:XML = new XML("<SampleCharacteristicEntry/>");
-       				node.@codeSampleCharacteristic = de.@value;
+       				node.@idSampleCharacteristic = de.@value;
        				node.@sampleCharacteristic = de.@display; 
        				node.@otherLabel = "";
        				node.@isSelected = "false";
@@ -243,33 +253,44 @@
        		var exists:Boolean = false;
        		for each(annotation in parentDocument.sampleCharacteristicEntries) {
 				exists = false;
-       			for each(col in parentDocument.samplesView.samplesGrid.columns) {
-					if (col.dataField == ("@" + annotation.@codeSampleCharacteristic)) {
+       			/*for each(col in parentDocument.samplesView.samplesGrid.columns) {
+					if (col.dataField == ("@" + annotation.@idSampleCharacteristic)) {
 						exists = true;
 						break;               
 					}    				 
-       			}
+       			}*/
        			if (!exists) {
-       				// new column for sample grid
-       				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
-       				var fieldName:String = "@" + annotation.@codeSampleCharacteristic;
-       				newCol.dataField  = fieldName;
-       				newCol.headerText = annotation.@sampleCharacteristic;
-       				newCol.visible    = annotation.@isSelected == "true" ? true : false;
-					
-					// new column for sample grid on confirmation tab
-					var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn();
-					aCol.dataField  = "@" + annotation.@codeSampleCharacteristic;
-					aCol.headerText = annotation.@sampleCharacteristic;
-					aCol.visible    = annotation.@isSelected == "true" ? true : false;
-
-					var sc:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleCharacteristic').DictionaryEntry.(@value == annotation.@codeSampleCharacteristic);
+					var sc:Object = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
 					var sampleCharacteristic:XML = null;
 					if (sc is XMLList) {
 						sampleCharacteristic = sc[0];
 					} else {
 						sampleCharacteristic = sc as XML;
 					}
+					
+					var headerName:String = "";
+					if (sc.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
+						headerName = annotation.@otherLabel;
+						annotation.@isSelected = "true";
+					} else {
+						headerName = annotation.@sampleCharacteristic;
+					}
+
+					// new column for sample grid
+       				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
+       				var fieldName:String = "@ANNOT" + annotation.@idSampleCharacteristic;
+       				newCol.dataField  = fieldName;
+       				newCol.headerText = headerName;
+       				newCol.visible    = annotation.@isSelected == "true" ? true : false;
+					
+					// new column for sample grid on confirmation tab
+					var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn(fieldName);
+					aCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
+					aCol.headerText = headerName;
+					aCol.visible    = annotation.@isSelected == "true" ? true : false;
+					
+
+
 					
 					newCol.editable = false;
 					aCol.editable = false;
@@ -285,18 +306,18 @@
 						newCol.editable = true;
 						newCol.editorDataField = "value"
 						newCol.itemRenderer = views.renderers.DropdownLabel.create(
-							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic), 
+							parentApplication.getSampleCharactersticOptions(annotation.@idSampleCharacteristic), 
 							'@option', 
 							'@idSampleCharacteristicOption', 
 							fieldName);                
 						aCol.itemRenderer = views.renderers.DropdownLabel.create(
-							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic), 
+							parentApplication.getSampleCharactersticOptions(annotation.@idSampleCharacteristic), 
 							'@option', 
 							'@idSampleCharacteristicOption', 
 							fieldName,
 						    false);                
 						newCol.itemEditor = views.renderers.ComboBox.create(
-							parentApplication.getSampleCharactersticOptions(annotation.@codeSampleCharacteristic),
+							parentApplication.getSampleCharactersticOptions(annotation.@idSampleCharacteristic),
 							"@option",
 							"@idSampleCharacteristicOption",
 							fieldName, 
@@ -306,8 +327,8 @@
 					} else  {
 						// Assume text
 						newCol.editable   = true;
-						newCol.itemRenderer = hci.flex.controls.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-						newCol.itemEditor   = hci.flex.controls.TextInput.create(fieldName);
+						newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						newCol.itemEditor   = views.renderers.TextInput.create(fieldName);
 					}
 					
        				 
@@ -346,9 +367,9 @@
        		var annotation:Object;
        		var exists:Boolean = false;
 			for each(annotation in parentDocument.sampleCharacteristicEntries) {
-	       		for each(de in parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SampleCharacteristic')) {
+	       		for each(de in parentApplication.sampleCharacteristicList) {
        			exists = false;
-       				if (de.@value == annotation.@codeSampleCharacteristic) {
+       				if (de.@value == annotation.@idSampleCharacteristic) {
 						exists = true;
 						break;
 					}      				
@@ -359,6 +380,43 @@
        		}
         	
         }
+		public function changeOtherHeaderLabelAndToggle(data:Object):void {
+			if (data.@otherLabel == '' ) {
+				data.@isSelected = false;	
+			} else {
+				data.@isSelected = true;
+			}		
+			changeOtherHeaderLabel(data);
+			
+		}
+		
+		public function changeOtherHeaderLabel(data:Object):void {
+
+			parentDocument.request.@otherLabel = data.@otherLabel;
+			
+			if (parentDocument.samplesView.samplesGrid != null) {
+				for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
+					var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
+					if ( dc.dataField == "@ANNOT" + data.@idSampleCharacteristic) {
+						dc.headerText = data.@otherLabel;
+						dc.visible = data.@isSelected == "true" ? true : false;
+						break;	
+					}
+				}
+			}
+			if (parentDocument.confirmView != null && parentDocument.confirmView.samplesGridConfirm != null) {
+				for (var y:Number = 0; y < parentDocument.confirmView.samplesGridConfirm.columnCount; y++) {
+					var dc1:DataGridColumn = parentDocument.confirmView.samplesGridConfirm.columns[y];
+					if ( dc1.dataField == "@ANNOT" + data.@idSampleCharacteristic) {
+						dc1.headerText = data.@otherLabel;
+						dc1.visible = data.@isSelected == "true" ? true : false;
+						break;					
+					}
+				}
+			}
+
+
+		}
 
 		
 	]]>
@@ -401,8 +459,10 @@
 					                       <mx:Label text="{data.@sampleCharacteristic}">			                           	
 					                       </mx:Label>
 					                       <mx:TextInput id="scOtherLabel" fontSize="9"
-					                       	text="{data.@otherLabel}"
-					                       	change="{data.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.request.@otherLabel = scOtherLabel.text;parentDocument.parentDocument.samplesView.otherDataColumn.headerText = scOtherLabel.text;parentDocument.parentDocument.confirmView.otherDataColumnConfirm.headerText = scOtherLabel.text; ; scOtherLabel.text != '' ? data.@isSelected = 'true' : data.@isSelected = 'false'}" 
+					                       	text="{parentDocument.data.@otherLabel}"
+											focusIn="{parentDocument.ignoreToggle = true}"
+											focusOut="{parentDocument.ignoreToggle = false}"
+					                       	change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}" 
 					                       	width="{data.@sampleCharacteristic == 'Other' ? 130 : 0}"  
 					                       	height="{data.@sampleCharacteristic == 'Other' ? 20 : 0}"  
 					                       	visible="{data.@sampleCharacteristic == 'Other' ? true : false}" 

@@ -236,8 +236,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
           requestNode.addContent(scParentNode);
           boolean hasCCNumber = false;
           for(Iterator i = dh.getSampleCharacteristicMap().keySet().iterator(); i.hasNext();) {
-            String codeSampleCharacteristic = (String)i.next();
-            SampleCharacteristic sc = (SampleCharacteristic)dh.getSampleCharacteristic(codeSampleCharacteristic);
+            Integer idSampleCharacteristic = (Integer)i.next();
+            SampleCharacteristic sc = (SampleCharacteristic)dh.getSampleCharacteristic(idSampleCharacteristic);
 
             Element scNode = new Element("SampleCharacteristicEntry");
             SampleCharacteristicEntry entry = null;
@@ -249,13 +249,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               for(Iterator i2 = sample.getSampleCharacteristicEntries().iterator(); i2.hasNext();) {
                 SampleCharacteristicEntry scEntry = (SampleCharacteristicEntry)i2.next();
-                if (scEntry.getCodeSampleCharacteristic().equals(sc.getCodeSampleCharacteristic())) {
+                if (scEntry.getIdSampleCharacteristic().equals(sc.getIdSampleCharacteristic())) {
                   entry = scEntry;
                   break;
                 }
               }
             }
-            scNode.setAttribute("codeSampleCharacteristic", sc.getCodeSampleCharacteristic());
+            scNode.setAttribute("idSampleCharacteristic", sc.getIdSampleCharacteristic().toString());
             scNode.setAttribute("sampleCharacteristic", sc.getSampleCharacteristic());
             scNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             scNode.setAttribute("isSelected", entry != null ? "true" : "false");

@@ -127,16 +127,16 @@ public class DictionaryHelper implements Serializable {
       try {
         Hibernate.initialize(sc.getOptions());        
       } catch (HibernateException e) {
-        System.out.println("warning - unable to initialize options on sample characteristic " + sc.getCodeSampleCharacteristic() + " " + e.toString());
+        System.out.println("warning - unable to initialize options on sample characteristic " + sc.getIdSampleCharacteristic() + " " + e.toString());
       } 
-      sampleCharacteristicMap.put(sc.getCodeSampleCharacteristic(), sc);
+      sampleCharacteristicMap.put(sc.getIdSampleCharacteristic(), sc);
       
     }
 
    }
   
-  public SampleCharacteristic getSampleCharacteristic(String code) {
-    return (SampleCharacteristic)sampleCharacteristicMap.get(code);
+  public SampleCharacteristic getSampleCharacteristic(Integer idSampleCharacteristic) {
+    return (SampleCharacteristic)sampleCharacteristicMap.get(idSampleCharacteristic);
   }
   
   public Map getSampleCharacteristicMap() {

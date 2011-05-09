@@ -43,7 +43,7 @@
 				var values:Array = new Array();
 				values = data[_listData.dataField].split(",");
 				var idx:Object = null;
-				var allOptions:XMLList = parentApplication.getSampleCharactersticOptions(_listData.dataField.substr(1));
+				var allOptions:XMLList = parentApplication.getSampleCharactersticOptions(_listData.dataField.substr(6));
 					
 				var option:XML = null;
 				for each(option in allOptions) {
@@ -88,7 +88,8 @@
 					return;
 				}
 				pop= MultiselectPopup(PopUpManager.createPopUp(this.owner, MultiselectPopup,true));
-				pop.initializeData(_listData.dataField.substr(1), this.txt, parentApplication.getSampleCharactersticOptions(_listData.dataField.substr(1)));
+				var sampleCharacteristicName:String = parentApplication.getSampleCharacteristic(_listData.dataField.substr(6)).@sampleCharacteristic;
+				pop.initializeData(sampleCharacteristicName, this.txt, parentApplication.getSampleCharactersticOptions(_listData.dataField.substr(6)));
 				pop.opener=this;
 			}
 			
