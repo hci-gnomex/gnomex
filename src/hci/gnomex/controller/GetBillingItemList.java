@@ -139,6 +139,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
               BillingItem otherBillingItem = (BillingItem)otherRow[8];
               Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
               otherBillingItemNode.setAttribute("other", "Y");
+              otherBillingItemNode.setAttribute("isDirty","N");
               requestNode.addContent(otherBillingItemNode);
             }
           }
@@ -172,6 +173,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       // Attach the billing item
       Element billingItemNode = billingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
       billingItemNode.setAttribute("other", "N");
+      billingItemNode.setAttribute("isDirty","N");
       if (billingItem.getTotalPrice() != null) {
         billingItemNode.setAttribute("totalPrice", nf.format(billingItem.getTotalPrice().doubleValue()));        
       }
@@ -198,6 +200,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           BillingItem otherBillingItem = (BillingItem)otherRow[8];
           Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
           otherBillingItemNode.setAttribute("other", "Y");
+          otherBillingItemNode.setAttribute("isDirty", "N");
           requestNode.addContent(otherBillingItemNode);
         }
       }

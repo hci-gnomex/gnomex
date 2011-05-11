@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   
   private String                       serverName;
   
-  private Map                          checkInvoiceMap = new HashMap();
+  private Map<Integer, Object[]>       checkInvoiceMap = new HashMap<Integer, Object[]>();
   
   private DictionaryHelper             dictionaryHelper = null;
   
@@ -147,14 +148,17 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           // For each unique request, check if all billing items are approved
           // for the billing period.  If so, send billing invoice email
           // to billing contact.
-          for(Iterator i = checkInvoiceMap.keySet().iterator(); i.hasNext();) {
+          for(Iterator<Integer> i = checkInvoiceMap.keySet().iterator(); i.hasNext();) {
             Integer idRequest = (Integer)i.next();
-            Integer idBillingPeriod = parser.getIdBillingPeriodForRequest(idRequest);
-            
-            this.checkToSendInvoiceEmail(sess, idRequest, idBillingPeriod);
-            
-          }
-          
+            //Integer idBillingPeriod = parser.getIdBillingPeriodForRequest(idRequest);
+            HashSet<?> idBillingPeriods = parser.getIdBillingPeriodsForRequest(idRequest);
+            if(idBillingPeriods != null) {
+              for(Iterator<?> j = idBillingPeriods.iterator(); j.hasNext();) {
+                Integer idBillingPeriod = (Integer) j.next();
+                this.checkToSendInvoiceEmail(sess, idRequest, idBillingPeriod);
+              }
+            }
+          }         
           
           this.xmlResult = "<SUCCESS/>";
           
@@ -239,15 +243,14 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     }
     
     if (send) {
-      
       MailUtil.send(contactEmail, 
           null,
           dictionaryHelper.getProperty(Property.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
           emailFormatter.format(),
-          true);      
+          true); 
+     
     }
-    
   }  
   
   private void getCheckInvoiceMap(Session sess, BillingItemParser parser) {
