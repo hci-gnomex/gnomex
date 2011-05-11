@@ -1401,6 +1401,7 @@ DROP TABLE IF EXISTS `gnomex`.`SampleCharacteristic`;
 CREATE TABLE `gnomex`.`SampleCharacteristic` (
   `idSampleCharacteristic` int(10) auto_increment NOT NULL,
   `sampleCharacteristic` VARCHAR(50) NULL,
+  `description` VARCHAR(2000) NULL,
   `mageOntologyCode` VARCHAR(50) NULL,
   `mageOntologyDefinition` VARCHAR(5000) NULL,
   `isActive` CHAR(1) NULL,
@@ -1458,7 +1459,7 @@ DROP TABLE IF EXISTS `gnomex`.`SampleCharacteristicOption`;
 CREATE  TABLE gnomex.SampleCharacteristicOption (
   idSampleCharacteristicOption INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
   value VARCHAR(200)  NULL,
-  idSampleCharacteristic int(10)  NOT NULL,
+  idSampleCharacteristic int(10)  NULL,
   sortOrder INT(10) NULL,
   isActive     	        char(1) NULL,  
   PRIMARY KEY (idSampleCharacteristicOption),

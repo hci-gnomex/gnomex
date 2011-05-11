@@ -61,7 +61,7 @@ CREATE TABLE gnomex.SampleCharacteristicOrganism (
 CREATE  TABLE gnomex.SampleCharacteristicOption (
   idSampleCharacteristicOption INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
   value VARCHAR(200)  NULL,
-  idSampleCharacteristic int(10)  NOT NULL,
+  idSampleCharacteristic int(10)   NULL,
   sortOrder INT(10) NULL,
   isActive     	        char(1) NULL,
   PRIMARY KEY (idSampleCharacteristicOption),

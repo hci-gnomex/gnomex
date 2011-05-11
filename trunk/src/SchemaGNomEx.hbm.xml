@@ -1106,6 +1106,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="sampleCharacteristic" column="sampleCharacteristic" type="string"/>
+		<property name="description" column="description" type="string"/>
 		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>

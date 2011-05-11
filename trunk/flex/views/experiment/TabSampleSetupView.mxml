@@ -311,7 +311,7 @@
         	}
     			
 			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-				parentDocument.annotationView.enabled = isComplete;        			
+				parentDocument.annotationView.enabled = isComplete;
 	    	}
     		parentDocument.enableNextButtons();
 
@@ -472,6 +472,10 @@
 				propagateOtherSampleOrganism();
 			}			
 			parentDocument.samplesView.initializeSamplesGrid();
+			
+			if (parentDocument.annotationView != null) {
+				parentDocument.annotationView.onSampleCharacteristicRefreshed(null);
+			}
 			
 			if (parentDocument.isMicroarrayState()) {
 				parentDocument.hybSetupView.organismCombo.selectedItem = sampleOrganismCombo.selectedItem;				

@@ -66,7 +66,7 @@ public class GetSampleCharacteristicList extends GNomExCommand implements Serial
 
       for(Iterator i = sampleCharacteristics.iterator(); i.hasNext();) {
         SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)i.next();
-
+        this.getSecAdvisor().flagPermissions(sampleCharacteristic);
         Element node = sampleCharacteristic.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(node);
       }

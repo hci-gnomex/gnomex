@@ -415,6 +415,7 @@
 			initFilters();
 
 			if (theTab.contains(this.annotationView)) {
+				this.annotationView.refreshSampleCharacteristicEntries();
 				this.annotationView.addNonStandardSampleColumns(); 
 			}
 			
@@ -511,6 +512,31 @@
 				return true;    	
 			} else {
 				return false;
+			}
+		}
+		public function getOrganism():XML {
+			if (theTab.contains(sampleSetupView) && (this.isMicroarrayState() || this.isSolexaState())) {
+				return sampleSetupView.sampleOrganismCombo.selectedItem as XML;
+			} else if (request != null) {
+				var idOrganism:Object = null;
+				if (request.hasOwnProperty("@idOrganismSampleDefault") && request.@idOrganismSampleDefault != '') {
+					idOrganism = request.@idOrganismSampleDefault;
+				} else {  
+					for each(var sample:Object in request.samples.Sample) {
+						if (sample.hasOwnProperty("@idOrganism") && sample.@idOrganism != '') {
+							idOrganism = sample.@idOrganism;
+							break;
+						}
+					}
+				}
+				var organismList:XMLList = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism', idOrganism);
+				if (organismList.length() > 0) {
+					return organismList[0];
+				} else {
+					return null;
+				}
+			} else {
+				return null;
 			}
 		}
 		
@@ -712,6 +738,7 @@
 				
 			}	
 			
+
 			
 			if (theTab.contains(confirmView)) {
 				confirmView.enabled = false;
@@ -1727,6 +1754,9 @@
 				} else {
 					lanesView.currentState = '';
 				} 
+				
+				this.annotationView.refreshSampleCharacteristicEntries();
+
 
 			} else if (request.@codeRequestCategory == 'QC') {
 				currentState = 'QCEditState';
@@ -1762,7 +1792,8 @@
 				hybSetupView.label = "Slide";
 				hybSetupView.numberOfHybsContainer.visible = false;
 				hybSetupView.slideSourceContainer.visible = false;
-				
+				this.annotationView.refreshSampleCharacteristicEntries();
+
 			}
 			
 			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
@@ -1829,6 +1860,7 @@
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
+				this.annotationView.refreshSampleCharacteristicEntries();
 				this.annotationView.addNonStandardSampleColumns();
 			} 
 			

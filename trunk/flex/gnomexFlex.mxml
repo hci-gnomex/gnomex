@@ -156,7 +156,9 @@
 			import views.util.AppProgressView;
 			import views.util.CaptchaView;
 			import views.util.PromptXMLListCollection;
+			import views.util.SampleCharacteristicEvent;
 			import views.util.WorkAuthorizationWindow;
+			import views.util.SampleCharacteristicEvent;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -1095,9 +1097,12 @@
 	        
 			private function onGetSampleCharacteristicList(event:ResultEvent):void {
 				sampleCharacteristicList = new XMLListCollection(getSampleCharacteristicList.lastResult.SampleCharacteristic);
+				this.dispatchEvent(new SampleCharacteristicEvent(SampleCharacteristicEvent.DATA_REFRESHED));
 				
-				showProgress(10);
-				enableApp();
+				if (currentState == null || currentState == "") {
+					showProgress(10);
+					enableApp();
+				}
 			}
 	        
 	        private function enableApp():void {
@@ -1319,7 +1324,11 @@
 			var sampleCharacteristic:XML = null;
 			for each(var sc:XML in sampleCharacteristicList) {
 				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
-					sampleCharacteristic = sc;
+					if (sc is XMLList) {
+						sampleCharacteristic = sc[0];
+					} else {
+						sampleCharacteristic = sc as XML;
+					}
 				}
 			}
 			return sampleCharacteristic;

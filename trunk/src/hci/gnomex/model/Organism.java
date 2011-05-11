@@ -94,11 +94,6 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   }
 
 
-  public void registerMethodsToExcludeFromXML() {
-    this.excludeMethodFromXML("getMageOntologyCode");
-    this.excludeMethodFromXML("getMageOntologyDefinition");
-  }
-
 
 
 }
