@@ -1,16 +1,12 @@
 package hci.gnomex.utility;
 
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +19,14 @@ import org.jdom.Element;
 
 public class BillingItemParser implements Serializable {
   
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private Document   doc;
-  private List       billingItems = new ArrayList();
-  private List       billingItemsToRemove = new ArrayList();
-  private Map        requestMap = new HashMap();
+  private List<BillingItem>       billingItems = new ArrayList<BillingItem>();
+  private List<BillingItem>       billingItemsToRemove = new ArrayList<BillingItem>();
+  private Map<Integer, HashSet>   requestMap = new HashMap<Integer, HashSet>();
   
   
   public BillingItemParser(Document doc) {
@@ -89,8 +89,15 @@ public class BillingItemParser implements Serializable {
         // Set the billing status
         String codeBillingStatus = node.getAttributeValue("codeBillingStatus");
         billingItem.setCodeBillingStatus(codeBillingStatus);
-
-        requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
+        
+        HashSet billingPeriodSet = (HashSet)requestMap.get(billingItem.getIdRequest());   
+        if(billingPeriodSet == null) {
+          billingPeriodSet = new HashSet();
+        }
+        billingPeriodSet.add(billingItem.getIdBillingPeriod());
+        requestMap.put(billingItem.getIdRequest(), billingPeriodSet);
+        
+        //requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
 
         
         billingItems.add(billingItem);
@@ -112,7 +119,14 @@ public class BillingItemParser implements Serializable {
         } else {
           billingItem = (BillingItem)sess.load(BillingItem.class, new Integer(idBillingItemString));
           billingItemsToRemove.add(billingItem);
-          requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
+          HashSet billingPeriodSet = (HashSet)requestMap.get(billingItem.getIdRequest());   
+          if(billingPeriodSet == null) {
+            billingPeriodSet = new HashSet();
+          }
+          billingPeriodSet.add(billingItem.getIdBillingPeriod());
+          requestMap.put(billingItem.getIdRequest(), billingPeriodSet);          
+          
+          //requestMap.put(billingItem.getIdRequest(), billingItem.getIdBillingPeriod());
         }
       }
     }
@@ -136,8 +150,12 @@ public class BillingItemParser implements Serializable {
     return requestMap.keySet();
   }
   
-  public Integer getIdBillingPeriodForRequest(Integer idRequest) {
-    return (Integer)requestMap.get(idRequest);
+  //public Integer getIdBillingPeriodForRequest(Integer idRequest) {
+  //  return (Integer)requestMap.get(idRequest);
+  //}
+  
+  public HashSet getIdBillingPeriodsForRequest(Integer idRequest) {
+    return (HashSet)requestMap.get(idRequest);
   }
 
 }

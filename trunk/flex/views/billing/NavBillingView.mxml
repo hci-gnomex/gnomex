@@ -1135,7 +1135,9 @@
  			for each(var request:XML in billingItems) {
  				if (request.@isDirty == "Y") { 
  					for each(var bi:XML in request.BillingItem) {
- 						params.billingItemXMLString += bi.toXMLString();	
+						if(bi.@isDirty == "Y") {
+							params.billingItemXMLString += bi.toXMLString();								
+						}
  					}
  				} 
  			}
@@ -1743,7 +1745,11 @@
 			}
 			requestNumberText.text = "";
 			refresh();					
-		}			
+		}	
+		
+		public function onEdit():void {
+			billingItemGrid.selectedItem.@isDirty = "Y";
+		}
 		
 
  	]]>
@@ -1960,7 +1966,7 @@
                     wordWrap="true" 
                     showDataTips="true"
                     headerWordWrap="true" 
-                    selectionMode="singleRow" 
+                    selectionMode="singleRow" itemEditEnd="onEdit()" 
                      alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
         		 	<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItemsDisplayed}"/> 
