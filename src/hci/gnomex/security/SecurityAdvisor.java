@@ -14,6 +14,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
@@ -843,6 +844,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canDelete = true;
       }
     } 
+    //
+    // Sample Characteristic can be deleted if user owns it
+    //
+    else if (object instanceof SampleCharacteristic) {
+      canDelete = canUpdate(object);
+    }
     //
     // Dictionary
     //

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="842" height="498" 
+				 creationComplete="{init()}"
+				 xmlns:util="views.util.*" 
+				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				title="Configure Sample Annotations">
+	
+<mx:HTTPService  
+		id="saveSampleCharacteristic" 
+		url="SaveSampleCharacteristic.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveSampleCharacteristic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save sample annotation', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+	
+<mx:HTTPService  
+		id="deleteSampleCharacteristic" 
+		url="DeleteSampleCharacteristic.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDeleteSampleCharacteristic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete sample annotation', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+		
+<mx:Script>
+	<![CDATA[
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.util.DirtyNote;
+	import views.util.SampleCharacteristicEvent;
+		
+	private var idSampleCharacteristic:Object = null;
+		
+	private function setDirty():void {
+		if (saveButton.enabled) {
+			dirty.setDirty();
+		}
+	}
+	
+	private function init():void {
+		sampleCharacteristics = new XMLListCollection();
+		for each(var sc:XML in parentApplication.sampleCharacteristicList) {
+			sampleCharacteristics.addItem(sc.copy());
+		}
+		parentApplication.removeEventListener(SampleCharacteristicEvent.DATA_REFRESHED,
+			onSampleCharacteristicRefreshed);		                                  
+		parentApplication.addEventListener(SampleCharacteristicEvent.DATA_REFRESHED,   
+			onSampleCharacteristicRefreshed);
+		
+	}	
+			
+	private function onSampleCharacteristicRefreshed(event:Event):void{
+		sampleCharacteristics = new XMLListCollection();
+		for each(var sc:XML in parentApplication.sampleCharacteristicList) {
+			sampleCharacteristics.addItem(sc.copy());
+		}
+		reselectCharacteristic();
+		dirty.resetDirty();
+	}	
+		
+	private function reselectCharacteristic():void {
+		var found:Boolean = false;
+		if (idSampleCharacteristic != null) {
+			for each(var sc:Object in sampleCharacteristics) {
+				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
+					scList.selectedItem = sc;
+					scList.scrollToIndex(scList.selectedIndex);
+					found = true;
+					break;
+				}
+			}
+		}
+		if (found) {
+			theViews.selectedIndex = 1;
+		} else {
+			theViews.selectedIndex = 0;
+		}
+	}
+		
+	private function onSelectSampleCharacteristic():void {
+		if (scList.selectedItem != null) {
+			theViews.selectedIndex = 1;
+			
+			organismCombo.selectedItem = null;
+
+			setOwnerCombo();
+
+			dirty.resetDirty();
+		}
+	}
+		
+	private function setOwnerCombo():void {
+		this.ownerCombo.selectedItem = null;
+		this.ownerCombo.enabled = true;
+		for each(var user:XML in parentApplication.promptedAppUserList) {
+			if (user.@idAppUser == scList.selectedItem.@idAppUser) {
+				this.ownerCombo.selectedItem = user;
+				break;
+			}
+		}
+		this.ownerCombo.enabled = parentApplication.hasPermission("canWriteDictionaries") ? true : false;
+	}
+		
+	private function addOption():void {
+		var newOption:XML = new XML("<SampleCharacteristicOption " +
+			" idSampleCharacteristicOption='SampleCharacteristicOption" + options.length + "'" +
+			" option='enter option here..'" +
+			" isActive='Y'" +
+			" sortOrder='" + (options.length + 1) + "'" +
+			" />");
+		options.addItem(newOption);
+		setDirty();
+	}
+
+	private function removeOption():void {
+		if (this.optionGrid.selectedItem != null) {
+			options.removeItemAt(options.getItemIndex(optionGrid.selectedItem));
+			setDirty();
+		}
+	}
+		 
+	private function addOrganism():void {
+		if (organismCombo.selectedItem != null && organismCombo.selectedItem.@value != '') {
+			organisms.addItem(organismCombo.selectedItem);
+			setDirty();			
+		}
+	}
+	
+	private function removeOrganism():void {
+		if (this.organismsGrid.selectedItem != null) {
+			organisms.removeItemAt(organisms.getItemIndex(organismsGrid.selectedItem));
+			setDirty();
+		}
+	}
+		
+	private function addSampleCharacteristic():void {
+		var newCharacteristic:XML = new XML("<SampleCharacteristic " +
+			" idSampleCharacteristic=''" +
+			" sampleCharacteristic='enter name here..'" +
+			" isActive='Y'" +
+			" canUpdate='Y'"  +
+			" canDelete='Y'" + 
+			" canRead='Y'" +
+			" mageOntologyCode=''" + 
+			" mageOntologyDefinition=''" + 
+			" description=''" + 
+			" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
+			" codeCharacteristicType='TEXT'" +
+			" />");
+		sampleCharacteristics.addItem(newCharacteristic);
+		 
+		
+		scList.selectedItem = newCharacteristic;
+		scList.scrollToIndex(scList.selectedIndex);
+		idSampleCharacteristic = "";
+		
+		setOwnerCombo();
+		
+		setDirty();
+
+	}
+		
+	private function removeSampleCharacteristic():void {
+		if (scList.selectedItem == null) {
+			return;
+		}
+		idSampleCharacteristic = "";
+		
+		var params:Object = new Object();
+		params.idSampleCharacteristic = scList.selectedItem.@idSampleCharacteristic;
+		deleteSampleCharacteristic.send(params);
+	}
+		
+	private function onDeleteSampleCharacteristic(event:ResultEvent): void {
+		if (deleteSampleCharacteristic.lastResult.name() == "SUCCESS") {
+			parentApplication.getSampleCharacteristicList.send();
+			
+		} else {
+			mx.controls.Alert.show(deleteSampleCharacteristic.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+		
+		
+	private function save():void {
+		if (scList.selectedItem == null) {
+			return;
+		}
+		
+		var params:Object = new Object();
+		params.idSampleCharacteristic = scList.selectedItem.@idSampleCharacteristic;
+		params.sampleCharacteristic = scName.text;
+		params.isActive = this.isActive.selected ? "Y" : "N";
+		params.mageOntologyCode = mageOntologyCode.text;
+		params.mageOntologyDefinition = mageOntologyDefinition.text; 
+		params.description = description.text; 
+		if (parentApplication.hasPermission("canWriteDictionaries")) {
+			params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
+		} else {
+			params.idAppUser = parentApplication.getIdAppUser();
+		}
+		params.codeCharacteristicType = this.characteristicTypeRadioGroup.selectedValue;
+		params.optionsXMLString = "<options>" + this.options.toXMLString() + "</options>";
+		params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
+		
+		saveSampleCharacteristic.send(params);
+		
+	}
+		
+	private function onSaveSampleCharacteristic(event:ResultEvent): void {
+		if (saveSampleCharacteristic.lastResult.name() == "SUCCESS") {
+			idSampleCharacteristic = saveSampleCharacteristic.lastResult.@idSampleCharacteristic;
+
+			parentApplication.getSampleCharacteristicList.send();
+		} else {
+			mx.controls.Alert.show(saveSampleCharacteristic.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}				
+		
+	]]>
+</mx:Script>
+	
+<mx:XMLListCollection id="sampleCharacteristics"/>
+<mx:XMLListCollection id="options" source="{scList.selectedItem.options.SampleCharacteristicOption}"/>
+<mx:XMLListCollection id="organisms" source="{scList.selectedItem.organisms.Organism}"/>
+<mx:VBox width="100%" height="100%">
+	
+	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
+		<mx:LinkButton label="Add annotation" styleName="linkMenuButton" click="addSampleCharacteristic()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
+		<mx:LinkButton label="Remove annotation" styleName="linkMenuButton" click="removeSampleCharacteristic()" enabled="{scList.selectedItem != null &amp;&amp; scList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+	</mx:HBox>
+	
+<mx:HDividedBox height="100%" width="100%" >
+  <mx:VBox height="100%" width="200" styleName="panelBox">
+		<mx:List id="scList" width="100%" height="100%" labelField="@sampleCharacteristic" dataProvider="{sampleCharacteristics}" 
+				 itemClick="{onSelectSampleCharacteristic()}">
+		</mx:List>
+  </mx:VBox>	
+  <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
+	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
+	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
+		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4">			 
+			 <mx:HBox width="100%" verticalGap="0">
+			  <mx:Label text="Name:" width="80"/>
+			  <mx:TextInput text="{scList.selectedItem.@sampleCharacteristic}" change="{setDirty()}" width="100%" id="scName"  maxChars="100" 
+							/>
+			  <mx:HBox >
+			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+			    <mx:selected>{scList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
+			   </mx:CheckBox>
+			   <mx:Spacer width="80"/>
+			  </mx:HBox>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+			 	<mx:Text text="Description:" width="80"/>
+			 	<mx:TextArea text="{scList.selectedItem.@description}" change="{setDirty()}" width="100%" id="description"  maxChars="100"/>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+				 <mx:Text text="Only show annotation for these organisms:" width="80"/>
+				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
+				 	   <mx:HBox horizontalAlign="left" horizontalGap="6">
+				 	    <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
+				 	    </mx:ComboBox>
+				 	   	   <mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+				 	   	   	   <mx:enabled>{scList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+				 	   	   </mx:Button>
+				 	   	   <mx:Button click="removeOrganism()" icon="@Embed(source='../../assets/delete.png')" 
+									  disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+									  enabled="{scList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismsGrid.selectedItem != null}" width="25"/>
+				 	   </mx:HBox>
+				  <mx:DataGrid id="organismsGrid" showHeaders="false" dataProvider="{organisms}" width="100%" height="65">
+				         <mx:columns>
+				             <mx:DataGridColumn dataField="@display" headerText="Name"/>
+				         </mx:columns>
+				  </mx:DataGrid>			   	
+				 </mx:VBox>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+			  <mx:Label text="Type:" width="80"/>
+			  <mx:VBox verticalGap="2">
+			   <mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{scList.selectedItem.@codeCharacteristicType}">
+			   </mx:RadioButtonGroup>
+			   <mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
+			   <mx:RadioButton label="URL"  groupName="characteristicTypeRadioGroup" value="URL" paddingBottom="0" paddingTop="0"  click="setDirty()" />
+			   <mx:RadioButton label="Checkbox"  groupName="characteristicTypeRadioGroup" value="CHECK" paddingTop="0" paddingBottom="0"  click="setDirty()" />
+			   <mx:RadioButton label="Dropdown (single selection)"  groupName="characteristicTypeRadioGroup" value="OPTION" paddingBottom="0" paddingTop="0"  click="setDirty()" />
+			   <mx:RadioButton label="Dropdown (multiple selection)"  groupName="characteristicTypeRadioGroup" value="MOPTION" paddingBottom="0" paddingTop="0" click="setDirty()" />
+			  </mx:VBox>
+			  <mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
+			   <mx:VBox verticalGap="0" height="100%" width="100%">
+			    <mx:HBox>
+			     <mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{scList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+			     <mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{scList.selectedItem.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+			    </mx:HBox>
+			    <mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{scList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="110" width="100%" showHeaders="true" >
+			     <mx:columns>
+			      <mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
+			      <mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
+			      <mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/>
+			     </mx:columns>
+			    </mx:DataGrid>
+			   </mx:VBox>
+			  </mx:HBox>
+			 </mx:HBox> 
+			 <mx:HBox width="100%" verticalGap="0">
+			  <mx:Text text="Mage Ontology Code:" width="80"/>
+			  <mx:TextInput text="{scList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="80" id="mageOntologyCode"  maxChars="100"/>
+			  <mx:Text text="Mage Ontology Definition:" width="65"/>
+			  <mx:TextArea text="{scList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
+			 </mx:HBox>
+			 <mx:HBox width="100%" >
+			  <mx:Label text="Owner:" width="80"/>
+			  <mx:ComboBox width="100%" id="ownerCombo"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>							         			
+			 </mx:HBox>
+		</mx:VBox>
+		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+			<util:DirtyNote id="dirty" />
+			<mx:Button id="saveButton" label="Save"  enabled="{scList.selectedItem.@canUpdate == 'Y' ? true : false}"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+			
+		</mx:ControlBar>
+	</mx:VBox>
+  </mx:ViewStack>
+
+	
+</mx:HDividedBox>
+</mx:VBox>
+	
+</mx:TitleWindow>

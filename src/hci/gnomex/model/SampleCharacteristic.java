@@ -12,6 +12,7 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   
   private Integer  idSampleCharacteristic;
   private String   sampleCharacteristic;
+  private String   description;
   private String   mageOntologyCode;
   private String   mageOntologyDefinition;
   private String   isActive;
@@ -106,6 +107,36 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
     this.idSampleCharacteristic = idSampleCharacteristic;
   }
   
+  public String getCanRead() {
+    if (this.canRead()) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
 
+  public String getCanUpdate() {
+    if (this.canUpdate()) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+
+  public String getCanDelete() {
+    if (this.canDelete()) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
     
 }

@@ -19,6 +19,7 @@
 				<mx:SetStyle target="{hbox4}" name="paddingTop"/>
 				<mx:SetProperty target="{button5}" name="toolTip" value="Download analysis data files"/>
 				<mx:RemoveChild target="{button12}"/>
+				<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			</mx:State>
 			<mx:State name="AdminState">
 				<mx:RemoveChild target="{button8}"/>
@@ -58,6 +59,11 @@
 					<mx:LinkButton label="Manage billing" click="showBilling()" styleName="dashboardButton"  id="button11"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/money.png')"/>
 				</mx:AddChild>
 				<mx:SetProperty target="{button12}" name="enabled" value="{parentApplication.pricingURL != null ? true : false}"/>
+				<mx:AddChild relativeTo="{button9}" position="before">
+					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Sample Annotations" styleName="dashboardButton" 
+								   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+				</mx:AddChild>
+				<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			</mx:State>
 			<mx:State name="UserNonSubmitterState">
 				<mx:RemoveChild target="{button1}"/>
@@ -78,6 +84,7 @@
 			</mx:State>
 			<mx:State name="UniversityOnlyUserState" basedOn="UserNonSubmitterState" >
 				<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
+				<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			</mx:State>
 			<mx:State name="ExternalUserState">
 				<mx:AddChild relativeTo="{vbox1}" position="lastChild">
@@ -98,6 +105,7 @@
 				<mx:AddChild relativeTo="{hbox0}" position="before"> 
 					<mx:LinkButton label="Change Password" click="changePassword()" styleName="dashboardButton"  id="buttonChangePassword0"  icon="@Embed(source='../../assets/user.png')"/>
 				</mx:AddChild>
+				<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			</mx:State>
 		</mx:states>
 <mx:Script>
@@ -207,7 +215,14 @@
 			private function showBroadcastEmailWindow():void {
 				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this, BroadcastEmailWindow, true));
 				PopUpManager.centerPopUp(broadcastEmailWindow);
-			}			       
+			}			
+		
+			private function showSampleCharacteristicWindow():void {
+				var configWindow:SampleCharacteristicWindow = SampleCharacteristicWindow(PopUpManager.createPopUp(this, SampleCharacteristicWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+			}
+		
 
 	]]> 
 </mx:Script>
@@ -234,6 +249,8 @@
   	  <mx:LinkButton label="Browse Experiments and Projects" click="showExperiments()" styleName="dashboardButton" id="button2"  toolTip="View experiment progress, review project description and design parameters, review experiment and sample annotations" icon="@Embed(source='../../assets/flask.png')"/>
   	  <mx:LinkButton label="Download Experiment Results" click="showExperimentDownloads()" styleName="dashboardButton"  id="button3"  toolTip="Download experiment raw data files" icon="@Embed(source='../../assets/download.png')"/>
   	  <mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money.png')" visible="{parentApplication.pricingURL != ''}"/>
+  	  <mx:LinkButton id="sampleCharacteristicButton0"  label="Configure Sample Annotations" styleName="dashboardButton" 
+  	  			   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
   	</mx:VBox>
   	<mx:VBox height="100%" verticalAlign="top" horizontalAlign="left" id="vbox1" verticalGap="2" width="268" label="View experiment protocol descriptions">
   	  <mx:HBox id="hbox7" horizontalGap="2" verticalAlign="middle">
