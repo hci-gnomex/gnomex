@@ -3,10 +3,8 @@
 		   width="100%" height="100%" enabled="false">
 	<mx:states>
 		<mx:State name="EditState">
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  1.  Optional: Characterisitics that are listed on this page can be used to provide <br>       additional annotation of your samples on a subsequent screen.<br>       Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>  2.  Optional: Provide a short description of how the samples for this study differ from each other.]]></mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="80"/>
+			<mx:RemoveChild target="{textarea1}"/>
+			<mx:RemoveChild target="{vbox1}"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
@@ -32,9 +30,6 @@
 		import views.util.SampleCharacteristicWindow;
 		
 		private var dictionaryEditor:DictionaryEditor; 
-		
-		[Bindable]
-		private var sampleCharacteristicEntries:XMLListCollection = null;
 		
 		public var ignoreToggle:Boolean = false;
 		
@@ -81,7 +76,7 @@
 			if (parentDocument == null) {
 				return;
 			}
-			for each(var annotation:Object in this.sampleCharacteristicEntries) {
+			for each(var annotation:Object in parentDocument.request.SampleCharacteristicEntries.SampleCharacteristicEntry) {
 				var isSelected:String;
 				var value:String;
 				if (annotation.@isSelected == "false") {
@@ -137,35 +132,22 @@
 		
 		}
 		
-		public function refreshSampleCharacteristicEntries():void {
-			if (sampleCharacteristicEntries == null) {
-				sampleCharacteristicEntries = new XMLListCollection();
-			} else {
-				sampleCharacteristicEntries.removeAll();
-			}
-			for each (var sce:XML in parentDocument.sampleCharacteristicEntries) {
-				var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(sce.@idSampleCharacteristic);
-				if (this.isApplicableSampleCharacteristic(sampleCharacteristic)) {
-					if (sce.@isSelected == 'true' || sampleCharacteristic.@isActive != 'N') {
-						sampleCharacteristicEntries.addItem(sce);
-					}
-				}
-			}
-		}
-       	public function onSampleCharacteristicRefreshed(event:Event):void{
-			this.refreshSampleCharacteristicEntries();
+
+		public function onSampleCharacteristicRefreshed(event:Event):void{
+			parentDocument.sampleCharacteristicEntries.refresh();
+			
 			this.checkForRemovedAnnotations();   
 			this.checkForNewAnnotations();
 			this.addNonStandardSampleColumns();
        		
 			
-			if (parentDocument.isEditState()) {
-				callLater(refreshEditWindow);
-			}    		
+			//if (parentDocument.isEditState()) {
+			//	callLater(refreshEditWindow);
+			//}    		
         }	
         
         private function refreshEditWindow():void {
-			parentDocument.setupEditForm(parentApplication.navExperimentView.selectedExperiment);
+			//parentDocument.setupEditForm(parentApplication.navExperimentView.selectedExperiment);
         }
         
         private function checkForNewAnnotations():void {
@@ -173,13 +155,10 @@
        		var annotation:Object;
        		var exists:Boolean = false;
        		for each(sc in parentApplication.sampleCharacteristicList) {
-       			exists = false;
+       			exists = false; 
 				
-				if (sc.@isActive == 'N' || !this.isApplicableSampleCharacteristic(sc)) {
-					continue;
-				}
 
-       			for each(annotation in sampleCharacteristicEntries) {
+       			for each(annotation in parentDocument.request.SampleCharacteristicEntries.SampleCharacteristicEntry) {
 					if (sc.@value == annotation.@idSampleCharacteristic) {
 						exists = true;
 						break;
@@ -193,41 +172,18 @@
        				node.@otherLabel = "";
        				node.@isSelected = "false";
        			
-       				this.sampleCharacteristicEntries.addItem(node);
+       				parentDocument.sampleCharacteristicEntries.addItem(node);
+					
+					
 
        			}
        		}
-        	
+			parentDocument.sampleCharacteristicEntries.refresh();
         }
-		
-		public function isApplicableSampleCharacteristic(sampleCharacteristic:XML):Boolean {
-			var filterByOrganism:Boolean = false;
-			if (sampleCharacteristic.descendants("Organism").length() > 0) {
-				filterByOrganism = true;	
-			}
-			
-			var keep:Boolean = false;
-			
-			if (!filterByOrganism) {
-				keep = true;
-			} else {
-				if (parentDocument.getOrganism() != null) {
-					for each(var organism:XML in sampleCharacteristic.descendants("Organism")) {
-						if (parentDocument.getOrganism().@idOrganism == organism.@idOrganism) {
-							keep = true;
-							break;
-						}
-					}
-				}
-			}
-			
-			return keep;
-		}
-		
         
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
-       		for each(annotation in sampleCharacteristicEntries) {
+       		for each(annotation in parentDocument.sampleCharacteristicEntries) {
 				addNonStandardColumn(annotation);
 				parentDocument.samplesView.samplesGrid.validateNow();
    			}
@@ -434,7 +390,7 @@
         private function checkForRemovedAnnotations():void {
        		var annotation:Object;
        		var exists:Boolean = false;
-			for each(annotation in this.sampleCharacteristicEntries) {
+			for each(annotation in parentDocument.sampleCharacteristicEntries) {
 				exists = false;
 				for each(var sc:XML in parentApplication.sampleCharacteristicList) {
 					if (sc.@value == annotation.@idSampleCharacteristic) {
@@ -443,9 +399,41 @@
 					}      				 
        			}
        			if (!exists) {
-       				this.sampleCharacteristicEntries.removeItemAt(this.sampleCharacteristicEntries.getItemIndex(annotation));
+					// Remove the sample characteristic entry
+					parentDocument.sampleCharacteristicEntries.removeItemAt(parentDocument.sampleCharacteristicEntries.getItemIndex(annotation));
        			}
        		}
+			
+			// Hide the existing annotation columns that don't have a corresponding sample characteristic entry
+			for each(var sampleCharacteristic:Object in parentApplication.sampleCharacteristicList) {
+				exists = false;
+				for each(var sce:XML in parentDocument.sampleCharacteristicEntries) {
+					if (sce.@value == sampleCharacteristic.@idSampleCharacteristic) {
+						exists = true;
+						break;
+					}      				 
+				}
+				
+				if (!exists) {
+					for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
+						if (col.dataField == ("@ANNOT" + sampleCharacteristic.@idSampleCharacteristic)) {
+							col.visible = false;
+							break;
+						}    				
+					}
+					if (!parentDocument.isEditState()) {
+						for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
+							if (cCol.dataField == ("@ANNOT" + sampleCharacteristic.@idSampleCharacteristic)) {
+								cCol.visible = false;
+								break;
+							}    				
+						}
+					}
+					
+				}
+				
+			}
+
         	
         }
 		public function changeOtherHeaderLabelAndToggle(data:Object):void {
@@ -508,7 +496,7 @@
 			    <mx:HBox width="100%" height="100%">
 					<mx:VBox width="100%" height="100%" verticalGap="0">
 					  <mx:DataGrid id="sampleAnnotationGrid" height="100%" 
-						dataProvider="{sampleCharacteristicEntries}" 
+						dataProvider="{parentDocument.sampleCharacteristicEntries}" 
 						showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20">
 					    <mx:columns>
 					        <mx:DataGridColumn headerText=" " 

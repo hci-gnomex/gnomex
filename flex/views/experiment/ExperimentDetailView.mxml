@@ -347,8 +347,7 @@
            	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
 			 if (parentDocument.parentDocument.editView.theTab.contains(parentDocument.parentDocument.editView.annotationView)) {
-				 parentDocument.parentDocument.editView.annotationView.refreshSampleCharacteristicEntries();
-				 parentDocument.parentDocument.editView.annotationView.addNonStandardSampleColumns();
+				 parentDocument.parentDocument.editView.annotationView.onSampleCharacteristicRefreshed(null);
 			 } 
 			 //parentDocument.editView.removeDataListeners();
            	 //parentDocument.editView.initializeData();

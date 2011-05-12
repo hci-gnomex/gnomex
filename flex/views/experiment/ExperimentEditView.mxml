@@ -415,7 +415,7 @@
 			initFilters();
 
 			if (theTab.contains(this.annotationView)) {
-				this.annotationView.refreshSampleCharacteristicEntries();
+				this.sampleCharacteristicEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns(); 
 			}
 			
@@ -1115,6 +1115,46 @@
 			}
 			return keep;
 		}
+			
+		public function filterSampleCharacteristicEntry(sce:Object):Boolean {
+			var keep:Boolean = false;
+			
+			var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(sce.@idSampleCharacteristic);
+			if (this.isApplicableSampleCharacteristic(sampleCharacteristic)) {
+				if (sce.@isSelected == 'true' || sampleCharacteristic.@isActive != 'N') {
+					keep = true;
+				}
+			}
+			
+			return keep;
+		}
+			
+			
+		public function isApplicableSampleCharacteristic(sampleCharacteristic:XML):Boolean {
+			var filterByOrganism:Boolean = false;
+			if (sampleCharacteristic.descendants("Organism").length() > 0) {
+				filterByOrganism = true;	
+			}
+			
+			var keep:Boolean = false;
+			
+			if (!filterByOrganism) {
+				keep = true;
+			} else {
+				if (this.getOrganism() != null) {
+					for each(var organism:XML in sampleCharacteristic.descendants("Organism")) {
+						if (this.getOrganism().@idOrganism == organism.@idOrganism) {
+							keep = true;
+							break;
+						}
+					}
+				}
+			}
+			
+			return keep;
+		}
+		
+
 		
 		public function addSamplePrepMethodFilter():void {
 			samplePrepMethodList.filterFunction = filterSamplePrepMethod;
@@ -1563,11 +1603,7 @@
    				}
 			}
 			
-			// If QC request, clear out sample annotations
-			if (isQCState()) {
-				this.clearOutSampleAnnotations();
-			}
-			
+
 			for each(var hyb:Object in hybs) {
 				 // If this is a 1 channel kind if request, clear out channel2 of the cloned request
 				 if (requestCategory.@numberOfChannels != "2") {
@@ -1639,47 +1675,6 @@
 			callLater(hybsView.checkHybsCompleteness);
 			
 			
-		}
-		
-
-		
-		public function clearOutSampleAnnotations():void {
-			for each(var annotation:Object in sampleCharacteristicEntries) {
-				for each(var sample:XML in samples) {
-					sample.@AGE = '';
-					this.request.@AGE = 'N';
-					sample.@CELLLINE = '';
-					this.request.@CELLLINE = 'N';
-					sample.@CELLTYPE = '';
-					this.request.@CELLTYPE = 'N';
-					sample.@CLININFO =  '';
-					this.request.@CLININFO = 'N';
-					sample.@COMPOUND =  '';
-					this.request.@COMPOUND = 'N';
-					sample.@DOSE =  '';
-					this.request.@DOSE = 'N';
-					sample.@DISSTATE =  '';
-					this.request.@DISSTATE = 'N';
-					sample.@GENMOD =  '';
-					this.request.@GENMOD = 'N';
-					sample.@GROWTHCOND =  '';
-					this.request.@GROWTHCOND = 'N';
-					sample.@GENOTYPE =  '';
-					this.request.@GENOTYPE = 'N';
-					sample.@INDIV =  '';
-					this.request.@INDIV = 'N';
-					sample.@ORGPART = '';
-					this.request.@ORGPART = 'N';
-					sample.@OTHER =  '';
-					this.request.@OTHER = 'N';
-					sample.@SEX =  '';
-					this.request.@SEX = 'N';
-					sample.@TEMP =  '';
-					this.request.@TEMP = 'N';
-					sample.@TIME =  '';
-					this.request.@TIME = 'N';
-				}
-			}
 		}
 		
 		public function setupEditForm(theRequest:Object):void {
@@ -1756,7 +1751,7 @@
 					lanesView.currentState = '';
 				} 
 				
-				this.annotationView.refreshSampleCharacteristicEntries();
+				this.sampleCharacteristicEntries.refresh();
 
 
 			} else if (request.@codeRequestCategory == 'QC') {
@@ -1793,7 +1788,7 @@
 				hybSetupView.label = "Slide";
 				hybSetupView.numberOfHybsContainer.visible = false;
 				hybSetupView.slideSourceContainer.visible = false;
-				this.annotationView.refreshSampleCharacteristicEntries();
+				this.sampleCharacteristicEntries.refresh();
 
 			}
 			
@@ -1861,7 +1856,7 @@
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
-				this.annotationView.refreshSampleCharacteristicEntries();
+				this.sampleCharacteristicEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns();
 			} 
 			
@@ -3303,7 +3298,7 @@
 			setupAmendForm(request);
 			
 			if (theTab.contains(this.annotationView)) {
-				this.annotationView.refreshSampleCharacteristicEntries();
+				this.sampleCharacteristicEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns();
 			} 
 		}
@@ -3670,7 +3665,7 @@
 	</mx:Script>
 	
   	<mx:XMLListCollection id="sampleCharacteristicEntries" source="{request.SampleCharacteristicEntries.SampleCharacteristicEntry}" 
-	  	 sort="{sampleCharacteristicSorter}"/>
+	  	 sort="{sampleCharacteristicSorter}"  filterFunction="{filterSampleCharacteristicEntry}"/>
 	<mx:Sort id="sampleCharacteristicSorter" compareFunction="sortSampleCharacteristics" unique="true"/>
 
 
