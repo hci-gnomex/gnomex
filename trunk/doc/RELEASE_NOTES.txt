@@ -1,6 +1,6 @@
 ﻿GNomEx Release Notes
 
-5.1.5
+5.1.5 (May 11, 2011)
 --------------------
 - Introduced new data types for Sample annotations (text, checkbox, single-select, multi-select).
 - Renamed 'barcode sequence' and 'barcode tag' to 'index tag'.  Renamed 'multiplex group' to 'index tag group'.
