@@ -22,7 +22,7 @@
 			[Bindable]
 			public var txt:String;
 			
-			public var isEditable:Boolean = true;
+			public var isEditable:Boolean = true;			
 			
 			private var pop:MultiselectPopup;
 			
@@ -43,7 +43,7 @@
 				var values:Array = new Array();
 				values = data[_listData.dataField].split(",");
 				var idx:Object = null;
-				var allOptions:XMLList = parentApplication.getSampleCharactersticOptions(_listData.dataField.substr(6));
+				var allOptions:XMLList = parentApplication.getSampleCharacteristicOptions(_listData.dataField.substr(6));
 					
 				var option:XML = null;
 				for each(option in allOptions) {
@@ -87,9 +87,11 @@
 				if (_listData == null || _listData.dataField == null || !(data is XML)) {
 					return;
 				}
-				pop= MultiselectPopup(PopUpManager.createPopUp(this.owner, MultiselectPopup,true));
+				pop= MultiselectPopup(PopUpManager.createPopUp(this, MultiselectPopup,true));
 				var sampleCharacteristicName:String = parentApplication.getSampleCharacteristic(_listData.dataField.substr(6)).@sampleCharacteristic;
-				pop.initializeData(sampleCharacteristicName, this.txt, parentApplication.getSampleCharactersticOptions(_listData.dataField.substr(6)));
+				// Use parent document to get options because then we will know if inactive options are included
+				var options:XMLList = parentDocument.getSampleCharacteristicOptions(_listData.dataField.substr(6));
+				pop.initializeData(sampleCharacteristicName, this.txt, options);
 				pop.opener=this;
 			}
 			

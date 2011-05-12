@@ -70,7 +70,7 @@
 					return;
 				}
 				
-				this.visible = true;
+
 				var n:int = numChildren;
 				for (var i:int = 0; i < n; i++)
 				{
@@ -81,17 +81,7 @@
 						c.y =(h - c.height) / 2;
 					}
 				}
-				/* TODO - Figure out a way to only hilight field when it hasn't been checked/unchecked
-				var g:Graphics = graphics;
-				g.clear();
-				g.beginFill( !_listData.hasOwnProperty(_listData.dataField) || this.data[_listData.dataField] == null || this.data[_listData.dataField] == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );
-				if (this.data[!_listData.hasOwnProperty(_listData.dataField) || _listData.dataField] == null || this.data[_listData.dataField] == '') {
-					g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
-						RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER );          	
-				}
-				g.drawRect(0,0,unscaledWidth,unscaledHeight);
-				g.endFill();
-				*/
+
 			}        
 		]]>
 	</mx:Script>

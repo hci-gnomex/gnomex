@@ -377,42 +377,11 @@
 				concentrationUnitCol.visible = false;
 				prepInstructionsCol.visible = false;
 
-				AGE0.visible = false;
-				CELLLINE0.visible = false;   
-				CELLTYPE0.visible = false;   
-				CLININFO0.visible = false;   
-				COMPOUND0.visible = false;   
-				DISSTATE0.visible = false;   
-				DOSE0.visible = false;   
-				GENMOD0.visible = false;   
-				GENOTYPE0.visible = false;   
-				GROWTHCOND0.visible = false;   
-				INDIV0.visible = false;   
-				ORGPART0.visible = false;   
-				SEX0.visible = false;   
-				TEMP0.visible = false;   
-				TIME0.visible = false;   
-				otherDataColumnConfirm.visible = false;   
 				treatmentCol.visible = false;   
 				descriptionCol.visible = false;   
         		
         	} else {
-				AGE0.visible = this.selectedExperiment.@AGE == 'Y' ? true : false;        		
-				CELLLINE0.visible = this.selectedExperiment.@CELLLINE == 'Y' ? true : false;   
-				CELLTYPE0.visible = this.selectedExperiment.@CELLTYPE == 'Y' ? true : false;   
-				CLININFO0.visible = this.selectedExperiment.@CLININFO == 'Y' ? true : false;   
-				COMPOUND0.visible = this.selectedExperiment.@COMPOUND == 'Y' ? true : false;   
-				DISSTATE0.visible = this.selectedExperiment.@DISSTATE == 'Y' ? true : false;   
-				DOSE0.visible = this.selectedExperiment.@DOSE == 'Y' ? true : false;   
-				GENMOD0.visible = this.selectedExperiment.@GENMOD == 'Y' ? true : false;   
-				GENOTYPE0.visible = this.selectedExperiment.@GENOTYPE == 'Y' ? true : false;   
-				GROWTHCOND0.visible = this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false;   
-				INDIV0.visible = this.selectedExperiment.@INDIV == 'Y' ? true : false;   
-				ORGPART0.visible = this.selectedExperiment.@ORGPART == 'Y' ? true : false;   
-				SEX0.visible = this.selectedExperiment.@SEX == 'Y' ? true : false;   
-				TEMP0.visible = this.selectedExperiment.@TEMP == 'Y' ? true : false;   
-				TIME0.visible = this.selectedExperiment.@TIME == 'Y' ? true : false;   
-				otherDataColumnConfirm.visible = this.selectedExperiment.@OTHER == 'Y' ? true : false;   
+  
 				treatmentCol.visible = this.selectedExperiment.@treatment == 'Y' ? true : false;   
 				descriptionCol.visible = true;   
 
@@ -453,74 +422,73 @@
         public function showRelatedAnalysis():void {
         	parentApplication.showAnalysisForExperiment(this.selectedExperiment);
         }
+
+		// Get all options (include inactive)
+		public function getSampleCharacteristicOptions(idSampleCharacteristic:String):XMLList {
+			return parentApplication.getSampleCharacteristicOptions(idSampleCharacteristic, true);
+		}
         
         public function addNonStandardSampleColumns():void {
        		var annotation:Object;
        		var col:AdvancedDataGridColumn;
        		var exists:Boolean = false;
        		for each(annotation in this.selectedExperiment.SampleCharacteristicEntries.SampleCharacteristicEntry) {
+				
+				var sampleCharacteristic:XML = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
+				var headerName:String = "";
+				if (sampleCharacteristic.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
+					headerName = annotation.@otherLabel;
+					annotation.@isSelected = "true";
+				} else {
+					headerName = annotation.@sampleCharacteristic;
+				}
+
 				exists = false;
-				/*
+				
        			for each(col in samplesGridConfirm.columns) {
-					if (col.dataField == ("@" + annotation.@idSampleCharacteristic)) {
+					if (col.dataField == ("@ANNOT" + annotation.@idSampleCharacteristic)) {
 						exists = true;
+						col.visible    = annotation.@isSelected == "true" ? true : false;       				
+						col.headerText = headerName;
 						break;
 					}    				
        			}
-				*/
-       			if (!exists) {
-					
-					var sc:Object = parentApplication.getSampleCharacteristic(annotation.@idSampleCharacteristic);
-					var sampleCharacteristic:XML = null;
-					if (sc is XMLList) {
-						sampleCharacteristic = sc[0];
-					} else {
-						sampleCharacteristic = sc as XML;
-					}
-					
-					
-					var headerName:String = "";
-					if (sc.@sampleCharacteristic == "Other" && annotation.@otherLabel != "" ) {
-						headerName = annotation.@otherLabel;
-						annotation.@isSelected = "true";
-					} else {
-						headerName = annotation.@sampleCharacteristic;
-					}
-
-       				
-       				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
-       				newCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
-       				newCol.headerText = headerName;
-       				newCol.visible    = (annotation.@isSelected == "true" ? true : false);
-					
-					if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
-						newCol.itemRenderer =  MultiselectRenderer.create(false);
-					} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
-						newCol.itemRenderer = URLRenderer.create(false);
-					} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
-						// checkbox is just normal label renderer
-					} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
-						             
-						newCol.itemRenderer = views.renderers.DropdownLabel.create(
-							parentApplication.getSampleCharactersticOptions(annotation.@idSampleCharacteristic), 
-							'@option', 
-							'@idSampleCharacteristicOption', 
-							"@ANNOT" + annotation.@idSampleCharacteristic,
-							false);                
-					} 
-					
-       				var columns:Array = samplesGridConfirm.columns;
-       				// Pop the description; we want it to be the last column
-       				var descCol:AdvancedDataGridColumn = AdvancedDataGridColumn(columns.pop());
-       				columns.push(newCol);
-       				columns.push(descCol);
-       				samplesGridConfirm.columns = columns;
-					samplesGridConfirm.validateNow();
-       			} else {
-       				col.visible    = annotation.@isSelected == "true" ? true : false;       				
-       			}
-       		}
-        	
+				
+				// We already have this column.  Just set the header and visible and move on.
+				if (exists) {
+					continue;
+				}
+				
+   				var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
+   				newCol.dataField  = "@ANNOT" + annotation.@idSampleCharacteristic;
+   				newCol.headerText = headerName;
+   				newCol.visible    = (annotation.@isSelected == "true" ? true : false);
+				
+				if (sampleCharacteristic.@codeCharacteristicType == 'MOPTION') {
+					newCol.itemRenderer =  MultiselectRenderer.create(false);
+				} else if (sampleCharacteristic.@codeCharacteristicType == 'URL') {
+					newCol.itemRenderer = URLRenderer.create(false);
+				} else if (sampleCharacteristic.@codeCharacteristicType == 'CHECK') {
+					// checkbox is just normal label renderer
+				} else if (sampleCharacteristic.@codeCharacteristicType == 'OPTION') {
+					             
+					newCol.itemRenderer = views.renderers.DropdownLabel.create(
+						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic), 
+						'@option', 
+						'@idSampleCharacteristicOption', 
+						"@ANNOT" + annotation.@idSampleCharacteristic,
+						false);                
+				} 
+				
+   				var columns:Array = samplesGridConfirm.columns;
+   				// Pop the description; we want it to be the last column
+   				var descCol:AdvancedDataGridColumn = AdvancedDataGridColumn(columns.pop());
+   				columns.push(newCol);
+   				columns.push(descCol);
+   				samplesGridConfirm.columns = columns;
+				samplesGridConfirm.validateNow();
+   			} 
+   		
         }
 
         
@@ -722,22 +690,6 @@
 							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState' &amp;&amp; showSeqPrepFieldsCheckBox.selected}" headerText="Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 	
 							
-							<mx:AdvancedDataGridColumn id="AGE0" headerText="Age" visible="{this.selectedExperiment.@AGE == 'Y' ? true : false}" dataField="@AGE"  />
-							<mx:AdvancedDataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" visible="{this.selectedExperiment.@CELLLINE == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" visible="{!this.selectedExperiment.@CELLTYPE == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" visible="{this.selectedExperiment.@CLININFO == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" visible="{this.selectedExperiment.@COMPOUND == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" visible="{this.selectedExperiment.@DISSTATE == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" visible="{this.selectedExperiment.@DOSE == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" visible="{this.selectedExperiment.@GENMOD == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" visible="{this.selectedExperiment.@GENOTYPE == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" visible="{this.selectedExperiment.@GROWTHCOND == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" visible="{this.selectedExperiment.@INDIV == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" visible="{this.selectedExperiment.@ORGPART == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" visible="{this.selectedExperiment.@SEX == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" visible="{!this.selectedExperiment.@TEMP == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" visible="{this.selectedExperiment.@TIME == 'Y' ? true : false}" />
-							<mx:AdvancedDataGridColumn id="otherDataColumnConfirm" headerText="{this.selectedExperiment.@otherLabel.toString()}" dataField="@OTHER" visible="{this.selectedExperiment.@OTHER == 'Y' ? true : false}" />
 							<mx:AdvancedDataGridColumn id="treatmentCol" visible="{this.selectedExperiment.@treatment == 'Y' ? true : false}" headerText="Treatment" width="100" dataField="@treatment"/>
 	
 							<mx:AdvancedDataGridColumn id="prepInstructionsCol" headerText="Prep Instructions" width="100" dataField="@prepInstructions"/>

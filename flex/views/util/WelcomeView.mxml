@@ -218,7 +218,7 @@
 			}			
 		
 			private function showSampleCharacteristicWindow():void {
-				var configWindow:SampleCharacteristicWindow = SampleCharacteristicWindow(PopUpManager.createPopUp(this, SampleCharacteristicWindow, true));
+				var configWindow:SampleCharacteristicWindow = SampleCharacteristicWindow(PopUpManager.createPopUp(parentApplication.theBody, SampleCharacteristicWindow, true));
 				PopUpManager.centerPopUp(configWindow);
 				
 			}

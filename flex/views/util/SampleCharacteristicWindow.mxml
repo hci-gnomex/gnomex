@@ -154,7 +154,7 @@
 			" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
 			" codeCharacteristicType='TEXT'" +
 			" />");
-		sampleCharacteristics.addItem(newCharacteristic);
+		sampleCharacteristics.addItemAt(newCharacteristic, 0);
 		 
 		
 		scList.selectedItem = newCharacteristic;

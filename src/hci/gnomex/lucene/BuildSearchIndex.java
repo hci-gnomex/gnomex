@@ -8,6 +8,9 @@ import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.SampleCharacteristicEntry;
+import hci.gnomex.model.SampleCharacteristicEntryValue;
+import hci.gnomex.model.SampleCharacteristicOption;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityManagerGNomEx.DummyEntityRes;
 import hci.gnomex.utility.DictionaryHelper;
@@ -722,12 +725,12 @@ public class BuildSearchIndex extends DetailObject {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT s.idRequest, ");
     buf.append("       sc.sampleCharacteristic, ");
-    buf.append("       sce.value,  ");
+    buf.append("       sce,  ");
     buf.append("       sce.otherLabel  ");
     buf.append("FROM   Sample s, SampleCharacteristicEntry as sce, SampleCharacteristic sc ");
     buf.append("WHERE  sce.value is not NULL ");
     buf.append("AND    s.idSample = sce.idSample ");
-    buf.append("AND    sce.codeSampleCharacteristic = sc.codeSampleCharacteristic ");
+    buf.append("AND    sce.idSampleCharacteristic = sc.idSampleCharacteristic ");
     buf.append("ORDER BY s.idRequest ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -1127,6 +1130,7 @@ public class BuildSearchIndex extends DetailObject {
         codeExperimentFactors.append(code + " ");
       }          
     }
+    
 
     //
     // Obtain sample annotations on samples of request
@@ -1137,9 +1141,30 @@ public class BuildSearchIndex extends DetailObject {
       if (sampleAnnotationRows != null) {
         for(Iterator i1 = sampleAnnotationRows.iterator(); i1.hasNext();) {
           Object[] row = (Object[])i1.next();
-          sampleAnnotations.append((String)row[1] != null && !((String)row[1]).trim().equals("") ? (String)row[1] + " " : "");
-          sampleAnnotations.append((String)row[2] != null && !((String)row[2]).trim().equals("") ? (String)row[2] + " " : "");
-          sampleAnnotations.append((String)row[3] != null && !((String)row[3]).trim().equals("") ? (String)row[3] + " " : "");
+          String sampleCharactersticName = (String)row[1];
+          SampleCharacteristicEntry entry = (SampleCharacteristicEntry)row[2];
+          String otherLabel = (String)row[3];
+          sampleAnnotations.append(sampleCharactersticName != null && !sampleCharactersticName.trim().equals("") ? sampleCharactersticName + " " : "");
+          if (entry != null) {
+            if (entry.getOptions() != null && entry.getOptions().size() > 0) {
+              for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
+                SampleCharacteristicOption option = (SampleCharacteristicOption)i2.next();
+                sampleAnnotations.append(option.getOption() != null && !option.getOption().trim().equals("") ? option.getOption() + " " : "");
+              }
+              
+            } else if (entry.getValues() != null && entry.getValues().size() > 0) {
+              for (Iterator i2 = entry.getValues().iterator(); i2.hasNext();) {
+                SampleCharacteristicEntryValue entryValue = (SampleCharacteristicEntryValue)i2.next();
+                sampleAnnotations.append(entryValue.getValue() != null && !entryValue.getValue().trim().equals("") ? entryValue.getValue() + " " : "");
+              }
+              
+            } else {
+              sampleAnnotations.append(entry.getValue() != null && !entry.getValue().trim().equals("") ? entry.getValue() + " " : "");
+              
+            }
+            
+          }
+          sampleAnnotations.append(otherLabel != null && !otherLabel.trim().equals("") ? otherLabel + " " : "");
         }          
       }
       

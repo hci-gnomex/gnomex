@@ -490,8 +490,8 @@
 				
 		public function isMicroarrayState():Boolean {
 			if (currentState == 'MicroarrayState' ||
-				currentState == 'MicroarrayEditState' ||
-				currentState == 'MicroarrayAmendState') {
+				currentState == 'MicroarrayEditState' || 
+				currentState == 'MicroarrayAmendState') { 
 				return true;    	
 			} else {
 				return false;
@@ -499,7 +499,8 @@
 		}
 		
 		public function isEditState():Boolean {
-			if (currentState == 'SolexaEditState' ||
+			if (currentState == 'EditState' ||
+				currentState == 'SolexaEditState' ||
 			    currentState == 'QCEditState' ||
 			    currentState == 'MicroarrayEditState') {
 				return true;    	
@@ -3298,7 +3299,13 @@
 			
 			var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest);
 			existingLanes = request.sequenceLanes.SequenceLane;
+
 			setupAmendForm(request);
+			
+			if (theTab.contains(this.annotationView)) {
+				this.annotationView.refreshSampleCharacteristicEntries();
+				this.annotationView.addNonStandardSampleColumns();
+			} 
 		}
 		
 		private function setAmendTitle():void {

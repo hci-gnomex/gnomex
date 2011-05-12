@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
-    xmlns:views="*.views"
+    xmlns:views="*.views" 
     xmlns:fx="*.views.renderers" show="{this.initializeBarcoding();}"
 	label="Sample View" width="100%" height="100%"  enabled="false">
   
@@ -997,6 +997,12 @@
 			}			
 		}					
 
+		// Used for multi-select renderer. Get all options (include inactive if edit state)
+		public function getSampleCharacteristicOptions(idSampleCharacteristic:String):XMLList {
+			return parentApplication.getSampleCharacteristicOptions(idSampleCharacteristic, parentDocument.isEditState());
+		}
+		
+
         
 	]]>
 </mx:Script>	
@@ -1185,54 +1191,6 @@
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 	                   itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSamplePrepMethod', true)}"/>
 
-					<mx:AdvancedDataGridColumn id="AGE" headerText="Age" dataField="@AGE" editable="true" visible="{parentDocument.request.@AGE == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@AGE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@AGE')}"/>          
-					<mx:AdvancedDataGridColumn id="CELLLINE" headerText="Cell line" dataField="@CELLLINE" editable="true" visible="{parentDocument.request.@CELLLINE == 'Y'}"
-					    itemRenderer="{hci.flex.controls.Label.createCustom('@CELLLINE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@CELLLINE')}"/>
-					<mx:AdvancedDataGridColumn id="CELLTYPE" headerText="Cell Type" dataField="@CELLTYPE" editable="true" visible="{parentDocument.request.@CELLTYPE == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@CELLTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@CELLTYPE')}"/>
-			 		<mx:AdvancedDataGridColumn id="CLININFO" headerText="Clinical Info" dataField="@CLININFO" editable="true" visible="{parentDocument.request.@CLININFO == 'Y'}"
-			 		itemRenderer="{hci.flex.controls.Label.createCustom('@CLININFO', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@CLININFO')}"/>
-					<mx:AdvancedDataGridColumn id="COMPOUND" headerText="Compound" dataField="@COMPOUND" editable="true" visible="{parentDocument.request.@COMPOUND == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@COMPOUND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@COMPOUND')}"/>
-					<mx:AdvancedDataGridColumn id="DISSTATE" headerText="Disease State" dataField="@DISSTATE" editable="true" visible="{parentDocument.request.@DISSTATE == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@DISSTATE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@DISSTATE')}"/>
-					<mx:AdvancedDataGridColumn id="DOSE" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@DOSE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@DOSE')}"/>
-					<mx:AdvancedDataGridColumn id="GENMOD" headerText="Genetic Modification" dataField="@GENMOD" editable="true" visible="{parentDocument.request.@GENMOD == 'Y'}"
-					   itemRenderer="{hci.flex.controls.Label.createCustom('@GENMOD',parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@GENMOD')}"/>
-					<mx:AdvancedDataGridColumn id="GENOTYPE" headerText="Genotype" dataField="@GENOTYPE" editable="true" visible="{parentDocument.request.@GENOTYPE == 'Y'}"
-					itemRenderer="{hci.flex.controls.Label.createCustom('@GENOTYPE', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@GENOTYPE')}"/>
-					<mx:AdvancedDataGridColumn id="GROWTHCOND" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="true" visible="{parentDocument.request.@GROWTHCOND == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@GROWTHCOND', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@GROWTHCOND')}"/>
-					<mx:AdvancedDataGridColumn id="INDIV" headerText="Individual" dataField="@INDIV" editable="true" visible="{parentDocument.request.@INDIV == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@INDIV', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@INDIV')}"/>
-					<mx:AdvancedDataGridColumn id="ORGPART" headerText="Organ / Tissue" dataField="@ORGPART" editable="true" visible="{parentDocument.request.@ORGPART == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@ORGPART', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@ORGPART')}"/>
-					<mx:AdvancedDataGridColumn id="SEX" headerText="Sex" dataField="@SEX" editable="true" visible="{parentDocument.request.@SEX == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@SEX', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@SEX')}"/>
-					<mx:AdvancedDataGridColumn id="TEMP" headerText="Temperature" dataField="@TEMP" editable="true" visible="{parentDocument.request.@TEMP == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@TEMP', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@TEMP')}"/>
-					<mx:AdvancedDataGridColumn id="TIME" headerText="Time Course" dataField="@TIME" editable="true" visible="{parentDocument.request.@TIME == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@TIME', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@TIME')}"/>
-					<mx:AdvancedDataGridColumn id="otherDataColumn" headerText="Other" dataField="@OTHER" editable="true" visible="{parentDocument.request.@OTHER == 'Y'}"
-						itemRenderer="{hci.flex.controls.Label.createCustom('@OTHER', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
- 	                   itemEditor="{hci.flex.controls.TextInput.create('@OTHER')}"/>
 					<mx:AdvancedDataGridColumn id="treatmentColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"
 					itemRenderer="{hci.flex.controls.Label.createCustom('@treatment', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                   itemEditor="{hci.flex.controls.TextInput.create('@treatment')}"/>

@@ -19,7 +19,8 @@ package views.renderers
 								          securityDataField:String,
 								          updateData:Boolean,
 									      isRequired:Boolean=false, 
-								          canChangeByAdminOnly:Boolean=false):IFactory {
+								          canChangeByAdminOnly:Boolean=false,
+										  appendBlankRow:Boolean=false):IFactory {
 				return RendererFactory.create(views.renderers.ComboBox, {dataProvider: dataProvider, 
 																		 labelField: labelField,
 																		 valueField: valueField,
@@ -27,7 +28,8 @@ package views.renderers
 																		 updateData: true,
 					 													 securityDataField: securityDataField,
 																		 canChangeByAdminOnly: canChangeByAdminOnly,
-																		 isRequired: isRequired});			
+																		 isRequired: isRequired,
+																		 appendBlankRow:appendBlankRow});			
 			}
 			
 			protected function selectTheItem():void {
