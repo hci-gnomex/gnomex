@@ -259,6 +259,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             scNode.setAttribute("sampleCharacteristic", sc.getSampleCharacteristic());
             scNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             scNode.setAttribute("isSelected", entry != null ? "true" : "false");
+            scNode.setAttribute("isActive", sc.getIsActive() != null ? sc.getIsActive() : "Y");
                 
             scParentNode.addContent(scNode);
             

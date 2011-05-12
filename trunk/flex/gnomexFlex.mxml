@@ -1335,7 +1335,7 @@
 		}		
 
 		
-		public function getSampleCharactersticOptions(idSampleCharacteristic:String):XMLList {
+		public function getSampleCharacteristicOptions(idSampleCharacteristic:String, includeInactive:Boolean=true):XMLList {
 			var sampleCharacteristic:XML = null;
 			for each(var sc:XML in sampleCharacteristicList) {
 				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
@@ -1344,7 +1344,11 @@
 				}
 			}
 			if (sampleCharacteristic != null) {
-				return sampleCharacteristic.options.SampleCharacteristicOption;
+				if (includeInactive) {
+					return sampleCharacteristic.options.SampleCharacteristicOption;					
+				} else {
+					return sampleCharacteristic.options.SampleCharacteristicOption.(@value == '' || @isActive != 'N');					
+				}
 			} else {
 				return new XMLList();
 			}

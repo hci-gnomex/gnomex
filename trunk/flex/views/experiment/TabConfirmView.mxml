@@ -271,23 +271,6 @@
 		                <mx:DataGridColumn id="customBarcodeColumn" headerText="Index Tag" dataField="@barcodeSequence" editable="false" visible="false"
 							width="58">
 					    </mx:DataGridColumn>
-
-						<mx:DataGridColumn id="AGE0" headerText="Age" dataField="@AGE" editable="false" visible="{parentDocument.request.@AGE == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="CELLLINE0" headerText="Cell line" dataField="@CELLLINE" editable="false" visible="{parentDocument.request.@CELLLINE == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="CELLTYPE0" headerText="Cell Type" dataField="@CELLTYPE" editable="false" visible="{parentDocument.request.@CELLTYPE == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="CLININFO0" headerText="Clinical Info" dataField="@CLININFO" editable="false" visible="{parentDocument.request.@CLININFO == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="COMPOUND0" headerText="Compound" dataField="@COMPOUND" editable="false" visible="{parentDocument.request.@COMPOUND == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="DISSTATE0" headerText="Disease State" dataField="@DISSTATE" editable="false" visible="{parentDocument.request.@DISSTATE == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="DOSE0" headerText="Dose" dataField="@DOSE" editable="true" visible="{parentDocument.request.@DOSE == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="GENMOD0" headerText="Genetic Modification" dataField="@GENMOD" editable="false" visible="{parentDocument.request.@GENMOD == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="GENOTYPE0" headerText="Genotype" dataField="@GENOTYPE" editable="false" visible="{parentDocument.request.@GENOTYPE == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="GROWTHCOND0" headerText="Growth Conditions" dataField="@GROWTHCOND" editable="false" visible="{parentDocument.request.@GROWTHCOND == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="INDIV0" headerText="Individual" dataField="@INDIV" editable="false" visible="{parentDocument.request.@INDIV == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="ORGPART0" headerText="Organ / Tissue" dataField="@ORGPART" editable="false" visible="{parentDocument.request.@ORGPART == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="SEX0" headerText="Sex" dataField="@SEX" editable="false" visible="{parentDocument.request.@SEX == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="TEMP0" headerText="Temperature" dataField="@TEMP" editable="false" visible="{parentDocument.request.@TEMP == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="TIME0" headerText="Time Course" dataField="@TIME" editable="false" visible="{parentDocument.request.@TIME == 'Y' ? true : false}"/>
-						<mx:DataGridColumn id="otherDataColumnConfirm" headerText="Other" dataField="@OTHER" editable="false" visible="{parentDocument.request.@OTHER == 'Y' ? true : false}"/>
 						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
 

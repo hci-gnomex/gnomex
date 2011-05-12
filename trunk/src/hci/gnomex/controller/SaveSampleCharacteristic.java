@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -119,7 +120,7 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
         //
         // Save options
         //
-        HashMap sampleCharacteristicMap = new HashMap();
+        HashMap optionMap = new HashMap();
         if (optionsDoc != null) {
           for(Iterator i = this.optionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
             Element node = (Element)i.next();
@@ -139,28 +140,44 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
 
             sess.save(option);
             sess.flush();
-            sampleCharacteristicMap.put(sc.getIdSampleCharacteristic(), null);
+            optionMap.put(option.getIdSampleCharacteristicOption(), null);
             
           }
         }
-        
+
         // Remove options no longer in the list
         List optionsToRemove = new ArrayList();
         if (sc.getOptions() != null) {
           for(Iterator i = sc.getOptions().iterator(); i.hasNext();) {
             SampleCharacteristicOption op = (SampleCharacteristicOption)i.next();
             
-            if (!sampleCharacteristicMap.containsKey(op.getIdSampleCharacteristic())) {
+            if (!optionMap.containsKey(op.getIdSampleCharacteristicOption())) {
               optionsToRemove.add(op);
             }
           }
           for(Iterator i = optionsToRemove.iterator(); i.hasNext();) {
             SampleCharacteristicOption op = (SampleCharacteristicOption)i.next();
-            sc.getOptions().remove(op);
-            sess.delete(op);
+            
+            Integer entryCount = new Integer(0);
+            String buf = "SELECT count(*) from SampleCharacteristicEntry e JOIN e.options as eo where eo.idSampleCharacteristicOption = " + op.getIdSampleCharacteristicOption();
+            List entryCounts = sess.createQuery(buf).list();
+            if (entryCounts != null && entryCounts.size() > 0) {
+              entryCount = Integer.class.cast(entryCounts.get(0));
+            }
+            
+            // Inactive if there are existing sample characteristic entries pointing to this option.
+            // If no existing entries, delete option.
+            if (entryCount.intValue() > 0) {
+              op.setIsActive("N");              
+            } else {
+              sess.delete(op);
+              sc.getOptions().remove(op);              
+            }
           }
         }
+        sess.flush();
         
+
         //
         // Save sample characteristic organisms
         //
@@ -175,6 +192,8 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
         sc.setOrganisms(organisms);
         
         sess.flush();
+        
+        
 
         DictionaryHelper.reload(sess);
         

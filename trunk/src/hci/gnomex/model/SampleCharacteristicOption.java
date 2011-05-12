@@ -17,7 +17,15 @@ public class SampleCharacteristicOption  extends DictionaryEntry {
   private String  isActive;
   
   public String getDisplay() {
-    return option != null ? option : "";
+    return option != null ? option + getInactiveDisplay() : "";
+  }
+  
+  public String getInactiveDisplay() {
+    if (isActive != null && isActive.equals("N")) {
+      return " (inactive)";
+    } else {
+      return "";
+    }
   }
   
   public String getValue() {

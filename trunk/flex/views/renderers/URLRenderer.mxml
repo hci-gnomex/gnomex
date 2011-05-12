@@ -86,8 +86,11 @@
 					return;
 				}
 
-				pop= URLPopup(PopUpManager.createPopUp(this.owner, URLPopup,true));
-				pop.initializeData(_listData.dataField.substr(1), this.txt);
+				pop= URLPopup(PopUpManager.createPopUp(parentApplication.theBody, URLPopup,true));
+				var sampleCharacteristicName:String = parentApplication.getSampleCharacteristic(_listData.dataField.substr(6)).@sampleCharacteristic;
+				
+				pop.initializeData(sampleCharacteristicName, this.txt);
+
 				pop.opener=this;
 			}
 			

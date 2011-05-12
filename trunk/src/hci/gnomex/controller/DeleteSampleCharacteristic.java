@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 
 
 
@@ -46,10 +47,12 @@ public class DeleteSampleCharacteristic extends GNomExCommand implements Seriali
   }
 
   public Command execute() throws RollBackCommandException {
+    Session sess = null;
+    SampleCharacteristic sampleCharacteristic = null;
     
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
-      SampleCharacteristic sampleCharacteristic = (SampleCharacteristic)sess.load(SampleCharacteristic.class, idSampleCharacteristic);
+      sess = HibernateSession.currentSession(this.getUsername());
+      sampleCharacteristic = (SampleCharacteristic)sess.load(SampleCharacteristic.class, idSampleCharacteristic);
       
       // Check permissions
       if (this.getSecAdvisor().canDelete(sampleCharacteristic)) {
@@ -64,6 +67,7 @@ public class DeleteSampleCharacteristic extends GNomExCommand implements Seriali
         // Delete sampleCharacteristic
         //
         sess.delete(sampleCharacteristic);
+      
         
         sess.flush();
         
@@ -78,7 +82,22 @@ public class DeleteSampleCharacteristic extends GNomExCommand implements Seriali
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete sampleCharacteristic.");
         setResponsePage(this.ERROR_JSP);
       }
-    }catch (Exception e){
+    } catch (ConstraintViolationException ce) {
+      this.addInvalidField("constraint", "Sample annotation set to inactive.  Unable to delete because of sample annotations on existing experiments.");
+      
+      try {
+        sess.clear();
+        sampleCharacteristic = (SampleCharacteristic)sess.load(SampleCharacteristic.class, idSampleCharacteristic);
+        sampleCharacteristic.setIsActive("N");
+        sess.flush();
+      } catch(Exception e) {
+        log.error("An exception has occurred in DeleteSampleCharacteristic when trying to inactivate sample characteristic ", e);
+        e.printStackTrace();
+        throw new RollBackCommandException(e.getMessage());
+        
+      }
+      
+    } catch (Exception e){
       log.error("An exception has occurred in DeleteSampleCharacteristic ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
