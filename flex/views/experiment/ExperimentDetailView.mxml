@@ -346,7 +346,11 @@
            	 parentDocument.parentDocument.editView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
            	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
-           	 //parentDocument.editView.removeDataListeners();
+			 if (parentDocument.parentDocument.editView.theTab.contains(parentDocument.parentDocument.editView.annotationView)) {
+				 parentDocument.parentDocument.editView.annotationView.refreshSampleCharacteristicEntries();
+				 parentDocument.parentDocument.editView.annotationView.addNonStandardSampleColumns();
+			 } 
+			 //parentDocument.editView.removeDataListeners();
            	 //parentDocument.editView.initializeData();
            	 //callLater(parentDocument.editView.setupDataListeners);
 		}
