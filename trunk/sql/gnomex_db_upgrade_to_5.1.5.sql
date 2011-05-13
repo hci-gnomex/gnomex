@@ -5,6 +5,7 @@ alter table gnomex.SampleCharacteristicEntry drop foreign key FK_SampleCharacter
 alter table gnomex.SampleCharacteristic drop primary key;
 
 alter table gnomex.SampleCharacteristic add column idSampleCharacteristic INT(10) primary KEY AUTO_INCREMENT NOT NULL;
+alter table gnomex.SampleCharacteristic add column description VARCHAR(2000);
 alter table gnomex.SampleCharacteristicEntry add column idSampleCharacteristic int(10);
 
 alter table gnomex.SampleCharacteristicEntry add CONSTRAINT FK_SampleCharacteristicEntry_SampleCharacteristic 
@@ -14,7 +15,7 @@ FOREIGN KEY FK_SampleCharacteristicEntry_SampleCharacteristic (idSampleCharacter
     ON UPDATE NO ACTION;
     alter table gnomex.SampleCharacteristicEntry add CONSTRAINT FK_SampleCharacteristicEntry_SampleCharacteristic 
     
-update gnomex.SampleCharacteristicEntry sce, SampleCharacteristicEntry sc
+update SampleCharacteristicEntry sce, SampleCharacteristicEntry sc
 set sce.idSampleCharacteristic = sc.idSampleCharacteristic
 where sc.codeSampleCharacteristic = sce.codeSampleCharacteristic;
 
