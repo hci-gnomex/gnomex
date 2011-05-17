@@ -1,5 +1,9 @@
 ﻿GNomEx Release Notes
 
+5.1.5.1 (May 17,2011)
+---------------------
+- Fix bug that was causing blank sample annotation column header.
+
 5.1.5 (May 11, 2011)
 --------------------
 - Introduced new data types for Sample annotations (text, checkbox, single-select, multi-select).
