@@ -158,7 +158,6 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
 			import views.util.WorkAuthorizationWindow;
-			import views.util.SampleCharacteristicEvent;
             
             [Bindable]
             public var dictionaryManager:DictionaryManager;
@@ -372,6 +371,9 @@
 	        
 	        public var isUniversityOnlyUser:Boolean = false;
 			public var isExternalUser:Boolean = false;
+			
+			[Bindable]
+			public var bulletin:String = '';
 	        
 	        [Bindable]
 	        public var pricingURL:String = '';
@@ -446,6 +448,7 @@
 			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
 			public var PROPERTY_FDT_SUPPORTED:String                      = "fdt_supported";
+			public var PROPERTY_BULLETIN:String                           = "bulletin";
 			 
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
@@ -997,6 +1000,7 @@
             		properties[prop.@propertyName] = prop.@propertyValue;
             	}
             	pricingURL = getProperty(PROPERTY_PRICING_URL);
+				bulletin = getProperty(PROPERTY_BULLETIN) != null ? getProperty(PROPERTY_BULLETIN) : '';
             	setDefaultSubmissionState();
             	
             	if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
