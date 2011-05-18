@@ -3,6 +3,7 @@
 5.1.5.1 (May 17,2011)
 ---------------------
 - Fix bug that was causing blank sample annotation column header.
+- Applied Fill button to all relevant WorkFlow and Sample submission fields
 
 5.1.5 (May 11, 2011)
 --------------------
@@ -16,6 +17,7 @@
 - Added "Fill" button to fill in workflow parameters for all samples on an experiment.
 - Added code to only submit items that have changed when updating billing and to check each billing period 
   for readyToInvoice when there are multiple periods on the request.
+
 
 5.1.4 (Apr 27, 2011)
 --------------------
