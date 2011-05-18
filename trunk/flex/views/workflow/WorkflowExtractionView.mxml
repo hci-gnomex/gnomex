@@ -210,7 +210,7 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"                 							
- 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry,'@display', '@value', '@idScanProtocol', true)}"/>			                
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry,'@display', '@value', '@idScanProtocol', true).newInstance(), 'idRequest')}"/>			                
 					<mx:DataGridColumn headerText="Feature Extraction Protocol"  width="22" dataField="@idFeatureExtractionProtocol" 
 	                   editorDataField="value"
 	                   labelFunction="getFeatureExtractionProtocol"
@@ -218,13 +218,13 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"                 							
- 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry,'@display', '@value', '@idFeatureExtractionProtocol', true)}"/>			                
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry,'@display', '@value', '@idFeatureExtractionProtocol', true).newInstance(), 'idRequest')}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@extractionStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@extractionStatus')}"/>	          	                   			                
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@extractionStatus').newInstance(), 'idRequest')}"/>	          	                   			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
 			

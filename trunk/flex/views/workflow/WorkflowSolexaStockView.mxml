@@ -44,18 +44,21 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.validators.NumberValidator;
-        import mx.events.ValidationResultEvent;
-        import mx.collections.ArrayCollection;
-        import mx.collections.XMLListCollection;
-        import mx.rpc.events.FaultEvent; 
-        import mx.rpc.events.ResultEvent;   
-        import mx.controls.Alert;
-        import views.renderers.ComboBoxWorkflowStatus;
-        import hci.flex.controls.DropdownLabel;
-        import hci.flex.controls.ComboBox;
+			import hci.flex.controls.ComboBox;
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.NumberValidator;
+			
+			import views.renderers.ComboBoxWorkflowStatus;
+			import views.renderers.GridColumnFillButton;
         
         [Bindable]
         private var requestNumberCount:String;
@@ -194,7 +197,7 @@
 	                	editorDataField="value"
 	                   rendererIsEditor="false" 
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@seqPrepStockStatus')}"/>			                
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@seqPrepStockStatus').newInstance(), 'idRequest')}"/>			                
  					<mx:DataGridColumn headerText="" width="0" visible="false"/>
 				</util:columns>
 		</util:DataGridAlternatingGroup>

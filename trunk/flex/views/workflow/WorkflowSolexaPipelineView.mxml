@@ -197,8 +197,8 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
- 	                <mx:DataGridColumn headerText="Folder name" width="40" dataField="@fileName" editable="true"/>			                
-	                <mx:DataGridColumn headerText="phiX Error Rate" width="30" dataField="@phiXErrorRate" editable="true">
+ 	                <mx:DataGridColumn headerText="Folder name" width="40" dataField="@fileName" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value"/>			                
+	                <mx:DataGridColumn headerText="phiX Error Rate" width="30" dataField="@phiXErrorRate" editable="true" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'flowCellNumber')}" editorDataField="value">
 	                  <mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -213,7 +213,7 @@
 	                	editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{ComboBoxWorkflowStatus.create('@pipelineStatus', false, true, true, false)}">
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@pipelineStatus', false, true, true, false).newInstance(), 'flowCellNumber')}">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
