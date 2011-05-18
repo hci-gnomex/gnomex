@@ -22,6 +22,7 @@
 		
 		import views.renderers.CheckBoxRenderer;
 		import views.renderers.ComboBox;
+		import views.renderers.GridColumnFillButton;
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.URLRenderer;
 		import views.util.AnnotationAdvancedDataGridColumn;
@@ -232,8 +233,8 @@
 			
 			
 			// new column for sample grid
-			var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
 			var fieldName:String = "@ANNOT" + annotation.@idSampleCharacteristic;
+			var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
 			newCol.dataField  = fieldName;
 			newCol.headerText = headerName;
 			newCol.visible    = annotation.@isSelected == "true" ? true : false;
@@ -299,7 +300,7 @@
 					'@idSampleCharacteristicOption', 
 					fieldName,
 					false);       
-				newCol.itemEditor = views.renderers.ComboBox.create(
+				newCol.itemEditor = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 					parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
 					"@option",
 					"@idSampleCharacteristicOption",
@@ -308,7 +309,7 @@
 					true,
 					true, 
 					false,
-					true);
+					true).newInstance(), '');
 				if (colExisting != null) {
 					colExisting.editable = true;
 					colExisting.editorDataField = "value"
@@ -317,7 +318,7 @@
 						'@option', 
 						'@idSampleCharacteristicOption', 
 						fieldName); 
-					colExisting.itemEditor = views.renderers.ComboBox.create(
+					colExisting.itemEditor = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
 						"@option",
 						"@idSampleCharacteristicOption",
@@ -326,7 +327,7 @@
 						true,
 						true,
 						false,
-						true);
+						true).newInstance(), '');
 					
 				}
 				if (colConfirmExisting != null) {
@@ -343,11 +344,13 @@
 				// Assume text
 				newCol.editable   = true;
 				newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-				newCol.itemEditor   = views.renderers.TextInput.create(fieldName);
+				newCol.itemEditor   = views.renderers.GridColumnFillButton.create(new views.renderers.TextInput(), '');
+				newCol.editorDataField = "value";
 				if (colExisting != null) {
 					colExisting.editable   = true;
 					colExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-					colExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
+					colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(new views.renderers.TextInput(), '');
+					colExisting.editorDataField = "value";
 				}
 				if (colConfirmExisting != null) {
 					colConfirmExisting.editable   = true;

@@ -212,14 +212,14 @@
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"
- 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry,'@display', '@value', '@idHybProtocol', true)}"/>			                
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry,'@display', '@value', '@idHybProtocol', true).newInstance(), 'idRequest')}"/>			                
 	                <mx:DataGridColumn headerText="Status"  width="14" dataField="@hybStatus" 
 	                   editorDataField="value"
 	                   sortable="false" 
 	                   editable="true"
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label"  
- 	                   itemEditor="{views.renderers.ComboBoxWorkflowStatus.create('@hybStatus')}"/>	
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxWorkflowStatus.create('@hybStatus').newInstance(), 'idRequest')}"/>	
  	               <mx:DataGridColumn headerText="" width="0"/>		                
 				</util:columns>
 		</util:DataGridAlternatingGroup>

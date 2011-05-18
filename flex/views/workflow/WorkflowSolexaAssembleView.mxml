@@ -69,16 +69,19 @@
     
 <mx:Script>
 	<![CDATA[
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.rpc.events.ResultEvent;
-		import mx.controls.Alert;
-		import mx.events.DragEvent;
-		import mx.managers.DragManager;
-		import mx.events.CloseEvent;
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
+		
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.managers.DragManager;
+		import mx.rpc.events.ResultEvent;
+		
 		import views.renderers.CheckBoxFlowCellIsControl;
+		import views.renderers.GridColumnFillButton;
 		
 		[Bindable]
         public var codeStepNext:String;
@@ -872,7 +875,7 @@
                      	headerText="Sample conc. (pM)" width="45"
                      	rendererIsEditor="false" 
                      	itemRenderer="{views.renderers.LabelFlowCellSampleConcentration.create('@sampleConcentrationpM')}"
-                     	itemEditor="{views.renderers.TextInputFlowCellSampleConcentration.create('@sampleConcentrationpM')}">
+                     	itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInputFlowCellSampleConcentration.create('@sampleConcentrationpM').newInstance(), 'idRequest')}" editorDataField="value">
 						<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
