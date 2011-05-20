@@ -18,8 +18,10 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
   private String   isActive;
   private Integer  idAppUser;
   private String   codeCharacteristicType;
+  private String   isRequired;
   private Set      options = new TreeSet();
   private Set      organisms = new TreeSet();
+  private Set      platforms = new TreeSet();
   
 
   public String getDisplay() {
@@ -137,6 +139,22 @@ public class SampleCharacteristic extends DictionaryEntry implements Serializabl
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public Set getPlatforms() {
+    return platforms;
+  }
+
+  public void setPlatforms(Set platforms) {
+    this.platforms = platforms;
+  }
+
+  public String getIsRequired() {
+    return isRequired;
+  }
+
+  public void setIsRequired(String isRequired) {
+    this.isRequired = isRequired;
   }
     
 }

@@ -995,7 +995,7 @@
             	properties = new Object();
             	for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.Property")) {
             		if (prop.@value == '') {
-            			continue;
+            			continue; 
             		}
             		properties[prop.@propertyName] = prop.@propertyValue;
             	}

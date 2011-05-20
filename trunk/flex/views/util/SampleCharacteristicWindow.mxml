@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="842" height="498" 
+				width="898" height="498" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
@@ -89,6 +89,7 @@
 			theViews.selectedIndex = 1;
 			
 			organismCombo.selectedItem = null;
+			platformCombo.selectedItem = null;
 
 			setOwnerCombo();
 
@@ -139,7 +140,22 @@
 			setDirty();
 		}
 	}
+
 		
+	private function addPlatform():void {
+		if (platformCombo.selectedItem != null && platformCombo.selectedItem.@value != '') {
+			platforms.addItem(platformCombo.selectedItem);
+			setDirty();			
+		}
+	}
+	
+	private function removePlatform():void {
+		if (this.platformsGrid.selectedItem != null) {
+			platforms.removeItemAt(platforms.getItemIndex(platformsGrid.selectedItem));
+			setDirty();
+		}
+	}
+
 	private function addSampleCharacteristic():void {
 		var newCharacteristic:XML = new XML("<SampleCharacteristic " +
 			" idSampleCharacteristic=''" +
@@ -197,6 +213,7 @@
 		params.idSampleCharacteristic = scList.selectedItem.@idSampleCharacteristic;
 		params.sampleCharacteristic = scName.text;
 		params.isActive = this.isActive.selected ? "Y" : "N";
+		params.isRequired = this.isRequired.selected ? "Y" : "N";
 		params.mageOntologyCode = mageOntologyCode.text;
 		params.mageOntologyDefinition = mageOntologyDefinition.text; 
 		params.description = description.text; 
@@ -208,6 +225,7 @@
 		params.codeCharacteristicType = this.characteristicTypeRadioGroup.selectedValue;
 		params.optionsXMLString = "<options>" + this.options.toXMLString() + "</options>";
 		params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
+		params.platformsXMLString = "<platforms>" + this.platforms.toXMLString() + "</platforms>";
 		
 		saveSampleCharacteristic.send(params);
 		
@@ -229,7 +247,8 @@
 <mx:XMLListCollection id="sampleCharacteristics"/>
 <mx:XMLListCollection id="options" source="{scList.selectedItem.options.SampleCharacteristicOption}"/>
 <mx:XMLListCollection id="organisms" source="{scList.selectedItem.organisms.Organism}"/>
-<mx:VBox width="100%" height="100%">
+<mx:XMLListCollection id="platforms" source="{scList.selectedItem.platforms.RequestCategory}"/>
+<mx:VBox width="100%" height="100%" verticalGap="0">
 	
 	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
 		<mx:LinkButton label="Add annotation" styleName="linkMenuButton" click="addSampleCharacteristic()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
@@ -245,7 +264,7 @@
   <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
 	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
 	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4">			 
+		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
 			 <mx:HBox width="100%" verticalGap="0">
 			  <mx:Label text="Name:" width="80"/>
 			  <mx:TextInput text="{scList.selectedItem.@sampleCharacteristic}" change="{setDirty()}" width="100%" id="scName"  maxChars="100" 
@@ -280,10 +299,37 @@
 				         </mx:columns>
 				  </mx:DataGrid>			   	
 				 </mx:VBox>
+				 
+				 <mx:Text text="Only show annotation for these platforms:" width="65"/>
+				 <mx:VBox   verticalGap="1" height="100%"  width="100%">
+					 <mx:HBox horizontalAlign="left" horizontalGap="6">
+						 <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" >			       	
+						 </mx:ComboBox>
+						 <mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+							 <mx:enabled>{scList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+						 </mx:Button>
+						 <mx:Button click="removePlatform()" icon="@Embed(source='../../assets/delete.png')" 
+									disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+									enabled="{scList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformsGrid.selectedItem != null}" width="25"/>
+					 </mx:HBox>
+					 <mx:DataGrid id="platformsGrid" showHeaders="false" dataProvider="{platforms}" width="100%" height="65">
+						 <mx:columns>
+							 <mx:DataGridColumn dataField="@display" headerText="Name"/>
+						 </mx:columns>
+					 </mx:DataGrid>			   	
+				 </mx:VBox>
+			 </mx:HBox>
+			 
+			 <mx:HBox >
+				 <mx:Spacer width="80"/>
+				 <mx:CheckBox label="Required (Annotation must be filled in)" id="isRequired"  click="setDirty()">
+					 <mx:selected>{scList.selectedItem.@isRequired == 'Y' ? true : false}</mx:selected>
+				 </mx:CheckBox>
+				 <mx:Spacer width="80"/>
 			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0">
 			  <mx:Label text="Type:" width="80"/>
-			  <mx:VBox verticalGap="2">
+			  <mx:VBox verticalGap="0">
 			   <mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{scList.selectedItem.@codeCharacteristicType}">
 			   </mx:RadioButtonGroup>
 			   <mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
@@ -310,7 +356,7 @@
 			 </mx:HBox> 
 			 <mx:HBox width="100%" verticalGap="0">
 			  <mx:Text text="Mage Ontology Code:" width="80"/>
-			  <mx:TextInput text="{scList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="80" id="mageOntologyCode"  maxChars="100"/>
+			  <mx:TextInput text="{scList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="192" id="mageOntologyCode"  maxChars="100"/>
 			  <mx:Text text="Mage Ontology Definition:" width="65"/>
 			  <mx:TextArea text="{scList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
 			 </mx:HBox>

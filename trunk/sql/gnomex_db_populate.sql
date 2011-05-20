@@ -745,23 +745,23 @@ VALUES ('AFFY', 'CHIP'),
 
 
 
-INSERT INTO `gnomex`.`SampleCharacteristic`(`idSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codeCharacteristicType)
-VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT'),
-  (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT'),
-  (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT'),
-  (4, 'Clinical Information', 'clinical_information', NULL, 'Y', NULL, 'TEXT'),
-  (5, 'Compound', NULL, NULL, 'Y', NULL, 'TEXT'),
-  (6, 'Disease State / Stage / Tumor Grade', 'distease_state', NULL, 'Y', NULL, 'TEXT'),
-  (7, 'Dose', 'dose', NULL, 'Y', NULL, 'TEXT'),
-  (8, 'Genetic Modification', NULL, NULL, 'Y', NULL, 'TEXT'),
-  (9, 'Genotype', 'genotype', NULL, 'Y', NULL, 'TEXT'),
-  (10, 'Growth Conditions', NULL, NULL, 'Y', NULL, 'TEXT'),
-  (11, 'Individual', 'individual', NULL, 'Y', NULL, 'TEXT'),
-  (12, 'Organ / Tissue', 'organism_part', NULL, 'Y', NULL, 'TEXT'),
-  (13, 'Other', NULL, NULL, 'Y', NULL, 'TEXT'),
-  (14, 'Sex', 'sex', NULL, 'Y', NULL, 'TEXT'),
-  (15, 'Temperature', NULL, NULL, 'Y', NULL, 'TEXT'),
-  (16, 'Time Course', 'sampling_time_point', NULL, 'Y', NULL, 'TEXT');
+INSERT INTO `gnomex`.`SampleCharacteristic`(`idSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codeCharacteristicType, isRequired)
+VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (4, 'Clinical Information', 'clinical_information', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (5, 'Compound', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
+  (6, 'Disease State / Stage / Tumor Grade', 'distease_state', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (7, 'Dose', 'dose', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (8, 'Genetic Modification', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
+  (9, 'Genotype', 'genotype', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (10, 'Growth Conditions', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
+  (11, 'Individual', 'individual', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (12, 'Organ / Tissue', 'organism_part', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (13, 'Other', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
+  (14, 'Sex', 'sex', NULL, 'Y', NULL, 'TEXT', 'N'),
+  (15, 'Temperature', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
+  (16, 'Time Course', 'sampling_time_point', NULL, 'Y', NULL, 'TEXT', 'N');
 
 INSERT INTO `gnomex`.`SamplePrepMethod`(`idSamplePrepMethod`, `samplePrepMethod`, `isActive`)
 VALUES (1, 'Qiagen RNeasy mini kit', 'Y'),

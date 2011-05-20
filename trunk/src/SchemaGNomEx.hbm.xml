@@ -1112,6 +1112,7 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
 		<property name="codeCharacteristicType" column="codeCharacteristicType" type="string"/>
+		<property name="isRequired" column="isRequired" type="string"/>
 
 		<set name="options" table="SampleCharacteristicOption" lazy="false" cascade="delete" order-by="sortOrder">
 			<key column="idSampleCharacteristic"/>
@@ -1120,6 +1121,10 @@
 		<set name="organisms" table="SampleCharacteristicOrganism" lazy="false" cascade="none">
 			<key column="idSampleCharacteristic"/>
 			<many-to-many column="idOrganism" class="hci.gnomex.model.Organism"/>			
+		</set>
+		<set name="platforms" table="SampleCharacteristicPlatform" lazy="false" cascade="none">
+			<key column="idSampleCharacteristic"/>
+			<many-to-many column="codeRequestCategory" class="hci.gnomex.model.RequestCategory"/>			
 		</set>
 
 			

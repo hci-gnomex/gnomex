@@ -64,6 +64,12 @@ public class DeleteSampleCharacteristic extends GNomExCommand implements Seriali
         sess.flush();
         
         //
+        // Clear out sampleCharacteristic platform list
+        //
+        sampleCharacteristic.setPlatforms(new TreeSet());
+        sess.flush();
+        
+        //
         // Delete sampleCharacteristic
         //
         sess.delete(sampleCharacteristic);

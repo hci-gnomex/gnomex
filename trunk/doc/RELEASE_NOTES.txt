@@ -2,7 +2,8 @@
 
 5.1.6
 ---------------------
-- Rework external experiment submission screen.
+- Reworked external experiment submission screen.
+- Added isRequired and platforms to Sample annotation configuration.
 
 5.1.5.2 (May 18,2011)
 ---------------------

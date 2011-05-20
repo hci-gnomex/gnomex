@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Organism;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SampleCharacteristicOption;
 import hci.gnomex.security.SecurityAdvisor;
@@ -44,6 +45,9 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
   
   private String                         organismsXMLString;
   private Document                       organismsDoc;
+  
+  private String                         platformsXMLString;
+  private Document                       platformsDoc;
 
   private SampleCharacteristic           sampleCharacteristicScreen;
   private boolean                        isNewSampleCharacteristic = false;
@@ -87,6 +91,18 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
       }
     }
     
+    if (request.getParameter("platformsXMLString") != null && !request.getParameter("platformsXMLString").equals("")) {
+      platformsXMLString = request.getParameter("platformsXMLString");
+      StringReader reader = new StringReader(platformsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        platformsDoc = sax.build(reader);     
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse platformsXMLString", je );
+        this.addInvalidField( "platformsXMLString", "Invalid platformsXMLString");
+      }
+    }
+      
 
   }
 
@@ -191,6 +207,21 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
         }
         sc.setOrganisms(organisms);
         
+
+        //
+        // Save sample characteristic platforms
+        //
+        TreeSet platforms = new TreeSet(new RequestCategoryComparator());
+        if (platformsDoc != null) {
+          for(Iterator i = this.platformsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+            Element platformNode = (Element)i.next();
+            RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, platformNode.getAttributeValue("codeRequestCategory"));
+            platforms.add(rc);
+          }
+        }
+        sc.setPlatforms(platforms);
+        
+        
         sess.flush();
         
         
@@ -226,6 +257,7 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
     sc.setMageOntologyCode(sampleCharacteristicScreen.getMageOntologyCode());
     sc.setMageOntologyDefinition(sampleCharacteristicScreen.getMageOntologyDefinition());
     sc.setIsActive(sampleCharacteristicScreen.getIsActive());
+    sc.setIsRequired(sampleCharacteristicScreen.getIsRequired());
     sc.setCodeCharacteristicType(sampleCharacteristicScreen.getCodeCharacteristicType());
     sc.setIdAppUser(sampleCharacteristicScreen.getIdAppUser());
     sc.setDescription(sampleCharacteristicScreen.getDescription());
@@ -241,5 +273,13 @@ public class SaveSampleCharacteristic extends GNomExCommand implements Serializa
       
     }
   }
-
+  private class RequestCategoryComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      RequestCategory rc1 = (RequestCategory)o1;
+      RequestCategory rc2 = (RequestCategory)o2;
+      
+      return rc1.getCodeRequestCategory().compareTo(rc2.getCodeRequestCategory());
+      
+    }
+  }
 }

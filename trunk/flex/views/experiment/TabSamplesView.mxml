@@ -111,23 +111,23 @@
    					" canChangeNumberSequencingLanes='Y'" +  
    					" canChangeNumberSequencingCycles='Y'" +
 					" concentration=''" + 
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() + "'" +				
-					" idSeqRunType='" + parentDocument.seqSetup1View.getIdSeqRunTypeSelected() + "'" +				
+					" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +				
+					" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
-					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 					" seqPrepByCore = 'N'" +
 					" idOligoBarcode = ''" +
 					" barcodeSequence = ''" +
-					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-					" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
-					" idSeqLibProtocol='" + parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value + "'" +				
-					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
-					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
-					" prepInstructions='" + parentDocument.seqSetup1View.prepInstructions.text + "'" +				
-					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-					" otherOrganism='" + parentDocument.sampleSetupView.otherOrganism.text + "'" +				
-					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
+					" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '') + "'" +				
+					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
+					" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
+					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
+					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.analysisInstructions.text : '') + "'" +				
+					" prepInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.prepInstructions.text : '') + "'" +				
+					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : '') + "'" +				
+					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
+					" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 					"/>");
 					
 				} else {
@@ -144,20 +144,20 @@
 					" concentration=''" +
 					" idOligoBarcode = ''" +
 					" barcodeSequence = ''" +
-					" idNumberSequencingCycles='" + parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() + "'" +
-					" idSeqRunType='" +	parentDocument.seqSetup1View.getIdSeqRunTypeSelected() + "'" +				
+					" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
+					" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 					" numberSequencingLanes='1'" +
 					" codeConcentrationUnit='ng/ul'" + 
-					" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-					" idGenomeBuildAlignTo='" + parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value + "'" +				
-					" analysisInstructions='" + parentDocument.seqSetup1View.analysisInstructions.text + "'" +				
-					" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-					" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
+					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
+					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.analysisInstructions.text : '') + "'" +				
+					" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '') + "'" +				
+					" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
-					" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-					" otherOrganism='" + parentDocument.sampleSetupView.otherOrganism.text + "'" +				
-					" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
+					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : '') + "'" +				
+					" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" +				
+					" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 					"/>");
 					
 				}
@@ -179,11 +179,11 @@
 			    " idOligoBarcode = ''" +
 			    " barcodeSequence = ''" +
 				" codeConcentrationUnit='ng/ul'" + 
-				" codeBioanalyzerChipType='" + parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() + "'" +
-				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-				" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
-				" treatment='" + parentDocument.annotationView.treatmentTextInput.text + "'" +				
+				" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
+				" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value : '')  + "'" +				
+				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '')  + "'" +				
+				" treatment='" + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '')  + "'" +				
 				"/>");
 			
 			} else {
@@ -203,12 +203,12 @@
 	   		    " idOligoBarcode = ''" +				
 	   		    " barcodeSequence = ''" +				
 				" codeConcentrationUnit='ng/ul'" + 
-				" idSampleType='" + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value + "'" +
-				" idSamplePrepMethod='" + parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value + "'" +				
-				" otherSamplePrepMethod='" + parentDocument.sampleSetupView.otherSamplePrepMethod.text + "'" +				
-				" idOrganism='"  + parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value + "'" +				
-				" otherOrganism='" + parentDocument.sampleSetupView.otherOrganism.text + "'" +				
-				" treatment='"  + parentDocument.annotationView.treatmentTextInput.text + "'" +				
+				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+				" idSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.samplePrepMethodCombo.selectedItem.@value  : '') + "'" +				
+				" otherSamplePrepMethod='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text : '') + "'" +				
+				" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : '') + "'" +				
+				" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text : '') + "'" 	+	
+				" treatment='"  + (parentApplication.submitInternalExperiment() ? parentDocument.annotationView.treatmentTextInput.text : '') + "'" +				
 				"/>");
 			}
 			
@@ -300,6 +300,15 @@
 
 		}
 		
+		private function copyTheSample():void {
+			var idx:int = samplesGrid.selectedIndex;
+			copySample();
+			this.initializeBarcoding();
+			checkSamplesCompleteness();
+			this.samplesGrid.selectedIndex = idx;
+			
+		}
+		
 		private function copySample():void {
 			parentDocument.dirty.setDirty();
 			if (samplesGrid.selectedIndex != -1) {
@@ -353,21 +362,36 @@
 			
 					parentDocument.samples.addItem(emptyNode);
 					
+
 				}
 			}
 
 
 		}
+		
+		private function deleteTheSample():void {
+			var idx:int = samplesGrid.selectedIndex;
+			deleteSample();
+			checkSamplesCompleteness();
+			parentDocument.hybsView.checkHybsCompleteness();
+			samplesGrid.selectedIndex = idx;
+		}
        	public function initializeSamplesGrid():void {
         	if (parentDocument.requestToClone != null) {
         		return;
         	}
-       		if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
-       			return;
-       		}
+       		
         	
-    		var numberOfSamplesToAdd:Number = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
-    		if(parentDocument.samples.length <= numberOfSamplesToAdd) {
+			var numberOfSamplesToAdd:Number = 0;
+			if (parentApplication.submitInternalExperiment()) {
+				if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+					return;
+				}
+				numberOfSamplesToAdd = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+			} else {
+				numberOfSamplesToAdd = 1;
+			}
+    		if (parentDocument.samples.length <= numberOfSamplesToAdd) {
     			numberOfSamplesToAdd = numberOfSamplesToAdd - parentDocument.samples.length;
     		} else {
     			numberOfSamplesToAdd = 0;
@@ -445,7 +469,16 @@
 		        		}
 		        		
 		        			   	
-		        	} else {
+		        	} else if (!parentApplication.submitInternalExperiment() && parentDocument.isSolexaState()) {
+						if (isEntered(sample, "@name") &&
+							isEntered(sample, "@idSampleType") &&
+							isEntered(sample, "@idOrganism") &&
+							isEntered(sample, "@idSeqRunType") &&
+							isEntered(sample, "@idNumberSequencingCycles")) {
+							
+							completeCount++;
+						}
+					} else {
 	        			if (isEntered(sample, "@name") &&
 			        		isEntered(sample, "@idSampleType") &&	        		
 			        		isEntered(sample, "@idSamplePrepMethod") &&	        		
@@ -493,10 +526,10 @@
 	        		}
 	        		 
         		} else {
-	        		if (isEntered(sample, "@name") &&
+					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
 			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
-			        	isEntered(sample, "@concentration") &&
+			        	(isEntered(sample, "@concentration") || !parentApplication.submitInternalExperiment()) &&  // only require concentration on internal requests
 			        	isEntered(sample, "@idOrganism")) {
 			        	
 			        	if (parentDocument.getRequestCategory().@numberOfChannels == "2") {
@@ -576,14 +609,23 @@
 
         	
         	
-			if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
-        		parentDocument.hybSetupView.enabled = isComplete;
+			if (parentDocument.isMicroarrayState()) {
+				if (parentApplication.submitInternalExperiment()) {
+					parentDocument.hybSetupView.enabled = isComplete;					
+				} else {
+					parentDocument.hybsView.enabled = isComplete;
+					if (isComplete) {
+						parentDocument.hybsView.initializeHybsGrid();
+					}
+				}
     		} if (parentDocument.isSolexaEditState()) {
     			parentDocument.lanesView.enabled = isComplete;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
     				parentDocument.visibilityView.enabled = isComplete;
-    			}
+    			} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = isComplete;
+				}
     		}        	
     		parentDocument.enableNextButtons();
     		
@@ -620,9 +662,12 @@
 	        	if (parentDocument.isSolexaEditState()) {
 	    			parentDocument.lanesView.enabled = false;
 	        	}
-	
-				parentDocument.visibilityView.enabled = false;
-	        	parentDocument.confirmView.enabled = false;
+				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+					parentDocument.visibilityView.enabled = false;					
+				}
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = false;					
+				}
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
 	    			parentDocument.hybSetupView.checkHybSetupCompleteness();
@@ -787,6 +832,7 @@
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = true;
+				otherSamplePrepMethodCol.visible = true;
 				seqLibProtocolCol.visible = false;
 				preppedByCoreCol.visible = false;
 				numberSequencingLanesCol.visible = false;
@@ -795,7 +841,7 @@
 				idSeqRunTypeCol.visible =  false;
 
         	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
-        		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState();
+        		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && parentApplication.submitInternalExperiment();
 				numberSequencingLanesCol.editable = true;
 				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
 				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
@@ -824,10 +870,10 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				chipTypeColumn.visible = false; 
-				samplePrepMethodCol.visible = true;
+				samplePrepMethodCol.visible = parentApplication.submitInternalExperiment();
+				otherSamplePrepMethodCol.visible = parentApplication.submitInternalExperiment();
 				labelColumn.visible = false;
 				
-				samplePrepMethodCol.visible = true;
 				
         		
 
@@ -841,6 +887,7 @@
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
+				otherSamplePrepMethodCol.visible = true;
 				
 				
 				if (parentDocument.isEditState) {
@@ -860,6 +907,7 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
+				otherSamplePrepMethodCol.visible = true;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = !parentDocument.isEditState();
 			}
@@ -1014,7 +1062,7 @@
     
 	<mx:VBox width="100%" height="100%" verticalGap="2">
 	        <mx:HBox  horizontalAlign="center" paddingLeft="4" id="vbox1" width="100%" verticalAlign="middle"> 
-  			  <mx:TextArea styleName="instructionBox" width="590" wordWrap="true" height="88" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+  			  <mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			  </mx:TextArea>
 			</mx:HBox>
@@ -1022,14 +1070,14 @@
 		    <mx:HBox width="100%">
 				<mx:CheckBox id="showCCNumberCheckbox" 
 							 click="toggleShowCCNumber()" 
-							 visible="{parentApplication.isBSTLinkageSupported}"
-							 width="{parentApplication.isBSTLinkageSupported ? 250 : 0}" 
+							 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+							 width="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported ? 250 : 0}" 
 							 label="Link to BST samples using CC Number" />
 				<mx:HBox id="buttonsContainer">
 					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
-					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copySample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
-					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteSample();checkSamplesCompleteness();parentDocument.hybsView.checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 				</mx:HBox>
 				
@@ -1072,7 +1120,7 @@
 					      itemRenderer="views.renderers.CheckBoxSampleLabel">
 				    </mx:AdvancedDataGridColumn>
 
-	 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{!showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" rendererIsEditor="false"
+	 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected &amp;&amp; !showSeqPrepFieldsCheckBox.selected}"  width="42" dataField="@concentration" rendererIsEditor="false"
  	                   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />          
 	                <mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="{!showQCFieldsCheckBox.selected}" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
@@ -1083,7 +1131,22 @@
 						width="76"
 						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
-	                <mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" editable="true" visible="true"
+
+					<mx:AdvancedDataGridColumn id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="180"   dataField="@idSampleType" 
+											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"                 
+											   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
+					<mx:AdvancedDataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="170" headerText="Organism"  dataField="@idOrganism" 
+											   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+											   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
+											   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
+					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
+											   width="140" dataField="@otherOrganism"
+											   visible="{parentApplication.isInternalExperimentSubmission}"
+											   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+											   editorDataField="value"/> 
+					
+					<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" editable="true" visible="true"
 						width="54">
 						<mx:headerRenderer>
 							<mx:Component>
@@ -1160,8 +1223,10 @@
 						 </mx:headerRenderer>
  	                </mx:AdvancedDataGridColumn> 
  	                        
-	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="false" width="150" dataField="@idSeqRunType"
-                        itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
+	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
+						rendererIsEditor="false" editorDataField="value" 
+                        itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"
+						itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', false).newInstance(), '')}"/>                 											
 	 				<mx:AdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="70" dataField="@idNumberSequencingCycles" 
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
@@ -1199,20 +1264,13 @@
  	                   
 					<mx:AdvancedDataGridColumn headerText="Description" width="140" dataField="@description" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
-                    <mx:AdvancedDataGridColumn id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{!showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
+                    <mx:AdvancedDataGridColumn id="samplePrepMethodCol" headerText="Nucl. acid extraction meth." visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; !showQCFieldsCheckBox.selected}"  width="180" dataField="@idSamplePrepMethod" 
 	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod')}"                
 	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SamplePrepMethod').DictionaryEntry, '@display', '@value', '@idSamplePrepMethod', '@canChangeSamplePrepMethod', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." width="140" dataField="@otherSamplePrepMethod" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
-	                 <mx:AdvancedDataGridColumn id="sampleTypeCol"  headerText="Sample Type" visible="{!showQCFieldsCheckBox.selected  &amp;&amp; !showSeqPrepFieldsCheckBox.selected }" width="120"   dataField="@idSampleType" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
- 	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"                 
-	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
-	                <mx:AdvancedDataGridColumn id="sampleOrganismColumn" visible="{!showQCFieldsCheckBox.selected}" width="110" headerText="Organism"  dataField="@idOrganism" 
-	                    editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
- 	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
-					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="140" dataField="@otherOrganism" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
+					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Other Nucl. acid extraction meth." 
+							width="140" dataField="@otherSamplePrepMethod" 
+							itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 
 
 	                <mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{showQCFieldsCheckBox.selected || parentDocument.request.@codeRequestCategory != 'QC' ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
