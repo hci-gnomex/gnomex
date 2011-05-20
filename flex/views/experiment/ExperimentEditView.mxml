@@ -8,7 +8,7 @@
 	width="100%" height="100%"  
 	creationPolicy="all" show="init()" hide="leave()">
 
-    
+     
    <mx:HTTPService  
     id="getNewRequest" 
     url="GetRequest.gx"
@@ -306,7 +306,6 @@
 
 		private function init():void {
 			
-			
 	 		// If this is the first time this instance
 	 		// has been shown, perform 1-time-only
 	 		// initialization
@@ -318,10 +317,12 @@
 					this.nextButton.enabled = false;
 				} else if (this.id == "editView") {
 					this.currentState = "EditState";
+				} else if (!parentApplication.submitInternalExperiment()) {
+					this.currentState = "ExternalState";
 				}else {
 					this.currentState = "";
 				}
-
+				
 
 				this.initializeData();
         	    this.checkSecurity();
@@ -330,13 +331,24 @@
 
     			isInitialized = true;
 			}
+			// Force the setting of request category name to reset
+			// the state if we are toggling between register external
+			// experiment and submit internal experiment.
+			setRequestCategoryName();
+			
+			
 			
 			// Always perform checkSecurity on setupView
 			if (this.theTab.contains(setupView)) {
 				setupView.checkSecurity();
 			}
 			
+			// Always perform checkSecurity on annotationView
+			if (this.theTab.contains(annotationView)) {
+				annotationView.checkSecurity();
+			}
 			
+
         	if (parentApplication.theViews.selectedChild == this) {
     	    	this.setupSubmitForm();
         	} else if (this.id == "editView" && request != null) {
@@ -469,6 +481,7 @@
 		
 		public function isSolexaState():Boolean {
 			if (currentState == 'SolexaBaseState' ||
+				currentState == 'SolexaBaseExternalState' ||
 				currentState == 'SolexaEditState' ||
 			    currentState == 'SolexaBaseAmendState' ||
 			    currentState == 'SolexaLaneAmendState') {
@@ -480,6 +493,7 @@
 		
 		public function isQCState():Boolean {
 			if (currentState == 'QCState' ||
+				currentState == 'QCExternalState' ||
 				currentState == 'QCEditState') {
 				return true;    	
 			} else {
@@ -490,6 +504,7 @@
 				
 		public function isMicroarrayState():Boolean {
 			if (currentState == 'MicroarrayState' ||
+				currentState == 'MicroarrayExternalState' || 
 				currentState == 'MicroarrayEditState' || 
 				currentState == 'MicroarrayAmendState') { 
 				return true;    	
@@ -803,25 +818,37 @@
 		
 		public function setRequestCategoryName():void {
 			var requestCategory:Object = getRequestCategory();
+		
+			if (requestCategory == null) {
+				return;
+			}
+			
 			requestIcon = requestCategory.@icon;
 			requestCategoryName = requestCategory.@display.toString();
 			
-			this.confirmView.barcodeColumn.visible = false;        	
-	
-			
-			if (this.setupView.requestTypeGroup.selectedValue != null && this.setupView.requestTypeGroup.selectedValue != '' ) {
-				this.setupView.requestTypeBox.styleName = "normalBox";
-			} else {
-				this.setupView.requestTypeBox.styleName = "requiredBox";
+			if (theTab.contains(confirmView)) {
+				this.confirmView.barcodeColumn.visible = false;        					
 			}
+	
+				
+			if (theTab.contains(setupView)) {
+				if (this.setupView.requestTypeGroup.selectedValue != null && this.setupView.requestTypeGroup.selectedValue != '' ) {
+					this.setupView.requestTypeBox.styleName = "normalBox";
+				} else {
+					this.setupView.requestTypeBox.styleName = "requiredBox";
+				} 				
+			}			
 
 			if (requestCategory.@type == parentApplication.TYPE_ILLUMINA) {
-				this.currentState = 'SolexaBaseState';
-				this.sampleSetupView.currentState = 'SolexaSetupState';
+				this.currentState = parentApplication.submitInternalExperiment() ? 'SolexaBaseState' : 'SolexaBaseExternalState';
+				if (parentApplication.submitInternalExperiment()) {
+					this.sampleSetupView.currentState = 'SolexaSetupState';
+				}
 				this.samplesView.currentState = 'SolexaSamplesState';
 				
-				showHideBarcodingQuestion();
-
+				if (parentApplication.submitInternalExperiment()) {
+					showHideBarcodingQuestion();
+				}
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
@@ -831,17 +858,21 @@
 				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
-				var barcodes:XMLList = this.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.OligoBarcode');
-				if (barcodes.length() > 0) {
-					this.sampleSetupView.barcodeContainer.visible = true;
-				} else {
-					this.sampleSetupView.radioNoBarcoding.selected = true;
-					this.sampleSetupView.barcodeContainer.visible = false;
-					this.sampleSetupView.pickRadioBarcoding();
+				if (parentApplication.submitInternalExperiment()) {
+					var barcodes:XMLList = this.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.OligoBarcode');
+					if (barcodes.length() > 0) {
+						this.sampleSetupView.barcodeContainer.visible = true;
+					} else {
+						this.sampleSetupView.radioNoBarcoding.selected = true;
+						this.sampleSetupView.barcodeContainer.visible = false;
+						this.sampleSetupView.pickRadioBarcoding();
+					}
 				}
 				
 				this.samplesView.currentState = 'SolexaSamplesState';	
-				this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
+				if (parentApplication.submitInternalExperiment()) {
+					this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
+				}
 				for each (var sample:Object in samples) {
 					sample.@seqPrepByCore = 'Y';
 					sample.@numberSequencingLanes = '1';
@@ -852,8 +883,10 @@
 			
 			} else {						
 				if (requestCategory.@type == parentApplication.TYPE_QC) {
-					this.currentState = 'QCState';
-					this.sampleSetupView.currentState = 'QCSetupState';
+					this.currentState = parentApplication.submitInternalExperiment() ? 'QCState' : 'QCExternalState';
+					if (parentApplication.submitInternalExperiment()) {
+						this.sampleSetupView.currentState = 'QCSetupState';
+					}
 
 					this.samplesView.currentState = 'QCSamplesState';				
 					this.samplesView.showHideColumns();						
@@ -861,28 +894,33 @@
 					
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					this.sampleSetupView.qcAppRepeater.invalidateDisplayList();
-					this.sampleSetupView.qcAppRepeater..validateNow();
+					if (parentApplication.submitInternalExperiment()) {
+						this.sampleSetupView.qcAppRepeater.invalidateDisplayList();
+						this.sampleSetupView.qcAppRepeater..validateNow();
+					}
 					
 					
 
 				} else if (requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 								
-					this.currentState = 'MicroarrayState';
-					this.sampleSetupView.currentState = '';
-					this.sampleSetupView.organismValidator.validate();
+					this.currentState = parentApplication.submitInternalExperiment() ? 'MicroarrayState' : 'MicroarrayExternalState';
+					if (parentApplication.submitInternalExperiment()) {
+						this.sampleSetupView.currentState = '';
+						this.sampleSetupView.organismValidator.validate();
+					}
 					
  					
 					this.samplesView.currentState = 'MicroarraySamplesState';
-					this.samplesView.showHideColumns();						
-					this.hybSetupView.currentState = "SetupState";
+					this.samplesView.showHideColumns();		
+					if (parentApplication.submitInternalExperiment()) {
+						this.hybSetupView.currentState = "SetupState";
+						
+						this.hybSetupView.slideProductCombo.selectedIndex = 0;
+						this.hybSetupView.checkForSlideProductWarning();
+						this.hybSetupView.numberOfHybsValidator.validate();
+					}
 					this.hybsView.currentState = '';
 
-
-					
-					this.hybSetupView.slideProductCombo.selectedIndex = 0;
-					this.hybSetupView.checkForSlideProductWarning();
-					this.hybSetupView.numberOfHybsValidator.validate();
 
 	
 					// Hide/Show the channel 2 sample column
@@ -903,13 +941,19 @@
 						}
 					}
 					
+					filteredAppList.filterFunction = filterApplication;
+					filteredAppList.refresh();
 										
 					filteredMicroarrayAppList.filterFunction = filterMicroarrayApplication;
 					filteredMicroarrayAppList.refresh();
-					this.hybSetupView.microarrayAppRepeater.invalidateDisplayList();
-					this.hybSetupView.microarrayAppRepeater.validateNow();
+					if (parentApplication.submitInternalExperiment()) {
+						
+						this.hybSetupView.microarrayAppRepeater.invalidateDisplayList();
+						this.hybSetupView.microarrayAppRepeater.validateNow();
 					
-					this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
+						this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
+					}
+					
 
 	 
 					this.samplesView.checkSamplesCompleteness();	
@@ -925,11 +969,12 @@
 					
 				}
 			}
-			
-			this.sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
-			this.sampleSetupView.numberOfSamplesValidator.validate();
-			this.sampleSetupView.sampleTypeValidator.validate();
-			this.sampleSetupView.samplePrepMethodValidator.validate();
+			if (parentApplication.submitInternalExperiment()) {
+				this.sampleSetupView.samplePrepMethodCombo.selectedIndex = -1;
+				this.sampleSetupView.numberOfSamplesValidator.validate();
+				this.sampleSetupView.sampleTypeValidator.validate();
+				this.sampleSetupView.samplePrepMethodValidator.validate();
+			}
 
 			
 			
@@ -937,13 +982,19 @@
 			samplePrepMethodList.refresh();
 			seqLibProtocolList.refresh();
 			
-			sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
-			callLater(pickDefaultOrganism);
+			if (parentApplication.submitInternalExperiment()) {
+				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
+				callLater(pickDefaultOrganism);
+				
+				sampleSetupView.samplePrepMethodCombo.selectedIndex = 0;
+				callLater(pickDefaultSamplePrepMethod);
+			}
+			 
 			
-			sampleSetupView.samplePrepMethodCombo.selectedIndex = 0;
-			callLater(pickDefaultSamplePrepMethod);
-			
-			
+			if (theTab.contains(annotationView) && request != null) {
+				annotationView.onSampleCharacteristicRefreshed(null);
+			}
+			this.setupView.checkSecurity();
 		}
 			
 		public function showHideBarcodingQuestion():void {
@@ -1136,6 +1187,11 @@
 				filterByOrganism = true;	
 			}
 			
+			var filterByPlatform:Boolean = false;
+			if (sampleCharacteristic.descendants("RequestCategory").length() > 0) {
+				filterByPlatform = true;	
+			}
+			
 			var keep:Boolean = false;
 			
 			if (!filterByOrganism) {
@@ -1146,6 +1202,22 @@
 						if (this.getOrganism().@idOrganism == organism.@idOrganism) {
 							keep = true;
 							break;
+						}
+					}
+				}
+			}
+			
+			if (keep) {
+				if (!filterByPlatform) {
+					keep = true;
+				} else {
+					keep = false;
+					if (this.getRequestCategory() != null) {
+						for each(var rc:XML in sampleCharacteristic.descendants("RequestCategory")) {
+							if (this.getRequestCategory().@codeRequestCategory.toString() == rc.@codeRequestCategory) {
+								keep = true;
+								break;
+							}
 						}
 					}
 				}
@@ -1451,9 +1523,16 @@
         		return false;	
         	}
         	
-        	if (this.theTab == null || !this.theTab.contains(hybSetupView)) {
+        	if (this.theTab == null) {
         		return false;
         	}
+			
+			// Internal experiments should always have a hybsetup tab
+			if (parentApplication.submitInternalExperiment()) {
+				if (!this.theTab.contains(hybSetupView)) {
+					return false;
+				} 
+			}
         	
 			var doesMatchRequestCategoryVendor:Boolean = true;
         	if (!isEditState()) {
@@ -1471,53 +1550,90 @@
         	}       	
         	
         	var doesMatchOrganism:Boolean = true;
-        	if (hybSetupView.organismCombo.selectedItem != null && 
-        	    hybSetupView.organismCombo.selectedItem.@value != null  &&
-        	    hybSetupView.organismCombo.selectedItem.@value != "") {
-        		if (item.@idOrganism == hybSetupView.organismCombo.selectedItem.@idOrganism) {
-        			doesMatchOrganism = true;
-        		} else {
-        			doesMatchOrganism = false;
-        		}
-        	}
-        	var doesMatchExperimentCategory:Boolean = true;
-        	if (hybSetupView.currentState == "SetupState" &&
-        	    hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
-        	    hybSetupView.microarrayAppRadioGroup.selectedValue != null != "") {
-        		doesMatchExperimentCategory = false;
-        		var applicationsForSlideProduct:XMLList  = item.applications.Application;
-        		for(var x:Number = 0; x < applicationsForSlideProduct.length(); x++) {
-        			if (applicationsForSlideProduct[x].@codeApplication == hybSetupView.microarrayAppRadioGroup.selectedValue) {
-        				doesMatchExperimentCategory = true;
-        				break;
-        			}
-        		}
-        	}
+			// Only match organism for internal experiments
+			if (parentApplication.submitInternalExperiment()) {
+				if (hybSetupView.organismCombo.selectedItem != null && 
+					hybSetupView.organismCombo.selectedItem.@value != null  &&
+					hybSetupView.organismCombo.selectedItem.@value != "") {
+					if (item.@idOrganism == hybSetupView.organismCombo.selectedItem.@idOrganism) {
+						doesMatchOrganism = true;
+					} else {
+						doesMatchOrganism = false;
+					}
+				}
+			}
+			
+			var doesMatchExperimentCategory:Boolean = true;
+			var applicationsForSlideProduct:XMLList  =  null;
+			var x:Number = 0;
+			if (parentApplication.submitInternalExperiment()) {
+				if (hybSetupView.currentState == "SetupState" &&
+					hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
+					hybSetupView.microarrayAppRadioGroup.selectedValue != null != "") {
+					doesMatchExperimentCategory = false;
+					applicationsForSlideProduct  = item.applications.Application;
+					for(x = 0; x < applicationsForSlideProduct.length(); x++) {
+						if (applicationsForSlideProduct[x].@codeApplication == hybSetupView.microarrayAppRadioGroup.selectedValue) {
+							doesMatchExperimentCategory = true;
+							break;
+						}
+					}
+				}				
+			} else {
+				if (setupView.currentState.indexOf("AdminExternal") == 0 &&
+					setupView.radioGroupAppAdmin.selectedValue != null &&
+					setupView.radioGroupAppAdmin.selectedValue != null != "") {
+					doesMatchExperimentCategory = false;
+					applicationsForSlideProduct  = item.applications.Application;
+					for(x = 0; x < applicationsForSlideProduct.length(); x++) {
+						if (applicationsForSlideProduct[x].@codeApplication == setupView.radioGroupAppAdmin.selectedValue) {
+							doesMatchExperimentCategory = true;
+							break;
+						}
+					}
+				} else if (setupView.currentState.indexOf("External") == 0 &&
+					setupView.radioGroupApp.selectedValue != null &&
+					setupView.radioGroupApp.selectedValue != null != "") {
+					doesMatchExperimentCategory = false;
+					applicationsForSlideProduct   = item.applications.Application;
+					for(x = 0; x < applicationsForSlideProduct.length(); x++) {
+						if (applicationsForSlideProduct[x].@codeApplication == setupView.radioGroupApp.selectedValue) {
+							doesMatchExperimentCategory = true;
+							break;
+						}
+					}
+				}	
+				
+			}
+			
         	
         	var doesMatchGroup:Boolean = true;
-        	var idLab:Object = null;
-        	if (this.isAmendState() || this.isEditState()) {
-        		if  (request != null && request.hasOwnProperty("@idLab")) {
-	        		idLab = request.@idLab;    			
-        		}
-        	} else {
-        		if (setupView.labCombo.selectedItem != null) {
-        			idLab = setupView.labCombo.selectedItem.@idLab;
-        		}
-        	}
-        	if (idLab != null && idLab != "" && hybSetupView.isCustomRadio.selected) {
-        		if (item.@isCustom == "Y" && item.@idLab == idLab) {
-        			doesMatchGroup = true;
-        		} else {
-        			doesMatchGroup = false;
-        		}
-        	} else if (idLab != null && idLab != "" && hybSetupView.isCatalogRadio.selected) {
-        		if (item.@isCustom != "Y") {
-        			doesMatchGroup = true;
-        		} else {
-        			doesMatchGroup = false;
-        		}
-        	}
+			// Only filter by custom slides if this is an internal experiment
+			if (parentApplication.submitInternalExperiment()) {
+				var idLab:Object = null;
+				if (this.isAmendState() || this.isEditState()) {
+					if  (request != null && request.hasOwnProperty("@idLab")) {
+						idLab = request.@idLab;    			
+					}
+				} else {
+					if (setupView.labCombo.selectedItem != null) {
+						idLab = setupView.labCombo.selectedItem.@idLab;
+					}
+				}
+				if (idLab != null && idLab != "" && hybSetupView.isCustomRadio.selected) {
+					if (item.@isCustom == "Y" && item.@idLab == idLab) {
+						doesMatchGroup = true;
+					} else {
+						doesMatchGroup = false;
+					}
+				} else if (idLab != null && idLab != "" && hybSetupView.isCatalogRadio.selected) {
+					if (item.@isCustom != "Y") {
+						doesMatchGroup = true;
+					} else {
+						doesMatchGroup = false;
+					}
+				}
+			}
         	
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
@@ -1666,7 +1782,7 @@
 			}
 						
 			callLater(initializeControls);
-			callLater(hybSetupView.assignSlideNumbers);
+			callLater(assignSlideNumbers);
 			
 			
 			callLater(sampleSetupView.checkSampleSetupCompleteness);
@@ -1675,6 +1791,14 @@
 			callLater(hybsView.checkHybsCompleteness);
 			
 			
+		}
+			
+		private function assignSlideNumbers():void {
+			if (parentApplication.submitInternalExperiment()) {
+				hybsView.assignSlideNumbers(hybSetupView.slideProductCombo);								
+			} else {
+				hybsView.assignSlideNumbers(setupView.slideProductCombo);								
+			}
 		}
 		
 		public function setupEditForm(theRequest:Object):void {
@@ -1734,7 +1858,7 @@
 
 			if (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ') {
 				currentState = 'SolexaEditState';
-				this.annotationView.currentState = 'EditState';			
+				this.annotationView.checkSecurity();			
 				if (parentApplication.hasPermission("canWriteAnyObject")) { 
 					samplesView.currentState = 'SolexaSamplesAdminState';						
 				} else {
@@ -1768,7 +1892,7 @@
 				currentState = 'MicroarrayEditState';
 				this.filteredMicroarrayAppList.refresh();
 				this.hybSetupView.currentState = 'EditState';
-				this.annotationView.currentState = 'EditState';			
+				this.annotationView.checkSecurity();			
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
 					samplesView.currentState = 'MicroarraySamplesAdminState';	
 					hybsView.currentState = 'HybsAdminState';	
@@ -1798,7 +1922,9 @@
 				this.analysisButton.enabled = false;
 			}
 			
-			this.visibilityView.currentState = "EditState";			
+			if (theTab.contains(visibilityView)) {
+				this.visibilityView.currentState = "EditState";							
+			}
 
 			this.getRequestCategoryName();
 			this.getBillingAccountName(); 
@@ -1822,7 +1948,7 @@
 			initializeControls();
 			
 			if (this.isMicroarrayState()) {
-				hybSetupView.assignSlideNumbers();			
+				assignSlideNumbers();	
 			}
 			samplesView.checkSamplesCompleteness();
 			if (this.isMicroarrayState()) {
@@ -1858,6 +1984,7 @@
 			if (theTab.contains(this.annotationView)) {
 				this.sampleCharacteristicEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns();
+				this.annotationView.checkSecurity();
 			} 
 			
 			initializeSubmitForm();		
@@ -1965,7 +2092,12 @@
 				
 				hybSetupView.initializeSlideProductCombo();
 				hybSetupView.slideProductValidator.validate();
-				initializeSlideDesigns();
+				// TODO:  Is this okay to remove????  Don't know which slide product combo
+				// we are using since it could be from external (setup view) or internal
+				// (hyb setup view) experiment submissions.
+				// Leave out for now assuming that slide product combo change event
+				// takes care of necessary initialization.
+				//initializeSlideDesigns();
 
 				hybSetupView.coreSlideSourceCheckbox.selected = true;
 				
@@ -1988,8 +2120,8 @@
 		}
 		
 		
-		public function initializeSlideDesigns():void {
-			var slideDesign:Object = hybSetupView.getDefaultSlideDesign();
+		public function initializeSlideDesigns(slideProductCombo:mx.controls.ComboBox):void {
+			var slideDesign:Object = hybsView.getDefaultSlideDesign(slideProductCombo);								
 			if (slideDesign != null) {
 				for each (var hyb:Object in hybs) {
 					hyb.@idSlideDesign = slideDesign.@idSlideDesign;
@@ -2158,7 +2290,7 @@
 			}
 			
 			// Warn if some of the arrays (on a multi-array slide) are not used.	
-			if (isMicroarrayState()) {
+			if (isMicroarrayState() && parentApplication.submitInternalExperiment()) {
 				if (hybSetupView.slideProductCombo.selectedItem == null) {
 					warningMessage += "No slide selected.\n";
 				} else if (hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != '' && hybSetupView.slideProductCombo.selectedItem.@arraysPerSlide != 1) {
@@ -2321,7 +2453,10 @@
 		
 		public function isExternalExperimentSubmission():Boolean {
 			if (!this.isEditState() && !this.isAmendState()) {
-				if (this.setupView.currentState == "ExternalExperimentState" || this.setupView.currentState == "AdminExternalExperimentState") {
+				if (this.setupView.currentState == "ExternalExperimentState" ||
+					this.setupView.currentState == "ExternalMicroarrayState" ||
+					this.setupView.currentState == "AdminExternalExperimentState" ||
+					this.setupView.currentState == "AdminExternalMicroarrayState") {
 					return true;
 				} else {
 					return false;
@@ -2396,12 +2531,19 @@
 			}
 			
 
-			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayAmendState') {
-				request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
-				request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;		
+			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {
+				if (parentApplication.submitInternalExperiment()) {
+					request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
+					request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;							
+				} else {
+					request.@idSlideProduct = setupView.getSlideProductCombo().selectedItem.@idSlideProduct;
+					request.@codeApplication = setupView.getApp();				
+				}
 			} else if (this.isSolexaState()) {
-				if (theTab.contains(sampleSetupView)) {
+				if (parentApplication.submitInternalExperiment()) {
 					request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+				} else {
+					request.@codeApplication = setupView.getApp();								
 				}
 			} else if (this.isQCState()) {
 				request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;
@@ -2416,7 +2558,7 @@
 				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
-			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayAmendState') {
+			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {
 				for each(var hyb:Object in hybs) {
 					if (requestCategory.@numberOfChannels != "2") {
 						hyb.@idSampleChannel2 = "0";
@@ -2460,9 +2602,13 @@
 			}			
 			
 			// Visibility
-			request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
-			if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
-				request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
+			if (theTab.contains(this.visibilityView)) {
+				request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
+				if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
+					request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
+				}				
+			} else {
+				request.@codeVisibility = 'MEM';
 			}
 			
 			// Collaborators
@@ -3339,7 +3485,7 @@
 			
 			var prevSelectedTab:Container = theTab.selectedChild;			
 				
-			this.annotationView.currentState = 'EditState';		
+			this.annotationView.checkSecurity();		
 
 			if (this.isSolexaAmendState()) {
 				if (this.currentState != "SolexaLaneAmendState") {
@@ -3782,6 +3928,8 @@
  	   
 	
     <mx:states>
+		<mx:State name="ExternalState">
+		</mx:State>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
     			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
@@ -3948,6 +4096,13 @@
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
+		<mx:State name="MicroarrayExternalState" basedOn="ExternalState">
+			<mx:RemoveChild target="{sampleSetupView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
         <mx:State name="MicroarrayAmendState" basedOn="AmendState">
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
@@ -3961,6 +4116,14 @@
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
+		<mx:State name="QCExternalState" basedOn="ExternalState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+		</mx:State>
         <mx:State name="QCAmendState" basedOn="AmendState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
@@ -3973,6 +4136,14 @@
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
          </mx:State>
+		<mx:State name="SolexaBaseExternalState">
+			<mx:RemoveChild target="{sampleSetupView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{visibilityView}"/>			
+		</mx:State>
         <mx:State name="SolexaBaseAmendState" basedOn="AmendState">
         	<mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
@@ -4126,6 +4297,9 @@
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{seqSetupView}"/>
         </mx:State>
+        <mx:State name="MicroarrayExternalState" basedOn="ExternalState"/>
+        <mx:State name="SeqExternalState" basedOn="ExternalState"/>
+        <mx:State name="QCExternalState" basedOn="ExternalState"/>
     </mx:states>
     
 

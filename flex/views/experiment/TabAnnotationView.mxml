@@ -6,6 +6,12 @@
 			<mx:RemoveChild target="{textarea1}"/>
 			<mx:RemoveChild target="{vbox1}"/>
 		</mx:State>
+		<mx:State name="ExternalState">
+			<mx:RemoveChild target="{vbox2}"/>
+			<mx:RemoveChild target="{textarea1}"/>
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
+		</mx:State>
 	</mx:states>
 <mx:Script>
 	<![CDATA[
@@ -22,7 +28,6 @@
 		
 		import views.renderers.CheckBoxRenderer;
 		import views.renderers.ComboBox;
-		import views.renderers.GridColumnFillButton;
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.URLRenderer;
 		import views.util.AnnotationAdvancedDataGridColumn;
@@ -33,6 +38,17 @@
 		private var dictionaryEditor:DictionaryEditor; 
 		
 		public var ignoreToggle:Boolean = false;
+		
+		public function checkSecurity():void {
+			if (parentDocument.isEditState()) {
+				currentState = "EditState";
+			} else if (parentApplication.submitInternalExperiment()) {
+				currentState = "";
+			} else {
+				currentState = "ExternalState";
+			}
+
+		}
 		
        	private function propagateTreatment():void {
 			for each (var sample:Object in parentDocument.samples) {
@@ -73,22 +89,6 @@
 				}
 			}
 		}
-		public function clearOutUncheckedSampleAnnotations():void {
-			if (parentDocument == null) {
-				return;
-			}
-			for each(var annotation:Object in parentDocument.request.SampleCharacteristicEntries.SampleCharacteristicEntry) {
-				var isSelected:String;
-				var value:String;
-				if (annotation.@isSelected == "false") {
-					isSelected = "N";
-					value = '';
-				} else {
-					isSelected = "Y";
-					value = null;
-				}
-			}
-		}
 		
 		private function toggleSampleAnnotationCheck(event:ListEvent):void {
    			if (event.columnIndex == 0) {
@@ -109,12 +109,10 @@
 				
 				sampleAnnotationGrid.selectedItem.@isSelected = "false";
 				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, false);
-				clearOutUncheckedSampleAnnotations();									
 				
 			} else {
 				sampleAnnotationGrid.selectedItem.@isSelected = "true";
 				showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idSampleCharacteristic, true);
-          		clearOutUncheckedSampleAnnotations();
 			}
 		}
 				
@@ -233,8 +231,8 @@
 			
 			
 			// new column for sample grid
-			var fieldName:String = "@ANNOT" + annotation.@idSampleCharacteristic;
 			var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
+			var fieldName:String = "@ANNOT" + annotation.@idSampleCharacteristic;
 			newCol.dataField  = fieldName;
 			newCol.headerText = headerName;
 			newCol.visible    = annotation.@isSelected == "true" ? true : false;
@@ -300,7 +298,7 @@
 					'@idSampleCharacteristicOption', 
 					fieldName,
 					false);       
-				newCol.itemEditor = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
+				newCol.itemEditor = views.renderers.ComboBox.create(
 					parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
 					"@option",
 					"@idSampleCharacteristicOption",
@@ -309,7 +307,7 @@
 					true,
 					true, 
 					false,
-					true).newInstance(), '');
+					true);
 				if (colExisting != null) {
 					colExisting.editable = true;
 					colExisting.editorDataField = "value"
@@ -318,7 +316,7 @@
 						'@option', 
 						'@idSampleCharacteristicOption', 
 						fieldName); 
-					colExisting.itemEditor = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
+					colExisting.itemEditor = views.renderers.ComboBox.create(
 						parentApplication.getSampleCharacteristicOptions(annotation.@idSampleCharacteristic, includeInactiveOptions),
 						"@option",
 						"@idSampleCharacteristicOption",
@@ -327,7 +325,7 @@
 						true,
 						true,
 						false,
-						true).newInstance(), '');
+						true);
 					
 				}
 				if (colConfirmExisting != null) {
@@ -344,13 +342,11 @@
 				// Assume text
 				newCol.editable   = true;
 				newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-				newCol.itemEditor   = views.renderers.GridColumnFillButton.create(new views.renderers.TextInput(), '');
-				newCol.editorDataField = "value";
+				newCol.itemEditor   = views.renderers.TextInput.create(fieldName);
 				if (colExisting != null) {
 					colExisting.editable   = true;
 					colExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
-					colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(new views.renderers.TextInput(), '');
-					colExisting.editorDataField = "value";
+					colExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
 				}
 				if (colConfirmExisting != null) {
 					colConfirmExisting.editable   = true;
@@ -491,7 +487,7 @@
 		<mx:HBox width="100%" height="100%" horizontalGap="24">
 			<mx:VBox height="100%" verticalGap="1">
 			    <mx:HBox>
-				    <mx:Text width="300" height="100%">
+				    <mx:Text width="300" height="100%" id="text1">
 				    	<mx:text>(1) Check sample characteristics:</mx:text>
 				    </mx:Text>
 			    	
@@ -542,7 +538,7 @@
 			    </mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox height="100%" verticalGap="2" width="100%">
+			<mx:VBox height="100%" verticalGap="2" width="100%" id="vbox2">
 				<mx:HBox width="100%">
 					<mx:Text  htmlText="(2) Describe in general terms how the samples differ:" width="100%"/>
 					

@@ -1406,6 +1406,7 @@ CREATE TABLE `gnomex`.`SampleCharacteristic` (
   `mageOntologyDefinition` VARCHAR(5000) NULL,
   `isActive` CHAR(1) NULL,
   `idAppUser` INT(10) NULL,
+  `isRequired` CHAR(1) NULL,
   codeCharacteristicType VARCHAR(10) not null,
   PRIMARY KEY (`idSampleCharacteristic`),
   CONSTRAINT `FK_SampleCharacteristic_AppUser` FOREIGN KEY `FK_SampleCharacteristic_AppUser` (`idAppUser`)
@@ -1453,6 +1454,22 @@ CREATE TABLE gnomex.SampleCharacteristicOrganism (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleCharacteristicPlatform`;
+CREATE TABLE gnomex.SampleCharacteristicPlatform ( 
+     idSampleCharacteristic	INT(10),
+     codeRequestCategory    VARCHAR(10),
+     PRIMARY KEY (idSampleCharacteristic, codeRequestCategory),
+    CONSTRAINT FK_SampleCharacteristicPlantform_SampleCharacteristic FOREIGN KEY FK_SampleCharacteristicPlatform_SampleCharacteristic (idSampleCharacteristic)
+    REFERENCES gnomex.SampleCharacteristic (idSampleCharacteristic)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_SampleCharacteristicPlatform_RequestCategory FOREIGN KEY FK_SampleCharacteristicPlatform_RequestCategory (codeRequestCategory)
+    REFERENCES gnomex.RequestCategory (codeRequestCategory)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = INNODB;
+
 
 -- Add table SampleCharacteristicOption
 DROP TABLE IF EXISTS `gnomex`.`SampleCharacteristicOption`;

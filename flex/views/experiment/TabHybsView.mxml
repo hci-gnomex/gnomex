@@ -2,19 +2,122 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Hyb View" width="100%" height="100%" enabled="false" >
 <mx:Script> 
 	<![CDATA[ 
-		import mx.events.CloseEvent;
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
+		import mx.core.DragSource;
+		import mx.events.CloseEvent;
 		import mx.events.DragEvent;
-		import mx.managers.DragManager; 
-        import mx.core.DragSource;
-        import mx.collections.XMLListCollection;
-        import views.renderers.ComboBox;
-        import hci.flex.controls.DropdownLabel;
-        import views.renderers.ComboBoxWorkflowStatus;
+		import mx.managers.DragManager;
+		
+		import views.renderers.ComboBox;
+		import views.renderers.ComboBoxWorkflowStatus;
 
 		[Bindable]
 		public var slideDesigns:XMLListCollection = new XMLListCollection();
 		
+		private var arrayCoordinates:XMLListCollection = null;
+
+		public function propagateSlideDesign(slideProductCombo:mx.controls.ComboBox):void {
+			for each (var hyb:Object in parentDocument.hybs) {
+				hyb.@idSideDesign =  slideProductCombo.selectedItem.@idSlideDesign;
+			}
+			callLater(this.checkHybsCompleteness);
+		}
+		
+		public function assignSlideNumbers(slideProductCombo:mx.controls.ComboBox):void {
+			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
+				return;
+			}
+			if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
+				slideProductCombo.selectedItem.@arraysPerSlide == '1') {
+				this.slideNumberColumn.visible = false;		
+				this.arrayCoordinateColumn.visible = false;
+			} else {
+				this.slideNumberColumn.visible = true;
+				this.arrayCoordinateColumn.visible = true;
+			}
+			var slideNumber:int = 0;
+			var count:int = 0;
+			var firstTime:Boolean = true; 
+			var useAltColor:Boolean = true;
+			getArrayCoordinates(slideProductCombo);
+			for each(var hyb:Object in parentDocument.hybs) {
+				if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
+					slideProductCombo.selectedItem.@arraysPerSlide == '1') {
+					slideNumber++;    
+					hyb.@showSlideIcon = 'Y';	
+					hyb.@altColor = false;
+					hyb.@arrayCoordinate = '';
+				} else {
+					if (firstTime || count == slideProductCombo.selectedItem.@arraysPerSlide) {
+						count = 0;
+						slideNumber ++;
+						hyb.@showSlideIcon = 'Y';
+						useAltColor = !useAltColor;
+						hyb.@altColor = useAltColor;
+					} else {
+						hyb.@showSlideIcon = 'N';							
+						hyb.@altColor = useAltColor;
+					}
+					if (arrayCoordinates.length >= count + 1) {
+						hyb.@arrayCoordinate = arrayCoordinates.getItemAt(count).@name;
+					}
+				}
+				hyb.@slideNumber = slideNumber;
+				count++;
+				firstTime = false;
+			}
+		}		
+
+		private function getArrayCoordinates(slideProductCombo:mx.controls.ComboBox):XMLListCollection {
+			if (arrayCoordinates == null) {
+				var slideDesign:Object = this.getDefaultSlideDesign(slideProductCombo);
+				arrayCoordinates = new XMLListCollection();
+				if (slideDesign != null) {
+					for each(var sd:Object in parentDocument.slideDesignList) {
+						if (sd.@idSlideDesign == slideDesign.@idSlideDesign) {
+							for each(var coords:Object in sd.children()) {
+								if (coords.name() == "arrayCoordinates") {
+									for each(var coord:Object in coords.children()) {
+										if (coord.name() == "ArrayCoordinate") {
+											if (coord.@name != '') {
+												arrayCoordinates.addItem(coord);
+											}
+										}
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+			}
+			return arrayCoordinates;			
+		}
+		
+		
+		public function getDefaultSlideDesign(slideProductCombo:mx.controls.ComboBox):Object {
+			var slideDesign:Object = null;
+			if (parentDocument == null) {
+				return slideDesign;
+			}
+			
+			if (slideProductCombo.selectedItem != null) {
+				parentDocument.selectedIdSlideProduct = slideProductCombo.selectedItem.@idSlideProduct;
+				slideDesigns = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SlideDesign').DictionaryEntry.(@value == '' || @idSlideProduct == parentDocument.selectedIdSlideProduct));
+				
+				// If there is only one slide design (besides the blank entry) for the slide product,
+				// set all of the hybs to it.
+				if (slideDesigns.length == 2) {
+					slideDesign = slideDesigns[1];
+				}
+			}
+			
+			return slideDesign;
+			
+		}
 		
        	private function getChannelCountLabelFunction(item:Object,col:int):String
         {
@@ -40,7 +143,14 @@
         
  
 		private function addHyb():void {
-			var defaultSlideDesign:Object = parentDocument.hybSetupView.getDefaultSlideDesign();
+			var slideProductCombo:mx.controls.ComboBox = null;
+			if (parentApplication.submitInternalExperiment()) {
+				slideProductCombo = parentDocument.hybSetupView.slideProductCombo;	
+			} else {
+				slideProductCombo = parentDocument.setupView.getSlideProductCombo();	
+			}
+			
+			var defaultSlideDesign:Object = this.getDefaultSlideDesign(slideProductCombo);
 			var idSlideDesign:String = '';
 			if (defaultSlideDesign != null) {
 				idSlideDesign = defaultSlideDesign.@idSlideDesign;
@@ -54,13 +164,15 @@
 			    " canChangeSlideDesign='Y'" +
 			    " notes='' " + 
 				" idSlideDesign='" + idSlideDesign + "'" +
-				" codeSlideSource='" + parentDocument.hybSetupView.getCheckedCodeSlideSource() + "'" +
+				" codeSlideSource='" + (parentApplication.submitInternalExperiment() ? parentDocument.hybSetupView.getCheckedCodeSlideSource() : '') + "'" +
 				" idSampleChannel1='0'" +
 				" idSampleChannel2='0'" +
 				"/>");
 			
 			parentDocument.hybs.addItem(emptyNode);
-	        parentDocument.hybSetupView.assignSlideNumbers();	
+			
+			assignSlideNumbers(slideProductCombo);	
+			
 		}
         
 		private function deleteHyb():void {
@@ -75,7 +187,11 @@
 					parentDocument.hybs.removeItemAt(parentDocument.hybs.getItemIndex(hyb));
 				}
 			}
-	        parentDocument.hybSetupView.assignSlideNumbers();	
+			if (parentApplication.submitInternalExperiment()) {
+				assignSlideNumbers(parentDocument.hybSetupView.slideProductCombo);	
+			} else {
+				assignSlideNumbers(parentDocument.setupView.getSlideProductCombo());	
+			}
 		}
 		
 		private function copyHyb():void {
@@ -96,7 +212,11 @@
 					
 				}
 			}
-	        parentDocument.hybSetupView.assignSlideNumbers();	
+			if (parentApplication.submitInternalExperiment()) {
+				assignSlideNumbers(parentDocument.hybSetupView.slideProductCombo);	
+			} else {
+				assignSlideNumbers(parentDocument.setupView.getSlideProductCombo());	
+			}
 		}
 		public function propagateSlideSourceToHybsSameSlide(theHyb:Object):void {
 			for each (var hyb:Object in parentDocument.hybs) {
@@ -126,22 +246,51 @@
         	if (parentDocument.requestToClone != null && parentDocument.hybs.length > 0) {
         		return;
         	}
+			
+			var numberOfHybsToAdd:Number = 0;
+			
+			var cy3Count:Number = 0;
+			var cy5Count:Number = 0;
+			var noLabelCount:Number = 0;
+        	if (!parentApplication.submitInternalExperiment()) {
+				for each(var s:Object in parentDocument.samples) {
+					if (s.@label == "cy3") {
+						cy3Count++;
+					} else if (s.@label == "cy5") {
+						cy5Count++;
+					} else {
+						noLabelCount++;
+					}
+				}
+				var maxCount:Number = 0;
+				if (cy3Count > cy5Count) {
+					maxCount = cy3Count;
+				} else {
+					maxCount = cy5Count;
+				}
+				if (noLabelCount > maxCount) {
+					maxCount = noLabelCount;
+				}
+				numberOfHybsToAdd = maxCount;
+			}
+			
+			if (parentApplication.submitInternalExperiment()) {
+				if (parentDocument.hybSetupView.numberOfHybs.text == null || 
+					parentDocument.hybSetupView.numberOfHybs.text == "0" || 
+					parentDocument.hybSetupView.numberOfHybs.text == '' ||
+					!parentDocument.hybSetupView.validNumberOfHybs) {
+					return;
+				}
+				if (parentDocument.hybSetupView.slideProductCombo.selectedItem == null || parentDocument.hybSetupView.slideProductCombo.selectedItem.@value == '') {
+					return;
+				}
+				if (parentDocument.hybSetupView.getCheckedCodeSlideSource() == '') {
+					return;
+				}
+				numberOfHybsToAdd = new Number(parentDocument.hybSetupView.numberOfHybs.text); 
+			}
+			
         	
-        	if (parentDocument.hybSetupView.numberOfHybs.text == null || 
-        	    parentDocument.hybSetupView.numberOfHybs.text == "0" || 
-        	    parentDocument.hybSetupView.numberOfHybs.text == '' ||
-        	    !parentDocument.hybSetupView.validNumberOfHybs) {
-        		return;
-        	}
-        	if (parentDocument.hybSetupView.slideProductCombo.selectedItem == null || parentDocument.hybSetupView.slideProductCombo.selectedItem.@value == '') {
-        		return;
-        	}
-        	if (parentDocument.hybSetupView.getCheckedCodeSlideSource() == '') {
-        		return;
-        	}
-        	
-        	
-    		var numberOfHybsToAdd:Number = new Number(parentDocument.hybSetupView.numberOfHybs.text);
     		if(parentDocument.hybs.length <= numberOfHybsToAdd) {
     			numberOfHybsToAdd = numberOfHybsToAdd - parentDocument.hybs.length;
     		} else {
@@ -152,6 +301,8 @@
     		}
     		 
     		this.propagateHybChannel1Samples();
+			
+			arrayCoordinates = null;
         }
         
        
@@ -187,15 +338,25 @@
         	var completeCount:int = 0;
         	for each(var hyb:Object in parentDocument.hybs) {
         		if (hyb.@idSampleChannel1 != null && hyb.@idSampleChannel1 != '0'  &&
-        			hyb.@idSlideDesign != null && hyb.@idSlideDesign != '' &&
-        			hyb.@codeSlideSource != null && hyb.@codeSlideSource != '') {
-        			completeCount++;       				
+        			hyb.@idSlideDesign != null && hyb.@idSlideDesign != '') {
+					
+					if (parentApplication.submitInternalExperiment()) {
+						if (hyb.@codeSlideSource != null && hyb.@codeSlideSource != '') {
+							completeCount++;       				
+						}
+					} else {
+						completeCount++;
+					}
+					
+        			 
         		}
         	}
         	if (parentDocument.hybs.length > 0 && completeCount == parentDocument.hybs.length) {
         		if (parentDocument.theTab.contains(parentDocument.visibilityView)){
 	        		parentDocument.visibilityView.enabled = true;
-        		}
+        		} else if (parentDocument.theTab.contains(parentDocument.confirmView)){
+					parentDocument.confirmView.enabled = true;
+				}
         		
         	} else if (parentDocument.isEditState()) {
         		if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
@@ -204,7 +365,9 @@
         	} else {
         		if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
 	        		parentDocument.visibilityView.enabled = false;        			
-        		}
+        		} else if (parentDocument.theTab.contains(parentDocument.confirmView)){
+					parentDocument.confirmView.enabled = false;
+				}
         	}
         	parentDocument.enableNextButtons();
         
@@ -533,7 +696,7 @@
 			                editorDataField="value" sortable="false"  editable="true" rendererIsEditor="false" 
  	                        itemEditor="{views.renderers.ComboBoxSlideDesign.create('@idSlideDesign', '@idSlideDesign', '@name' ,'@canChangeSlideDesign')}"			                
     	                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideDesign').DictionaryEntry, '@display', '@value', '@idSlideDesign', true)}"/>                 			                
-			             <mx:DataGridColumn visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="70" dataField="@codeSlideSource" 
+			             <mx:DataGridColumn visible="{!parentApplication.isInternalExperimentSubmission || showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="70" dataField="@codeSlideSource" 
 			                editorDataField="value" sortable="false" editable="true"  rendererIsEditor="false" 
  	                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource', true)}"
  	                        itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource', '@canChangeSlideSource', true)}"/>			                

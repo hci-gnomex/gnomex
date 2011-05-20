@@ -6,7 +6,7 @@
       <mx:State name="AdminState">
          <mx:AddChild relativeTo="{accountBox}" position="before">
             <mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
-                   <mx:Text width="160">
+                   <mx:Text width="160" id="text7">
                           <mx:htmlText>(2) Verify your name.</mx:htmlText>
 					</mx:Text>
             		<mx:ComboBox dataProvider="{appUsers}" 
@@ -34,26 +34,119 @@
          <mx:SetProperty target="{textarea1}" name="height" value="80"/>
          <mx:RemoveChild target="{hbox5}"/>
          <mx:RemoveChild target="{accountBox}"/>
-         <mx:SetProperty target="{label11}" name="text" value="(2) Select a experiment category."/>
+         <mx:SetProperty target="{label11}" name="text" value="Experiment platform"/>
          <mx:SetProperty target="{label12}" name="width" value="200"/>
          <mx:SetProperty target="{label11}" name="width" value="200"/>
          <mx:SetProperty target="{text2}" name="width" value="200"/>
-         <mx:SetStyle target="{vbox1}" name="verticalGap" value="40"/>
-         <mx:SetProperty target="{text6}" name="htmlText" value="(4) Name your experiment."/>
-         <mx:SetProperty target="{text2}" name="htmlText" value="(3) Select a project folder for organizing experiment information and data files."/>
+         <mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
+         <mx:SetProperty target="{text6}" name="htmlText" value="Experiment name"/>
+         <mx:SetProperty target="{text2}" name="htmlText" value="Project folder for organizing experiments"/>
+         <mx:RemoveChild target="{label1}"/>
+         <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
+         <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
+         <mx:RemoveChild target="{text8}"/>
+         <mx:SetStyle target="{label1}" name="paddingTop"/>
+         <mx:SetProperty target="{text6}" name="width" value="200"/>
+         <mx:AddChild relativeTo="{vbox1}" position="lastChild">
+            <mx:HBox width="100%" horizontalGap="0" id="hbox1" verticalAlign="top">
+                <mx:Text text="Experiment type" width="200" id="labelApplication"/>
+                <mx:RadioButtonGroup id = "radioGroupApp">       	
+                </mx:RadioButtonGroup>
+                <mx:Tile  verticalGap="0"  width="100%">
+					<mx:Repeater id="appRepeater" dataProvider="{parentDocument.filteredAppList}">
+							<mx:RadioButton id="radioApp" groupName="radioGroupApp" 
+											label="{appRepeater.currentItem.@display}" 
+											value="{appRepeater.currentItem.@value}" 
+											click="{pickApp()}" 
+											width="250" />							
+					</mx:Repeater>
+                </mx:Tile>
+            </mx:HBox>
+         </mx:AddChild>
+         <mx:RemoveChild target="{vbox4}"/>
+         <mx:AddChild relativeTo="{hbox2}" position="lastChild">
+            <mx:LinkButton  id="newProjectButton" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
+            </mx:LinkButton>
+         </mx:AddChild>
+         <mx:RemoveChild target="{radiobutton1}"/>
+         <mx:RemoveChild target="{radiobutton2}"/>
+         <mx:RemoveChild target="{vbox2}"/>
+         <mx:SetProperty target="{projectCombo}" name="width" value="345"/>
+         <mx:SetStyle target="{editProjectButton}" name="paddingRight" value="0"/>
+         <mx:RemoveChild target="{hbox7}"/>
       </mx:State>
       <mx:State name="AdminExternalExperimentState" basedOn="AdminState">
          <mx:RemoveChild target="{hbox5}"/>
          <mx:RemoveChild target="{accountBox}"/>
-         <mx:SetProperty target="{textarea1}" name="htmlText">
-            <mx:value><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.]]></mx:value>
-         </mx:SetProperty>
-          <mx:SetProperty target="{textarea1}" name="height" value="74"/>        
-          <mx:SetStyle target="{vbox1}" name="verticalGap" value="18"/>
-          <mx:SetProperty target="{label11}" name="text" value="(3) Select a service."/>
-          <mx:SetProperty target="{text2}" name="htmlText" value="(4) Select a project folder for organizing experiment information and data files."/>
-          <mx:SetProperty target="{text6}" name="htmlText" value="(5) Name your experiment."/>
+          <mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
+          <mx:SetProperty target="{label11}" name="text" value="Experiment Platform"/>
+          <mx:SetProperty target="{text2}" name="htmlText" value="Project folder for organizing experiments"/>
+          <mx:SetProperty target="{text6}" name="htmlText" value="Experiment name"/>
+          <mx:RemoveChild target="{label1}"/>
+          <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
+          <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
+          <mx:SetProperty target="{text7}" name="htmlText" value="Submitter"/>
+          <mx:RemoveChild target="{text8}"/>
+          <mx:SetStyle target="{label1}" name="verticalAlign" value="middle"/>
+          <mx:SetStyle target="{appUserContainer}" name="verticalAlign" value="middle"/>
+          <mx:AddChild relativeTo="{vbox1}" position="lastChild">
+              <mx:HBox width="100%" horizontalGap="0" id="hbox0" verticalAlign="top">
+                  <mx:Text text="Experiment type" width="160" id="labelApplication0"/>
+                  <mx:RadioButtonGroup id = "radioGroupAppAdmin">       	
+                  </mx:RadioButtonGroup>
+                  <mx:Tile height="100%" direction="vertical" verticalGap="0" width="100%"  >
+	                  <mx:Repeater id="appRepeaterAdmin" dataProvider="{parentDocument.filteredAppList}">
+	                  		<mx:RadioButton id="radioAppAdmin" groupName="radioGroupAppAdmin"  
+	                  						label="{appRepeaterAdmin.currentItem.@display}" 
+	                  						value="{appRepeaterAdmin.currentItem.@value}" 
+	                  						click="{pickApp()}" 
+											width="250"/>							
+	                  </mx:Repeater> 
+                  </mx:Tile> 
+              </mx:HBox> 
+          </mx:AddChild>
+          <mx:RemoveChild target="{vbox4}"/>
+          <mx:RemoveChild target="{radiobutton2}"/>
+          <mx:RemoveChild target="{radiobutton1}"/>
+          <mx:RemoveChild target="{vbox2}"/> 
+          <mx:AddChild relativeTo="{hbox2}" position="lastChild">
+              <mx:LinkButton  id="newProjectButton0" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
+              </mx:LinkButton>
+          </mx:AddChild>
+          <mx:RemoveChild target="{text3}"/>
+          <mx:SetProperty target="{appUserCombo}" name="width" value="345"/>
       </mx:State>
+	  <mx:State name="AdminExternalMicroarrayState" basedOn="AdminExternalExperimentState">
+	  	<mx:AddChild relativeTo="{vbox1}" position="lastChild">
+	  		<mx:HBox width="100%" horizontalGap="0">
+	  			<mx:Text width="160">
+	  				<mx:htmlText>Microaray slide</mx:htmlText>
+	  			</mx:Text>
+	  			<mx:ComboBox labelField="@display" width="420" id="slideProductComboAdmin" change="{pickSlideProduct(slideProductComboAdmin)}"  close="{pickSlideProduct(slideProductComboAdmin)}"   >							
+	  				<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
+	  			</mx:ComboBox>
+	  		</mx:HBox>
+	  	</mx:AddChild>
+		  
+	  </mx:State>
+	  <mx:State name="ExternalMicroarrayState" basedOn="ExternalExperimentState">
+	  	<mx:AddChild relativeTo="{vbox1}" position="lastChild">
+	  		<mx:HBox width="100%" horizontalGap="0">
+	  			<mx:Text width="160">
+	  				<mx:htmlText>Microaray slide</mx:htmlText>
+	  			</mx:Text>
+	  			<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"    change="{pickSlideProduct(slideProductCombo)}" close="{pickSlideProduct(slideProductCombo)}"    >							
+	  				<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
+	  			</mx:ComboBox>
+	  		</mx:HBox>
+	  	</mx:AddChild>
+	  	<mx:SetProperty target="{label12}" name="width" value="160"/>
+	  	<mx:SetProperty target="{text2}" name="width" value="160"/>
+	  	<mx:SetProperty target="{text6}" name="width" value="160"/>
+	  	<mx:SetProperty target="{label11}" name="width" value="160"/>
+	  	<mx:SetProperty target="{labelApplication}" name="width" value="160"/>
+		   
+	  </mx:State>
    </mx:states>
    
 
@@ -134,17 +227,19 @@
 <mx:Script>
 
 	<![CDATA[
-		import mx.controls.RadioButton;
-		import mx.graphics.RadialGradient;
-		import mx.controls.Alert;
-		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
-		import views.experiment.RequestCloneWindow;
+		import mx.controls.Alert;
+		import mx.controls.ComboBase;
+		import mx.controls.RadioButton;
+		import mx.graphics.RadialGradient;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
 		import views.experiment.ProjectDetailWindow;
-		import views.util.WorkAuthorizationWindow;
+		import views.experiment.RequestCloneWindow;
 		import views.util.PromptXMLListCollection;
+		import views.util.WorkAuthorizationWindow;
 
         [Bindable]
         private var lab:Object = null;
@@ -154,21 +249,31 @@
 		public var projectDetailWindow:ProjectDetailWindow;
 		public var selectedIdProject:Object;
 		
-		private var requestCloneWindow:RequestCloneWindow;
+		private var requestCloneWindow:RequestCloneWindow; 
 		
 		public function checkSecurity():void {
 			if (parentApplication.hasPermission("canWriteAnyObject")) {
 				if (parentApplication.submitInternalExperiment()) {
 					this.currentState = "AdminState";
 				} else {
-					this.currentState = "AdminExternalExperimentState";
+					if (parentDocument.isMicroarrayState()) {
+						this.currentState = "AdminExternalMicroarrayState";
+						getSlideProductCombo().selectedIndex = 0;
+					} else {
+						this.currentState = "AdminExternalExperimentState";
+					}
 				}
 				idAppUser = this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@idAppUser != '' ? this.appUserCombo.selectedItem.@idAppUser : '';
 			} else {
 				if (parentApplication.submitInternalExperiment()) {
 					this.currentState = "";				
 				} else {
-					this.currentState = "ExternalExperimentState";
+					if (parentDocument.isMicroarrayState()) {
+						this.currentState = "ExternalMicroarrayState";
+						getSlideProductCombo().selectedIndex = 0;
+					} else {
+						this.currentState = "ExternalExperimentState";
+					}
 				}
 				idAppUser = parentApplication.getIdAppUser();
 			}	
@@ -176,7 +281,8 @@
 				parentDocument.getSubmitterName();				
 			}		
 			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
-			requestCategories.refresh();
+			//requestCategories.refresh();
+			this.checkSetupCompleteness();
 		}
 		 
 		public function selectDefaultLab():void {
@@ -383,6 +489,31 @@
 			}
 		}			
 	
+		
+		public function getSlideProductCombo():mx.controls.ComboBox {
+			var theSlideProductCombo:mx.controls.ComboBox = null;
+			if (currentState.indexOf("AdminExternal") == 0) {
+				if (currentState.indexOf("Microarray") > 0) {
+					theSlideProductCombo = slideProductComboAdmin;
+				}
+			} else if (currentState.indexOf("External") == 0) {
+				if (currentState.indexOf("Microarray") > 0) {
+					theSlideProductCombo = slideProductCombo;
+				}
+			}	
+			return theSlideProductCombo;
+		}
+		
+		public function getApp():Object {
+			if (currentState.indexOf("AdminExternal") == 0) {
+				return this.radioGroupAppAdmin.selectedValue;
+			} else if (currentState.indexOf("External") == 0) {
+				return this.radioGroupApp.selectedValue;
+			} else {
+				return "";
+			}
+		}
+		
 		public function checkSetupCompleteness():void {
         	var isComplete:Boolean = false;
         	if (parentDocument.request != null && parentDocument.request.@idRequest != '0') {
@@ -391,29 +522,53 @@
         	    this.requestTypeGroup.selectedValue != null &&
         	    this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' &&
         	    this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '') {
-        	    	
-        	    // Billing account is not required on external experiment submissions
-        	    if (this.currentState == "" || this.currentState == "AdminState") {
-        	    	if (this.billingAccountCombo.selectedItem != null) {
-		        	    isComplete = true;
-        	    		
-        	    	} 	    
-        	    } else {
-        	    	isComplete = true;
-        	    }
-        	    	
+				
+				// For internal experiments, make sure billing account selected
+				if (parentApplication.submitInternalExperiment()) {
+					if (this.billingAccountCombo.selectedItem != null) {
+						isComplete = true;
+					} 	    
+				} else {
+					// For external experiments, check the app radio button group and optionally the microarray slide
+					if (this.getApp() != '' && getApp() != null) {
+						if (currentState.indexOf("Microarray") > 0) {
+							if (getSlideProductCombo().selectedItem != null && getSlideProductCombo().selectedItem.@idSlideProduct != '') {
+								isComplete = true;
+							}
+						} else {
+							isComplete = true;
+						}
+					}
+				}
         	} 
         	
         	if (parentDocument.isSolexaState()) {
-	    		parentDocument.seqSetupView.enabled = isComplete;
+				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+					parentDocument.annotationView.enabled = isComplete;
+				}  
+				if (parentApplication.submitInternalExperiment()) {
+					parentDocument.seqSetupView.enabled = isComplete;
+				} else {
+					parentDocument.samplesView.enabled = isComplete;
+					if (isComplete) {
+						parentDocument.samplesView.initializeSamplesGrid();
+					}
+				}
     			parentDocument.enableNextButtons();
         		
         	} else {
-	    		parentDocument.sampleSetupView.enabled = isComplete;
+				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+					parentDocument.annotationView.enabled = isComplete;
+				}        			
+				if (parentApplication.submitInternalExperiment()) {
+					parentDocument.sampleSetupView.enabled = isComplete;
+				} else {
+					parentDocument.samplesView.enabled = isComplete;
+					if (isComplete) {
+						parentDocument.samplesView.initializeSamplesGrid();
+					}
+				}
     			parentDocument.enableNextButtons();
-    			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-        			parentDocument.annotationView.enabled = isComplete;
-       			}        			
     		}
 
     		
@@ -424,7 +579,7 @@
         
         private function postSetupCompleteness(isComplete:Boolean):void {
     		if (!isComplete) {
-    			if (parentDocument.isSolexaState()) {
+    			if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
     				parentDocument.seqSetupView.enabled = false;
     			}
 	    		parentDocument.samplesView.enabled = false;
@@ -434,14 +589,20 @@
 	        	if (parentDocument.theTab.contains(parentDocument.hybsView)) {
 		        	parentDocument.hybsView.enabled = false;
 	        	} 
-	        	parentDocument.confirmView.enabled = false;
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = false;
+				}
     		} else {
-    			if (parentDocument.isSolexaState()) {
+    			if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
     				parentDocument.seqSetupView.checkSeqAppSetupCompleteness();
     			}
-    			parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+				if (parentApplication.submitInternalExperiment()) {
+					parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+				}
     			parentDocument.samplesView.checkSamplesCompleteness();
-    			parentDocument.hybSetupView.checkHybSetupCompleteness();
+				if (parentApplication.submitInternalExperiment()) {
+					parentDocument.hybSetupView.checkHybSetupCompleteness();
+				}
     			parentDocument.hybsView.checkHybsCompleteness();
     		}
         	
@@ -486,6 +647,22 @@
             	radioRequestCategory[i].setStyle("fontWeight", radioRequestCategory[i].selected    == true ?  "bold" : "normal");	
    			}
 		}
+		
+		private function pickSlideProduct(slideProductCombo:ComboBox):void {
+			parentDocument.hybsView.initializeHybsGrid();
+			parentDocument.initializeSlideDesigns(slideProductCombo);
+			parentDocument.hybsView.propagateSlideDesign(slideProductCombo);
+			parentDocument.hybsView.assignSlideNumbers(slideProductCombo);
+			checkSetupCompleteness();			
+		}
+		
+		private function pickApp():void {
+			checkSetupCompleteness();
+			if (currentState.indexOf("Microarray") > 0) {
+				getSlideProductCombo().selectedIndex = 0;
+				parentDocument.filteredSlideProductList.refresh();
+			}
+		}
         
 
 	]]>
@@ -519,14 +696,14 @@
         minValue="0" />           
           
 
-		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0">
+		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0" id="vbox4">
   		  <mx:TextArea styleName="instructionBox" width="272" wordWrap="true" height="120" id="textarea1">
 			<mx:htmlText><![CDATA[Instructions<br> 1.  Select the appropriate dropdown or radio<br>      button options for each line.<br> 2. After completing all line items, click the 'Next'<br>      button at the bottom of the page to proceed.<br> 3.  The account selected from this work request will<br>      be electronically billed following completion<br>      of the work.]]></mx:htmlText>
 		  </mx:TextArea>
 		</mx:VBox> 
      	
 		<mx:VBox width="100%" height="100%" verticalGap="4" paddingTop="2" id="vbox1" enabled="true">
-			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top">
 				<mx:Label text="(1) Verify your lab group." width="160" id="label12"/>
 				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
 					labelField="@name" 
@@ -572,9 +749,9 @@
 			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="12">
 				<mx:Text text="(3) Select a service category." width="160" id="label11"/>
 				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="100%">
-					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
+					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle" id="hbox7">
 					    <mx:Text text="Service" width="228" fontWeight="normal" textDecoration="underline" fontStyle="normal" id="text3"/>
-					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline"/>
+					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline" id="text8"/>
 					</mx:HBox>
 					<mx:RadioButtonGroup id="requestTypeGroup" />
 					<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
@@ -600,8 +777,8 @@
 				<mx:HBox verticalGap="2" horizontalGap="4">
 				    <mx:VBox verticalGap="2" id="vbox2">
 					<mx:RadioButtonGroup id="projectRadioGroup"/>
-					<mx:RadioButton label="New project" groupName="projectRadioGroup" click="{showNewProjectWindow()}"/>
-					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true"/>
+					<mx:RadioButton label="New project" groupName="projectRadioGroup" click="{showNewProjectWindow()}" id="radiobutton2"/>
+					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true" id="radiobutton1"/>
 				    	
 				    </mx:VBox>
 					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2" id="hbox2">
@@ -613,7 +790,7 @@
 					</mx:HBox>					
 				</mx:HBox>
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top">
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="hbox6">
 				<mx:Text width="160" id="text6">
 					<mx:htmlText>(5) Name your experiment.</mx:htmlText>
 				</mx:Text>
