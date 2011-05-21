@@ -342,23 +342,14 @@
 					" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
 					" ccNumber='" + sampleToCopy.@ccNumber + "'" +
-					" AGE='" + sampleToCopy.@AGE + "'" +				
-					" CELLLINE='" + sampleToCopy.@CELLLINE + "'" +				
-					" CELLTYPE='" + sampleToCopy.@CELLTYPE + "'" +				
-					" CLININFO='" + sampleToCopy.@CLININFO + "'" +				
-					" COMPOUND='" + sampleToCopy.@COMPOUND + "'" +				
-					" DISSTATE='" + sampleToCopy.@DISSTATE + "'" +				
-					" DOSE='" + sampleToCopy.@DOSE + "'" +				
-					" GENMOD='" + sampleToCopy.@GENMOD + "'" +				
-					" GENOTYPE='" + sampleToCopy.@GENOTYPE + "'" +				
-					" INDIV='" + sampleToCopy.@INDIV + "'" +				
-					" GROWTHCOND='" + sampleToCopy.@GROWTHCOND + "'" +				
-					" ORGPART='" + sampleToCopy.@ORGPART + "'" +				
-					" OTHER='" + sampleToCopy.@OTHER + "'" +				
-					" SEX='" + sampleToCopy.@SEX + "'" +				
-					" TEMP='" + sampleToCopy.@TEMP + "'" +				
-					" TIME='" + sampleToCopy.@TIME + "'" +				
-					"/>");
+					"/>"); 
+					
+					// Now copy the sample annotations
+					for each (var attribute:Object in sampleToCopy.attributes()) {
+						if (attribute.name().toString().indexOf("ANNOT") == 0) {
+							emptyNode["@" + attribute.name()] = sampleToCopy["@" + attribute.name()];
+						}
+					}
 			
 					parentDocument.samples.addItem(emptyNode);
 					
@@ -472,9 +463,7 @@
 		        	} else if (!parentApplication.submitInternalExperiment() && parentDocument.isSolexaState()) {
 						if (isEntered(sample, "@name") &&
 							isEntered(sample, "@idSampleType") &&
-							isEntered(sample, "@idOrganism") &&
-							isEntered(sample, "@idSeqRunType") &&
-							isEntered(sample, "@idNumberSequencingCycles")) {
+							isEntered(sample, "@idOrganism")) {
 							
 							completeCount++;
 						}
@@ -843,7 +832,7 @@
         	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
         		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && parentApplication.submitInternalExperiment();
 				numberSequencingLanesCol.editable = true;
-				numberSequencingCyclesCol.visible = !parentDocument.isEditState();
+				numberSequencingCyclesCol.visible = !parentDocument.isEditState() && parentApplication.submitInternalExperiment();
 				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
 				//corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
@@ -865,7 +854,7 @@
 					seqLibProtocolCol.visible = false;
 				}
 
-				idSeqRunTypeCol.visible = !parentDocument.isEditState(); 
+				idSeqRunTypeCol.visible = !parentDocument.isEditState() && parentApplication.submitInternalExperiment(); 
 				concentrationUnitColumn.visible = true;
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
@@ -1223,11 +1212,11 @@
 						 </mx:headerRenderer>
  	                </mx:AdvancedDataGridColumn> 
  	                        
-	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
+	 				<mx:AdvancedDataGridColumn headerText="Seq Run Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 						rendererIsEditor="false" editorDataField="value" 
                         itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"
 						itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', false).newInstance(), '')}"/>                 											
-	 				<mx:AdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState'}"  width="70" dataField="@idNumberSequencingCycles" 
+	 				<mx:AdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState' &amp;&amp; parentApplication.isInternalExperimentSubmission}"  width="70" dataField="@idNumberSequencingCycles" 
 	 				    rendererIsEditor="false" editorDataField="value" 
  	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
    	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true).newInstance(), '')}">

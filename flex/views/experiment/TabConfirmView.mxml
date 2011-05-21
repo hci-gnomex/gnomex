@@ -105,14 +105,13 @@
         	if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
+				otherOrganismCol.visible = parentApplication.submitInternalExperiment();
 				chipTypeConfirmColumn.visible = false; 
 				
 				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
 				samplePrepMethodConfirmCol.visible = parentApplication.submitInternalExperiment();
 				otherSamplePrepMethodConfirmCol.visible = parentApplication.submitInternalExperiment();
 				
-				this.sampleNumberSequencingCyclesCol.visible = !parentApplication.submitInternalExperiment();
-				this.sampleSeqRunTypeCol.visible = !parentApplication.submitInternalExperiment();
 				this.numberOfSequencingCyclesCol.visible = parentApplication.submitInternalExperiment();
 				this.seqRunTypeCol.visible = parentApplication.submitInternalExperiment();
 				
@@ -121,7 +120,9 @@
 				
 				//corePrepInstructionsConfirmColumn.visible = true;
 				
-				if (!parentDocument.isEditState() &&
+				if (!parentApplication.submitInternalExperiment()) {
+					seqLibProtocolConfirmCol.visible = false;
+				} else if (!parentDocument.isEditState() &&
 				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
 					seqLibProtocolConfirmCol.visible = false;
 				} else {
@@ -130,14 +131,13 @@
 			} else if (parentDocument.currentState == 'QCState') {
 				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = true; 
 				samplePrepMethodConfirmCol.visible = true;
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
 				//corePrepInstructionsConfirmColumn.visible = false;
-				this.sampleNumberSequencingCyclesCol.visible = false;
-				this.sampleSeqRunTypeCol.visible = false;
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 
@@ -145,14 +145,13 @@
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
+				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
 				samplePrepMethodConfirmCol.visible = true;
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
 				//corePrepInstructionsConfirmColumn.visible = false;
-				this.sampleNumberSequencingCyclesCol.visible = false;
-				this.sampleSeqRunTypeCol.visible = false;
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 
@@ -306,11 +305,6 @@
 						<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>
 						<mx:DataGridColumn headerText="Description" width="200" dataField="@description"/>
 						
-						<mx:DataGridColumn headerText="Seq Run Type" id="sampleSeqRunTypeCol"   width="150" dataField="@idSeqRunType"
-												   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
-						<mx:DataGridColumn headerText="# Cycles" id="sampleNumberSequencingCyclesCol"   width="70" dataField="@idNumberSequencingCycles" 
-												   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}">
-						</mx:DataGridColumn>
 					
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Seq Lib Protocol" id="seqLibProtocolConfirmCol" width="160" 
@@ -322,7 +316,7 @@
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 			            <mx:DataGridColumn headerText="Organism" id="sampleOrganismConfirmColumn" width="100" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Organism').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
-						<mx:DataGridColumn headerText="Organism (other)" width="140" dataField="@otherOrganism"/>
+						<mx:DataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="140" dataField="@otherOrganism"/>
 		                <mx:DataGridColumn id="chipTypeConfirmColumn" headerText="Chip Type"  width="130" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>
