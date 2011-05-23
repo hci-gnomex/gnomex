@@ -98,7 +98,7 @@ public class ExperimentFilter extends DetailObject {
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
-        searchText.append(text1 + "*");
+        searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;
         
         displayText.append(" any text field = " + text1);
