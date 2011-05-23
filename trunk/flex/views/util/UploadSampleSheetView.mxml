@@ -18,7 +18,7 @@
 			<mx:Canvas id="intro" width="100%" height="100%">
 				<mx:VBox verticalGap="20" fontSize="10" paddingLeft="8" verticalAlign="middle" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8">
 					<mx:Text text="This procedure will upload a tab-deliimited text file containing information to be imported into the editable sample fields. Once the file has been uploaded you will be given an option to specify which columns in the file correspond to which on the form." width="100%"/>
-					<mx:CheckBox id="hasColNames" label="Check here if the first row contains column names."/>
+					<mx:CheckBox id="hasColNames" label="Check here if the first row contains column headers."/>
 					<mx:Spacer height="100%"/>
 					<mx:ControlBar horizontalAlign="right">
 						<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"  x="264" y="140"/>
