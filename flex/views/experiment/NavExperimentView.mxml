@@ -869,7 +869,7 @@
 			    lastMonthCheckbox.selected || 
 			    lastYearCheckbox.selected ||
 			    this.MicroarrayCheckbox.selected ||
-			    this.SolexaCheckbox.selected ||
+			    this.NextGenSeqCheckbox.selected ||
 			    this.BioanalyzerCheckbox.selected ) {
 				params.showMyLabsAlways = 'N'; 
 			} else {
@@ -877,7 +877,7 @@
 			}
 			
 			params.isMicroarray  = this.MicroarrayCheckbox.selected ? "Y" : "N";
-			params.isSolexa      = this.SolexaCheckbox.selected ? "Y" : "N";
+			params.isNextGenSeq  = this.NextGenSeqCheckbox.selected ? "Y" : "N";
 			params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
 			
 			return params;
@@ -890,7 +890,7 @@
 			}
 			
 			this.MicroarrayCheckbox.selected = false;
-			this.SolexaCheckbox.selected = false;
+			this.NextGenSeqCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected = false;
 			
 			this.lastMonthCheckbox.selected = false;
@@ -1118,13 +1118,13 @@
 	}
 	private function toggleRequestKindCheckboxes(checkBoxNumber:int):void {
 		if (checkBoxNumber == 1) {
-			this.SolexaCheckbox.selected = false;
+			this.NextGenSeqCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected  = false;
 		} else if (checkBoxNumber == 2) {
 			this.MicroarrayCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected  = false;
 		} else if (checkBoxNumber == 3) {
-			this.SolexaCheckbox.selected = false;
+			this.NextGenSeqCheckbox.selected = false;
 			this.MicroarrayCheckbox.selected = false;
 		} 
 	}
@@ -1161,7 +1161,7 @@
 				<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
-				<mx:CheckBox label="Illumina"  id="SolexaCheckbox"  paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				<mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"  paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" paddingLeft="2" horizontalGap="0" styleName="labelSmall">

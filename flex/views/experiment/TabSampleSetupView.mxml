@@ -343,6 +343,9 @@
         
         private function postSampleSetupCompleteness(isComplete:Boolean):void {
 	    		
+			if (parentDocument == null) {
+				return;
+			}
 	    	if (!isComplete) {
 	        	if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
 		        	parentDocument.hybSetupView.enabled = false;

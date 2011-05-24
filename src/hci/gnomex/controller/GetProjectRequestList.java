@@ -110,7 +110,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       }
       
     
-      StringBuffer buf = filter.getQuery(this.getSecAdvisor());
+      StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
       log.info("Query for GetProjectRequestList: " + buf.toString());
       List results = (List)sess.createQuery(buf.toString()).list();
 

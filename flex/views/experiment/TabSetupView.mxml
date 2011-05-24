@@ -578,6 +578,9 @@
         }
         
         private function postSetupCompleteness(isComplete:Boolean):void {
+			if (parentDocument == null) {
+				return;
+			}
     		if (!isComplete) {
     			if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
     				parentDocument.seqSetupView.enabled = false;
@@ -594,16 +597,24 @@
 				}
     		} else {
     			if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
-    				parentDocument.seqSetupView.checkSeqAppSetupCompleteness();
+    				if (parentDocument.theTab.contains(parentDocument.seqSetupView)) {
+						parentDocument.seqSetupView.checkSeqAppSetupCompleteness();
+					}
     			}
 				if (parentApplication.submitInternalExperiment()) {
-					parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+					if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
+						parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+					}
 				}
     			parentDocument.samplesView.checkSamplesCompleteness();
 				if (parentApplication.submitInternalExperiment()) {
-					parentDocument.hybSetupView.checkHybSetupCompleteness();
+					if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
+						parentDocument.hybSetupView.checkHybSetupCompleteness();
+					}
 				}
-    			parentDocument.hybsView.checkHybsCompleteness();
+				if (parentDocument.theTab.contains(parentDocument.hybsView)) {
+					parentDocument.hybsView.checkHybsCompleteness();
+				}
     		}
         	
         }
