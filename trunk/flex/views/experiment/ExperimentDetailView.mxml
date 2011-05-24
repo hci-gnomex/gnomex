@@ -85,22 +85,29 @@
 					this.headerBox.removeChild(this.protocolsBox);
 				} 
 			}
-			
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
 			this.currentState = '';						
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				currentState = 'QCState';
 			} else if (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
 			           this.selectedExperiment.@codeRequestCategory == 'HISEQ') {
-				currentState = 'SolexaState';
-			} else {
-				currentState = 'MicroarrayState';
-
 				
-				showCy3LabelingFieldsCheckBox.selected = false;
-				showCy5LabelingFieldsCheckBox.selected = false;
-				showHybFieldsCheckBox.selected = false;
-				showExtFieldsCheckBox.selected = false;
+			} else if (requestCategory.@type == 'MICROARRAY') {
+				if (parentApplication.submitInternalExperiment()) {
+					currentState = 'MicroarrayState';
+					
+					
+					showCy3LabelingFieldsCheckBox.selected = false;
+					showCy5LabelingFieldsCheckBox.selected = false;
+					showHybFieldsCheckBox.selected = false;
+					showExtFieldsCheckBox.selected = false;
+					
+				} else {
+					currentState = 'ExternalMicroarrayState';
+				}
 
+			} else if (requestCategory.@type == 'ILLUMINA') {
+				currentState = 'ExternalSeqState';
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -341,9 +348,9 @@
 			 //parms.idRequest = this.selectedExperiment.@idRequest;
 			 //parentDocument.getRequest.send(parms);
            	 
-           	 //parentDocument.editView.setupEditForm(this.selectedExperiment);
            	 parentDocument.parentDocument.editView.request = this.selectedExperiment;
            	 parentDocument.parentDocument.editView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
+			 //parentDocument.parentDocument.editView.setupEditForm(this.selectedExperiment);
            	 
            	 parentDocument.parentDocument.theViews.selectedChild = parentDocument.parentDocument.editView;
 			 if (parentDocument.parentDocument.editView.theTab.contains(parentDocument.parentDocument.editView.annotationView)) {
@@ -370,7 +377,36 @@
 	
         
         private function showHideColumns():void {
-       	if (this.showQCFieldsCheckBox.selected) {
+			if (currentState == 'ExternalSeqState') {
+				sampleTypeCol.visible = true;
+				organismCol.visible = true;
+
+				this.otherOrganismCol.visible = false;
+				this.otherSamplePrepMethodCol.visible = false;
+				concentrationCol.visible = false; 
+				preppedByLabCol.visible = false;
+				samplePrepCol.visible = false;
+				chipTypeCol.visible = false;
+				concentrationUnitCol.visible = false;
+				prepInstructionsCol.visible = false;
+				treatmentCol.visible = false;   
+				barcodeCol.visible = false;
+				
+			} else if (currentState == 'ExternalMicroarrayState') {
+				sampleTypeCol.visible = true;
+				organismCol.visible = true;
+				samplePrepCol.visible = true;
+
+				this.otherOrganismCol.visible = false;
+				this.otherSamplePrepMethodCol.visible = false;
+				concentrationCol.visible = false; 
+				preppedByLabCol.visible = false;
+				chipTypeCol.visible = false;
+				concentrationUnitCol.visible = false;        		
+				prepInstructionsCol.visible = false;
+				barcodeCol.visible = false;
+				
+			} else if (this.showQCFieldsCheckBox.selected) {
 				concentrationCol.visible = false; 
 				sampleTypeCol.visible = false;
 				organismCol.visible = false;
@@ -561,7 +597,7 @@
         	         <mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submited on'}"  width="100" fontWeight="bold"/>
         	         <mx:Text text="{this.selectedExperiment.@createDate}" width="130"/>
         	       </mx:HBox>
-                  <mx:HBox verticalGap="0" horizontalGap="0">
+                  <mx:HBox verticalGap="0" horizontalGap="0" id="hbox2">
                     <mx:Label width="100" text="Completed" fontWeight="bold"/>
                     <mx:Text  text="{this.selectedExperiment.@completedDate}" width="130" />
                   </mx:HBox>
@@ -591,7 +627,7 @@
 
 		<mx:VBox id="headerBox" width="100%">
 	        <mx:HBox width="100%" id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
-       		<mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="4"/>
+       		<mx:Label text="Materials &amp; Methods" fontWeight="bold" paddingLeft="4" id="label1"/>
         	<mx:Tile horizontalGap="0" width="100%" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
         		<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
 		    		<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
@@ -1041,6 +1077,22 @@
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
 		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
+	</mx:State>
+	<mx:State name="ExternalMicroarrayState" basedOn="MicroarrayState">
+		<mx:RemoveChild target="{tile1}"/>
+		<mx:RemoveChild target="{label1}"/>
+		<mx:RemoveChild target="{protocolsBox}"/>
+		<mx:RemoveChild target="{headerBox}"/>
+		<mx:RemoveChild target="{hbox2}"/>
+		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
+	</mx:State>
+	<mx:State name="ExternalSeqState" basedOn="SolexaState">
+		<mx:RemoveChild target="{protocolsBox}"/>
+		<mx:RemoveChild target="{headerBox}"/>
+		<mx:RemoveChild target="{hbox2}"/>
+		<mx:RemoveChild target="{lanesConfirmContainer}"/>
+		<mx:RemoveChild target="{showQCFieldsCheckBox}"/>
+		<mx:RemoveChild target="{showSeqPrepFieldsCheckBox}"/>
 	</mx:State>
 </mx:states>
 	

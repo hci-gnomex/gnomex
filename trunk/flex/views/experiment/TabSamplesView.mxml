@@ -902,7 +902,9 @@
 			}
 			 
 			if (!parentDocument.isEditState()) {
-				parentDocument.confirmView.showHideColumns();				
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.showHideColumns();									
+				}
 			}
 			
 			// If this is a QC request, hide the annotation columns 
@@ -1059,8 +1061,8 @@
 		    <mx:HBox width="100%">
 				<mx:CheckBox id="showCCNumberCheckbox" 
 							 click="toggleShowCCNumber()" 
-							 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
-							 width="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported ? 250 : 0}" 
+							 visible="{(parentDocument.request.@isExternal == 'N' || parentApplication.isInternalExperimentSubmission) &amp;&amp; parentApplication.isBSTLinkageSupported}"
+							 width="{(parentDocument.request.@isExternal == 'N' || parentApplication.isInternalExperimentSubmission) &amp;&amp; parentApplication.isBSTLinkageSupported ? 250 : 0}" 
 							 label="Link to BST samples using CC Number" />
 				<mx:HBox id="buttonsContainer">
 					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />

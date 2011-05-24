@@ -334,7 +334,9 @@
 			// Force the setting of request category name to reset
 			// the state if we are toggling between register external
 			// experiment and submit internal experiment.
-			setRequestCategoryName();
+			if (!isEditState() && !isAmendState()) { 
+				setRequestCategoryName();		 		
+			}
 			
 			
 			
@@ -516,6 +518,7 @@
 		public function isEditState():Boolean {
 			if (currentState == 'EditState' ||
 				currentState == 'SolexaEditState' ||
+				currentState == 'SeqExternalEditState' ||
 			    currentState == 'QCEditState' ||
 			    currentState == 'MicroarrayEditState') {
 				return true;    	
@@ -1856,8 +1859,8 @@
 			}
 			
 
-			if (request.@codeRequestCategory == 'SOLEXA' || request.@codeRequestCategory == 'HISEQ') {
-				currentState = 'SolexaEditState';
+			if (requestCategory.@type == 'ILLUMINA') {
+				currentState = request.@isExternal == 'Y' ? 'SeqExternalEditState' : 'SolexaEditState';
 				this.annotationView.checkSecurity();			
 				if (parentApplication.hasPermission("canWriteAnyObject")) { 
 					samplesView.currentState = 'SolexaSamplesAdminState';						
@@ -1869,11 +1872,13 @@
 				// Comment out since seq lib treatments are not in use for now
 				//this.seqSetupView.currentState = "EditState";  
 					
- 				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					lanesView.currentState = 'LanesAdminState';
-				} else {
-					lanesView.currentState = '';
-				} 
+				if (request.@isExternal != 'Y') {
+					if (parentApplication.hasPermission("canWriteAnyObject")) {
+						lanesView.currentState = 'LanesAdminState';
+					} else {
+						lanesView.currentState = '';
+					} 
+				}
 				
 				this.sampleCharacteristicEntries.refresh();
 
@@ -1947,11 +1952,12 @@
 			}
 			initializeControls();
 			
-			if (this.isMicroarrayState()) {
+
+			if (this.isMicroarrayState() && this.request.@isExternal != 'Y') {
 				assignSlideNumbers();	
 			}
 			samplesView.checkSamplesCompleteness();
-			if (this.isMicroarrayState()) {
+			if (this.isMicroarrayState() && this.request.@isExternal != 'Y') {
 				hybSetupView.checkHybSetupCompleteness();
 				hybsView.checkHybsCompleteness();
 			}
@@ -4192,6 +4198,14 @@
 				</mx:VBox>
 			</mx:AddChild>
          </mx:State>
+		<mx:State name="SeqExternalEditState" basedOn="EditState">
+				<mx:RemoveChild target="{seqSetupView}"/>
+				<mx:RemoveChild target="{setupView}"/>
+				<mx:RemoveChild target="{sampleSetupView}"/>
+				<mx:RemoveChild target="{hybsView}"/>
+				<mx:RemoveChild target="{hybSetupView}"/>
+				<mx:RemoveChild target="{confirmView}"/>			
+		</mx:State>
         <mx:State name="BaseSubmitState">
         </mx:State>
         <mx:State name="AmendState">

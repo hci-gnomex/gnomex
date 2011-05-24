@@ -69,7 +69,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     }
   }
   
-  public boolean isIlluminaRequestCategory() {
+  public boolean isNextGenSeqRequestCategory() {
     if (this.type != null && !this.type.equals("")) {
       return type.equals(TYPE_ILLUMINA);
     } else {

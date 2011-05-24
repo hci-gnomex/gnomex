@@ -1,8 +1,12 @@
 package hci.gnomex.model;
 
 
+import java.util.Iterator;
+import java.util.List;
+
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 
 public class ExperimentPickListFilter extends DetailObject {
   
@@ -15,6 +19,7 @@ public class ExperimentPickListFilter extends DetailObject {
   private StringBuffer          queryBuf;
   private boolean              addWhere = true;
   private SecurityAdvisor       secAdvisor;
+  private DictionaryHelper      dictionaryHelper;
   
   
   
@@ -75,8 +80,9 @@ public class ExperimentPickListFilter extends DetailObject {
   }
   
 
-  public StringBuffer getSolexaQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getNextGenSeqQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
 
@@ -102,14 +108,14 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        fc.number, ");
     queryBuf.append("        lane.idSequenceLane ");
 
-    getSolexaQueryBody(queryBuf);
+    getNextGenSeqQueryBody(queryBuf);
     
     queryBuf.append(" ORDER BY project.name, req.number, lane.number ");
 
     return queryBuf;
     
   }
-  public void getSolexaQueryBody(StringBuffer queryBuf) {
+  public void getNextGenSeqQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Project as project ");
     queryBuf.append(" JOIN           project.requests as req ");
@@ -159,12 +165,25 @@ public class ExperimentPickListFilter extends DetailObject {
   private void addLaneCriteria() {
     this.addWhereOrAnd();
     queryBuf.append(" req.codeRequestCategory in (");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', ");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-    queryBuf.append("') ");
+    
+    List requestCategories = dictionaryHelper.getRequestCategoryList();
+    int count = 0;
+    for (Iterator i = requestCategories.iterator(); i.hasNext();) {
+      RequestCategory requestCategory = (RequestCategory)i.next();
+      if (requestCategory.isNextGenSeqRequestCategory()) {
+        if (count > 0) {
+          queryBuf.append(", ");            
+        }
+        
+        queryBuf.append("'");
+        queryBuf.append(requestCategory.getCodeRequestCategory());
+        queryBuf.append("'");    
+        count++;
+      }
+      
+    }
+    
+    queryBuf.append(") ");
 
     //TODO - need to filter by lane complete date
   }

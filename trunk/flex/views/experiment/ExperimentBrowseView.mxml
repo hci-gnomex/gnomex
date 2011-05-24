@@ -238,7 +238,7 @@
 			params.publicExperimentsInOtherGroups = 'Y';
 		}
 		params.isMicroarray  = this.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
-		params.isSolexa      = this.parentDocument.SolexaCheckbox.selected ? "Y" : "N";
+		params.isNextGenSeq  = this.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
 		params.isBioanalyzer = this.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
 		
 		return params;					

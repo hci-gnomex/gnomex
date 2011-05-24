@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
 
 import java.util.Calendar;
@@ -41,7 +42,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                lastThreeMonths = "N";
   private String                lastYear  = "N";
   private String                isMicroarray = "N";
-  private String                isSolexa = "N";
+  private String                isNextGenSeq = "N";
   private String                isBioanalyzer = "N";
   private String                isExternalOnly = "N";
   
@@ -51,6 +52,7 @@ public class ProjectRequestFilter extends DetailObject {
   private StringBuffer          queryBuf;
   private boolean              addWhere = true;
   private SecurityAdvisor       secAdvisor;
+  private DictionaryHelper      dictionaryHelper;
   
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     boolean hasLimitingCriteria = false;
@@ -83,7 +85,7 @@ public class ProjectRequestFilter extends DetailObject {
         ) &&
         (
          (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
-         (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
+         (isNextGenSeq != null && isNextGenSeq.equalsIgnoreCase("Y")) ||
          (isBioanalyzer != null && isBioanalyzer.equalsIgnoreCase("Y"))
         )) {
      hasLimitingCriteria = true;
@@ -103,8 +105,9 @@ public class ProjectRequestFilter extends DetailObject {
   }
     
   
-  public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -407,15 +410,28 @@ public class ProjectRequestFilter extends DetailObject {
     }    
     
     // Search for Solexa requests
-    if (isSolexa.equals("Y")) {
+    if (isNextGenSeq.equals("Y")) {
       this.addWhereOrAnd();
       queryBuf.append(" req.codeRequestCategory IN (");
-      queryBuf.append("'");
-      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-      queryBuf.append("', ");
-      queryBuf.append("'");
-      queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-      queryBuf.append("') ");
+      
+      List requestCategories = dictionaryHelper.getRequestCategoryList();
+      int count = 0;
+      for (Iterator i = requestCategories.iterator(); i.hasNext();) {
+        RequestCategory requestCategory = (RequestCategory)i.next();
+        if (requestCategory.isNextGenSeqRequestCategory()) {
+          if (count > 0) {
+            queryBuf.append(", ");            
+          }
+          
+          queryBuf.append("'");
+          queryBuf.append(requestCategory.getCodeRequestCategory());
+          queryBuf.append("'");    
+          count++;
+        }
+        
+      }
+     
+      queryBuf.append(") ");
     }  else if (isBioanalyzer.equals("Y")) {
       // Search for bioanalyzer requests
       this.addWhereOrAnd();
@@ -793,17 +809,7 @@ public class ProjectRequestFilter extends DetailObject {
 
 
   
-  public String getIsSolexa() {
-    return isSolexa;
-  }
-
-
   
-  public void setIsSolexa(String isSolexa) {
-    this.isSolexa = isSolexa;
-  }
-
-
   
   public String getIsBioanalyzer() {
     return isBioanalyzer;
@@ -847,6 +853,16 @@ public class ProjectRequestFilter extends DetailObject {
 
   public void setIsExternalOnly(String isExternalOnly) {
     this.isExternalOnly = isExternalOnly;
+  }
+
+
+  public String getIsNextGenSeq() {
+    return isNextGenSeq;
+  }
+
+
+  public void setIsNextGenSeq(String isNextGenSeq) {
+    this.isNextGenSeq = isNextGenSeq;
   }
 
 

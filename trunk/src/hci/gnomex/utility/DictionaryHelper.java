@@ -15,6 +15,7 @@ import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SubmissionInstruction;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ public class DictionaryHelper implements Serializable {
   private static DictionaryHelper theInstance;
   
   private PropertyHelper   propertyHelper;
+  private List             requestCategoryList = new ArrayList();
   private Map              requestCategoryMap = new HashMap();
   private Map              oligoBarcodeMap = new HashMap();
   private Map              submissionInstructionMap = new HashMap();
@@ -75,6 +77,7 @@ public class DictionaryHelper implements Serializable {
         continue;
       }
       RequestCategory rc = (RequestCategory)de;
+      requestCategoryList.add(rc);
       requestCategoryMap.put(rc.getCodeRequestCategory(), rc);
     }
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.OligoBarcode").iterator(); i.hasNext();) {
@@ -229,6 +232,12 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  
+  public List getRequestCategoryList() {
+    return requestCategoryList;
+  }
+
+  
   public String getRequestCategory(String code) {
     String name = "";
     if (code != null) {

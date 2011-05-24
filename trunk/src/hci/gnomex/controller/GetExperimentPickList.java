@@ -118,7 +118,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         rowMap.put(key, row);
       }
 
-      buf = filter.getSolexaQuery(this.getSecAdvisor());
+      buf = filter.getNextGenSeqQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetExperimentPickList (2): " + buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
