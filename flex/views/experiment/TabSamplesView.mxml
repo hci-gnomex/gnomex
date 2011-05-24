@@ -801,16 +801,22 @@
 
 		
         public function showHideColumns():void {
+			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
         	buttonsContainer.visible = !parentDocument.isAmendState();
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
         	//corePrepInstructionsCol.visible = false;
+			
+			this.concentrationCol.visible = !isExternal;
+			this.otherOrganismCol.visible = !isExternal;
+			this.otherSamplePrepMethodCol.visible = !isExternal;
         	
-        	
+			showCCNumberCheckbox.visible =  !isExternal;
+			showCCNumberCheckbox.width = isExternal ? 0 : 250;
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
-        	this.showQCFieldsCheckBox.visible = parentDocument.isEditState();
-        	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0;
+        	this.showQCFieldsCheckBox.visible = parentDocument.isEditState() && !isExternal;
+        	this.showSeqPrepFieldsCheckBox.visible = parentDocument.isEditState() && currentState.indexOf('SolexaSamples') >= 0 && !isExternal;
         	
         	if (showQCFieldsCheckBox.selected || showSeqPrepFieldsCheckBox.selected) {
         		numberSequencingLanesCol.visible = false;
@@ -830,10 +836,10 @@
 				idSeqRunTypeCol.visible =  false;
 
         	} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
-        		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && parentApplication.submitInternalExperiment();
+        		numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
 				numberSequencingLanesCol.editable = true;
-				numberSequencingCyclesCol.visible = !parentDocument.isEditState() && parentApplication.submitInternalExperiment();
-				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
+				numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
+				preppedByCoreCol.visible = !isExternal;
 				//corePrepInstructionsCol.visible = parentDocument.isEditState();
 				
 				if (parentDocument.currentState == "SolexaLaneAmendState") {
@@ -849,18 +855,18 @@
 				if (parentDocument.isEditState() ||
 				    parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
 				    parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
-					seqLibProtocolCol.visible = true;
+					seqLibProtocolCol.visible = !isExternal;
 				} else {
 					seqLibProtocolCol.visible = false;
 				}
 
-				idSeqRunTypeCol.visible = !parentDocument.isEditState() && parentApplication.submitInternalExperiment(); 
-				concentrationUnitColumn.visible = true;
+				idSeqRunTypeCol.visible = !parentDocument.isEditState() && !isExternal; 
+				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				chipTypeColumn.visible = false; 
-				samplePrepMethodCol.visible = parentApplication.submitInternalExperiment();
-				otherSamplePrepMethodCol.visible = parentApplication.submitInternalExperiment();
+				samplePrepMethodCol.visible = !isExternal;
+				otherSamplePrepMethodCol.visible = !isExternal;
 				labelColumn.visible = false;
 				
 				
@@ -879,7 +885,7 @@
 				otherSamplePrepMethodCol.visible = true;
 				
 				
-				if (parentDocument.isEditState) {
+				if (parentDocument.isEditState()) {
 					chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
 				} else {
 					chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBionanalyzerState' ? true : false;
@@ -1060,9 +1066,9 @@
 			<mx:Spacer width="8"/>
 		    <mx:HBox width="100%">
 				<mx:CheckBox id="showCCNumberCheckbox" 
-							 click="toggleShowCCNumber()" 
-							 visible="{(parentDocument.request.@isExternal == 'N' || parentApplication.isInternalExperimentSubmission) &amp;&amp; parentApplication.isBSTLinkageSupported}"
-							 width="{(parentDocument.request.@isExternal == 'N' || parentApplication.isInternalExperimentSubmission) &amp;&amp; parentApplication.isBSTLinkageSupported ? 250 : 0}" 
+							 click="toggleShowCCNumber()"  
+							 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+							 width="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported ? 250 : 0}" 
 							 label="Link to BST samples using CC Number" />
 				<mx:HBox id="buttonsContainer">
 					<mx:LinkButton textDecoration="underline"  label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
