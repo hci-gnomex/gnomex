@@ -69,6 +69,10 @@
 			<mx:SetStyle target="{vbox11}" name="cornerRadius" value="6"/>
 			<mx:SetStyle target="{vbox11}" name="backgroundColor" value="#FBF4A5"/>
 			<mx:SetStyle target="{vbox11}" name="backgroundAlpha" value="0.83"/>
+			<mx:AddChild relativeTo="{button9}" position="before">
+				<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platform" styleName="dashboardButton" 
+							   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
@@ -228,6 +232,12 @@
 				
 			}
 			
+			
+			private function showExperimentPlatformWindow():void {
+				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformWindow, true));
+				PopUpManager.centerPopUp(platformWindow);
+				
+			}
 			
 		]]> 
 	</mx:Script>
