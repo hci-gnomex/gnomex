@@ -28,6 +28,8 @@ public class Constants {
   public static final String              EMAIL_NOTIFY_CSS                = "css/emailNotify.css";
 
   public static final String              DATA_SOURCES                     = "config/data-sources.xml";  
+
+  public static final String              SERVER_FILE                     = "config/server.xml";  
  
   public static final String              LOGGING_PROPERTIES              = "gnomex_logging.properties";
   
