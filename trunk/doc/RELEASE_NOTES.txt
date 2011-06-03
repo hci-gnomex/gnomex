@@ -4,6 +4,11 @@
 ---------------------
 - Reworked external experiment submission screen.
 - Added isRequired and platforms to Sample annotation configuration.
+- Fixed problem with Lucene ability to search on partial words.
+- Changed wording on upload Sample Sheet instructions.
+- Removed fill button from Sample Name column
+- Added module to send work authorization reminder messages (currently for test only)
+- Removed code that prevents exp. submission if insufficient funds. Added checkbox to commit to payment.
 
 5.1.5.2 (May 18,2011)
 ---------------------

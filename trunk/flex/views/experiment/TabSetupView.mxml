@@ -734,7 +734,7 @@
 							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1" close="checkSetupCompleteness()">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 							</mx:ComboBox>
-							<mx:Text text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel" id="text4"/>
+							<!--mx:Text id="txtBalanceRemaining" text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel"/-->
 						</mx:HBox>
 						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
 						</mx:Text>

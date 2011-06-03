@@ -2431,7 +2431,9 @@
 		}
 		
 		private function onCreateBillingItems(event:ResultEvent):void {
-			var readyToSubmit:Boolean = true;
+			//var readyToSubmit:Boolean = true;
+			// 5/19/2011 change: always set to false and show "I
+			var readyToSubmit:Boolean = false;
 			if (createBillingItems.lastResult.name() == "NewBilling") { 
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
@@ -2439,7 +2441,9 @@
 						this.confirmView.currentState = "";						
 					} else {
 						if (createBillingItems.lastResult.Request.@exceedsBillingAccountBalance == 'Y' ) {
-							this.confirmView.currentState = "BillingExceedState";
+							//this.confirmView.currentState = "BillingExceedState";
+							// 5/19/2011 change: BillingExceedState disabled for now
+							this.confirmView.currentState = "";
 							readyToSubmit = false;
 						} else {
 							this.confirmView.currentState = ""
@@ -3812,7 +3816,11 @@
 			}
 				
 		}
-
+			
+		protected function agreeCheckbox_clickHandler(event:MouseEvent):void {
+			this.submitButton.enabled = agreeCheckbox.selected;
+		}
+			
 		]]>
 	</mx:Script>
 	
@@ -3909,6 +3917,7 @@
 								
 							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
+								<mx:CheckBox label="I authorize all charges for this work request to be charged to the selected account." id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="left" click="agreeCheckbox_clickHandler(event)"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
 							</mx:HBox>

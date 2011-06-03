@@ -1105,12 +1105,11 @@
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
   			        <mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>
-					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" dataField="@name" rendererIsEditor="false"
-					   editable="true" 
- 	                   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleName(), '')}" editorDataField="value"/>           
-
+					<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
+					<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+											   editable="true" 
+											   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
+											   itemEditor="views.renderers.TextInputSampleName"      />    
 
  
 	               <mx:AdvancedDataGridColumn id="labelColumn" dataField="@label" width="92" headerText="Label" rendererIsEditor="true" 
