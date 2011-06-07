@@ -43,7 +43,7 @@ public class PendingWorkAuthd extends TimerTask {
   private static long fONCE_PER_DAY = 1000*60*60*24; // A day in milliseconds
   
   private static int fONE_DAY = 1;
-  private static int wakeupHour = 2;  // Default wakupHour is 2 am
+  private static int wakeupHour = 2;    // Default wakupHour is 2 am
   private static int fZERO_MINUTES = 0;
   
   private Configuration   configuration;
@@ -84,14 +84,21 @@ public class PendingWorkAuthd extends TimerTask {
   public static void main(String[] args) {
     app  = new PendingWorkAuthd(args);
  
-    app.run();  // Test
-
     // Perform the task once a day at <wakeupHour>., starting tomorrow morning
     Timer timer = new Timer();
-    timer.scheduleAtFixedRate(app, getWakeupTime(), fONCE_PER_DAY);  }
+    timer.scheduleAtFixedRate(app, getWakeupTime(), fONCE_PER_DAY);  
+  }
 
   @Override
   public void run() {
+    Calendar calendar = Calendar.getInstance();
+    int weekday = calendar.get(Calendar.DAY_OF_WEEK);
+    
+    if (weekday == 7 || weekday == 1) {
+      // Don't send Saturday or Sunday
+      return;
+    }
+    
     try {
       app.connect();
       
@@ -103,9 +110,10 @@ public class PendingWorkAuthd extends TimerTask {
       
       body.append("<html><head><title>Work Authorization Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
       body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
-      body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}</style>");
+      body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
+      body.append(" .fontClassBold{font-size:12px;fontWeight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
       body.append("<table width='100%' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td valign='top' align='left'>");
-      body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#00FF00>");
+      body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
       String subject = "Pending Work Authorizations";
       
       getPendingWorkAuthorizations(sess);
@@ -114,7 +122,7 @@ public class PendingWorkAuthd extends TimerTask {
 
       while(it.hasNext()) {
         if(!hasWorkAuthorizations) {
-          body.append("<tr><td width='250'><span class='fontClass'>Lab</span></td><td width='250'><span class='fontClass'>Account Name</span></td><td width='250'><span class='fontClass'>Account No.</span></td></tr>");
+          body.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='250'><span class='fontClassBold'>Account Name</span></td><td width='250'><span class='fontClassBold'>Account No.</span></td></tr>");
         }
         body.append((String) it.next());
         hasWorkAuthorizations = true;
