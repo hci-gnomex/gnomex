@@ -697,16 +697,16 @@ VALUES ('BIOREPL', 'Biological Replicate', 'biological_replicate', NULL, 'Y'),
   ('TECHREPL', 'Technical Replicate', 'technical_replicate', NULL, 'Y');
 
 
-INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`)
-VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY'),
-  ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip', 'assets/microarray_small.png', 'MICROARRAY'),
-  ('INHOUSE', 'In-house Spotted Microarray', 4, 'N', 2, null, null, 'MICROARRAY'),
-  ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null, null, 'MICROARRAY'),
-  ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null, null, 'MICROARRAY'),
-  ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC'),
-  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA'),
-  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA'),
-  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY');
+INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`, isInternal, isExternal)
+VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY', 'Y', 'Y'),
+  ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip', 'assets/microarray_small.png', 'MICROARRAY', 'Y', 'Y'),
+  ('INHOUSE', 'In-house Spotted Microarray', 4, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y'),
+  ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y'),
+  ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null, null, 'MICROARRAY', 'Y', 'Y'),
+  ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC', 'Y', 'Y'),
+  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y'),
+  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y'),
+  ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y');
 
 INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
 VALUES ('AFFY', 'CHIP'),
@@ -932,30 +932,30 @@ VALUES (1, 'DNA', 3, 'Y'),
   (11, 'cap RNA', 6, 'Y'),
   (12, 'small RNA', 10, 'Y');
 
-INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `idLabelingProtocolDefault`, `idHybProtocolDefault`, `idScanProtocolDefault`, `idFeatureExtractionProtocolDefault`, `isActive`)
-VALUES (2, 5, 'EXP', null, null, null, null, 'Y'),
-  (3, 4, 'EXP', NULL, NULL, NULL, NULL, 'Y'),
-  (4, 3, 'EXP', NULL, NULL, NULL, NULL, 'Y'),
-  (5, 2, 'EXP', NULL, NULL, NULL, NULL, 'N'),
-  (6, 1, 'CGH', null, null, null, null, 'Y'),
-  (7, 6, 'CGH', NULL, NULL, NULL, NULL, 'Y'),
-  (8, 7, 'CHIP', null, null, null, null, 'Y'),
-  (9, 1, 'METH', null, null, null, null, 'Y'),
-  (10, 7, 'METH', null, null, null, null, 'Y'),
-  (11, 1, 'SNP', null, null, null, null, 'Y'),
-  (12, 5, 'WTRANSCRP', null, null, null, null, 'Y'),
-  (13, 5, 'MIRNA', null, null, null, null, 'Y'),
-  (14, 7, 'CHIPSEQ', null, null, null, null, 'Y'),
-  (15, 4, 'DMRNASEQ', null, null, null, null, 'Y'),
-  (16, 1, 'DNASEQ', null, null, null, null, 'Y'),
-  (17, 1, 'TDNASEQ', null, null, null, null, 'Y'),
-  (18, 4, 'MRNASEQ', null, null, null, null, 'Y'),
-  (19, 12, 'SMRNASEQ', null, null, null, null, 'Y'),
-  (20, 1, 'DNAMETHSEQ', null, null, null, null, 'Y'),
-  (21, 1, 'MONNUCSEQ', null, null, null, null, 'Y'),
-  (22, 4, 'TSCRPTSEQ', null, null, null, null, 'Y'),
-  (23, 9, 'MRNASEQ', null, null, null, null, 'Y'),
-  (24, 9, 'TSCRPTSEQ', null, null, null, null, 'Y');
+INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `isActive`)
+VALUES (2, 5, 'EXP',  'Y'),
+  (3, 4, 'EXP',  'Y'),
+  (4, 3, 'EXP', 'Y'),
+  (5, 2, 'EXP',  'N'),
+  (6, 1, 'CGH', 'Y'),
+  (7, 6, 'CGH', 'Y'),
+  (8, 7, 'CHIP',  'Y'),
+  (9, 1, 'METH',  'Y'),
+  (10, 7, 'METH', 'Y'),
+  (11, 1, 'SNP',  'Y'),
+  (12, 5, 'WTRANSCRP', 'Y'),
+  (13, 5, 'MIRNA',  'Y'),
+  (14, 7, 'CHIPSEQ',  'Y'),
+  (15, 4, 'DMRNASEQ',  'Y'),
+  (16, 1, 'DNASEQ',  'Y'),
+  (17, 1, 'TDNASEQ', 'Y'),
+  (18, 4, 'MRNASEQ', 'Y'),
+  (19, 12, 'SMRNASEQ',  'Y'),
+  (20, 1, 'DNAMETHSEQ',  'Y'),
+  (21, 1, 'MONNUCSEQ',  'Y'),
+  (22, 4, 'TSCRPTSEQ',  'Y'),
+  (23, 9, 'MRNASEQ', 'Y'),
+  (24, 9, 'TSCRPTSEQ',  'Y');
 
 INSERT INTO `gnomex`.`SampleTypeRequestCategory`(`idSampleTypeRequestCategory`, `idSampleType`, `codeRequestCategory`)
 VALUES (1, 1, 'AGIL'),

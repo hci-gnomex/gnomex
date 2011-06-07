@@ -38,6 +38,8 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private Integer  idOrganism;
   private Integer  idSamplePrepMethod;
   private String   isSampleBarcodingOptional;
+  private String   isInternal;
+  private String   isExternal;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
@@ -217,6 +219,22 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setIsSampleBarcodingOptional(String isSampleBarcodingOptional) {
     this.isSampleBarcodingOptional = isSampleBarcodingOptional;
+  }
+
+  public String getIsInternal() {
+    return isInternal;
+  }
+
+  public void setIsInternal(String isInternal) {
+    this.isInternal = isInternal;
+  }
+
+  public String getIsExternal() {
+    return isExternal;
+  }
+
+  public void setIsExternal(String isExternal) {
+    this.isExternal = isExternal;
   }
   
 
