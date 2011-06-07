@@ -14,6 +14,10 @@ public class RequestCategoryApplication extends DictionaryEntry implements Seria
   private String codeRequestCategory;
   private RequestCategory    requestCategory;
   private Application application;
+  private Integer  idLabelingProtocolDefault;
+  private Integer  idHybProtocolDefault;
+  private Integer  idScanProtocolDefault;
+  private Integer  idFeatureExtractionProtocolDefault;
  
   
   public String getDisplay() {
@@ -96,6 +100,39 @@ public class RequestCategoryApplication extends DictionaryEntry implements Seria
   
   private void setApplication(Application application) {
     this.application = application;
+  }
+
+  public Integer getIdLabelingProtocolDefault() {
+    return idLabelingProtocolDefault;
+  }
+
+  public void setIdLabelingProtocolDefault(Integer idLabelingProtocolDefault) {
+    this.idLabelingProtocolDefault = idLabelingProtocolDefault;
+  }
+
+  public Integer getIdHybProtocolDefault() {
+    return idHybProtocolDefault;
+  }
+
+  public void setIdHybProtocolDefault(Integer idHybProtocolDefault) {
+    this.idHybProtocolDefault = idHybProtocolDefault;
+  }
+
+  public Integer getIdScanProtocolDefault() {
+    return idScanProtocolDefault;
+  }
+
+  public void setIdScanProtocolDefault(Integer idScanProtocolDefault) {
+    this.idScanProtocolDefault = idScanProtocolDefault;
+  }
+
+  public Integer getIdFeatureExtractionProtocolDefault() {
+    return idFeatureExtractionProtocolDefault;
+  }
+
+  public void setIdFeatureExtractionProtocolDefault(
+      Integer idFeatureExtractionProtocolDefault) {
+    this.idFeatureExtractionProtocolDefault = idFeatureExtractionProtocolDefault;
   }
 
   

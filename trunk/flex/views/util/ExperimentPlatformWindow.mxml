@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="absolute" width="820" height="500"  creationPolicy="all"
+				layout="absolute" width="882" height="474"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
 				title="Configure Experiment Platform">
-	
 <mx:HTTPService  
 	id="getExperimentPlatformList" 
 	url="GetExperimentPlatformList.gx"
 	resultFormat="e4x"
 	showBusyCursor="false"
-	result="getGetExperimentPlatformList(event)"
+	result="onGetExperimentPlatformList(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to get experiment platform list', event)"
+	method="POST" 
+	useProxy="false">
+</mx:HTTPService>
+	
+<mx:HTTPService  
+	id="saveExperimentPlatform" 
+	url="SaveExperimentPlatform.gx"
+	resultFormat="e4x"
+	showBusyCursor="false"
+	result="onSaveExperimentPlatform(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to save experiment platform', event)"
 	method="POST" 
 	useProxy="false">
 </mx:HTTPService>
 
 <mx:Script>
 	<![CDATA[
+		import hci.flex.controls.DropdownLabel;
+		
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
@@ -28,17 +40,54 @@
 			getExperimentPlatformList.send();
 		}
 		
-		private function getGetExperimentPlatformList(event:ResultEvent): void {
+
+		private function onGetExperimentPlatformList(event:ResultEvent): void {
 			if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
 			} else {
 				mx.controls.Alert.show(getExperimentPlatformList.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}	
+		
+		private function save():void {
+			var params:Object = new Object();
+			
+			params.codeRequestCategory = this.requestCategory.@codeRequestCategory;
+			params.requestCategory = this.platformName.text;
+			params.notes = this.notes.text;
+			params.type = this.typeRadioGroup.selectedValue != null ? this.typeRadioGroup.selectedValue : '';
+			params.sortOrder = this.sortOrder.text;
+			params.isActive = this.isActiveCheckbox.selected ? 'Y' : 'N';
+			params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
+			params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
+			params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
+			params.icon = this.theIcon.text;
+			params.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@value : '';
+			params.numberOfChannels = this.numberOfChannelsStepper.value;
+			params.isSampleBarcodingOptional = this.barcodingRadioGroup.selectedValue;
+			
+			params.sampleTypesXMLString = "<sampleTypes>" + this.sampleTypes.toXMLString() + "</sampleTypes>";
+			params.samplePrepMethodsXMLString = "<samplePrepMethods>" + this.samplePrepMethods.toXMLString() + "</samplePrepMethods>";
+			params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
+			params.applicationProtocolsXMLString = "<applicationProtocols>" + this.applicationProtocols.toXMLString() + "</applicationProtocols>";
+			params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
+			
+			saveExperimentPlatform.send(params);
+		}
+
+		private function onSaveExperimentPlatform(event:ResultEvent): void {
+			if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+				getExperimentPlatformList.send();
+			} else {
+				mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}	
 
 		private function addPlatform():void {
+			this.dirty.setDirty();
 		}
 		
 		private function removePlatform():void {
+			this.dirty.setDirty();
 		}		
 		
 		private function onSelectPlatform():void {
@@ -51,8 +100,43 @@
 				organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
 
 				dirty.resetDirty();
+				
+				showHideAppColumns();
 			} else {
 				theViews.selectedIndex = 0;
+			}
+		}
+		
+		private function showHideAppColumns():void {
+			labelingProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+			hybProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+			scanProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+			feProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+			seqLibProtocolCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false; 
+			appGrid.invalidateList();
+			appGrid.invalidateDisplayList()			
+		}
+		
+		private function addSampleType():void {
+			var newNode:XML = new XML("<SampleType " +
+				                      " isSelected='N'" +
+				                      " idSampleType='" + 'SampleType' + "'" +
+									  " display='" + 'enter sample type here...' + "'" +
+									  " idSamplePrepMethods=''" +
+									  " codeApplications=''" +
+									  " isActive='Y'" +
+			                          " />");
+			this.sampleTypes.addItemAt(newNode, 0);
+			this.sampleTypeGrid.selectedItem = newNode;
+			this.sampleTypeGrid.scrollToIndex(0);
+			this.dirty.setDirty();
+			
+		}
+		
+		private function removeSampleType():void {
+			if (this.sampleTypeGrid.selectedItem != null) {
+				this.sampleTypes.removeItemAt(sampleTypes.getItemIndex(sampleTypeGrid.selectedItem));
+				this.dirty.setDirty();
 			}
 		}
 		
@@ -63,11 +147,14 @@
 <mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
 <mx:XMLListCollection id="samplePrepMethods" source="{requestCategory.samplePrepMethods.SamplePrepMethod}"/>
 <mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
+<mx:XMLListCollection id="applicationProtocols" source="{requestCategory.applicationProtocols.RequestCategoryApplication}"/>
+<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
 	
 	<mx:VBox height="100%" width="100%">
 		<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
 			<mx:LinkButton label="Add experiment platform" styleName="linkMenuButton" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
 			<mx:LinkButton label="Remove experiment platform" styleName="linkMenuButton" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+			<mx:LinkButton label="Refresh" styleName="linkMenuButton" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')"/>
 		</mx:HBox>
 		<mx:HDividedBox width="100%" height="100%">
 			<mx:List id="platformList" width="200" height="100%" labelField="@requestCategory" dataProvider="{platforms}" 
@@ -80,16 +167,21 @@
 				<mx:VBox width="100%" height="100%" styleName="panelBox" 
 						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="0">
 					<mx:TabNavigator  width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
-						<mx:VBox width="100%" height="100%"  label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+						<mx:VBox width="100%" height="100%"  label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="12">
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Name" width="80"/>
-								<mx:TextInput  width="100%" text="{requestCategory.@requestCategory}"/>
+								<mx:TextInput  id="platformName"  width="100%" text="{requestCategory.@requestCategory}" />
 								<mx:Spacer width="10"/>
-								<mx:CheckBox label="Active" selected="{requestCategory.@isActive == 'N' ? false : true}"/>
+								<mx:CheckBox id="isActiveCheckbox" label="Active" selected="{requestCategory.@isActive == 'N' ? false : true}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Notes" width="80"/>
-								<mx:TextInput  width="100%" text="{requestCategory.@notes}"/>
+								<mx:TextInput id="notes"  width="100%" text="{requestCategory.@notes}" />
+							</mx:HBox>
+							
+							<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+								<mx:Label  text="Sort Order" width="80"/>
+								<mx:TextInput id="sortOrder"  width="40" text="{requestCategory.@sortOrder}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Vendor" width="80"/>
@@ -98,76 +190,100 @@
 											  labelField="@display" 
 											  id="vendorCombo"/>
 							</mx:HBox>
-							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="top">
 								<mx:Label text="Type" width="80"/>
-								<mx:HBox>
+								<mx:VBox verticalGap="0" verticalAlign="middle" >
 								  <mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
 								  <mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup"/>
-								  <mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup"/>
+								  <mx:HBox horizontalGap="110">
+									  <mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup"/>
+									  <mx:HBox visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+										  <mx:Label text="Number of channels" width="120"/>
+										  <mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
+									  </mx:HBox>									  
+								  </mx:HBox>
 								  <mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup"/>
-								</mx:HBox>
+								</mx:VBox>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
 								<mx:Label text="Show for" width="80"/>
-								<mx:CheckBox label="Internal Experiment Requests" selected="{requestCategory.@isInternal == 'Y' ? true : false}"/>
-								<mx:CheckBox label="External Experiments" selected="{requestCategory.@isExternal == 'Y' ? true : false}"/>
+								<mx:CheckBox id="isInternalCheckbox" label="Internal Experiment Requests" selected="{requestCategory.@isInternal == 'Y' ? true : false}" />
+								<mx:CheckBox id="isExternalCheckbox" label="External Experiments" selected="{requestCategory.@isExternal == 'Y' ? true : false}"/>
 								<mx:Spacer width="100%"/>
-								<mx:Label text="Sort Order"/>
-								<mx:TextInput  width="40" text="{requestCategory.@sortOrder}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Icon" width="80"/>
-								<mx:TextInput  width="100%" text="{requestCategory.@icon}"/>
+								<mx:TextInput id="theIcon" width="100%" text="{requestCategory.@icon}"/>
 								<mx:Spacer width="10"/>
+							</mx:HBox>
+							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 								<mx:Text text="Default Organism" 
-									width="70"/>
+									width="80" visible="{isInternalCheckbox.selected}"/>
 								<mx:ComboBox width="100%" id="organismCombo"
 									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}" 
-									labelField="@display"/>
-							</mx:HBox>
-							
-							<mx:HBox width="100%" horizontalGap="1" height="100%">
-								<mx:Text text="Experiment types" width="80"/>
-								<mx:VBox width="100%" verticalGap="0">
-									<mx:HBox>
-										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
-										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
-									</mx:HBox>
-									<mx:DataGrid id="appGrid"
-												 dataProvider="{applications}"
-												 width="100%" height="100%">
-										<mx:columns>
-											<mx:DataGridColumn headerText=" "  
-															   width="20" 
-															   editable="true"                        	
-															   dataField="@isSelected" 
-															   editorDataField="selected"
-															   itemRenderer="views.renderers.CheckBoxRenderer">			 
-											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Experiment Type"  dataField="@display" >
-											</mx:DataGridColumn>
-										</mx:columns>
-									</mx:DataGrid>
-								</mx:VBox>
+									labelField="@display" visible="{isInternalCheckbox.selected}"/>
 							</mx:HBox>
 			
 														
+						</mx:VBox>
+						<mx:VBox  width="100%" height="100%" label="Experiment Types"  show="{showHideAppColumns()}" 
+								  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+							<mx:HBox>
+								<mx:LinkButton label="Add" styleName="linkMenuButton" 
+											   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
+											   icon="@Embed(source='../../assets/add.png')" 
+											   disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+							</mx:HBox>
+							<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
+										 dataProvider="{applications}" editable="true"
+										 width="100%" height="100%">
+								<mx:columns>
+									<mx:DataGridColumn headerText=" "  
+													   width="20"  editable="false"                      	
+													   dataField="@isSelected" 
+													   editorDataField="selected"
+													   itemRenderer="views.renderers.CheckBoxRenderer">			 
+									</mx:DataGridColumn>
+									<mx:DataGridColumn headerText="Experiment Type"  editable="false" dataField="@display" >
+									</mx:DataGridColumn>
+									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol" 
+													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
+													   dataField="@idSeqLibProtocols"/>
+									<mx:DataGridColumn headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
+													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
+									<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="idHybProtocol" 
+													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
+									<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="idScanProtocol"  
+													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
+									<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="idFeatureExtractionProtocol"  
+													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
+													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>										
+								</mx:columns>
+							</mx:DataGrid>
 						</mx:VBox>
 						<mx:VBox width="100%" height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4" label="Samples" verticalGap="12">
 								
 								<mx:VBox width="100%" height="100%" verticalGap="0">
 									<mx:HBox verticalAlign="middle">
-										<mx:Label text="Nucleic Acid extraction methods"/>
+										<mx:Label text="Nucleic Acid extraction methods" width="180"/>
 										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
 										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; samplePrepMethodGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
 									</mx:HBox>
 									<mx:DataGrid id="samplePrepMethodGrid" 
 												 dataProvider="{samplePrepMethods}"
-												 width="100%">
+												 width="100%" height="100%">
 										<mx:columns>
 											<mx:DataGridColumn headerText=" "  
 															   width="20" 
-															   editable="true"                        	
+															   editable="false"                        	
 															   dataField="@isSelected" 
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">			 
@@ -179,70 +295,64 @@
 								</mx:VBox>
 							<mx:VBox width="100%" height="100%" verticalGap="0">
 								<mx:HBox verticalAlign="middle">
-									<mx:Label text="Sample types"/>
-									<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
-									<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sampleTypeGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+									<mx:Label text="Sample types" width="180"/>
+									<mx:LinkButton label="Add" styleName="linkMenuButton" 
+												   click="addSampleType()"
+												   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
+												   icon="@Embed(source='../../assets/add.png')" 
+												   disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+									
+									<mx:LinkButton label="Remove" styleName="linkMenuButton"
+												   click="removeSampleType()"
+												   enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sampleTypeGrid.selectedItem != null}"   
+												   icon="@Embed(source='../../assets/delete.png')" 
+												   disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
 								</mx:HBox>
 								<mx:DataGrid id="sampleTypeGrid"
-											 dataProvider="{sampleTypes}"
-											 width="100%">
+											 dataProvider="{sampleTypes}" editable="true"
+											 width="100%" height="100%">
 									<mx:columns>
 										<mx:DataGridColumn headerText=" "  
 														   width="20" 
-														   editable="true"                        	
+														   editable="false"                        	
 														   dataField="@isSelected" 
 														   editorDataField="selected"
 														   itemRenderer="views.renderers.CheckBoxRenderer">			 
 										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Sample Type"  dataField="@display" >
+										<mx:DataGridColumn headerText="Sample Type"  dataField="@display" editable="true" >
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Experiment Types"  
+														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
+														   dataField="@codeApplications" >
 										</mx:DataGridColumn>
 										<mx:DataGridColumn headerText="Nucl. acid extraction Methods"  
-														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Nucl. acid extraction methods', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
+														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Nucl. acid extraction methods', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value != ''))}" 
 														   dataField="@idSamplePrepMethods" >
 										</mx:DataGridColumn>
 									</mx:columns>
 								</mx:DataGrid>
 							</mx:VBox>
 						</mx:VBox>
-						<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
-							<mx:HBox width="100%" verticalAlign="middle">
-								<mx:Label text="Number of channels" width="120"/>
-								<mx:NumericStepper minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
-							</mx:HBox>
-							<mx:VBox width="100%" verticalGap="0" height="100%">
-								<mx:HBox>
-									<mx:Label text="Default protocols"/>
-								</mx:HBox>
-								<mx:DataGrid id="appDefaultProtocolGrid"
-											 width="100%" height="100%">
-									<mx:columns>
-										<mx:DataGridColumn headerText="Experiment Type"  dataField="@display" >
-										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Labeling Protocol"  >
-										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Hyb Protocol"  >
-										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Scan/FE Protocol"   >
-										</mx:DataGridColumn>
-									</mx:columns>
-								</mx:DataGrid>
-							</mx:VBox>
-						</mx:VBox>
-						<mx:VBox width="100%" height="100%" label="Sequencing" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+						<mx:VBox width="100%" enabled="{typeRadioGroup.selectedValue == 'ILLUMINA'}" height="100%" label="Sequencing" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 							<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10">
-								<mx:HBox width="100%" verticalAlign="middle">
-									<mx:Label text="Sample Index Tags" width="120"/>
+								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+									<mx:Label text="Sample Index Tags" width="150"/>
 									<mx:HBox>
 										<mx:RadioButtonGroup id="barcodingRadioGroup"/>
-										<mx:RadioButton label="Optional"  groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? true : false}"/>
-										<mx:RadioButton label="Required" groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? false : true}"/>
+										<mx:RadioButton label="Optional"  value="Y" groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? true : false}"/>
+										<mx:RadioButton label="Required" value="N" groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? false : true}"/>
 									</mx:HBox>
 								</mx:HBox>
 								<mx:VBox width="100%" verticalGap="0" height="100%">
-									<mx:HBox>
-										<mx:Label text="Sequencing options"/>
+									<mx:HBox verticalAlign="middle" horizontalGap="0">
+										<mx:Label text="Sequencing options" width="150"/>
+										
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0"/>
+										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+										
 									</mx:HBox>
-									<mx:DataGrid id="sequencePlatformOptions"
+									<mx:DataGrid id="sequencingOptionGrid" editable="true"
+												 dataProvider="{sequencingOptions}"
 												 width="100%" height="100%">
 										<mx:columns>
 											<mx:DataGridColumn headerText=" "  
@@ -252,42 +362,37 @@
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">			 
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Number of cycles"  dataField="@display" >
+											<mx:DataGridColumn headerText="Cycles"  width="50" dataField="@display" editable="false" >
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Single-end"  
-															   width="55" 
+															   width="40" 
 															   editable="true"                        	
-															   dataField="@isSelected" 
+															   dataField="@single" 
 															   editorDataField="selected"
-															   itemRenderer="views.renderers.CheckBoxRenderer">			 
+															   itemRenderer="views.renderers.CheckBoxRenderer">		
+												<mx:headerRenderer>
+													<mx:Component>
+														<mx:Text width="40" text="Single end"/>
+													</mx:Component>
+												</mx:headerRenderer>
 											</mx:DataGridColumn>
 
-											<mx:DataGridColumn headerText="Note"   >
+											<mx:DataGridColumn headerText="Single-end note" width="180" dataField="@singleNote"  >
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Paired-end"  
-															   width="55" 
+															   width="40" 
 															   editable="true"                        	
-															   dataField="@isSelected" 
+															   dataField="@paired" 
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">			 
+												<mx:headerRenderer>
+													<mx:Component>
+														<mx:Text width="40" text="Paired end"/>
+													</mx:Component>
+												</mx:headerRenderer>
 											</mx:DataGridColumn>
 
-											<mx:DataGridColumn headerText="Paired Note"   >
-											</mx:DataGridColumn>
-										</mx:columns>
-									</mx:DataGrid>
-								</mx:VBox>
-								<mx:VBox width="100%" verticalGap="0" height="100%">
-									<mx:HBox>
-										<mx:Label text="Default protocols"/>
-									</mx:HBox>
-									<mx:DataGrid id="sequenceProtocols"
-												 width="100%" height="100%">
-										<mx:columns>
-											<mx:DataGridColumn headerText="Experiment Type"  dataField="@display" >
-											</mx:DataGridColumn>
-											
-											<mx:DataGridColumn headerText="Seq Lib Protocol"   >
+											<mx:DataGridColumn headerText="Paired-end note" width="180"  dataField="@pairedNote" >
 											</mx:DataGridColumn>
 										</mx:columns>
 									</mx:DataGrid>
@@ -299,7 +404,9 @@
 					</mx:TabNavigator>
 					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
 						<util:DirtyNote id="dirty" />
-						<mx:Button id="saveButton" label="Save"  enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}"
+						<mx:Button id="saveButton" label="Save"
+								   click="{save()}"
+								   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}"
 								   icon="@Embed('../../assets/action_save.gif')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
 						</mx:Button>
 						<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>

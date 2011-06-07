@@ -1088,6 +1088,9 @@
 		<property name="idOrganism" column="idOrganism" type="integer"/>
 		<property name="idSamplePrepMethod" column="idSamplePrepMethod" type="integer"/>
 		<property name="isSampleBarcodingOptional" column="isSampleBarcodingOptional" type="string"/>
+		<property name="isInternal" column="isInternal" type="string"/>
+		<property name="isExternal" column="isExternal" type="string"/>
+	
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
@@ -1099,7 +1102,12 @@
 		
 		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 		<many-to-one name="application"  column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
+		<property name="idLabelingProtocolDefault" column="idLabelingProtocolDefault" type="integer"/>
+		<property name="idHybProtocolDefault" column="idHybProtocolDefault" type="integer"/>
+		<property name="idScanProtocolDefault" column="idScanProtocolDefault" type="integer"/>
+		<property name="idFeatureExtractionProtocolDefault" column="idFeatureExtractionProtocolDefault" type="integer"/>
 	</class>
+	
 	<!-- hci.gnomex.model.SampleCharacteristic -->
 	<class name="hci.gnomex.model.SampleCharacteristic" table="SampleCharacteristic">
 		<id name="idSampleCharacteristic" column="idSampleCharacteristic" type="integer">

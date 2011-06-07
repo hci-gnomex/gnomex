@@ -33,6 +33,10 @@
 	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication" >
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
+  	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
+  	  <Filter className="hci.gnomex.model.HybProtocol"               filterField="idHybProtocolDefault"/>
+  	  <Filter className="hci.gnomex.model.ScanProtocol"              filterField="idScanProtocolDefault"/>
+  	  <Filter className="hci.gnomex.model.FeatureExtractionProtocol" filterField="idFeatureExtractionProtocolDefault"/>  	  
 	</Dictionary>
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>

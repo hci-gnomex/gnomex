@@ -1227,6 +1227,8 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `idOrganism` INT(10) NULL,
   `idSamplePrepMethod` INT(10) NULL,
   `isSampleBarcodingOptional` CHAR(1) NULL,
+  `isInternal` CHAR(1) NULL,
+  `isExternal` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
@@ -1243,6 +1245,10 @@ DROP TABLE IF EXISTS `gnomex`.`RequestCategoryApplication`;
 CREATE TABLE `gnomex`.`RequestCategoryApplication` (
   `codeRequestCategory` VARCHAR(10) NOT NULL,
   `codeApplication` VARCHAR(10) NOT NULL,
+  `idLabelingProtocolDefault` INT(10) NULL,
+  `idHybProtocolDefault` INT(10) NULL,
+  `idScanProtocolDefault` INT(10) NULL,
+  `idFeatureExtractionProtocolDefault` INT(10) NULL,
   PRIMARY KEY (`codeRequestCategory`, `codeApplication`),
   CONSTRAINT `FK_RequestCategoryApplication_RequestCategory` FOREIGN KEY `FK_RequestCategoryApplication_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
@@ -1250,6 +1256,22 @@ CREATE TABLE `gnomex`.`RequestCategoryApplication` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_RequestCategoryApplication_Application` FOREIGN KEY `FK_RequestCategoryApplication_Application` (`codeApplication`)
     REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategoryApplication_HybProtocol` FOREIGN KEY `FK_RequestCategoryApplication_HybProtocol` (`idHybProtocolDefault`)
+    REFERENCES `gnomex`.`HybProtocol` (`idHybProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategoryApplication_LabelingProtocol` FOREIGN KEY `FK_RequestCategoryApplication_LabelingProtocol` (`idLabelingProtocolDefault`)
+    REFERENCES `gnomex`.`LabelingProtocol` (`idLabelingProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategoryApplication_ScanProtocol` FOREIGN KEY `FK_RequestCategoryApplication_ScanProtocol` (`idScanProtocolDefault`)
+    REFERENCES `gnomex`.`ScanProtocol` (`idScanProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategoryApplication_FeatureExtractionProtocol` FOREIGN KEY `FK_RequestCategoryApplication_FeatureExtractionProtocol` (`idFeatureExtractionProtocolDefault`)
+    REFERENCES `gnomex`.`FeatureExtractionProtocol` (`idFeatureExtractionProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1583,10 +1605,6 @@ CREATE TABLE `gnomex`.`SampleTypeApplication` (
   `idSampleTypeApplication` INT(10) NOT NULL AUTO_INCREMENT,
   `idSampleType` INT(10) NULL,
   `codeApplication` VARCHAR(10) NULL,
-  `idLabelingProtocolDefault` INT(10) NULL,
-  `idHybProtocolDefault` INT(10) NULL,
-  `idScanProtocolDefault` INT(10) NULL,
-  `idFeatureExtractionProtocolDefault` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idSampleTypeApplication`),
   UNIQUE INDEX `IX_ApplicationSampleType` (`idSampleType`, `codeApplication`),
@@ -1596,22 +1614,6 @@ CREATE TABLE `gnomex`.`SampleTypeApplication` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_ApplicationSampleType_Application` FOREIGN KEY `FK_ApplicationSampleType_Application` (`codeApplication`)
     REFERENCES `gnomex`.`Application` (`codeApplication`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeApplication_HybProtocol` FOREIGN KEY `FK_SampleTypeApplication_HybProtocol` (`idHybProtocolDefault`)
-    REFERENCES `gnomex`.`HybProtocol` (`idHybProtocol`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeApplication_LabelingProtocol` FOREIGN KEY `FK_SampleTypeApplication_LabelingProtocol` (`idLabelingProtocolDefault`)
-    REFERENCES `gnomex`.`LabelingProtocol` (`idLabelingProtocol`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeApplication_ScanProtocol` FOREIGN KEY `FK_SampleTypeApplication_ScanProtocol` (`idScanProtocolDefault`)
-    REFERENCES `gnomex`.`ScanProtocol` (`idScanProtocol`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleTypeApplication_FeatureExtractionProtocol` FOREIGN KEY `FK_SampleTypeApplication_FeatureExtractionProtocol` (`idFeatureExtractionProtocolDefault`)
-    REFERENCES `gnomex`.`FeatureExtractionProtocol` (`idFeatureExtractionProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
