@@ -6,7 +6,7 @@
     xmlns:experiment="views.experiment.*"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	width="100%" height="100%"  
-	creationPolicy="all" show="init()" hide="leave()">
+	creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*">
 
      
    <mx:HTTPService  
@@ -611,7 +611,7 @@
 			if (this.setupView == null || request == null) {
 				return false;
 			} else if (request.@idRequest == '0'  && submittedIdRequest == null) {
-				if (nextButton.enabled || this.submitButton.enabled) {
+				if (nextButton.enabled || this.submitButton.enabled || agreeCheckbox.visible) {
 					return true;
 				} else {
 					return false;
@@ -2407,11 +2407,16 @@
 				Alert.show(getMultiplexLaneList.lastResult..ACTMESSAGE.@TEXT, "Unable to get multiplex lane info");
 				readyToSubmit = false;
 			}
-			this.submitButton.enabled = readyToSubmit;
+			//this.submitButton.enabled = readyToSubmit;
+			agreeCheckbox.visible = readyToSubmit;
 		}		
 		
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
+			agreeCheckbox.visible = false;
+			var accountName:String = isAmendState() ? request.@billingAccountName : setupView.billingAccountCombo.selectedItem.@accountName;
+			agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
+			submitButton.enabled = false;
 			
 			if (request.@isExternal == 'Y') {
 				// This is an external experiment submission.  Don't
@@ -2431,9 +2436,7 @@
 		}
 		
 		private function onCreateBillingItems(event:ResultEvent):void {
-			//var readyToSubmit:Boolean = true;
-			// 5/19/2011 change: always set to false and show "I
-			var readyToSubmit:Boolean = false;
+			var readyToSubmit:Boolean = true;
 			if (createBillingItems.lastResult.name() == "NewBilling") { 
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
@@ -2444,7 +2447,7 @@
 							//this.confirmView.currentState = "BillingExceedState";
 							// 5/19/2011 change: BillingExceedState disabled for now
 							this.confirmView.currentState = "";
-							readyToSubmit = false;
+							readyToSubmit = true;
 						} else {
 							this.confirmView.currentState = ""
 						}
@@ -2458,7 +2461,8 @@
 				Alert.show(createBillingItems.lastResult..ACTMESSAGE.@TEXT, "Unable to get estimated billing items");
 				readyToSubmit = false;
 			}
-			this.submitButton.enabled = readyToSubmit;
+			//this.submitButton.enabled = readyToSubmit;
+			agreeCheckbox.visible = readyToSubmit;
 		}
 		
 		public function isExternalExperimentSubmission():Boolean {
@@ -3915,9 +3919,9 @@
 							  </mx:ViewStack>
 							</mx:HBox>
 								
-							<mx:HBox width="100%"  verticalAlign="top" horizontalAlign="left">
+							<mx:HBox height="100%" width="100%"  verticalAlign="top" horizontalAlign="left" horizontalScrollPolicy="off" horizontalGap="5">
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
-								<mx:CheckBox label="I authorize all charges for this work request to be charged to the selected account." id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="left" click="agreeCheckbox_clickHandler(event)"/>
+								<mx:CheckBox label=" " id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="left" click="agreeCheckbox_clickHandler(event)"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
 							</mx:HBox>
