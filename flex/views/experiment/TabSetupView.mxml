@@ -282,7 +282,9 @@
 			}		
 			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
 			//requestCategories.refresh();
-			this.checkSetupCompleteness();
+			if (parentDocument != null) {
+				this.checkSetupCompleteness();
+			}
 		}
 		 
 		public function selectDefaultLab():void {
