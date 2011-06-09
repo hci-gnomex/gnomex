@@ -2407,15 +2407,20 @@
 				Alert.show(getMultiplexLaneList.lastResult..ACTMESSAGE.@TEXT, "Unable to get multiplex lane info");
 				readyToSubmit = false;
 			}
-			//this.submitButton.enabled = readyToSubmit;
-			agreeCheckbox.visible = readyToSubmit;
+			
+			if (request.@isExternal == 'Y') {
+				this.submitButton.enabled = readyToSubmit;
+			} else {
+				agreeCheckbox.visible = readyToSubmit;				
+			}
 		}		
 		
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
 			agreeCheckbox.visible = false;
-			var accountName:String = isAmendState() ? request.@billingAccountName : setupView.billingAccountCombo.selectedItem.@accountName;
+			var accountName:String = isAmendState() ? request.@accountNumberDisplay : setupView.billingAccountCombo.selectedItem.@accountNumberDisplay;
 			agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
+			agreeCheckbox.selected = false;
 			submitButton.enabled = false;
 			
 			if (request.@isExternal == 'Y') {
@@ -3794,7 +3799,8 @@
 					show = false;
 				}  else if (!parentApplication.submitInternalExperiment()) {
 					show = false;
-				} else if (sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N' && this.seqSetup1View.numberSamplesPerChannel.value > 1) {
+				} else if (sampleSetupView.barcodeRadioGroup != null && sampleSetupView.barcodeRadioGroup.selectedValue != null && sampleSetupView.barcodeRadioGroup.selectedValue != 'N' && 
+								this.seqSetup1View.numberSamplesPerChannel != null && this.seqSetup1View.numberSamplesPerChannel.value > 1) {
 					show = true;
 				} else {
 					show = false;

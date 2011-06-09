@@ -186,6 +186,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Generate xml
           Document doc = new Document(new Element("OpenRequestList"));
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+          
+          String accountNumberDisplay = "";
+          
+          if(request.getBillingAccount() != null) {
+            accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
+          }
+          requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
 
           // Initialize attributes from request category
           if (request.getCodeRequestCategory() != null && !request.getCodeRequestCategory().equals("")) {
