@@ -318,10 +318,12 @@
 				} else if (this.id == "editView") {
 					this.currentState = "EditState";
 				} else if (!parentApplication.submitInternalExperiment()) {
-					this.currentState = "ExternalState";
+					this.currentState = "";
 				}else {
 					this.currentState = "";
 				}
+				
+
 				
 
 				this.initializeData();
@@ -335,7 +337,9 @@
 			// the state if we are toggling between register external
 			// experiment and submit internal experiment.
 			if (!isEditState() && !isAmendState()) { 
-				setRequestCategoryName();		 		
+				if (!parentApplication.isInternalExperimentSubmission) {
+					
+				}
 			}
 			
 			
@@ -485,6 +489,7 @@
 			if (currentState == 'SolexaBaseState' ||
 				currentState == 'SolexaBaseExternalState' ||
 				currentState == 'SolexaEditState' ||
+				currentState == 'SeqExternalEditState' ||
 			    currentState == 'SolexaBaseAmendState' ||
 			    currentState == 'SolexaLaneAmendState') {
 				return true;    	
@@ -527,7 +532,8 @@
 			}
 		}
 		public function isSolexaEditState():Boolean {
-			if (currentState == 'SolexaEditState') {
+			if (currentState == 'SolexaEditState' ||
+			    currentState == 'SeqExternalEditState') {
 				return true;    	
 			} else {
 				return false;
@@ -2565,7 +2571,11 @@
 					request.@codeApplication = setupView.getApp();								
 				}
 			} else if (this.isQCState()) {
-				request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;
+				if (parentApplication.submitInternalExperiment()) {
+					request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;					
+				} else {
+					request.@codeApplication = setupView.getApp();						
+				}
 			}
 			
 			
@@ -2822,7 +2832,7 @@
 				} else {
 					showPrintableRequestForm();
 				}
-				// Just close the window when the request has been submitte
+				// Just close the window when the request has been submitted
 				// and show the submitted experiment in the Experiments view.
 				var theRequestNumber:String = this.submittedRequestNumber;
 				getNewRequest.send();  
@@ -3953,8 +3963,6 @@
  	   
 	
     <mx:states>
-		<mx:State name="ExternalState">
-		</mx:State>
     	<mx:State name="EditState">
     		<mx:AddChild relativeTo="{vbox1}" position="before">
     			<mx:HBox width="100%" paddingTop="0" paddingBottom="0" horizontalGap="6" paddingLeft="0" paddingRight="0">
@@ -4121,12 +4129,11 @@
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
-		<mx:State name="MicroarrayExternalState" basedOn="ExternalState">
+		<mx:State name="MicroarrayExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
         <mx:State name="MicroarrayAmendState" basedOn="AmendState">
     		<mx:RemoveChild target="{seqSetupView}"/>
@@ -4141,7 +4148,8 @@
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
         </mx:State>
-		<mx:State name="QCExternalState" basedOn="ExternalState">
+		<mx:State name="QCExternalState" >
+			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
@@ -4204,7 +4212,7 @@
             	</experiment:TabLanesView>
             </mx:AddChild>
 			<mx:AddChild relativeTo="{lanesView}" position="after">
-				<mx:VBox label="Instructions">
+				<mx:VBox id="instructionsView" label="Instructions">
 					
 					<mx:HBox id="coreInstructionsBox" width="100%" horizontalGap="0" height="100%" paddingRight="5" paddingBottom="5">
 						<mx:Text text="{'Sample prep instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}" width="314"  id="label12"/>
@@ -4217,13 +4225,8 @@
 				</mx:VBox>
 			</mx:AddChild>
          </mx:State>
-		<mx:State name="SeqExternalEditState" basedOn="EditState">
-				<mx:RemoveChild target="{seqSetupView}"/>
-				<mx:RemoveChild target="{setupView}"/>
-				<mx:RemoveChild target="{sampleSetupView}"/>
-				<mx:RemoveChild target="{hybsView}"/>
-				<mx:RemoveChild target="{hybSetupView}"/>
-				<mx:RemoveChild target="{confirmView}"/>			
+		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
+				<mx:RemoveChild target="{instructionsView}"/>		
 		</mx:State>
         <mx:State name="BaseSubmitState">
         </mx:State>
@@ -4330,9 +4333,6 @@
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{seqSetupView}"/>
         </mx:State>
-        <mx:State name="MicroarrayExternalState" basedOn="ExternalState"/>
-        <mx:State name="SeqExternalState" basedOn="ExternalState"/>
-        <mx:State name="QCExternalState" basedOn="ExternalState"/>
     </mx:states>
     
 

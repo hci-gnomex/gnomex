@@ -498,21 +498,29 @@
 		        	}
 			   	
 		        } else if (currentState != null && currentState.indexOf('QCSamples') >= 0){
-	        		if (isEntered(sample, "@name") &&
-			        	isEntered(sample, "@idSampleType") &&		        		
-			        	isEntered(sample, "@idSamplePrepMethod") &&		        		
-			        	isEntered(sample, "@concentration") &&
-	        			isEntered(sample, "@codeConcentrationUnit") ) {
-	        				
-	        			if (!parentDocument.isEditState() &&
-	        			    parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
-	        				if (isEntered(sample, "@codeBioanalyzerChipType")) {
-								completeCount++;       				
-	        				} 
-	        			} else {
-	        				completeCount++;
-	        			}
-	        		}
+					if (!parentApplication.submitInternalExperiment()) {
+						if (isEntered(sample, "@name") &&
+							isEntered(sample, "@idSamplePrepMethod") &&	
+							isEntered(sample, "@idSampleType")) {
+							completeCount++;
+						}
+					} else {
+						if (isEntered(sample, "@name") &&
+							isEntered(sample, "@idSampleType") &&		        		
+							isEntered(sample, "@idSamplePrepMethod") &&		        		
+							isEntered(sample, "@concentration") &&
+							isEntered(sample, "@codeConcentrationUnit") ) {
+							
+							if (!parentDocument.isEditState() &&
+								parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
+								if (isEntered(sample, "@codeBioanalyzerChipType")) {
+									completeCount++;       				
+								} 
+							} else {
+								completeCount++;
+							}
+						}
+					} 
 	        		 
         		} else {
 					if (isEntered(sample, "@name") &&
@@ -823,7 +831,7 @@
 				numberSequencingCyclesCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = false;
-				concentrationUnitColumn.editable = true;
+				concentrationUnitColumn.editable = !isExternal;
 				sampleOrganismColumn.visible = false;
 				chipTypeColumn.visible = false; 
 				samplePrepMethodCol.visible = true;
@@ -878,7 +886,7 @@
 				preppedByCoreCol.visible = false;
 				seqLibProtocolCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
-				concentrationUnitColumn.visible = true;
+				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = true;
 				sampleOrganismColumn.visible = false;
 				samplePrepMethodCol.visible = true;
@@ -898,7 +906,7 @@
 				preppedByCoreCol.visible = false;
 				seqLibProtocolCol.visible = false;
 				idSeqRunTypeCol.visible = false; 
-				concentrationUnitColumn.visible = true;
+				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = true;
 				samplePrepMethodCol.visible = true;
