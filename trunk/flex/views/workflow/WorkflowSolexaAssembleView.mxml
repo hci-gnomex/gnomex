@@ -72,6 +72,7 @@
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		
+		import mx.collections.IHierarchicalCollectionView;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.events.CollectionEvent;
@@ -403,18 +404,58 @@
     		dirtyChannelWorkList.addItemAt(item, pos + 1);
     		
     		assembleLanesGrid.selectedItem = item; 
-    	}   	
+    	}   
+		
+		private function mergeSamples():void {
+			// If the selected samples span mutiple requests, prompt user 
+			// to ensure that samples should be merged into one lane
+			var requestNumbers:Dictionary = new Dictionary();
+			for each(var wi:XML in this.assembleLanesGrid.dataProvider) {
+				requestNumbers[wi.@requestNumber.toString()] = wi.@requestNumber.toString();
+			}
+			var requestNumberCount:int = 0;     
+			for (var key:* in requestNumbers) {         
+				requestNumberCount++;     
+			} 
+			
+			if (requestNumberCount > 1) {
+				Alert.show("Are you sure you want to merge samples from different experiments into one channel?", 
+					"Warning", 
+					(Alert.YES | Alert.NO), 
+					null, onPromptForMerge);
+				
+			} else {
+				mergeSamplesImpl();
+			}
+			
+		}
+		
+		private function onPromptForMerge(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				mergeSamplesImpl();
+			}
+		}
     	
-    	private function mergeSamples():void {
+    	private function mergeSamplesImpl():void {
     		var prevChannelCount:int = getChannelCount();
+			// Find a unique multiplex number that will guarantee that these samples get
+			// combined into same channel
+			var specialMultiplexNumber:Number = 999;
+			for each(var wi:XML in this.assembleLanesGrid.dataProvider) {
+				if (wi.@multiplexGroupNumber > specialMultiplexNumber) {
+					specialMultiplexNumber = wi.@multiplexGroupNumber;
+				}
+			}
+			specialMultiplexNumber++;
     		for each(var workItem:XML in this.assembleLanesGrid.selectedItems) {
-    			workItem.@multiplexGroupNumber = "";
+    			workItem.@multiplexGroupNumber = specialMultiplexNumber;
+				workItem.@allowMultiRequestMerge = 'Y';
     		}
     		this.reassignChannelNumbers();
     		if (prevChannelCount > getChannelCount()) {
     			Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
     		} else {
-    			Alert.show("Unable to combine samples into one channel.  Samples must belong to same request, have unique barcodes, and be adjacent to each other on the flowcell grid.");
+    			Alert.show("Unable to combine samples into one channel.  Samples must have unique index tag sequences or unique index tag groups and be adjacent to each other on the flowcell grid.");
     		}
     	}
 	  	private function onDragDropLane(event:DragEvent) : void
@@ -525,7 +566,7 @@
    			} else {
    				return true;
    			} 	      			
-		}
+		} 
 		
 		private function dragWorkItem(dragNode:XML, row:int):void {
        		dragNode.@sampleConcentrationpM = '';
@@ -536,6 +577,7 @@
 	    	var x:int = 0;
 	    	for each(var child:XML in multiplexLaneNode.children()) {
 	    		if (child.@number == dragNode.@number) {
+					//mx.collections.IHierarchicalCollectionView(pendingLanesGrid.dataProvider).refresh();
 		    		delete multiplexLaneNode.children()[x];
 		    		break;
 	    		}
@@ -547,6 +589,7 @@
 	    		x = 0;
 	    		for each(var laneNode:XML in requestNode.children()) {
 	    			if (laneNode.@number == multiplexLaneNode.@number) {
+						//mx.collections.IHierarchicalCollectionView(pendingLanesGrid.dataProvider).refresh();
 		    			delete requestNode.children()[x];
 		    			break;
 		    		}
@@ -557,6 +600,8 @@
 	    	if (requestNode.children().length() == 0) {
 	    		this.workList.removeItemAt(workList.getItemIndex(requestNode));
 	    	}
+			
+			//mx.collections.IHierarchicalCollectionView(pendingLanesGrid.dataProvider).refresh();
 			
 		}
 		
@@ -574,23 +619,43 @@
 			var altColor:Boolean = true;
 			var prevRequestNumber:String = "%%%";
 			var prevMultiplexNumber:String = "%%%";
+			var prevAllowMultiRequestMerge:String = 'N';
 			for each(var wi:Object in dirtyChannelWorkList) {
 				var nextChannel:Boolean = true;
-				if (wi.@requestNumber != prevRequestNumber) {
-					nextChannel = true
-				} else if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
-					nextChannel = true;
-				} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
-					if (prevBarcodes.length > 0) {
-						nextChannel = false;
-						for each(var bc:Object in prevBarcodes) {
-							if (wi.@barcodeSequence == bc.@barcodeSequence) {
-								nextChannel = true;
-								break;
+				if (wi.hasOwnProperty("@allowMultiRequestMerge") && wi.@allowMultiRequestMerge == 'Y') {
+				    if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
+						nextChannel = true;
+					} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
+						if (prevBarcodes.length > 0) {
+							nextChannel = false;
+							for each(var bc:Object in prevBarcodes) {
+								if (wi.@barcodeSequence == bc.@barcodeSequence) {
+									nextChannel = true;
+									break;
+								}
 							}
 						}
+						prevBarcodes.addItem(wi);
 					}
-					prevBarcodes.addItem(wi);
+					
+				} else {
+					if (wi.@requestNumber != prevRequestNumber) {
+						nextChannel = true;
+					} else if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
+						nextChannel = true;
+					} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
+						if (prevBarcodes.length > 0) {
+							nextChannel = false;
+							for each(var barcode:Object in prevBarcodes) {
+								if (wi.@barcodeSequence == barcode.@barcodeSequence) {
+									nextChannel = true;
+									break;
+								}
+							}
+						}
+						prevBarcodes.addItem(wi);
+					}
+					
 				}
 				if (nextChannel) {
 					channelNumber++;
@@ -609,6 +674,8 @@
 				}
 				prevRequestNumber = wi.@requestNumber;
 				prevMultiplexNumber = wi.@multiplexGroupNumber;
+				prevAllowMultiRequestMerge = wi.hasOwnProperty("@allowMultiRequestMerge") ? wi.@allowMultiRequestMerge : "N";
+
 			}
 		}
 		
