@@ -262,17 +262,21 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
     
     Integer idNumberSequencingCycles = (Integer)row[12];
-    if (idNumberSequencingCycles.intValue() != -1) {
+    if (idNumberSequencingCycles != null && idNumberSequencingCycles.intValue() != -1) {
       Integer numberSeqCycles = (Integer)this.numberSeqCyclesMap.get(idNumberSequencingCycles);
       itemNode.setAttribute("numberSequencingCycles", numberSeqCycles.toString());      
-    }    
+    } else {
+      itemNode.setAttribute("numberSequencingCycles", "?");      
+    }
 
     Integer idSeqRunType = (Integer)row[13];
-    if (idSeqRunType.intValue() != -1) {
+    if (idSeqRunType != null && idSeqRunType.intValue() != -1) {
       String seqRunType = (String)this.seqRunTypeMap.get(idSeqRunType);
       itemNode.setAttribute("seqRunType", seqRunType);      
       this.requestSeqRunTypeMap.put(seqRunType, null);
-    }    
+    } else {
+      itemNode.setAttribute("seqRunType", "?");      
+    }
 
     Integer idSampleType = (Integer)row[18];
     if (idSampleType.intValue() != -1) {
@@ -286,7 +290,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       label.append(" -  ");
       label.append(itemNode.getAttributeValue("sampleName1"));
-      requestNode.setAttribute("seqRunType", itemNode.getAttributeValue("seqRunType"));
+       requestNode.setAttribute("seqRunType", itemNode.getAttributeValue("seqRunType"));
     } else {
       label.append(" - ");
       label.append(itemNode.getAttributeValue("sampleName1"));

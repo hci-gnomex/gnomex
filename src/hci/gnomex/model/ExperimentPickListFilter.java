@@ -128,6 +128,8 @@ public class ExperimentPickListFilter extends DetailObject {
 
 
     addRequestCriteria();
+    
+  
     addLaneCriteria();
     addSecurityCriteria();
   }
@@ -157,6 +159,8 @@ public class ExperimentPickListFilter extends DetailObject {
    
     
   }
+  
+
   
   private void addHybCriteria() {
     
