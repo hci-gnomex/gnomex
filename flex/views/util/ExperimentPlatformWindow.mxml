@@ -139,7 +139,28 @@
 				this.dirty.setDirty();
 			}
 		}
+
+		private function addSamplePrepMethod():void {
+			var newNode:XML = new XML("<SamplePrepMethod " +
+				" isSelected='N'" +
+				" idSamplePrepMethod='" + 'SamplePrepMethod' + "'" +
+				" display='" + 'enter method name here...' + "'" +
+				" isActive='Y'" +
+				" />");
+			this.samplePrepMethods.addItemAt(newNode, 0);
+			this.samplePrepMethodGrid.selectedItem = newNode;
+			this.samplePrepMethodGrid.scrollToIndex(0);
+			this.dirty.setDirty();
+			
+		}
 		
+		private function removeSamplePrepMethod():void {
+			if (this.samplePrepMethodGrid.selectedItem != null) {
+				this.samplePrepMethods.removeItemAt(samplePrepMethods.getItemIndex(samplePrepMethodGrid.selectedItem));
+				this.dirty.setDirty();
+			}
+		}
+
 	]]>
 </mx:Script>
 	
@@ -274,11 +295,12 @@
 								<mx:VBox width="100%" height="100%" verticalGap="0">
 									<mx:HBox verticalAlign="middle">
 										<mx:Label text="Nucleic Acid extraction methods" width="180"/>
-										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
-										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; samplePrepMethodGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" click="{addSamplePrepMethod()}"/>
+										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; samplePrepMethodGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="{removeSamplePrepMethod()}"/>
 									</mx:HBox>
 									<mx:DataGrid id="samplePrepMethodGrid" 
 												 dataProvider="{samplePrepMethods}"
+												 editable="true"
 												 width="100%" height="100%">
 										<mx:columns>
 											<mx:DataGridColumn headerText=" "  
@@ -288,7 +310,7 @@
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">			 
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Nucl. acid extraction Method"  dataField="@display" >
+											<mx:DataGridColumn headerText="Nucl. acid extraction Method" editable="true"  dataField="@display" >
 											</mx:DataGridColumn>
 										</mx:columns>
 									</mx:DataGrid>
