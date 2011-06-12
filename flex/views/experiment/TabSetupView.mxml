@@ -670,7 +670,15 @@
 		}
 		
 		private function pickApp():void {
+			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', getApp());
+			if (application != null && application is XMLList) {
+				this.parentDocument.applicationName = application[0].@display;
+			} else {
+				this.parentDocument.applicationName = application.@display;
+			}
+
 			checkSetupCompleteness();
+			
 			if (currentState.indexOf("Microarray") > 0) {
 				getSlideProductCombo().selectedIndex = 0;
 				parentDocument.filteredSlideProductList.refresh();
