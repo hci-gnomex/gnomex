@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				width="898" height="498" 
+				 creationComplete="{init()}"
+				 xmlns:util="views.util.*" 
+				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				title="Organisms">
+	
+<mx:HTTPService  
+		id="saveOrganism" 
+		url="SaveOrganism.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveOrganism(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save sample annotation', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+	
+<mx:HTTPService  
+		id="deleteOrganism" 
+		url="DeleteOrganism.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDeleteOrganism(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete sample annotation', event)"
+		method="POST" 
+		useProxy="false">
+</mx:HTTPService>
+		
+<mx:Script>
+	<![CDATA[
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.util.DirtyNote;
+	import views.util.OrganismEvent;
+	import mx.controls.Alert;
+	import mx.events.CloseEvent;
+	import hci.flex.controls.CheckBox;
+		
+	private var idOrganism:Object = null;
+		
+	private function setDirty():void {
+		if (saveButton.enabled) {
+			dirty.setDirty();
+		}
+	}
+	
+	private function init():void {
+		organisms = new XMLListCollection();
+		for each(var o:XML in parentApplication.organismList) {
+			organisms.addItem(o.copy());
+		}
+		parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
+			onOrganismRefreshed);		                                  
+		parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
+			onOrganismRefreshed);
+		
+	}	
+			
+	private function onOrganismRefreshed(event:Event):void{
+		organisms = new XMLListCollection();
+		for each(var o:XML in parentApplication.organismList) {
+			organisms.addItem(o.copy());
+		}
+		reselectOrganism();
+		dirty.resetDirty();
+	}	
+		
+	private function reselectOrganism():void {
+		var found:Boolean = false;
+		if (idOrganism != null) {
+			for each(var o:Object in organisms) {
+				if (o.@idOrganism == idOrganism) {
+					oList.selectedItem = o;
+					oList.scrollToIndex(oList.selectedIndex);
+					found = true;
+					break;
+				}
+			}
+		}
+		if (found) {
+			theViews.selectedIndex = 1;
+		} else {
+			theViews.selectedIndex = 0;
+		}
+	}
+		
+	private function onSelectOrganism():void {
+		if (oList.selectedItem != null) {
+			theViews.selectedIndex = 1;
+
+			setOwnerCombo();
+
+			dirty.resetDirty();
+		}
+	}
+		
+	private function setOwnerCombo():void {
+		this.ownerCombo.selectedItem = null;
+		this.ownerCombo.enabled = true;
+		for each(var user:XML in parentApplication.promptedAppUserList) {
+			if (user.@idAppUser == oList.selectedItem.@idAppUser) {
+				this.ownerCombo.selectedItem = user;
+				break;
+			}
+		}
+		this.ownerCombo.enabled = parentApplication.hasPermission("canWriteDictionaries") ? true : false;
+	}
+		
+
+	private function addOrganism():void {
+		var newOrganism:XML = new XML("<Organism " +
+			" idOrganism=''" +
+			" organism='enter name here..'" +
+			" isActive='Y'" +
+			" canUpdate='Y'"  +
+			" canDelete='Y'" + 
+			" canRead='Y'" +
+			" mageOntologyCode=''" + 
+			" mageOntologyDefinition=''" + 
+			" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
+			" />");
+		organisms.addItemAt(newOrganism, 0);
+		 
+		
+		oList.selectedItem = newOrganism;
+		oList.scrollToIndex(oList.selectedIndex);
+		idOrganism = "";
+		
+		setOwnerCombo();
+		
+		setDirty();
+
+	}
+		
+	private function removeOrganism():void {
+		if (oList.selectedItem == null) {
+			return;
+		}
+		idOrganism = "";
+		
+		Alert.show( "Are you sure you want to delete this organism and its associated genome builds?",
+			"Warning",
+			(Alert.YES | Alert.CANCEL), this, 
+			onPromptDeleteOrganism,						
+			parentApplication.iconWarning);
+	}
+	
+	private function onPromptDeleteOrganism(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			var params:Object = new Object();
+			params.idOrganism = oList.selectedItem.@idOrganism;
+			deleteOrganism.send(params);
+		}
+	}		
+	
+	private function onDeleteOrganism(event:ResultEvent): void {
+		if (deleteOrganism.lastResult.name() == "SUCCESS") {
+			parentApplication.getOrganismList.send();
+			
+		} else {
+			mx.controls.Alert.show(deleteOrganism.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+		
+	private function addGenomeBuild():void {
+		var newOption:XML = new XML("<GenomeBuild " +
+			" idGenomeBuild='GenomeBuild" + genomeBuilds.length + "'" +
+			" genomeBuildName='Enter Genome Build Name here..'" +
+			" isLatestBuild='Y'" +
+			" isActive='Y'" +
+			" />");
+		genomeBuilds.addItem(newOption);
+		setDirty();
+	}
+	
+	private function removeGenomeBuild():void {
+		if (this.genomeBuildGrid.selectedItem != null) {
+			genomeBuilds.removeItemAt(genomeBuilds.getItemIndex(genomeBuildGrid.selectedItem));
+			setDirty();
+		}
+	}		
+		
+		
+	private function save():void {
+		if (oList.selectedItem == null) {
+			return;
+		}
+		
+		var params:Object = new Object();
+		params.idOrganism = oList.selectedItem.@idOrganism;
+		params.organism = oName.text;
+		params.isActive = this.isActive.selected ? "Y" : "N";
+		params.mageOntologyCode = mageOntologyCode.text;
+		params.mageOntologyDefinition = mageOntologyDefinition.text; 
+		params.abbreviation = abbreviation.text; 
+		if (parentApplication.hasPermission("canWriteDictionaries")) {
+			params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
+		} else {
+			params.idAppUser = parentApplication.getIdAppUser();
+		}
+		params.genomeBuildsXMLString = "<genomeBuilds>" + this.genomeBuilds.toXMLString() + "</genomeBuilds>";
+		
+		saveOrganism.send(params);
+		
+	}
+		
+	private function onSaveOrganism(event:ResultEvent): void {
+		if (saveOrganism.lastResult.name() == "SUCCESS") {
+			idOrganism = saveOrganism.lastResult.@idOrganism;
+
+			parentApplication.getOrganismList.send();
+		} else {
+			mx.controls.Alert.show(saveOrganism.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}				
+		
+	]]>
+</mx:Script>
+	
+<mx:XMLListCollection id="organisms"/>
+<mx:XMLListCollection id="genomeBuilds" source="{oList.selectedItem.genomeBuilds.GenomeBuild}"/>
+<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
+		<mx:LinkButton label="Add organism" styleName="linkMenuButton" click="addOrganism()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
+		<mx:LinkButton label="Remove organism" styleName="linkMenuButton" click="removeOrganism()" enabled="{oList.selectedItem != null &amp;&amp; oList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+	</mx:HBox>
+	
+<mx:HDividedBox height="100%" width="100%" >
+  <mx:VBox height="100%" width="200" styleName="panelBox">
+		<mx:List id="oList" width="100%" height="100%" labelField="@organism" dataProvider="{organisms}" 
+				 itemClick="{onSelectOrganism()}">
+		</mx:List>
+  </mx:VBox>	
+  <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
+	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
+	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
+		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
+			 <mx:HBox width="100%" verticalGap="0">
+			  <mx:Label text="Name:" width="80"/>
+			  <mx:TextInput text="{oList.selectedItem.@organism}" change="{setDirty()}" width="100%" id="oName"  maxChars="100" />
+			  <mx:HBox >
+			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+			    <mx:selected>{oList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
+			   </mx:CheckBox>
+			   <mx:Spacer width="80"/>
+			  </mx:HBox>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+			 	<mx:Text text="Abbreviation:" width="80"/>
+			 	<mx:TextInput text="{oList.selectedItem.@abbreviation}" change="{setDirty()}" width="192" id="abbreviation"  maxChars="10"/>
+			 </mx:HBox>			 
+			 <mx:HBox width="100%" verticalGap="0">
+				 <mx:Text text="Mage Code:" width="80"/>
+				 <mx:TextInput text="{oList.selectedItem.@mageOntologyCode}" change="{setDirty()}" width="192" id="mageOntologyCode"  maxChars="100"/>
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0">
+				 <mx:Text text="Mage Definition:" width="80"/>
+				 <mx:TextArea text="{oList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
+			 </mx:HBox>			 			 
+			 <mx:HBox width="100%" verticalGap="0">
+				<mx:Text text="Genome Builds:" width="80"/>
+			  <mx:HBox width="100%" verticalGap="0" height="100%">
+			   <mx:VBox verticalGap="0" height="100%" width="100%">				   
+			    <mx:HBox>
+			     <mx:LinkButton label="Add" styleName="linkMenuButton" click="addGenomeBuild()"   enabled="{oList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+			     <mx:LinkButton label="Remove" styleName="linkMenuButton" click="removeGenomeBuild()" enabled="{oList.selectedItem.@canUpdate == 'Y' &amp;&amp; genomeBuildGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+			    </mx:HBox>
+			    <mx:DataGrid change="setDirty()" id="genomeBuildGrid" dataProvider="{genomeBuilds}" editable="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="110" width="100%" showHeaders="true" >
+			     <mx:columns>
+			      <mx:DataGridColumn headerText="Name" width="120" dataField="@genomeBuildName"/>
+			      <!--mx:DataGridColumn headerText="Latest Build"  width="25" dataField="@isLatestBuild"/-->
+				  <mx:DataGridColumn headerText="Latest Build" dataField="@isLatestBuild" textAlign="center" width="50" editable="false">
+					 <mx:itemRenderer>
+						 <mx:Component>
+							 <mx:CheckBox selected="{(data.@isLatestBuild == 'Y')?true:false}" click="{data.@isLatestBuild = (data.@isLatestBuild != 'Y') ? 'Y' : 'N';}"/>
+						 </mx:Component>
+					 </mx:itemRenderer>
+				  </mx:DataGridColumn>					 					 
+			      <!--mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/-->
+				  <mx:DataGridColumn headerText="Active" dataField="@isActive" textAlign="center" width="50" editable="false">
+					 <mx:itemRenderer>
+						 <mx:Component>
+							 <mx:CheckBox selected="{(data.@isActive == 'Y')?true:false}" click="{data.@isActive = (data.@isActive != 'Y') ? 'Y' : 'N';}"/>
+						 </mx:Component>
+					 </mx:itemRenderer>
+				  </mx:DataGridColumn>					 					 
+			     </mx:columns>
+			    </mx:DataGrid>
+			   </mx:VBox>
+			  </mx:HBox>
+			 </mx:HBox> 
+			 <mx:HBox width="100%" >
+			  <mx:Label text="Owner:" width="80"/>
+			  <mx:ComboBox width="100%" id="ownerCombo"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>							         			
+			 </mx:HBox>
+		</mx:VBox>
+		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+			<util:DirtyNote id="dirty" />
+			<mx:Button id="saveButton" label="Save"  enabled="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+			
+		</mx:ControlBar>
+	</mx:VBox>
+  </mx:ViewStack>
+
+	
+</mx:HDividedBox>
+</mx:VBox>
+	
+</mx:TitleWindow>

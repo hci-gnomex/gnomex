@@ -87,7 +87,20 @@
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService >
-         
+	
+	<mx:HTTPService 
+		id="getOrganismList" 
+		url="GetOrganismList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getOrganismList"
+		result="onGetOrganismList(event)"
+		fault="onFailHttpRequest('Failed to get organism list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
     <mx:HTTPService 
     id="getAppUserList" 
     url="GetAppUserList.gx"
@@ -157,6 +170,7 @@
 			import views.util.CaptchaView;
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleCharacteristicEvent;
+			import views.util.OrganismEvent;
 			import views.util.WorkAuthorizationWindow;
             
             [Bindable]
@@ -422,6 +436,8 @@
 			public var promptedWorkAuthLabList:PromptXMLListCollection;
 			[Bindable]
 			public var sampleCharacteristicList:XMLListCollection;
+			[Bindable]
+			public var organismList:XMLListCollection;
 
 			private var properties:Object;
 			
@@ -1094,6 +1110,7 @@
 	        
             private function onGetProjectList(event:ResultEvent):void {
 				getSampleCharacteristicList.send();
+				getOrganismList.send();
 				
 	       	    showProgress(10);
 	        	enableApp();
@@ -1108,7 +1125,17 @@
 					enableApp();
 				}
 			}
-	        
+			
+			private function onGetOrganismList(event:ResultEvent):void {
+				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
+				this.dispatchEvent(new OrganismEvent(OrganismEvent.DATA_REFRESHED));
+				
+				if (currentState == null || currentState == "") {
+					showProgress(10);
+					enableApp();
+				}
+			}
+			
 	        private function enableApp():void {
 	        	// If we are already in an enabled state,
 	        	// just return.
@@ -1324,22 +1351,36 @@
 				}
 		}
 			
-		public function getSampleCharacteristic(idSampleCharacteristic:String):Object {
-			var sampleCharacteristic:XML = null;
-			for each(var sc:XML in sampleCharacteristicList) {
-				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
-					if (sc is XMLList) {
-						sampleCharacteristic = sc[0];
-					} else {
-						sampleCharacteristic = sc as XML;
+			public function getSampleCharacteristic(idSampleCharacteristic:String):Object {
+				var sampleCharacteristic:XML = null;
+				for each(var sc:XML in sampleCharacteristicList) {
+					if (sc.@idSampleCharacteristic == idSampleCharacteristic) {
+						if (sc is XMLList) {
+							sampleCharacteristic = sc[0];
+						} else {
+							sampleCharacteristic = sc as XML;
+						}
 					}
 				}
-			}
-			return sampleCharacteristic;
-		}		
-
+				return sampleCharacteristic;
+			}		
+			
+			public function getOrganism(idOrganism:String):Object {
+				var organism:XML = null;
+				for each(var o:XML in organism) {
+					if (o.@idOrganism == idOrganism) {
+						if (o is XMLList) {
+							organism = o[0];
+						} else {
+							organism = 0 as XML;
+						}
+					}
+				}
+				return organism;
+			}		
+			
 		
-		public function getSampleCharacteristicOptions(idSampleCharacteristic:String, includeInactive:Boolean=true):XMLList {
+			public function getSampleCharacteristicOptions(idSampleCharacteristic:String, includeInactive:Boolean=true):XMLList {
 			var sampleCharacteristic:XML = null;
 			for each(var sc:XML in sampleCharacteristicList) {
 				if (sc.@idSampleCharacteristic == idSampleCharacteristic) {

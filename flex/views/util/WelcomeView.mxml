@@ -20,6 +20,7 @@
 			<mx:SetProperty target="{button5}" name="toolTip" value="Download analysis data files"/>
 			<mx:RemoveChild target="{button12}"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{organismButton0}"/>
 		</mx:State>
 		<mx:State name="AdminState">
 			<mx:RemoveChild target="{button8}"/>
@@ -64,14 +65,20 @@
 							   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 			</mx:AddChild>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:SetStyle target="{vbox10}" name="verticalGap"/>
 			<mx:SetStyle target="{vbox11}" name="borderStyle" value="solid"/>
 			<mx:SetStyle target="{vbox11}" name="cornerRadius" value="6"/>
 			<mx:SetStyle target="{vbox11}" name="backgroundColor" value="#FBF4A5"/>
 			<mx:SetStyle target="{vbox11}" name="backgroundAlpha" value="0.83"/>
 			<mx:AddChild relativeTo="{button9}" position="before">
-				<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platform" styleName="dashboardButton" 
+				<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platform
+							   " styleName="dashboardButton" 
 							   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{button9}" position="before">
+				<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
+							   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
@@ -94,6 +101,7 @@
 		<mx:State name="UniversityOnlyUserState" basedOn="UserNonSubmitterState" >
 			<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{organismButton0}"/>
 		</mx:State>
 		<mx:State name="ExternalUserState">
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
@@ -115,6 +123,7 @@
 				<mx:LinkButton label="Change Password" click="changePassword()" styleName="dashboardButton"  id="buttonChangePassword0"  icon="@Embed(source='../../assets/user.png')"/>
 			</mx:AddChild>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
+			<mx:RemoveChild target="{organismButton0}"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -232,6 +241,12 @@
 				
 			}
 			
+			private function showOrganismWindow():void {
+				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+			}
+			
 			
 			private function showExperimentPlatformWindow():void {
 				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformWindow, true));
@@ -268,6 +283,8 @@
 				<mx:LinkButton label="Pricing" click="showPricing()" styleName="dashboardButton"  id="button12"  toolTip="Show core facility pricing for experiment services and products" icon="@Embed(source='../../assets/money.png')" visible="{parentApplication.pricingURL != ''}"/>
 				<mx:LinkButton id="sampleCharacteristicButton0"  label="Configure Sample Annotations" styleName="dashboardButton" 
 							   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+				<mx:LinkButton id="organismButton0"  label="Configure Organisms" styleName="dashboardButton" 
+							   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
 			</mx:VBox>
 			<mx:VBox height="100%" verticalAlign="top" horizontalAlign="left" id="vbox1" verticalGap="2" width="268" label="View experiment protocol descriptions">
 				<mx:HBox id="hbox7" horizontalGap="2" verticalAlign="middle">
