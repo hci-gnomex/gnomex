@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
 import java.io.Serializable;
+import java.util.Set;
 
 
 
@@ -14,6 +15,18 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
   private String  isActive;
   private Integer idAppUser;
   
+  /*
+  private Set<GenomeBuild>     genomeBuilds;
+  
+  public Set<GenomeBuild> getGenomeBuilds() {
+    return genomeBuilds;
+  }
+
+  public void setGenomeBuilds(Set<GenomeBuild> genomeBuilds) {
+    this.genomeBuilds = genomeBuilds;
+  }
+  */
+
   public String getDisplay() {
     String display = this.getNonNullString(getOrganism());
     return display;

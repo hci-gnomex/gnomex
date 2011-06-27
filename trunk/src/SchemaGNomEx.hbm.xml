@@ -954,6 +954,11 @@
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idAppUser" column="idAppUser" type="integer"/>
+		
+		<!--set name="genomeBuilds" table="GenomeGuild" lazy="false" cascade="delete" order-by="genomeBuildName">
+			<key column="idOrganism"/>
+			<one-to-many class="hci.gnomex.model.GenomeBuild" />
+		</set-->			
 	</class>
 	
 		<!-- hci.gnomex.model.PriceSheet -->

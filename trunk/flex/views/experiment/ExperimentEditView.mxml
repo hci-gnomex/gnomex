@@ -2424,7 +2424,7 @@
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
 			agreeCheckbox.visible = false;
-			agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
+			agreeCheckbox.label = "";
 			agreeCheckbox.selected = false;
 			submitButton.enabled = false;
 			
@@ -2437,6 +2437,8 @@
 				}
 			} else {
 				var accountName:String = isAmendState() ? request.@accountNumberDisplay : setupView.billingAccountCombo.selectedItem.@accountNumberDisplay;
+				
+				agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
 
 				// This is a new experiment request. Get the estimated
 				// charnges for this request.
