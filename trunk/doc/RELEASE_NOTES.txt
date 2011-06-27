@@ -11,6 +11,7 @@
 - Removed code that prevents exp. submission if insufficient funds. Added checkbox to commit to payment.
 - Allow samples from different experiments to be combined in one flow cell channel on Clust Gen worklist window.
 - Sequence sample sequence lanes on Edit window so that save will work on external submissions.
+- New interface for managing Organism/GNome Build.
 
 5.1.5.2 (May 18,2011)
 ---------------------
