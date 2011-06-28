@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.1.6.1
+---------------------
+- Fixed bug causing billing account with same name to not show up.
+- New Organism edit window.
+- Fix for autoscroll on billing window
+
 5.1.6
 ---------------------
 - Reworked external experiment submission screen.
