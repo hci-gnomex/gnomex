@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="898" height="498" 
+				width="804" height="398" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
-				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				 showCloseButton="true" close="{closeWindow()}"
 				title="Organisms">
 	
 <mx:HTTPService  
@@ -45,6 +45,12 @@
 		if (saveButton.enabled) {
 			dirty.setDirty();
 		}
+	}
+		
+	private function closeWindow():void {
+		parentApplication.dictionaryManager.reload();
+		
+		PopUpManager.removePopUp(this);
 	}
 	
 	private function init():void {
@@ -238,7 +244,7 @@
   <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
 	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
 	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
+		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="6">			 
 			 <mx:HBox width="100%" verticalGap="0">
 			  <mx:Label text="Name:" width="80"/>
 			  <mx:TextInput text="{oList.selectedItem.@organism}" change="{setDirty()}" width="100%" id="oName"  maxChars="100" />
@@ -261,7 +267,7 @@
 				 <mx:Text text="Mage Definition:" width="80"/>
 				 <mx:TextArea text="{oList.selectedItem.@mageOntologyDefinition}" change="{setDirty()}" width="100%" id="mageOntologyDefinition"  maxChars="100"/>
 			 </mx:HBox>			 			 
-			 <mx:HBox width="100%" verticalGap="0">
+			 <mx:HBox width="100%" verticalGap="0" height="100%">
 				<mx:Text text="Genome Builds:" width="80"/>
 			  <mx:HBox width="100%" verticalGap="0" height="100%">
 			   <mx:VBox verticalGap="0" height="100%" width="100%">				   
@@ -269,7 +275,7 @@
 			     <mx:LinkButton label="Add" styleName="linkMenuButton" click="addGenomeBuild()"   enabled="{oList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
 			     <mx:LinkButton label="Remove" styleName="linkMenuButton" click="removeGenomeBuild()" enabled="{oList.selectedItem.@canUpdate == 'Y' &amp;&amp; genomeBuildGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
 			    </mx:HBox>
-			    <mx:DataGrid change="setDirty()" id="genomeBuildGrid" dataProvider="{genomeBuilds}" editable="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="110" width="100%" showHeaders="true" >
+			    <mx:DataGrid change="setDirty()" id="genomeBuildGrid" dataProvider="{genomeBuilds}" editable="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"  height="100%" width="100%" showHeaders="true" >
 			     <mx:columns>
 			      <mx:DataGridColumn headerText="Name" width="120" dataField="@genomeBuildName"/>
 			      <!--mx:DataGridColumn headerText="Latest Build"  width="25" dataField="@isLatestBuild"/-->
@@ -303,7 +309,7 @@
 			<mx:Button id="saveButton" label="Save"  enabled="{oList.selectedItem.@canUpdate == 'Y' ? true : false}"
 					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
 			</mx:Button>
-			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+			<mx:Button label="Close"  click="{closeWindow()}"/>
 			
 		</mx:ControlBar>
 	</mx:VBox>
