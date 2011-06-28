@@ -27,43 +27,13 @@
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button8}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:AddChild relativeTo="{button8}" position="before" target="{hbox2}"/>
-			<mx:SetStyle target="{hbox2}" name="paddingTop" value="20"/>
-			<mx:SetStyle target="{hbox4}" name="paddingTop" value="10"/>
-			<mx:SetStyle target="{hbox0}" name="paddingTop" value="20"/>
+			<mx:SetStyle target="{hbox2}" name="paddingTop" value="10"/>
+			<mx:SetStyle target="{hbox4}" name="paddingTop" value="32"/>
+			<mx:SetStyle target="{hbox0}" name="paddingTop" value="32"/>
 			<mx:RemoveChild target="{hbox6}"/>
-			<mx:SetStyle target="{vbox1}" name="verticalGap" value="4"/>
 			<mx:SetProperty target="{button6}" name="toolTip" value="View protocols used during experiment processing"/>
 			<mx:SetProperty target="{button6}" name="visible" value="true"/>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:HBox id="hbox1" horizontalGap="2" verticalAlign="middle" paddingTop="10" verticalGap="2">
-					<mx:Label text="Administration" styleName="welcomeLabel"/>
-				</mx:HBox>
-			</mx:AddChild>
-			<mx:RemoveChild target="{hbox0}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{hbox0}"/>
-			<mx:RemoveChild target="{button7}"/>
-			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button7}"/>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
-							   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>					
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:LinkButton label="Manage microarray catalog" click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
-				<mx:LinkButton label="Manage billing" click="showBilling()" styleName="dashboardButton"  id="button11"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/money.png')"/>
-			</mx:AddChild>
 			<mx:SetProperty target="{button12}" name="enabled" value="{parentApplication.pricingURL != null ? true : false}"/>
-			<mx:AddChild relativeTo="{button9}" position="before">
-				<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Sample Annotations" styleName="dashboardButton" 
-							   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-			</mx:AddChild>
 			<mx:RemoveChild target="{sampleCharacteristicButton0}"/>
 			<mx:RemoveChild target="{organismButton0}"/>
 			<mx:SetStyle target="{vbox10}" name="verticalGap"/>
@@ -71,15 +41,30 @@
 			<mx:SetStyle target="{vbox11}" name="cornerRadius" value="6"/>
 			<mx:SetStyle target="{vbox11}" name="backgroundColor" value="#FBF4A5"/>
 			<mx:SetStyle target="{vbox11}" name="backgroundAlpha" value="0.83"/>
-			<mx:AddChild relativeTo="{button9}" position="before">
-				<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platform
-							   " styleName="dashboardButton" 
-							   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+			<mx:AddChild relativeTo="{hbox8}" position="lastChild">
+				<mx:VBox height="100%" verticalGap="2">
+					<mx:HBox id="hbox1" horizontalGap="2" verticalAlign="middle" verticalGap="2">
+						<mx:Label text="Administration" styleName="welcomeLabel"/>
+					</mx:HBox>
+					<mx:LinkButton id="dictionaryButton"  label="Manage Dictionaries" styleName="dashboardButton" 
+								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
+					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Sample Annotations" styleName="dashboardButton" 
+								   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platform
+								   " styleName="dashboardButton" 
+								   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
+								   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
+					<mx:LinkButton label="Manage microarray catalog" click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
+					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
+					<mx:LinkButton label="Manage billing" click="showBilling()" styleName="dashboardButton"  id="button11"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/money.png')"/>
+				</mx:VBox>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{button9}" position="before">
-				<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
-							   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>				
-			</mx:AddChild>
+			<mx:RemoveChild target="{hbox0}"/>
+			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{hbox0}"/>
+			<mx:RemoveChild target="{button7}"/>
+			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{button7}"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:RemoveChild target="{button1}"/>
@@ -267,7 +252,7 @@
 		verticalAlign="middle" horizontalAlign="center"  
 		paddingRight="6" paddingLeft="6" paddingBottom="6" verticalGap="40" paddingTop="6" id="vbox10">
 		
-		<mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40">
+		<mx:HBox width="100%" verticalAlign="top" horizontalAlign="center" horizontalGap="40" id="hbox8">
 			<mx:VBox height="100%" width="268" verticalGap="2" id="vbox9">
 				<mx:HBox id="hbox3" horizontalGap="2" verticalAlign="middle">
 					<mx:Label text="Experiments" id="label2" styleName="welcomeLabel"/>
