@@ -248,7 +248,7 @@
 			<mx:Label text="(1) Select an organism." width="250" />
 			<mx:ComboBox labelField="@display" width="250" id="organismCombo" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
-				<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry}</mx:dataProvider>
+				<mx:dataProvider>{parentApplication.organismList}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
