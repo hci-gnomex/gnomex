@@ -2396,6 +2396,31 @@
 			if (!isAmendState()) {
 				params.idProject = setupView.projectCombo.selectedItem.@idProject;				
 			}
+			
+			var exceeds500:Boolean = false;
+			
+			if(agreeCheckbox.visible) {
+				
+				try {
+					var totalPrice:String = createBillingItems.lastResult.Request.@totalPrice;
+					totalPrice = totalPrice.replace("$", "");
+					totalPrice = totalPrice.replace(",", "");
+					var myFloat:Number = parseFloat(totalPrice);
+					if(myFloat > 500.0) {
+						exceeds500 = true;
+					}
+					
+				}
+				catch (err:Error) {
+					// Just ignore the check if there is a conversion error
+					exceeds500 = false;
+				}				
+
+			}
+			
+			if(exceeds500) {
+				params.totalPrice = createBillingItems.lastResult.Request.@totalPrice;
+			}		
 			saveNewRequest.send(params);			
 			
 		}
@@ -3843,6 +3868,7 @@
 		protected function agreeCheckbox_clickHandler(event:MouseEvent):void {
 			this.submitButton.enabled = agreeCheckbox.selected;
 		}
+			
 			
 		]]>
 	</mx:Script>

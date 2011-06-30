@@ -1130,6 +1130,18 @@
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				this.dispatchEvent(new OrganismEvent(OrganismEvent.DATA_REFRESHED));
 				
+				if(submitRequestView != null && submitRequestView.sampleSetupView != null) {
+					// Reset dataProvider for sampleSetupView Organism ComboBox
+					submitRequestView.sampleSetupView.sampleOrganismCombo.dropdown.dataProvider = null;
+					submitRequestView.sampleSetupView.sampleOrganismCombo.dropdown.dataProvider = organismList;
+					
+				}
+				if(submitRequestView != null && submitRequestView.hybSetupView != null) {
+					// Reset dataProvider for hybSetupView Organism ComboBox
+					submitRequestView.hybSetupView.organismCombo.dropdown.dataProvider = null;
+					submitRequestView.hybSetupView.organismCombo.dropdown.dataProvider = organismList;
+					
+				}
 				if (currentState == null || currentState == "") {
 					showProgress(10);
 					enableApp();

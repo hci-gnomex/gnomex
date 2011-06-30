@@ -65,6 +65,8 @@ public class PendingWorkAuthd extends TimerTask {
   private static PendingWorkAuthd app;
   
   private Properties mailProps;
+  
+  private boolean runAsDaemon = false;
 
   
   public PendingWorkAuthd(String[] args) {
@@ -73,7 +75,9 @@ public class PendingWorkAuthd extends TimerTask {
         serverName = args[++i];
       } else if (args[i].equals("-wakeupHour")) {
         wakeupHour = Integer.valueOf(args[++i]);
-      }  
+      } else if (args[i].equals ("-runAsDaemon")) {
+        runAsDaemon = true;
+      }
     } 
     setMailProps(); 
   }
@@ -83,10 +87,15 @@ public class PendingWorkAuthd extends TimerTask {
    */
   public static void main(String[] args) {
     app  = new PendingWorkAuthd(args);
- 
-    // Perform the task once a day at <wakeupHour>., starting tomorrow morning
-    Timer timer = new Timer();
-    timer.scheduleAtFixedRate(app, getWakeupTime(), fONCE_PER_DAY);  
+    
+    // Can either be run as daemon or run once (for scheduled execution - e.g. crontab)
+    if(app.runAsDaemon) {
+      // Perform the task once a day at <wakeupHour>., starting tomorrow morning
+      Timer timer = new Timer();
+      timer.scheduleAtFixedRate(app, getWakeupTime(), fONCE_PER_DAY);       
+    } else {
+      app.run();
+    }
   }
 
   @Override
