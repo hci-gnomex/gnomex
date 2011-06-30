@@ -1,5 +1,11 @@
 ﻿GNomEx Release Notes
 
+5.1.6.2
+---------------------
+- Fix for problem with Organism refresh. 
+- Added feature to email lab if order > $500.00. 
+- Modified PendingWorkAuthd to be able to run either as a scheduled task or a daemon.
+
 5.1.6.1
 ---------------------
 - Fixed bug causing billing account with same name to not show up.
