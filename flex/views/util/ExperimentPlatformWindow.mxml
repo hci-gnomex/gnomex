@@ -2,13 +2,13 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="absolute" width="882" height="474"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
-				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform">
 <mx:HTTPService  
 	id="getExperimentPlatformList" 
 	url="GetExperimentPlatformList.gx"
 	resultFormat="e4x"
-	showBusyCursor="false"
+	showBusyCursor="true"
 	result="onGetExperimentPlatformList(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to get experiment platform list', event)"
 	method="POST" 
@@ -16,10 +16,21 @@
 </mx:HTTPService>
 	
 <mx:HTTPService  
+	id="deleteExperimentPlatform" 
+	url="DeleteExperimentPlatform.gx"
+	resultFormat="e4x"
+	showBusyCursor="false"
+	result="onDeleteExperimentPlatform(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to delete experiment platform', event)"
+	method="POST" 
+	useProxy="false">
+</mx:HTTPService>	
+	
+<mx:HTTPService  
 	id="saveExperimentPlatform" 
 	url="SaveExperimentPlatform.gx"
 	resultFormat="e4x"
-	showBusyCursor="false"
+	showBusyCursor="true"
 	result="onSaveExperimentPlatform(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to save experiment platform', event)"
 	method="POST" 
@@ -36,17 +47,50 @@
 		[Bindable]
 		private var requestCategory:Object = null;
 		
+		private var codeRequestCategorySelected:Object = null;
+		
 		private function init():void {
 			getExperimentPlatformList.send();
 		}
 		
+		
+		private function closeWindow():void {
+			parentApplication.dictionaryManager.reload();
+			
+			PopUpManager.removePopUp(this);
+		}
+
+		
 
 		private function onGetExperimentPlatformList(event:ResultEvent): void {
 			if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
+				callLater(reselectExperimentPlatform);
 			} else {
 				mx.controls.Alert.show(getExperimentPlatformList.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}	
+		
+		private function reselectExperimentPlatform():void {
+			if (codeRequestCategorySelected != null) {
+				var found:Boolean = false;
+				for each(var ep:Object in getExperimentPlatformList.lastResult.RequestCategory) {
+					if (ep.@codeRequestCategory == codeRequestCategorySelected) {
+						this.platformList.selectedItem = ep;
+						this.platformList.scrollToIndex(this.platformList.selectedIndex);
+						this.onSelectPlatform();
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					this.platformList.selectedItem = null;
+					onSelectPlatform();
+				}
+			} else {
+				this.platformList.selectedItem = null;
+				onSelectPlatform();
+			}
+		}
 		
 		private function save():void {
 			var params:Object = new Object();
@@ -68,7 +112,6 @@
 			params.sampleTypesXMLString = "<sampleTypes>" + this.sampleTypes.toXMLString() + "</sampleTypes>";
 			params.samplePrepMethodsXMLString = "<samplePrepMethods>" + this.samplePrepMethods.toXMLString() + "</samplePrepMethods>";
 			params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
-			params.applicationProtocolsXMLString = "<applicationProtocols>" + this.applicationProtocols.toXMLString() + "</applicationProtocols>";
 			params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
 			
 			saveExperimentPlatform.send(params);
@@ -76,17 +119,50 @@
 
 		private function onSaveExperimentPlatform(event:ResultEvent): void {
 			if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+				codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
 				getExperimentPlatformList.send();
 			} else {
 				mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}	
-
 		private function addPlatform():void {
+			var newNode:XML = new XML("<RequestCategory " +
+				" codeRequestCategory=''" +
+				" requestCategory='enter name here..'" +
+				" isActive='Y'" +
+				" canUpdate='Y'"  +
+				" canDelete='Y'" + 
+				" canRead='Y'" +
+				" idAppUser='" + (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser()) + "'" +
+				" />");
+			this.platforms.addItemAt(newNode, 0);
+			
+			
+			platformList.selectedItem = newNode;
+			platformList.scrollToIndex(platformList.selectedIndex);
+			this.onSelectPlatform();
 			this.dirty.setDirty();
+			
 		}
 		
 		private function removePlatform():void {
+			if (platformList.selectedItem == null) {
+				return;
+			}
+			codeRequestCategorySelected = null;
+			
+			var params:Object = new Object();
+			params.codeRequestCategory = platformList.selectedItem.@codeRequestCategory;
+			deleteExperimentPlatform.send(params);
+			this.dirty.setDirty();
+		}
+		
+		private function onDeleteExperimentPlatform(event:ResultEvent): void {
+			if (deleteExperimentPlatform.lastResult.name() == "SUCCESS") {
+				this.getExperimentPlatformList.send();
+			} else {
+				mx.controls.Alert.show(deleteExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
+			}
 			this.dirty.setDirty();
 		}		
 		
@@ -95,6 +171,7 @@
 				theViews.selectedIndex = 1;
 				
 				requestCategory = platformList.selectedItem;
+			    codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
 				
 				vendorCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
 				organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
@@ -104,6 +181,7 @@
 				showHideAppColumns();
 			} else {
 				theViews.selectedIndex = 0;
+				codeRequestCategorySelected = null;
 			}
 		}
 		
@@ -115,6 +193,31 @@
 			seqLibProtocolCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false; 
 			appGrid.invalidateList();
 			appGrid.invalidateDisplayList()			
+		}
+		private function addExperimentType():void {
+			var newNode:XML = new XML("<Application " +
+				" isSelected='N'" +
+				" codeApplication='" + 'Application' + "'" +
+				" display='" + 'enter experiment type here...' + "'" +
+				" idSeqLibProtocols=''" +
+				" idLabelingProtocolDefault=''" +
+				" idHybProtocolDefault=''" +
+				" idScanProtocolDefault=''" +
+				" idFeatureExtractionProtocolDefault=''" +
+				" isActive='Y'" +
+				" />");
+			this.applications.addItemAt(newNode, 0);
+			this.appGrid.selectedItem = newNode;
+			this.appGrid.scrollToIndex(0);
+			this.dirty.setDirty();
+			
+		}
+		
+		private function removeExperimentType():void {
+			if (this.appGrid.selectedItem != null) {
+				this.applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
+				this.dirty.setDirty();
+			}
 		}
 		
 		private function addSampleType():void {
@@ -160,6 +263,31 @@
 				this.dirty.setDirty();
 			}
 		}
+		private function addNumberSequencingCycles():void {
+			var newNode:XML = new XML("<NumberSequencingCycles " +
+				" isSelected='N'" +
+				" idNumberSequencingCycles='" + 'NumberSequencingCycles' + "'" +
+				" display='" + 'enter number sequencing cycles here...' + "'" +
+				" paired='N'" +
+				" pairedNote=''" +
+				" single='N'" +
+				" singleNote=''" +
+				" isActive='Y'" +
+				" />");
+			this.sequencingOptions.addItemAt(newNode, 0);
+			this.sequencingOptionGrid.selectedItem = newNode;
+			this.sequencingOptionGrid.scrollToIndex(0);
+			this.dirty.setDirty();
+			
+		}
+		
+		private function removeNumberSequencingCycles():void {
+			if (this.sequencingOptionGrid.selectedItem != null) {
+				this.sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
+				this.dirty.setDirty();
+			}
+		}
+
 
 	]]>
 </mx:Script>
@@ -168,7 +296,6 @@
 <mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
 <mx:XMLListCollection id="samplePrepMethods" source="{requestCategory.samplePrepMethods.SamplePrepMethod}"/>
 <mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
-<mx:XMLListCollection id="applicationProtocols" source="{requestCategory.applicationProtocols.RequestCategoryApplication}"/>
 <mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
 	
 	<mx:VBox height="100%" width="100%">
@@ -253,8 +380,8 @@
 								<mx:LinkButton label="Add" styleName="linkMenuButton" 
 											   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
 											   icon="@Embed(source='../../assets/add.png')" 
-											   disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
-								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()"/>
+								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()"/>
 							</mx:HBox>
 							<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
 										 dataProvider="{applications}" editable="true"
@@ -266,7 +393,7 @@
 													   editorDataField="selected"
 													   itemRenderer="views.renderers.CheckBoxRenderer">			 
 									</mx:DataGridColumn>
-									<mx:DataGridColumn headerText="Experiment Type"  editable="false" dataField="@display" >
+									<mx:DataGridColumn headerText="Experiment Type"  editable="true" dataField="@display" >
 									</mx:DataGridColumn>
 									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol" 
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
@@ -369,26 +496,21 @@
 									<mx:HBox verticalAlign="middle" horizontalGap="0">
 										<mx:Label text="Sequencing options" width="150"/>
 										
-										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0"/>
-										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()"/>
+										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCycles()"/>
 										
 									</mx:HBox>
 									<mx:DataGrid id="sequencingOptionGrid" editable="true"
 												 dataProvider="{sequencingOptions}"
 												 width="100%" height="100%">
 										<mx:columns>
-											<mx:DataGridColumn headerText=" "  
-															   width="20" 
-															   editable="true"                        	
-															   dataField="@isSelected" 
-															   editorDataField="selected"
-															   itemRenderer="views.renderers.CheckBoxRenderer">			 
-											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Cycles"  width="50" dataField="@display" editable="false" >
+											<mx:DataGridColumn headerText="Cycles"   
+															   width="50" dataField="@display" 
+															   editable="true" >
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Single-end"  
 															   width="40" 
-															   editable="true"                        	
+															   editable="false"                        	
 															   dataField="@single" 
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">		
@@ -403,7 +525,7 @@
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Paired-end"  
 															   width="40" 
-															   editable="true"                        	
+															   editable="false"                        	
 															   dataField="@paired" 
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">			 
@@ -431,7 +553,7 @@
 								   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}"
 								   icon="@Embed('../../assets/action_save.gif')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
 						</mx:Button>
-						<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>
+						<mx:Button label="Close"  click="{closeWindow()}"/>
 					</mx:ControlBar>
 				</mx:VBox>
 			</mx:ViewStack>

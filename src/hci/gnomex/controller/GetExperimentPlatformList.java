@@ -23,6 +23,7 @@ import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocolApplication;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -85,7 +86,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       hashSupportingDictionaries(sess);
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
       
       Document doc = new Document(new Element("ExperimentPlatformList"));
 
@@ -143,7 +143,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           this.getSecAdvisor().flagPermissions(c);
           Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           listNode.addContent(cycleNode);
-          cycleNode.setAttribute("isSelected", isAssociated(rc, c) ? "Y" : "N");
           boolean paired = false;
           boolean single = false;
           String pairedNote = "";

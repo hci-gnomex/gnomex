@@ -11,6 +11,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleCharacteristic;
 import hci.gnomex.model.SamplePrepMethodSampleType;
 import hci.gnomex.model.SeqLibTreatment;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SubmissionInstruction;
 
@@ -41,6 +42,7 @@ public class DictionaryHelper implements Serializable {
   private Map              seqLibTreatmentMap = new HashMap();
   private Map              slideDesignMap = new HashMap();
   private Map              sampleCharacteristicMap = new HashMap();
+  private List             seqRunTypeList = new ArrayList();
 
   public DictionaryHelper() {    
   }
@@ -79,6 +81,14 @@ public class DictionaryHelper implements Serializable {
       RequestCategory rc = (RequestCategory)de;
       requestCategoryList.add(rc);
       requestCategoryMap.put(rc.getCodeRequestCategory(), rc);
+    }
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqRunType").iterator(); i.hasNext();) {
+      Object de = i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      SeqRunType srt = (SeqRunType)de;
+      seqRunTypeList.add(srt);
     }
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.OligoBarcode").iterator(); i.hasNext();) {
       Object de = i.next();
@@ -237,6 +247,9 @@ public class DictionaryHelper implements Serializable {
     return requestCategoryList;
   }
 
+  public List getSeqRunTypeList() {
+    return seqRunTypeList;
+  }
   
   public String getRequestCategory(String code) {
     String name = "";
