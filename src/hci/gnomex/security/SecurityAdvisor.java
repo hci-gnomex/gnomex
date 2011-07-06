@@ -940,7 +940,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     
     // Can submit requests
-    if (this.getAllMyGroups().size() > 0) {
+    if (this.getAllMyGroups().size() > 0 || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
       globalPermissionMap.put(new Permission(CAN_SUBMIT_REQUESTS), null);            
     }
     
