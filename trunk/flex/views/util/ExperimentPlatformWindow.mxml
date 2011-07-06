@@ -288,6 +288,14 @@
 			}
 		}
 
+		private function calcRowColor(item:Object, rowIndex:int,
+									  dataIndex:int, color:uint):uint
+		{
+			if(item.@isActive != "Y")
+				return 0x49FFAD;
+			else
+				return color;
+		}
 
 	]]>
 </mx:Script>
@@ -393,7 +401,18 @@
 													   editorDataField="selected"
 													   itemRenderer="views.renderers.CheckBoxRenderer">			 
 									</mx:DataGridColumn>
-									<mx:DataGridColumn headerText="Experiment Type"  editable="true" dataField="@display" >
+									<mx:DataGridColumn headerText="Experiment Type"  
+													   itemRenderer="views.renderers.LabelActive"
+													   rendererIsEditor="false"
+													   width="200"
+													   editable="true" dataField="@display" >
+									</mx:DataGridColumn>
+									<mx:DataGridColumn headerText="Active"  
+													   width="45"  
+													   editable="false"                      	
+													   dataField="@isActive" 
+													   editorDataField="selected"
+													   itemRenderer="views.renderers.CheckBoxRenderer">			 
 									</mx:DataGridColumn>
 									<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol" 
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
@@ -411,7 +430,8 @@
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
 													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
 									<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="idFeatureExtractionProtocol"  
-													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
+													   editorDataField="value" 
+													   sortable="true" editable="true" rendererIsEditor="false"  
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
 													   itemEditor="{views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>										
 								</mx:columns>
@@ -437,7 +457,17 @@
 															   editorDataField="selected"
 															   itemRenderer="views.renderers.CheckBoxRenderer">			 
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Nucl. acid extraction Method" editable="true"  dataField="@display" >
+											<mx:DataGridColumn headerText="Nucl. acid extraction Method" 
+															   editable="true" 
+															   itemRenderer="views.renderers.LabelActive"
+															   rendererIsEditor="false"
+															   dataField="@display" >
+											</mx:DataGridColumn>
+											<mx:DataGridColumn headerText="Active"  
+															   width="45"  editable="false"                      	
+															   dataField="@isActive" 
+															   editorDataField="selected"
+															   itemRenderer="views.renderers.CheckBoxRenderer">			 
 											</mx:DataGridColumn>
 										</mx:columns>
 									</mx:DataGrid>
@@ -457,8 +487,9 @@
 												   icon="@Embed(source='../../assets/delete.png')" 
 												   disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
 								</mx:HBox>
-								<mx:DataGrid id="sampleTypeGrid"
-											 dataProvider="{sampleTypes}" editable="true"
+								<mx:DataGrid id="sampleTypeGrid" 
+											 dataProvider="{sampleTypes}" 
+											 editable="true"
 											 width="100%" height="100%">
 									<mx:columns>
 										<mx:DataGridColumn headerText=" "  
@@ -468,7 +499,10 @@
 														   editorDataField="selected"
 														   itemRenderer="views.renderers.CheckBoxRenderer">			 
 										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Sample Type"  dataField="@display" editable="true" >
+										<mx:DataGridColumn headerText="Sample Type" 
+														   itemRenderer="views.renderers.LabelActive"
+														   rendererIsEditor="false"
+														   dataField="@display" editable="true" >
 										</mx:DataGridColumn>
 										<mx:DataGridColumn headerText="Experiment Types"  
 														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
@@ -477,6 +511,12 @@
 										<mx:DataGridColumn headerText="Nucl. acid extraction Methods"  
 														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Nucl. acid extraction methods', parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SamplePrepMethod').DictionaryEntry.(@value != ''))}" 
 														   dataField="@idSamplePrepMethods" >
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Active"  
+														   width="45"  editable="false"                      	
+														   dataField="@isActive" 
+														   editorDataField="selected"
+														   itemRenderer="views.renderers.CheckBoxRenderer">			 
 										</mx:DataGridColumn>
 									</mx:columns>
 								</mx:DataGrid>
@@ -499,7 +539,7 @@
 										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()"/>
 										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCycles()"/>
 										
-									</mx:HBox>
+									</mx:HBox> 
 									<mx:DataGrid id="sequencingOptionGrid" editable="true"
 												 dataProvider="{sequencingOptions}"
 												 width="100%" height="100%">
