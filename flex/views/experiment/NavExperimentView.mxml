@@ -1014,7 +1014,11 @@
 	            params.idProject = dropProject.@idProject;
 	                  		
            		saveRequestProject.send(params);
-            }
+            } else {
+				dropProject = null;  
+				dragRequest = null;
+				this.refreshExperimentsAfterDrag();
+			}
         }
 
        	private function onSaveRequestProject(event:ResultEvent): void {
@@ -1024,6 +1028,7 @@
 				this.refreshExperimentsAfterDrag();
 			
         	} else {
+				this.refreshExperimentsAfterDrag();
         		Alert.show(saveRequestProject.lastResult..ACTMESSAGE.@TEXT);
         	}	    	
 	    } 

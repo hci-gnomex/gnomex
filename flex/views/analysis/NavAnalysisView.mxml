@@ -655,12 +655,10 @@
 			    
 			}
 			
-			if (showEditView) {
+			if (showEditView) {	
 				editView.setupEditForm(this.selectedAnalysis);
 				theViews.selectedChild = editView;
 				showEditView = false;
-				
-				
 				if(addAnalysisGroup != null) {
 					if(removeIdAnalysisGroup != null) {
 						var item:Object;
@@ -677,7 +675,7 @@
 					editView.analysisGroups.addItem(addAnalysisGroup);
 					editView.setExecValidateAndSaveAnalysis();
 					addAnalysisGroup = null;
-				}		
+				}
 			} else {
 			    theViews.selectedChild = detailView;				
 				detailView.setupForm();

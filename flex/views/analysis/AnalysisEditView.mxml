@@ -469,16 +469,17 @@
 			 	parms.idAnalysis = analysis.@idAnalysis;
 			 	getAnalysis.send(parms);
 			 	
-			 	if(execValidateAndSaveAnalysis) {
-			 		execValidateAndSaveAnalysis = false; 
-			 		parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
-			 		parentApplication.navAnalysisView.refreshAnalysis();
-			 	}
+		 		execValidateAndSaveAnalysis = false; 
+		 		parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+		 		parentApplication.navAnalysisView.refreshAnalysis();
 
 			 	
 			 	parentApplication.navAnalysisView.showEditView = true;
 				parentApplication.navAnalysisView.detailView.refreshSavedAnalysis(analysis.@idAnalysis);			 				
 			} else {
+				execValidateAndSaveAnalysis = false; 
+				parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+				parentApplication.navAnalysisView.refreshAnalysis();				
 				Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}
@@ -774,6 +775,7 @@
 		
 		public function setExecValidateAndSaveAnalysis():void {
 			execValidateAndSaveAnalysis = true;
+			validateAndSaveAnalysis();
 		}
 		
 		private function expLabComboChange():void {
