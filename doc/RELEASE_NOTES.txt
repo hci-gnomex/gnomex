@@ -1,12 +1,14 @@
 ﻿GNomEx Release Notes
 
-5.1.6.2
+5.1.7
 ---------------------
+- Wrap up work on Experiment Platform config
 - Fix for problem with Organism refresh. 
 - Added feature to email lab if order > $500.00. 
 - Modified PendingWorkAuthd to be able to run either as a scheduled task or a daemon.
+- CAN_SUBMIT_REQUESTS permission set to "Y" for admin even if no lab groups are setup.
 
-5.1.6.1
+5.1.6.1 (June 28,2011)
 ---------------------
 - Fixed bug causing billing account with same name to not show up.
 - New Organism edit window.
