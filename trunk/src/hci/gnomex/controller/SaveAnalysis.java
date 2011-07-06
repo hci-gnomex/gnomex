@@ -410,7 +410,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       
         setResponsePage(this.SUCCESS_JSP);
       } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save analysis.");
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save " + analysis.getNumber() + " analysis.");
         setResponsePage(this.ERROR_JSP);
       }
       
