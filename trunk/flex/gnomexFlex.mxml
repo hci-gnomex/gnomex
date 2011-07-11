@@ -1410,6 +1410,15 @@
 				return new XMLList();
 			}
 		}		
+			
+		// Workaround to DropdownLabel.updateDisplayList issue which calls parentDocument.parentDocument.isEditState
+		public function isEditState():Boolean {
+			if (this.theViews.selectedChild != null && this.submitRequestView != null && this.theViews.selectedChild == this.submitRequestView) {
+				return false;
+			} else {
+				return true;
+			}
+		}
 
         ]]>
     </mx:Script>
