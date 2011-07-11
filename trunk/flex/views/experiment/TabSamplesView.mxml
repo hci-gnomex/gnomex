@@ -484,7 +484,11 @@
 	        			    			if (isEntered( sample, "@barcodeSequence")) {
 											completeCount++;      			    		
 	        			    			}
-	        			    		 } else {
+	        			    		 } else if (parentDocument.showSampleBarcodes()) {
+										 if (isEntered( sample, "@idOligoBarcode")) {
+											 completeCount++;      			    		
+										 }
+									 } else {
 		        						completeCount++;
 	        			    		 }
 		        				}		
@@ -558,6 +562,14 @@
 	    			isComplete = false;
 	    		}
     		}
+			
+			// Make sure the sample index tags are unique
+			if (isComplete) {
+				if (!areIndexTagsUnique()) {
+					parentDocument.userWarningsSamples += "Index tags must be unique for every sample to be loaded into a flowcell channel."; 
+					isComplete = false;
+				}
+			}
     		
     		// Sort the samples
     		if (isComplete && parentDocument.isMicroarrayState()) {
@@ -963,6 +975,46 @@
 					s.@ccNumber = '';
 				}
 			}
+		}
+		
+		private function areIndexTagsUnique():Boolean {
+			var isValid:Boolean = true;
+			var barcodeField:String = "";
+			if (parentDocument.showSampleCustomBarcodes()) {
+				barcodeField = "@barcodeSequence";
+			} else if (parentDocument.showSampleBarcodes()) {
+				barcodeField = "@idOligoBarcode";
+			} else {
+				return isValid;
+			}
+			
+			var sampleMap:Object = new Object();
+			for each(var s:Object in parentDocument.samples) {
+				var samplesForIndexGroup:XMLListCollection = sampleMap[s.@multiplexGroupNumber];
+				if (samplesForIndexGroup == null) {
+					samplesForIndexGroup = new XMLListCollection();
+				}
+				samplesForIndexGroup.addItem(s);
+				sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
+			}
+			
+			for (var multiplexGroupNumber:Object in sampleMap) {
+				var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
+				var tagMap:Object = new Object();
+				for each(var s1:Object in samplesInGroup) {
+					var barcode:Object = s1[barcodeField];
+					tagMap[barcode] = barcode;
+				}
+				var uniqueTagCount:int = 0;
+				for (var tm:Object in tagMap) {
+					uniqueTagCount++;
+				}
+				if (uniqueTagCount < samplesInGroup.length) {
+					isValid = false;
+					break;
+				}
+			}
+			return isValid;
 		}
 		
 		private function onDragEnter(event:DragEvent):void
