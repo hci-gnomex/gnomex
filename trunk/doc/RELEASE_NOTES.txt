@@ -7,11 +7,13 @@
 - Added feature to email lab if order > $500.00. 
 - Modified PendingWorkAuthd to be able to run either as a scheduled task or a daemon.
 - CAN_SUBMIT_REQUESTS permission set to "Y" for admin even if no lab groups are setup.
-- When lab preps on lib using index tags, check that barcode sequences or selected index tags are 
-  unique across samples belonging to same multiplex group
+- When lab preps (instead of core facility) the seq lib using index tags, check that barcode 
+  sequences or selected index tags are unique across samples belonging to same multiplex group
 - Fix bug that was causing organism dropdown to de-select when nucl. acid extraction method 
-  chosen on submit request window.
+  chosen on submit request window.  Bug introduced with Organims config window.
 - Workaround to DropdownLabel.updateDisplayList issue which calls parentDocument.parentDocument.isEditState
+- Filter by isExternal, isInternal flags when showing experiment platforms on Submit Request vs Register
+  External Experiment windows.
 		
 
 5.1.6.1 (June 28,2011)
