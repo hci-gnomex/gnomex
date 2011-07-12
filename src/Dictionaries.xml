@@ -27,10 +27,10 @@
 
 	<Dictionary displayName="Application Theme" className="hci.gnomex.model.ApplicationTheme" >
 	</Dictionary>
-	<Dictionary displayName="Application" className="hci.gnomex.model.Application" >
+	<Dictionary displayName="Application" className="hci.gnomex.model.Application"  editable="N" >
 			<Filter className="hci.gnomex.model.ApplicationTheme" filterField="idApplicationTheme"/>
 	</Dictionary>
-	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication" >
+	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication"  editable="N">
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
   	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
@@ -41,31 +41,31 @@
 	<Dictionary displayName="Organism" className="hci.gnomex.model.Organism" editable="N">
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>
-	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory" >	
+	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
          <Filter className="hci.gnomex.model.SamplePrepMethod" filterField="idSamplePrepMethod"/>
   	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod" >
+	<Dictionary displayName="Sample Prep Method" className="hci.gnomex.model.SamplePrepMethod"  editable="N">
 	</Dictionary>
-	<Dictionary displayName="Sample Prep Method (Request defaults)" className="hci.gnomex.model.SamplePrepMethodRequestCategory" >
+	<Dictionary displayName="Sample Prep Method (Request defaults)" className="hci.gnomex.model.SamplePrepMethodRequestCategory"  editable="N">
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Prep Method (Sample type defaults)" className="hci.gnomex.model.SamplePrepMethodSampleType" >
+	<Dictionary displayName="Sample Prep Method (Sample type defaults)" className="hci.gnomex.model.SamplePrepMethodSampleType"  editable="N">
   	  <Filter className="hci.gnomex.model.SamplePrepMethod"         filterField="idSamplePrepMethod"/>
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
       <Filter className="YN" filterField="isDefaultForSampleType"/>
 	</Dictionary>
 	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
-	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType">
+	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType"  editable="N">
   </Dictionary>
-  <Dictionary displayName="Sample Type (Request defaults)" className="hci.gnomex.model.SampleTypeRequestCategory" >
+  <Dictionary displayName="Sample Type (Request defaults)" className="hci.gnomex.model.SampleTypeRequestCategory"  editable="N">
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
-	<Dictionary displayName="Sample Type (Application)" className="hci.gnomex.model.SampleTypeApplication" >
+	<Dictionary displayName="Sample Type (Application)" className="hci.gnomex.model.SampleTypeApplication"  editable="N">
   	  <Filter className="hci.gnomex.model.Application"               filterField="codeApplication"/>
   	  <Filter className="hci.gnomex.model.SampleType"                filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
@@ -102,8 +102,8 @@
   <Dictionary displayName="Billing Status" className="hci.gnomex.model.BillingStatus" />
 
 
-	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles" />
-	<Dictionary displayName="Illumina Number of Sequencing Cycles Allowed" className="hci.gnomex.model.NumberSequencingCyclesAllowed" >
+	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles"  editable="N"/>
+	<Dictionary displayName="Illumina Number of Sequencing Cycles Allowed" className="hci.gnomex.model.NumberSequencingCyclesAllowed"  editable="N">
 			<Filter className="hci.gnomex.model.NumberSequencingCycles" filterField="idNumberSequencingCycles"/>
 			<Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
 			<Filter className="hci.gnomex.model.SeqRunType" filterField="idSeqRunType"/>
@@ -122,9 +122,9 @@
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
   	  <Filter className="hci.gnomex.model.OligoBarcodeScheme" filterField="idOligoBarcodeScheme"/>
 	</Dictionary>
-	<Dictionary displayName="Illumina Seq Lib Protocol" className="hci.gnomex.model.SeqLibProtocol" editable="Y" >
+	<Dictionary displayName="Illumina Seq Lib Protocol" className="hci.gnomex.model.SeqLibProtocol" editable="N" >
 	</Dictionary>
-	<Dictionary displayName="Illumina Seq Lib Protocol (Applications)" className="hci.gnomex.model.SeqLibProtocolApplication" editable="Y" >
+	<Dictionary displayName="Illumina Seq Lib Protocol (Applications)" className="hci.gnomex.model.SeqLibProtocolApplication" editable="N" >
 			<Filter className="hci.gnomex.model.SeqLibProtocol" filterField="idSeqLibProtocol"/>
 			<Filter className="hci.gnomex.model.Application" filterField="codeApplication"/>
 	</Dictionary>

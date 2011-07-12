@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add Experiment Platform" width="366" height="92" defaultButton="{saveButton}" paddingTop="4">
+    <mx:HTTPService 
+    id="saveExperimentPlatform" 
+    url="SaveExperimentPlatform.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onSaveExperimentPlatform(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save experiment platform', event)"
+    useProxy="false">
+    </mx:HTTPService >
+    
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		
+		public var parentWindow:views.util.ExperimentPlatformWindow = null;
+		
+		private function save():void {
+			var params:Object = new Object();
+			
+			params.requestCategory = this.platformName.text;
+			params.idAppUser = (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser());
+
+			params.sampleTypesXMLString = "<sampleTypes/>";
+			params.samplePrepMethodsXMLString = "<samplePrepMethods/>" ;
+			params.applicationsXMLString = "<applications/>";
+			params.sequencingOptionsXMLString = "<sequencingOptions/>";
+			
+			saveExperimentPlatform.send(params);
+
+		}
+		
+		private function onSaveExperimentPlatform(event:ResultEvent):void {
+			if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+				parentWindow.codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
+				parentWindow.getExperimentPlatformList.send();
+				PopUpManager.removePopUp(this);
+			} else {
+				Alert.show("An error occurred while saving the experiment platform.");
+			}			
+		}
+		
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+		    <mx:Text text="Name"/>
+			<mx:TextInput id="platformName" width="100%"/>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{platformName.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

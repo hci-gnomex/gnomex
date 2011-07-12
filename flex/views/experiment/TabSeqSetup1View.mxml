@@ -16,7 +16,7 @@
 			<mx:SetProperty target="{label12}" name="text">
 				<mx:value>{'(4) Provide any special instructions (libraray prep, etc.) for the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.'}</mx:value>
 			</mx:SetProperty>
-			<mx:AddChild relativeTo="{textarea1}" position="before">
+			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
 					<mx:NumericStepper id="numberSamplesPerChannel" minimum="1" stepSize="1" maximum="{this.maxSamplesPerChannel}">
@@ -331,12 +331,7 @@
  
 
 			
-	<mx:VBox width="100%" height="100%" verticalGap="12">
-		<mx:HBox  horizontalAlign="right" width="100%" id="hbox1">
-			<mx:TextArea styleName="instructionBox" width="360" wordWrap="true" height="80" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.]]></mx:htmlText>
-			</mx:TextArea>
-		</mx:HBox>
+	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
 				<mx:Label text="(1) Select the desired number of sequencing cycles." width="314"  id="label10"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
@@ -354,7 +349,7 @@
 				    	
 				</mx:VBox>
 			</mx:HBox>
-			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0" paddingTop="12">
+			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0">
 				<mx:Label text="(2) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
 				<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
 					<mx:HBox width="100%" horizontalGap="2">

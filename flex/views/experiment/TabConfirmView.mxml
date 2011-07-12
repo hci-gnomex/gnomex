@@ -26,6 +26,7 @@
 			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
 			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
 			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
+			<mx:SetProperty target="{textarea1}" name="height" value="78"/>
 		</mx:State>
 	</mx:states>
 	
@@ -174,32 +175,31 @@
 		}  
 	]]>
 </mx:Script>
-	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="20"  >
+	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
-			<mx:HBox width="100%" horizontalGap="4"  >
-				<mx:VBox height="100%" verticalGap="0">
+			<mx:HBox width="100%" horizontalGap="4"   height="110">
+				<mx:VBox height="100%" verticalGap="0" width="120" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140"/>
 				</mx:VBox>
-				<mx:VBox height="100%" verticalGap="0">
+				<mx:VBox height="100%" verticalGap="0" width="130" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" width="140" id="text2"/>
 					<mx:Label text="Submitter" textDecoration="underline" height="16"/>
 					<mx:Text  text="{submitterName}" width="140" />
 				</mx:VBox>
-				<mx:VBox height="100%" verticalGap="0">
+				<mx:VBox height="100%" verticalGap="0" width="180" horizontalScrollPolicy="off">
 					<mx:Label text="Project" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@projectName : parentDocument.setupView.projectCombo.selectedItem.@name}" width="200" height="100%" id="text1"/>
 				</mx:VBox>
-				<mx:VBox height="100%" verticalGap="0" id="vbox2">
+				<mx:VBox height="100%" verticalGap="0" id="vbox2" width="240" horizontalScrollPolicy="off">
 					<mx:Label text="Billing Account" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}" width="250"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
-				<mx:Spacer width="100%"/>
-				<mx:TextArea styleName="instructionBox" width="268" wordWrap="true" id="textarea1" height="78">
-					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>    clicking the “Back” button or by clicking on a tab.<br>2.  Approve the work request by clicking the<br>     “Submit” button.]]></mx:htmlText>
+				<mx:TextArea styleName="instructionBox" width="268" wordWrap="true" id="textarea1" height="108">
+					  <mx:htmlText><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the “Back” button or by clicking on a tab.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the<br>     “Submit” button.]]></mx:htmlText>
 				</mx:TextArea>
 			</mx:HBox>
 				<mx:VBox width="100%" verticalGap="0" id="billingContainer">
@@ -266,8 +266,8 @@
 						</mx:DataGrid>
 					</mx:VBox>
 					
-				</mx:VBox>
-			
+				</mx:VBox> 
+			 
 			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="2">
 				<mx:Label text="{'Samples (' + parentDocument.samples.length + ')'}" id="label1" textDecoration="underline" paddingTop="10"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{parentDocument.samples}" 

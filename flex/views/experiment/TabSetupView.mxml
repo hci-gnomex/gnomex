@@ -759,7 +759,7 @@
 				 <mx:TextArea styleName="instructionBox" width="272" wordWrap="true" height="120" id="textarea1">
 					 <mx:htmlText><![CDATA[Instructions<br> 1.  Select the appropriate dropdown or radio<br>      button options for each line.<br> 2. After completing all line items, click the 'Next'<br>      button at the bottom of the page to proceed.<br> 3.  The account selected from this work request will<br>      be electronically billed following completion<br>      of the work.]]></mx:htmlText>
 				 </mx:TextArea>
-			 </mx:VBox> 
+			 </mx:VBox>  
 		 </mx:HBox>	
 			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="12">
 				<mx:Text text="(3) Select a service category." width="200" id="label11"/> 
