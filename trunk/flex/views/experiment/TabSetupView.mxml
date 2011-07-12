@@ -6,12 +6,12 @@
       <mx:State name="AdminState">
          <mx:AddChild relativeTo="{accountBox}" position="before">
             <mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
-                   <mx:Text width="160" id="text7">
+                   <mx:Text width="200" id="text7">
                           <mx:htmlText>(2) Verify your name.</mx:htmlText>
 					</mx:Text>
             		<mx:ComboBox dataProvider="{appUsers}" 
             			selectedIndex="-1" labelField="@displayName" 
-                		id="appUserCombo" width="340" close="{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}">
+                		id="appUserCombo" width="400" close="{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}">
             			<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
             		</mx:ComboBox>
             </mx:HBox>
@@ -19,12 +19,8 @@
          <mx:SetProperty target="{text1}" name="htmlText" value="(3) Pick the account to be &lt;br&gt; billed."/>
          <mx:SetProperty target="{label11}" name="text" value="(4) Select a service."/>
          <mx:SetProperty target="{text2}" name="htmlText">
-            <mx:value>(5) Select a project folder for organizing experiment information and data files.</mx:value>
+            <mx:value>(5) Select a project folder for organizing experiments.</mx:value>
          </mx:SetProperty>
-         <mx:SetProperty target="{requestTypeBox}" name="width" value="100%"/>
-         <mx:SetProperty target="{text3}" name="width" value="230"/>
-         <mx:SetStyle target="{label1}" name="paddingTop"/>
-         <mx:SetStyle target="{requestTypeBox}" name="verticalGap" value="0"/>
          <mx:SetProperty target="{text6}" name="htmlText" value="(6) Name your experiment."/>
       </mx:State>
       <mx:State name="ExternalExperimentState">
@@ -44,7 +40,6 @@
          <mx:RemoveChild target="{label1}"/>
          <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
          <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
-         <mx:RemoveChild target="{text8}"/>
          <mx:SetStyle target="{label1}" name="paddingTop"/>
          <mx:SetProperty target="{text6}" name="width" value="200"/>
          <mx:AddChild relativeTo="{vbox1}" position="lastChild">
@@ -64,16 +59,9 @@
             </mx:HBox>
          </mx:AddChild>
          <mx:RemoveChild target="{vbox4}"/>
-         <mx:AddChild relativeTo="{hbox2}" position="lastChild">
-            <mx:LinkButton  id="newProjectButton" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
-            </mx:LinkButton>
-         </mx:AddChild>
-         <mx:RemoveChild target="{radiobutton1}"/>
-         <mx:RemoveChild target="{radiobutton2}"/>
-         <mx:RemoveChild target="{vbox2}"/>
          <mx:SetProperty target="{projectCombo}" name="width" value="345"/>
          <mx:SetStyle target="{editProjectButton}" name="paddingRight" value="0"/>
-         <mx:RemoveChild target="{hbox7}"/>
+         <mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
       </mx:State>
       <mx:State name="AdminExternalExperimentState" basedOn="AdminState">
          <mx:RemoveChild target="{hbox5}"/>
@@ -86,8 +74,7 @@
           <mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
           <mx:SetProperty target="{label12}" name="text" value="Lab group"/>
           <mx:SetProperty target="{text7}" name="htmlText" value="Submitter"/>
-          <mx:RemoveChild target="{text8}"/>
-          <mx:SetStyle target="{label1}" name="verticalAlign" value="middle"/>
+         <mx:SetStyle target="{label1}" name="verticalAlign" value="middle"/>
           <mx:SetStyle target="{appUserContainer}" name="verticalAlign" value="middle"/>
           <mx:AddChild relativeTo="{vbox1}" position="lastChild">
               <mx:HBox width="100%" horizontalGap="0" id="hbox0" verticalAlign="top">
@@ -106,15 +93,17 @@
               </mx:HBox> 
           </mx:AddChild>
           <mx:RemoveChild target="{vbox4}"/>
-          <mx:RemoveChild target="{radiobutton2}"/>
-          <mx:RemoveChild target="{radiobutton1}"/>
-          <mx:RemoveChild target="{vbox2}"/> 
           <mx:AddChild relativeTo="{hbox2}" position="lastChild">
               <mx:LinkButton  id="newProjectButton0" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
               </mx:LinkButton>
           </mx:AddChild>
-          <mx:RemoveChild target="{text3}"/>
-          <mx:SetProperty target="{appUserCombo}" name="width" value="345"/>
+          <mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
+          <mx:RemoveChild target="{newProjectButton1}"/>
+          <mx:SetProperty target="{label12}" name="width" value="160"/>
+          <mx:SetProperty target="{text7}" name="width" value="160"/>
+          <mx:SetProperty target="{text2}" name="width" value="160"/>
+          <mx:SetProperty target="{text6}" name="width" value="160"/>
+          <mx:SetProperty target="{label11}" name="width" value="160"/>
       </mx:State>
 	  <mx:State name="AdminExternalMicroarrayState" basedOn="AdminExternalExperimentState">
 	  	<mx:AddChild relativeTo="{vbox1}" position="lastChild">
@@ -127,6 +116,7 @@
 	  			</mx:ComboBox>
 	  		</mx:HBox>
 	  	</mx:AddChild>
+	  	<mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
 		  
 	  </mx:State>
 	  <mx:State name="ExternalMicroarrayState" basedOn="ExternalExperimentState">
@@ -145,6 +135,7 @@
 	  	<mx:SetProperty target="{text6}" name="width" value="160"/>
 	  	<mx:SetProperty target="{label11}" name="width" value="160"/>
 	  	<mx:SetProperty target="{labelApplication}" name="width" value="160"/>
+	  	<mx:SetProperty target="{projectCombo}" name="width" value="400"/>
 		   
 	  </mx:State>
    </mx:states>
@@ -281,7 +272,6 @@
 				parentDocument.getSubmitterName();				
 			}		
 			this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
-			//requestCategories.refresh();
 			if (parentDocument != null) {
 				this.checkSetupCompleteness();
 			}
@@ -692,7 +682,10 @@
 	
 	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
 	
-	<mx:XMLListCollection id="requestCategories"   source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '')}" sort="{requestCategorySorter}"/>
+	<mx:XMLListCollection id="requestCategories"   sort="{requestCategorySorter}"
+		source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y')}"/>
+	<mx:XMLListCollection id="requestCategoriesExternal"   sort="{requestCategorySorter}"
+		source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isExternal == 'Y')}"/>
     <mx:Sort id="requestCategorySorter" compareFunction="sortRequestCategory"/>	
 	
 	<mx:NumberValidator id="labValidator"
@@ -717,67 +710,64 @@
         minValue="0" />           
           
 
-		<mx:VBox  horizontalAlign="center" paddingLeft="4" right="0" top="0" id="vbox4">
-  		  <mx:TextArea styleName="instructionBox" width="272" wordWrap="true" height="120" id="textarea1">
-			<mx:htmlText><![CDATA[Instructions<br> 1.  Select the appropriate dropdown or radio<br>      button options for each line.<br> 2. After completing all line items, click the 'Next'<br>      button at the bottom of the page to proceed.<br> 3.  The account selected from this work request will<br>      be electronically billed following completion<br>      of the work.]]></mx:htmlText>
-		  </mx:TextArea>
-		</mx:VBox> 
      	
-		<mx:VBox width="100%" height="100%" verticalGap="4" paddingTop="2" id="vbox1" enabled="true">
-			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top">
-				<mx:Label text="(1) Verify your lab group." width="160" id="label12"/>
-				<mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
-					labelField="@name" 
-					width="345"
-					change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
-					close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
-					id="labCombo">
-				</mx:ComboBox>
-			</mx:HBox>
-			<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
-				<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5">
-					<mx:Text  width="160"  id="text1">
-						<mx:htmlText>(2) Select an account to be billed for this work request.</mx:htmlText>
-					</mx:Text>
-					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" width="100%" id="vbox3">
-						<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1">
-							<mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1" close="checkSetupCompleteness()">
-								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
-							</mx:ComboBox>
-							<!--mx:Text id="txtBalanceRemaining" text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel"/-->
-						</mx:HBox>
-						<mx:Text width="520" id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left">
-						</mx:Text>
-						
-						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
-							<mx:LinkButton  label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
-								<mx:click>showWorkAuthForm()</mx:click>
-							</mx:LinkButton>
-							<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_NAME)}" styleName="formLinkButton" id="workAuthLink2" fontSize="9" paddingLeft="2" paddingTop="0">
-								<mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_URL)), '_blank');</mx:click>
-							</mx:LinkButton>
-						</mx:HBox>
-					</mx:VBox>
-
-
-				</mx:HBox>
-				<mx:HBox width="100%">
-				    <mx:Spacer width="160"/>
-					
-				</mx:HBox>
-				
-			</mx:VBox>
+		<mx:VBox width="100%" height="100%" verticalGap="6" paddingTop="2" id="vbox1" enabled="true">
+		 <mx:HBox width="100%" id="hbox8">
+			 <mx:VBox verticalGap="4" id="vbox5">
+				 <mx:HBox horizontalGap="0" verticalAlign="top">
+					 <mx:Label text="(1) Verify your lab group." width="200" id="label12"/>
+					 <mx:ComboBox dataProvider="{parentApplication.promptedSubmitRequestLabList}" 
+								  labelField="@name" 
+								  width="400"
+								  change="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
+								  close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab()" 
+								  id="labCombo">
+					 </mx:ComboBox>
+				 </mx:HBox>
+				 <mx:VBox id="accountBox" width="100%" verticalGap="0"> 
+					 <mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5">
+						 <mx:Text  width="200"  id="text1">
+							 <mx:htmlText>(2) Select an account to be billed.</mx:htmlText>
+						 </mx:Text>
+						 <mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="100%">
+							 <mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1">
+								 <mx:ComboBox labelField="@accountNameAndNumber" width="400" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness()" selectedIndex="-1" close="checkSetupCompleteness()">
+									 <mx:dataProvider>{billingAccounts}</mx:dataProvider>
+								 </mx:ComboBox>
+								 <!--mx:Text id="txtBalanceRemaining" text="{'Balance remaining ' + billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay}" visible="{billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.hasOwnProperty('@totalDollarAmountRemainingDisplay') != '' &amp;&amp; billingAccountCombo.selectedItem.@totalDollarAmountRemainingDisplay != '' ? true : false}" styleName="warningLabel"/-->
+							 </mx:HBox>
+							 <mx:Text id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left" width="100%">
+							 </mx:Text>
+							 
+							 <mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
+								 <mx:LinkButton  label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_NAME)}"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
+									 <mx:click>showWorkAuthForm()</mx:click>
+								 </mx:LinkButton>
+								 <mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_NAME)}" styleName="formLinkButton" id="workAuthLink2" fontSize="9" paddingLeft="2" paddingTop="0">
+									 <mx:click>navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH2_URL)), '_blank');</mx:click>
+								 </mx:LinkButton>
+							 </mx:HBox>
+						 </mx:VBox>
+						 
+						 
+					 </mx:HBox>
+					 
+				 </mx:VBox>
+				 
+			 </mx:VBox>
+			 <mx:VBox  horizontalAlign="center" id="vbox4">
+				 <mx:TextArea styleName="instructionBox" width="272" wordWrap="true" height="120" id="textarea1">
+					 <mx:htmlText><![CDATA[Instructions<br> 1.  Select the appropriate dropdown or radio<br>      button options for each line.<br> 2. After completing all line items, click the 'Next'<br>      button at the bottom of the page to proceed.<br> 3.  The account selected from this work request will<br>      be electronically billed following completion<br>      of the work.]]></mx:htmlText>
+				 </mx:TextArea>
+			 </mx:VBox> 
+		 </mx:HBox>	
 			<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="12">
-				<mx:Text text="(3) Select a service category." width="160" id="label11"/>
-				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="100%">
-					<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle" id="hbox7">
-					    <mx:Text text="Service" width="228" fontWeight="normal" textDecoration="underline" fontStyle="normal" id="text3"/>
-					    <mx:Text text="Application Options" width="200" fontStyle="normal" fontWeight="normal" textDecoration="underline" id="text8"/>
-					</mx:HBox>
+				<mx:Text text="(3) Select a service category." width="200" id="label11"/> 
+				<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="650">
 					<mx:RadioButtonGroup id="requestTypeGroup" />
 					<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
-						<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
-						    <mx:HBox horizontalAlign="center">
+						<mx:HBox  paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
+						    <mx:HBox horizontalAlign="center" paddingBottom="0" paddingTop="0">
 						     <mx:Image 						    	
             	                source="{requestCategoryRepeater.currentItem.@icon}"/>						
 						    </mx:HBox> 
@@ -792,30 +782,26 @@
 				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top">
-				<mx:Text width="160" id="text2">
-					<mx:htmlText>(4) Select a project folder for organizing experiment information and data files.</mx:htmlText>
+				<mx:Text width="200" id="text2">
+					<mx:htmlText>(4) Select a project folder for organizing experiments.</mx:htmlText>
 				</mx:Text>
 				<mx:HBox verticalGap="2" horizontalGap="4">
-				    <mx:VBox verticalGap="2" id="vbox2">
-					<mx:RadioButtonGroup id="projectRadioGroup"/>
-					<mx:RadioButton label="New project" groupName="projectRadioGroup" click="{showNewProjectWindow()}" id="radiobutton2"/>
-					<mx:RadioButton label="Existing project" groupName="projectRadioGroup" selected="true" id="radiobutton1"/>
-				    	
-				    </mx:VBox>
 					<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2" id="hbox2">
-						<mx:ComboBox dataProvider="{parentDocument.filteredProjectList}" labelField="@name" width="385" id="projectCombo" change="{checkSetupCompleteness()}" close="{checkSetupCompleteness()}">
+						<mx:ComboBox dataProvider="{parentDocument.filteredProjectList}" labelField="@name" width="400" id="projectCombo" change="{checkSetupCompleteness()}" close="{checkSetupCompleteness()}">
 						</mx:ComboBox>
 						<mx:LinkButton  id="editProjectButton" label="Edit..." click="showEditProjectWindow()" textDecoration="underline" styleName="formLinkButton">
 							<mx:enabled>{projectCombo.selectedItem != null &amp;&amp; projectCombo.selectedItem.@idProject != &quot;&quot;}</mx:enabled>
+						</mx:LinkButton>
+						<mx:LinkButton  id="newProjectButton1" label="New..." click="showNewProjectWindow()" textDecoration="underline" styleName="formLinkButton" paddingLeft="0">
 						</mx:LinkButton>
 					</mx:HBox>					
 				</mx:HBox>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="hbox6">
-				<mx:Text width="160" id="text6">
+				<mx:Text width="200" id="text6">
 					<mx:htmlText>(5) Name your experiment.</mx:htmlText>
 				</mx:Text>
-				<mx:TextInput id="experimentName" width="550" maxChars="200"/>
+				<mx:TextInput id="experimentName" width="400" maxChars="200"/>
 			</mx:HBox>
 			
 		</mx:VBox>

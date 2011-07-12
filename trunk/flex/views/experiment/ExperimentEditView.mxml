@@ -4285,7 +4285,7 @@
                 		<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="194"/>
                 		<mx:VBox width="100%" height="100%" verticalGap="8">							
                 		  <mx:VBox width="100%" height="100%" verticalGap="0">							
-							<mx:Repeater id="requestCategoryRepeater1" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @type != parentApplication.TYPE_QC)}">
+							<mx:Repeater id="requestCategoryRepeater1" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; @type != parentApplication.TYPE_QC)}">
 								<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 								    <mx:HBox horizontalAlign="center">
 								     <mx:Image 						    	
@@ -4301,7 +4301,7 @@
 	                 	  </mx:VBox>
                 		  <mx:HRule width="100%"/>
                 		  <mx:VBox width="100%" height="100%" verticalGap="0">							
-							<mx:Repeater id="requestCategoryRepeater2" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @type == parentApplication.TYPE_ILLUMINA)}">
+							<mx:Repeater id="requestCategoryRepeater2" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != ''  != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; @type == parentApplication.TYPE_ILLUMINA)}">
 								<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 								    <mx:HBox horizontalAlign="center">
 								     <mx:Image 						    	
