@@ -5,11 +5,6 @@
 		<mx:State name="SetupState">
 		</mx:State>
 		<mx:State name="EditState" basedOn="SetupState">
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  If the dropdowns are enabled, you can<br>  change the selection in order to specify a<br>  different microarray for this experiment<br>  request.  The change will be reflected<br>  in the next tab.]]></mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}"  name="width" value="260"/>
-			<mx:SetProperty target="{textarea1}"  name="height" value="120"/>
 		</mx:State>
 	</mx:states>
 <mx:Script> 
@@ -238,12 +233,8 @@
         property="selectedIndex"
         minValue="1" />         
     
-	<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox1" right="0" top="0">
-  		  <mx:TextArea styleName="instructionBox" width="342" wordWrap="true" height="75" id="textarea1">
-			<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate dropdown<br>       options for each line item below.<br>  2.  After completing all line items, click the 'Next' button at the<br>       bottom of the page to proceed.]]></mx:htmlText>
-		  </mx:TextArea>
-	</mx:VBox>
-	<mx:VBox width="100%" height="100%" verticalGap="14" paddingTop="2">
+
+	<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="2">
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(1) Select an organism." width="250" />
 			<mx:ComboBox labelField="@display" width="250" id="organismCombo" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
@@ -257,7 +248,7 @@
 	            <mx:RadioButtonGroup id="microarrayAppRadioGroup"/>
 				<mx:Repeater id="microarrayAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 
 	    			<mx:RadioButton  label="{microarrayAppRepeater.currentItem.@display}" 
-	    				paddingLeft="0" paddingRight="1"
+	    				paddingLeft="0" paddingRight="1" paddingTop="0" paddingBottom="1"
 	    				value="{microarrayAppRepeater.currentItem.@value}"
 	    	 	    	groupName="microarrayAppRadioGroup"
 	    				click="{pickMicroarrayApp()}" id="radiobutton1"/>
@@ -307,10 +298,10 @@
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="slideSourceContainer">
 			<mx:Label text="(6) Where will the microarrays come from?" width="250" />
-			<mx:VBox verticalGap="1" paddingLeft="2" paddingRight="2"  id="slideUseBox" styleName="requiredBox">
-				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(1);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-				<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(2);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
-				<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  change="validateSlideUse()"  click="this.toggleCheckedCodeSlideSource(3);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();"/>
+			<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="slideUseBox" styleName="requiredBox">
+				<mx:CheckBox label="New microarray purchased from core facility"  id="coreSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(1);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();" paddingTop="0" paddingBottom="1"/>
+				<mx:CheckBox label="New microarray purchased by lab"  id="clientSlideSourceCheckbox"   change="validateSlideUse()" click="this.toggleCheckedCodeSlideSource(2);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();" paddingTop="0" paddingBottom="1"/>
+				<mx:CheckBox label="Strip and reuse existing microarray" id="stripSlideSourceCheckbox"  change="validateSlideUse()"  click="this.toggleCheckedCodeSlideSource(3);parentDocument.hybsView.initializeHybsGrid();clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);propagateCheckCodeSlideSource();checkHybSetupCompleteness();" paddingBottom="1" paddingTop="0"/>
 			</mx:VBox>
 		</mx:HBox>
 		

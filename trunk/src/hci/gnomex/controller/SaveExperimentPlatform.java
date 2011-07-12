@@ -47,7 +47,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveExperimentPlatform.class);
-  
+   
   private String                         sampleTypesXMLString;
   private Document                       sampleTypesDoc;
   
@@ -651,8 +651,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       }
 
       String paired = node.getAttributeValue("paired");
+      String pairedName = node.getAttributeValue("pairedName");
       String pairedNote = node.getAttributeValue("pairedNote");
       String single = node.getAttributeValue("single");
+      String singleName = node.getAttributeValue("singleName");
       String singleNote = node.getAttributeValue("singleNote");
 
       List idSeqRunTypes = new ArrayList();
@@ -679,11 +681,13 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             x.setIdNumberSequencingCycles(cycles.getIdNumberSequencingCycles());
             x.setCodeRequestCategory(rc.getCodeRequestCategory());
             x.setIdSeqRunType(idSeqRunType);
+            x.setName(idSeqRunType == idSeqRunTypePaired ? pairedName : singleName);
             x.setNotes(idSeqRunType == idSeqRunTypePaired ? pairedNote : singleNote);
             sess.save(x);
           } else {
             for (Iterator iex = existingAssociations.iterator(); iex.hasNext();) {
               NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)iex.next();
+              x.setName(idSeqRunType == idSeqRunTypePaired ? pairedName : singleName);
               x.setNotes(idSeqRunType == idSeqRunTypePaired ? pairedNote : singleNote);
               sess.save(x);
             }

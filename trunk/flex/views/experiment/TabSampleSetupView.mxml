@@ -601,11 +601,11 @@
         property="selectedIndex"
         minValue="1" />
         
-  <mx:Canvas width="100%" height="100%">
+  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
         	
-	<mx:VBox width="100%" height="100%" verticalGap="2">
-		<mx:VBox width="100%" height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer">
-			<mx:HBox width="100%" horizontalGap="0" id="hbox3" paddingTop="14" verticalAlign="middle">
+	<mx:VBox width="100%" height="100%" verticalGap="2" >
+		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
+			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle">
 				<mx:Label text="(1) How many samples will you be submitting?" width="310"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" 
 					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
@@ -613,13 +613,13 @@
 					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="hbox6" verticalAlign="middle">
+			<mx:HBox horizontalGap="0" id="hbox6" verticalAlign="middle">
 				<mx:Label text="(2) Which category best describes your samples?" width="310" id="label8"/>
 				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
 					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}" close="pickSampleType()">							
 				</mx:ComboBox>
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
+			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="310" id="label7"/>
 				<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()" close="pickOrganism()">							
 					<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Organism').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
@@ -628,11 +628,11 @@
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
-				<mx:TextInput width="100%" id="otherOrganism" change="{propagateOtherSampleOrganism();checkSampleSetupCompleteness()}" maxChars="200">
+				<mx:TextInput width="500" id="otherOrganism" change="{propagateOtherSampleOrganism();checkSampleSetupCompleteness()}" maxChars="200">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:TextInput>
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
+			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(4) Select the nucleic acid extraction method." width="310" id="label2"/>
 				<mx:ComboBox labelField="@display"  id="samplePrepMethodCombo" change="pickSamplePrepMethod()" dataProvider="{parentDocument.samplePrepMethodList}" close="pickSamplePrepMethod()">															
 					<mx:width>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -640,7 +640,7 @@
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
-				<mx:TextInput width="100%" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="300">
+				<mx:TextInput width="500" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="300">
 					<mx:visible>{samplePrepMethodCombo.selectedItem != null &amp;&amp; samplePrepMethodCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:TextInput>
 			</mx:HBox>
@@ -648,11 +648,7 @@
 		</mx:VBox>
 		
 	</mx:VBox>
-			<mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" right="0" top="0">
-  			  <mx:TextArea styleName="instructionBox" width="300" wordWrap="true" height="80" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate<br>       dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button<br>       at the bottom of the page to proceed.]]></mx:htmlText>
-			  </mx:TextArea>
-			</mx:VBox>
+
 	
   </mx:Canvas>
 
@@ -810,7 +806,7 @@
              <mx:RemoveChild target="{hbox3}"/>
              <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
              <mx:SetProperty target="{label2}" name="text" value="(3) Select the nucleic acid extraction method."/>
-             <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop" value="50"/>
+             <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop"/>
         </mx:State>
         <mx:State name="SolexaAmendState" basedOn="SolexaSetupState">
              <mx:RemoveChild target="{hbox3}"/>

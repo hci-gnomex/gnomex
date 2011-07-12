@@ -1,6 +1,12 @@
 ﻿GNomEx Release Notes
 
-5.1.7
+5.1.7.1
+---------------------
+- Remove extraneous instructions from submit request window, fix horizontal scrolling problem
+- Finish work on Experiment platform config (prompts for delete, isActive, add new platform, etc.)
+- Add CharacteristicType to populate script.
+
+5.1.7 (July 12, 2011)
 ---------------------
 - Wrap up work on Experiment Platform config
 - Fix for problem with Organism refresh. 

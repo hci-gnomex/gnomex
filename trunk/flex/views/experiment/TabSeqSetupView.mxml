@@ -8,7 +8,6 @@
 			<mx:RemoveChild target="{hbox1}"/>
 			<mx:SetProperty name="enabled" value="true"/>
 			<mx:SetProperty target="{seqLibTreatmentBox}" name="styleName"/>
-			<mx:RemoveChild target="{textarea1}"/>
 		</mx:State>
 	</mx:states>
 <mx:Script>
@@ -250,11 +249,6 @@
 
 		</mx:VBox>
 		
-	</mx:VBox>
-	    <mx:VBox  horizontalAlign="center" paddingLeft="4" id="vbox2" right="0" top="0">
-  		    <mx:TextArea styleName="instructionBox" width="300" wordWrap="true" height="80" id="textarea1">
-			  <mx:htmlText><![CDATA[Instructions<br>  1.  Provide requested information or select appropriate<br>       dropdown options for each line item below.<br>  2.  After completing all line items, click the 'Next' button<br>       at the bottom of the page to proceed.]]></mx:htmlText>
-			</mx:TextArea>
 	</mx:VBox>
 	
   </mx:Canvas>

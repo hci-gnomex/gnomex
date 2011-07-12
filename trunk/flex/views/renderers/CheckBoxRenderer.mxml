@@ -15,14 +15,17 @@
 			import mx.core.IFactory;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
+			import views.util.DirtyNote;
 			
 			private var _listData:DataGridListData;
 			
 			[Bindable]
 			public var txt:String;
 			
-			public static function create():IFactory {
-				return RendererFactory.create(CheckBoxRenderer, {});
+			public var dirty:DirtyNote
+			
+			public static function create(dirty:DirtyNote=null):IFactory {
+				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty});
 			}		
 			
 			override public function set data(value:Object):void {
@@ -51,6 +54,9 @@
 			public function updateDP():void{
 				if (_listData != null) {
 					this.data[_listData.dataField] = this.selected ? "Y" : "N";
+					if (dirty != null) {
+						this.dirty.setDirty();
+					}
 					if (this._listData is DataGrid) {
 						var dg:DataGrid=this._listData.owner as DataGrid;
 						dg.dataProvider.itemUpdated(data);

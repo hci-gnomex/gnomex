@@ -3938,7 +3938,7 @@
 			<experiment:TabConfirmView id="confirmView">				
 			</experiment:TabConfirmView>
 		</mx:TabNavigator>
-	</mx:VBox>
+	</mx:VBox>  
 	
  	   <mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1">
  		<mx:ViewStack id="buttonStack" width="100%">
@@ -3964,9 +3964,9 @@
 							  </mx:ViewStack>
 							</mx:HBox>
 								
-							<mx:HBox height="100%" width="100%"  verticalAlign="top" horizontalAlign="left" horizontalScrollPolicy="off" horizontalGap="5">
-								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true"/>
-								<mx:CheckBox label=" " id="agreeCheckbox" fontWeight="bold" color="#1D42BB" fontSize="11" width="100%" textAlign="left" click="agreeCheckbox_clickHandler(event)"/>
+							<mx:HBox height="100%" width="100%"  verticalAlign="top" horizontalAlign="left" horizontalScrollPolicy="off" horizontalGap="10">
+								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true" disabledIcon="@Embed(source='../../assets/tick_disable.png')"/>
+								<mx:CheckBox label="I authorize" id="agreeCheckbox" color="#307B0B" width="100%" click="agreeCheckbox_clickHandler(event)" fontWeight="bold" textAlign="left" fontSize="11" letterSpacing=".5" textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
 							</mx:HBox>

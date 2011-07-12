@@ -145,7 +145,9 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           listNode.addContent(cycleNode);
           boolean paired = false;
           boolean single = false;
+          String pairedName = "";
           String pairedNote = "";
+          String singleName = "";
           String singleNote = "";
           if (isAssociated(rc, c)) {
             List<NumberSequencingCyclesAllowed> allowedList = getNumberSequencingCyclesAllowed(rc, c);
@@ -153,17 +155,21 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
               NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)i2.next();
               if (dh.getSeqRunType(x.getIdSeqRunType()).indexOf("Paired") > -1) {
                 paired = true;
+                pairedName = x.getName();
                 pairedNote = x.getNotes();
               } else if (dh.getSeqRunType(x.getIdSeqRunType()).indexOf("Single") > -1) {
                 single = true;
+                singleName = x.getName();
                 singleNote = x.getNotes();
               } 
             }
           }
           cycleNode.setAttribute("paired", paired ? "Y" : "N");
           cycleNode.setAttribute("pairedNote", pairedNote != null ? pairedNote : "");
+          cycleNode.setAttribute("pairedName", pairedName != null ? pairedName : "");
           cycleNode.setAttribute("single", single ? "Y" : "N");
           cycleNode.setAttribute("singleNote", singleNote != null ? singleNote : "");
+          cycleNode.setAttribute("singleName", singleName != null ? singleName : "");
         }
                
       }
