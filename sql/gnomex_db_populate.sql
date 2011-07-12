@@ -743,6 +743,14 @@ VALUES ('AFFY', 'CHIP'),
   ('HISEQ', 'MONNUCSEQ'),
   ('HISEQ', 'TSCRPTSEQ');
 
+ 
+-- Insert entries into CharacteristicType
+INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('TEXT',        'Text');
+INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('URL',         'URL');
+INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('CHECK',       'Checkbox');
+INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('OPTION',      'Option (Single selection)');
+INSERT INTO gnomex.CharacteristicType (codeCharacteristicType, name) values ('MOPTION',     'Option (Multiple selection)');
+ 
 
 
 INSERT INTO `gnomex`.`SampleCharacteristic`(`idSampleCharacteristic`, `sampleCharacteristic`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codeCharacteristicType, isRequired)
