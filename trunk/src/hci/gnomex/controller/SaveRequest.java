@@ -938,11 +938,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private void saveHyb(RequestParser.HybInfo hybInfo, Session sess, int hybCount) throws Exception {
 
-    // Figure out the default protocol for the given sample type and microarray category.
+    // Figure out the default protocol for the given request category and microarray application.
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT x.idLabelingProtocolDefault, x.idHybProtocolDefault, x.idScanProtocolDefault, x.idFeatureExtractionProtocolDefault ");
-    buf.append(" FROM  SampleTypeApplication x ");
-    buf.append(" WHERE x.idSampleType = " + requestParser.getRequest().getIdSampleTypeDefault());
+    buf.append(" FROM  RequestCategoryApplication x ");
+    buf.append(" WHERE x.codeRequestCategory = '" + requestParser.getRequest().getCodeRequestCategory() + "'");
     buf.append(" AND   x.codeApplication = '" + requestParser.getRequest().getCodeApplication() + "'");
     List defaultProtocolIds = sess.createQuery(buf.toString()).list();
     if (defaultProtocolIds.size() > 0) {
