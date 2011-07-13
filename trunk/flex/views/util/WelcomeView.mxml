@@ -50,15 +50,14 @@
 								   click="showDictionaries()" visible="true" enabled="true" icon="@Embed(source='../../assets/book.png')"/>
 					<mx:LinkButton id="sampleCharacteristicButton"  label="Configure Sample Annotations" styleName="dashboardButton" 
 								   click="showSampleCharacteristicWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platform
-								   " styleName="dashboardButton" 
+					<mx:LinkButton id="platformConfigButton"  label="Configure Experiment Platforms" styleName="dashboardButton" 
 								   click="showExperimentPlatformWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton id="organismButton"  label="Configure Organisms" styleName="dashboardButton" 
 								   click="showOrganismWindow()" visible="true" enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
 					<mx:LinkButton label="Manage microarray catalog" click="showSlides()" styleName="dashboardButton"  id="button0" icon="@Embed(source='../../assets/images.png')"/>
-					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
 					<mx:LinkButton label="Manage billing" click="showBilling()" styleName="dashboardButton"  id="button11"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/money.png')"/>
+					<mx:LinkButton label="Setup a user or a lab group" click="showUsersAndGroups()" styleName="dashboardButton"  id="button10"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/group.png')"/>
+					<mx:LinkButton label="Send email to all GNomEx users" click="showBroadcastEmailWindow()" styleName="dashboardButton"  id="button9"  toolTip="Notify all GNomEx users via a broadcast email" icon="@Embed(source='../../assets/email_go.png')"/>
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{hbox0}"/>
