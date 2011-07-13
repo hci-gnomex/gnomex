@@ -505,20 +505,22 @@
 			}
 			
 			// Select the default organism on sample setup if the request category specifies one
-			if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.selectedItem.@value == '') {
-				var requestCategory:Object = parentDocument.getRequestCategory();
-				if (requestCategory.@idOrganism != '') {
-					var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
-					if (organism is XMLList) {
-						this.sampleOrganismCombo.selectedItem = organism[0];
-						return;
-						
-					} else {
-						this.sampleOrganismCombo.selectedItem = organism;
-						return;
-					}
-				} 
-				
+			if (!parentDocument.isQCState()) {
+				if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.selectedItem.@value == '') {
+					var requestCategory:Object = parentDocument.getRequestCategory();
+					if (requestCategory.@idOrganism != '') {
+						var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Organism',requestCategory.@idOrganism);
+						if (organism is XMLList) {
+							this.sampleOrganismCombo.selectedItem = organism[0];
+							return;
+							
+						} else {
+							this.sampleOrganismCombo.selectedItem = organism;
+							return;
+						}
+					} 
+					
+				}
 			}
 
 			parentDocument.samplesView.initializeSamplesGrid();
