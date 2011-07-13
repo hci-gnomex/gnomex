@@ -1,6 +1,14 @@
 ﻿GNomEx Release Notes
 
-5.1.7.1
+
+5.1.7.2
+---------------------
+- Save labeling, hyb, scan, and fe protocol defaults based on request category and application rather than
+  sample type and application.
+- Default sequencing option name when paired or single checkbox checked on Experiment Platform config window.
+
+
+5.1.7.1 (July 13, 2011)
 ---------------------
 - Remove extraneous instructions from submit request window, fix horizontal scrolling problem
 - Finish work on Experiment platform config (prompts for delete, isActive, add new platform, etc.)
