@@ -3964,9 +3964,9 @@
 							  </mx:ViewStack>
 							</mx:HBox>
 								
-							<mx:HBox height="100%" width="100%"  verticalAlign="top" horizontalAlign="left" horizontalScrollPolicy="off" horizontalGap="10">
+							<mx:HBox height="100%" width="100%"  verticalAlign="middle" horizontalAlign="left" horizontalScrollPolicy="off" horizontalGap="10">
 								<mx:Button label="Submit" id="submitButton" enabled="true" icon="@Embed('../../assets/tick.png')" click="validateAndSubmitRequest()"  visible="true" disabledIcon="@Embed(source='../../assets/tick_disable.png')"/>
-								<mx:CheckBox label="I authorize" id="agreeCheckbox" color="#307B0B" width="100%" click="agreeCheckbox_clickHandler(event)" fontWeight="bold" textAlign="left" fontSize="11" letterSpacing=".5" textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0"/>
+								<mx:CheckBox label="I authorize" id="agreeCheckbox" color="#307B0B" width="100%" click="agreeCheckbox_clickHandler(event)" fontWeight="bold" textAlign="left" fontSize="11" letterSpacing=".5" textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0" fontStyle="italic" errorColor="#307B0B" disabledColor="#307B0B" horizontalGap="1" textSelectedColor="#307B0B"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top" >
 							</mx:HBox>
@@ -4258,6 +4258,11 @@
 				<mx:RemoveChild target="{instructionsView}"/>		
 		</mx:State>
         <mx:State name="BaseSubmitState">
+            <mx:SetStyle target="{agreeCheckbox}" name="fontStyle" value="italic"/>
+            <mx:SetStyle target="{agreeCheckbox}" name="disabledColor" value="#307B0B"/>
+            <mx:SetStyle target="{agreeCheckbox}" name="horizontalGap" value="1"/>
+            <mx:SetStyle target="{agreeCheckbox}" name="textRollOverColor" value="#3A940E"/>
+            <mx:SetStyle target="{agreeCheckbox}" name="textSelectedColor" value="#3A940E"/>
         </mx:State>
         <mx:State name="AmendState">
             <mx:AddChild relativeTo="{seqSetupView}" position="before">
