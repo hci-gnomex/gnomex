@@ -112,7 +112,27 @@ public class PendingWorkAuthd extends TimerTask {
       app.connect();
       
       propertyHelper = PropertyHelper.getInstance(sess);
-      String contactList = propertyHelper.getQualifiedProperty(Property.CONTACT_EMAIL_CORE_FACILITY, serverName); 
+      String contactList = propertyHelper.getQualifiedProperty(Property.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName); 
+      
+      String subject = "Pending Work Authorizations";
+      
+      getPendingWorkAuthorizations(sess);
+      Iterator<String> it = waList.iterator();
+      boolean hasWorkAuthorizations = false;
+
+      StringBuffer tableRows = new StringBuffer("");
+      while(it.hasNext()) {
+        if(!hasWorkAuthorizations) {
+          tableRows.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='250'><span class='fontClassBold'>Account Name</span></td><td width='250'><span class='fontClassBold'>Account No.</span></td></tr>");
+        }
+        tableRows.append((String) it.next());
+        hasWorkAuthorizations = true;
+      }
+
+      if(!hasWorkAuthorizations) {
+        subject = "(No Pending Work Authorizations)";
+        tableRows.append("<tr><td align='center'><span class='fontClass'>There are no pending work authorizations at this time.</span></td></tr>");        
+      }
       
       // Build message body in html
       StringBuffer body = new StringBuffer("");
@@ -120,28 +140,16 @@ public class PendingWorkAuthd extends TimerTask {
       body.append("<html><head><title>Work Authorization Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
       body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
       body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
-      body.append(" .fontClassBold{font-size:12px;fontWeight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
+      body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
+      body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
       body.append("<table width='100%' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='20'>&nbsp;</td><td valign='top' align='left'>");
+      if(hasWorkAuthorizations) {
+        body.append("<table cellpadding='0' cellspacing='0' border='0' bgcolor='#FFFFFF'>");
+        body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>The following work authorizations are waiting to be approved:</span></td></tr>");        
+        body.append("</table>");        
+      }
       body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");
-      String subject = "Pending Work Authorizations";
-      
-      getPendingWorkAuthorizations(sess);
-      Iterator<String> it = waList.iterator();
-      boolean hasWorkAuthorizations = false;
-
-      while(it.hasNext()) {
-        if(!hasWorkAuthorizations) {
-          body.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='250'><span class='fontClassBold'>Account Name</span></td><td width='250'><span class='fontClassBold'>Account No.</span></td></tr>");
-        }
-        body.append((String) it.next());
-        hasWorkAuthorizations = true;
-      }
-
-      if(!hasWorkAuthorizations) {
-        subject = "(No Pending Work Authorizations)";
-        body.append("<tr><td align='center'><span class='fontClass'>There are no pending work authorizations at this time.</span></td></tr>");        
-      }
-
+      body.append(tableRows.toString());
       body.append("</table></td></tr></table></body></html>");
       MailUtil.send(mailProps, contactList, "", "DoNotReply@hci.utah.edu", subject, body.toString(), true);        
       app.disconnect();      
@@ -206,7 +214,12 @@ public class PendingWorkAuthd extends TimerTask {
       
       StringBuffer buf = new StringBuffer();
       buf.append("select isNull(lab.lastName, '') + ISNULL(', ' + lab.firstName, '') + ' Lab' as lab,");
-      buf.append(" accountName, ISNULL(accountNumber, '') as accountNumber");
+      //buf.append(" accountName, ISNULL(accountNumber, '') as accountNumber");
+      buf.append(" isNull(ba.accountName, '') as accountName,");
+      buf.append(" isNull(ba.accountNumberBus, '')");
+      buf.append(" + isNull('-'+ ba.accountNumberOrg, '') + isNull('-' + ba.accountNumberFund, '')");
+      buf.append(" + ltrim(rtrim(convert(char(40), isNull('-'+ba.accountNumberActivity, ''))))");
+      buf.append(" + ltrim(rtrim(convert(char(40), isNull('-' + ba.accountNumberProject, '')))) as accountNumber");
       buf.append(" from BillingAccount ba");
       buf.append("   left join Lab lab");
       buf.append("   on lab.idLab = ba.idLab");
