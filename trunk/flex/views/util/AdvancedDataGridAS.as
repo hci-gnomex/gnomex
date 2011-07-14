@@ -123,8 +123,36 @@ package views.util
 		override protected function mouseUpHandler(event:MouseEvent):void
 		{
 				super.mouseUpHandler(event);
-				dragScrollingInterval = 0;	
+				thisResetDragScrolling();
+		}
+		
+		/**
+		 *  Handles <code>DragEvent.DRAG_EXIT</code> events. This method hides
+		 *  the UI feeback by calling the <code>hideDropFeedback()</code> method.
+		 *
+		 *  @param event The DragEvent object.
+		 */
+		override protected function dragExitHandler(event:DragEvent):void
+		{
+						
+			thisResetDragScrolling();
+			super.dragExitHandler(event);
+		}
+		
+		
+		/**
+		 *  @private
+		 *  Stop the drag scrolling callback.
+		 */
+		protected function thisResetDragScrolling():void
+		{
+			if (dragScrollingInterval != 0)
+			{
+				clearInterval(dragScrollingInterval);
+				dragScrollingInterval = 0;
+			}
 		}		
+		
 		
 	}
 }
