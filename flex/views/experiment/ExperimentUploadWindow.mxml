@@ -68,14 +68,15 @@
     
     <mx:Script>
     	<![CDATA[
-		import mx.managers.PopUpManager;
-	 	import mx.rpc.events.ResultEvent;
-	 	import mx.events.CloseEvent;
-	 	import mx.controls.Alert;
-	 	import views.util.MultiFileUpload;
+		import mx.controls.Alert;
+		import mx.core.DragSource;
+		import mx.events.CloseEvent;
 		import mx.events.DragEvent;
-		import mx.managers.DragManager; 
-        import mx.core.DragSource;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.util.MultiFileUpload;
 		
 		[Bindable]
 		private var idRequest:Object;
@@ -183,7 +184,7 @@
 	   private function onGetRequest(event:ResultEvent): void {
 			if (getRequest.lastResult.name() == "OpenRequestList") {
 				this.theTab.selectedIndex = 1;
-				newFolderButton.enabled =getRequest.lastResult.Request.@codeRequestCategory == 'SOLEXA' || getRequest.lastResult.Request.@codeRequestCategory == 'HISEQ';
+				newFolderButton.enabled = true; 
 			}
 	   }
        
@@ -249,6 +250,26 @@
 	    	if (this.downloadTree.selectedItem == null) {
 	    		 this.downloadTree.selectedIndex = 0;
 	    	}
+
+			var allow:Boolean = false;
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',getRequest.lastResult.Request.@codeRequestCategory);
+			if (requestCategory.@type == 'ILLUMINA') {
+				allow = true;
+			} else {
+				var parent:XML = null;
+				if (this.downloadTree.selectedItem.name() == 'FileDescriptor') {
+					parent = XML(downloadTree.selectedItem).parent();
+				} else {
+					parent = XML(downloadTree.selectedItem);
+				}				
+				if (parent.name() != 'Request') {
+					allow = true;
+				}
+			}
+			if (!allow) {
+				Alert.show("Cannot create base directories for Microaray or Sample Quality experiments.  Please organize subdirectories underneath base directories provided.");
+				return;
+			}
 	    	
 	    	var addFolderWindow:FolderAddWindow = FolderAddWindow(PopUpManager.createPopUp(DisplayObject(parentApplication.theBody), FolderAddWindow, true));
 	    	PopUpManager.centerPopUp(addFolderWindow);
@@ -290,7 +311,11 @@
 				this.dirty.setDirty();
 			} else if (this.downloadTree.selectedItems != null && this.downloadTree.selectedItems.length > 0) {
 				for each(var downloadFile:XML in this.downloadTree.selectedItems) {
-					this.filesToRemove.addItem(downloadFile);
+					// Only add to remove list if this file exists
+					if (downloadFile.hasOwnProperty("@fileName")) {
+						this.filesToRemove.addItem(downloadFile);						
+					}
+					// Delete from XML hierarchy
 					this.deleteNode(downloadFile);
 				}
 				this.dirty.setDirty();
@@ -521,7 +546,7 @@
 			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
 			    <mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
 			    <mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Remove file"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
-			    <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.name() == 'FileDescriptor')}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
+			    <mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedItem.children().length() == 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeExperimentFile()" paddingLeft="0"/>
 			    <mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
 			    	
 			    </mx:HBox>

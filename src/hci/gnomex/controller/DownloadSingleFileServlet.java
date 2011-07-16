@@ -179,7 +179,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
-        Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear());
+        Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear(), experiment.getCodeRequestCategory());
         StringBuffer keys = new StringBuffer();
         for(Iterator i = folders.iterator(); i.hasNext();) {
           String folder = (String)i.next();
