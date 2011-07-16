@@ -225,7 +225,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
       maindiv.addContent(h);
       
       // Now get the files that exist on the file server for this experiment
-      Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear());
+      Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear(), experiment.getCodeRequestCategory());
       for(Iterator i = folders.iterator(); i.hasNext();) {
         String folder = (String)i.next();
       

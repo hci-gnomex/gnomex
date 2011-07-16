@@ -88,6 +88,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       requestNode.setAttribute("number", requestNumber);
       doc.getRootElement().addContent(requestNode);
       
+      
       // If we can't find the request in the database, just bypass it.
       if (request == null) {
         log.error("Unable to find request " + requestNumber + ".  Bypassing download for user " + this.getUsername() + ".");

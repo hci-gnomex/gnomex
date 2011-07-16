@@ -1,7 +1,18 @@
 ﻿GNomEx Release Notes
 
+5.1.7.4 (July 16, 2011)
+-----------------------
+- Fix download folders bug that was causing number parsing exception when folder contained character 'E'
+- Allow folders created in 'Organize files' window to be removed.
 
-5.1.7.2
+
+5.1.7.3 (July 15, 2011)
+---------------------
+- Fixed for the scrolling speed problem on the billing window price drag/drop. 
+- Added a property to define who receives the pending work authorizations message, fixed the problem 
+  with the account number in the work auth notification email.
+
+5.1.7.2 (July 14, 2011)
 ---------------------
 - Save labeling, hyb, scan, and fe protocol defaults based on request category and application rather than
   sample type and application.

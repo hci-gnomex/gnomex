@@ -120,6 +120,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         Object[] row = (Object[])i.next();
         
         String requestNumber = (String)row[1];
+        String codeRequestCategory = (String)row[2];
         String hybNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
         
         String createDate    = this.formatDate((java.sql.Date)row[0]);
@@ -129,7 +130,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         
-        String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + hybNumber;
+        String baseKey = createYear + "-" + sortDate + "-" + requestNumber;
+        String key = baseKey + "-" + hybNumber;
         
         rowMap.put(key, row);
       }
@@ -141,6 +143,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         Object[] row = (Object[])i.next();
         
         String requestNumber = (String)row[1];
+        String codeRequestCategory = (String)row[2];
         
         String createDate    = this.formatDate((java.sql.Date)row[0]);
         String tokens[] = createDate.split("/");
@@ -154,24 +157,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         // files will be in 7633R even though request # is now 7633R1).
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
         
+        String baseKey = createYear + "-" + sortDate + "-" + requestNumber;
+        
         // Now read the request directory to identify all its subdirectories
-        Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.sql.Date)row[0]));
-        for(Iterator i1 = folders.iterator(); i1.hasNext();) {
-          String folderName = (String)i1.next();
-          if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
-            continue;
-          }
-          if (folderName.equals(Constants.UPLOAD_STAGING_DIR)) {
-            continue;
-          }
-          String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + folderName;
-          Object[] newRow = new Object[row.length];
-          for(int x = 0; x < row.length; x++) {
-            newRow[x] = row[x];
-          }
-          newRow[5] = folderName;
-          rowMap.put(key, newRow);
-        }
+        Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.sql.Date)row[0]), codeRequestCategory);
+        this.hashFolders(folders, rowMap, dh, baseKey, row);
       }
       
       buf = filter.getSolexaFlowCellQuery(this.getSecAdvisor());
@@ -203,6 +193,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         Object[] row = (Object[])i.next();
         
         String requestNumber = (String)row[1];
+        String codeRequestCategory = (String)row[2];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];
 
         String createDate    = this.formatDate((java.sql.Date)row[0]);
@@ -211,10 +202,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createDay   = tokens[1];
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
-        
-        String key = createYear + "-" + sortDate + "-" + requestNumber + "-" + this.QUALITY_CONTROL_DIRECTORY;
+       
+        String baseKey = createYear + "-" + sortDate + "-" + requestNumber;
+        String key = baseKey + "-" + this.QUALITY_CONTROL_DIRECTORY;
         
         rowMap.put(key, row);
+
       }
       
       boolean alt = false;
@@ -228,6 +221,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String key = (String)i.next();
         String[] tokens = key.split("-");
         String createYear = tokens[0];
+        String resultDir = tokens[3];
         
         Object[] row = (Object[])rowMap.get(key);
         String codeRequestCategory = (String)row[2];
@@ -304,6 +298,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
         n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
         
+        String directoryName =  baseDir + "/" + createYear + "/" + Request.getBaseRequestNumber(requestNumber) + "/" + resultDir;
+        n.setAttribute("fileName", directoryName);
         
         boolean isSolexaRequest = false;
         if (n.getAttributeValue("codeRequestCategory") != null && RequestCategory.isIlluminaRequestCategory(n.getAttributeValue("codeRequestCategory"))) {
@@ -464,10 +460,29 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
         
-      }
+     }
     }
     
     return this;
+  }
+  
+  private void hashFolders(Set folders, TreeMap rowMap, DictionaryHelper dh, String baseKey, Object[] row) {
+    for(Iterator i1 = folders.iterator(); i1.hasNext();) {
+      String folderName = (String)i1.next();
+      if (folderName.equals(dh.getProperty(Property.QC_DIRECTORY))) {
+        continue;
+      }
+      if (folderName.equals(Constants.UPLOAD_STAGING_DIR)) {
+        continue;
+      }
+      String key = baseKey + "-" + folderName;
+      Object[] newRow = new Object[row.length];
+      for(int x = 0; x < row.length; x++) {
+        newRow[x] = row[x];
+      }
+      newRow[5] = folderName;
+      rowMap.put(key, newRow);
+    }    
   }
   
   public static void addExpandedFileNodes(String baseDir,
@@ -538,9 +553,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   }
   
   
-  public static Set getRequestDownloadFolders(String baseDir, String requestNumber, String createYear) {
+  public static Set getRequestDownloadFolders(String baseDir, String requestNumber, String createYear, String codeRequestCategory) {
 
-    TreeSet folders = new TreeSet<String>(new FolderComparator());
+    TreeSet folders = new TreeSet<String>(new FolderComparator(codeRequestCategory));
     String directoryName = baseDir + createYear + "/" + requestNumber;
     File fd = new File(directoryName);
 
@@ -602,6 +617,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   }
   
   public static class  FolderComparator implements Comparator, Serializable {
+    private String codeRequestCategory;
+    
+    public FolderComparator(String codeRequestCategory) {
+      this.codeRequestCategory = codeRequestCategory;
+    }
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;
       String key2 = (String)o2;
@@ -623,22 +643,47 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       String sortb2 = "";
       Integer sortc1 = null;
       Integer sortc2 = null;
-      String tokens[] = key1.split("E");
-      if (tokens.length == 2) {
-        sortc1 = new Integer(tokens[1]);
-        sortb1 = tokens[0];
+      if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory)) {        
+        String tokens[] = key1.split("E");
+        if (tokens.length == 2) {
+          try {
+            Integer.parseInt(tokens[1]);
+            sortc1 = new Integer(tokens[1]);
+            sortb1 = tokens[0];
+          } catch (Exception e) {
+            sortc1 = new Integer(0);
+            sortb1 = key1;
+          }
+        } else {
+          sortc1 = new Integer(0);
+          sortb1 = key1;
+        }
+        tokens = key2.split("E");
+        if (tokens.length == 2) {
+          try {
+            Integer.parseInt(tokens[1]);
+            sortc2 = new Integer(tokens[1]);
+            sortb2 = tokens[0];
+            
+          } catch(Exception e) {
+            sortc2 = new Integer(2);
+            sortb2 = key2;
+            
+          }
+        } else {
+          sortc2 = new Integer(2);
+          sortb2 = key2;
+        }
+        
       } else {
-        sortc1 = new Integer(0);
         sortb1 = key1;
-      }
-      tokens = key2.split("E");
-      if (tokens.length == 2) {
-         sortc2 = new Integer(tokens[1]);
-         sortb2 = tokens[0];
-      } else {
-        sortc2 = new Integer(2);
+        sortc1 = new Integer(0);
+
         sortb2 = key2;
+        sortc2 = new Integer(0);
       }
+    
+      
       
       if (sorta1.equals(sorta2)) {
         if (sortb1.equals(sortb2)) {

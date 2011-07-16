@@ -108,8 +108,9 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     ArrayList fileNames = new ArrayList();
     
     Element root = this.doc.getRootElement();
-    for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
+    for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
+      System.out.println("ready to remove  fileName" + node.getAttributeValue("fileName"));
       fileNames.add(node.getAttributeValue("fileName"));
     }
 
