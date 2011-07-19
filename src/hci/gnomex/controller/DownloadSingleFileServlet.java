@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyHelper;
@@ -138,7 +139,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
         }
         
         
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
         baseDir = PropertyHelper.getInstance(sess).getMicroarrayDirectoryForReading(req.getServerName());
@@ -233,6 +234,16 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
         // If we found the experiment, download it
         if (experimentFd != null) {
+          // Insert a transfer log entry
+          TransferLog xferLog = new TransferLog();
+          xferLog.setFileName(experimentFd.getFileName().substring(baseDir.length() + 5));
+          xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+          xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
+          xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+          xferLog.setPerformCompression("Y");
+          xferLog.setIdRequest(experiment.getIdRequest());
+          xferLog.setIdLab(experiment.getIdLab());
+          
           in = new FileInputStream(experimentFd.getFileName());
           OutputStream out = response.getOutputStream();
           byte b[] = new byte[102400];
@@ -280,7 +291,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
       e.printStackTrace();
     } finally {
       try {
-        secAdvisor.closeReadOnlyHibernateSession();        
+        secAdvisor.closeHibernateSession();        
       } catch (Exception e) {
         
       }

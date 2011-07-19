@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
@@ -105,12 +106,12 @@ public class DownloadResultsServlet extends HttpServlet {
       archiveHelper.setMode(req.getParameter("mode"));
     }
 
-
+    SecurityAdvisor secAdvisor = null;
 
     try {
 
       // Get security advisor
-      SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
         response.setContentType("application/x-download");
@@ -118,7 +119,7 @@ public class DownloadResultsServlet extends HttpServlet {
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         baseDirFlowCell = dh.getFlowCellDirectory(req.getServerName());
         baseDir = dh.getMicroarrayDirectoryForReading(req.getServerName());
@@ -168,7 +169,16 @@ public class DownloadResultsServlet extends HttpServlet {
           for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
 
             FileDescriptor fd = (FileDescriptor) i1.next();
-
+            
+            // Insert a transfer log entry
+            TransferLog xferLog = new TransferLog();
+            xferLog.setFileName(fd.getZipEntryName());
+            xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+            xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
+            xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+            xferLog.setPerformCompression("Y");
+            xferLog.setIdRequest(request.getIdRequest());
+            xferLog.setIdLab(request.getIdLab());
             
             // If we are using tar, compress the file first using
             // zip.  If we are zipping the file, just open
@@ -198,6 +208,11 @@ public class DownloadResultsServlet extends HttpServlet {
             }
             int size = archiveHelper.transferBytes(in, out);
             totalArchiveSize += size;
+            
+            xferLog.setFileSize(new BigDecimal(size));
+            xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+            sess.save(xferLog);
+            
 
             if (archiveHelper.isZipMode()) {
               zipOut.closeEntry();              
@@ -207,6 +222,7 @@ public class DownloadResultsServlet extends HttpServlet {
             
             // Remove temporary files
             archiveHelper.removeTemporaryFile();
+            
           }     
           
           
@@ -222,7 +238,8 @@ public class DownloadResultsServlet extends HttpServlet {
         }
         
 
-        secAdvisor.closeReadOnlyHibernateSession();
+        sess.flush();
+       
 
 
       } else {
@@ -234,6 +251,12 @@ public class DownloadResultsServlet extends HttpServlet {
       System.out.println( "DownloadResultsServlet: An exception occurred " + e.toString());
       e.printStackTrace();
     } finally {
+      if (secAdvisor != null) {
+        try {
+          secAdvisor.closeHibernateSession();
+        } catch (Exception e) {
+        }
+      }
       // Remove temporary files
       archiveHelper.removeTemporaryFile();
     }

@@ -1,5 +1,10 @@
 ﻿GNomEx Release Notes
 
+5.1.8 (July 17, 2011)
+-----------------------
+- Upload/download logs for flex and html http uploads and downloads
+- Fixed bug that was causing save error when adding lanes to a request (codeApplication was blank)
+
 5.1.7.4 (July 16, 2011)
 -----------------------
 - Fix download folders bug that was causing number parsing exception when folder contained character 'E'

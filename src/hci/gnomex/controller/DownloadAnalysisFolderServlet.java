@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -66,11 +68,11 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
       archiveHelper.setMode(req.getParameter("mode"));
     }
     
-    
+    SecurityAdvisor secAdvisor = null;
     try {
 
       // Get security advisor
-      SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
         response.setContentType("application/x-download");
@@ -80,7 +82,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         long time1 = System.currentTimeMillis();
         
         
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         baseDir = dh.getAnalysisReadDirectory(req.getServerName());
        
@@ -134,8 +136,19 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
           for (Iterator i1 = fileNames.iterator(); i1.hasNext();) {
 
             String filename = (String) i1.next();
-            String zipEntryName = "bioinformatics-analysis-" + filename.substring(baseDir.length() + 5);
+            String zipEntryName = "bioinformatics-analysis-" + filename.substring(baseDir.length());
             archiveHelper.setArchiveEntryName(zipEntryName);
+            
+            
+            // Insert a transfer log entry
+            TransferLog xferLog = new TransferLog();
+            xferLog.setFileName(filename.substring(baseDir.length() + 5));
+            xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+            xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
+            xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+            xferLog.setPerformCompression("Y");
+            xferLog.setIdAnalysis(analysis.getIdAnalysis());
+            xferLog.setIdLab(analysis.getIdLab());
             
             // If we are using tar, compress the file first using
             // zip.  If we are zipping the file, just open
@@ -167,6 +180,12 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
             }
             int size = archiveHelper.transferBytes(in, out);
             totalArchiveSize += size;
+            
+            
+            // Save transfer log
+            xferLog.setFileSize(new BigDecimal(size));
+            xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+            sess.save(xferLog);
 
             if (archiveHelper.isZipMode()) {
               zipOut.closeEntry();              
@@ -181,6 +200,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
 
           }     
           
+          sess.flush();
           
         }
         
@@ -196,7 +216,7 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
         }
 
         
-        secAdvisor.closeReadOnlyHibernateSession();
+       
 
       } else {
         response.setStatus(999);
@@ -207,6 +227,13 @@ public class DownloadAnalysisFolderServlet extends HttpServlet {
       System.out.println( "DownloadAnalyisFolderServlet: An exception occurred " + e.toString());
       e.printStackTrace();
     } finally {
+      
+      if (secAdvisor != null) {
+        try {
+          secAdvisor.closeHibernateSession();          
+        } catch(Exception e) {
+        }
+      }
       
       // Remove temporary files
       archiveHelper.removeTemporaryFile();

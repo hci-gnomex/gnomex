@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.PropertyHelper;
@@ -10,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,7 +110,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
         baseDir = PropertyHelper.getInstance(sess).getAnalysisReadDirectory(req.getServerName());
@@ -153,6 +155,20 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
         // If we found the analysis, download it
         if (analysisFd != null) {
+          
+          
+          // Insert a transfer log entry
+          TransferLog xferLog = new TransferLog();
+          xferLog.setFileName(analysisFd.getFileName().substring(baseDir.length() + 5));
+          xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+          xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
+          xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+          xferLog.setPerformCompression("N");
+          xferLog.setIdAnalysis(analysis.getIdAnalysis());
+          xferLog.setIdLab(analysis.getIdLab());
+          
+          
+          
           in = new FileInputStream(analysisFd.getFileName());
           OutputStream out = response.getOutputStream();
           byte b[] = new byte[102400];
@@ -165,13 +181,19 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
               size += numRead;
             }
           }
+          
+          // Save transfer log 
+          xferLog.setFileSize(new BigDecimal(size));
+          xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+          sess.save(xferLog);
+          
           in.close();
           out.close();
           out.flush();
           in = null;
         }
 
-        
+        sess.flush();
         
 
       } else {
@@ -200,7 +222,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
       e.printStackTrace();
     } finally {
       try {
-        secAdvisor.closeReadOnlyHibernateSession();        
+        secAdvisor.closeHibernateSession();        
       } catch (Exception e) {
         
       }

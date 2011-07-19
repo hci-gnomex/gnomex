@@ -592,7 +592,23 @@
 		<property name="idSample" column="idSample" type="integer"/>
 	</class>
 	
-	
+	<!-- hci.gnomex.model.TransferLog -->
+	<class name="hci.gnomex.model.TransferLog" table="TransferLog">
+		<id name="idTransferLog" column="idTransferLog" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="transferType" column="transferType" type="string"/>
+		<property name="transferMethod" column="transferMethod" type="string"/>
+		<property name="startDateTime" column="startDateTime" type="timestamp"/>
+		<property name="endDateTime" column="endDateTime" type="timestamp"/>
+		<property name="fileName" column="fileName" type="string"/>
+		<property name="fileSize" column="fileSize" type="big_decimal"/>
+		<property name="performCompression" column="performCompression" type="string"/>
+		<property name="idAnalysis" column="idAnalysis" type="integer"/>
+		<property name="idRequest" column="idRequest" type="integer"/>
+		<property name="idLab" column="idLab" type="integer"/>
+	</class>
+		
 	<!-- hci.gnomex.model.WorkItem -->
 	<class name="hci.gnomex.model.WorkItem" table="WorkItem">
 		<id name="idWorkItem" column="idWorkItem" type="integer">

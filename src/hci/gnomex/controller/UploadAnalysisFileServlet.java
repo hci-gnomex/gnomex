@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -11,6 +12,7 @@ import hci.gnomex.utility.HibernateSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -176,15 +178,33 @@ public class UploadAnalysisFileServlet extends HttpServlet {
             }      
           }
           
+
+          
           while ((part = mp.readNextPart()) != null) {        
             if (part.isFile()) {
               // it's a file part
               FilePart filePart = (FilePart) part;
               fileName = filePart.getFileName();
               if (fileName != null) {
+                
+                // Init the transfer log entry
+                TransferLog xferLog = new TransferLog();
+                xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+                xferLog.setTransferType(TransferLog.TYPE_UPLOAD);
+                xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+                xferLog.setPerformCompression("N");
+                xferLog.setIdAnalysis(analysis.getIdAnalysis());
+                xferLog.setIdLab(analysis.getIdLab());
+                xferLog.setFileName(analysis.getNumber() + "/" + fileName);
+               
                 // the part actually contained a file
                 long size = filePart.writeTo(new File(directoryName));
                 
+                // Insert the transfer log entry
+                xferLog.setFileSize(new BigDecimal(size));
+                xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+                sess.save(xferLog);
+       
                 if (analysisNumber != null && body != null) {
                   body.addElement("BR");
                   body.addCDATA(fileName + "   -   successfully uploaded " + sizeFormatter.format(size) + " bytes.");                  
