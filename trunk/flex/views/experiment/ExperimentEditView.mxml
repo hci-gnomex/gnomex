@@ -2594,7 +2594,11 @@
 				}
 			} else if (this.isSolexaState()) {
 				if (parentApplication.submitInternalExperiment()) {
-					request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+					if (this.currentState == "SolexaLaneAmendState") {
+						// if we are adding lanes, just keep the same codeApplication on the request						
+					} else {
+						request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+					}
 				} else {
 					request.@codeApplication = setupView.getApp();								
 				}
