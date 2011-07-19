@@ -2,13 +2,15 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -51,7 +53,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
-      Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
+      Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
       
       // Get the dictionary helper
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -187,9 +189,26 @@ public class UploadExperimentFileServlet extends HttpServlet {
               FilePart filePart = (FilePart) part;
               fileName = filePart.getFileName();
               if (fileName != null) {
+                
+                // Init the transfer log
+                TransferLog xferLog = new TransferLog();
+                xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+                xferLog.setTransferType(TransferLog.TYPE_UPLOAD);
+                xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+                xferLog.setPerformCompression("N");
+                xferLog.setIdRequest(request.getIdRequest());
+                xferLog.setIdLab(request.getIdLab());
+                xferLog.setFileName(request.getNumber() + "/" + fileName);
+               
 
                 // the part actually contained a file
                 long size = filePart.writeTo(new File(directoryName));
+                
+                // Insert the transfer log
+                xferLog.setFileSize(new BigDecimal(size));
+                xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+                sess.save(xferLog);
+
 
                 if (requestNumber != null && body != null) {
                   body.addElement("BR");
@@ -238,7 +257,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
     }  finally {
       try {
-        HibernateGuestSession.closeGuestSession();        
+        HibernateSession.closeSession();        
       } catch (Exception e1) {
         System.out.println("UploadExperimentFileServlet warning - cannot close hibernate session");
       }

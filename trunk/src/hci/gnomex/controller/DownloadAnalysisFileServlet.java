@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.AnalysisFileDescriptorParser;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.List;
@@ -82,12 +84,12 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
       archiveHelper.setMode(req.getParameter("mode"));
     }
     
-
+    SecurityAdvisor secAdvisor = null;
     try {
       
 
       // Get security advisor
-      SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
         response.setContentType("application/x-download");
@@ -95,7 +97,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
-        Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         archiveHelper.setTempDir(dh.getProperty(Property.TEMP_DIRECTORY));
@@ -153,6 +155,16 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
               continue;
             }
             
+            // Insert a transfer log entry
+            TransferLog xferLog = new TransferLog();
+            xferLog.setFileName(fd.getZipEntryName());
+            xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
+            xferLog.setTransferType(TransferLog.TYPE_DOWNLOAD);
+            xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
+            xferLog.setPerformCompression("Y");
+            xferLog.setIdAnalysis(analysis.getIdAnalysis());
+            xferLog.setIdLab(analysis.getIdLab());
+            
             
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
@@ -191,6 +203,11 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
             }
             int size = archiveHelper.transferBytes(in, out);
             totalArchiveSize += size;
+            
+            // Save transfer log
+            xferLog.setFileSize(new BigDecimal(size));
+            xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+            sess.save(xferLog);
 
             if (archiveHelper.isZipMode()) {
               zipOut.closeEntry();              
@@ -203,6 +220,8 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
 
           }     
         }
+        
+        sess.flush();
           
           
         if (archiveHelper.isZipMode()) {
@@ -213,11 +232,6 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
           tarOut.flush();
         }
 
-
-       
-        secAdvisor.closeReadOnlyHibernateSession();
-        
-
       } else {
         response.setStatus(999);
         System.out.println( "DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
@@ -227,6 +241,12 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
       System.out.println( "DownloadAnalyisFileServlet: An exception occurred " + e.toString());
       e.printStackTrace();
     } finally {
+      try {
+        if (secAdvisor != null) {
+          secAdvisor.closeHibernateSession();        
+        }
+      }catch(Exception e) {
+      }
       // clear out session variable
       req.getSession().setAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
       
