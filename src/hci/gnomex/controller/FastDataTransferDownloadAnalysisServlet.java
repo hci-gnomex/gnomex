@@ -117,7 +117,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         UUID uuid = UUID.randomUUID();
 
         String analysisNumberBase = "";
-        String folderPrefix = "bioinformatics-analysis-";
+        
 
         // For each analysis
         for(Iterator i = parser.getAnalysisNumbers().iterator(); i.hasNext();) {
@@ -202,10 +202,10 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
             int indxDirPath = fullPath.indexOf(analysisNumberBase);
 
             // Get fileName to use for the name of the softlink
-            String fileName = softlinks_dir+folderPrefix+fullPath.substring(indxDirPath);	
+            String fileName = softlinks_dir+fullPath.substring(indxDirPath);	
 
             // Make intermediate directories if necessary
-            String dirsName = softlinks_dir+folderPrefix+fullPath.substring(indxDirPath, indxFileName);
+            String dirsName = softlinks_dir+fullPath.substring(indxDirPath, indxFileName);
             File dir = new File(dirsName);
             if(!dir.exists()) {
               boolean isDirCreated = dir.mkdirs();  
@@ -240,7 +240,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
           out.println("");
           String fdtJarLoc = PropertyHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
           String fdtServerName = PropertyHelper.getInstance(sess).getFDTServerName(req.getServerName());
-          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+folderPrefix+analysisNumberBase;          
+          String softLinksPath = PropertyHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+analysisNumberBase;          
           if (fdtJarLoc == null || fdtJarLoc.equals("")) {
             fdtJarLoc = "http://monalisa.cern.ch/FDT/";
           }
