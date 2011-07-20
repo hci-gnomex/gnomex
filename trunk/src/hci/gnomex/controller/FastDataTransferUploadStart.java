@@ -60,6 +60,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy");
       String createYear = "";
+      String targetNumber = "";
       
       String fdtSupported = PropertyHelper.getInstance(sess).getProperty(Property.FDT_SUPPORTED);
       if (fdtSupported == null || !fdtSupported.equals("Y")) {
@@ -75,6 +76,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           createYear = yearFormatter.format(analysis.getCreateDate());
           String baseDir = dh.getAnalysisWriteDirectory(serverName);
           targetDir = baseDir + createYear + File.separator + analysis.getNumber();
+          targetNumber = analysis.getNumber();
         }
       } else if (idRequest != null) {
         Request experiment = (Request)sess.get(Request.class, idRequest);
@@ -85,6 +87,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           createYear = yearFormatter.format(experiment.getCreateDate());
           String baseDir = dh.getMicroarrayDirectoryForWriting(serverName);
           targetDir = baseDir + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetNumber = Request.getBaseRequestNumber(experiment.getNumber());
         }
       }
       if (this.isValid()) {
@@ -103,33 +106,19 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
 
         // Directories must be created one level at a time so that permissions will be set properly in Linux      
         String softlinks_dir = PropertyHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
-
-        File dir = new File(softlinks_dir);
-        boolean isDirCreated = dir.mkdir();  
-        if (!isDirCreated) {
-          this.addInvalidField("Error.", "Unable to create " + softlinks_dir + " directory.");    
-        }         
-        
-        // change ownership to HCI_fdt user
-        Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "HCI_fdt:HCI_FDTSecurity", softlinks_dir } );          
-        process.waitFor();
-        process.destroy();        
-        
-        // only HCI_fdt user and HCI_FDTSecurity group have permissions on this directory
-        process = Runtime.getRuntime().exec( new String[] { "chmod", "770", softlinks_dir } );              
-        process.waitFor();
-        process.destroy();        
-        
-        // start daemon
-        //process = Runtime.getRuntime().exec( new String[] { "gnomex_fdt_daemon", "-sourceDir", softlinks_dir, "-targetDir", targetDir } );          
-        //process.waitFor();
-        //process.destroy(); 
+        makeDirectory(softlinks_dir);
+        changeOwnershipAndPermissions(sess, softlinks_dir);
+      
+        // Add on either request or analysis number to softlinks_dir
+        softlinks_dir  += File.separator + targetNumber;
+        makeDirectory(softlinks_dir);
+        changeOwnershipAndPermissions(sess, softlinks_dir);
         
         // Set task for moving files when uploaded
         String taskFileDir = PropertyHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 
         addTask(taskFileDir, softlinks_dir, targetDir);                
 
-        this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + "'/>";
+        this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + File.separator + targetNumber + "'/>";
         
       }
       
@@ -155,6 +144,34 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
 
     return this;	  
 
+  }
+  
+  private boolean makeDirectory(String directoryName) {
+    File dir = new File(directoryName);
+    boolean isDirCreated = dir.mkdir();  
+    if (!isDirCreated) {
+      this.addInvalidField("Error.", "Unable to create " + directoryName + " directory.");    
+    }     
+    return isDirCreated;
+  }
+  
+  public static void changeOwnershipAndPermissions(Session sess, String dir) throws Exception {
+    String fdtUser = PropertyHelper.getInstance(sess).getProperty(Property.FDT_USER);
+    if (fdtUser == null || fdtUser.equals("")) {
+      fdtUser = "fdt";
+    }
+    String fdtGroup = PropertyHelper.getInstance(sess).getProperty(Property.FDT_GROUP);
+    if (fdtGroup == null || fdtGroup.equals("")) {
+      fdtGroup = "fdtsecurity";
+    }
+    Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", fdtUser + ":" + fdtGroup, dir } );          
+    process.waitFor();
+    process.destroy();        
+    
+    // only HCI_fdt user and HCI_FDTSecurity group have permissions on this directory
+    process = Runtime.getRuntime().exec( new String[] { "chmod", "770", dir } );              
+    process.waitFor();
+    process.destroy();      
   }
   
   private static void addTask(String taskFileDir, String sourceDir, String targetDir) { 
