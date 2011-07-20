@@ -185,7 +185,15 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
               } 
               
               // change ownership to HCI_fdt user
-              Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", "HCI_fdt:HCI_FDTSecurity", softlinks_dir } );          
+              String fdtUser = PropertyHelper.getInstance(sess).getProperty(Property.FDT_USER);
+              if (fdtUser == null || fdtUser.equals("")) {
+                fdtUser = "fdt";
+              }
+              String fdtGroup = PropertyHelper.getInstance(sess).getProperty(Property.FDT_GROUP);
+              if (fdtGroup == null || fdtGroup.equals("")) {
+                fdtGroup = "fdt_security";
+              }
+              Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", fdtUser + ":" + fdtGroup, softlinks_dir } );          
               process.waitFor();
               process.destroy(); 
               
