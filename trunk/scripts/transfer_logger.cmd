@@ -1,2 +1,2 @@
 @echo off
-java -classpath .\gnomex_client.jar hci.gnomex.httpclient.TransferLoggerMain %*
+java -classpath \path\to\gnomex_client.jar hci.gnomex.httpclient.TransferLoggerMain %* -server hci-bio-test
