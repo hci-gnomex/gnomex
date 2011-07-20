@@ -2047,7 +2047,7 @@ CREATE TABLE `gnomex`.`TransferLog` (
   CONSTRAINT `FK_TransferLog_Lab` FOREIGN KEY `FK_TransferLog_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
